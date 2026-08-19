@@ -217,23 +217,10 @@ export class InitConfigParserService {
         return {
             // object form is explicit opt-in: an omitted track stays off
             modules: value.modules ?? [],
-            milestones: this.normalizeMilestoneScope(value.milestones),
+            milestones: this.normalizeScope(value.milestones),
             flashcards: value.flashcards === true,
             interview: value.interview === true,
         }
-    }
-
-    /** `true` -> all, `false`/absent -> off, otherwise the given scope. */
-    private normalizeMilestoneScope(
-        value: SeedScopeIndexes | boolean | undefined,
-    ): SeedScopeIndexes {
-        if (value === true) {
-            return "all"
-        }
-        if (value === false || value === undefined) {
-            return []
-        }
-        return value
     }
 
     /** Expand the `sync:` block into `SeedConfig.synchronizers`. Absent block -> phase off. */
@@ -322,14 +309,14 @@ export class InitConfigParserService {
         // per-sink object
         if (this.isPlainObject(value)) {
             return this.gateSinks({
-                cdn: this.normalizeSinkScope(value.cdn),
-                elasticsearch: this.normalizeSinkScope(value.elasticsearch),
-                repo: this.normalizeSinkScope(value.repo),
+                cdn: this.normalizeScope(value.cdn),
+                elasticsearch: this.normalizeScope(value.elasticsearch),
+                repo: this.normalizeScope(value.repo),
             },
             sinkEnabled)
         }
         // shorthand: one scope applied to all three sinks
-        const scope = this.normalizeSinkScope(value)
+        const scope = this.normalizeScope(value)
         return this.gateSinks({
             cdn: scope,
             elasticsearch: scope,
@@ -339,7 +326,7 @@ export class InitConfigParserService {
     }
 
     /** `true` -> all, `false`/absent -> off, otherwise the given scope. */
-    private normalizeSinkScope(value: InitSyncSinkScope | undefined): SeedScopeIndexes {
+    private normalizeScope(value: InitSyncSinkScope | undefined): SeedScopeIndexes {
         if (value === true) {
             return "all"
         }
@@ -404,44 +391,78 @@ export class InitConfigParserService {
         domains: SyncDomains,
         courseDisplayIds: Array<string>,
     ): void {
+        const targets = this.resolveResyncTargets(reindexEntities)
+        if (targets.size === 0) {
+            return
+        }
+        this.applyCourseResyncFlags(targets,
+            courses,
+            courseDisplayIds)
+        this.applyDomainResyncFlags(targets,
+            domains)
+    }
+
+    /** Resolve which resync targets a reindex scope touches, from the index metadata table. */
+    private resolveResyncTargets(
+        reindexEntities: Array<string>,
+    ): Set<ResyncTarget> {
         const targets = new Set<ResyncTarget>()
         for (const meta of Object.values(INDEX_META)) {
             if (reindexEntities.includes(meta.entity)) {
                 targets.add(meta.resync)
             }
         }
-        if (targets.size === 0) {
-            return
+        return targets
+    }
+
+    /** Ensure a sync track exists for every course so the reset's drop is repopulated. */
+    private ensureCourseTrack(
+        courses: Record<string, SeedSyncCourseTrack>,
+        displayId: string,
+    ): SeedSyncCourseTrack {
+        const existing = courses[displayId]
+        if (existing) {
+            return existing
         }
-        // ensure a sync track exists for every course so the reset's drop is repopulated
-        const ensureCourse = (displayId: string): SeedSyncCourseTrack => {
-            const existing = courses[displayId]
-            if (existing) {
-                return existing
-            }
-            const created: SeedSyncCourseTrack = {
-                course: true,
-                modules: offSink(),
-                milestones: offSink(),
-            }
-            courses[displayId] = created
-            return created
+        const created: SeedSyncCourseTrack = {
+            course: true,
+            modules: offSink(),
+            milestones: offSink(),
         }
+        courses[displayId] = created
+        return created
+    }
+
+    /** Flip the per-course modules/milestones resync flags for every course, when targeted. */
+    private applyCourseResyncFlags(
+        targets: Set<ResyncTarget>,
+        courses: Record<string, SeedSyncCourseTrack>,
+        courseDisplayIds: Array<string>,
+    ): void {
         const touchesCourses = targets.has("modules")
             || targets.has("milestones")
             || targets.has("courseRoot")
-        if (touchesCourses) {
-            for (const displayId of courseDisplayIds) {
-                const track = ensureCourse(displayId)
-                track.course = true
-                if (targets.has("modules")) {
-                    track.modules.elasticsearch = "all"
-                }
-                if (targets.has("milestones")) {
-                    track.milestones.elasticsearch = "all"
-                }
+        if (!touchesCourses) {
+            return
+        }
+        for (const displayId of courseDisplayIds) {
+            const track = this.ensureCourseTrack(courses,
+                displayId)
+            track.course = true
+            if (targets.has("modules")) {
+                track.modules.elasticsearch = "all"
+            }
+            if (targets.has("milestones")) {
+                track.milestones.elasticsearch = "all"
             }
         }
+    }
+
+    /** Flip the standalone-domain resync flags, when targeted. */
+    private applyDomainResyncFlags(
+        targets: Set<ResyncTarget>,
+        domains: SyncDomains,
+    ): void {
         if (targets.has("foundations")) {
             domains.foundations.elasticsearch = true
         }

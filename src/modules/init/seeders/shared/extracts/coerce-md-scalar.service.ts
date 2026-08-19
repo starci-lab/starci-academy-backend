@@ -100,7 +100,7 @@ export class CoerceMdScalarService {
         value: unknown,
     ): number | null {
         const n = this.toNullableNumber(value)
-        return n === undefined ? null : n
+        return n ?? null
     }
 
     /**
@@ -182,7 +182,13 @@ export class CoerceMdScalarService {
             return value
         }
         if (typeof value === "number") {
-            return value === 1 ? true : value === 0 ? false : undefined
+            if (value === 1) {
+                return true
+            }
+            if (value === 0) {
+                return false
+            }
+            return undefined
         }
         if (typeof value === "string") {
             const t = value.trim().toLowerCase()

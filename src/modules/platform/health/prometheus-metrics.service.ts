@@ -20,14 +20,20 @@ import type {
     ContainerMetrics,
 } from "./types/probe"
 
+/** One `result[]` entry of a Prometheus instant-query response's vector data. */
+interface PrometheusInstantQuerySample {
+    metric?: Record<string, string>
+    value?: [number, string]
+}
+
+/** The `data` field of {@link PrometheusInstantQueryResponse}. */
+interface PrometheusInstantQueryData {
+    result?: Array<PrometheusInstantQuerySample>
+}
+
 /** Raw shape of a Prometheus instant-query response we actually read. */
 interface PrometheusInstantQueryResponse {
-    data?: {
-        result?: Array<{
-            metric?: Record<string, string>
-            value?: [number, string]
-        }>
-    }
+    data?: PrometheusInstantQueryData
 }
 
 @Injectable()

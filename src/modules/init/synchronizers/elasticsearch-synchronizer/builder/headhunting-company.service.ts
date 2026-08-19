@@ -22,7 +22,6 @@ import {
 import {
     buildCompletionSuggest,
 } from "@modules/integrations/elasticsearch/utils/completion"
-import _ from "lodash"
 
 @Injectable()
 /**
@@ -46,7 +45,7 @@ export class ElasticsearchHeadhunterCompanyBuildService {
         return Object.values(Locale).map(
             (locale) => {
                 // clone so each locale gets an isolated, independently-resolved copy
-                const localizedCompany = _.cloneDeep(
+                const localizedCompany = structuredClone(
                     hydratedCompany,
                 )
                 // collapse the localized translation blob onto the flat searchable fields

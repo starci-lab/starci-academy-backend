@@ -46,8 +46,8 @@ import type {
 import {
     shouldSyncContentEntity,
 } from "../../utils/entity-sync-filter"
-import * as fsp from "fs/promises"
-import * as path from "path"
+import * as fsp from "node:fs/promises"
+import * as path from "node:path"
 
 /** Directory names to skip when walking the repo tree. */
 const SKIP_DIRS = new Set([
@@ -269,7 +269,7 @@ content.githubDir!)
                         const relativePath = "/" + path
                             .relative(baseDir,
                                 fullPath)
-                            .replace(/\\/g,
+                            .replaceAll("\\",
                                 "/")
                         files[relativePath] = {
                             code,

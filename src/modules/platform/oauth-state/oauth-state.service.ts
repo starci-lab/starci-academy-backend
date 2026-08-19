@@ -1,6 +1,6 @@
 import {
     randomUUID,
-} from "crypto"
+} from "node:crypto"
 import {
     Injectable,
 } from "@nestjs/common"

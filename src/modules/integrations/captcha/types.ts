@@ -6,9 +6,6 @@ export interface VerifyCaptchaParams {
     remoteIp?: string | null
 }
 
-/** Result of a captcha verification (true when the token is valid). */
-export type VerifyCaptchaResult = boolean
-
 /** Shape of Cloudflare Turnstile's siteverify JSON response (subset). */
 export interface TurnstileVerifyResponse {
     /** Whether the token passed verification. */

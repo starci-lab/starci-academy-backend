@@ -17,5 +17,3 @@ export interface DecryptParams {
     payload: EncryptedPayload
 }
 
-/** Result of decrypt (plaintext string). */
-export type DecryptResult = string

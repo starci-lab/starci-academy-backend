@@ -1,6 +1,9 @@
 import {
     createHash as createHashCrypto,
-} from "crypto"
+} from "node:crypto"
+import {
+    isStringifiablePrimitive,
+} from "../stringify-primitive"
 /**
  * Stable SHA-256 over mixed args (objects JSON-stringified, joined by `:`).
  * Used for cache / idempotency keys so the same inputs hash the same across
@@ -8,7 +11,7 @@ import {
  */
 export const createHash = (...args: Array<unknown>): string => {
     const raw = args.map((a) =>
-        typeof a === "object" ? JSON.stringify(a) : String(a),
+        isStringifiablePrimitive(a) ? String(a) : JSON.stringify(a),
     ).join(":")
     return createHashCrypto("sha256")
         .update(raw)

@@ -1,6 +1,6 @@
 import {
     createHash,
-} from "crypto"
+} from "node:crypto"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -16,6 +16,9 @@ import type {
 import {
     Document,
 } from "@langchain/core/documents"
+import type {
+    Embeddings,
+} from "@langchain/core/embeddings"
 import {
     RecursiveCharacterTextSplitter,
 } from "langchain/text_splitter"
@@ -108,6 +111,58 @@ export interface BuildContentRagIndexResult {
     indexed: number
 }
 
+/** The four independently-toggleable enumerated corpora {@link build} indexes. */
+interface ContentRagCorpus {
+    contents: Array<ContentEntity>
+    challenges: Array<ChallengeEntity>
+    flashcardDecks: Array<FlashcardDeckEntity>
+    milestoneTasks: Array<MilestoneTaskEntity>
+    foundations: Array<FoundationEntity>
+}
+
+/** Outcome of hashing/diffing a single {@link RagIndexItem} against `existingHashes`. */
+type RagIndexItemScanOutcome =
+    | { kind: "empty" }
+    | { kind: "unchanged" }
+    | { kind: "errored" }
+    | { kind: "changed", docs: Array<Document>, wasPreviouslyIndexed: boolean }
+
+/** Result of scanning every {@link RagIndexItem} for a source-hash change. */
+interface RagIndexScanResult {
+    /** Fresh/changed documents, ready to chunk + embed. */
+    docs: Array<Document>
+    /** Ids of every row whose source changed (new or edited) this run. */
+    dirtyContentIds: Array<string>
+    /** Subset of `dirtyContentIds` that already had points in the collection. */
+    dirtyPreviouslyIndexedIds: Array<string>
+    /** Count of rows whose source hash matched the existing payload (skipped). */
+    unchangedCount: number
+}
+
+/** Params to embed + batch-upsert a chunk list into the persistent collection. */
+interface EmbedAndUpsertChunksParams {
+    chunks: Array<Document>
+    collectionName: string
+    embeddingModel: Embeddings
+}
+
+/** Params to log the "nothing changed" summary line for a no-op build. */
+interface LogContentRagUnchangedParams {
+    corpus: ContentRagCorpus
+    itemCount: number
+    unchangedCount: number
+    removedCount: number
+}
+
+/** Params to log the completed-build summary line. */
+interface LogContentRagCompletedParams {
+    corpus: ContentRagCorpus
+    chunkCount: number
+    dirtyCount: number
+    unchangedCount: number
+    removedCount: number
+}
+
 @Injectable()
 /**
  * Builds the persistent, course-wide RAG index in Qdrant at init.
@@ -183,6 +238,93 @@ export class ContentRagIndexService {
             chunkOverlap: envConfig().services.contentRag.chunkOverlap,
         })
 
+        const corpus = await this.loadContentRagCorpus()
+        // one uniform "item" per enumerated row (any of the 4 kinds), each already
+        // knowing its own id/courseId/collector -- lets the diff+embed pipeline
+        // below stay kind-agnostic (the SAME hash-diff/delete/batch-upsert
+        // mechanics that used to only ever see `ContentEntity` rows).
+        const items = this.buildRagIndexItems(corpus)
+
+        // diff baseline: {contentId -> sourceHash} already sitting in the
+        // collection's payloads (empty on a first/missing-collection run, which
+        // then falls out of the scan below as "everything is new" for free)
+        const existingHashes = await this.loadExistingHashes(collectionName)
+        const currentContentIds = new Set(items.map((item) => item.id))
+
+        // rows that vanished since the last run (deleted/renamed, of ANY kind)
+        // leave their vectors orphaned in Qdrant -- drop them up front
+        const removedContentIds = [...existingHashes.keys()].filter(
+            (contentId) => !currentContentIds.has(contentId),
+        )
+        await this.deleteByContentIdsConcurrently(collectionName,
+            removedContentIds)
+
+        const {
+            docs,
+            dirtyContentIds,
+            dirtyPreviouslyIndexedIds,
+            unchangedCount,
+        } = await this.scanRagIndexItems(items,
+            existingHashes)
+
+        // nothing changed and nothing was removed -> the collection is already
+        // up to date, skip the (expensive) embed+upsert step entirely
+        if (docs.length === 0 && removedContentIds.length === 0) {
+            this.logContentRagUnchanged({
+                corpus,
+                itemCount: items.length,
+                unchangedCount,
+                removedCount: removedContentIds.length,
+            })
+            return {
+                indexed: 0,
+            }
+        }
+
+        // delete the STALE points of PREVIOUSLY-INDEXED changed content BEFORE
+        // re-inserting fresh ones -- otherwise a content whose chunk count shrank
+        // (or split differently after an edit) would leave orphaned old chunks
+        // behind alongside the new ones. Brand-new ids are excluded (see the
+        // comment where `dirtyPreviouslyIndexedIds` is built) -- nothing to delete.
+        await this.deleteByContentIdsConcurrently(collectionName,
+            dirtyPreviouslyIndexedIds)
+
+        const chunks = docs.length > 0 ? await splitter.splitDocuments(docs) : []
+        this.winstonService.log(WinstonLog.RagIndexProgress,
+            {
+                op: "rag.content.embedding",
+                count: chunks.length,
+                meta: {
+                    changed: dirtyContentIds.length,
+                    unchanged: unchangedCount,
+                    removed: removedContentIds.length,
+                },
+            })
+
+        await this.embedAndUpsertChunks({
+            chunks,
+            collectionName,
+            embeddingModel,
+        })
+
+        this.logContentRagCompleted({
+            corpus,
+            chunkCount: chunks.length,
+            dirtyCount: dirtyContentIds.length,
+            unchangedCount,
+            removedCount: removedContentIds.length,
+        })
+        return {
+            indexed: chunks.length,
+        }
+    }
+
+    /**
+     * Enumerate the four independently-toggleable corpora this build indexes
+     * (contents always; challenges/flashcard decks/milestone tasks/foundations
+     * each only when their `contentRag.index*` flag is on).
+     */
+    private async loadContentRagCorpus(): Promise<ContentRagCorpus> {
         // the DB is seeded by the time this runs -> enumerate contents + owning course
         const contents = await this.entityManager.find(
             ContentEntity,
@@ -285,11 +427,28 @@ export class ContentRagIndexService {
                 },
             )
             : []
+        return {
+            contents,
+            challenges,
+            flashcardDecks,
+            milestoneTasks,
+            foundations,
+        }
+    }
 
-        // one uniform "item" per enumerated row (any of the 4 kinds), each already
-        // knowing its own id/courseId/collector -- lets the diff+embed pipeline
-        // below stay kind-agnostic (the SAME hash-diff/delete/batch-upsert
-        // mechanics that used to only ever see `ContentEntity` rows).
+    /**
+     * Flatten the four corpora into one uniform, kind-agnostic list of
+     * {@link RagIndexItem}s for the diff/hash/delete/batch-embed pipeline.
+     */
+    private buildRagIndexItems(
+        {
+            contents,
+            challenges,
+            flashcardDecks,
+            milestoneTasks,
+            foundations,
+        }: ContentRagCorpus,
+    ): Array<RagIndexItem> {
         const items: Array<RagIndexItem> = []
         for (const content of contents) {
             const courseId = content.module?.course?.id ?? ""
@@ -336,21 +495,22 @@ export class ContentRagIndexService {
                 collect: () => Promise.resolve(this.collectFoundationDocs(foundation)),
             })
         }
+        return items
+    }
 
-        // diff baseline: {contentId -> sourceHash} already sitting in the
-        // collection's payloads (empty on a first/missing-collection run, which
-        // then falls out of the loop below as "everything is new" for free)
-        const existingHashes = await this.loadExistingHashes(collectionName)
-        const currentContentIds = new Set(items.map((item) => item.id))
-
-        // rows that vanished since the last run (deleted/renamed, of ANY kind)
-        // leave their vectors orphaned in Qdrant -- drop them up front
-        const removedContentIds = [...existingHashes.keys()].filter(
-            (contentId) => !currentContentIds.has(contentId),
-        )
-        await this.deleteByContentIdsConcurrently(collectionName,
-            removedContentIds)
-
+    /**
+     * Resolve every item's current documents, diffing against `existingHashes`
+     * to find what actually changed. Per-item isolation: a MinIO read / parse
+     * failure for ONE row must NOT abort the whole index build -- log it + skip
+     * to the next one (mirrors the non-fatal swallow policy of the asset-mirror
+     * + init phases).
+     * @param items - Every enumerated row (any of the 4 kinds) to scan.
+     * @param existingHashes - The `{contentId -> sourceHash}` diff baseline.
+     */
+    private async scanRagIndexItems(
+        items: Array<RagIndexItem>,
+        existingHashes: Map<string, string>,
+    ): Promise<RagIndexScanResult> {
         const docs: Array<Document> = []
         const dirtyContentIds: Array<string> = []
         // subset of dirtyContentIds that were ALREADY in the collection (a real
@@ -368,150 +528,175 @@ export class ContentRagIndexService {
             index,
             item,
         ] of items.entries()) {
-            // per-item isolation: a MinIO read / parse failure for ONE row must
-            // NOT abort the whole index build -- log it + skip to the next one
-            // (mirrors the non-fatal swallow policy of the asset-mirror + init phases)
-            try {
-                const itemDocs = await item.collect()
-                if (itemDocs.length === 0) {
-                    continue
-                }
-                // content-hash the RAW (unsplit) source text -- cheaper than
-                // chunking/embedding just to find out nothing changed
-                const sourceHash = this.hashDocs(itemDocs)
-                if (existingHashes.get(item.id) === sourceHash) {
-                    unchangedCount += 1
-                    continue // source unchanged since the last index -- its vectors stay as-is
-                }
-                for (const doc of itemDocs) {
-                    doc.metadata.sourceHash = sourceHash
-                }
+            const outcome = await this.diffRagIndexItem(item,
+                existingHashes)
+            if (outcome.kind === "unchanged") {
+                unchangedCount += 1
+            } else if (outcome.kind === "changed") {
                 dirtyContentIds.push(item.id)
-                if (existingHashes.has(item.id)) {
+                if (outcome.wasPreviouslyIndexed) {
                     dirtyPreviouslyIndexedIds.push(item.id)
                 }
-                docs.push(...itemDocs)
-            } catch (error) {
-                this.winstonService.log(WinstonLog.RagIndexProgress,
-                    {
-                        op: "rag.content.item-skipped",
-                        referenceId: item.id,
-                        error: error instanceof Error ? error.message : String(error),
-                    })
+                docs.push(...outcome.docs)
             }
-            // progress heartbeat -- this loop reads MinIO per item; without it a
-            // large corpus looks indistinguishable from "hung" for many minutes
-            if ((index + 1) % 50 === 0 || index === items.length - 1) {
-                this.winstonService.log(WinstonLog.RagIndexProgress,
-                    {
-                        op: "rag.content.scan-progress",
-                        count: index + 1,
-                        meta: {
-                            total: items.length,
-                            changedSoFar: dirtyContentIds.length,
-                        },
-                    })
-            }
+            this.logRagIndexScanHeartbeat(index,
+                items.length,
+                dirtyContentIds.length)
         }
+        return {
+            docs,
+            dirtyContentIds,
+            dirtyPreviouslyIndexedIds,
+            unchangedCount,
+        }
+    }
 
-        // nothing changed and nothing was removed -> the collection is already
-        // up to date, skip the (expensive) embed+upsert step entirely
-        if (docs.length === 0 && removedContentIds.length === 0) {
+    /**
+     * Decide what a single {@link RagIndexItem} means for this scan: empty
+     * (nothing to index), unchanged (hash matches the baseline), changed (new
+     * or edited -- carries the hashed docs + whether it already had points in
+     * the collection), or errored (per-item isolation: a MinIO read / parse
+     * failure for ONE row must NOT abort the whole index build -- log it and
+     * let the caller skip to the next one).
+     */
+    private async diffRagIndexItem(
+        item: RagIndexItem,
+        existingHashes: Map<string, string>,
+    ): Promise<RagIndexItemScanOutcome> {
+        try {
+            const itemDocs = await item.collect()
+            if (itemDocs.length === 0) {
+                return {
+                    kind: "empty" 
+                }
+            }
+            // content-hash the RAW (unsplit) source text -- cheaper than
+            // chunking/embedding just to find out nothing changed
+            const sourceHash = this.hashDocs(itemDocs)
+            if (existingHashes.get(item.id) === sourceHash) {
+                return {
+                    kind: "unchanged" 
+                }
+            }
+            for (const doc of itemDocs) {
+                doc.metadata.sourceHash = sourceHash
+            }
+            return {
+                kind: "changed",
+                docs: itemDocs,
+                wasPreviouslyIndexed: existingHashes.has(item.id),
+            }
+        } catch (error) {
             this.winstonService.log(WinstonLog.RagIndexProgress,
                 {
-                    op: "rag.content.unchanged",
-                    count: items.length,
-                    meta: {
-                        unchanged: unchangedCount,
-                    },
+                    op: "rag.content.item-skipped",
+                    referenceId: item.id,
+                    error: error instanceof Error ? error.message : String(error),
                 })
-            this.winstonService.log(
-                WinstonLog.ProcessStepExecuted,
-                {
-                    jobId: "init",
-                    step: "content-rag-index",
-                    success: true,
-                    meta: {
-                        contents: contents.length,
-                        challenges: challenges.length,
-                        flashcardDecks: flashcardDecks.length,
-                        milestoneTasks: milestoneTasks.length,
-                        foundations: foundations.length,
-                        chunks: 0,
-                        unchanged: unchangedCount,
-                        removed: removedContentIds.length,
-                    },
-                },
-            )
             return {
-                indexed: 0,
+                kind: "errored" 
             }
         }
+    }
 
-        // delete the STALE points of PREVIOUSLY-INDEXED changed content BEFORE
-        // re-inserting fresh ones -- otherwise a content whose chunk count shrank
-        // (or split differently after an edit) would leave orphaned old chunks
-        // behind alongside the new ones. Brand-new ids are excluded (see the
-        // comment where `dirtyPreviouslyIndexedIds` is built) -- nothing to delete.
-        await this.deleteByContentIdsConcurrently(collectionName,
-            dirtyPreviouslyIndexedIds)
-
-        const chunks = docs.length > 0 ? await splitter.splitDocuments(docs) : []
+    /**
+     * Log a scan progress heartbeat every 50 items and on the final item --
+     * this loop reads MinIO per item; without it a large corpus looks
+     * indistinguishable from "hung" for many minutes.
+     */
+    private logRagIndexScanHeartbeat(
+        index: number,
+        totalItems: number,
+        changedSoFar: number,
+    ): void {
+        const isHeartbeatDue = (index + 1) % 50 === 0 || index === totalItems - 1
+        if (!isHeartbeatDue) {
+            return
+        }
         this.winstonService.log(WinstonLog.RagIndexProgress,
             {
-                op: "rag.content.embedding",
-                count: chunks.length,
+                op: "rag.content.scan-progress",
+                count: index + 1,
                 meta: {
-                    changed: dirtyContentIds.length,
-                    unchanged: unchangedCount,
-                    removed: removedContentIds.length,
+                    total: totalItems,
+                    changedSoFar,
                 },
             })
+    }
 
-        // `QdrantVectorStore.fromDocuments` never wipes an existing collection --
-        // it only creates one when missing (`ensureCollection`) then upserts --
-        // so it is safe to call every run without a preceding collection drop.
-        // Embed + upsert in BATCHES rather than one `fromDocuments` call over the
-        // whole corpus: a single call embeds every chunk (queued through the
-        // embedder's AsyncCaller) before issuing ANY upsert, so a large corpus
-        // (thousands of chunks) can run long enough to outlast every downstream
-        // client/library timeout with zero visibility into progress. Batching
-        // bounds each embed+upsert round AND gives a heartbeat between rounds.
-        if (chunks.length > 0) {
-            const firstBatch = chunks.slice(0,
-                CONTENT_RAG_EMBED_BATCH_SIZE)
-            const vectorStore = await QdrantVectorStore.fromDocuments(
-                firstBatch,
-                embeddingModel,
-                {
-                    client: this.qdrantClient,
-                    collectionName,
+    /**
+     * `QdrantVectorStore.fromDocuments` never wipes an existing collection --
+     * it only creates one when missing (`ensureCollection`) then upserts --
+     * so it is safe to call every run without a preceding collection drop.
+     * Embed + upsert in BATCHES rather than one `fromDocuments` call over the
+     * whole corpus: a single call embeds every chunk (queued through the
+     * embedder's AsyncCaller) before issuing ANY upsert, so a large corpus
+     * (thousands of chunks) can run long enough to outlast every downstream
+     * client/library timeout with zero visibility into progress. Batching
+     * bounds each embed+upsert round AND gives a heartbeat between rounds.
+     * @param params - The chunks to embed, the target collection, and the model.
+     */
+    private async embedAndUpsertChunks(
+        {
+            chunks,
+            collectionName,
+            embeddingModel,
+        }: EmbedAndUpsertChunksParams,
+    ): Promise<void> {
+        if (chunks.length === 0) {
+            return
+        }
+        const firstBatch = chunks.slice(0,
+            CONTENT_RAG_EMBED_BATCH_SIZE)
+        const vectorStore = await QdrantVectorStore.fromDocuments(
+            firstBatch,
+            embeddingModel,
+            {
+                client: this.qdrantClient,
+                collectionName,
+            },
+        )
+        this.winstonService.log(WinstonLog.RagIndexProgress,
+            {
+                op: "rag.content.batch-embedded",
+                count: firstBatch.length,
+                meta: {
+                    totalChunks: chunks.length,
                 },
-            )
+            })
+        for (let start = CONTENT_RAG_EMBED_BATCH_SIZE; start < chunks.length; start += CONTENT_RAG_EMBED_BATCH_SIZE) {
+            const batch = chunks.slice(start,
+                start + CONTENT_RAG_EMBED_BATCH_SIZE)
+            await vectorStore.addDocuments(batch)
             this.winstonService.log(WinstonLog.RagIndexProgress,
                 {
                     op: "rag.content.batch-embedded",
-                    count: firstBatch.length,
+                    count: Math.min(start + batch.length,
+                        chunks.length),
                     meta: {
                         totalChunks: chunks.length,
                     },
                 })
-            for (let start = CONTENT_RAG_EMBED_BATCH_SIZE; start < chunks.length; start += CONTENT_RAG_EMBED_BATCH_SIZE) {
-                const batch = chunks.slice(start,
-                    start + CONTENT_RAG_EMBED_BATCH_SIZE)
-                await vectorStore.addDocuments(batch)
-                this.winstonService.log(WinstonLog.RagIndexProgress,
-                    {
-                        op: "rag.content.batch-embedded",
-                        count: Math.min(start + batch.length,
-                            chunks.length),
-                        meta: {
-                            totalChunks: chunks.length,
-                        },
-                    })
-            }
         }
+    }
 
+    /** Log the "nothing changed" summary line for a no-op build. */
+    private logContentRagUnchanged(
+        {
+            corpus,
+            itemCount,
+            unchangedCount,
+            removedCount,
+        }: LogContentRagUnchangedParams,
+    ): void {
+        this.winstonService.log(WinstonLog.RagIndexProgress,
+            {
+                op: "rag.content.unchanged",
+                count: itemCount,
+                meta: {
+                    unchanged: unchangedCount,
+                },
+            })
         this.winstonService.log(
             WinstonLog.ProcessStepExecuted,
             {
@@ -519,21 +704,48 @@ export class ContentRagIndexService {
                 step: "content-rag-index",
                 success: true,
                 meta: {
-                    contents: contents.length,
-                    challenges: challenges.length,
-                    flashcardDecks: flashcardDecks.length,
-                    milestoneTasks: milestoneTasks.length,
-                    foundations: foundations.length,
-                    chunks: chunks.length,
-                    changed: dirtyContentIds.length,
+                    contents: corpus.contents.length,
+                    challenges: corpus.challenges.length,
+                    flashcardDecks: corpus.flashcardDecks.length,
+                    milestoneTasks: corpus.milestoneTasks.length,
+                    foundations: corpus.foundations.length,
+                    chunks: 0,
                     unchanged: unchangedCount,
-                    removed: removedContentIds.length,
+                    removed: removedCount,
                 },
             },
         )
-        return {
-            indexed: chunks.length,
-        }
+    }
+
+    /** Log the completed-build summary line. */
+    private logContentRagCompleted(
+        {
+            corpus,
+            chunkCount,
+            dirtyCount,
+            unchangedCount,
+            removedCount,
+        }: LogContentRagCompletedParams,
+    ): void {
+        this.winstonService.log(
+            WinstonLog.ProcessStepExecuted,
+            {
+                jobId: "init",
+                step: "content-rag-index",
+                success: true,
+                meta: {
+                    contents: corpus.contents.length,
+                    challenges: corpus.challenges.length,
+                    flashcardDecks: corpus.flashcardDecks.length,
+                    milestoneTasks: corpus.milestoneTasks.length,
+                    foundations: corpus.foundations.length,
+                    chunks: chunkCount,
+                    changed: dirtyCount,
+                    unchanged: unchangedCount,
+                    removed: removedCount,
+                },
+            },
+        )
     }
 
     /**
@@ -918,14 +1130,14 @@ export class ContentRagIndexService {
         content: ContentEntity,
         locale: Locale,
     ): string {
-        if (content.body && content.body.trim()) {
+        if (content.body?.trim()) {
             return content.body
         }
         for (const bucket of content.bodies ?? []) {
             const translated = (bucket.translations ?? [])
                 .find((translation) => translation.locale === locale)?.body
             const text = translated ?? bucket.body
-            if (text && text.trim()) {
+            if (text?.trim()) {
                 return text
             }
         }

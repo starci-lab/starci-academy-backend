@@ -157,7 +157,7 @@ export class InterviewQuestionFieldsService {
         if (lines[0]?.toLowerCase() === ":::chip") {
             lines = lines.slice(1)
         }
-        if (lines[lines.length - 1] === ":::") {
+        if (lines.at(-1) === ":::") {
             lines = lines.slice(0,
                 -1)
         }

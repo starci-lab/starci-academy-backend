@@ -25,9 +25,8 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
-import {
-    MoreThan,
-    type EntityManager,
+import type {
+    EntityManager,
 } from "typeorm"
 import {
     IndexerChallengeBuildService,
@@ -56,6 +55,9 @@ import {
 import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
+import type {
+    IndexerSynchronizerSyncedSuccessfullyMessage,
+} from "@modules/platform/winston/types/messages/indexer-synchronizer"
 import {
     DayjsService,
 } from "@modules/lib/mixin/dayjs.service"
@@ -80,6 +82,18 @@ import {
     buildCourseSyncSuccessLog,
     buildModuleSyncSuccessLog,
 } from "../../utils/sync-success-log"
+import {
+    fetchNextChallenge,
+    fetchNextContent,
+    fetchNextCourse,
+    fetchNextFlashcardDeck,
+    fetchNextMilestone,
+    fetchNextMilestoneTask,
+    fetchNextModule,
+} from "../../utils/entity-cursor-fetch"
+import {
+    runPaginatedEntitySync,
+} from "../../utils/paginated-entity-sync"
 
 @Injectable()
 /**
@@ -142,368 +156,8 @@ export class IndexerSynchronizerService {
             )) {
                 continue
             }
-            let resumeEntityId: string | null = null
-            switch (entityKind) {
-            case CourseEntity.name: {
-                 
-                while (true) {
-                    const course = await this.entityManager.findOne(
-                        CourseEntity,
-                        {
-                            where: {
-                                ...(
-                                    resumeEntityId ? {
-                                        id: MoreThan(resumeEntityId)
-                                    } : {
-                                    }
-                                ),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!course) {
-                        break
-                    }
-                    if (!shouldSyncCourseEntity(scope,
-                        course)) {
-                        resumeEntityId = course.id
-                        continue
-                    }
-                    try {
-                        await this.indexerCourseBuildService.buildIndexerById(
-                            course.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                            buildCourseSyncSuccessLog(course),
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: course.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = course.id
-                }
-                break
-            }
-            case ChallengeEntity.name: {
-                 
-                while (true) {
-                    const challenge = await this.entityManager.findOne(
-                        ChallengeEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                content: {
-                                    module: {
-                                        course: true,
-                                    },
-                                },
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!challenge) {
-                        break
-                    }
-                    if (!shouldSyncChallengeEntity(scope,
-                        challenge)) {
-                        resumeEntityId = challenge.id
-                        continue
-                    }
-                    try {
-                        await this.indexerChallengeBuildService.buildIndexerById(
-                            challenge.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                            buildChallengeSyncSuccessLog(challenge),
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: challenge.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = challenge.id
-                }
-                break
-            }
-            case ContentEntity.name: {
-                 
-                while (true) {
-                    const content = await this.entityManager.findOne(
-                        ContentEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                module: {
-                                    course: true,
-                                },
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!content) {
-                        break
-                    }
-                    if (!shouldSyncContentEntity(scope,
-                        content)) {
-                        resumeEntityId = content.id
-                        continue
-                    }
-                    try {
-                        await this.indexerContentBuildService.buildIndexerById(
-                            content.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                            buildContentSyncSuccessLog(content),
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: content.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = content.id
-                }
-                break
-            }
-            
-            case ModuleEntity.name: {
-                 
-                while (true) {
-                    const module = await this.entityManager.findOne(
-                        ModuleEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                course: true,
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!module) {
-                        break
-                    }
-                    if (!shouldSyncModuleEntity(scope,
-                        module)) {
-                        resumeEntityId = module.id
-                        continue
-                    }
-                    try {
-                        await this.indexerModuleBuildService.buildIndexerById(
-                            module.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                            buildModuleSyncSuccessLog(module),
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: module.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = module.id
-                }
-                break
-            }
-            case MilestoneEntity.name: {
-
-                while (true) {
-                    const milestone = await this.entityManager.findOne(
-                        MilestoneEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                course: true,
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!milestone) {
-                        break
-                    }
-                    if (!shouldSyncMilestoneEntity(scope,
-                        milestone)) {
-                        resumeEntityId = milestone.id
-                        continue
-                    }
-                    try {
-                        await this.indexerMilestoneBuildService.buildIndexerById(
-                            milestone.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: milestone.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: milestone.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = milestone.id
-                }
-                break
-            }
-            case MilestoneTaskEntity.name: {
-
-                while (true) {
-                    const milestoneTask = await this.entityManager.findOne(
-                        MilestoneTaskEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                milestone: {
-                                    course: true,
-                                },
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!milestoneTask) {
-                        break
-                    }
-                    if (!shouldSyncMilestoneTaskEntity(scope,
-                        milestoneTask)) {
-                        resumeEntityId = milestoneTask.id
-                        continue
-                    }
-                    try {
-                        await this.indexerMilestoneTaskBuildService.buildIndexerById(
-                            milestoneTask.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: milestoneTask.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: milestoneTask.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = milestoneTask.id
-                }
-                break
-            }
-            case FlashcardDeckEntity.name: {
-
-                while (true) {
-                    const deck = await this.entityManager.findOne(
-                        FlashcardDeckEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!deck) {
-                        break
-                    }
-                    try {
-                        await this.indexerFlashcardDeckBuildService.buildIndexerById(
-                            deck.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: deck.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: deck.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = deck.id
-                }
-                break
-            }
-            }
+            await this.syncEntityKind(scope,
+                entityKind)
         }
         /**
          * End the Indexer synchronization.
@@ -517,5 +171,194 @@ export class IndexerSynchronizerService {
                 ),
             }
         )
+    }
+
+    /** Dispatch to the paginated sync loop for one entity kind. */
+    private async syncEntityKind(
+        scope: SynchronizerSyncScope,
+        entityKind: SyncIndexerEntityKind,
+    ): Promise<void> {
+        switch (entityKind) {
+        case CourseEntity.name:
+            return this.syncCourseEntities(scope)
+        case ChallengeEntity.name:
+            return this.syncChallengeEntities(scope)
+        case ContentEntity.name:
+            return this.syncContentEntities(scope)
+        case ModuleEntity.name:
+            return this.syncModuleEntities(scope)
+        case MilestoneEntity.name:
+            return this.syncMilestoneEntities(scope)
+        case MilestoneTaskEntity.name:
+            return this.syncMilestoneTaskEntities(scope)
+        case FlashcardDeckEntity.name:
+            return this.syncFlashcardDeckEntities()
+        default:
+            return
+        }
+    }
+
+    /** Log one entity's successful Indexer sync. */
+    private logEntitySynced(
+        payload: IndexerSynchronizerSyncedSuccessfullyMessage,
+    ): void {
+        this.winstonService.log(
+            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
+            payload,
+        )
+    }
+
+    /** Log one entity's failed Indexer sync (never throws -- the page loop continues). */
+    private logEntitySyncFailed(
+        entityKind: SyncIndexerEntityKind,
+        entityId: string,
+        error: unknown,
+    ): void {
+        this.winstonService.log(
+            WinstonLog.IndexerSynchronizerEntitySyncFailed,
+            {
+                entityKind,
+                entityId,
+                error: error instanceof Error ? error.message : String(error),
+            }
+        )
+    }
+
+    private async syncCourseEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextCourse(this.entityManager),
+            shouldSync: (course) => shouldSyncCourseEntity(scope,
+                course),
+            build: (course) => this.indexerCourseBuildService.buildIndexerById(
+                course.id,
+            ),
+            onSynced: (course) => this.logEntitySynced(
+                buildCourseSyncSuccessLog(course)),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                CourseEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncChallengeEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextChallenge(this.entityManager),
+            shouldSync: (challenge) => shouldSyncChallengeEntity(scope,
+                challenge),
+            build: (challenge) => this.indexerChallengeBuildService.buildIndexerById(
+                challenge.id,
+            ),
+            onSynced: (challenge) => this.logEntitySynced(
+                buildChallengeSyncSuccessLog(challenge)),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                ChallengeEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncContentEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextContent(this.entityManager),
+            shouldSync: (content) => shouldSyncContentEntity(scope,
+                content),
+            build: (content) => this.indexerContentBuildService.buildIndexerById(
+                content.id,
+            ),
+            onSynced: (content) => this.logEntitySynced(
+                buildContentSyncSuccessLog(content)),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                ContentEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncModuleEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextModule(this.entityManager),
+            shouldSync: (module) => shouldSyncModuleEntity(scope,
+                module),
+            build: (module) => this.indexerModuleBuildService.buildIndexerById(
+                module.id,
+            ),
+            onSynced: (module) => this.logEntitySynced(
+                buildModuleSyncSuccessLog(module)),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                ModuleEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncMilestoneEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextMilestone(this.entityManager),
+            shouldSync: (milestone) => shouldSyncMilestoneEntity(scope,
+                milestone),
+            build: (milestone) => this.indexerMilestoneBuildService.buildIndexerById(
+                milestone.id,
+            ),
+            onSynced: (milestone) => this.logEntitySynced(
+                {
+                    entityKind: MilestoneEntity.name,
+                    entityId: milestone.id,
+                }),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                MilestoneEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncMilestoneTaskEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextMilestoneTask(this.entityManager),
+            shouldSync: (milestoneTask) => shouldSyncMilestoneTaskEntity(scope,
+                milestoneTask),
+            build: (milestoneTask) => this.indexerMilestoneTaskBuildService.buildIndexerById(
+                milestoneTask.id,
+            ),
+            onSynced: (milestoneTask) => this.logEntitySynced(
+                {
+                    entityKind: MilestoneTaskEntity.name,
+                    entityId: milestoneTask.id,
+                }),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                MilestoneTaskEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncFlashcardDeckEntities(): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextFlashcardDeck(this.entityManager),
+            build: (deck) => this.indexerFlashcardDeckBuildService.buildIndexerById(
+                deck.id,
+            ),
+            onSynced: (deck) => this.logEntitySynced(
+                {
+                    entityKind: FlashcardDeckEntity.name,
+                    entityId: deck.id,
+                }),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                FlashcardDeckEntity.name,
+                entityId,
+                error),
+        })
     }
 }

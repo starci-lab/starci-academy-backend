@@ -168,7 +168,7 @@ export class EmbeddingModelService {
         category: EmbeddingCategory
         = AiModelCategory.EmbeddingCloud,
     ): Promise<Embeddings> {
-        return Promise.resolve(new BalancerEmbeddings(
+        return new BalancerEmbeddings(
             (documents) => this.embedDocumentsViaBalancer(
                 documents,
                 category,
@@ -177,7 +177,7 @@ export class EmbeddingModelService {
                 document,
                 category,
             ),
-        ))
+        )
     }
 
     /** Run one document batch inside the fallback action. */

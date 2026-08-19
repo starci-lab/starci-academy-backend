@@ -887,8 +887,7 @@ export class AiEntitlementService {
                 )
                 this.applyWindowResets(subscription)
                 const overrides: AiCeilOverrides = {
-                    ...(subscription.ceilOverrides ?? {
-                    }),
+                    ...subscription.ceilOverrides,
                 }
                 const key = surface ?? "default"
                 if (category) {

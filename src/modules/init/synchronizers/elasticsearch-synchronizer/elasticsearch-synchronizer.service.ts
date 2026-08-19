@@ -43,9 +43,8 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
-import {
-    MoreThan,
-    type EntityManager,
+import type {
+    EntityManager,
 } from "typeorm"
 import {
     ElasticsearchChallengeBuildService,
@@ -116,6 +115,26 @@ import {
     buildCourseSyncSuccessLog,
     buildModuleSyncSuccessLog,
 } from "../../utils/sync-success-log"
+import {
+    fetchNextChallenge,
+    fetchNextCodingProblem,
+    fetchNextConsultant,
+    fetchNextContent,
+    fetchNextCourse,
+    fetchNextFlashcardDeck,
+    fetchNextFoundation,
+    fetchNextFoundationCategory,
+    fetchNextHeadhuntingCompany,
+    fetchNextMilestone,
+    fetchNextMilestoneTask,
+    fetchNextModule,
+} from "../../utils/entity-cursor-fetch"
+import {
+    runPaginatedEntitySync,
+} from "../../utils/paginated-entity-sync"
+import type {
+    EsSynchronizerSyncedSuccessfullyMessage,
+} from "@modules/platform/winston/types/messages/elasticsearch-synchronizer"
 
 @Injectable()
 /**
@@ -201,594 +220,9 @@ export class ElasticsearchSynchronizerService {
             )) {
                 continue
             }
-            for (const locale of Object.values(Locale)) {
-                // SCOPED sync: do NOT delete the whole index (that would wipe out-of-scope records,
-                // e.g. other courses/modules not selected in the env filter). Instead just ensure the
-                // index exists with the explicit mapping patch (additive on an existing index). The
-                // re-index loop below then OVERWRITES only the in-scope documents by id, leaving every
-                // out-of-scope document untouched.
-                await this.elasticsearchService.ensureIndexForEntity(
-                    {
-                        entity: entityKind,
-                        locale,
-                    },
-                )
-            }
-            let resumeEntityId: string | null = null
-            switch (entityKind) {
-            case CourseEntity.name: {
-                while (true) {
-                    const course = await this.entityManager.findOne(
-                        CourseEntity,
-                        {
-                            where: {
-                                ...(
-                                    resumeEntityId ? {
-                                        id: MoreThan(resumeEntityId)
-                                    } : {
-                                    }
-                                ),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!course) {
-                        break
-                    }
-                    if (!shouldSyncCourseEntity(scope,
-                        course)) {
-                        resumeEntityId = course.id
-                        continue
-                    }
-                    try {
-                        await this.esCourseBuildService.buildIndexById(
-                            course.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            buildCourseSyncSuccessLog(course),
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: course.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = course.id
-                }
-                break
-            }
-            case ChallengeEntity.name: {
-                while (true) {
-                    const challenge = await this.entityManager.findOne(
-                        ChallengeEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                content: {
-                                    module: {
-                                        course: true,
-                                    },
-                                },
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!challenge) {
-                        break
-                    }
-                    if (!shouldSyncChallengeEntity(scope,
-                        challenge)) {
-                        resumeEntityId = challenge.id
-                        continue
-                    }
-                    try {
-                        await this.esChallengeBuildService.buildIndexById(
-                            challenge.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            buildChallengeSyncSuccessLog(challenge),
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: challenge.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = challenge.id
-                }
-                break
-            }
-            case ContentEntity.name: {
-                while (true) {
-                    const content = await this.entityManager.findOne(
-                        ContentEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                module: {
-                                    course: true,
-                                },
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!content) {
-                        break
-                    }
-                    if (!shouldSyncContentEntity(scope,
-                        content)) {
-                        resumeEntityId = content.id
-                        continue
-                    }
-                    try {
-                        await this.esContentBuildService.buildIndexById(
-                            content.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            buildContentSyncSuccessLog(content),
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: content.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = content.id
-                }
-                break
-            }
-            
-            case ModuleEntity.name: {
-                while (true) {
-                    const module = await this.entityManager.findOne(
-                        ModuleEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                course: true,
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!module) {
-                        break
-                    }
-                    if (!shouldSyncModuleEntity(scope,
-                        module)) {
-                        resumeEntityId = module.id
-                        continue
-                    }
-                    try {
-                        await this.esModuleBuildService.buildIndexById(
-                            module.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            buildModuleSyncSuccessLog(module),
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: module.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = module.id
-                }
-                break
-            }
-            case MilestoneEntity.name: {
-                while (true) {
-                    const milestone = await this.entityManager.findOne(
-                        MilestoneEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                course: true,
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!milestone) {
-                        break
-                    }
-                    if (!shouldSyncMilestoneEntity(scope,
-                        milestone)) {
-                        resumeEntityId = milestone.id
-                        continue
-                    }
-                    try {
-                        await this.esMilestoneBuildService.buildIndexById(
-                            milestone.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: milestone.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: milestone.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = milestone.id
-                }
-                break
-            }
-            case MilestoneTaskEntity.name: {
-                while (true) {
-                    const milestoneTask = await this.entityManager.findOne(
-                        MilestoneTaskEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                milestone: {
-                                    course: true,
-                                },
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!milestoneTask) {
-                        break
-                    }
-                    if (!shouldSyncMilestoneTaskEntity(scope,
-                        milestoneTask)) {
-                        resumeEntityId = milestoneTask.id
-                        continue
-                    }
-                    try {
-                        await this.esMilestoneTaskBuildService.buildIndexById(
-                            milestoneTask.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: milestoneTask.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: milestoneTask.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = milestoneTask.id
-                }
-                break
-            }
-            case FoundationCategoryEntity.name: {
-                while (true) {
-                    const category = await this.entityManager.findOne(
-                        FoundationCategoryEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!category) {
-                        break
-                    }
-                    try {
-                        await this.esFoundationCategoryBuildService.buildIndexById(
-                            category.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: category.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: category.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = category.id
-                }
-                break
-            }
-            case FoundationEntity.name: {
-                while (true) {
-                    const foundation = await this.entityManager.findOne(
-                        FoundationEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!foundation) {
-                        break
-                    }
-                    try {
-                        await this.esFoundationBuildService.buildIndexById(
-                            foundation.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: foundation.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: foundation.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = foundation.id
-                }
-                break
-            }
-            case HeadhuntingCompanyEntity.name: {
-                while (true) {
-                    const company = await this.entityManager.findOne(
-                        HeadhuntingCompanyEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId),
-                                } : {
-                                }),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!company) {
-                        break
-                    }
-                    try {
-                        await this.esHeadhunterCompanyBuildService.buildIndexById(
-                            company.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: company.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: company.id,
-                                error: error.message,
-                            },
-                        )
-                    }
-                    resumeEntityId = company.id
-                }
-                break
-            }
-            case ConsultantEntity.name: {
-                while (true) {
-                    const consultant = await this.entityManager.findOne(
-                        ConsultantEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId),
-                                } : {
-                                }),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!consultant) {
-                        break
-                    }
-                    try {
-                        await this.esHeadhunterBuildService.buildIndexById(
-                            consultant.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: consultant.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: consultant.id,
-                                error: error.message,
-                            },
-                        )
-                    }
-                    resumeEntityId = consultant.id
-                }
-                break
-            }
-            case FlashcardDeckEntity.name: {
-                while (true) {
-                    const deck = await this.entityManager.findOne(
-                        FlashcardDeckEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId),
-                                } : {
-                                }),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!deck) {
-                        break
-                    }
-                    try {
-                        await this.esFlashcardDeckBuildService.buildIndexById(
-                            deck.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: deck.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: deck.id,
-                                error: error.message,
-                            },
-                        )
-                    }
-                    resumeEntityId = deck.id
-                }
-                break
-            }
-            case CodingProblemEntity.name: {
-                while (true) {
-                    const problem = await this.entityManager.findOne(
-                        CodingProblemEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId),
-                                } : {
-                                }),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!problem) {
-                        break
-                    }
-                    try {
-                        await this.esCodingProblemBuildService.buildIndexById(
-                            problem.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: problem.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: problem.id,
-                                error: error.message,
-                            },
-                        )
-                    }
-                    resumeEntityId = problem.id
-                }
-                break
-            }
-            }
+            await this.ensureIndexForAllLocales(entityKind)
+            await this.syncEntityKind(scope,
+                entityKind)
         }
 
         /**
@@ -803,5 +237,314 @@ export class ElasticsearchSynchronizerService {
                 ),
             }
         )
+    }
+
+    /**
+     * SCOPED sync: do NOT delete the whole index (that would wipe out-of-scope records,
+     * e.g. other courses/modules not selected in the env filter). Instead just ensure the
+     * index exists with the explicit mapping patch (additive on an existing index). The
+     * re-index loop that follows then OVERWRITES only the in-scope documents by id, leaving
+     * every out-of-scope document untouched.
+     */
+    private async ensureIndexForAllLocales(
+        entityKind: SyncElasticsearchEntityKind,
+    ): Promise<void> {
+        for (const locale of Object.values(Locale)) {
+            await this.elasticsearchService.ensureIndexForEntity(
+                {
+                    entity: entityKind,
+                    locale,
+                },
+            )
+        }
+    }
+
+    /** Dispatch to the paginated sync loop for one entity kind. */
+    private async syncEntityKind(
+        scope: SynchronizerSyncScope,
+        entityKind: SyncElasticsearchEntityKind,
+    ): Promise<void> {
+        switch (entityKind) {
+        case CourseEntity.name:
+            return this.syncCourseEntities(scope)
+        case ChallengeEntity.name:
+            return this.syncChallengeEntities(scope)
+        case ContentEntity.name:
+            return this.syncContentEntities(scope)
+        case ModuleEntity.name:
+            return this.syncModuleEntities(scope)
+        case MilestoneEntity.name:
+            return this.syncMilestoneEntities(scope)
+        case MilestoneTaskEntity.name:
+            return this.syncMilestoneTaskEntities(scope)
+        case FoundationCategoryEntity.name:
+            return this.syncFoundationCategoryEntities()
+        case FoundationEntity.name:
+            return this.syncFoundationEntities()
+        case HeadhuntingCompanyEntity.name:
+            return this.syncHeadhuntingCompanyEntities()
+        case ConsultantEntity.name:
+            return this.syncConsultantEntities()
+        case FlashcardDeckEntity.name:
+            return this.syncFlashcardDeckEntities()
+        case CodingProblemEntity.name:
+            return this.syncCodingProblemEntities()
+        default:
+            return
+        }
+    }
+
+    /** Log one entity's successful ES sync. */
+    private logEntitySynced(
+        payload: EsSynchronizerSyncedSuccessfullyMessage,
+    ): void {
+        this.winstonService.log(
+            WinstonLog.EsSynchronizerSyncedSuccessfully,
+            payload,
+        )
+    }
+
+    /** Log one entity's failed ES sync (never throws -- the page loop continues). */
+    private logEntitySyncFailed(
+        entityKind: SyncElasticsearchEntityKind,
+        entityId: string,
+        error,
+    ): void {
+        this.winstonService.log(
+            WinstonLog.EsSynchronizerEntitySyncFailed,
+            {
+                entityKind,
+                entityId,
+                error: error.message,
+            }
+        )
+    }
+
+    private async syncCourseEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextCourse(this.entityManager),
+            shouldSync: (course) => shouldSyncCourseEntity(scope,
+                course),
+            build: (course) => this.esCourseBuildService.buildIndexById(
+                course.id,
+            ),
+            onSynced: (course) => this.logEntitySynced(
+                buildCourseSyncSuccessLog(course)),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                CourseEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncChallengeEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextChallenge(this.entityManager),
+            shouldSync: (challenge) => shouldSyncChallengeEntity(scope,
+                challenge),
+            build: (challenge) => this.esChallengeBuildService.buildIndexById(
+                challenge.id,
+            ),
+            onSynced: (challenge) => this.logEntitySynced(
+                buildChallengeSyncSuccessLog(challenge)),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                ChallengeEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncContentEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextContent(this.entityManager),
+            shouldSync: (content) => shouldSyncContentEntity(scope,
+                content),
+            build: (content) => this.esContentBuildService.buildIndexById(
+                content.id,
+            ),
+            onSynced: (content) => this.logEntitySynced(
+                buildContentSyncSuccessLog(content)),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                ContentEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncModuleEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextModule(this.entityManager),
+            shouldSync: (module) => shouldSyncModuleEntity(scope,
+                module),
+            build: (module) => this.esModuleBuildService.buildIndexById(
+                module.id,
+            ),
+            onSynced: (module) => this.logEntitySynced(
+                buildModuleSyncSuccessLog(module)),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                ModuleEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncMilestoneEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextMilestone(this.entityManager),
+            shouldSync: (milestone) => shouldSyncMilestoneEntity(scope,
+                milestone),
+            build: (milestone) => this.esMilestoneBuildService.buildIndexById(
+                milestone.id,
+            ),
+            onSynced: (milestone) => this.logEntitySynced(
+                {
+                    entityKind: MilestoneEntity.name,
+                    entityId: milestone.id,
+                }),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                MilestoneEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncMilestoneTaskEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextMilestoneTask(this.entityManager),
+            shouldSync: (milestoneTask) => shouldSyncMilestoneTaskEntity(scope,
+                milestoneTask),
+            build: (milestoneTask) => this.esMilestoneTaskBuildService.buildIndexById(
+                milestoneTask.id,
+            ),
+            onSynced: (milestoneTask) => this.logEntitySynced(
+                {
+                    entityKind: MilestoneTaskEntity.name,
+                    entityId: milestoneTask.id,
+                }),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                MilestoneTaskEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncFoundationCategoryEntities(): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextFoundationCategory(this.entityManager),
+            build: (category) => this.esFoundationCategoryBuildService.buildIndexById(
+                category.id,
+            ),
+            onSynced: (category) => this.logEntitySynced(
+                {
+                    entityKind: FoundationCategoryEntity.name,
+                    entityId: category.id,
+                }),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                FoundationCategoryEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncFoundationEntities(): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextFoundation(this.entityManager),
+            build: (foundation) => this.esFoundationBuildService.buildIndexById(
+                foundation.id,
+            ),
+            onSynced: (foundation) => this.logEntitySynced(
+                {
+                    entityKind: FoundationEntity.name,
+                    entityId: foundation.id,
+                }),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                FoundationEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncHeadhuntingCompanyEntities(): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextHeadhuntingCompany(this.entityManager),
+            build: (company) => this.esHeadhunterCompanyBuildService.buildIndexById(
+                company.id,
+            ),
+            onSynced: (company) => this.logEntitySynced(
+                {
+                    entityKind: HeadhuntingCompanyEntity.name,
+                    entityId: company.id,
+                }),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                HeadhuntingCompanyEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncConsultantEntities(): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextConsultant(this.entityManager),
+            build: (consultant) => this.esHeadhunterBuildService.buildIndexById(
+                consultant.id,
+            ),
+            onSynced: (consultant) => this.logEntitySynced(
+                {
+                    entityKind: ConsultantEntity.name,
+                    entityId: consultant.id,
+                }),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                ConsultantEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncFlashcardDeckEntities(): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextFlashcardDeck(this.entityManager),
+            build: (deck) => this.esFlashcardDeckBuildService.buildIndexById(
+                deck.id,
+            ),
+            onSynced: (deck) => this.logEntitySynced(
+                {
+                    entityKind: FlashcardDeckEntity.name,
+                    entityId: deck.id,
+                }),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                FlashcardDeckEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncCodingProblemEntities(): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextCodingProblem(this.entityManager),
+            build: (problem) => this.esCodingProblemBuildService.buildIndexById(
+                problem.id,
+            ),
+            onSynced: (problem) => this.logEntitySynced(
+                {
+                    entityKind: CodingProblemEntity.name,
+                    entityId: problem.id,
+                }),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                CodingProblemEntity.name,
+                entityId,
+                error),
+        })
     }
 }

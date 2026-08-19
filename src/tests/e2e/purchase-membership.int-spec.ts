@@ -76,6 +76,16 @@ import type {
 import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
+import type {
+    NowPaymentsCheckoutClientMock,
+    PayosCheckoutClientMock,
+    PaypalCheckoutClientMock,
+    SepayCheckoutClientMock,
+    StripeCheckoutClientMock,
+} from "@tests/helpers/types/checkout-client-mocks"
+import type {
+    EnqueueJobMock,
+} from "@tests/helpers/types/job-enqueue-mocks"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -107,33 +117,12 @@ describe("Purchase membership (integration)",
         let app: INestApplication
         let entityManager: EntityManager
         let handler: PurchaseMembershipHandler
-        let payosClient: {
-            paymentRequests: {
-                create: jest.Mock
-            }
-        }
-        let sepayClient: {
-            checkout: {
-                initCheckoutUrl: jest.Mock
-                initOneTimePaymentFields: jest.Mock
-            }
-        }
-        let stripeClient: {
-            checkout: {
-                sessions: {
-                    create: jest.Mock
-                }
-            }
-        }
-        let paypalClient: {
-            createOrder: jest.Mock
-        }
-        let nowPaymentsClient: {
-            createInvoice: jest.Mock
-        }
-        let enqueueReconcileTransactionJob: {
-            enqueue: jest.Mock
-        }
+        let payosClient: PayosCheckoutClientMock
+        let sepayClient: SepayCheckoutClientMock
+        let stripeClient: StripeCheckoutClientMock
+        let paypalClient: PaypalCheckoutClientMock
+        let nowPaymentsClient: NowPaymentsCheckoutClientMock
+        let enqueueReconcileTransactionJob: EnqueueJobMock
         let membershipEnabled: boolean
 
         /** Rebuildable mounted-config stub -- tests flip `membershipEnabled` per case. */

@@ -1,12 +1,9 @@
 import {
     RawInterviewQuestionCommonFields,
-    RawInterviewQuestionRef,
 } from "../shared/interview-question-fields.service"
 
 /** Re-exported for callers that only need the shared ref shape. */
-export type {
-    RawInterviewQuestionRef,
-}
+export type { RawInterviewQuestionRef } from "../shared/interview-question-fields.service"
 
 /**
  * A behavioral bank META document (`mock-interview-eq/{bank}/vi.md`) -- questions

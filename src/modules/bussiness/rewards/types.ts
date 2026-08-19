@@ -1,9 +1,8 @@
 import type {
     RewardRedemptionEntity,
 } from "@modules/databases/postgresql/primary/entities/reward-redemption.entity"
-import type {
-    RewardRedemptionStatus,
-} from "@modules/databases/postgresql/primary/enums/reward-redemption-status"
+
+export type { RewardRedemptionStatus } from "@modules/databases/postgresql/primary/enums/reward-redemption-status"
 
 /**
  * Whether a reward is delivered instantly (digital, status `granted`), must be
@@ -147,5 +146,3 @@ export interface RewardShippingInput {
     address?: string
 }
 
-/** Re-export the persisted status type for convenience in the service. */
-export type { RewardRedemptionStatus }

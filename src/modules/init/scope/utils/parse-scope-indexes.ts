@@ -12,11 +12,11 @@ import type {
  * @returns the order indexes it expands to (empty when malformed)
  */
 const expandRangePart = (part: string): Array<number> => {
-    const rangeMatch = part.match(/^(\d+)\s*-\s*(\d+)$/)
+    const rangeMatch = /^(\d+)\s*-\s*(\d+)$/.exec(part)
     if (rangeMatch) {
-        const from = parseInt(rangeMatch[1],
+        const from = Number.parseInt(rangeMatch[1],
             10)
-        const to = parseInt(rangeMatch[2],
+        const to = Number.parseInt(rangeMatch[2],
             10)
         if (from > to) {
             return []
@@ -27,7 +27,7 @@ const expandRangePart = (part: string): Array<number> => {
         }
         return indexes
     }
-    const single = parseInt(part,
+    const single = Number.parseInt(part,
         10)
     return Number.isInteger(single) && String(single) === part ? [single] : []
 }

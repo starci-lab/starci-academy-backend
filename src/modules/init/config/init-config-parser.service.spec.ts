@@ -217,7 +217,7 @@ describe("InitConfigParserService",
                         [])
 
                         // 12 indices in configMap
-                        expect(config.synchronizers.reindex.length).toBe(12)
+                        expect(config.synchronizers.reindex).toHaveLength(12)
                         expect(config.synchronizers.reindex).toContain(MilestoneEntity.name)
                     })
 
@@ -282,7 +282,7 @@ describe("InitConfigParserService",
                         [])
 
                         expect(config.synchronizers.reindex).not.toContain("nope")
-                        expect(config.synchronizers.reindex.length).toBe(1)
+                        expect(config.synchronizers.reindex).toHaveLength(1)
                     })
             })
     })

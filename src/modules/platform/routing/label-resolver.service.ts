@@ -78,8 +78,12 @@ export class LabelResolverService {
      * Built once per process from each entity's `.name` so the keys stay in sync
      * with the actual class names used by {@link toGlobalId}.
      *
-     * TODO: localized labels -- read the per-locale translation column/relation
-     * instead of the base column once translation tables are wired in.
+     * TODO: localized labels -- `fillFromDatabase` below still reads the base
+     * `labelColumn` regardless of `locale`; per-entity `*_translations` tables
+     * (e.g. `CourseTranslationEntity`) already exist for every kind here except
+     * `UserEntity` -- wire a `(entityId, locale, field="title"/"username")`
+     * lookup against them (falling back to the base column when no row exists)
+     * instead of always reading the base column.
      */
     private readonly kinds: Record<string, LabelKind> = {
         // courses, contents, challenges, milestone tasks and coding problems all label by `title`

@@ -45,15 +45,15 @@ export class ServiceInstallerService {
     /** Escape the five XML entities so paths/args stay well-formed. */
     private escapeXml(value: string): string {
         return value
-            .replace(/&/g,
+            .replaceAll("&",
                 "&amp;")
-            .replace(/</g,
+            .replaceAll("<",
                 "&lt;")
-            .replace(/>/g,
+            .replaceAll(">",
                 "&gt;")
-            .replace(/"/g,
+            .replaceAll("\"",
                 "&quot;")
-            .replace(/'/g,
+            .replaceAll("'",
                 "&apos;")
     }
 

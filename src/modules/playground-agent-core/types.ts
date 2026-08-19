@@ -42,6 +42,16 @@ export interface PairAck {
     error?: string
 }
 
+/** Params for the `command:run` event -- a browser-issued command to execute locally. */
+export interface CommandRunParams {
+    command?: string
+}
+
+/** Params for the `agent:ping` event -- round-trip timestamp for latency measurement. */
+export interface PingParams {
+    t?: number
+}
+
 /** run (default) | install-service | uninstall-service. */
 export type AgentMode = "run" | "install" | "uninstall"
 

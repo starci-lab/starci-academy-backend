@@ -19,9 +19,8 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
-import {
-    MoreThan,
-    type EntityManager,
+import type {
+    EntityManager,
 } from "typeorm"
 import {
     CdnChallengeBuildService,
@@ -50,9 +49,6 @@ import {
 import {
     SyncCdnEntityKind,
 } from "@modules/integrations/bullmq/types/payloads/sync-cdn"
-import {
-    S3BucketService,
-} from "@modules/integrations/s3/s3-bucket.service"
 import type {
     SynchronizerSyncScope,
 } from "../../types/context"
@@ -70,6 +66,19 @@ import {
     buildMilestoneTaskSyncSuccessLog,
     buildModuleSyncSuccessLog,
 } from "../../utils/sync-success-log"
+import {
+    fetchNextChallenge,
+    fetchNextContent,
+    fetchNextCourse,
+    fetchNextMilestoneTask,
+    fetchNextModule,
+} from "../../utils/entity-cursor-fetch"
+import {
+    runPaginatedEntitySync,
+} from "../../utils/paginated-entity-sync"
+import type {
+    CdnSynchronizerSyncedSuccessfullyMessage,
+} from "@modules/platform/winston/types/messages/cdn-synchronizer"
 
 @Injectable()
 /**
@@ -87,7 +96,6 @@ export class CdnSynchronizerService {
         private readonly cdnContentBuildService: CdnContentBuildService,
         private readonly cdnChallengeBuildService: CdnChallengeBuildService,
         private readonly cdnMilestoneTaskBuildService: CdnMilestoneTaskBuildService,
-        private readonly s3BucketService: S3BucketService,
     ) { }
 
     /** Entity kinds supported by the CDN synchronizer. */
@@ -113,308 +121,8 @@ export class CdnSynchronizerService {
          * Synchronize the entities.
          */
         for (const entityKind of this.entityKinds) {
-            let resumeEntityId: string | null = null
-            switch (entityKind) {
-            case CourseEntity.name: {
-                while (true) {
-                    const course = await this.entityManager.findOne(
-                        CourseEntity,
-                        {
-                            where: {
-                                ...(
-                                    resumeEntityId ? {
-                                        id: MoreThan(resumeEntityId)
-                                    } : {
-                                    }
-                                ),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!course) {
-                        break
-                    }
-                    if (!shouldSyncCourseEntity(scope,
-                        course)) {
-                        resumeEntityId = course.id
-                        continue
-                    }
-                    try {
-                        await this.cdnCourseBuildService.materializeAndUpload(
-                            course.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            buildCourseSyncSuccessLog(course),
-                        )
-                    } catch (error) {
-                        const errorMessage = error instanceof Error
-                            ? error.message
-                            : String(error)
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: course.id,
-                                errorName: error instanceof Error
-                                    ? error.name
-                                    : undefined,
-                                errorMessage,
-                                errorStack: error instanceof Error
-                                    ? error.stack
-                                    : undefined,
-                            }
-                        )
-                    }
-                    resumeEntityId = course.id
-                }
-                break
-            }
-            case ChallengeEntity.name: {
-                while (true) {
-                    const challenge = await this.entityManager.findOne(
-                        ChallengeEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                content: {
-                                    module: {
-                                        course: true,
-                                    },
-                                },
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!challenge) {
-                        break
-                    }
-                    if (!shouldSyncChallengeEntity(scope,
-                        challenge)) {
-                        resumeEntityId = challenge.id
-                        continue
-                    }
-                    try {
-                        await this.cdnChallengeBuildService.materializeAndUpload(
-                            challenge.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            buildChallengeSyncSuccessLog(challenge),
-                        )
-                    } catch (error) {
-                        const errorMessage = error instanceof Error
-                            ? error.message
-                            : String(error)
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: challenge.id,
-                                errorName: error instanceof Error
-                                    ? error.name
-                                    : undefined,
-                                errorMessage,
-                                errorStack: error instanceof Error
-                                    ? error.stack
-                                    : undefined,
-                            }
-                        )
-                    }
-                    resumeEntityId = challenge.id
-                }
-                break
-            }
-            case ContentEntity.name: {
-                 
-                while (true) {
-                    const content = await this.entityManager.findOne(
-                        ContentEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                module: {
-                                    course: true,
-                                },
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!content) {
-                        break
-                    }
-                    if (!shouldSyncContentEntity(scope,
-                        content)) {
-                        resumeEntityId = content.id
-                        continue
-                    }
-                    try {
-                        await this.cdnContentBuildService.materializeAndUpload(
-                            content.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            buildContentSyncSuccessLog(content),
-                        )
-                    } catch (error) {
-                        const errorMessage = error instanceof Error
-                            ? error.message
-                            : String(error)
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: content.id,
-                                errorName: error instanceof Error
-                                    ? error.name
-                                    : undefined,
-                                errorMessage,
-                                errorStack: error instanceof Error
-                                    ? error.stack
-                                    : undefined,
-                            }
-                        )
-                    }
-                    resumeEntityId = content.id
-                }
-                break
-            }
-            
-            case ModuleEntity.name: {
-                while (true) {
-                    const module = await this.entityManager.findOne(
-                        ModuleEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                course: true,
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!module) {
-                        break
-                    }
-                    if (!shouldSyncModuleEntity(scope,
-                        module)) {
-                        resumeEntityId = module.id
-                        continue
-                    }
-                    try {
-                        await this.cdnModuleBuildService.materializeAndUpload(
-                            module.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            buildModuleSyncSuccessLog(module),
-                        )
-                    } catch (error) {
-                        const errorMessage = error instanceof Error
-                            ? error.message
-                            : String(error)
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: module.id,
-                                errorName: error instanceof Error
-                                    ? error.name
-                                    : undefined,
-                                errorMessage,
-                                errorStack: error instanceof Error
-                                    ? error.stack
-                                    : undefined,
-                            }
-                        )
-                    }
-                    resumeEntityId = module.id
-                }
-                break
-            }
-            case MilestoneTaskEntity.name: {
-                while (true) {
-                    const milestoneTask = await this.entityManager.findOne(
-                        MilestoneTaskEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                milestone: {
-                                    course: true,
-                                },
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!milestoneTask) {
-                        break
-                    }
-                    if (!shouldSyncMilestoneTaskEntity(scope,
-                        milestoneTask)) {
-                        resumeEntityId = milestoneTask.id
-                        continue
-                    }
-                    try {
-                        await this.cdnMilestoneTaskBuildService.materializeAndUpload(
-                            milestoneTask.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            buildMilestoneTaskSyncSuccessLog(milestoneTask),
-                        )
-                    } catch (error) {
-                        const errorMessage = error instanceof Error
-                            ? error.message
-                            : String(error)
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: milestoneTask.id,
-                                errorName: error instanceof Error
-                                    ? error.name
-                                    : undefined,
-                                errorMessage,
-                                errorStack: error instanceof Error
-                                    ? error.stack
-                                    : undefined,
-                            }
-                        )
-                    }
-                    resumeEntityId = milestoneTask.id
-                }
-                break
-            }
-            }
+            await this.syncEntityKind(scope,
+                entityKind)
         }
         /**
          * End the CDN synchronization.
@@ -428,5 +136,149 @@ export class CdnSynchronizerService {
                 ),
             }
         )
+    }
+
+    /** Dispatch to the paginated sync loop for one entity kind. */
+    private async syncEntityKind(
+        scope: SynchronizerSyncScope,
+        entityKind: SyncCdnEntityKind,
+    ): Promise<void> {
+        switch (entityKind) {
+        case CourseEntity.name:
+            return this.syncCourseEntities(scope)
+        case ChallengeEntity.name:
+            return this.syncChallengeEntities(scope)
+        case ContentEntity.name:
+            return this.syncContentEntities(scope)
+        case ModuleEntity.name:
+            return this.syncModuleEntities(scope)
+        case MilestoneTaskEntity.name:
+            return this.syncMilestoneTaskEntities(scope)
+        default:
+            return
+        }
+    }
+
+    /** Log one entity's successful CDN sync. */
+    private logEntitySynced(
+        payload: CdnSynchronizerSyncedSuccessfullyMessage,
+    ): void {
+        this.winstonService.log(
+            WinstonLog.CdnSynchronizerSyncedSuccessfully,
+            payload,
+        )
+    }
+
+    /** Log one entity's failed CDN sync (never throws -- the page loop continues). */
+    private logEntitySyncFailed(
+        entityKind: SyncCdnEntityKind,
+        entityId: string,
+        error: unknown,
+    ): void {
+        this.winstonService.log(
+            WinstonLog.CdnSynchronizerEntitySyncFailed,
+            {
+                entityKind,
+                entityId,
+                errorName: error instanceof Error ? error.name : undefined,
+                errorMessage: error instanceof Error ? error.message : String(error),
+                errorStack: error instanceof Error ? error.stack : undefined,
+            }
+        )
+    }
+
+    private async syncCourseEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextCourse(this.entityManager),
+            shouldSync: (course) => shouldSyncCourseEntity(scope,
+                course),
+            build: (course) => this.cdnCourseBuildService.materializeAndUpload(
+                course.id,
+            ),
+            onSynced: (course) => this.logEntitySynced(
+                buildCourseSyncSuccessLog(course)),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                CourseEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncChallengeEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextChallenge(this.entityManager),
+            shouldSync: (challenge) => shouldSyncChallengeEntity(scope,
+                challenge),
+            build: (challenge) => this.cdnChallengeBuildService.materializeAndUpload(
+                challenge.id,
+            ),
+            onSynced: (challenge) => this.logEntitySynced(
+                buildChallengeSyncSuccessLog(challenge)),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                ChallengeEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncContentEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextContent(this.entityManager),
+            shouldSync: (content) => shouldSyncContentEntity(scope,
+                content),
+            build: (content) => this.cdnContentBuildService.materializeAndUpload(
+                content.id,
+            ),
+            onSynced: (content) => this.logEntitySynced(
+                buildContentSyncSuccessLog(content)),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                ContentEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncModuleEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextModule(this.entityManager),
+            shouldSync: (module) => shouldSyncModuleEntity(scope,
+                module),
+            build: (module) => this.cdnModuleBuildService.materializeAndUpload(
+                module.id,
+            ),
+            onSynced: (module) => this.logEntitySynced(
+                buildModuleSyncSuccessLog(module)),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                ModuleEntity.name,
+                entityId,
+                error),
+        })
+    }
+
+    private async syncMilestoneTaskEntities(
+        scope: SynchronizerSyncScope,
+    ): Promise<void> {
+        await runPaginatedEntitySync({
+            fetchNext: fetchNextMilestoneTask(this.entityManager),
+            shouldSync: (milestoneTask) => shouldSyncMilestoneTaskEntity(scope,
+                milestoneTask),
+            build: (milestoneTask) => this.cdnMilestoneTaskBuildService.materializeAndUpload(
+                milestoneTask.id,
+            ),
+            onSynced: (milestoneTask) => this.logEntitySynced(
+                buildMilestoneTaskSyncSuccessLog(milestoneTask)),
+            onFailed: (entityId, error) => this.logEntitySyncFailed(
+                MilestoneTaskEntity.name,
+                entityId,
+                error),
+        })
     }
 }

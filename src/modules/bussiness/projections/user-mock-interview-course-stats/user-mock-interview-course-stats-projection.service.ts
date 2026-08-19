@@ -431,18 +431,44 @@ export class UserMockInterviewCourseStatsProjectionService {
             if (kind.length === 0) {
                 continue
             }
-            const score = typeof entry.score === "number" ? entry.score : 0
-            const max = typeof entry.max === "number" && entry.max > 0 ? entry.max : 0
-            if (max <= 0) {
+            const resolved = this.resolveReviewScore(entry)
+            if (!resolved) {
                 continue
             }
-            const matchedContentId = typeof entry.matchedContentId === "string" ? entry.matchedContentId : null
             this.fold(acc,
                 kind,
-                score,
-                max,
+                resolved.score,
+                resolved.max,
                 createdAt,
-                matchedContentId)
+                resolved.matchedContentId)
+        }
+    }
+
+    /**
+     * Resolve one review entry's score/max/deep-link, applying the shared
+     * defaulting rules -- `score` defaults to 0, `max` defaults to 0 (and any
+     * entry with `max <= 0` is unscoreable, so the caller should skip it),
+     * `matchedContentId` defaults to `null`.
+     * @param entry - One `questionReviews[]` entry.
+     * @returns The resolved fields, or `null` when the entry has no usable max.
+     */
+    private resolveReviewScore(
+        entry: Record<string, unknown>,
+    ): {
+        score: number
+        max: number
+        matchedContentId: string | null
+    } | null {
+        const score = typeof entry.score === "number" ? entry.score : 0
+        const max = typeof entry.max === "number" && entry.max > 0 ? entry.max : 0
+        if (max <= 0) {
+            return null
+        }
+        const matchedContentId = typeof entry.matchedContentId === "string" ? entry.matchedContentId : null
+        return {
+            score,
+            max,
+            matchedContentId,
         }
     }
 
@@ -463,29 +489,44 @@ export class UserMockInterviewCourseStatsProjectionService {
         createdAt: Date,
         acc: Map<string, BreakdownAccumulator>,
     ): void {
-        if (!session || !session.seedQuestions) {
+        if (!session?.seedQuestions) {
             return
         }
         for (const entry of toUnknownRecordArray(questionReviews)) {
-            const questionIndex = typeof entry.questionIndex === "number" ? entry.questionIndex : -1
-            const seed = questionIndex >= 0 ? session.seedQuestions[questionIndex] : undefined
-            const lang = seed?.givenCodes?.[0]?.lang
-            if (!seed || !lang) {
+            const lang = this.resolveQuestionLanguage(entry,
+                session)
+            if (!lang) {
                 continue
             }
-            const score = typeof entry.score === "number" ? entry.score : 0
-            const max = typeof entry.max === "number" && entry.max > 0 ? entry.max : 0
-            if (max <= 0) {
+            const resolved = this.resolveReviewScore(entry)
+            if (!resolved) {
                 continue
             }
-            const matchedContentId = typeof entry.matchedContentId === "string" ? entry.matchedContentId : null
             this.fold(acc,
                 lang,
-                score,
-                max,
+                resolved.score,
+                resolved.max,
                 createdAt,
-                matchedContentId)
+                resolved.matchedContentId)
         }
+    }
+
+    /**
+     * Resolve the language a question was drawn in, from the session's
+     * `seedQuestions[questionIndex].givenCodes[0].lang`. Only CODE questions
+     * (a non-empty `givenCodes`) carry a language -- a theory/reasoning
+     * question with no given code, or an out-of-range/missing index, resolves
+     * to `undefined`.
+     * @param entry - One `questionReviews[]` entry.
+     * @param session - The drawn session the review belongs to.
+     */
+    private resolveQuestionLanguage(
+        entry: Record<string, unknown>,
+        session: MockInterviewSessionEntity,
+    ): string | undefined {
+        const questionIndex = typeof entry.questionIndex === "number" ? entry.questionIndex : -1
+        const seed = questionIndex >= 0 ? session.seedQuestions?.[questionIndex] : undefined
+        return seed?.givenCodes?.[0]?.lang
     }
 
     /**
@@ -671,12 +712,12 @@ export class UserMockInterviewCourseStatsProjectionService {
             return null
         }
 
-        const weakest = candidates.sort(
+        const weakest = candidates.toSorted(
             (left, right) => (left.item.avgScore / (left.item.avgMax || 1)) - (right.item.avgScore / (right.item.avgMax || 1)),
         )[0]
 
         const weakMatches = weakest.acc.get(weakest.item.key)?.weakMatches ?? []
-        const mostRecent = [...weakMatches].sort(
+        const mostRecent = weakMatches.toSorted(
             (left, right) => right.createdAt.getTime() - left.createdAt.getTime(),
         )[0]
 

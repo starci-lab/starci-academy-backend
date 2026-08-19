@@ -7,8 +7,6 @@ import {
 } from "./monolithic-apollo-server.module-definition"
 import {
     ApolloDriver,
-} from "@nestjs/apollo"
-import {
     ApolloDriverConfig,
 } from "@nestjs/apollo"
 import {

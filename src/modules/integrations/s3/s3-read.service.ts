@@ -16,7 +16,7 @@ import {
 } from "@nestjs/common"
 import {
     Readable,
-} from "stream"
+} from "node:stream"
 import SuperJSON from "superjson"
 import {
     S3Provider,

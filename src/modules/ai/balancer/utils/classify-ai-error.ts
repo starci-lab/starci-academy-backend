@@ -43,7 +43,7 @@ export const extractRetryAfterMs = (error: unknown): number | undefined => {
         return undefined
     }
     const raw = headers["retry-after"] ?? headers["Retry-After"]
-    if (raw === undefined || raw === null) {
+    if (typeof raw !== "string" && typeof raw !== "number") {
         return undefined
     }
     const value = String(raw).trim()

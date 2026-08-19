@@ -156,7 +156,7 @@ export abstract class AbstractProjectionListener<TTarget> implements OnModuleIni
     }
 
     /** Resolve a standard Debezium after-image or preserve an already-flat row. */
-    private unwrapRow(payload: unknown): unknown | null {
+    private unwrapRow(payload: unknown): unknown {
         if (!payload || typeof payload !== "object") {
             return payload
         }

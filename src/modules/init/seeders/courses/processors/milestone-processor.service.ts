@@ -102,11 +102,11 @@ export class MilestoneProcessorService {
                 entityClass: MilestoneEntity,
                 partition,
             })
-            const deletedMilestoneIds = partition.deleteEntities.map(
+            const deletedMilestoneIds = new Set(partition.deleteEntities.map(
                 (entity) => entity.id as string,
-            )
+            ))
             const filteredMilestoneResults = milestoneResults.filter(
-                (milestoneResult) => !deletedMilestoneIds.includes(milestoneResult.data.id as string),
+                (milestoneResult) => !deletedMilestoneIds.has(milestoneResult.data.id as string),
             )
             for (const milestoneResult of filteredMilestoneResults) {
                 await this.milestoneTaskProcessorService.process({

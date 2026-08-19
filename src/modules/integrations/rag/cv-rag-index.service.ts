@@ -1,6 +1,6 @@
 import {
     createHash,
-} from "crypto"
+} from "node:crypto"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -13,6 +13,9 @@ import type {
 import {
     Document,
 } from "@langchain/core/documents"
+import type {
+    Embeddings,
+} from "@langchain/core/embeddings"
 import {
     RecursiveCharacterTextSplitter,
 } from "langchain/text_splitter"
@@ -92,6 +95,16 @@ export interface BuildCvRagIndexResult {
     indexed: number
 }
 
+/** Result of scanning every {@link CvRagEntry} for a source-hash change. */
+interface CvRagScanResult {
+    /** Fresh/changed documents, ready to chunk + embed. */
+    docs: Array<Document>
+    /** Ids of every entry whose source changed (new or edited) this run. */
+    dirtyEntryIds: Array<string>
+    /** Count of entries whose source hash matched the existing payload (skipped). */
+    unchangedCount: number
+}
+
 @Injectable()
 /**
  * Builds the persistent CV-authoring reference RAG index in Qdrant at init.
@@ -156,34 +169,12 @@ export class CvRagIndexService {
             await this.safeDeleteByEntryId(entryId)
         }
 
-        const docs: Array<Document> = []
-        const dirtyEntryIds: Array<string> = []
-        let unchangedCount = 0
-        for (const entry of entries) {
-            try {
-                const entryDocs = await this.collectEntryDocs(entry)
-                if (entryDocs.length === 0) {
-                    continue
-                }
-                const sourceHash = this.hashDocs(entryDocs)
-                if (existingHashes.get(entry.entryId) === sourceHash) {
-                    unchangedCount += 1
-                    continue
-                }
-                for (const doc of entryDocs) {
-                    doc.metadata.sourceHash = sourceHash
-                }
-                dirtyEntryIds.push(entry.entryId)
-                docs.push(...entryDocs)
-            } catch (error) {
-                this.winstonService.log(WinstonLog.RagIndexProgress,
-                    {
-                        op: "rag.cv.item-skipped",
-                        referenceId: entry.entryId,
-                        error: error instanceof Error ? error.message : String(error),
-                    })
-            }
-        }
+        const {
+            docs,
+            dirtyEntryIds,
+            unchangedCount,
+        } = await this.scanCvRagEntries(entries,
+            existingHashes)
 
         if (docs.length === 0 && removedEntryIds.length === 0) {
             this.winstonService.log(WinstonLog.RagIndexProgress,
@@ -229,23 +220,8 @@ export class CvRagIndexService {
                 },
             })
 
-        if (chunks.length > 0) {
-            const firstBatch = chunks.slice(0,
-                CV_RAG_EMBED_BATCH_SIZE)
-            const vectorStore = await QdrantVectorStore.fromDocuments(
-                firstBatch,
-                embeddingModel,
-                {
-                    client: this.qdrantClient,
-                    collectionName: CV_RAG_COLLECTION,
-                },
-            )
-            for (let start = CV_RAG_EMBED_BATCH_SIZE; start < chunks.length; start += CV_RAG_EMBED_BATCH_SIZE) {
-                const batch = chunks.slice(start,
-                    start + CV_RAG_EMBED_BATCH_SIZE)
-                await vectorStore.addDocuments(batch)
-            }
-        }
+        await this.embedAndUpsertCvChunks(chunks,
+            embeddingModel)
 
         this.winstonService.log(
             WinstonLog.ProcessStepExecuted,
@@ -264,6 +240,83 @@ export class CvRagIndexService {
         )
         return {
             indexed: chunks.length,
+        }
+    }
+
+    /**
+     * Resolve every entry's current documents, diffing against `existingHashes`
+     * to find what actually changed. Per-entry isolation: a read/parse failure
+     * for ONE entry must NOT abort the whole index build -- log it + skip to
+     * the next one (mirrors {@link ContentRagIndexService}'s swallow policy).
+     * @param entries - Every enumerated corpus entry to scan.
+     * @param existingHashes - The `{entryId -> sourceHash}` diff baseline.
+     */
+    private async scanCvRagEntries(
+        entries: Array<CvRagEntry>,
+        existingHashes: Map<string, string>,
+    ): Promise<CvRagScanResult> {
+        const docs: Array<Document> = []
+        const dirtyEntryIds: Array<string> = []
+        let unchangedCount = 0
+        for (const entry of entries) {
+            try {
+                const entryDocs = await this.collectEntryDocs(entry)
+                if (entryDocs.length === 0) {
+                    continue
+                }
+                const sourceHash = this.hashDocs(entryDocs)
+                if (existingHashes.get(entry.entryId) === sourceHash) {
+                    unchangedCount += 1
+                    continue
+                }
+                for (const doc of entryDocs) {
+                    doc.metadata.sourceHash = sourceHash
+                }
+                dirtyEntryIds.push(entry.entryId)
+                docs.push(...entryDocs)
+            } catch (error) {
+                this.winstonService.log(WinstonLog.RagIndexProgress,
+                    {
+                        op: "rag.cv.item-skipped",
+                        referenceId: entry.entryId,
+                        error: error instanceof Error ? error.message : String(error),
+                    })
+            }
+        }
+        return {
+            docs,
+            dirtyEntryIds,
+            unchangedCount,
+        }
+    }
+
+    /**
+     * Embed + batch-upsert the chunk list into the persistent `cv_rag`
+     * collection (mirrors {@link ContentRagIndexService}'s batching shape).
+     * @param chunks - The chunks to embed.
+     * @param embeddingModel - The balancer-routed embedder.
+     */
+    private async embedAndUpsertCvChunks(
+        chunks: Array<Document>,
+        embeddingModel: Embeddings,
+    ): Promise<void> {
+        if (chunks.length === 0) {
+            return
+        }
+        const firstBatch = chunks.slice(0,
+            CV_RAG_EMBED_BATCH_SIZE)
+        const vectorStore = await QdrantVectorStore.fromDocuments(
+            firstBatch,
+            embeddingModel,
+            {
+                client: this.qdrantClient,
+                collectionName: CV_RAG_COLLECTION,
+            },
+        )
+        for (let start = CV_RAG_EMBED_BATCH_SIZE; start < chunks.length; start += CV_RAG_EMBED_BATCH_SIZE) {
+            const batch = chunks.slice(start,
+                start + CV_RAG_EMBED_BATCH_SIZE)
+            await vectorStore.addDocuments(batch)
         }
     }
 

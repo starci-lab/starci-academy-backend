@@ -140,9 +140,9 @@ export class ModuleProcessorService {
             entityClass: ModuleEntity,
             partition: filteredPartition,
         })
-        const deletedModuleIds = partition.deleteEntities.map(
+        const deletedModuleIds = new Set(partition.deleteEntities.map(
             (entity) => entity.id as string,
-        )
+        ))
         const filteredModuleResults = moduleResults
             .filter(
                 (moduleResult) => shouldIncludeCourseModule(
@@ -152,7 +152,7 @@ export class ModuleProcessorService {
                 ),
             )
             .filter(
-                (moduleResult) => !deletedModuleIds.includes(moduleResult.data.id as string),
+                (moduleResult) => !deletedModuleIds.has(moduleResult.data.id as string),
             )
         for (const moduleResult of filteredModuleResults) {
             await this.contentProcessorService.process({

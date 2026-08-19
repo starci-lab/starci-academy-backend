@@ -22,9 +22,6 @@ import {
 import type {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
-import type {
-    S3BucketService,
-} from "@modules/integrations/s3/s3-bucket.service"
 import {
     asEntityManager,
     makeEntityManagerMock,
@@ -206,8 +203,6 @@ describe("CdnSynchronizerService",
                 builders[ContentEntity.name] as never,
                 builders[ChallengeEntity.name] as never,
                 builders[MilestoneTaskEntity.name] as never,
-                {
-                } as unknown as S3BucketService,
             )
         })
 

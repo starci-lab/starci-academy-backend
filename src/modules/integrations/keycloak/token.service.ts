@@ -15,6 +15,7 @@ import {
     KeycloakExchangeCodeForTokenResponse,
     KeycloakTokenIntrospectResponse,
     KeycloakPasswordLoginParams,
+    KeycloakRefreshTokenParams,
     KeycloakRegisterUserParams,
 } from "./types/tokens"
 import {
@@ -128,9 +129,7 @@ export class KeycloakTokenService {
      * Exchanges refresh token for a new Keycloak token set.
      */
     async exchangeRefreshTokenForToken(
-        params: {
-            refreshToken: string
-        },
+        params: KeycloakRefreshTokenParams,
     ): Promise<KeycloakExchangeCodeForTokenResponse> {
         const response = await this.axiosInstance.post<KeycloakExchangeCodeForTokenResponse>(
             `/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token`,
@@ -155,9 +154,7 @@ export class KeycloakTokenService {
      * Note: realm must have revocation enabled; Keycloak returns 200 even if token already invalid.
      */
     async revokeRefreshToken(
-        params: {
-            refreshToken: string
-        },
+        params: KeycloakRefreshTokenParams,
     ): Promise<void> {
         await this.axiosInstance.post(
             `/realms/${envConfig().keycloak.realm}/protocol/openid-connect/revoke`,

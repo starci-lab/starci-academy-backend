@@ -11,6 +11,3 @@ export interface DeleteEntityParams {
     /** Optional locale suffix selecting the concrete `<index>-<locale>` index; omit for a non-localized index. */
     locale?: Locale
 }
-
-/** Result of deleting a single document (no payload -- a missing doc is treated as success). */
-export type DeleteEntityResult = void

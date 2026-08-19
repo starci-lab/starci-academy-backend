@@ -22,7 +22,6 @@ import {
 import {
     MaterializeAndUploadService,
 } from "./materialize-and-upload.service"
-import _ from "lodash"
 
 @Injectable()
 /**
@@ -47,7 +46,7 @@ export class CdnChallengeBuildService {
             (
                 locale,
             ) => {
-                const localizedChallenge = _.cloneDeep(hydratedChallenge)
+                const localizedChallenge = structuredClone(hydratedChallenge)
                 this.challengeResolver.transform(
                     localizedChallenge,
                     locale,

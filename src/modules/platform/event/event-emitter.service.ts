@@ -48,14 +48,8 @@ export class EventEmitterService {
         const eventName = getEventName(event,
             args)
 
-        const useLocal =
-            options?.useLocal !== undefined
-                ? options.useLocal
-                : config?.useLocal
-        const useNats =
-            options?.useNats !== undefined
-                ? options.useNats
-                : config?.useNats
+        const useLocal = options?.useLocal ?? config?.useLocal
+        const useNats = options?.useNats ?? config?.useNats
 
         if (useLocal) {
             this.eventEmitter.emit(eventName,

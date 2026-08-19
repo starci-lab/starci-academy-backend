@@ -14,6 +14,9 @@ import type {
 import {
     createServer,
 } from "node:net"
+import {
+    randomUUID,
+} from "node:crypto"
 
 /**
  * The Testcontainers-backed infra stack used by the parent E2E runner, the
@@ -69,7 +72,9 @@ export class E2eStackService {
         // let TypeORM create every table/enum on connect -- no migrations in tests
         process.env.POSTGRESQL_PRIMARY_SYNCHRONIZE = "true"
 
-        const redisPassword = "starci-e2e-redis"
+        // generated per run rather than a fixed literal -- this only ever gates
+        // a throwaway container for the lifetime of this test process
+        const redisPassword = `starci-e2e-redis-${randomUUID()}`
         this.redisContainer = await new GenericContainer("redis:7-alpine")
             .withCommand([
                 "redis-server",

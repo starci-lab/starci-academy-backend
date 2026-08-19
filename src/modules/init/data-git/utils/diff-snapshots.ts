@@ -1,16 +1,16 @@
 import {
     createHash,
-} from "crypto"
+} from "node:crypto"
 import {
     readdir,
     readFile,
-} from "fs/promises"
+} from "node:fs/promises"
 import {
     existsSync,
-} from "fs"
+} from "node:fs"
 import {
     join,
-} from "path"
+} from "node:path"
 
 /**
  * Recursively index every file under `root` as `relativePath -> contentHash`.

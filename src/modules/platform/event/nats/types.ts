@@ -1,6 +1,8 @@
 import type {
-    NatsConnection, Msg, Subscription 
+    Msg, Subscription
 } from "nats"
+
+export type { NatsConnection } from "nats"
 import type {
     StreamConnection,
 } from "@modules/lib/stream-async-iterator/types/stream-connection"
@@ -75,9 +77,6 @@ export interface NatsCreateMessageParams<T extends object> {
     withoutHash?: boolean
 }
 
-/** Result of NatsMessageFactoryService.create(); serialized envelope string. */
-export type NatsCreateMessageResult = string
-
 /** Params for NatsMessageFactoryService.parse(). */
 export interface NatsParseMessageParams {
     /** Serialized payload string to parse. */
@@ -105,4 +104,4 @@ export interface NatsConfigMapEntryMetadata {
     useNats?: boolean
 }
 
-export type { NatsConnection, Subscription }
+export type { Subscription }

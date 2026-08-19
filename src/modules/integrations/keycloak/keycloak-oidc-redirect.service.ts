@@ -1,7 +1,7 @@
 import {
     createHash,
     randomBytes,
-} from "crypto"
+} from "node:crypto"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -48,16 +48,18 @@ export class KeycloakOidcRedirectService {
     toBase64Url (buf: Buffer): string {
         return buf
             .toString("base64")
-            .replace(
-                /\+/g,
+            .replaceAll(
+                "+",
                 "-"
             )
-            .replace(
-                /\//g,
+            .replaceAll(
+                "/",
                 "_"
             )
+            // `(?<!=)` keeps the unanchored `=+$` from being retried at every
+            // position inside a run of `=` padding -- see base32.ts for the same fix.
             .replace(
-                /=+$/u,
+                /(?<!=)=+$/u,
                 ""
             )
     }
@@ -147,7 +149,7 @@ export class KeycloakOidcRedirectService {
             purpose: OAuthStatePurpose.KeycloakBroker,
             state,
         })
-        if (!cached || cached.provider !== provider) {
+        if (cached?.provider !== provider) {
             throw new OidcStateExpiredException({
             })
         }

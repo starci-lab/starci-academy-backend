@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     EntityManager,
+    EntitySchema,
     EntityTarget,
     DeepPartial,
     FindOptionsWhere,
@@ -24,7 +25,8 @@ import {
 import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
-import _ from "lodash"
+import differenceBy from "lodash/differenceBy"
+import intersectionBy from "lodash/intersectionBy"
 import type {
     DbSyncLogEntityShape,
 } from "./types/db-sync-log"
@@ -59,7 +61,14 @@ export class UpsertService {
         if (typeof target === "function") {
             return target.name
         }
-        return String(target)
+        if (typeof target === "string") {
+            return target
+        }
+        if (target instanceof EntitySchema) {
+            return target.options.name
+        }
+        // remaining shape: `{ type: unknown, name: string }`
+        return target.name
     }
 
     /** True when the partial row carries fields beyond `id` (safe to `save`). */
@@ -164,17 +173,17 @@ export class UpsertService {
             where,
         )
 
-        const createEntities = _.differenceBy(
+        const createEntities = differenceBy(
             entities,
             existingEntities,
             "id",
         ) as Array<DeepPartial<Entity>>
-        const updateEntities = _.intersectionBy(
+        const updateEntities = intersectionBy(
             entities,
             existingEntities,
             "id",
         ) as Array<DeepPartial<Entity>>
-        const deleteEntities = _.differenceBy(
+        const deleteEntities = differenceBy(
             existingEntities,
             entities,
             "id",

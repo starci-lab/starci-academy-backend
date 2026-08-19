@@ -22,7 +22,6 @@ import {
 import {
     MaterializeAndUploadService,
 } from "./materialize-and-upload.service"
-import _ from "lodash"
 
 @Injectable()
 /**
@@ -48,7 +47,7 @@ export class CdnModuleBuildService {
             (
                 locale,
             ) => {
-                const localizedModule = _.cloneDeep(hydratedModule)
+                const localizedModule = structuredClone(hydratedModule)
                 this.moduleResolver.transform(
                     localizedModule,
                     locale,

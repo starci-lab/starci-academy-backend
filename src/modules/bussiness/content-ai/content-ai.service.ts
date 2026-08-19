@@ -79,14 +79,20 @@ import type {
     PrepareContentAiMessagesResult,
 } from "./types/messages"
 import type {
+    BuildScopedSessionsQueryParams,
+    BuildScopedSessionsQueryResult,
     CreateContentAiSessionParams,
     ContentAiSessionsParams,
     DeleteContentAiSessionParams,
+    DeriveContentAiScopeByAnchorPriorityParams,
     ListScopedContentAiSessionsParams,
     LoadContentAiSessionMessagesParams,
     RenameContentAiSessionParams,
     ResolvedContentAiSessionOwner,
+    ResolveScopedSessionOwnerAnchors,
+    ResolveSessionRowToCreateAnchors,
     SaveContentAiTurnParams,
+    ScopedSessionOwner,
     SetContentAiSessionArchivedParams,
     TouchContentAiSessionParams,
 } from "./types/session-crud"
@@ -566,16 +572,14 @@ export class ContentAiService {
      * @param params - The learner, the foundation id, and the question.
      * @returns The grounding text for the foundation system prompt.
      */
+    // `params` accepts `userId` for signature symmetry with the other scopes; a
+    // global foundation doc needs no per-user gate, so it is not destructured here.
     private async resolveFoundationGrounding(
         {
-            userId,
             foundationId,
             question,
         }: ResolveFoundationGroundingParams,
     ): Promise<string> {
-        // userId is accepted for signature symmetry with the other scopes; a
-        // global foundation doc needs no per-user gate, so it is unused here.
-        void userId
         const {
             excerpt,
         } = await this.contentRagRetrievalService.retrieveContentExcerpt({
@@ -799,7 +803,7 @@ export class ContentAiService {
         locale: Locale,
     ): string {
         // V1 legacy scalar body, when populated
-        if (content.body && content.body.trim()) {
+        if (content.body?.trim()) {
             return content.body
         }
         // V2 bodies[]: take the first bucket's localized (or default) markdown
@@ -807,7 +811,7 @@ export class ContentAiService {
             const translated = (bucket.translations ?? [])
                 .find((translation) => translation.locale === locale)?.body
             const text = translated ?? bucket.body
-            if (text && text.trim()) {
+            if (text?.trim()) {
                 return text
             }
         }
@@ -1038,120 +1042,30 @@ export class ContentAiService {
         // derive scope by anchor priority when the caller did not pin one; an
         // anchorless request always resolves -- it lands on the "global" chat
         const resolvedScope: ContentAiScope = scope
-            ?? (contentId
-                ? "content"
-                : taskId
-                    ? "task"
-                    : challengeId
-                        ? "challenge"
-                        : quizId
-                            ? "quiz"
-                            : foundationId
-                                ? "foundation"
-                                : courseId
-                                    ? "course"
-                                    : "global")
+            ?? this.deriveScopeByAnchorPriority({
+                contentId,
+                taskId,
+                challengeId,
+                quizId,
+                foundationId,
+                courseId,
+            })
 
         // resolve the row to persist per scope; a missing anchor / enrollment -> null
         // (no session created) so a non-entitled or malformed request is a silent
         // no-op rather than an orphan row.
-        let toCreate: Partial<ContentAiSessionEntity> | null = null
-        if (resolvedScope === "content") {
-            if (!contentId) {
-                return null
-            }
-            const enrollmentId = await this.resolveEnrollmentId(userId,
-                contentId)
-            if (!enrollmentId) {
-                return null
-            }
-            toCreate = {
-                scope: "content",
-                enrollmentId,
-                originContentId: contentId,
-            }
-        } else if (resolvedScope === "challenge") {
-            if (!challengeId) {
-                return null
-            }
-            const challengeCourseId = await this.resolveCourseIdOfChallenge(challengeId)
-            const enrollmentId = challengeCourseId
-                ? await this.resolveEnrollmentByCourse(userId,
-                    challengeCourseId)
-                : null
-            if (!enrollmentId) {
-                return null
-            }
-            toCreate = {
-                scope: "challenge",
-                enrollmentId,
-                originChallengeId: challengeId,
-            }
-        } else if (resolvedScope === "quiz") {
-            if (!quizId) {
-                return null
-            }
-            const quizCourseId = await this.resolveCourseIdOfQuiz(quizId)
-            const enrollmentId = quizCourseId
-                ? await this.resolveEnrollmentByCourse(userId,
-                    quizCourseId)
-                : null
-            if (!enrollmentId) {
-                return null
-            }
-            toCreate = {
-                scope: "quiz",
-                enrollmentId,
-                originQuizId: quizId,
-            }
-        } else if (resolvedScope === "task") {
-            if (!taskId) {
-                return null
-            }
-            const taskCourseId = await this.resolveCourseIdOfTask(taskId)
-            const enrollmentId = taskCourseId
-                ? await this.resolveEnrollmentByCourse(userId,
-                    taskCourseId)
-                : null
-            if (!enrollmentId) {
-                return null
-            }
-            toCreate = {
-                scope: "task",
-                enrollmentId,
-                originTaskId: taskId,
-            }
-        } else if (resolvedScope === "course") {
-            if (!courseId) {
-                return null
-            }
-            const enrollmentId = await this.resolveEnrollmentByCourse(userId,
-                courseId)
-            if (!enrollmentId) {
-                return null
-            }
-            toCreate = {
-                scope: "course",
-                enrollmentId,
-            }
-        } else if (resolvedScope === "foundation") {
-            // GLOBAL library doc -- no course, no enrollment; anchor on the raw
-            // user (course-agnostic side of the enrollment-centric model)
-            if (!foundationId) {
-                return null
-            }
-            toCreate = {
-                scope: "foundation",
+        const toCreate = await this.resolveSessionRowToCreate(resolvedScope,
+            {
                 userId,
-                originFoundationId: foundationId,
-            }
-        } else {
-            // global: the app-wide "chung" chat -- no anchor at all; GLOBAL like
-            // foundation, keyed off the raw user
-            toCreate = {
-                scope: "global",
-                userId,
-            }
+                contentId,
+                taskId,
+                challengeId,
+                quizId,
+                foundationId,
+                courseId,
+            })
+        if (!toCreate) {
+            return null
         }
 
         const session = this.entityManager.create(
@@ -1168,6 +1082,217 @@ export class ContentAiService {
         )
         await this.entityManager.save(session)
         return session.id
+    }
+
+    /**
+     * Resolve the row {@link createSession} should persist for the given scope --
+     * a missing anchor or a non-entitled (no resolvable enrollment) request
+     * resolves to `null`, so the caller creates no orphan row.
+     * @param resolvedScope - The scope to create a session row for.
+     * @param anchors - The learner plus every anchor id `createSession` was given.
+     */
+    private async resolveSessionRowToCreate(
+        resolvedScope: ContentAiScope,
+        anchors: ResolveSessionRowToCreateAnchors,
+    ): Promise<Partial<ContentAiSessionEntity> | null> {
+        const {
+            userId,
+            contentId,
+            taskId,
+            challengeId,
+            quizId,
+            foundationId,
+            courseId,
+        } = anchors
+        switch (resolvedScope) {
+        case "content":
+            return this.resolveContentSessionRow(userId,
+                contentId)
+        case "challenge":
+            return this.resolveChallengeSessionRow(userId,
+                challengeId)
+        case "quiz":
+            return this.resolveQuizSessionRow(userId,
+                quizId)
+        case "task":
+            return this.resolveTaskSessionRow(userId,
+                taskId)
+        case "course":
+            return this.resolveCourseSessionRow(userId,
+                courseId)
+        case "foundation":
+            // GLOBAL library doc -- no course, no enrollment; anchor on the raw
+            // user (course-agnostic side of the enrollment-centric model)
+            return this.resolveFoundationSessionRow(userId,
+                foundationId)
+        default:
+            // global: the app-wide "chung" chat -- no anchor at all; GLOBAL like
+            // foundation, keyed off the raw user
+            return {
+                scope: "global",
+                userId,
+            }
+        }
+    }
+
+    /** Resolve the `content`-scope session row, or `null` when unentitled. */
+    private async resolveContentSessionRow(
+        userId: string,
+        contentId: string | null | undefined,
+    ): Promise<Partial<ContentAiSessionEntity> | null> {
+        if (!contentId) {
+            return null
+        }
+        const enrollmentId = await this.resolveEnrollmentId(userId,
+            contentId)
+        if (!enrollmentId) {
+            return null
+        }
+        return {
+            scope: "content",
+            enrollmentId,
+            originContentId: contentId,
+        }
+    }
+
+    /** Resolve the `challenge`-scope session row, or `null` when unentitled. */
+    private async resolveChallengeSessionRow(
+        userId: string,
+        challengeId: string | null | undefined,
+    ): Promise<Partial<ContentAiSessionEntity> | null> {
+        if (!challengeId) {
+            return null
+        }
+        const challengeCourseId = await this.resolveCourseIdOfChallenge(challengeId)
+        const enrollmentId = challengeCourseId
+            ? await this.resolveEnrollmentByCourse(userId,
+                challengeCourseId)
+            : null
+        if (!enrollmentId) {
+            return null
+        }
+        return {
+            scope: "challenge",
+            enrollmentId,
+            originChallengeId: challengeId,
+        }
+    }
+
+    /** Resolve the `quiz`-scope session row, or `null` when unentitled. */
+    private async resolveQuizSessionRow(
+        userId: string,
+        quizId: string | null | undefined,
+    ): Promise<Partial<ContentAiSessionEntity> | null> {
+        if (!quizId) {
+            return null
+        }
+        const quizCourseId = await this.resolveCourseIdOfQuiz(quizId)
+        const enrollmentId = quizCourseId
+            ? await this.resolveEnrollmentByCourse(userId,
+                quizCourseId)
+            : null
+        if (!enrollmentId) {
+            return null
+        }
+        return {
+            scope: "quiz",
+            enrollmentId,
+            originQuizId: quizId,
+        }
+    }
+
+    /** Resolve the `task`-scope session row, or `null` when unentitled. */
+    private async resolveTaskSessionRow(
+        userId: string,
+        taskId: string | null | undefined,
+    ): Promise<Partial<ContentAiSessionEntity> | null> {
+        if (!taskId) {
+            return null
+        }
+        const taskCourseId = await this.resolveCourseIdOfTask(taskId)
+        const enrollmentId = taskCourseId
+            ? await this.resolveEnrollmentByCourse(userId,
+                taskCourseId)
+            : null
+        if (!enrollmentId) {
+            return null
+        }
+        return {
+            scope: "task",
+            enrollmentId,
+            originTaskId: taskId,
+        }
+    }
+
+    /** Resolve the `course`-scope session row, or `null` when unentitled. */
+    private async resolveCourseSessionRow(
+        userId: string,
+        courseId: string | null | undefined,
+    ): Promise<Partial<ContentAiSessionEntity> | null> {
+        if (!courseId) {
+            return null
+        }
+        const enrollmentId = await this.resolveEnrollmentByCourse(userId,
+            courseId)
+        if (!enrollmentId) {
+            return null
+        }
+        return {
+            scope: "course",
+            enrollmentId,
+        }
+    }
+
+    /** Resolve the `foundation`-scope session row, or `null` when no anchor. */
+    private resolveFoundationSessionRow(
+        userId: string,
+        foundationId: string | null | undefined,
+    ): Partial<ContentAiSessionEntity> | null {
+        if (!foundationId) {
+            return null
+        }
+        return {
+            scope: "foundation",
+            userId,
+            originFoundationId: foundationId,
+        }
+    }
+
+    /**
+     * Derives a session's scope from whichever anchor id is set, by priority
+     * (content > task > challenge > quiz > foundation > course), falling back
+     * to the anchorless "global" chat. Shared by `createSession` and the
+     * session list so an unpinned request resolves identically in both.
+     */
+    private deriveScopeByAnchorPriority(
+        {
+            contentId,
+            taskId,
+            challengeId,
+            quizId,
+            foundationId,
+            courseId,
+        }: DeriveContentAiScopeByAnchorPriorityParams,
+    ): ContentAiScope {
+        if (contentId) {
+            return "content"
+        }
+        if (taskId) {
+            return "task"
+        }
+        if (challengeId) {
+            return "challenge"
+        }
+        if (quizId) {
+            return "quiz"
+        }
+        if (foundationId) {
+            return "foundation"
+        }
+        if (courseId) {
+            return "course"
+        }
+        return "global"
     }
 
     /**
@@ -1212,19 +1337,14 @@ export class ContentAiService {
         // derive scope by anchor priority when not pinned; an anchorless
         // request always resolves -- it lands on the "global" chat's list
         const resolvedScope: ContentAiScope = scope
-            ?? (contentId
-                ? "content"
-                : taskId
-                    ? "task"
-                    : challengeId
-                        ? "challenge"
-                        : quizId
-                            ? "quiz"
-                            : foundationId
-                                ? "foundation"
-                                : courseId
-                                    ? "course"
-                                    : "global")
+            ?? this.deriveScopeByAnchorPriority({
+                contentId,
+                taskId,
+                challengeId,
+                quizId,
+                foundationId,
+                courseId,
+            })
 
         // CONTENT: original behaviour, verbatim (list this content, or course-wide
         // search) -- no regression to the shipped lesson list.
@@ -1299,106 +1419,47 @@ export class ContentAiService {
     ): Promise<Array<ContentAiSessionSummary>> {
         // resolve the owner predicate + the anchor predicate for this scope. Column
         // names are whitelisted (never client input) so they interpolate safely.
-        let ownerColumn: "enrollment_id" | "user_id"
-        let ownerId: string | null
-        let anchorColumn: "origin_task_id" | "origin_challenge_id" | "origin_quiz_id" | "origin_foundation_id" | null = null
-        let anchorId: string | null = null
-        if (scope === "task") {
-            if (!taskId) {
-                return []
-            }
-            const taskCourseId = await this.resolveCourseIdOfTask(taskId)
-            ownerColumn = "enrollment_id"
-            ownerId = taskCourseId
-                ? await this.resolveEnrollmentByCourse(userId,
-                    taskCourseId)
-                : null
-            anchorColumn = "origin_task_id"
-            anchorId = taskId
-        } else if (scope === "challenge") {
-            if (!challengeId) {
-                return []
-            }
-            const challengeCourseId = await this.resolveCourseIdOfChallenge(challengeId)
-            ownerColumn = "enrollment_id"
-            ownerId = challengeCourseId
-                ? await this.resolveEnrollmentByCourse(userId,
-                    challengeCourseId)
-                : null
-            anchorColumn = "origin_challenge_id"
-            anchorId = challengeId
-        } else if (scope === "quiz") {
-            if (!quizId) {
-                return []
-            }
-            const quizCourseId = await this.resolveCourseIdOfQuiz(quizId)
-            ownerColumn = "enrollment_id"
-            ownerId = quizCourseId
-                ? await this.resolveEnrollmentByCourse(userId,
-                    quizCourseId)
-                : null
-            anchorColumn = "origin_quiz_id"
-            anchorId = quizId
-        } else if (scope === "course") {
-            if (!courseId) {
-                return []
-            }
-            ownerColumn = "enrollment_id"
-            ownerId = await this.resolveEnrollmentByCourse(userId,
-                courseId)
-        } else if (scope === "foundation") {
-            // GLOBAL library doc -- owned by the raw user, anchored on the doc
-            if (!foundationId) {
-                return []
-            }
-            ownerColumn = "user_id"
-            ownerId = userId
-            anchorColumn = "origin_foundation_id"
-            anchorId = foundationId
-        } else {
-            // global: the app-wide "chung" chat -- owned by the raw user, no
-            // anchor column at all (there is nothing narrower than the scope itself)
-            ownerColumn = "user_id"
-            ownerId = userId
-        }
-        if (!ownerId) {
+        const owner = await this.resolveScopedSessionOwner(scope,
+            {
+                userId,
+                taskId,
+                challengeId,
+                quizId,
+                foundationId,
+                courseId,
+            })
+        if (!owner?.ownerId) {
             return []
         }
+        const {
+            ownerColumn,
+            ownerId,
+            anchorColumn,
+            anchorId,
+        } = owner
 
         // Build the parametrized query incrementally: $1 owner, $2 scope, then the
         // optional anchor, then the search-or-archived clause, then paging. Column
         // names are whitelisted above (never client input) so they interpolate safe.
-        const params: Array<unknown> = [
-            ownerId,
-            scope,
-        ]
-        let anchorClause = ""
-        if (anchorColumn) {
-            params.push(anchorId)
-            anchorClause = `AND s.${anchorColumn} = $${params.length}`
-        }
-        // search spans archived rows (same as content search); a plain list hides
-        // archived unless includeArchived is set. When searching, the snippet reuses
-        // the SAME pattern param.
-        let searchClause: string
-        let snippetExpr = "NULL"
-        if (search) {
-            params.push(`%${search}%`)
-            const patternParam = params.length
-            searchClause = `AND (s.title ILIKE $${patternParam}
-                    OR EXISTS (SELECT 1 FROM content_ai_messages m2
-                                WHERE m2.session_id = s.id AND m2.message ILIKE $${patternParam}))`
-            snippetExpr = `(SELECT m3.message FROM content_ai_messages m3
-                                WHERE m3.session_id = s.id AND m3.message ILIKE $${patternParam}
-                                ORDER BY m3.created_at LIMIT 1)`
-        } else {
-            params.push(includeArchived)
-            searchClause = `AND ($${params.length} OR s.archived_at IS NULL)`
-        }
-        params.push(limit)
-        const limitParam = params.length
-        params.push(offset)
-        const offsetParam = params.length
+        const {
+            params,
+            anchorClause,
+            searchClause,
+            snippetExpr,
+            limitParam,
+            offsetParam,
+        } = this.buildScopedSessionsQuery(
+            {
+                ownerId,
+                scope,
+                anchorColumn,
+                anchorId,
+                search,
+                includeArchived,
+                limit,
+                offset,
+            },
+        )
 
         const rows = await this.entityManager.query<Array<{
             id: string
@@ -1431,6 +1492,209 @@ export class ContentAiService {
             originContentTitle: null,
             snippet: row.snippet,
         }))
+    }
+
+    /**
+     * Resolve the owner column/id + anchor column/id for one non-content scope.
+     * `null` means the scope's own anchor id was missing entirely (the caller
+     * treats that the same as an unresolved owner -- an empty list).
+     * @param scope - The scope being listed.
+     * @param anchors - The learner plus every anchor id `listScopedSessions` was given.
+     */
+    private async resolveScopedSessionOwner(
+        scope: ContentAiScope,
+        anchors: ResolveScopedSessionOwnerAnchors,
+    ): Promise<ScopedSessionOwner | null> {
+        const {
+            userId,
+            taskId,
+            challengeId,
+            quizId,
+            foundationId,
+            courseId,
+        } = anchors
+        switch (scope) {
+        case "task":
+            return this.resolveTaskScopedOwner(userId,
+                taskId)
+        case "challenge":
+            return this.resolveChallengeScopedOwner(userId,
+                challengeId)
+        case "quiz":
+            return this.resolveQuizScopedOwner(userId,
+                quizId)
+        case "course":
+            return this.resolveCourseScopedOwner(userId,
+                courseId)
+        case "foundation":
+            // GLOBAL library doc -- owned by the raw user, anchored on the doc
+            return this.resolveFoundationScopedOwner(userId,
+                foundationId)
+        default:
+            // global: the app-wide "chung" chat -- owned by the raw user, no
+            // anchor column at all (there is nothing narrower than the scope itself)
+            return {
+                ownerColumn: "user_id",
+                ownerId: userId,
+                anchorColumn: null,
+                anchorId: null,
+            }
+        }
+    }
+
+    /** Resolve the `task`-scope owner, or `null` when there is no task anchor. */
+    private async resolveTaskScopedOwner(
+        userId: string,
+        taskId: string | null | undefined,
+    ): Promise<ScopedSessionOwner | null> {
+        if (!taskId) {
+            return null
+        }
+        const taskCourseId = await this.resolveCourseIdOfTask(taskId)
+        const ownerId = taskCourseId
+            ? await this.resolveEnrollmentByCourse(userId,
+                taskCourseId)
+            : null
+        return {
+            ownerColumn: "enrollment_id",
+            ownerId,
+            anchorColumn: "origin_task_id",
+            anchorId: taskId,
+        }
+    }
+
+    /** Resolve the `challenge`-scope owner, or `null` when there is no challenge anchor. */
+    private async resolveChallengeScopedOwner(
+        userId: string,
+        challengeId: string | null | undefined,
+    ): Promise<ScopedSessionOwner | null> {
+        if (!challengeId) {
+            return null
+        }
+        const challengeCourseId = await this.resolveCourseIdOfChallenge(challengeId)
+        const ownerId = challengeCourseId
+            ? await this.resolveEnrollmentByCourse(userId,
+                challengeCourseId)
+            : null
+        return {
+            ownerColumn: "enrollment_id",
+            ownerId,
+            anchorColumn: "origin_challenge_id",
+            anchorId: challengeId,
+        }
+    }
+
+    /** Resolve the `quiz`-scope owner, or `null` when there is no quiz anchor. */
+    private async resolveQuizScopedOwner(
+        userId: string,
+        quizId: string | null | undefined,
+    ): Promise<ScopedSessionOwner | null> {
+        if (!quizId) {
+            return null
+        }
+        const quizCourseId = await this.resolveCourseIdOfQuiz(quizId)
+        const ownerId = quizCourseId
+            ? await this.resolveEnrollmentByCourse(userId,
+                quizCourseId)
+            : null
+        return {
+            ownerColumn: "enrollment_id",
+            ownerId,
+            anchorColumn: "origin_quiz_id",
+            anchorId: quizId,
+        }
+    }
+
+    /** Resolve the `course`-scope owner, or `null` when there is no course anchor. */
+    private async resolveCourseScopedOwner(
+        userId: string,
+        courseId: string | null | undefined,
+    ): Promise<ScopedSessionOwner | null> {
+        if (!courseId) {
+            return null
+        }
+        const ownerId = await this.resolveEnrollmentByCourse(userId,
+            courseId)
+        return {
+            ownerColumn: "enrollment_id",
+            ownerId,
+            anchorColumn: null,
+            anchorId: null,
+        }
+    }
+
+    /** Resolve the `foundation`-scope owner, or `null` when there is no foundation anchor. */
+    private resolveFoundationScopedOwner(
+        userId: string,
+        foundationId: string | null | undefined,
+    ): ScopedSessionOwner | null {
+        if (!foundationId) {
+            return null
+        }
+        return {
+            ownerColumn: "user_id",
+            ownerId: userId,
+            anchorColumn: "origin_foundation_id",
+            anchorId: foundationId,
+        }
+    }
+
+    /**
+     * Build the parametrized SQL fragments for {@link listScopedSessions}: $1
+     * owner, $2 scope, then the optional anchor, then the search-or-archived
+     * clause, then paging. Search spans archived rows (same as content search);
+     * a plain list hides archived unless `includeArchived` is set. When
+     * searching, the snippet reuses the SAME pattern param.
+     * @param params - The resolved owner/anchor plus search + paging inputs.
+     */
+    private buildScopedSessionsQuery(
+        {
+            ownerId,
+            scope,
+            anchorColumn,
+            anchorId,
+            search,
+            includeArchived,
+            limit,
+            offset,
+        }: BuildScopedSessionsQueryParams,
+    ): BuildScopedSessionsQueryResult {
+        const params: Array<unknown> = [
+            ownerId,
+            scope,
+        ]
+        let anchorClause = ""
+        if (anchorColumn) {
+            params.push(anchorId)
+            anchorClause = `AND s.${anchorColumn} = $${params.length}`
+        }
+        let searchClause: string
+        let snippetExpr = "NULL"
+        if (search) {
+            params.push(`%${search}%`)
+            const patternParam = params.length
+            searchClause = `AND (s.title ILIKE $${patternParam}
+                    OR EXISTS (SELECT 1 FROM content_ai_messages m2
+                                WHERE m2.session_id = s.id AND m2.message ILIKE $${patternParam}))`
+            snippetExpr = `(SELECT m3.message FROM content_ai_messages m3
+                                WHERE m3.session_id = s.id AND m3.message ILIKE $${patternParam}
+                                ORDER BY m3.created_at LIMIT 1)`
+        } else {
+            params.push(includeArchived)
+            searchClause = `AND ($${params.length} OR s.archived_at IS NULL)`
+        }
+        params.push(limit)
+        const limitParam = params.length
+        params.push(offset)
+        const offsetParam = params.length
+        return {
+            params,
+            anchorClause,
+            searchClause,
+            snippetExpr,
+            limitParam,
+            offsetParam,
+        }
     }
 
     /**

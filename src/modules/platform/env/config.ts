@@ -1,6 +1,6 @@
 import {
     join
-} from "path"
+} from "node:path"
 import {
     parseEnvString,
     parseEnvSecret,
@@ -1737,12 +1737,10 @@ export const envConfig = () => ({
         }),
         /** Explicit local-only shortcut for the deterministic test account's email OTP. */
         localTestAuth: {
-            enabled: !(
-                parseEnvString({
-                    key: "NODE_ENV",
-                    defaultValue: "development",
-                }) === "production"
-            ) && parseEnvBoolean({
+            enabled: parseEnvString({
+                key: "NODE_ENV",
+                defaultValue: "development",
+            }) !== "production" && parseEnvBoolean({
                 key: "LOCAL_TEST_AUTH_BYPASS_ENABLED",
                 defaultValue: false,
             }),

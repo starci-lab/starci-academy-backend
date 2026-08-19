@@ -31,10 +31,11 @@ export class HeadhuntingCompanyInsertService {
         const companyId = company.id as string
         const {
             translations,
-            consultants: unusedConsultants,
             ...rest
         } = company
-        void unusedConsultants
+        // consultants are NOT written here (see class doc) -- strip them so the
+        // upsert never carries the child relation.
+        delete rest.consultants
         await this.upsertService.upsertMany(
             HeadhuntingCompanyEntity,
             [rest],

@@ -5,7 +5,7 @@ import {
     createHmac,
     randomBytes,
     timingSafeEqual
-} from "crypto"
+} from "node:crypto"
 import {
     envConfig,
 } from "@modules/platform/env/config"
@@ -21,7 +21,6 @@ import {
 } from "./constants"
 import type {
     IssueCsrfCookieParams,
-    IssueCsrfCookieResult
 } from "./types"
 
 @Injectable()
@@ -51,7 +50,7 @@ export class CsrfService {
      * @example
      * csrfService.issueCookie({ res: ctx.res })
      */
-    issueCookie({ res }: IssueCsrfCookieParams): IssueCsrfCookieResult {
+    issueCookie({ res }: IssueCsrfCookieParams): string {
         // mint a new signed token for this authenticated session
         const token = this.generateToken()
         // when a parent COOKIE_DOMAIN is set, the canonical cookie is domain-scoped;

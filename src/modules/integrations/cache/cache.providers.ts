@@ -20,7 +20,7 @@ import {
 import {
     RedisClient,
 } from "@modules/lib/native/redis/types/client"
-import assert from "assert"
+import assert from "node:assert"
 import {
     WinstonLog,
 } from "@modules/platform/winston/enums/winston-log"

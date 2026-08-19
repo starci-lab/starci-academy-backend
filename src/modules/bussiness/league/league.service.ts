@@ -87,7 +87,7 @@ export class LeagueService {
         )
         // first time we see this user (or their cohort got cleared) -> lazily place
         // them into Bronze + the current open cohort so the board is never empty
-        if (!userLeague || !userLeague.cohort) {
+        if (!userLeague?.cohort) {
             userLeague = await this.placeUserLazily(userId)
         }
         // a cohort is guaranteed by placeUserLazily; capture its window

@@ -1695,7 +1695,7 @@ describe("a learner's personal project is reviewed by the durable worker",
                 const consequences = await consequencesFor(learner,
                     jobId)
 
-                expect(invokeSpy.mock.calls.length).toBe(modelCallsBefore)
+                expect(invokeSpy.mock.calls).toHaveLength(modelCallsBefore)
                 expect(consequences.attempts).toHaveLength(0)
                 expect(consequences.ledger).toHaveLength(0)
                 expect(consequences.xp).toHaveLength(0)

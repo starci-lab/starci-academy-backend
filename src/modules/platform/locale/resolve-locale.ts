@@ -39,7 +39,7 @@ export const getLocaleFromCookie = (context: ExecutionContext): Locale | undefin
 
         const cookieHeader = req?.headers?.cookie
         if (typeof cookieHeader === "string") {
-            const match = cookieHeader.match(/(?:^|;\s*)locale=([^;]+)/i)
+            const match = /(?:^|;\s*)locale=([^;]+)/i.exec(cookieHeader)
             if (match?.[1]) {
                 const raw = decodeURIComponent(match[1].trim())
                 if (Object.values(Locale).includes(raw as Locale)) {

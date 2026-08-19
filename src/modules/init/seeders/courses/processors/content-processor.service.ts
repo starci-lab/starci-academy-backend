@@ -121,11 +121,11 @@ export class ContentProcessorService {
             entityClass: ContentEntity,
             partition,
         })
-        const deletedContents = partition.deleteEntities.map(
+        const deletedContents = new Set(partition.deleteEntities.map(
             (entity) => entity.id as string,
-        )
+        ))
         const filteredContentResults = contentResults.filter(
-            (contentResult) => !deletedContents.includes(contentResult.data.id as string),
+            (contentResult) => !deletedContents.has(contentResult.data.id as string),
         )
         for (const contentResult of filteredContentResults) {
             await this.challengeProcessorService.process({

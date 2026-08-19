@@ -21,10 +21,8 @@ import {
     envConfig,
 } from "@modules/platform/env/config"
 import {
-    Interval 
+    Interval
 } from "@nestjs/schedule"
-import {
-} from "./elasticsearch-synchronizer.service"
 
 @Injectable()
 /**

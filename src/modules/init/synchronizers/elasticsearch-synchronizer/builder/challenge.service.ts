@@ -22,7 +22,6 @@ import {
 import {
     buildCompletionSuggest,
 } from "@modules/integrations/elasticsearch/utils/completion"
-import _ from "lodash"
 
 @Injectable()
 /**
@@ -48,7 +47,7 @@ export class ElasticsearchChallengeBuildService {
             (
                 locale,
             ) => {
-                const localizedChallenge = _.cloneDeep(hydratedChallenge)
+                const localizedChallenge = structuredClone(hydratedChallenge)
                 this.challengeResolver.transform(
                     localizedChallenge,
                     locale,

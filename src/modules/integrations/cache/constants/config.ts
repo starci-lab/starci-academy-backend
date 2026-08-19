@@ -26,9 +26,6 @@ import type {
     EnrollmentMilestonesCacheResult,
 } from "../types/cache-results/enrollment-milestones"
 import type {
-    EntityLabelCacheResult,
-} from "../types/cache-results/entity-label"
-import type {
     JobSubscriberClientIdCacheResult,
 } from "../types/cache-results/job-subscriber-client-id"
 import type {
@@ -46,9 +43,6 @@ import type {
 import type {
     UserEnrolledCoursesCacheResult,
 } from "../types/cache-results/user-enrolled-courses"
-import type {
-    UserProfileLockedCacheResult,
-} from "../types/cache-results/user-profile-locked"
 
 /**
  * Map of cache key to TTL and default cache result shape.
@@ -90,7 +84,9 @@ export const configMap = {
     },
     [CacheKey.UserProfileLocked]: {
         ttl: envConfig().cache.ttl.userProfileLocked,
-        cacheResult: false as UserProfileLockedCacheResult,
+        // profile-lock flag for one user; true when locked (only the owner sees full
+        // content). Rebuilt from source on miss, dropped on profile update (del-on-write).
+        cacheResult: false as boolean,
     },
     [CacheKey.EnrollmentMilestones]: {
         ttl: envConfig().cache.ttl.enrollmentMilestones,
@@ -140,7 +136,8 @@ export const configMap = {
     },
     [CacheKey.EntityLabel]: {
         ttl: envConfig().cache.ttl.entityLabel,
-        // simple label string -- store the resolved display text directly
-        cacheResult: "" as EntityLabelCacheResult,
+        // resolved display label for a single entity reference, keyed by
+        // [entityName, id, locale] -- store the resolved display text directly
+        cacheResult: "" as string,
     },
 }

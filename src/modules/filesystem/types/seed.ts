@@ -15,7 +15,7 @@
  * - `string` range     `"1-5"`, `"0,2,4"`, or mixed `"1-3,7"` (inclusive ranges).
  * - `[]` / `""`        skip the whole track.
  */
-export type SeedScopeIndexes = "all" | string | Array<number>
+export type SeedScopeIndexes = string | Array<number>
 
 /** Per-course seed scope (one entry under `seeders.courses.tracks`). */
 export interface SeedCourseTrack {

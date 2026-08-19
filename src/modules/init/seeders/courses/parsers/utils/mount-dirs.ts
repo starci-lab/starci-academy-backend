@@ -1,5 +1,5 @@
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 
 /**
  * Parsed `{orderIndex}-{slug}` mount folder (or legacy numeric-only `0`, `1`, ...).
@@ -19,7 +19,7 @@ export function parseIndexedMountDirName(
     if (!m) {
         return null
     }
-    const orderIndex = parseInt(
+    const orderIndex = Number.parseInt(
         m[1],
         10,
     )

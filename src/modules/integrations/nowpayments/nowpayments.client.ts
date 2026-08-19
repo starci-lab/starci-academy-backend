@@ -1,6 +1,6 @@
 import {
     createHmac,
-} from "crypto"
+} from "node:crypto"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -122,7 +122,9 @@ export class NowPaymentsClient {
             ? (response.data.data as Array<Record<string, unknown>>)
             : []
         // collect each payment's status string for the decision + diagnostics
-        const statuses = payments.map((payment) => String(payment.payment_status ?? ""))
+        const statuses = payments.map((payment) => (
+            typeof payment.payment_status === "string" ? payment.payment_status : ""
+        ))
         return {
             paid: statuses.some((status) => NOWPAYMENTS_PAID_STATUSES.has(status)),
             empty: statuses.length === 0,
@@ -177,7 +179,15 @@ export class NowPaymentsClient {
         if (value !== null && typeof value === "object") {
             const source = value as Record<string, unknown>
             return Object.keys(source)
-                .sort()
+                // NOTE: NOWPayments signs the byte/code-unit order that JS's default
+                // sort() already produces for these keys, not locale-collated order.
+                // The comparator below pins that exact ordering explicitly instead of
+                // relying on the implicit default, so this must stay a plain code-unit
+                // comparison -- do NOT switch it to localeCompare, which can reorder
+                // keys differently in some locales and would silently break IPN
+                // signature verification.
+                .sort((left, right) => this.compareCodeUnits(left,
+                    right))
                 .reduce<Record<string, unknown>>(
                     (acc, key) => {
                         // recurse so nested objects/arrays are also sorted
@@ -190,6 +200,21 @@ export class NowPaymentsClient {
         }
         // primitives: returned unchanged
         return value
+    }
+
+    /**
+     * Plain code-unit comparison -- NOT `localeCompare`, which can reorder
+     * these keys differently in some locales and would silently break IPN
+     * signature verification (see {@link sortObjectKeys}).
+     */
+    private compareCodeUnits(left: string, right: string): number {
+        if (left < right) {
+            return -1
+        }
+        if (left > right) {
+            return 1
+        }
+        return 0
     }
 
     /**

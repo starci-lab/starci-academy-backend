@@ -51,15 +51,12 @@ import type {
 } from "./types/ensure-index"
 import type {
     DeleteEntityParams,
-    DeleteEntityResult,
 } from "./types/delete-entity"
 import type {
     IndexEntitiesParams,
-    IndexEntitiesResult,
 } from "./types/index-entities"
 import type {
     IndexEntityParams,
-    IndexEntityResult,
 } from "./types/index-entity"
 import type {
     IndicateNameParams,
@@ -234,8 +231,7 @@ export class ElasticsearchService implements OnModuleInit {
 
         await this.client.indices.create({
             index,
-            ...(create ?? {
-            })
+            ...create
         })
     }
 
@@ -327,7 +323,7 @@ export class ElasticsearchService implements OnModuleInit {
             data,
             locale
         }: IndexEntityParams<T>,
-    ): Promise<IndexEntityResult> {
+    ): Promise<void> {
         await this.client.index({
             index: this.indicateName(
                 {
@@ -348,7 +344,7 @@ export class ElasticsearchService implements OnModuleInit {
             data,
             locale
         }: IndexEntitiesParams<T>,
-    ): Promise<IndexEntitiesResult> {
+    ): Promise<void> {
         // Nothing to index -> skip. An empty bulk body is rejected by ES with
         // `action_request_validation_exception: no requests added`.
         if (data.length === 0) {
@@ -405,7 +401,7 @@ export class ElasticsearchService implements OnModuleInit {
             id,
             locale,
         }: DeleteEntityParams,
-    ): Promise<DeleteEntityResult> {
+    ): Promise<void> {
         // resolve the concrete index name (`<base>` or `<base>-<locale>`)
         const index = this.indicateName({
             entity,

@@ -7,7 +7,7 @@ import {
 import {
     join,
     posix,
-} from "path"
+} from "node:path"
 import {
     DeepPartial,
 } from "typeorm"
@@ -79,7 +79,7 @@ export class TemplateCvParserService {
         const enPath = join(
             relativePath,
             "en.md",
-        ).replace(/\\/g,
+        ).replaceAll("\\",
             "/")
 
         let enContent: string | null = null
@@ -98,7 +98,7 @@ export class TemplateCvParserService {
         const viPath = join(
             relativePath,
             "vi.md",
-        ).replace(/\\/g,
+        ).replaceAll("\\",
             "/")
         
         let viContent: string | null = null

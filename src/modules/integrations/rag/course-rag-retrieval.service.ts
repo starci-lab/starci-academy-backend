@@ -362,52 +362,10 @@ export class CourseRagRetrievalService {
             const results = await vectorStore.similaritySearchWithScore(
                 trimmed,
                 k * 4,
-                {
-                    must: [
-                        {
-                            key: "metadata.courseId",
-                            match: {
-                                value: courseId,
-                            },
-                        },
-                        // optional corpus-kind scope: search challenges must search
-                        // ONLY challenge chunks, else a topical query returns a
-                        // content-dominated top-k that the caller's kind filter empties
-                        ...(kinds && kinds.length > 0
-                            ? [
-                                {
-                                    key: "metadata.kind",
-                                    match: {
-                                        any: kinds,
-                                    },
-                                },
-                            ]
-                            : []),
-                    ],
-                },
+                this.buildCourseSearchFilter(courseId,
+                    kinds),
             )
-            const bestByContentId = new Map<string, SearchCourseHit>()
-            for (const [
-                doc,
-                score,
-            ] of results) {
-                const contentId = doc.metadata?.contentId
-                if (typeof contentId !== "string" || !contentId) {
-                    continue
-                }
-                const existing = bestByContentId.get(contentId)
-                if (existing && existing.score >= score) {
-                    continue
-                }
-                bestByContentId.set(contentId,
-                    {
-                        contentId,
-                        kind: typeof doc.metadata?.kind === "string" ? doc.metadata.kind : "content",
-                        lang: typeof doc.metadata?.lang === "string" ? doc.metadata.lang : "",
-                        score,
-                        snippet: doc.pageContent,
-                    })
-            }
+            const bestByContentId = this.collapseSearchHits(results)
             return {
                 hits: [...bestByContentId.values()]
                     .sort((left, right) => right.score - left.score)
@@ -425,6 +383,73 @@ export class CourseRagRetrievalService {
                 hits: [],
             }
         }
+    }
+
+    /**
+     * Build the Qdrant payload filter for a course search: always scoped to the
+     * course, optionally narrowed to specific corpus kinds. A kind scope must be
+     * applied at the vector-search level (not filtered after) -- else a topical
+     * query returns a content-dominated top-k that the caller's kind filter empties.
+     * @param courseId - The course the chunks must belong to.
+     * @param kinds - Optional corpus-kind allowlist (e.g. `["challenge"]`).
+     */
+    private buildCourseSearchFilter(
+        courseId: string,
+        kinds: Array<string> | undefined,
+    ) {
+        return {
+            must: [
+                {
+                    key: "metadata.courseId",
+                    match: {
+                        value: courseId,
+                    },
+                },
+                ...(kinds && kinds.length > 0
+                    ? [
+                        {
+                            key: "metadata.kind",
+                            match: {
+                                any: kinds,
+                            },
+                        },
+                    ]
+                    : []),
+            ],
+        }
+    }
+
+    /**
+     * Collapse over-fetched chunk hits down to one best-scoring hit per distinct
+     * source id (a source can contribute several chunks to the raw results).
+     * @param results - Raw similarity-search hits, unordered w.r.t. source id.
+     */
+    private collapseSearchHits(
+        results: Array<[Document, number]>,
+    ): Map<string, SearchCourseHit> {
+        const bestByContentId = new Map<string, SearchCourseHit>()
+        for (const [
+            doc,
+            score,
+        ] of results) {
+            const contentId = doc.metadata?.contentId
+            if (typeof contentId !== "string" || !contentId) {
+                continue
+            }
+            const existing = bestByContentId.get(contentId)
+            if (existing && existing.score >= score) {
+                continue
+            }
+            bestByContentId.set(contentId,
+                {
+                    contentId,
+                    kind: typeof doc.metadata?.kind === "string" ? doc.metadata.kind : "content",
+                    lang: typeof doc.metadata?.lang === "string" ? doc.metadata.lang : "",
+                    score,
+                    snippet: doc.pageContent,
+                })
+        }
+        return bestByContentId
     }
 
     /**

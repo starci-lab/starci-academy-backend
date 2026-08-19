@@ -678,6 +678,14 @@ describe("a pending payment is reconciled through its real gateway fallback chai
                 await publish(transaction.id)
                 await waitForStatus(transaction.id,
                     TransactionStatus.Unpaid)
+
+                const updated = await entityManager.findOneByOrFail(
+                    TransactionEntity,
+                    {
+                        id: transaction.id,
+                    },
+                )
+                expect(updated.status).toBe(TransactionStatus.Unpaid)
             })
 
         it("retries an unknown gateway response and later settles paid",

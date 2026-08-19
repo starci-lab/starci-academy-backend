@@ -103,7 +103,7 @@ export class ScyllaDBService {
 
     private sanitizeIdentifier(value: string) {
         const trimmed = value.trim()
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(trimmed)) {
+        if (!/^[a-zA-Z_]\w*$/.test(trimmed)) {
             throw new InvalidScyllaIdentifierException({
                 value,
             })

@@ -22,7 +22,6 @@ import {
 import {
     buildCompletionSuggest,
 } from "@modules/integrations/elasticsearch/utils/completion"
-import _ from "lodash"
 
 @Injectable()
 /**
@@ -47,7 +46,7 @@ export class ElasticsearchCourseBuildService {
             (
                 locale,
             ) => {
-                const clonedCourse = _.cloneDeep(hydratedCourse)
+                const clonedCourse = structuredClone(hydratedCourse)
                 this.courseResolver.transform(
                     clonedCourse,
                     locale,

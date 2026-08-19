@@ -263,9 +263,7 @@ export class Judge0Service {
     /** Lazily read and cache the auth token from the mount file. */
     private authToken(): string {
         // read once; subsequent calls reuse the cached value
-        if (this.cachedAuthToken === null) {
-            this.cachedAuthToken = getJudge0AuthToken()
-        }
+        this.cachedAuthToken ??= getJudge0AuthToken()
         return this.cachedAuthToken
     }
 

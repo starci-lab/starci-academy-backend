@@ -39,6 +39,12 @@ export interface MessageSource {
     off: (event: string, listener: (payload: unknown) => void) => unknown
 }
 
+/** How long {@link expectNoMessage} observes silence before it counts as absence. */
+export interface ExpectNoMessageOptions {
+    /** Silence window in milliseconds. */
+    within?: number
+}
+
 const sleep = (ms: number): Promise<void> =>
     new Promise((resolve) => {
         setTimeout(resolve,
@@ -161,7 +167,7 @@ export const expectNoMessage = async <TPayload = unknown>(
     source: MessageSource,
     event: string,
     matches: (payload: TPayload) => boolean = () => true,
-    options: { within?: number } = {
+    options: ExpectNoMessageOptions = {
     },
 ): Promise<void> => {
     const within = options.within ?? DEFAULT_SILENCE_MS

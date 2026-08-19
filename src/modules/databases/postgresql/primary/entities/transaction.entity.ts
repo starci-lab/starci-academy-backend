@@ -12,6 +12,7 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
+    ActionType,
     GraphQLTypeActionType,
 } from "../enums/action-type"
 import {
@@ -27,9 +28,6 @@ import {
 import {
     UuidAbstractEntity,
 } from "./abstract"
-import {
-    ActionType,
-} from "../enums/action-type"
 import {
     AiSubTier,
     GraphQLTypeAiSubTier,

@@ -73,6 +73,26 @@ interface DomainBucket {
     doc_count: number
 }
 
+/** The request carried by the minimal GraphQL context the auth-guard override injects a user into. */
+interface MockAuthGuardRequest {
+    user?: UserEntity
+}
+
+/** Minimal GraphQL execution context shape used to stub the auth guard's user injection. */
+interface MockAuthGuardContext {
+    req: MockAuthGuardRequest
+}
+
+/** The `bool` clause of the last Elasticsearch request body, narrowed for assertions. */
+interface EsBoolQueryClause {
+    filter: Array<Record<string, unknown>>
+}
+
+/** The last Elasticsearch request body, narrowed down to its boolean-query clause. */
+interface EsBoolQuery {
+    bool: EsBoolQueryClause
+}
+
 describe("a learner reads the catalog grouped by interview topic domain",
     () => {
         let app: INestApplication
@@ -114,7 +134,7 @@ describe("a learner reads the catalog grouped by interview topic domain",
         const authGuard: CanActivate = {
             canActivate: (context: ExecutionContext): boolean => {
                 const gqlContext = GqlExecutionContext.create(context)
-                    .getContext<{ req: { user?: UserEntity } }>()
+                    .getContext<MockAuthGuardContext>()
                 gqlContext.req.user = learner
                 return true
             },
@@ -262,9 +282,7 @@ describe("a learner reads the catalog grouped by interview topic domain",
                 expect(payload.problems).toHaveLength(1)
                 expect(payload.problems[0].domain).toBe(CodingDomain.SlidingWindow)
                 // the filter travelled the whole way down, alongside the enabled gate
-                const filter = (lastBody().query as {
-                    bool: { filter: Array<Record<string, unknown>> }
-                }).bool.filter
+                const filter = (lastBody().query as EsBoolQuery).bool.filter
                 expect(filter).toContainEqual({
                     term: {
                         domain: CodingDomain.SlidingWindow,
@@ -303,9 +321,7 @@ describe("a learner reads the catalog grouped by interview topic domain",
                 expect(response.status).toBe(200)
                 expect(response.body.data.codingProblems.data.total).toBe(120)
                 // nothing was narrowed: the enabled gate is the only clause
-                const filter = (lastBody().query as {
-                    bool: { filter: Array<Record<string, unknown>> }
-                }).bool.filter
+                const filter = (lastBody().query as EsBoolQuery).bool.filter
                 expect(filter).toEqual([
                     {
                         term: {

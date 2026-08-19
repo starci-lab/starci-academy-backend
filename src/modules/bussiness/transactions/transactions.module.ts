@@ -12,6 +12,12 @@ import {
 import {
     TransactionReconcileQueryService,
 } from "./atomic/transaction-reconcile-query.service"
+import {
+    CheckoutGatewayService,
+} from "./atomic/checkout-gateway.service"
+import {
+    TransactionGrantService,
+} from "./atomic/transaction-grant.service"
 
 @Module({
 })
@@ -27,10 +33,14 @@ export class TransactionsModule extends ConfigurableModuleClass {
                 ...(dynamicModule.providers ?? []),
                 TransactionActionService,
                 TransactionReconcileQueryService,
+                CheckoutGatewayService,
+                TransactionGrantService,
             ],
             exports: [
                 TransactionActionService,
                 TransactionReconcileQueryService,
+                CheckoutGatewayService,
+                TransactionGrantService,
             ],
         }
     }

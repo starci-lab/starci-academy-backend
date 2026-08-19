@@ -106,7 +106,10 @@ export class HeadhuntingCompanyParserService {
             id: companyId,
             defaultLocale: Locale.En,
             displayId: path.displayId,
-            title: String(jsonMap.get(Locale.En)?.title ?? ""),
+            title: this.coerceMdScalarService.toRequiredString(
+                jsonMap.get(Locale.En)?.title,
+                "",
+            ),
             description: this.coerceMdScalarService.toNullableStringColumn(
                 jsonMap.get(Locale.En)?.description,
             ),
@@ -135,7 +138,10 @@ export class HeadhuntingCompanyParserService {
             translations: [
                 ...buildTranslations(
                     "title",
-                    (locale) => String(jsonMap.get(locale)?.title ?? ""),
+                    (locale) => this.coerceMdScalarService.toRequiredString(
+                        jsonMap.get(locale)?.title,
+                        "",
+                    ),
                 ),
                 ...buildTranslations(
                     "description",

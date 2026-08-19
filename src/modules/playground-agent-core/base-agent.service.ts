@@ -21,7 +21,7 @@ import {
     DeviceService 
 } from "./device.service"
 import type {
-    PairAck 
+    CommandRunParams, PairAck, PingParams,
 } from "./types"
 
 @Injectable()
@@ -54,7 +54,7 @@ export abstract class BaseAgentService {
     /** Start capability loops after a successful pair (e.g. resource / ollama polling). */
     protected onPaired(): void {}
     /** Run after a browser command completes (docker/k8s report resources; default no-op). */
-    protected afterCommand(): void {}
+    protected afterCommand(): void { /* no-op: base hook, capability subclasses override */ }
     /** Clear capability timers on shutdown. */
     protected onShutdown(): void {}
 
@@ -141,8 +141,9 @@ export abstract class BaseAgentService {
                     pairingCode 
                 },
                 (ack: PairAck) => {
-                    if (!ack || !ack.sessionId) {
-                        this.logger.error(`pairing failed${ack?.error ? `: ${ack.error}` : " — check the code / server URL"}.`)
+                    if (!ack?.sessionId) {
+                        const reason = ack?.error ? `: ${ack.error}` : " — check the code / server URL"
+                        this.logger.error(`pairing failed${reason}.`)
                         process.exit(1)
                     }
                     this.sendLog(`paired OK  playground=${ack.playgroundSlug ?? "?"}  step=${(ack.currentStepIndex ?? 0) + 1}`)
@@ -150,7 +151,8 @@ export abstract class BaseAgentService {
                     void this.deviceService.collect().then((info) => {
                         socket.emit(EVENT.deviceInfo,
                             info)
-                        this.sendLog(`device: ${info.platform} ${info.arch} · ${info.cpuModel} (${info.cpuCores}) · ${Math.round(info.totalMemBytes / 1e9)}GB${info.gpu ? ` · ${info.gpu}` : ""}`)
+                        const gpuSuffix = info.gpu ? ` · ${info.gpu}` : ""
+                        this.sendLog(`device: ${info.platform} ${info.arch} · ${info.cpuModel} (${info.cpuCores}) · ${Math.round(info.totalMemBytes / 1e9)}GB${gpuSuffix}`)
                     })
                     this.sendLog(this.meta.readyMessage)
                     this.onPaired()
@@ -167,7 +169,7 @@ export abstract class BaseAgentService {
                 "warn"))
 
         socket.on(EVENT.commandRun,
-            (payload: { command?: string }) => {
+            (payload: CommandRunParams) => {
                 const command = payload?.command
                 if (!command) {
                     return
@@ -179,7 +181,7 @@ export abstract class BaseAgentService {
             })
 
         socket.on(EVENT.ping,
-            (payload: { t?: number }) => {
+            (payload: PingParams) => {
                 socket.emit(EVENT.pong,
                     {
                         t: payload?.t 

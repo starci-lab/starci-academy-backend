@@ -28,7 +28,7 @@ const DOMAIN_BY_TOP_LEVEL_DIR: Record<string, DataGitDomain> = {
  */
 const stripOrderIndex = (name: string): string => {
     // course/module dirs follow `{index}-{slug}`; the slug is the displayId
-    const match = name.match(/^\d+-(.+)$/u)
+    const match = /^\d+-(.+)$/u.exec(name)
     return match ? match[1] : name
 }
 
@@ -39,8 +39,8 @@ const stripOrderIndex = (name: string): string => {
  * @returns The order-index, or `null` when the name has no numeric prefix
  */
 const parseLeadingIndex = (name: string): number | null => {
-    const match = name.match(/^(\d+)/u)
-    return match ? parseInt(match[1],
+    const match = /^(\d+)/u.exec(name)
+    return match ? Number.parseInt(match[1],
         10) : null
 }
 

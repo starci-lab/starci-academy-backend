@@ -66,36 +66,27 @@ describe("parseDataGitDiff",
 
         describe("modules (content + challenges roll up to the module index)",
             () => {
-                it("records the module order-index when a module file changes",
-                    () => {
+                it.each([
+                    [
+                        "a module file",
+                        "courses/0-fullstack-mastery/modules/4-server-state/index.yaml",
+                    ],
+                    [
+                        "a content change",
+                        "courses/0-fullstack-mastery/modules/4-server-state/contents/2-queries/en.md",
+                    ],
+                    [
+                        "a challenge change",
+                        "courses/0-fullstack-mastery/modules/4-server-state/contents/2-queries/challenges/1-cache-easy/vi.md",
+                    ],
+                ])(
+                    "rolls %s up to its owning module index",
+                    (
+                        _label,
+                        path,
+                    ) => {
                         const diff = parseDataGitDiff([
-                            "courses/0-fullstack-mastery/modules/4-server-state/index.yaml",
-                        ],
-                        NO_SUBDIR)
-
-                        expect([...(diff.moduleIndicesByCourse.get("fullstack-mastery") ?? [])])
-                            .toEqual([
-                                4,
-                            ])
-                    })
-
-                it("rolls a content change up to its owning module index",
-                    () => {
-                        const diff = parseDataGitDiff([
-                            "courses/0-fullstack-mastery/modules/4-server-state/contents/2-queries/en.md",
-                        ],
-                        NO_SUBDIR)
-
-                        expect([...(diff.moduleIndicesByCourse.get("fullstack-mastery") ?? [])])
-                            .toEqual([
-                                4,
-                            ])
-                    })
-
-                it("rolls a challenge change up to its owning module index",
-                    () => {
-                        const diff = parseDataGitDiff([
-                            "courses/0-fullstack-mastery/modules/4-server-state/contents/2-queries/challenges/1-cache-easy/vi.md",
+                            path,
                         ],
                         NO_SUBDIR)
 

@@ -16,7 +16,7 @@ import {
 import {
     getRuntimeContextRoot,
 } from "@modules/filesystem/utils/mount-seed"
-import fs from "fs/promises"
+import fs from "node:fs/promises"
 import {
     WinstonLog,
 } from "@modules/platform/winston/enums/winston-log"

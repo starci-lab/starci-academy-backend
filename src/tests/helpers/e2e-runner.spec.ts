@@ -14,6 +14,13 @@ import type {
 
 type ShutdownSignal = "SIGINT" | "SIGTERM"
 
+/** A jest-backed stand-in for the {@link E2eRunnerDependencies} `createStack()` result. */
+interface E2eStackMock {
+    up: jest.Mock<Promise<void>, []>
+    seed: jest.Mock<Promise<void>, []>
+    down: jest.Mock<Promise<void>, []>
+}
+
 interface RunnerFixture {
     child: ChildProcess
     childEvents: EventEmitter
@@ -21,11 +28,7 @@ interface RunnerFixture {
     order: Array<string>
     processEvents: EventEmitter
     spawnChild: jest.MockedFunction<E2eRunnerDependencies["spawnChild"]>
-    stack: {
-        up: jest.Mock<Promise<void>, []>
-        seed: jest.Mock<Promise<void>, []>
-        down: jest.Mock<Promise<void>, []>
-    }
+    stack: E2eStackMock
 }
 
 const createFixture = (): RunnerFixture => {

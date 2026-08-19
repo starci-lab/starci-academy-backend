@@ -22,7 +22,6 @@ import {
 import {
     buildCompletionSuggest,
 } from "@modules/integrations/elasticsearch/utils/completion"
-import _ from "lodash"
 
 @Injectable()
 /**
@@ -46,7 +45,7 @@ export class ElasticsearchMilestoneTaskBuildService {
             (
                 locale,
             ) => {
-                const localizedTask = _.cloneDeep(hydratedTask)
+                const localizedTask = structuredClone(hydratedTask)
                 this.milestoneTaskResolver.transform(
                     localizedTask,
                     locale,

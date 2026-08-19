@@ -1,13 +1,12 @@
 import {
     Injectable
 } from "@nestjs/common"
-import crypto from "crypto"
+import crypto from "node:crypto"
 import {
     IV_LENGTH,
 } from "./constants/encryption"
 import type {
     DecryptParams,
-    DecryptResult,
     EncryptParams,
     EncryptResult,
 } from "./types/encryption"
@@ -96,7 +95,7 @@ export class EncryptionService {
      */
     decrypt({
         payload,
-    }: DecryptParams): DecryptResult {
+    }: DecryptParams): string {
         const { iv, authTag, ciphertext } = payload
 
         const ivBuffer = Buffer.from(iv,

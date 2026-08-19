@@ -227,6 +227,13 @@ export class ContentParserService {
      * @param contentRelativePath - Lesson folder path under the course context root.
      * @returns Flow records for `content.e2eFlows`, or `null` when no proof exists.
      */
+    /** Trailing status token -> flow outcome; anything else (require-creds / require-rerun) is still in progress. */
+    private static readonly FLOW_STATUS_MAP: Record<string, "passed" | "failed"> = {
+        done: "passed",
+        pass: "passed",
+        fail: "failed",
+    }
+
     private async parseE2eFlows(
         contentRelativePath: string,
     ): Promise<Array<Record<string, unknown>> | null> {
@@ -238,66 +245,93 @@ export class ContentParserService {
             e2eRoot,
         )
         for (const lang of langs) {
-            const files = await this.pathResolverService.listRaw(
-                "courses",
-                `${e2eRoot}/${lang}`,
-            )
-            // Keep only flow proof markdown; ignore summary.md / other artifacts.
-            // ORDER BY THE FLOW NUMBER, NOT BY THE NAME. `flow-<N>-<slug>-<status>.md`
-            // carries its order in `<N>`, and a bare `.sort()` compares the names as
-            // text -- so a lesson with ten or more flows lists `flow-10-...` between
-            // `flow-1-...` and `flow-2-...`, and the FE renders the audit trail out of
-            // sequence. Ties (and any name that does not parse) fall back to the name
-            // so the result is still deterministic.
-            const flowIndexOf = (file: string): number => {
-                const match = /^flow-(\d+)-/u.exec(file)
-                return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER
-            }
-            const flowFiles = files
-                .filter((file) => /^flow-.*\.md$/u.test(file))
-                .sort((left,
-                    right) => flowIndexOf(left) - flowIndexOf(right) || left.localeCompare(right))
+            const flowFiles = await this.listOrderedFlowFiles(e2eRoot,
+                lang)
             for (const file of flowFiles) {
-                let markdown = ""
-                try {
-                    markdown = await this.contextLoaderService.load(
-                        "courses",
-                        `${e2eRoot}/${lang}/${file}`,
-                    )
-                } catch {
-                    continue
-                }
-                const base = file.replace(
-                    /\.md$/u,
-                    "",
-                )
-                // Trailing status token of `flow-<N>-<slug>-<status>`.
-                const statusMatch = base.match(
-                    /-(done|pass|fail|require-creds|require-rerun)$/u,
-                )
-                const rawStatus = statusMatch ? statusMatch[1] : "done"
-                const status = (rawStatus === "done" || rawStatus === "pass")
-                    ? "passed"
-                    : rawStatus === "fail"
-                        ? "failed"
-                        : "pending"
-                // Title: first markdown heading, else the filename stem.
-                const headingMatch = markdown.match(
-                    /^#{1,6}[ \t]+(.+?)\s*$/mu,
-                )
-                flows.push({
-                    id: base,
+                const flow = await this.parseFlowFile(e2eRoot,
                     lang,
-                    title: headingMatch ? headingMatch[1].trim() : base,
-                    status,
-                    markdown,
-                })
+                    file)
+                if (flow) {
+                    flows.push(flow)
+                }
             }
         }
         if (flows.length > 0) {
             return flows
         }
-        // Legacy fallback: a pre-generated `e2e.json` ({ flows: [...] }).
+        return this.loadLegacyE2eFlows(contentRelativePath)
+    }
+
+    /**
+     * List one language's flow proof markdown files, ordered by the flow number
+     * carried in the filename (`flow-<N>-<slug>-<status>.md`), NOT by name -- a
+     * bare name sort would list `flow-10-...` between `flow-1-...` and
+     * `flow-2-...` once a lesson has ten or more flows, rendering the audit trail
+     * out of sequence. Ties (and any name that does not parse) fall back to the
+     * name so the result is still deterministic.
+     */
+    private async listOrderedFlowFiles(
+        e2eRoot: string,
+        lang: string,
+    ): Promise<Array<string>> {
+        const files = await this.pathResolverService.listRaw(
+            "courses",
+            `${e2eRoot}/${lang}`,
+        )
+        const flowIndexOf = (file: string): number => {
+            const match = /^flow-(\d+)-/u.exec(file)
+            return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER
+        }
+        // Keep only flow proof markdown; ignore summary.md / other artifacts.
+        return files
+            .filter((file) => /^flow-.*\.md$/u.test(file))
+            .sort((left,
+                right) => flowIndexOf(left) - flowIndexOf(right) || left.localeCompare(right))
+    }
+
+    /**
+     * Load + parse one flow proof file into its flow record, or `null` when the
+     * file cannot be loaded (skipped rather than failing the whole lesson).
+     */
+    private async parseFlowFile(
+        e2eRoot: string,
+        lang: string,
+        file: string,
+    ): Promise<Record<string, unknown> | null> {
+        let markdown = ""
+        try {
+            markdown = await this.contextLoaderService.load(
+                "courses",
+                `${e2eRoot}/${lang}/${file}`,
+            )
+        } catch {
+            return null
+        }
+        const base = file.replace(
+            /\.md$/u,
+            "",
+        )
+        // Trailing status token of `flow-<N>-<slug>-<status>`.
+        const statusMatch = /-(done|pass|fail|require-creds|require-rerun)$/u.exec(base)
+        const rawStatus = statusMatch ? statusMatch[1] : "done"
+        const status = ContentParserService.FLOW_STATUS_MAP[rawStatus] ?? "pending"
+        // Title: first markdown heading, else the filename stem.
+        // Trailing whitespace is stripped below via .trim(), so the capture
+        // group stays greedy-only (no overlapping \s*) to avoid backtracking.
+        const headingMatch = /^#{1,6}[ \t]+(.+)$/mu.exec(markdown)
+        return {
+            id: base,
+            lang,
+            title: headingMatch ? headingMatch[1].trim() : base,
+            status,
+            markdown,
+        }
+    }
+
+    /** Legacy fallback: a pre-generated `e2e.json` ({ flows: [...] }). */
+    private async loadLegacyE2eFlows(
+        contentRelativePath: string,
+    ): Promise<Array<Record<string, unknown>> | null> {
         try {
             const rawE2e = await this.contextLoaderService.load(
                 "courses",
@@ -354,8 +388,7 @@ export class ContentParserService {
             jsons: Object.values(Locale).map((locale) => ({
                 locale,
                 json: {
-                    ...(jsonMap.get(locale) ?? {
-                    }),
+                    ...jsonMap.get(locale),
                 } as Record<string, unknown>,
             })),
             translateFields: [

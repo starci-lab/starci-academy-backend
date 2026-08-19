@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     Socket,
-} from "net"
+} from "node:net"
 import {
     createTransport,
 } from "nodemailer"

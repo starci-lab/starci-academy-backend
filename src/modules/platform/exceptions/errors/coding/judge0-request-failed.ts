@@ -26,8 +26,9 @@ export class Judge0RequestFailedException extends AbstractException {
         responseBody,
         originalError,
     }: Judge0RequestFailedExceptionMetadata) {
+        const statusSuffix = statusCode ? ` (HTTP ${statusCode})` : ""
         super(
-            `Judge0 request to ${endpoint} failed${statusCode ? ` (HTTP ${statusCode})` : ""}.`,
+            `Judge0 request to ${endpoint} failed${statusSuffix}.`,
             "JUDGE0_REQUEST_FAILED_EXCEPTION",
             {
                 endpoint,

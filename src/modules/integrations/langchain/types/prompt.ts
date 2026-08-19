@@ -4,5 +4,4 @@ export interface FormatPromptParams {
     values: Record<string, string | number | boolean>
 }
 
-/** Result after formatting a prompt template. */
-export type FormatPromptResult = string
+

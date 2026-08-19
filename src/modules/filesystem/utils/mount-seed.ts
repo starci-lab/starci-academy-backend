@@ -1,7 +1,7 @@
 import {
     existsSync,
     readFileSync,
-} from "fs"
+} from "node:fs"
 import {
     load as loadYaml,
 } from "js-yaml"

@@ -25,7 +25,7 @@ export const deriveUsername = ({
     fallback,
 }: DeriveUsernameParams): string => {
     // an email with a local-part wins -- take everything before the first "@"
-    const localPart = email && email.includes("@")
+    const localPart = email?.includes("@")
         ? email.slice(0,
             email.indexOf("@"))
         : null

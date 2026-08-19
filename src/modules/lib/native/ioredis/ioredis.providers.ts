@@ -87,8 +87,7 @@ export const createIoRedisProvider = (key: IoRedisInstanceKey): Provider => ({
                     redisOptions: {
                         password,
                         enableAutoPipelining: true,
-                        ...(additionalOptions || {
-                        }),
+                        ...additionalOptions,
                     },
                 }
             )
@@ -105,9 +104,8 @@ export const createIoRedisProvider = (key: IoRedisInstanceKey): Provider => ({
         return new Redis(
             `redis://${host}:${port}`,
             {
-                password, 
-                ...(additionalOptions || {
-                }),
+                password,
+                ...additionalOptions,
             }
         )
     },

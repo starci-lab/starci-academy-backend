@@ -10,7 +10,7 @@ import {
 import {
     getRuntimeContextRoot,
 } from "@modules/filesystem/utils/mount-seed"
-import fs from "fs/promises"
+import fs from "node:fs/promises"
 import {
     S3Provider,
 } from "@modules/integrations/s3/enums/s3"
@@ -20,6 +20,9 @@ import {
 import type {
     ResolvedFilePath,
 } from "./types"
+
+/** One entry of `envConfig().contexts` (filesystem or S3), ordered by resolution priority. */
+type EnvContext = ReturnType<typeof envConfig>["contexts"][number]
 @Injectable()
 /**
  * Resolves indexed content folders under a module's `contents/` directory (`{index}-{slug}` or legacy `{index}`).
@@ -61,11 +64,77 @@ export class PathResolverService {
                         /^\/+/u,
                         "",
                     ),
-                    orderIndex: parseInt(orderIndex),
+                    orderIndex: Number.parseInt(orderIndex),
                     displayId,
                 }
             }
         )
+    }
+
+    /** Enabled contexts (filesystem/S3), ordered highest-priority first. */
+    private enabledContextsByPriority(): Array<EnvContext> {
+        return envConfig().contexts
+            .filter(context => context.enabled)
+            .sort((prev, next) => prev.priority - next.priority)
+    }
+
+    /**
+     * Read raw entry names from one context (filesystem or S3), dispatching by
+     * context type. `null` means the read failed or the context type is
+     * unsupported -- the caller falls through to the next context either way.
+     */
+    private async readContextEntries(
+        context: EnvContext,
+        baseDir: string,
+        relativePath: string,
+    ): Promise<Array<string> | null> {
+        switch (context.type) {
+        case ContextType.Filesystem:
+            return this.readFilesystemEntries(context,
+                baseDir,
+                relativePath)
+        case ContextType.S3:
+            return this.readS3Entries(context,
+                baseDir,
+                relativePath)
+        default:
+            return null
+        }
+    }
+
+    /** Read raw entry names from the filesystem, or `null` when the directory is absent/unreadable. */
+    private async readFilesystemEntries(
+        context: EnvContext,
+        baseDir: string,
+        relativePath: string,
+    ): Promise<Array<string> | null> {
+        try {
+            // seed from the staging root when set, else the context path
+            const root = getRuntimeContextRoot() ?? context.path
+            return await fs.readdir(
+                `${root}/${baseDir}/${relativePath}`,
+            )
+        } catch {
+            return null
+        }
+    }
+
+    /** Read raw entry names from S3, or `null` when the listing fails. */
+    private async readS3Entries(
+        context: EnvContext,
+        baseDir: string,
+        relativePath: string,
+    ): Promise<Array<string> | null> {
+        try {
+            return await this.s3ReadService.list(
+                {
+                    key: `${baseDir}/${relativePath}`,
+                    provider: context.provider as S3Provider,
+                },
+            )
+        } catch {
+            return null
+        }
     }
 
     /**
@@ -82,44 +151,13 @@ export class PathResolverService {
         relativePath: string,
     ): Promise<Array<string>> {
         try {
-            const contexts = envConfig().contexts
-                .filter(context => context.enabled)
-                .sort((prev, next) => prev.priority - next.priority)
-
+            const contexts = this.enabledContextsByPriority()
             for (const context of contexts) {
-                switch (context.type) {
-                /** List entries from the filesystem. */
-                case ContextType.Filesystem: {
-                    try {
-                        const root = getRuntimeContextRoot() ?? context.path
-                        const rawPaths = await fs.readdir(
-                            `${root}/${baseDir}/${relativePath}`,
-                        )
-                        if (rawPaths.length > 0) {
-                            return rawPaths
-                        }
-                    } catch {
-                        // do nothing
-                    }
-                    break
-                }
-                /** List entries from S3. */
-                case ContextType.S3: {
-                    try {
-                        const rawPaths = await this.s3ReadService.list(
-                            {
-                                key: `${baseDir}/${relativePath}`,
-                                provider: context.provider as S3Provider,
-                            },
-                        )
-                        if (rawPaths.length > 0) {
-                            return rawPaths
-                        }
-                    } catch {
-                        // do nothing
-                    }
-                    break
-                }
+                const rawPaths = await this.readContextEntries(context,
+                    baseDir,
+                    relativePath)
+                if (rawPaths && rawPaths.length > 0) {
+                    return rawPaths
                 }
             }
             return []
@@ -141,53 +179,17 @@ export class PathResolverService {
         relativePath: string,
     ): Promise<Array<ResolvedFilePath>> {
         try {
-            const contexts = envConfig().contexts
-                .filter(context => context.enabled)
-                .sort((prev, next) => prev.priority - next.priority)
-
+            const contexts = this.enabledContextsByPriority()
             for (const context of contexts) {
-                switch (context.type) {
-                /** Read the files from the filesystem. */
-                case ContextType.Filesystem: {
-                    try {
-                        // seed from the staging root when set, else the context path
-                        const root = getRuntimeContextRoot() ?? context.path
-                        const rawPaths = await fs.readdir(
-                            `${root}/${baseDir}/${relativePath}`,
-                        )
-                        const paths = this.filterIndexed(rawPaths)
-                        if (paths.length > 0) {
-                            return this.mapToResolvedFilePaths(
-                                relativePath,
-                                paths,
-                            )
-                        }
-                    } catch {
-                        // do nothing
-                    }
-                    break
-                }
-                /** Read the files from S3. */
-                case ContextType.S3: {
-                    try {
-                        const rawPaths = await this.s3ReadService.list(
-                            {
-                                key: `${baseDir}/${relativePath}`,
-                                provider: context.provider as S3Provider,
-                            },
-                        )
-                        const paths = this.filterIndexed(rawPaths)
-                        if (paths.length > 0) {
-                            return this.mapToResolvedFilePaths(
-                                relativePath,
-                                paths,
-                            )
-                        }
-                    } catch {
-                        // do nothing
-                    }
-                    break
-                }
+                const rawPaths = await this.readContextEntries(context,
+                    baseDir,
+                    relativePath)
+                const paths = this.filterIndexed(rawPaths ?? [])
+                if (paths.length > 0) {
+                    return this.mapToResolvedFilePaths(
+                        relativePath,
+                        paths,
+                    )
                 }
             }
             return []

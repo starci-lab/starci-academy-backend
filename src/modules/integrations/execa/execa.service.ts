@@ -22,14 +22,14 @@ import {
 } from "execa"
 import {
     createWriteStream,
-} from "fs"
+} from "node:fs"
 import {
     pipeline,
-} from "stream/promises"
+} from "node:stream/promises"
 import type {
     AssertValidExecParams,
+    ExecErrorContext,
     ExecParams,
-    ExecResult,
     ExecToFileParams,
     ExecaUnknownProcessError,
 } from "./types/exec"
@@ -53,7 +53,7 @@ export class ExecaService {
      */
     async exec(
         { command, args = [], timeoutMs, env }: ExecParams
-    ): Promise<ExecResult> {
+    ): Promise<string> {
         // reject invalid input before touching the filesystem or spawning
         this.assertValidExecParams({
             command,
@@ -102,52 +102,14 @@ export class ExecaService {
 
             if (err instanceof ExecaError) {
                 // map execa-specific outcomes to typed domain exceptions
-                if (err.timedOut) {
-                    throw new ExecaCommandTimedOutException({
+                const mapped = this.mapKnownExecaError(err,
+                    {
                         command,
                         args,
-                        timeoutMs: typeof timeoutMs === "number" && timeoutMs > 0
-                            ? timeoutMs
-                            : 0,
-                        stdout: this.stringifyStdio(err.stdout),
-                        stderr: this.stringifyStdio(err.stderr),
-                        originalError: err,
+                        timeoutMs,
                     })
-                }
-
-                if (err.isCanceled) {
-                    throw new ExecaCommandCanceledException({
-                        command,
-                        args,
-                        isGracefullyCanceled: err.isGracefullyCanceled,
-                        stdout: this.stringifyStdio(err.stdout),
-                        stderr: this.stringifyStdio(err.stderr),
-                        originalError: err,
-                    })
-                }
-
-                if (err.code === "ENOENT") {
-                    throw new ExecaCommandNotFoundException({
-                        command,
-                        args,
-                        nodeErrorCode: err.code,
-                        exitCode: err.exitCode,
-                        stderr: this.stringifyStdio(err.stderr),
-                        stdout: this.stringifyStdio(err.stdout),
-                        originalError: err,
-                    })
-                }
-
-                if (err.exitCode === 127) {
-                    throw new ExecaCommandNotFoundException({
-                        command,
-                        args,
-                        nodeErrorCode: err.code,
-                        exitCode: err.exitCode,
-                        stderr: this.stringifyStdio(err.stderr),
-                        stdout: this.stringifyStdio(err.stdout),
-                        originalError: err,
-                    })
+                if (mapped) {
+                    throw mapped
                 }
             }
 
@@ -164,6 +126,53 @@ export class ExecaService {
                     : undefined,
             })
         }
+    }
+
+    /**
+     * Map an execa-specific failure to its typed domain exception -- shared by
+     * {@link exec} and {@link execToFile} so both classify timeout / cancel /
+     * command-not-found identically. `null` means the error is an `ExecaError`
+     * this wrapper does not special-case; the caller falls back to a generic
+     * {@link ExecaExecutionFailedException}.
+     */
+    private mapKnownExecaError(
+        err: ExecaError,
+        { command, args, timeoutMs }: ExecErrorContext,
+    ): Error | null {
+        if (err.timedOut) {
+            return new ExecaCommandTimedOutException({
+                command,
+                args,
+                timeoutMs: typeof timeoutMs === "number" && timeoutMs > 0
+                    ? timeoutMs
+                    : 0,
+                stdout: this.stringifyStdio(err.stdout),
+                stderr: this.stringifyStdio(err.stderr),
+                originalError: err,
+            })
+        }
+        if (err.isCanceled) {
+            return new ExecaCommandCanceledException({
+                command,
+                args,
+                isGracefullyCanceled: err.isGracefullyCanceled,
+                stdout: this.stringifyStdio(err.stdout),
+                stderr: this.stringifyStdio(err.stderr),
+                originalError: err,
+            })
+        }
+        if (err.code === "ENOENT" || err.exitCode === 127) {
+            return new ExecaCommandNotFoundException({
+                command,
+                args,
+                nodeErrorCode: err.code,
+                exitCode: err.exitCode,
+                stderr: this.stringifyStdio(err.stderr),
+                stdout: this.stringifyStdio(err.stdout),
+                originalError: err,
+            })
+        }
+        return null
     }
 
     /**
@@ -230,40 +239,14 @@ export class ExecaService {
             }
 
             if (error instanceof ExecaError) {
-                if (error.timedOut) {
-                    throw new ExecaCommandTimedOutException({
+                const mapped = this.mapKnownExecaError(error,
+                    {
                         command,
                         args,
-                        timeoutMs: typeof timeoutMs === "number" && timeoutMs > 0
-                            ? timeoutMs
-                            : 0,
-                        stdout: this.stringifyStdio(error.stdout),
-                        stderr: this.stringifyStdio(error.stderr),
-                        originalError: error,
+                        timeoutMs,
                     })
-                }
-
-                if (error.isCanceled) {
-                    throw new ExecaCommandCanceledException({
-                        command,
-                        args,
-                        isGracefullyCanceled: error.isGracefullyCanceled,
-                        stdout: this.stringifyStdio(error.stdout),
-                        stderr: this.stringifyStdio(error.stderr),
-                        originalError: error,
-                    })
-                }
-
-                if (error.code === "ENOENT" || error.exitCode === 127) {
-                    throw new ExecaCommandNotFoundException({
-                        command,
-                        args,
-                        nodeErrorCode: error.code,
-                        exitCode: error.exitCode,
-                        stderr: this.stringifyStdio(error.stderr),
-                        stdout: this.stringifyStdio(error.stdout),
-                        originalError: error,
-                    })
+                if (mapped) {
+                    throw mapped
                 }
             }
 

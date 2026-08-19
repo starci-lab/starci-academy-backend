@@ -40,13 +40,16 @@ export const base32Decode = (input: string): Buffer => {
     // normalize: uppercase, drop padding + whitespace the authenticator may add
     const normalized = input
         .toUpperCase()
-        .replace(/=+$/g,
+        // `(?<!=)` keeps the unanchored `=+$` from being retried at every
+        // position inside a run of `=` padding (super-linear on pathological
+        // input otherwise) -- see the identical fix in keycloak-oidc-redirect.service.ts.
+        .replace(/(?<!=)=+$/g,
             "")
         .replace(/\s+/g,
             "")
     let bits = 0
     let value = 0
-    const bytes = Array<number>()
+    const bytes = new Array<number>()
     for (const char of normalized) {
         // map each symbol back to its 5-bit value; ignore unknown chars
         const index = BASE32_ALPHABET.indexOf(char)

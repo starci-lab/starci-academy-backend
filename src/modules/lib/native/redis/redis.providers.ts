@@ -69,8 +69,7 @@ export const createRedisProvider = (key: RedisInstanceKey): Provider => ({
                 ],
                 defaults: {
                     password,
-                    ...(additionalOptions || {
-                    }),
+                    ...additionalOptions,
                 },
             })
             return cluster
@@ -81,8 +80,7 @@ export const createRedisProvider = (key: RedisInstanceKey): Provider => ({
                 port,
             },
             password,
-            ...(additionalOptions || {
-            }),
+            ...additionalOptions,
         })
         return client
     },

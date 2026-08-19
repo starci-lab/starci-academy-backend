@@ -36,5 +36,4 @@ export interface SetupSwaggerParams {
     swaggerEndpoint?: string
 }
 
-/** Result of Swagger setup (configures the Nest app in place). */
-export type SetupSwaggerResult = void
+

@@ -9,7 +9,7 @@ import {
 } from "jsonwebtoken"
 import {
     randomUUID
-} from "crypto"
+} from "node:crypto"
 import {
     In,
     IsNull,
@@ -61,18 +61,14 @@ import {
 } from "./utils/parse-device-info"
 import type {
     AssertCurrentSessionParams,
-    AssertCurrentSessionResult,
     EndSessionParams,
-    EndSessionResult,
     ListSessionsParams,
     ListSessionsResult,
     MarkSessionRevokedParams,
     PersistSessionParams,
     RevokeSessionParams,
-    RevokeSessionResult,
     SessionRecord,
     StartSessionParams,
-    StartSessionResult
 } from "./types"
 
 @Injectable()
@@ -111,7 +107,7 @@ export class SessionService {
      * @example
      * await sessionService.startSession({ res: ctx.res, req: ctx.req, accessToken })
      */
-    async startSession({ res, req, accessToken }: StartSessionParams): Promise<StartSessionResult> {
+    async startSession({ res, req, accessToken }: StartSessionParams): Promise<void> {
         // identify the user from the freshly-minted token's subject claim
         const userId = this.extractSubject(accessToken)
         // without a subject we cannot bind a session -- skip silently
@@ -228,7 +224,7 @@ export class SessionService {
      * @example
      * await sessionService.assertCurrent({ userId: verified.sub, sessionId })
      */
-    async assertCurrent({ userId, sessionId }: AssertCurrentSessionParams): Promise<AssertCurrentSessionResult> {
+    async assertCurrent({ userId, sessionId }: AssertCurrentSessionParams): Promise<void> {
         const key = this.key(userId)
         // how many managed sessions the account currently has (heals legacy keys)
         const activeCount = await this.readActiveCount(key)
@@ -265,7 +261,7 @@ export class SessionService {
      * @example
      * await sessionService.endSession({ res: ctx.res, req: ctx.req, refreshToken })
      */
-    async endSession({ res, req, refreshToken }: EndSessionParams): Promise<EndSessionResult> {
+    async endSession({ res, req, refreshToken }: EndSessionParams): Promise<void> {
         // read which device this is from its session cookie before clearing it
         const sessionId = this.cookieService.getCookie(req,
             CookieName.SessionId)
@@ -359,7 +355,7 @@ export class SessionService {
      * @example
      * await sessionService.revokeSession({ keycloakId: user.keycloakId, sessionId })
      */
-    async revokeSession({ keycloakId, sessionId }: RevokeSessionParams): Promise<RevokeSessionResult> {
+    async revokeSession({ keycloakId, sessionId }: RevokeSessionParams): Promise<void> {
         // locate the active persisted row; absence means nothing to revoke
         const row = await this.entityManager.findOne(
             LoginSessionEntity,

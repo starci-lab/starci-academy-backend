@@ -124,7 +124,10 @@ export class TransactionReconcileQueryService {
         const data = (
             (httpBody.data as Record<string, unknown> | undefined) ?? httpBody
         )
-        const status = String(data.status ?? data.order_status ?? "").toLowerCase()
+        const rawStatus = data.status ?? data.order_status
+        const status = (
+            typeof rawStatus === "string" ? rawStatus : ""
+        ).toLowerCase()
         if (
             data.paid === true
             || [

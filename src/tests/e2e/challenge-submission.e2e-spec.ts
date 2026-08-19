@@ -1011,7 +1011,7 @@ describe("a learner's challenge submission is graded by the durable worker",
                     success: false,
                     data: null,
                 })
-                expect(invokeSpy.mock.calls.length).toBe(callsBefore)
+                expect(invokeSpy.mock.calls).toHaveLength(callsBefore)
                 expect(jobs).toBe(0)
                 expect(attempts).toBe(0)
                 expect(ledger).toBe(0)

@@ -9,6 +9,3 @@ export interface RecordDeviceParams {
     /** Raw User-Agent, or null. */
     userAgent: string | null
 }
-
-/** Result of recording a device (void). */
-export type RecordDeviceResult = void

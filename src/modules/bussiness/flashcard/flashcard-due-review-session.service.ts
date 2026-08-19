@@ -156,7 +156,7 @@ export class FlashcardDueReviewSessionService {
             },
         )
 
-        if (!session || session.status !== "in_progress") {
+        if (session?.status !== "in_progress") {
             return {
                 success: false,
             }

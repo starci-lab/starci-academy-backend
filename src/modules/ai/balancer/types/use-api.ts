@@ -8,6 +8,9 @@ import type {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
 import type {
+    AiModelEntity,
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
+import type {
     AiErrorKind,
 } from "../enums/ai-error-kind"
 
@@ -256,3 +259,32 @@ export interface BuildProbeRequestResult {
     headers: Record<string, string>
     body: unknown
 }
+
+/** Params to resolve the Auto lane's model chain -- category/task filtered, health/latency-ordered. */
+export interface ResolveAutoModelChainParams {
+    /** Optional single-category filter (see {@link UseApiAutoParams.category}). */
+    category?: AiModelCategory
+    /** Optional multi-category entitlement chain (see {@link UseApiAutoParams.categories}). */
+    categories?: Array<AiModelCategory>
+    /** Task this run serves, used to task-filter + latency-order (see {@link UseApiAutoParams.task}). */
+    task?: AiModelTask
+}
+
+/** Params to attempt every eligible key for ONE model in the Auto chain. */
+export interface AttemptModelKeysParams<TResult> {
+    /** The model being attempted. */
+    model: AiModelEntity
+    /** Eligible key count for {@link model}'s provider, already resolved by the caller. */
+    eligibleCount: number
+    /** Worker callback -- receives the picked key/model, returns the result. */
+    action: UseApiAction<TResult>
+    /** The chain-wide attempt counter BEFORE this model is tried. */
+    attempts: number
+    /** The chain-wide max attempts (shared budget across every model). */
+    maxAttempts: number
+}
+
+/** Result of {@link UseApiService.attemptModelKeys} -- either a winning result, or exhaustion with the updated counter. */
+export type AttemptModelKeysResult<TResult> =
+    | { type: "success", attempts: number, result: TResult }
+    | { type: "exhausted", attempts: number, lastError: Error | undefined }

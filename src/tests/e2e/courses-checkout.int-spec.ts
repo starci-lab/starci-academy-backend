@@ -109,9 +109,25 @@ import type {
 import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
+import type {
+    NowPaymentsCheckoutClientMock,
+    PayosCheckoutClientMock,
+    PaypalCheckoutClientMock,
+    SepayCheckoutClientMock,
+    StripeCheckoutClientMock,
+} from "@tests/helpers/types/checkout-client-mocks"
+import type {
+    EnqueueJobMock,
+} from "@tests/helpers/types/job-enqueue-mocks"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
+
+/** The pricing overrides {@link seedCourse} accepts for its EarlyBird fixture row. */
+type SeedCoursePricingParams = {
+    priceVnd?: number
+    priceUsd?: number | null
+}
 
 /**
  * Integration coverage for the multi-course cart checkout (`courses/courses-checkout`).
@@ -138,33 +154,12 @@ describe("Courses checkout — multi-course cart (integration)",
         let app: INestApplication
         let entityManager: EntityManager
         let handler: CoursesCheckoutHandler
-        let payosClient: {
-            paymentRequests: {
-                create: jest.Mock
-            }
-        }
-        let sepayClient: {
-            checkout: {
-                initCheckoutUrl: jest.Mock
-                initOneTimePaymentFields: jest.Mock
-            }
-        }
-        let stripeClient: {
-            checkout: {
-                sessions: {
-                    create: jest.Mock
-                }
-            }
-        }
-        let paypalClient: {
-            createOrder: jest.Mock
-        }
-        let nowPaymentsClient: {
-            createInvoice: jest.Mock
-        }
-        let enqueueReconcileTransactionJob: {
-            enqueue: jest.Mock
-        }
+        let payosClient: PayosCheckoutClientMock
+        let sepayClient: SepayCheckoutClientMock
+        let stripeClient: StripeCheckoutClientMock
+        let paypalClient: PaypalCheckoutClientMock
+        let nowPaymentsClient: NowPaymentsCheckoutClientMock
+        let enqueueReconcileTransactionJob: EnqueueJobMock
 
         /** Raw EarlyBird VND tier price seeded on every fixture course (pre non-prod /100 divisor). */
         const EARLYBIRD_PRICE_VND = 1_000_000
@@ -283,7 +278,7 @@ describe("Courses checkout — multi-course cart (integration)",
             {
                 priceVnd = EARLYBIRD_PRICE_VND,
                 priceUsd = null,
-            }: { priceVnd?: number, priceUsd?: number | null } = {
+            }: SeedCoursePricingParams = {
             },
         ): Promise<CourseEntity> => {
             const course = await entityManager.save(

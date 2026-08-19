@@ -12,16 +12,16 @@ import {
     readdir,
     rm,
     cp,
-} from "fs/promises"
+} from "node:fs/promises"
 import {
     existsSync,
-} from "fs"
+} from "node:fs"
 import {
     join,
-} from "path"
+} from "node:path"
 import {
     tmpdir,
-} from "os"
+} from "node:os"
 import * as tar from "tar"
 import {
     envConfig,

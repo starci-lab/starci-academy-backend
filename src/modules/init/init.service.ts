@@ -4,10 +4,10 @@ import {
 } from "@nestjs/common"
 import {
     readdir,
-} from "fs/promises"
+} from "node:fs/promises"
 import {
     join,
-} from "path"
+} from "node:path"
 import {
     envConfig,
 } from "@modules/platform/env/config"
@@ -20,6 +20,7 @@ import {
 } from "@modules/filesystem/utils/mount-seed"
 import type {
     InitConfig,
+    InitScopeMode,
     SeedConfig,
 } from "@modules/filesystem/types/seed"
 import {
@@ -105,22 +106,12 @@ export class InitService implements OnModuleInit {
         // explicit `seed:`/`sync:` blocks drive the pipeline directly; otherwise the
         // coarse `mode` picks all / diff / none (default diff)
         const initConfig = getInitConfig()
-
-        // master kill-switch: `enable: false` in seed.yaml skips the ENTIRE init --
-        // no git pull, no seed, no sync (fastest local boot). Default is enabled.
-        if (initConfig.enable === false) {
-            this.logScoped(false,
-                0,
-                0,
-                0)
-            return
-        }
-
         const isExplicit = Boolean(initConfig.seed) || Boolean(initConfig.sync)
         const mode = initConfig.mode ?? "diff"
 
-        // no explicit blocks AND `mode: none` -> init disabled: skip both phases
-        if (!isExplicit && mode === "none") {
+        if (this.isInitDisabled(initConfig,
+            isExplicit,
+            mode)) {
             this.logScoped(false,
                 0,
                 0,
@@ -150,13 +141,13 @@ export class InitService implements OnModuleInit {
 
         // seed from the new snapshot when we have one, else the newest local snapshot
         const snapshotRoot = result?.snapshotRoot ?? null
-        const configToApply = isExplicit
-            ? await this.buildExplicitConfig(initConfig,
-                snapshotRoot)
-            : mode === "all"
-                ? await this.buildAllConfig(snapshotRoot)
-                : await this.resolveConfig(result,
-                    snapshotRoot)
+        const configToApply = await this.resolveConfigToApply(
+            initConfig,
+            isExplicit,
+            mode,
+            result,
+            snapshotRoot,
+        )
 
         if (snapshotRoot) {
             setRuntimeContextRoot(snapshotRoot)
@@ -170,115 +161,214 @@ export class InitService implements OnModuleInit {
             if (this.seedScopeService.isSeedersEnabled()) {
                 await this.seedersService.init()
             }
-            // phase 2: project the seeded DB out to CDN + Elasticsearch when enabled.
-            // Non-fatal: a projection/ES sync failure (e.g. an ES bulk timeout under
-            // memory pressure during reindexAll/indexer/reconcile) must NEVER prevent
-            // the HTTP server from coming up. The CDC listeners + lazy projection
-            // recompute heal these read-models afterwards (mirrors the asset-sync
-            // swallow policy below).
-            if (this.syncScopeService.isSynchronizersEnabled()) {
-                try {
-                    await this.synchronizersService.init()
-                } catch (error) {
-                    this.winstonService.log(WinstonLog.InitPhaseFailed,
-                        {
-                            op: "init.synchronizers.failed",
-                            error: error instanceof Error ? error.message : String(error),
-                        })
-                }
-            }
-            // phase 2b: mirror the snapshot's STATIC ASSETS (badges, course covers, ...)
-            // to MinIO from the SAME fresh snapshot root. AssetsService's own boot
-            // hook runs OUTSIDE this window (`getRuntimeContextRoot()` is unset -> it
-            // only sees the local `.mount/assets` fallback, which lacks the data-repo
-            // assets), so drive it here while the context root points at the freshly
-            // pulled snapshot's `assets/`. Non-fatal: a static-asset failure must never
-            // roll back a successful seed (mirrors AssetsService's own swallow policy).
-            if (snapshotRoot) {
-                try {
-                    const { assets } = await this.assetsService.sync()
-                    this.winstonService.log(WinstonLog.InitPhaseCompleted,
-                        {
-                            op: "init.assets.mirrored",
-                            count: assets.length,
-                        })
-                } catch (error) {
-                    this.winstonService.log(WinstonLog.InitPhaseFailed,
-                        {
-                            op: "init.assets.failed",
-                            error: error instanceof Error ? error.message : String(error),
-                        })
-                }
-            }
-            // phase 2c: build the per-lesson RAG index in Qdrant from the lesson
-            // bodies + sandbox code now in MinIO. Runs AFTER the synchronizers phase
-            // (so `contents/<id>/<locale>.json` + `repo/.../*.json` exist) and AFTER
-            // seed (so contents are enumerable), inside the runtime-context window.
-            // Gated behind a flag (embedding every lesson hits the embedding lane +
-            // costs boot time on every reseed) and non-fatal (a RAG build failure must
-            // never roll back a successful seed -- content-AI chat degrades to whole-body
-            // stuffing when the index is absent).
-            if (snapshotRoot && envConfig().services.contentRag.enabled) {
-                try {
-                    const { indexed } = await this.contentRagIndexService.build()
-                    this.winstonService.log(WinstonLog.InitPhaseCompleted,
-                        {
-                            op: "init.content-rag.completed",
-                            count: indexed,
-                        })
-                } catch (error) {
-                    this.winstonService.log(WinstonLog.InitPhaseFailed,
-                        {
-                            op: "init.content-rag.failed",
-                            error: error instanceof Error ? error.message : String(error),
-                        })
-                }
-            }
-            // phase 2d: build the CV-authoring reference RAG index (rubrics +
-            // skill/metric/etc. catalogs + sample CVs, from `.mount/data/cv/`)
-            // into its own persistent `cv_rag` Qdrant collection. Same window +
-            // same non-fatal policy as phase 2c -- reuses the content-RAG flag
-            // (both are "build a persistent RAG index at init" toggles; a
-            // dedicated cvRag flag isn't worth a second env key yet). CV
-            // generation degrades to prompt-only (no reference grounding) when
-            // this index is absent, same as content-AI chat degrading to
-            // whole-body stuffing.
-            if (snapshotRoot && envConfig().services.contentRag.enabled) {
-                try {
-                    const { indexed } = await this.cvRagIndexService.build()
-                    this.winstonService.log(WinstonLog.InitPhaseCompleted,
-                        {
-                            op: "init.cv-rag.completed",
-                            count: indexed,
-                        })
-                } catch (error) {
-                    this.winstonService.log(WinstonLog.InitPhaseFailed,
-                        {
-                            op: "init.cv-rag.failed",
-                            error: error instanceof Error ? error.message : String(error),
-                        })
-                }
-            }
+            await this.runSynchronizersPhase()
+            await this.runAssetsMirrorPhase(snapshotRoot)
+            await this.runContentRagPhase(snapshotRoot)
+            await this.runCvRagPhase(snapshotRoot)
             // success -> record the snapshot in the manifest + prune the oldest
             if (result) {
                 await this.dataGitBootstrapService.commitSnapshot(result)
                 committed = true
             }
         } finally {
-            // drop the in-memory overrides so later runtime reads see the real config
-            clearRuntimeSeedConfig()
-            if (snapshotRoot) {
-                clearRuntimeContextRoot()
-            }
-            // a failed seed -> discard the new snapshot so the previous stays baseline
-            if (result && !committed) {
-                await this.dataGitBootstrapService.rollbackSnapshot(result)
-            }
-            // always drop the downloaded tarball temp dir
-            if (result) {
-                await this.dataGitBootstrapService.cleanup(result)
-            }
+            await this.finalizeInitAttempt(result,
+                committed,
+                snapshotRoot)
         }
+    }
+
+    /**
+     * Decides whether init should skip entirely: the master kill-switch
+     * (`enable: false`), or no explicit `seed:`/`sync:` block with `mode: none`.
+     * @param initConfig - The parsed `seed.yaml`.
+     * @param isExplicit - Whether an explicit `seed:`/`sync:` block is present.
+     * @param mode - The resolved coarse mode (`all` / `diff` / `none`).
+     */
+    private isInitDisabled(
+        initConfig: InitConfig,
+        isExplicit: boolean,
+        mode: InitScopeMode,
+    ): boolean {
+        // master kill-switch: `enable: false` in seed.yaml skips the ENTIRE init --
+        // no git pull, no seed, no sync (fastest local boot). Default is enabled.
+        if (initConfig.enable === false) {
+            return true
+        }
+        // no explicit blocks AND `mode: none` -> init disabled: skip both phases
+        return !isExplicit && mode === "none"
+    }
+
+    /**
+     * Resolves which seed config to apply: the explicit `seed:`/`sync:` config,
+     * a full reseed for `mode: all`, or the diff-narrowed config otherwise.
+     */
+    private async resolveConfigToApply(
+        initConfig: InitConfig,
+        isExplicit: boolean,
+        mode: InitScopeMode,
+        result: EnsureDataGitResult | null,
+        snapshotRoot: string | null,
+    ): Promise<SeedConfig> {
+        if (isExplicit) {
+            return this.buildExplicitConfig(initConfig,
+                snapshotRoot)
+        }
+        if (mode === "all") {
+            return this.buildAllConfig(snapshotRoot)
+        }
+        return this.resolveConfig(result,
+            snapshotRoot)
+    }
+
+    /**
+     * Phase 2: project the seeded DB out to CDN + Elasticsearch when enabled.
+     * Non-fatal: a projection/ES sync failure (e.g. an ES bulk timeout under
+     * memory pressure during reindexAll/indexer/reconcile) must NEVER prevent
+     * the HTTP server from coming up. The CDC listeners + lazy projection
+     * recompute heal these read-models afterwards (mirrors the asset-sync
+     * swallow policy below).
+     */
+    private async runSynchronizersPhase(): Promise<void> {
+        if (!this.syncScopeService.isSynchronizersEnabled()) {
+            return
+        }
+        try {
+            await this.synchronizersService.init()
+        } catch (error) {
+            this.winstonService.log(WinstonLog.InitPhaseFailed,
+                {
+                    op: "init.synchronizers.failed",
+                    error: error instanceof Error ? error.message : String(error),
+                })
+        }
+    }
+
+    /**
+     * Phase 2b: mirror the snapshot's STATIC ASSETS (badges, course covers, ...)
+     * to MinIO from the SAME fresh snapshot root. AssetsService's own boot
+     * hook runs OUTSIDE this window (`getRuntimeContextRoot()` is unset -> it
+     * only sees the local `.mount/assets` fallback, which lacks the data-repo
+     * assets), so drive it here while the context root points at the freshly
+     * pulled snapshot's `assets/`. Non-fatal: a static-asset failure must never
+     * roll back a successful seed (mirrors AssetsService's own swallow policy).
+     * @param snapshotRoot - The fresh snapshot root, or `null` when there is none.
+     */
+    private async runAssetsMirrorPhase(
+        snapshotRoot: string | null,
+    ): Promise<void> {
+        if (!snapshotRoot) {
+            return
+        }
+        try {
+            const { assets } = await this.assetsService.sync()
+            this.winstonService.log(WinstonLog.InitPhaseCompleted,
+                {
+                    op: "init.assets.mirrored",
+                    count: assets.length,
+                })
+        } catch (error) {
+            this.winstonService.log(WinstonLog.InitPhaseFailed,
+                {
+                    op: "init.assets.failed",
+                    error: error instanceof Error ? error.message : String(error),
+                })
+        }
+    }
+
+    /**
+     * Phase 2c: build the per-lesson RAG index in Qdrant from the lesson
+     * bodies + sandbox code now in MinIO. Runs AFTER the synchronizers phase
+     * (so `contents/<id>/<locale>.json` + `repo/.../*.json` exist) and AFTER
+     * seed (so contents are enumerable), inside the runtime-context window.
+     * Gated behind a flag (embedding every lesson hits the embedding lane +
+     * costs boot time on every reseed) and non-fatal (a RAG build failure must
+     * never roll back a successful seed -- content-AI chat degrades to whole-body
+     * stuffing when the index is absent).
+     * @param snapshotRoot - The fresh snapshot root, or `null` when there is none.
+     */
+    private async runContentRagPhase(
+        snapshotRoot: string | null,
+    ): Promise<void> {
+        if (!snapshotRoot || !envConfig().services.contentRag.enabled) {
+            return
+        }
+        try {
+            const { indexed } = await this.contentRagIndexService.build()
+            this.winstonService.log(WinstonLog.InitPhaseCompleted,
+                {
+                    op: "init.content-rag.completed",
+                    count: indexed,
+                })
+        } catch (error) {
+            this.winstonService.log(WinstonLog.InitPhaseFailed,
+                {
+                    op: "init.content-rag.failed",
+                    error: error instanceof Error ? error.message : String(error),
+                })
+        }
+    }
+
+    /**
+     * Phase 2d: build the CV-authoring reference RAG index (rubrics +
+     * skill/metric/etc. catalogs + sample CVs, from `.mount/data/cv/`)
+     * into its own persistent `cv_rag` Qdrant collection. Same window +
+     * same non-fatal policy as phase 2c -- reuses the content-RAG flag
+     * (both are "build a persistent RAG index at init" toggles; a
+     * dedicated cvRag flag isn't worth a second env key yet). CV
+     * generation degrades to prompt-only (no reference grounding) when
+     * this index is absent, same as content-AI chat degrading to
+     * whole-body stuffing.
+     * @param snapshotRoot - The fresh snapshot root, or `null` when there is none.
+     */
+    private async runCvRagPhase(
+        snapshotRoot: string | null,
+    ): Promise<void> {
+        if (!snapshotRoot || !envConfig().services.contentRag.enabled) {
+            return
+        }
+        try {
+            const { indexed } = await this.cvRagIndexService.build()
+            this.winstonService.log(WinstonLog.InitPhaseCompleted,
+                {
+                    op: "init.cv-rag.completed",
+                    count: indexed,
+                })
+        } catch (error) {
+            this.winstonService.log(WinstonLog.InitPhaseFailed,
+                {
+                    op: "init.cv-rag.failed",
+                    error: error instanceof Error ? error.message : String(error),
+                })
+        }
+    }
+
+    /**
+     * Unwinds a boot attempt: always drops the runtime overrides, rolls the new
+     * snapshot back when the seed didn't commit, and always drops the downloaded
+     * tarball temp dir.
+     * @param result - The bootstrap result, or `null` when the pull failed.
+     * @param committed - Whether the snapshot was committed to the manifest.
+     * @param snapshotRoot - The fresh snapshot root, or `null` when there is none.
+     */
+    private async finalizeInitAttempt(
+        result: EnsureDataGitResult | null,
+        committed: boolean,
+        snapshotRoot: string | null,
+    ): Promise<void> {
+        // drop the in-memory overrides so later runtime reads see the real config
+        clearRuntimeSeedConfig()
+        if (snapshotRoot) {
+            clearRuntimeContextRoot()
+        }
+        if (!result) {
+            return
+        }
+        // a failed seed -> discard the new snapshot so the previous stays baseline
+        if (!committed) {
+            await this.dataGitBootstrapService.rollbackSnapshot(result)
+        }
+        // always drop the downloaded tarball temp dir
+        await this.dataGitBootstrapService.cleanup(result)
     }
 
     /**
@@ -411,7 +501,7 @@ export class InitService implements OnModuleInit {
                 .filter((name) => /^\d+(-|$)/u.test(name))
                 // strip the leading `{orderIndex}-` to recover the displayId
                 .map((name) => {
-                    const match = name.match(/^\d+-(.+)$/u)
+                    const match = /^\d+-(.+)$/u.exec(name)
                     return match ? match[1] : name
                 })
         } catch {

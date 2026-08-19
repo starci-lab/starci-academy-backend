@@ -95,9 +95,12 @@ export interface PaypalErrorResponseBody {
     details?: Array<PaypalErrorDetail>
 }
 
+/** The `response` field of {@link PaypalAxiosErrorLike}. */
+export interface PaypalAxiosErrorResponse {
+    data?: PaypalErrorResponseBody
+}
+
 /** Minimal shape we read off a thrown axios error carrying a PayPal error body. */
 export interface PaypalAxiosErrorLike {
-    response?: {
-        data?: PaypalErrorResponseBody
-    }
+    response?: PaypalAxiosErrorResponse
 }

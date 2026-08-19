@@ -336,7 +336,7 @@ export class UserFlashcardStatsProjectionService {
         }
         // current run ending at the latest day -- only "current" if reviewed
         // today or yesterday, otherwise the streak has lapsed
-        const lastEpoch = epochDaysAsc[epochDaysAsc.length - 1]
+        const lastEpoch = epochDaysAsc.at(-1)!
         let currentStreak = 0
         if (todayEpoch - lastEpoch <= 1) {
             currentStreak = 1

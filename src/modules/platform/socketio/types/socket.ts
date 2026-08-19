@@ -1,7 +1,5 @@
 import type {
-    DefaultEventsMap
-} from "socket.io"
-import type {
+    DefaultEventsMap,
     Socket
 } from "socket.io"
 import type {

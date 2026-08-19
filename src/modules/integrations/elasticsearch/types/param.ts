@@ -10,13 +10,13 @@ export interface SearchParam {
   /** The query. */
   query: estypes.SearchRequest["query"];
   /** The sort. */
-  sort?: estypes.SearchRequest["sort"];
+  sort?: NonNullable<estypes.SearchRequest["sort"]>;
   /** The from. */
   from?: number;
   /** The size. */
   size?: number;
   /** The highlight. */
-  highlight?: estypes.SearchRequest["highlight"];
+  highlight?: NonNullable<estypes.SearchRequest["highlight"]>;
   /** The _source. */
-  _source?: estypes.SearchRequest["_source"];
+  _source?: NonNullable<estypes.SearchRequest["_source"]>;
 }

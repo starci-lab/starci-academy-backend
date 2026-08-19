@@ -139,6 +139,12 @@ import {
 import type {
     FlowWorld,
 } from "@tests/helpers/flow-world"
+import type {
+    SepayCheckoutAndOrderClientMock,
+} from "@tests/helpers/types/checkout-client-mocks"
+import type {
+    EnqueueForTransactionJobMock,
+} from "@tests/helpers/types/job-enqueue-mocks"
 
 /**
  * A learner pays a course off over time.
@@ -159,19 +165,9 @@ describe("a learner pays a course off over time",
         let commandBus: CommandBus
         let enrollStep: EnrollStepService
         let installmentPlanService: InstallmentPlanService
-        let enqueueEnrollFacade: {
-            enqueueForTransaction: jest.Mock
-        }
+        let enqueueEnrollFacade: EnqueueForTransactionJobMock
         let realEnqueueEnroll: EnqueueEnrollJobService
-        let sepayClient: {
-            checkout: {
-                initCheckoutUrl: jest.Mock
-                initOneTimePaymentFields: jest.Mock
-            }
-            order: {
-                retrieve: jest.Mock
-            }
-        }
+        let sepayClient: SepayCheckoutAndOrderClientMock
         let learnerId: string
         let courseId: string
         let originTransactionId: string

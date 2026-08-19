@@ -19,7 +19,6 @@ import type {
 import {
     ElasticsearchService,
 } from "@modules/integrations/elasticsearch/elasticsearch.service"
-import _ from "lodash"
 
 @Injectable()
 /**
@@ -42,7 +41,7 @@ export class ElasticsearchFoundationCategoryBuildService {
         )
         return Object.values(Locale).map(
             (locale) => {
-                const localizedCategory = _.cloneDeep(hydratedCategory)
+                const localizedCategory = structuredClone(hydratedCategory)
                 this.foundationCategoryResolver.transform(
                     localizedCategory,
                     locale,
@@ -53,7 +52,10 @@ export class ElasticsearchFoundationCategoryBuildService {
                 const label = (localizedCategory.title ?? "")
                     .replace(/^Nền tảng\s+/i, // vn-ok: matches vi-locale category title prefix at runtime
                         "")
-                    .replace(/\s+Foundation$/i,
+                    // `(?<!\s)` keeps the unanchored `\s+Foundation$` from being
+                    // retried at every position inside a whitespace run (super-linear
+                    // on pathological input otherwise, same fix as base32.ts's `=+$`).
+                    .replace(/(?<!\s)\s+Foundation$/i,
                         "")
                     .trim()
                 const suggest = {

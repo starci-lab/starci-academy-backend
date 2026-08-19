@@ -98,7 +98,7 @@ export const listGitMountDir = (
     }
     return readdirSync(dir)
         .filter((name) => !name.startsWith("."))
-        .sort()
+        .sort((left, right) => left.localeCompare(right))
 }
 
 /** Whether a mounted-content path exists. */

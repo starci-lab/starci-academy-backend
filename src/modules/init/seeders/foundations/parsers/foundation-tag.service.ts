@@ -59,7 +59,7 @@ export class FoundationTagParserService {
                 value,
                 "",
             ).trim()
-            const translations = Array.from(jsonMap.entries()).map(
+            const translations = Array.from(jsonMap.entries()).flatMap(
                 ([
                     locale,
                     item,
@@ -76,7 +76,7 @@ export class FoundationTagParserService {
                             ).trim(),
                         }))
                 ),
-            ).flat()
+            )
             return {
                 id: tagId,
                 orderIndex,

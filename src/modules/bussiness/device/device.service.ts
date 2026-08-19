@@ -12,7 +12,6 @@ import {
 } from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     RecordDeviceParams,
-    RecordDeviceResult,
 } from "./types"
 
 @Injectable()
@@ -45,7 +44,7 @@ export class DeviceService {
         fingerprint,
         ipAddress,
         userAgent,
-    }: RecordDeviceParams): Promise<RecordDeviceResult> {
+    }: RecordDeviceParams): Promise<void> {
         // without a fingerprint we cannot identify the device -> skip silently
         if (!fingerprint) {
             return

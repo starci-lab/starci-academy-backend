@@ -141,8 +141,8 @@ export class CvEvidenceService {
         const params: Array<string | Array<string>> = []
         if (userId !== undefined) {
             params.push(userId)
-            filters.push(`e.user_id = $${params.length}`)
-            filters.push("mta.passed = true")
+            filters.push(`e.user_id = $${params.length}`,
+                "mta.passed = true")
         }
         if (milestoneTaskAttemptIds !== undefined) {
             params.push(milestoneTaskAttemptIds)

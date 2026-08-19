@@ -123,26 +123,8 @@ export class FlashcardReviewService {
         // simply has no review rows -> every card reads as NEW). The DASHBOARD (global)
         // queue spans every course, so it keeps keying the review by user_id (a single
         // enrollment id does not exist across courses).
-        const enrollmentId = courseId
-            ? (
-                await this.entityManager.findOne(
-                    EnrollmentEntity,
-                    {
-                        where: {
-                            user: {
-                                id: userId,
-                            },
-                            course: {
-                                id: courseId,
-                            },
-                        },
-                        select: {
-                            id: true,
-                        },
-                    },
-                )
-            )?.id ?? null
-            : null
+        const enrollmentId = await this.resolveEnrollmentId(userId,
+            courseId)
 
         // shared scaffold: card -> deck SCOPED TO THE COURSE (the due count on
         // a course page must reflect only that course's decks, not every deck
@@ -245,45 +227,13 @@ export class FlashcardReviewService {
             }
         }
 
-        // load the full card graph (deck + both their translations) for the page
-        const cards = await this.entityManager.find(
-            FlashcardCardEntity,
-            {
-                where: {
-                    id: In(cardIds),
-                },
-                relations: {
-                    deck: {
-                        translations: true,
-                    },
-                    translations: true,
-                },
-            },
-        )
-        // localize each card via its deck (the deck resolver localizes the deck
-        // title AND recurses into the card front/back). Localize once per distinct
-        // deck so a shared deck is not transformed twice.
-        const localizedDeckTitleById = new Map<string, string>()
-        const cardById = new Map<string, FlashcardCardEntity>()
-        for (const card of cards) {
-            const deck = card.deck
-            if (deck && !localizedDeckTitleById.has(deck.id)) {
-                // clone-free in-place localize: load just THIS card under the deck so
-                // the resolver localizes both the deck title and the card text
-                deck.cards = [
-                    card,
-                ]
-                this.flashcardDeckResolver.transform(
-                    deck,
-                    locale,
-                    deck.defaultLocale ?? Locale.En,
-                )
-                localizedDeckTitleById.set(deck.id,
-                    deck.title)
-            }
-            cardById.set(card.id,
-                card)
-        }
+        // load + localize the page's cards (deck + both their translations),
+        // localizing once per distinct deck.
+        const {
+            localizedDeckTitleById,
+            cardById,
+        } = await this.loadAndLocalizeCards(cardIds,
+            locale)
 
         // Gate premium answers behind enrollment, mirroring the content paywall's
         // isEntitled/lockPremiumContent pair (`content.handler.ts:174-184`) -- this
@@ -294,30 +244,18 @@ export class FlashcardReviewService {
         // request's optional `courseId` -- cached per distinct course id so a shared
         // course is only checked once.
         const entitledByCourseId = await this.resolveEntitlementByCourseId(
-            cards,
+            [...cardById.values()],
             userId,
         )
 
         // preserve the due-order page ordering (find does not guarantee it)
-        const localized: Array<DueFlashcard> = cardIds
-            .map((id) => cardById.get(id))
-            .filter((card): card is FlashcardCardEntity => Boolean(card))
-            .map((card) => ({
-                cardId: card.id,
-                deckTitle: card.deck
-                    ? (localizedDeckTitleById.get(card.deck.id) ?? card.deck.title)
-                    : "",
-                front: card.question,
-                back: this.isEntitledToCard(card,
-                    entitledByCourseId)
-                    ? (card.answer ?? "")
-                    : "",
-                level: card.level ?? null,
-                tags: card.tags ?? [],
-                nextIntervals: this.previewIntervals(
-                    priorByCardId.get(card.id) ?? NEW_CARD_STATE,
-                ),
-            }))
+        const localized = this.mapToDueFlashcards(
+            cardIds,
+            cardById,
+            localizedDeckTitleById,
+            priorByCardId,
+            entitledByCourseId,
+        )
         return {
             dueCount,
             dueReviewCount,
@@ -356,26 +294,8 @@ export class FlashcardReviewService {
 
         // same enrollment-vs-user review-row keying as `listDue` (course page ->
         // enrollment; no course context -> user-wide).
-        const enrollmentId = courseId
-            ? (
-                await this.entityManager.findOne(
-                    EnrollmentEntity,
-                    {
-                        where: {
-                            user: {
-                                id: userId,
-                            },
-                            course: {
-                                id: courseId,
-                            },
-                        },
-                        select: {
-                            id: true,
-                        },
-                    },
-                )
-            )?.id ?? null
-            : null
+        const enrollmentId = await this.resolveEnrollmentId(userId,
+            courseId)
 
         // a course-scoped call with NO resolved enrollment has no course-scoped
         // review rows to find (mirrors `listDue`'s raw-SQL `review.enrollment_id
@@ -430,67 +350,27 @@ export class FlashcardReviewService {
 
         // load + localize exactly like `listDue`'s tail (deck + translations,
         // localize once per distinct deck).
-        const cards = await this.entityManager.find(
-            FlashcardCardEntity,
-            {
-                where: {
-                    id: In(cardIds),
-                },
-                relations: {
-                    deck: {
-                        translations: true,
-                    },
-                    translations: true,
-                },
-            },
-        )
-        const localizedDeckTitleById = new Map<string, string>()
-        const cardById = new Map<string, FlashcardCardEntity>()
-        for (const card of cards) {
-            const deck = card.deck
-            if (deck && !localizedDeckTitleById.has(deck.id)) {
-                deck.cards = [
-                    card,
-                ]
-                this.flashcardDeckResolver.transform(
-                    deck,
-                    locale,
-                    deck.defaultLocale ?? Locale.En,
-                )
-                localizedDeckTitleById.set(deck.id,
-                    deck.title)
-            }
-            cardById.set(card.id,
-                card)
-        }
+        const {
+            localizedDeckTitleById,
+            cardById,
+        } = await this.loadAndLocalizeCards(cardIds,
+            locale)
 
         // Gate premium answers behind enrollment -- same rationale as `listDue`
         // (see the comment there); this batch can likewise mix cards drawn from
         // several courses (a resumed cross-course due-review batch).
         const entitledByCourseId = await this.resolveEntitlementByCourseId(
-            cards,
+            [...cardById.values()],
             userId,
         )
 
-        return cardIds
-            .map((id) => cardById.get(id))
-            .filter((card): card is FlashcardCardEntity => Boolean(card))
-            .map((card) => ({
-                cardId: card.id,
-                deckTitle: card.deck
-                    ? (localizedDeckTitleById.get(card.deck.id) ?? card.deck.title)
-                    : "",
-                front: card.question,
-                back: this.isEntitledToCard(card,
-                    entitledByCourseId)
-                    ? (card.answer ?? "")
-                    : "",
-                level: card.level ?? null,
-                tags: card.tags ?? [],
-                nextIntervals: this.previewIntervals(
-                    priorByCardId.get(card.id) ?? NEW_CARD_STATE,
-                ),
-            }))
+        return this.mapToDueFlashcards(
+            cardIds,
+            cardById,
+            localizedDeckTitleById,
+            priorByCardId,
+            entitledByCourseId,
+        )
     }
 
     /**
@@ -724,6 +604,145 @@ export class FlashcardReviewService {
     }
 
     /**
+     * Resolve the viewer's enrollment id for `courseId`, READ-ONLY (no trial
+     * create on a read -- a viewer with no enrollment simply has no
+     * course-scoped review rows). Shared by {@link listDue} and {@link listByIds},
+     * which key a course-page review row by enrollment and a course-less
+     * (global/dashboard) call by `userId` instead.
+     *
+     * @param userId - Active user id.
+     * @param courseId - The course page's course id, or `null`/`undefined` for the global queue.
+     * @returns The resolved enrollment id, or `null` when there is no course context
+     *   or no matching enrollment.
+     */
+    private async resolveEnrollmentId(
+        userId: string,
+        courseId: string | null | undefined,
+    ): Promise<string | null> {
+        if (!courseId) {
+            return null
+        }
+        const enrollment = await this.entityManager.findOne(
+            EnrollmentEntity,
+            {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                    course: {
+                        id: courseId,
+                    },
+                },
+                select: {
+                    id: true,
+                },
+            },
+        )
+        return enrollment?.id ?? null
+    }
+
+    /**
+     * Load the full card graph (deck + both their translations) for `cardIds`
+     * and localize each card via its deck, once per distinct deck so a shared
+     * deck is not transformed twice. Shared by {@link listDue} and
+     * {@link listByIds}.
+     *
+     * @param cardIds - The ids to load.
+     * @param locale - The request locale to localize into.
+     * @returns The loaded cards, keyed by id, plus each distinct deck's localized title.
+     */
+    private async loadAndLocalizeCards(
+        cardIds: Array<string>,
+        locale: Locale,
+    ): Promise<{
+        localizedDeckTitleById: Map<string, string>
+        cardById: Map<string, FlashcardCardEntity>
+    }> {
+        const cards = await this.entityManager.find(
+            FlashcardCardEntity,
+            {
+                where: {
+                    id: In(cardIds),
+                },
+                relations: {
+                    deck: {
+                        translations: true,
+                    },
+                    translations: true,
+                },
+            },
+        )
+        // localize each card via its deck (the deck resolver localizes the deck
+        // title AND recurses into the card front/back). Localize once per distinct
+        // deck so a shared deck is not transformed twice.
+        const localizedDeckTitleById = new Map<string, string>()
+        const cardById = new Map<string, FlashcardCardEntity>()
+        for (const card of cards) {
+            const deck = card.deck
+            if (deck && !localizedDeckTitleById.has(deck.id)) {
+                // clone-free in-place localize: load just THIS card under the deck so
+                // the resolver localizes both the deck title and the card text
+                deck.cards = [
+                    card,
+                ]
+                this.flashcardDeckResolver.transform(
+                    deck,
+                    locale,
+                    deck.defaultLocale ?? Locale.En,
+                )
+                localizedDeckTitleById.set(deck.id,
+                    deck.title)
+            }
+            cardById.set(card.id,
+                card)
+        }
+        return {
+            localizedDeckTitleById,
+            cardById,
+        }
+    }
+
+    /**
+     * Map loaded + localized cards to the response shape, in `cardIds` order
+     * (a card id that no longer exists is simply dropped, not errored). Shared
+     * by {@link listDue} and {@link listByIds}.
+     *
+     * @param cardIds - The ids to map, in the order the caller wants back.
+     * @param cardById - Loaded cards from {@link loadAndLocalizeCards}.
+     * @param localizedDeckTitleById - Localized deck titles from {@link loadAndLocalizeCards}.
+     * @param priorByCardId - Each card's prior SM-2 state, for the next-interval preview.
+     * @param entitledByCourseId - Per-course premium entitlement from {@link resolveEntitlementByCourseId}.
+     * @returns The cards, localized, in `cardIds` order.
+     */
+    private mapToDueFlashcards(
+        cardIds: Array<string>,
+        cardById: Map<string, FlashcardCardEntity>,
+        localizedDeckTitleById: Map<string, string>,
+        priorByCardId: Map<string, Omit<ApplySm2Params, "grade">>,
+        entitledByCourseId: Map<string, boolean>,
+    ): Array<DueFlashcard> {
+        return cardIds
+            .map((id) => cardById.get(id))
+            .filter((card): card is FlashcardCardEntity => Boolean(card))
+            .map((card) => ({
+                cardId: card.id,
+                deckTitle: card.deck
+                    ? (localizedDeckTitleById.get(card.deck.id) ?? card.deck.title)
+                    : "",
+                front: card.question,
+                back: this.isEntitledToCard(card,
+                    entitledByCourseId)
+                    ? (card.answer ?? "")
+                    : "",
+                level: card.level ?? null,
+                tags: card.tags ?? [],
+                nextIntervals: this.previewIntervals(
+                    priorByCardId.get(card.id) ?? NEW_CARD_STATE,
+                ),
+            }))
+    }
+
+    /**
      * Whether the viewer may read THIS card's answer: true for a free card, or a
      * premium card whose owning course is entitled per
      * {@link resolveEntitlementByCourseId}. A premium card whose course could not
@@ -772,11 +791,14 @@ export class FlashcardReviewService {
         const ease = Math.max(EASE_FLOOR,
             prevEase + delta)
         // interval schedule: 1d -> 6d -> round(prevInterval * ease)
-        const intervalDays = repetitions === 1
-            ? 1
-            : repetitions === 2
-                ? 6
-                : Math.round(prevInterval * ease)
+        let intervalDays: number
+        if (repetitions === 1) {
+            intervalDays = 1
+        } else if (repetitions === 2) {
+            intervalDays = 6
+        } else {
+            intervalDays = Math.round(prevInterval * ease)
+        }
         return {
             ease,
             intervalDays,

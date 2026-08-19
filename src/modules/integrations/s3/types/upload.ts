@@ -7,7 +7,7 @@ import type {
 } from "../enums/s3"
 import {
     Readable 
-} from "stream"
+} from "node:stream"
 
 /** Serialization used for the JSON body written to S3. */
 export type UploadJsonEncoding = "superjson" | "json"

@@ -6,11 +6,8 @@ import type {
 } from "express"
 import {
     AttachHttpOnlyCookieParams,
-    AttachHttpOnlyCookieResult,
     AttachReadableCookieParams,
-    AttachReadableCookieResult,
     ClearCookieParams,
-    ClearCookieResult,
     CookieRequestLike,
 } from "./types/cookie"
 import {
@@ -48,7 +45,7 @@ export class CookieService {
         name,
         value,
         options,
-    }: AttachHttpOnlyCookieParams): AttachHttpOnlyCookieResult {
+    }: AttachHttpOnlyCookieParams): void {
         const defaultOptions: CookieOptions = {
             httpOnly: true,
             secure: envConfig().isProduction,
@@ -106,7 +103,7 @@ export class CookieService {
         name,
         value,
         options,
-    }: AttachReadableCookieParams): AttachReadableCookieResult {
+    }: AttachReadableCookieParams): void {
         // httpOnly is intentionally false so the SPA can read the token and
         // mirror it into the X-CSRF-Token header (double-submit pattern)
         const defaultOptions: CookieOptions = {
@@ -145,7 +142,7 @@ export class CookieService {
         res,
         name,
         options,
-    }: ClearCookieParams): ClearCookieResult {
+    }: ClearCookieParams): void {
         res.clearCookie(name,
             {
                 httpOnly: true,
@@ -189,7 +186,7 @@ export class CookieService {
         // 2. Fallback to manual header parsing
         const cookieHeader = req.headers?.cookie
         if (typeof cookieHeader === "string") {
-            const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`))
+            const match = new RegExp(String.raw`(?:^|;\s*)${name}=([^;]+)`).exec(cookieHeader)
             if (match?.[1]) {
                 return decodeURIComponent(match[1].trim())
             }
@@ -218,7 +215,7 @@ export class CookieService {
         }
         const values: Array<string> = []
         // scan every `name=value` pair (the global flag walks past the first match)
-        const regex = new RegExp(`(?:^|;\\s*)${name}=([^;]+)`,
+        const regex = new RegExp(String.raw`(?:^|;\s*)${name}=([^;]+)`,
             "g")
         let match: RegExpExecArray | null = regex.exec(cookieHeader)
         while (match !== null) {

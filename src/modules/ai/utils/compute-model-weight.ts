@@ -22,7 +22,7 @@ export const WEIGHT_COST_REFERENCE_USD = 0.001
  * Floor applied to the per-call cost before dividing, so a genuinely free model
  * yields a large-but-finite factor instead of `Infinity`.
  */
-export const WEIGHT_MIN_COST_USD = 0.000_001
+export const WEIGHT_MIN_COST_USD = 1e-6
 
 /**
  * Cost of one typical call, in USD, using the same prompt/completion token mix

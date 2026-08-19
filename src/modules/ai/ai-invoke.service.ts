@@ -55,17 +55,21 @@ import {
 import {
     resolveGradingInvokeOptions,
 } from "./utils/resolve-grading-invoke-options"
+import {
+    extractMessageText,
+} from "./utils/extract-message-text"
 import type {
     AiInvokeParams,
     AiInvokeResult,
     AiRunParams,
     AiRunResult,
+    AiStreamChunk,
     AiStreamParams,
     AiStreamResult,
     BuildClientParams,
-} from "./types/ai-invoke"
-import type {
+    ClassifyStreamFailureParams,
     StreamActionResult,
+    StreamChunkTotals,
 } from "./types/ai-invoke"
 
 
@@ -286,9 +290,7 @@ export class AiInvokeService {
                 // not just on stream. Missing -> 0 (caller falls back to a flat cost).
                 const usage = response.usage_metadata
                 return {
-                    text: typeof response.content === "string"
-                        ? response.content
-                        : String(response.content),
+                    text: extractMessageText(response.content),
                     promptTokens: usage?.input_tokens ?? 0,
                     completionTokens: usage?.output_tokens ?? 0,
                     // Prompt-cache hits are INCLUDED in `input_tokens`, but the
@@ -402,11 +404,13 @@ export class AiInvokeService {
             // balancer has accepted this attempt as the winner; otherwise a
             // mid-stream failure followed by fallback would concatenate model A's
             // partial answer with model B's complete answer on the wire.
-            let text = ""
-            const deltas: Array<string> = []
-            let promptTokens = 0
-            let completionTokens = 0
-            let cachedTokens = 0
+            const totals: StreamChunkTotals = {
+                text: "",
+                deltas: [],
+                promptTokens: 0,
+                completionTokens: 0,
+                cachedTokens: 0,
+            }
             // hard per-attempt timeout aborts the stream; combine it with the
             // caller's abort signal (user-stop). A TIMEOUT is surfaced as a plain
             // error -> Transient -> next model; a USER abort stays AbortError -> stop.
@@ -420,19 +424,9 @@ export class AiInvokeService {
                 },
                 this.invokeTimeoutMs,
             )
-            if (signal) {
-                if (signal.aborted) {
-                    controller.abort()
-                } else {
-                    signal.addEventListener(
-                        "abort",
-                        abortFromCaller,
-                        {
-                            once: true,
-                        },
-                    )
-                }
-            }
+            this.linkCallerAbort(signal,
+                controller,
+                abortFromCaller)
             try {
                 // `stream` yields AIMessageChunk objects; the combined signal cancels
                 // the upstream HTTP request on user-abort OR timeout
@@ -443,53 +437,16 @@ export class AiInvokeService {
                     },
                 )
                 for await (const chunk of stream) {
-                    // chunk.content is string for chat models; coerce defensively
-                    const delta = typeof chunk.content === "string"
-                        ? chunk.content
-                        : String(chunk.content)
-                    if (delta.length > 0) {
-                        // Preserve provider chunk boundaries for a post-success
-                        // flush, but do not expose this attempt yet.
-                        text += delta
-                        deltas.push(delta)
-                    }
-                    // some providers attach running usage on the final chunk(s) -- keep the
-                    // last reported counts so completion totals reflect the whole stream
-                    const usage = chunk.usage_metadata
-                    if (usage) {
-                        promptTokens = usage.input_tokens ?? promptTokens
-                        completionTokens = usage.output_tokens ?? completionTokens
-                        // the chatbot resends its whole history every turn, so the
-                        // cached share of the prompt is exactly where the saving
-                        // lives -- capture it or the learner pays full price for
-                        // tokens the provider discounted
-                        cachedTokens = usage.input_token_details?.cache_read
-                            ?? cachedTokens
-                    }
+                    this.foldStreamChunk(chunk,
+                        totals)
                 }
-                return {
-                    text,
-                    deltas,
-                    promptTokens,
-                    completionTokens,
-                    cachedTokens,
-                }
+                return totals
             } catch (error) {
-                if (timedOut) {
-                    throw new AiStreamTimeoutException({
-                        timeoutMs: this.invokeTimeoutMs,
-                    })
-                }
-                // Provider SDKs do not consistently preserve AbortError when
-                // their HTTP request is cancelled. Normalize a caller-owned
-                // abort here so the balancer always classifies it NonKey and
-                // stops instead of retrying another key/model.
-                if (signal?.aborted) {
-                    const abortError = new Error("AI stream aborted by caller")
-                    abortError.name = "AbortError"
-                    throw abortError
-                }
-                throw error
+                throw this.classifyStreamFailure({
+                    error,
+                    timedOut,
+                    signal,
+                })
             } finally {
                 clearTimeout(timer)
                 signal?.removeEventListener("abort",
@@ -551,6 +508,99 @@ export class AiInvokeService {
             completionTokens: result.completionTokens,
             cachedTokens: result.cachedTokens,
         }
+    }
+
+    /**
+     * Wire the caller's abort signal into the per-attempt controller: abort
+     * immediately if it is already aborted, otherwise forward a future abort.
+     * @param signal - The caller's own abort signal, if any.
+     * @param controller - The per-attempt controller driving the provider request.
+     * @param onAbort - The listener to attach for a future abort.
+     */
+    private linkCallerAbort(
+        signal: AbortSignal | undefined,
+        controller: AbortController,
+        onAbort: () => void,
+    ): void {
+        if (!signal) {
+            return
+        }
+        if (signal.aborted) {
+            controller.abort()
+            return
+        }
+        signal.addEventListener(
+            "abort",
+            onAbort,
+            {
+                once: true,
+            },
+        )
+    }
+
+    /**
+     * Fold one provider stream chunk into the attempt's running totals, mutating
+     * `totals` in place so the caller's loop stays a single call per chunk.
+     * @param chunk - The chunk yielded by the provider stream.
+     * @param totals - The running totals for this attempt.
+     */
+    private foldStreamChunk(
+        chunk: AiStreamChunk,
+        totals: StreamChunkTotals,
+    ): void {
+        // chunk.content is a plain string for ordinary chat completions, but
+        // some providers stream an array of content blocks -- extract the
+        // text blocks instead of stringifying the whole array (S6551).
+        const delta = extractMessageText(chunk.content)
+        if (delta.length > 0) {
+            // Preserve provider chunk boundaries for a post-success
+            // flush, but do not expose this attempt yet.
+            totals.text += delta
+            totals.deltas.push(delta)
+        }
+        // some providers attach running usage on the final chunk(s) -- keep the
+        // last reported counts so completion totals reflect the whole stream
+        const usage = chunk.usage_metadata
+        if (!usage) {
+            return
+        }
+        totals.promptTokens = usage.input_tokens ?? totals.promptTokens
+        totals.completionTokens = usage.output_tokens ?? totals.completionTokens
+        // the chatbot resends its whole history every turn, so the cached share
+        // of the prompt is exactly where the saving lives -- capture it or the
+        // learner pays full price for tokens the provider discounted
+        totals.cachedTokens = usage.input_token_details?.cache_read ?? totals.cachedTokens
+    }
+
+    /**
+     * Decide which error a failed stream attempt should surface as: the hard
+     * per-attempt timeout, a caller-initiated abort (normalized to `AbortError`
+     * since provider SDKs do not consistently preserve it), or the original error.
+     * @param params - The raw error plus the timeout/abort state at failure time.
+     * @returns The error to throw from the attempt.
+     */
+    private classifyStreamFailure(
+        {
+            error,
+            timedOut,
+            signal,
+        }: ClassifyStreamFailureParams,
+    ): unknown {
+        if (timedOut) {
+            return new AiStreamTimeoutException({
+                timeoutMs: this.invokeTimeoutMs,
+            })
+        }
+        // Provider SDKs do not consistently preserve AbortError when their HTTP
+        // request is cancelled. Normalize a caller-owned abort here so the
+        // balancer always classifies it NonKey and stops instead of retrying
+        // another key/model.
+        if (signal?.aborted) {
+            const abortError = new Error("AI stream aborted by caller")
+            abortError.name = "AbortError"
+            return abortError
+        }
+        return error
     }
 
     /**

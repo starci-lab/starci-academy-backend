@@ -141,6 +141,107 @@ export interface TouchContentAiSessionParams {
     sessionId: string
 }
 
+/** Params for {@link ContentAiService.deriveScopeByAnchorPriority}: the anchor ids to prioritize between. */
+export interface DeriveContentAiScopeByAnchorPriorityParams {
+    /** Lesson content anchor (content scope). */
+    contentId?: string | null
+    /** Capstone / personal-project task anchor (task scope). */
+    taskId?: string | null
+    /** Hands-on challenge anchor (challenge scope). */
+    challengeId?: string | null
+    /** Flashcard-quiz deck anchor (quiz scope). */
+    quizId?: string | null
+    /** Global foundation-library doc anchor (foundation scope). */
+    foundationId?: string | null
+    /** Course anchor (course scope). */
+    courseId?: string | null
+}
+
+/** Params for {@link ContentAiService.resolveSessionRowToCreate}: the learner plus every anchor id. */
+export interface ResolveSessionRowToCreateAnchors {
+    /** The learner the session is created for. */
+    userId: string
+    /** Lesson content anchor (content scope). */
+    contentId?: string | null
+    /** Capstone / personal-project task anchor (task scope). */
+    taskId?: string | null
+    /** Hands-on challenge anchor (challenge scope). */
+    challengeId?: string | null
+    /** Flashcard-quiz deck anchor (quiz scope). */
+    quizId?: string | null
+    /** Global foundation-library doc anchor (foundation scope). */
+    foundationId?: string | null
+    /** Course anchor (course scope). */
+    courseId?: string | null
+}
+
+/** Anchor ids {@link ContentAiService.resolveScopedSessionOwner} picks between, by scope. */
+export interface ResolveScopedSessionOwnerAnchors {
+    /** The learner whose ownership is being resolved. */
+    userId: string
+    /** Capstone / personal-project task anchor (task scope). */
+    taskId?: string | null
+    /** Hands-on challenge anchor (challenge scope). */
+    challengeId?: string | null
+    /** Flashcard-quiz deck anchor (quiz scope). */
+    quizId?: string | null
+    /** Global foundation-library doc anchor (foundation scope). */
+    foundationId?: string | null
+    /** Course anchor (course scope). */
+    courseId?: string | null
+}
+
+/**
+ * Resolved owner + anchor predicate for one non-content scope's session query.
+ * Column names are whitelisted (never client input) so they interpolate safely.
+ */
+export interface ScopedSessionOwner {
+    /** Which column identifies the owning row: enrollment (course-scoped) or raw user (global-scoped). */
+    ownerColumn: "enrollment_id" | "user_id"
+    /** The resolved owner id, or `null` when unentitled (no matching enrollment). */
+    ownerId: string | null
+    /** Which column narrows to the specific anchor, or `null` for course/global (scope alone narrows). */
+    anchorColumn: "origin_task_id" | "origin_challenge_id" | "origin_quiz_id" | "origin_foundation_id" | null
+    /** The anchor id to filter by, paired with `anchorColumn`. */
+    anchorId: string | null
+}
+
+/** Params to build the parametrized SQL for {@link ContentAiService.listScopedSessions}. */
+export interface BuildScopedSessionsQueryParams {
+    /** The resolved owner id (non-null; caller already returned early otherwise). */
+    ownerId: string
+    /** The scope being listed. */
+    scope: ContentAiScope
+    /** The anchor column to filter by, or `null` for course/global. */
+    anchorColumn: ScopedSessionOwner["anchorColumn"]
+    /** The anchor id to filter by, paired with `anchorColumn`. */
+    anchorId: string | null
+    /** Free-text search (trimmed; empty = no search). */
+    search: string
+    /** Include archived conversations in a plain (non-search) list. */
+    includeArchived: boolean
+    /** Page size. */
+    limit: number
+    /** Page offset. */
+    offset: number
+}
+
+/** The parametrized SQL fragments + bound params built by {@link ContentAiService.buildScopedSessionsQuery}. */
+export interface BuildScopedSessionsQueryResult {
+    /** The bound query params, in `$N` order. */
+    params: Array<unknown>
+    /** The `AND s.<anchorColumn> = $N` fragment, or `""` when the scope has no anchor. */
+    anchorClause: string
+    /** The search-or-archived `AND (...)` fragment. */
+    searchClause: string
+    /** The snippet subquery expression (a search match's message, else `NULL`). */
+    snippetExpr: string
+    /** The `$N` position of the `LIMIT` param. */
+    limitParam: number
+    /** The `$N` position of the `OFFSET` param. */
+    offsetParam: number
+}
+
 /** Result of {@link ContentAiService.resolveOwnedSession}: the session's owner anchors, when owned. */
 export interface ResolvedContentAiSessionOwner {
     /** The session's enrollment owner (course-scoped sessions); null for a foundation session. */

@@ -17,7 +17,6 @@ import type {
 } from "./types/options"
 import type {
     FormatPromptParams,
-    FormatPromptResult,
 } from "./types/prompt"
 
 @Injectable()
@@ -59,7 +58,7 @@ export class LangchainService {
     async formatPrompt({
         template,
         values,
-    }: FormatPromptParams): Promise<FormatPromptResult> {
+    }: FormatPromptParams): Promise<string> {
         // build prompt template from input string
         const promptTemplate = this.createPromptTemplate(template)
 

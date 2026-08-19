@@ -19,7 +19,6 @@ import type {
 import {
     ElasticsearchService,
 } from "@modules/integrations/elasticsearch/elasticsearch.service"
-import _ from "lodash"
 
 @Injectable()
 /**
@@ -45,7 +44,7 @@ export class ElasticsearchFoundationBuildService {
             ?? Locale.En
         return Object.values(Locale).map(
             (locale) => {
-                const localizedFoundation = _.cloneDeep(hydratedFoundation)
+                const localizedFoundation = structuredClone(hydratedFoundation)
                 this.foundationResolver.transform(
                     localizedFoundation,
                     locale,

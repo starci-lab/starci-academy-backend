@@ -18,7 +18,7 @@ import {
 import {
     EventEmitter2 
 } from "@nestjs/event-emitter"
-import _ from "lodash"
+import intersection from "lodash/intersection"
 import {
     CacheService,
 } from "@modules/integrations/cache/cache.service"
@@ -118,14 +118,14 @@ export class NatsBridgeService implements OnModuleInit {
             )
             .map(([eventName]) => eventName)
         // get all subjects from config and intersection with options subjects
-        this.subjects = _.intersection(
+        this.subjects = intersection(
             allNatsSubjects,
-            _.uniq(
-                [
+            [
+                ...new Set([
                     ...(this.options.subjects ?? []),
                     EventName.Ping
-                ]
-            ),
+                ]),
+            ],
         )
         await this.bridgeEvents()
 

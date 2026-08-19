@@ -73,7 +73,7 @@ export class PersonalProjectProgressService {
             key: CacheKey.MilestoneTaskProgress,
             args: [enrollment.enrollmentId],
         })
-        if (cached && cached.completionTasks) {
+        if (cached?.completionTasks) {
             return cached
         }
 
@@ -160,9 +160,7 @@ export class PersonalProjectProgressService {
                     numAttempts: 0,
                 }
                 completionTasks.push(item)
-                if (!currentTask) {
-                    currentTask = item
-                }
+                currentTask ??= item
                 continue
             }
 

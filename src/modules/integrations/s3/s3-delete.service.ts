@@ -9,7 +9,7 @@ import {
 import {
     envConfig,
 } from "@modules/platform/env/config"
-import _ from "lodash"
+import chunk from "lodash/chunk"
 import {
     InjectDigitalOceanS3,
     InjectMinioS3,
@@ -81,7 +81,7 @@ export class S3DeleteService {
         // running tally of keys we asked S3 to remove
         let deleted = 0
         // S3 caps DeleteObjects at 1000 keys/request -> split into batches
-        for (const batch of _.chunk(keys,
+        for (const batch of chunk(keys,
             DELETE_BATCH_SIZE)) {
             // Quiet mode suppresses the per-key success list, keeping the response small
             await s3Client.send(

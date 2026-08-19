@@ -2,6 +2,16 @@ import {
     PING_ERROR_MESSAGE_MAX_LEN,
 } from "../constants/error-message"
 
+/** The `response.data` envelope of {@link AxiosLikeProviderError}. */
+interface AxiosLikeProviderErrorResponse {
+    data?: unknown
+}
+
+/** Minimal axios-style error shape read for the provider response-body detail (duck-typed; not importing axios). */
+interface AxiosLikeProviderError {
+    response?: AxiosLikeProviderErrorResponse
+}
+
 /**
  * Pull the provider's RESPONSE BODY detail out of an axios-style error -- e.g.
  * Google's `{ error: { message: "API key not valid..." } }` or OpenAI's
@@ -14,7 +24,7 @@ const extractResponseDetail = (err: unknown): string | null => {
     if (typeof err !== "object" || err === null) {
         return null
     }
-    const data = (err as { response?: { data?: unknown } }).response?.data
+    const data = (err as AxiosLikeProviderError).response?.data
     if (data == null) {
         return null
     }

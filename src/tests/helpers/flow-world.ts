@@ -89,6 +89,12 @@ export interface FlowWorldOptions extends Pick<ModuleMetadata, "imports" | "cont
     modelAnswer?: StubbedModelAnswer
 }
 
+/** A jest-backed stand-in for the model client, so a flow can reprogram and assert it. */
+export interface StubbedModelClient {
+    /** The single call every AI invocation goes through. */
+    run: jest.Mock
+}
+
 /** A booted world, and the handles a flow needs. */
 export interface FlowWorld {
     /** The Nest application, for `supertest` against real controllers. */
@@ -98,9 +104,7 @@ export interface FlowWorld {
     /** Send an operation through the real GraphQL HTTP pipeline. */
     graphql: <TData>(operation: FlowGraphqlRequest) => Promise<FlowGraphqlResponse<TData>>
     /** The stubbed model, so a flow can reprogram it per step and assert it was reached. */
-    model: {
-        run: jest.Mock
-    }
+    model: StubbedModelClient
     /** Mint a fresh learner. Named actors, never magic ordinals -- see FLOW-9. */
     mintLearner: (name: string) => Promise<UserEntity>
     /** Empty the tables a flow writes, so flows can run in any order. */

@@ -5,6 +5,12 @@ import type {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import type {
+    DeepPartial,
+} from "typeorm"
+import type {
+    ChallengeSubmissionApproachCriteriaEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission-approach-criteria.entity"
+import type {
     ResolvedFilePath,
 } from "../../../shared/path/types"
 /** Indices that locate a challenge under mounted course data. */
@@ -181,4 +187,12 @@ export interface ParseCriteriaParams {
     challengeIndex: number
     /** Submission ordinal -- matches `submissions/<n>/` folder name. */
     submissionIndex: number
+}
+
+/** Result of {@link ChallengeParserService.parseCriteria}. */
+export interface ParseCriteriaResult {
+    /** Entity rows for cascade insert. */
+    rows: Array<DeepPartial<ChallengeSubmissionApproachCriteriaEntity>>
+    /** Sum of every criterion's `## score`, used as the parent submission's approach/outcome score. */
+    totalScore: number
 }

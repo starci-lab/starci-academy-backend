@@ -186,7 +186,7 @@ describe("ConsultantContactGateService",
 
                         // structural guarantee: the gate takes exactly two args
                         // (consultant, bestCvScore) -- there is no count parameter
-                        expect(service.gateConsultant.length).toBe(2)
+                        expect(service.gateConsultant).toHaveLength(2)
                     })
             })
     })

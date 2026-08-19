@@ -13,6 +13,13 @@ export interface KeycloakPasswordLoginParams {
 }
 
 /**
+ * Params for a Keycloak refresh-token operation (refresh-token grant exchange, revocation).
+ */
+export interface KeycloakRefreshTokenParams {
+    refreshToken: string
+}
+
+/**
  * Parameters for creating a Keycloak user with password credentials.
  */
 export interface KeycloakRegisterUserParams {

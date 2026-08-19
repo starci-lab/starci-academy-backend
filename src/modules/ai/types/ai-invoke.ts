@@ -1,4 +1,5 @@
 import type {
+    AIMessageChunk,
     BaseMessage,
 } from "@langchain/core/messages"
 import type {
@@ -126,6 +127,37 @@ export interface AiStreamParams {
      * Optional abort signal -- when it fires the underlying model stream is
      * cancelled, surfacing as a thrown abort error the caller can handle.
      */
+    signal?: AbortSignal
+}
+
+/**
+ * Running totals folded across a stream's chunks by
+ * {@link AiInvokeService.foldStreamChunk} -- mutated in place so the caller's
+ * loop stays a single call per chunk.
+ */
+export interface StreamChunkTotals {
+    /** The full concatenated response text so far. */
+    text: string
+    /** Provider chunk boundaries captured so far. */
+    deltas: Array<string>
+    /** Prompt tokens reported by the model (0 when unreported). */
+    promptTokens: number
+    /** Completion tokens reported by the model (0 when unreported). */
+    completionTokens: number
+    /** Cached-read tokens reported by the model (0 when unreported). */
+    cachedTokens: number
+}
+
+/** A single chunk from {@link AiInvokeService.stream}'s provider stream. */
+export type AiStreamChunk = AIMessageChunk
+
+/** Params to classify a failed stream attempt into the exception the caller should see. */
+export interface ClassifyStreamFailureParams {
+    /** The error the provider stream (or its abort) threw. */
+    error: unknown
+    /** Whether the per-attempt hard timeout fired before this error. */
+    timedOut: boolean
+    /** The caller's own abort signal, if any. */
     signal?: AbortSignal
 }
 

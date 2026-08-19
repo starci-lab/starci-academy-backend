@@ -132,7 +132,10 @@ export class ConsultantParserService {
             id: consultantId,
             defaultLocale: Locale.En,
             displayId: path.displayId,
-            fullName: String(jsonMap.get(Locale.En)?.fullName ?? ""),
+            fullName: this.coerceMdScalarService.toRequiredString(
+                jsonMap.get(Locale.En)?.fullName,
+                "",
+            ),
             jobTitle: this.coerceMdScalarService.toNullableStringColumn(
                 jsonMap.get(Locale.En)?.jobTitle,
             ),
@@ -166,7 +169,10 @@ export class ConsultantParserService {
             translations: [
                 ...buildTranslations(
                     "fullName",
-                    (locale) => String(jsonMap.get(locale)?.fullName ?? ""),
+                    (locale) => this.coerceMdScalarService.toRequiredString(
+                        jsonMap.get(locale)?.fullName,
+                        "",
+                    ),
                 ),
                 ...buildTranslations(
                     "jobTitle",

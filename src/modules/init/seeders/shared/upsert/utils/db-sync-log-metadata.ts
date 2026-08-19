@@ -64,12 +64,9 @@ export const buildDbSyncLogDisplayFields = (
 ): DbSyncLogDisplayFields => {
     const displayId = resolveDisplayId(entity)
     switch (entityKind) {
-    case CourseEntity.name:
-        return {
-            displayId,
-            relativeDisplayIds: [],
-        }
     case ModuleEntity.name:
+    case MilestoneEntity.name:
+    case FlashcardDeckEntity.name:
         return {
             displayId,
             relativeDisplayIds: relativeIds(
@@ -101,13 +98,6 @@ export const buildDbSyncLogDisplayFields = (
             } : {
             }),
         }
-    case MilestoneEntity.name:
-        return {
-            displayId,
-            relativeDisplayIds: relativeIds(
-                entity.course?.displayId,
-            ),
-        }
     case MilestoneTaskEntity.name:
         return {
             displayId,
@@ -118,13 +108,7 @@ export const buildDbSyncLogDisplayFields = (
                     : undefined,
             ),
         }
-    case FlashcardDeckEntity.name:
-        return {
-            displayId,
-            relativeDisplayIds: relativeIds(
-                entity.course?.displayId,
-            ),
-        }
+    case CourseEntity.name:
     default:
         return {
             displayId,

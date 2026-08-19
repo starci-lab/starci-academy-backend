@@ -3,13 +3,13 @@ import {
 } from "@nestjs/common"
 import {
     join,
-} from "path"
+} from "node:path"
 import {
     execaCommand,
 } from "execa"
 import {
     platform,
-} from "os"
+} from "node:os"
 import {
     Bento4Mp4DashException,
 } from "@modules/platform/exceptions/errors/bento4/bento4-mp4-dash"

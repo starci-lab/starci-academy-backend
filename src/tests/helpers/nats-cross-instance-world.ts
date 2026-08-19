@@ -71,15 +71,25 @@ class OneShotRetryService {
     }
 }
 
+/** The call arguments {@link NatsDigestCache} keys its entries by. */
+interface NatsDigestCacheKeyParams {
+    args?: Array<unknown>
+}
+
+/** The call arguments and result {@link NatsDigestCache} stores under one entry. */
+interface NatsDigestCacheSetParams extends NatsDigestCacheKeyParams {
+    cacheResult: unknown
+}
+
 /** Process-local digest cache with the same get/set contract used by the bridge. */
 class NatsDigestCache {
     private readonly entries = new Map<string, unknown>()
 
-    async get(params: { args?: Array<unknown> }): Promise<unknown> {
+    async get(params: NatsDigestCacheKeyParams): Promise<unknown> {
         return this.entries.get(JSON.stringify(params.args ?? []))
     }
 
-    async set(params: { args?: Array<unknown>, cacheResult: unknown }): Promise<void> {
+    async set(params: NatsDigestCacheSetParams): Promise<void> {
         this.entries.set(
             JSON.stringify(params.args ?? []),
             params.cacheResult,

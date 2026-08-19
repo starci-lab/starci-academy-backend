@@ -168,8 +168,8 @@ export class FoundationCategoryParserService {
                         locale,
                         field: "title",
                         value: jsonMap.get(locale)?.title ?? "",
-                    })
-                    translations.push({
+                    },
+                    {
                         categoryId,
                         locale,
                         field: "description",

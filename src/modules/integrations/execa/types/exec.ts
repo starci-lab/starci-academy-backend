@@ -13,9 +13,6 @@ export interface ExecToFileParams extends ExecParams {
     stdoutPath: string
 }
 
-/** Result of exec (stdout as string). */
-export type ExecResult = string
-
 /** Params for validating exec input before spawn. */
 export interface AssertValidExecParams {
     command: string
@@ -28,4 +25,12 @@ export interface ExecaUnknownProcessError {
     exitCode?: number
     stdout?: string
     stderr?: string
+}
+
+/** Command identity carried through error classification (shared by `exec` and `execToFile`). */
+export interface ExecErrorContext {
+    command: string
+    args: Array<string>
+    /** When set and positive, the timeout that was passed to execa. */
+    timeoutMs?: number
 }

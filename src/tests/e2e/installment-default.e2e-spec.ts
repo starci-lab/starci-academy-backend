@@ -193,6 +193,14 @@ describe("an overdue installment plan defaults and locks course access",
                 {
                     describe: "the overdue installment plan to default",
                 })
+
+                const plan = await entityManager.findOneByOrFail(
+                    InstallmentPlanEntity,
+                    {
+                        id: planId,
+                    },
+                )
+                expect(plan.status).toBe(InstallmentPlanStatus.Defaulted)
             })
 
         it("persists the default and closes the gated enrollment",

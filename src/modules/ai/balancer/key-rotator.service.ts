@@ -143,7 +143,7 @@ export class KeyRotatorService {
      */
     async getCounter(provider: ModelProvider): Promise<number> {
         const raw = await this.redis.get(this.counterKey(provider))
-        return raw ? parseInt(
+        return raw ? Number.parseInt(
             raw,
             10,
         ) : 0

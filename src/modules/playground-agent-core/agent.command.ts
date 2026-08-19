@@ -80,8 +80,13 @@ export class AgentCommand extends CommandRunner {
 
     async run(inputs: Array<string>, options: AgentCommandOptions): Promise<void> {
         const pairingCode = inputs[0]
-        const server = (options.server || envConfig().playgroundAgent.server || DEFAULT_SERVER).replace(/\/+$/,
-            "")
+        const rawServer = options.server || envConfig().playgroundAgent.server || DEFAULT_SERVER
+        // strip trailing slashes without a backtracking-prone /\/+$/ regex
+        let server = rawServer
+        while (server.endsWith("/")) {
+            server = server.slice(0,
+                -1)
+        }
 
         if (options.uninstallService) {
             this.serviceInstaller.uninstall()

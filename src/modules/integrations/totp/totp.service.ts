@@ -1,7 +1,7 @@
 import {
     Injectable,
 } from "@nestjs/common"
-import crypto from "crypto"
+import crypto from "node:crypto"
 import {
     TOTP_ALGORITHM,
     TOTP_DIGITS,
@@ -83,7 +83,7 @@ export class TotpService {
         const normalizedToken = token.replace(/\s+/g,
             "")
         // reject anything that is not exactly the expected number of digits
-        if (!new RegExp(`^\\d{${TOTP_DIGITS}}$`).test(normalizedToken)) {
+        if (!new RegExp(String.raw`^\d{${TOTP_DIGITS}}$`).test(normalizedToken)) {
             return false
         }
         const secretBuffer = base32Decode(secret)
@@ -116,7 +116,7 @@ export class TotpService {
         // encode the counter as an 8-byte big-endian value
         const counterBuffer = Buffer.alloc(8)
         // write as two 32-bit halves to stay safe above 2^32
-        counterBuffer.writeUInt32BE(Math.floor(counter / 0x1_0000_0000),
+        counterBuffer.writeUInt32BE(Math.floor(counter / 0x1_00_00_00_00),
             0)
         counterBuffer.writeUInt32BE(counter >>> 0,
             4)
@@ -127,7 +127,7 @@ export class TotpService {
             .update(counterBuffer)
             .digest()
         // dynamic truncation: low nibble of the last byte picks the 4-byte window
-        const truncationOffset = hmac[hmac.length - 1] & 0x0f
+        const truncationOffset = hmac.at(-1)! & 0x0f
         const binary =
             ((hmac[truncationOffset] & 0x7f) << 24)
             | ((hmac[truncationOffset + 1] & 0xff) << 16)

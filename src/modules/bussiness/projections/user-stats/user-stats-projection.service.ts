@@ -106,7 +106,7 @@ export class UserStatsProjectionService {
             weeklyFlashcards: Number(value.weeklyFlashcards) || 0,
             weeklyMilestones: Number(value.weeklyMilestones) || 0,
             weeklyStudyDays: Number(value.weeklyStudyDays) || 0,
-            weekResetAt: String(value.weekResetAt ?? ""),
+            weekResetAt: typeof value.weekResetAt === "string" ? value.weekResetAt : "",
             last7Days: Array.isArray(value.last7Days)
                 ? (value.last7Days as Array<StreakDay>).map((day) => ({
                     date: String(day.date),

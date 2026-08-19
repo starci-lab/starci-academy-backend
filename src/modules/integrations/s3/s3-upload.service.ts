@@ -77,7 +77,7 @@ export class S3UploadService {
         const body = encoding === "json"
             ? JSON.stringify(payload)
             : this.superJson.stringify(payload)
-        const promises = Array<Promise<void>>()
+        const promises = new Array<Promise<void>>()
         for (const provider of providers) {
             switch (provider) {
             case S3Provider.DigitalOcean: {

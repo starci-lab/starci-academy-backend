@@ -3,6 +3,7 @@ import type {
     ParseChallengeParams,
     ParseChallengeSubmissionsParams,
     ParseCriteriaParams,
+    ParseCriteriaResult,
 } from "./types/challenge"
 import type {
     ChallengesFromDatabaseParams,
@@ -655,10 +656,7 @@ export class ChallengeParserService {
             challengeIndex,
             submissionIndex,
         }: ParseCriteriaParams,
-    ): {
-        rows: Array<DeepPartial<ChallengeSubmissionApproachCriteriaEntity>>
-        totalScore: number
-        } {
+    ): ParseCriteriaResult {
         // absent or wrong shape -> empty rubric (insert layer treats this as null jsonb / empty rows)
         if (!Array.isArray(criteria)) {
             return {

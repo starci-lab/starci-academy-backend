@@ -1,6 +1,6 @@
 import {
     posix,
-} from "path"
+} from "node:path"
 import {
     Injectable,
 } from "@nestjs/common"

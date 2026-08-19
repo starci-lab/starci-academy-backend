@@ -117,7 +117,7 @@ export function diffIndexMapping(
         declaredField] of Object.entries(declaredProperties)) {
         // compare only the multi-fields the declaration itself pins down
         const subFields = Object.keys(declaredField.fields ?? {
-        }).sort()
+        }).sort((left, right) => left.localeCompare(right))
         const declaredSignature = describeField(declaredField,
             subFields)
         const liveSignature = describeField(liveProperties[field],

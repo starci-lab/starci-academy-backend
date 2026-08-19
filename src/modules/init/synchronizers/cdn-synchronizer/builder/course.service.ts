@@ -28,7 +28,6 @@ import {
 import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
-import _ from "lodash"
 
 @Injectable()
 /**
@@ -55,7 +54,7 @@ export class CdnCourseBuildService {
             (
                 locale,
             ) => {
-                const localizedCourse = _.cloneDeep(hydratedCourse)
+                const localizedCourse = structuredClone(hydratedCourse)
                 this.courseResolver.transform(
                     localizedCourse,
                     locale,
@@ -98,7 +97,7 @@ export class CdnCourseBuildService {
             (
                 locale,
             ) => {
-                const localizedCourse = _.cloneDeep(hydratedCourse)
+                const localizedCourse = structuredClone(hydratedCourse)
                 this.courseResolver.transform(
                     localizedCourse,
                     locale,

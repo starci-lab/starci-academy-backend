@@ -13,6 +13,15 @@ import type {
     HeadingSlice,
 } from "./types"
 
+/** Mutable state threaded through {@link ExtractJsonFromMdService.parseJsonbItems}. */
+interface JsonbParseState {
+    items: Array<Record<string, unknown>>
+    current: Record<string, unknown> | null
+    field: string | null
+    buffer: Array<string>
+    inFence: boolean
+}
+
 @Injectable()
 /**
  * Mount markdown -> JSON.
@@ -207,17 +216,19 @@ export class ExtractJsonFromMdService {
             }
             // a real heading at THIS level opens a new section; numeric keys (e.g. `## 1`
             // lang buckets) always boundary even inside an unclosed delimiter leaf
-            if (!inFence && line.startsWith(headingPrefix)) {
-                const sectionKey = line.slice(headingPrefix.length).trim()
-                const isNumericSectionBoundary = NUMERIC_SECTION_KEY_RE.test(sectionKey)
-                if (!inDelimiterLeaf || isNumericSectionBoundary) {
-                    flush()
-                    currentKey = sectionKey
-                    // a fresh section starts outside any leaf, with its leaf-ness undecided
-                    inDelimiterLeaf = false
-                    sectionIsLeaf = null
-                    continue
-                }
+            const headingBoundary = this.matchHeadingBoundary(
+                line,
+                headingPrefix,
+                inFence,
+                inDelimiterLeaf,
+            )
+            if (headingBoundary) {
+                flush()
+                currentKey = headingBoundary.sectionKey
+                // a fresh section starts outside any leaf, with its leaf-ness undecided
+                inDelimiterLeaf = false
+                sectionIsLeaf = null
+                continue
             }
             // decide once per section whether it is a verbatim leaf: true only when
             // its first non-blank line is a separator marker
@@ -239,6 +250,33 @@ export class ExtractJsonFromMdService {
         // emit the trailing section left open at end of input
         flush()
         return sections
+    }
+
+    /**
+     * Decide whether `line` opens a new section at this heading level: it must be
+     * an unfenced heading at the exact `headingPrefix`, and either no delimiter
+     * leaf is currently open or the heading key is numeric (numeric keys, e.g.
+     * `## 1` lang buckets, always boundary even inside an unclosed delimiter leaf).
+     *
+     * @returns The new section's key, or `null` when `line` does not open one.
+     */
+    private matchHeadingBoundary(
+        line: string,
+        headingPrefix: string,
+        inFence: boolean,
+        inDelimiterLeaf: boolean,
+    ): { sectionKey: string } | null {
+        if (inFence || !line.startsWith(headingPrefix)) {
+            return null
+        }
+        const sectionKey = line.slice(headingPrefix.length).trim()
+        const isNumericSectionBoundary = NUMERIC_SECTION_KEY_RE.test(sectionKey)
+        if (!inDelimiterLeaf || isNumericSectionBoundary) {
+            return {
+                sectionKey,
+            }
+        }
+        return null
     }
 
     /**
@@ -264,7 +302,7 @@ export class ExtractJsonFromMdService {
         )
         // a trailing separator closes the block; a lone opener runs to the end
         const closeIndex = separatorIndices.length > 1
-            ? separatorIndices[separatorIndices.length - 1]
+            ? separatorIndices.at(-1)
             : lines.length
         return {
             content: lines.slice(separatorIndices[0] + 1,
@@ -292,7 +330,7 @@ export class ExtractJsonFromMdService {
         // the inner heading-block lives strictly between the outer markers
         const inner = lines
             .slice(markerIndices[0] + 1,
-                markerIndices[markerIndices.length - 1])
+                markerIndices.at(-1))
             .join("\n")
         return this.parseJsonbItems(inner)
     }
@@ -303,58 +341,85 @@ export class ExtractJsonFromMdService {
      * heading (fence-aware), type-coerced to number / boolean when it is one.
      */
     private parseJsonbItems(inner: string): Array<Record<string, unknown>> {
-        const items: Array<Record<string, unknown>> = []
-        let current: Record<string, unknown> | null = null
-        let field: string | null = null
-        let buffer: Array<string> = []
-        let inFence = false
-
-        // commit the buffered text into the active item field, type-coerced
-        const flushField = (): void => {
-            if (current && field) {
-                current[field] = this.coerceScalar(buffer.join("\n").trim())
-            }
-            buffer = []
-            field = null
+        const state: JsonbParseState = {
+            items: [],
+            current: null,
+            field: null,
+            buffer: [],
+            inFence: false,
         }
-
         for (const line of inner.split("\n")) {
-            // track fences so `#`/`##` code lines are never read as item/field heads
-            if (line.trim().startsWith("```")) {
-                inFence = !inFence
-            }
-            if (!inFence) {
-                // `# <n>` opens a new array item keyed by its order index
-                const itemMatch = MOUNT_JSONB_ITEM_HEADING_RE.exec(line)
-                if (itemMatch) {
-                    flushField()
-                    if (current) {
-                        items.push(current)
-                    }
-                    current = {
-                        orderIndex: Number.parseInt(itemMatch[1],
-                            10) 
-                    }
-                    continue
-                }
-                // `## <field>` opens a new scalar field on the current item
-                if (line.startsWith("## ")) {
-                    flushField()
-                    field = line.slice(3).trim()
-                    continue
-                }
-            }
-            // any other line is part of the active field's raw value
-            if (field) {
-                buffer.push(line)
-            }
+            this.applyJsonbLine(state,
+                line)
         }
         // flush the final field + item left open at end of input
-        flushField()
-        if (current) {
-            items.push(current)
+        this.flushJsonbField(state)
+        if (state.current) {
+            state.items.push(state.current)
         }
-        return items
+        return state.items
+    }
+
+    /**
+     * Decides what a single jsonb heading-block line does to `state`: opens a
+     * new array item (`# <n>`), opens a new scalar field (`## <field>`), toggles
+     * fence-tracking so `#`/`##` code lines are never read as headings, or --
+     * for anything else -- extends the active field's raw buffered value.
+     */
+    private applyJsonbLine(
+        state: JsonbParseState,
+        line: string,
+    ): void {
+        if (line.trim().startsWith("```")) {
+            state.inFence = !state.inFence
+        }
+        const itemMatch = state.inFence ? null : MOUNT_JSONB_ITEM_HEADING_RE.exec(line)
+        if (itemMatch) {
+            this.openJsonbItem(state,
+                Number.parseInt(itemMatch[1],
+                    10))
+            return
+        }
+        if (!state.inFence && line.startsWith("## ")) {
+            this.openJsonbField(state,
+                line.slice(3).trim())
+            return
+        }
+        if (state.field) {
+            state.buffer.push(line)
+        }
+    }
+
+    /** Commits the buffered text into the active item field, type-coerced. */
+    private flushJsonbField(state: JsonbParseState): void {
+        if (state.current && state.field) {
+            state.current[state.field] = this.coerceScalar(state.buffer.join("\n").trim())
+        }
+        state.buffer = []
+        state.field = null
+    }
+
+    /** Closes out the field + item currently open, then opens a new array item. */
+    private openJsonbItem(
+        state: JsonbParseState,
+        orderIndex: number,
+    ): void {
+        this.flushJsonbField(state)
+        if (state.current) {
+            state.items.push(state.current)
+        }
+        state.current = {
+            orderIndex,
+        }
+    }
+
+    /** Closes out the field currently open, then opens a new scalar field. */
+    private openJsonbField(
+        state: JsonbParseState,
+        field: string,
+    ): void {
+        this.flushJsonbField(state)
+        state.field = field
     }
 
     /**

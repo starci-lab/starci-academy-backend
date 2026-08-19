@@ -17,7 +17,6 @@ import {
 import type {
     TurnstileVerifyResponse,
     VerifyCaptchaParams,
-    VerifyCaptchaResult,
 } from "./types"
 
 @Injectable()
@@ -54,7 +53,7 @@ export class CaptchaService {
      * @example
      * await captchaService.verify({ token: "0.abc...", remoteIp: "1.2.3.4" })
      */
-    async verify({ token, remoteIp }: VerifyCaptchaParams): Promise<VerifyCaptchaResult> {
+    async verify({ token, remoteIp }: VerifyCaptchaParams): Promise<boolean> {
         // read the captcha config once per call (env is cheap + dynamic)
         const { enabled, turnstileSecret } = envConfig().captcha
         // disabled or unconfigured -> pass through so dev/test isn't blocked

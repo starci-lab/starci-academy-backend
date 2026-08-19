@@ -1,4 +1,4 @@
-import fs from "fs"
+import fs from "node:fs"
 /**
  * Read a JSON file and return the parsed object, or an empty object if the file does not exist.
  * @param path - The path to the file.

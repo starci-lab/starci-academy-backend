@@ -78,7 +78,7 @@ export const resolveLocation = (ipAddress: string | null): string | null => {
     // offline lookup against the bundled MaxMind-lite dataset
     const geo = geoip.lookup(ipAddress)
     // address not present in the dataset (loopback/private/unallocated)
-    if (!geo || !geo.country) {
+    if (!geo?.country) {
         return null
     }
     // prefer "City, COUNTRY" when the city is known, otherwise just the country code

@@ -1,11 +1,11 @@
 import {
     existsSync,
     readFileSync,
-} from "fs"
+} from "node:fs"
 import {
     basename,
     join,
-} from "path"
+} from "node:path"
 import {
     Injectable,
 } from "@nestjs/common"

@@ -1,6 +1,6 @@
 import {
     join,
-} from "path"
+} from "node:path"
 import {
     Provider,
 } from "@nestjs/common"

@@ -165,7 +165,7 @@ export class StreakMilestoneService {
     async checkAndGrantDailyBonus(userId: string): Promise<void> {
         const { last7Days } = await this.userStatsProjectionService.getStats(userId)
         // last7Days is ordered oldest -> today; the last entry IS today (VN calendar)
-        const today = last7Days[last7Days.length - 1]
+        const today = last7Days.at(-1)
         if (!today?.active) {
             return
         }

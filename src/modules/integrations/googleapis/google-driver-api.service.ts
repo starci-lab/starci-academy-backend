@@ -95,13 +95,13 @@ export class GoogleDriverAPIService {
         // - https://docs.google.com/document/d/<id>/edit
         // - https://docs.google.com/document/d/<id>/view
         // - https://docs.google.com/document/d/<id>/edit?usp=sharing
-        const match = trimmed.match(/docs\.google\.com\/document\/d\/([^/]+)/i)
+        const match = /docs\.google\.com\/document\/d\/([^/]+)/i.exec(trimmed)
         if (match?.[1]) {
             return match[1]
         }
 
         /** Fallback: try to capture any /d/<id> segment. */
-        const alt = trimmed.match(/\/d\/([^/]+)/i)
+        const alt = /\/d\/([^/]+)/i.exec(trimmed)
         if (alt?.[1]) {
             return alt[1]
         }

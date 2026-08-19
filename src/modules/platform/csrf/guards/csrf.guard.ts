@@ -8,7 +8,7 @@ import {
 } from "@nestjs/graphql"
 import {
     timingSafeEqual
-} from "crypto"
+} from "node:crypto"
 import type {
     Request
 } from "express"

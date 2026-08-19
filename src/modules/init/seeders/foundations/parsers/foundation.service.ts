@@ -165,24 +165,24 @@ export class FoundationParserService {
                         locale,
                         field: "title",
                         value: jsonMap.get(locale)?.title ?? "",
-                    })
-                    translations.push({
+                    },
+                    {
                         foundationId,
                         locale,
                         field: "description",
                         value: this.coerceMdScalarService.toNullableStringColumn(
                             jsonMap.get(locale)?.description,
                         ) ?? "",
-                    })
-                    translations.push({
+                    },
+                    {
                         foundationId,
                         locale,
                         field: "value",
                         value: this.coerceMdScalarService.toNullableStringColumn(
                             jsonMap.get(locale)?.value,
                         ) ?? "",
-                    })
-                    translations.push({
+                    },
+                    {
                         foundationId,
                         locale,
                         field: "author",

@@ -22,7 +22,6 @@ import {
 import {
     MaterializeAndUploadService,
 } from "./materialize-and-upload.service"
-import _ from "lodash"
 
 @Injectable()
 /**
@@ -51,7 +50,7 @@ export class CdnMilestoneTaskBuildService {
             (
                 locale,
             ) => {
-                const localizedTask = _.cloneDeep(hydratedTask)
+                const localizedTask = structuredClone(hydratedTask)
                 this.milestoneTaskResolver.transform(
                     localizedTask,
                     locale,

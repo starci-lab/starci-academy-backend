@@ -119,6 +119,13 @@ import {
 import type {
     FlowWorld,
 } from "@tests/helpers/flow-world"
+import type {
+    SepayCheckoutAndOrderClientMock,
+} from "@tests/helpers/types/checkout-client-mocks"
+import type {
+    EnqueueForTransactionJobMock,
+    EnqueueJobMock,
+} from "@tests/helpers/types/job-enqueue-mocks"
 
 /**
  * A learner checks out, the gateway never captures, and the order dies without granting anything.
@@ -158,24 +165,10 @@ describe("a learner checks out, the gateway never captures, and nothing is grant
         let commandBus: CommandBus
         let worker: ReconcileTransactionWorker
         let superJson: SuperJSON
-        let sepayClient: {
-            checkout: {
-                initCheckoutUrl: jest.Mock
-                initOneTimePaymentFields: jest.Mock
-            }
-            order: {
-                retrieve: jest.Mock
-            }
-        }
-        let enqueueReconcile: {
-            enqueue: jest.Mock
-        }
-        let enqueueEnrollJob: {
-            enqueueForTransaction: jest.Mock
-        }
-        let enqueueSendMail: {
-            enqueue: jest.Mock
-        }
+        let sepayClient: SepayCheckoutAndOrderClientMock
+        let enqueueReconcile: EnqueueJobMock
+        let enqueueEnrollJob: EnqueueForTransactionJobMock
+        let enqueueSendMail: EnqueueJobMock
 
         // carried between steps: this is the flow's own state, and the reason it is one file
         let learnerId: string

@@ -15,6 +15,3 @@ export interface IndexEntityParams<T extends ObjectLiteral> {
     locale?: Locale
 }
 
-/** Result of indexing a single document. */
-export type IndexEntityResult = void
-

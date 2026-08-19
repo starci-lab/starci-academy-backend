@@ -25,7 +25,6 @@ import {
 import {
     buildCompletionSuggest,
 } from "@modules/integrations/elasticsearch/utils/completion"
-import _ from "lodash"
 
 @Injectable()
 /**
@@ -83,7 +82,7 @@ export class ElasticsearchFlashcardDeckBuildService {
             (locale) => {
                 // clone per locale, then localize deck + cards in place (the resolver
                 // strips the consumed translation arrays)
-                const localizedDeck = _.cloneDeep(deck)
+                const localizedDeck = structuredClone(deck)
                 this.flashcardDeckResolver.transform(
                     localizedDeck,
                     locale,

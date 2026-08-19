@@ -1,13 +1,13 @@
 import {
     promises as fs,
-} from "fs"
+} from "node:fs"
 import {
     extname,
     join,
     relative,
     resolve,
     sep,
-} from "path"
+} from "node:path"
 import {
     Injectable,
     OnModuleInit,
@@ -122,7 +122,7 @@ export class AssetsService implements OnModuleInit {
 
         const files = await this.collectFiles(dir,
             dir)
-        const assets = Array<SyncedAsset>()
+        const assets = new Array<SyncedAsset>()
 
         for (const file of files) {
             const extension = extname(file.relPath).toLowerCase()

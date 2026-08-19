@@ -84,7 +84,7 @@ export class JobActionService {
             id 
         }
         if (userId !== undefined) {
-            where.userId = userId === null ? IsNull() : userId
+            where.userId = userId ?? IsNull()
         }
         const job = await manager.findOne(
             JobEntity,
@@ -140,8 +140,7 @@ export class JobActionService {
                         challengeSubmissionId,
                     } : {
                     }),
-                    ...(refs ?? {
-                    }),
+                    ...refs,
                 },
             },
         )

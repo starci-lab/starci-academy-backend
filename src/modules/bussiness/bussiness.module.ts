@@ -4,14 +4,12 @@ import {
     Type,
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass
+    ConfigurableModuleClass,
+    OPTIONS_TYPE,
 } from "./bussiness.module-definition"
 import {
     JobsModule,
 } from "./jobs/jobs.module"
-import {
-    OPTIONS_TYPE,
-} from "./bussiness.module-definition"
 import {
     TransactionsModule,
 } from "./transactions/transactions.module"

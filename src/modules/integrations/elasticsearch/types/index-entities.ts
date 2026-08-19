@@ -15,6 +15,3 @@ export interface IndexEntitiesParams<T extends ObjectLiteral> {
     locale?: Locale
 }
 
-/** Result of bulk indexing documents. */
-export type IndexEntitiesResult = void
-

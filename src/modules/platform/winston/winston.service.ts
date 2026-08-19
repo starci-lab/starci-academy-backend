@@ -22,7 +22,8 @@ import {
 import {
     Logger,
 } from "winston"
-import _ from "lodash"
+import isUndefined from "lodash/isUndefined"
+import omitBy from "lodash/omitBy"
 
 @Injectable()
 /**
@@ -49,15 +50,16 @@ export class WinstonService {
         name: TName,
         message: (typeof configMap)[TName]["messageType"],
     ): void {
-        const _message = _.omitBy(message,
-            _.isUndefined)
+        const _message = omitBy(message,
+            isUndefined)
         const config = configMap[name]
         const logger = this.getLogger(config)
         if (!logger) {
             return
         }
         switch (config.level) {
-        case WinstonLevel.Error: {
+        case WinstonLevel.Error:
+        case WinstonLevel.Fatal: {
             logger.error(config.name,
                 _message)
             break
@@ -69,11 +71,6 @@ export class WinstonService {
         }
         case WinstonLevel.Debug: {
             logger.debug(config.name,
-                _message)
-            break
-        }
-        case WinstonLevel.Fatal: {
-            logger.error(config.name,
                 _message)
             break
         }

@@ -7,7 +7,7 @@ import type {
 
 import {
     ServerOptions 
-} from "http"
+} from "node:http"
 import {
     RedisClient,
 } from "@modules/lib/native/redis/types/client"

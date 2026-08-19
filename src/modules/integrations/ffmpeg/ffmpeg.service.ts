@@ -4,7 +4,7 @@ import {
 import ffmpeg from "fluent-ffmpeg"
 import {
     join,
-} from "path"
+} from "node:path"
 import type {
     EncodeProfile,
 } from "./types/profile"

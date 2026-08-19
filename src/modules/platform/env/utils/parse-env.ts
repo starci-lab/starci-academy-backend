@@ -1,6 +1,6 @@
 import {
     readFileSync,
-} from "fs"
+} from "node:fs"
 import ms from "ms"
 import {
     EnvFileConflictException,
@@ -26,7 +26,7 @@ import type {
  * @returns Parsed number
  */
 export const parseEnvInt = ({ key, defaultValue }: ParseEnvIntParams): number => {
-    return parseInt(process.env[key] ?? defaultValue.toString(),
+    return Number.parseInt(process.env[key] ?? defaultValue.toString(),
         10)
 }
 
@@ -37,7 +37,7 @@ export const parseEnvInt = ({ key, defaultValue }: ParseEnvIntParams): number =>
  * @returns Parsed number
  */
 export const parseEnvFloat = ({ key, defaultValue }: ParseEnvFloatParams): number => {
-    return parseFloat(process.env[key] ?? defaultValue.toString())
+    return Number.parseFloat(process.env[key] ?? defaultValue.toString())
 }
 
 /**
@@ -98,7 +98,7 @@ export const parseEnvMs = (
         defaultValue 
     }: ParseEnvMsParams
 ): number => {
-    return parseInt(
+    return Number.parseInt(
         ms((process.env[key] ?? defaultValue) as ms.StringValue).toString(),
         10
     )
@@ -222,8 +222,7 @@ export const parseEnvSecret = (
     }
     // strip the trailing newline an editor or a heredoc leaves behind, which
     // would otherwise corrupt every header the value is interpolated into
-    const value = contents.replace(/\s+$/,
-        "")
+    const value = contents.trimEnd()
     // an empty file is a pointer that promises a secret and delivers none
     if (value === "") {
         throw new EnvFileUnreadableException({

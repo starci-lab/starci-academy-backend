@@ -46,7 +46,7 @@ export class DeviceService {
                 const out = await this.probe.run("system_profiler",
                     ["SPDisplaysDataType"],
                     3000)
-                const match = out.match(/Chipset Model:\s*(.+)/)
+                const match = /Chipset Model:\s*(.+)/.exec(out)
                 return match ? match[1].trim() : null
             }
         } catch {

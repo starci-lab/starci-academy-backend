@@ -4,13 +4,13 @@ import {
 } from "@nestjs/common"
 import {
     execFileSync,
-} from "child_process"
+} from "node:child_process"
 import {
     existsSync,
-} from "fs"
+} from "node:fs"
 import {
     platform,
-} from "os"
+} from "node:os"
 import {
     WinstonLog,
 } from "@modules/platform/winston/enums/winston-log"
@@ -41,8 +41,8 @@ import type {
  */
 const GPU_TOOL_CANDIDATES: Record<string, Array<string>> = {
     win32: [
-        "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-        "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+        String.raw`C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe`,
+        String.raw`C:\Program Files\PowerShell\7\pwsh.exe`,
     ],
     linux: [
         "/usr/bin/lspci",

@@ -14,7 +14,6 @@ import {
 } from "../enums/swagger-authentication"
 import type {
     SetupSwaggerParams,
-    SetupSwaggerResult,
 } from "../types/swagger"
 
 /**
@@ -48,7 +47,7 @@ export const setupSwagger = ({
     useScalarDocs = true,
     scalarDocsEndpoint = "scalar",
     swaggerEndpoint = "swagger",
-}: SetupSwaggerParams): SetupSwaggerResult => {
+}: SetupSwaggerParams): void => {
     // build OpenAPI metadata
     const builder = new DocumentBuilder()
         .setTitle(title)

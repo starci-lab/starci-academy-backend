@@ -82,10 +82,11 @@ export class UuidPartitionPersistProcessorService {
                 // A single legacy row whose update violates a constraint (e.g. a stale
                 // content_body_translations FK on old devops content) must NOT abort the
                 // whole seed -- warn and skip it so the rest of the partition still syncs.
+                const skippedId = (updateEntity as { id?: unknown }).id
                 logInitSeederEntitySkipped(
                     this.winstonService,
                     entityClass as ObjectLiteral,
-                    String((updateEntity as { id?: unknown }).id ?? ""),
+                    typeof skippedId === "string" ? skippedId : "",
                     error,
                 )
             }

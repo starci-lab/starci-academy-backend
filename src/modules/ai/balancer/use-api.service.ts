@@ -61,6 +61,8 @@ import type {
 } from "./types/ai-balancer"
 import type {
     AnthropicApiKey,
+    AttemptModelKeysParams,
+    AttemptModelKeysResult,
     BuildProbeRequestParams,
     BuildProbeRequestResult,
     GeminiApiKey,
@@ -71,6 +73,7 @@ import type {
     OpenRouterApiKey,
     ProbeModelParams,
     ProbeModelResult,
+    ResolveAutoModelChainParams,
     UseApiActionContext,
     UseApiAutoParams,
     UseApiParams,
@@ -118,12 +121,10 @@ export class UseApiService {
         params: UseApiParams<TResult>,
     ): Promise<UseApiResult<TResult>> {
         // route by lane -- each lane has different fallback / rotation semantics
-        switch (params.lane) {
-        case "pinned":
+        if (params.lane === "pinned") {
             return this.runPremium(params)
-        default:
-            return this.runAuto(params)
         }
+        return this.runAuto(params)
     }
 
     /**
@@ -140,6 +141,90 @@ export class UseApiService {
     }: UseApiAutoParams<TResult>): Promise<UseApiResult<TResult>> {
         await this.keyStoreService.ensureLoaded()
 
+        const models = await this.resolveAutoModelChain({
+            category,
+            categories,
+            task,
+        })
+        const maxAttempts = envConfig().aiBalancer.maxAutoAttempts
+
+        let attempts = 0
+        let lastError: Error | undefined
+
+        while (attempts < maxAttempts) {
+            // track per-pass progress -- if a full sweep over `models` finds no
+            // eligible key (e.g. every key flagged unhealthy in the ping cache),
+            // there is nothing left to try and looping again would spin forever.
+            let madeProgress = false
+
+            for (const model of models) {
+                if (this.isSkippedByPin(model,
+                    selectedModel,
+                    selectedProvider)) {
+                    continue
+                }
+
+                const eligibleCount = await this.countEligibleKeys(model.provider)
+                if (eligibleCount === 0) {
+                    continue
+                }
+
+                madeProgress = true
+
+                const outcome = await this.attemptModelKeys({
+                    model,
+                    eligibleCount,
+                    action,
+                    attempts,
+                    maxAttempts,
+                })
+                attempts = outcome.attempts
+                if (outcome.type === "success") {
+                    return {
+                        result: outcome.result,
+                        model: model.name,
+                        provider: model.provider,
+                        attempts,
+                    }
+                }
+                lastError = outcome.lastError ?? lastError
+            }
+
+            // a full sweep produced no eligible key -- all models are exhausted,
+            // so stop here instead of re-scanning the same empty pools forever.
+            if (!madeProgress) {
+                break
+            }
+        }
+
+        this.winstonService.log(
+            WinstonLog.AiBalancerNoActiveKey,
+            {
+                provider: "all",
+                totalKeysCount: attempts,
+            },
+        )
+        throw new AllModelsExhaustedException({
+            attempts,
+            modelsTried: models.length,
+            originalError: lastError,
+        })
+    }
+
+    /**
+     * Resolve the Auto lane's model chain: category/entitlement filtered and
+     * ordered (`categories` climbs low->high within entitlement, else the
+     * single-`category` filter), task-filtered, then health/latency-reordered.
+     * @param params - The category filter(s) and task to resolve the chain for.
+     * @returns The chain to try, already in priority order.
+     */
+    private async resolveAutoModelChain(
+        {
+            category,
+            categories,
+            task,
+        }: ResolveAutoModelChainParams,
+    ): Promise<Array<AiModelEntity>> {
         // `categories` (the entitled tier set) climbs low->high by priority within
         // entitlement; otherwise fall back to the single-category filter. enabledModels
         // is ordered by priority DESC, so the filtered list is already Free -> Economy
@@ -176,97 +261,85 @@ export class UseApiService {
             : ordered
         // health/latency-aware reorder WITHIN each category (advisory): push
         // probe-"down" models to the back of their tier; for chat, fastest first.
-        const models = await this.orderByHealthAndLatency(
+        return this.orderByHealthAndLatency(
             taskFiltered,
             categories,
             task,
         )
-        const maxAttempts = envConfig().aiBalancer.maxAutoAttempts
+    }
 
-        let attempts = 0
+    /** Whether a caller pinned a specific (model, provider) and `model` is not it. */
+    private isSkippedByPin(
+        model: AiModelEntity,
+        selectedModel: string | undefined,
+        selectedProvider: ModelProvider | undefined,
+    ): boolean {
+        if (!selectedModel || !selectedProvider) {
+            return false
+        }
+        return model.name !== selectedModel || model.provider !== selectedProvider
+    }
+
+    /**
+     * Attempt every eligible key for ONE model, up to the shared chain-wide
+     * attempt budget. Returns on the first success; a `NonKey` fault (prompt/
+     * content/abort) is NOT retried here -- another key won't help, so it
+     * propagates immediately, matching {@link runAuto}'s prior inline behavior.
+     * @param params - The model, its eligible key count, the action, and the shared attempt counters.
+     * @returns The winning result, or the updated attempt count + last error on exhaustion.
+     */
+    private async attemptModelKeys<TResult>(
+        {
+            model,
+            eligibleCount,
+            action,
+            attempts,
+            maxAttempts,
+        }: AttemptModelKeysParams<TResult>,
+    ): Promise<AttemptModelKeysResult<TResult>> {
+        let currentAttempts = attempts
         let lastError: Error | undefined
-
-        while (attempts < maxAttempts) {
-            // track per-pass progress -- if a full sweep over `models` finds no
-            // eligible key (e.g. every key flagged unhealthy in the ping cache),
-            // there is nothing left to try and looping again would spin forever.
-            let madeProgress = false
-
-            for (const model of models) {
-                if (
-                    selectedModel
-                    && selectedProvider
-                    && (model.name !== selectedModel
-                        || model.provider !== selectedProvider)
-                ) {
-                    continue
-                }
-
-                const eligibleCount = await this.countEligibleKeys(model.provider)
-                if (eligibleCount === 0) {
-                    continue
-                }
-
-                madeProgress = true
-
-                for (let i = 0; i < eligibleCount; i++) {
-                    if (attempts >= maxAttempts) {
-                        break
-                    }
-
-                    attempts++
-                    const acquired = await this.tryAcquire(model.provider)
-                    if (!acquired) {
-                        lastError = new NoActiveBalancerKeyException({
-                            provider: model.provider,
-                            totalKeysCount: eligibleCount,
-                        })
-                        break
-                    }
-
-                    const outcome = await this.invokeWithCache({
-                        provider: model.provider,
-                        key: acquired.value,
-                        model: model.name,
-                        action,
-                    })
-
-                    if (outcome.ok) {
-                        return {
-                            result: outcome.result,
-                            model: model.name,
-                            provider: model.provider,
-                            attempts,
-                        }
-                    }
-
-                    lastError = outcome.error
-                    // prompt/content/abort fault -- another key won't help, surface now
-                    if (outcome.kind === AiErrorKind.NonKey) {
-                        throw outcome.error
-                    }
-                }
-            }
-
-            // a full sweep produced no eligible key -- all models are exhausted,
-            // so stop here instead of re-scanning the same empty pools forever.
-            if (!madeProgress) {
+        for (let i = 0; i < eligibleCount; i++) {
+            if (currentAttempts >= maxAttempts) {
                 break
             }
-        }
 
-        this.winstonService.log(
-            WinstonLog.AiBalancerNoActiveKey,
-            {
-                provider: "all",
-                totalKeysCount: attempts,
-            },
-        )
-        throw new AllModelsExhaustedException({
-            attempts,
-            modelsTried: models.length,
-            originalError: lastError,
-        })
+            currentAttempts++
+            const acquired = await this.tryAcquire(model.provider)
+            if (!acquired) {
+                lastError = new NoActiveBalancerKeyException({
+                    provider: model.provider,
+                    totalKeysCount: eligibleCount,
+                })
+                break
+            }
+
+            const outcome = await this.invokeWithCache({
+                provider: model.provider,
+                key: acquired.value,
+                model: model.name,
+                action,
+            })
+
+            if (outcome.ok) {
+                return {
+                    type: "success",
+                    attempts: currentAttempts,
+                    result: outcome.result,
+                }
+            }
+
+            lastError = outcome.error
+            // prompt/content/abort fault -- another key won't help, surface now
+            if (outcome.kind === AiErrorKind.NonKey) {
+                throw outcome.error
+            }
+        }
+        return {
+            type: "exhausted",
+            attempts: currentAttempts,
+            lastError,
+        }
     }
 
     /**
@@ -323,7 +396,7 @@ export class UseApiService {
         }
         const latencyOf = (row: AiModelEntity): number => {
             const entry = freshEntry(row.name)
-            return entry && entry.ok ? entry.latencyMs : Number.POSITIVE_INFINITY
+            return entry?.ok ? entry.latencyMs : Number.POSITIVE_INFINITY
         }
         // FREE tier is LOCAL-FIRST: a self-hosted (Local provider) model runs on our
         // own GPU at $0, so when it's healthy try it BEFORE any cloud free model --

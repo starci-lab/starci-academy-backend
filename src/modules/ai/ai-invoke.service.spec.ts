@@ -325,6 +325,97 @@ describe("AiInvokeService",
                             }),
                         ).rejects.toBeInstanceOf(UnsupportedAiProviderException)
                     })
+
+                // response.content is `string | MessageContentComplex[]` -- these
+                // two run the real invokeAction (not the useApi shortcut) to prove
+                // both shapes come out as usable text, never the collapsed
+                // "[object Object]" a bare `String(response.content)` would produce
+                // (S6551).
+                it("returns a plain-string response content as-is",
+                    async () => {
+                        const invokeSpy = jest.spyOn(ChatOpenAI.prototype,
+                            "invoke")
+                            .mockResolvedValue({
+                                content: "The answer is 42.",
+                                usage_metadata: {
+                                    input_tokens: 10,
+                                    output_tokens: 5,
+                                    total_tokens: 15,
+                                },
+                            } as never)
+                        useApiService.useApi.mockImplementationOnce(
+                            async (params: UseApiParams<unknown>) => ({
+                                result: await params.action({
+                                    provider: ModelProvider.Local,
+                                    key: "local-a",
+                                    model: "model-a",
+                                } as UseApiActionContext),
+                                model: "model-a",
+                                provider: ModelProvider.Local,
+                                attempts: 1,
+                            }),
+                        )
+
+                        try {
+                            const result = await service.invoke({
+                                messages,
+                            })
+
+                            expect(result.text).toBe("The answer is 42.")
+                        } finally {
+                            invokeSpy.mockRestore()
+                        }
+                    })
+
+                it("extracts the joined text from a multi-part response content instead of stringifying the array",
+                    async () => {
+                        const invokeSpy = jest.spyOn(ChatOpenAI.prototype,
+                            "invoke")
+                            .mockResolvedValue({
+                                content: [
+                                    {
+                                        type: "text",
+                                        text: "The answer is ",
+                                    },
+                                    {
+                                        type: "image_url",
+                                        image_url: "https://example.com/x.png",
+                                    },
+                                    {
+                                        type: "text",
+                                        text: "42.",
+                                    },
+                                ],
+                                usage_metadata: {
+                                    input_tokens: 10,
+                                    output_tokens: 5,
+                                    total_tokens: 15,
+                                },
+                            } as never)
+                        useApiService.useApi.mockImplementationOnce(
+                            async (params: UseApiParams<unknown>) => ({
+                                result: await params.action({
+                                    provider: ModelProvider.Local,
+                                    key: "local-a",
+                                    model: "model-a",
+                                } as UseApiActionContext),
+                                model: "model-a",
+                                provider: ModelProvider.Local,
+                                attempts: 1,
+                            }),
+                        )
+
+                        try {
+                            const result = await service.invoke({
+                                messages,
+                            })
+
+                            expect(result.text).toBe("The answer is 42.")
+                            expect(result.text).not.toContain("[object Object]")
+                        } finally {
+                            invokeSpy.mockRestore()
+                        }
+                    })
             })
 
         // stream() mirrors invoke() lane-for-lane; onChunk itself is exercised
@@ -410,6 +501,73 @@ describe("AiInvokeService",
                                 onChunk,
                             }),
                         ).rejects.toBeInstanceOf(UnsupportedAiProviderException)
+                    })
+
+                // chunk.content is `string | MessageContentComplex[]` identically to
+                // invoke()'s response.content -- prove `foldStreamChunk` extracts the
+                // joined text from a multi-part chunk instead of stringifying the
+                // array to "[object Object]" (S6551).
+                it("extracts the joined text from a multi-part stream chunk content instead of stringifying the array",
+                    async () => {
+                        const streamSpy = jest.spyOn(ChatOpenAI.prototype,
+                            "stream")
+                        const multiPartAttempt = async function* () {
+                            yield new AIMessageChunk({
+                                content: [
+                                    {
+                                        type: "text",
+                                        text: "The answer is ",
+                                    },
+                                    {
+                                        type: "image_url",
+                                        image_url: "https://example.com/x.png",
+                                    },
+                                ],
+                            })
+                            yield new AIMessageChunk({
+                                content: [
+                                    {
+                                        type: "text",
+                                        text: "42.",
+                                    },
+                                ],
+                                usage_metadata: {
+                                    input_tokens: 10,
+                                    output_tokens: 5,
+                                    total_tokens: 15,
+                                },
+                            })
+                        }
+                        streamSpy.mockImplementationOnce(async () => multiPartAttempt() as never)
+                        const emitted: Array<string> = []
+                        useApiService.useApi.mockImplementationOnce(
+                            async (params: UseApiParams<unknown>) => ({
+                                result: await params.action({
+                                    provider: ModelProvider.Local,
+                                    key: "local-a",
+                                    model: "model-a",
+                                } as UseApiActionContext),
+                                model: "model-a",
+                                provider: ModelProvider.Local,
+                                attempts: 1,
+                            }),
+                        )
+
+                        try {
+                            const result = await service.stream({
+                                messages,
+                                onChunk: (delta) => emitted.push(delta),
+                            })
+
+                            expect(emitted).toEqual([
+                                "The answer is ",
+                                "42.",
+                            ])
+                            expect(result.text).toBe("The answer is 42.")
+                            expect(result.text).not.toContain("[object Object]")
+                        } finally {
+                            streamSpy.mockRestore()
+                        }
                     })
             })
 

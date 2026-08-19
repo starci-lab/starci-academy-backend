@@ -15,7 +15,7 @@ export const estimateMemoryUsage = (object: unknown): string => {
         result = estimateSetMemory(object)
     }
     // estimate the memory usage of an Array
-    else if (object instanceof Array) {
+    else if (Array.isArray(object)) {
         result = estimateArrayMemory(object)
     }
     // estimate the memory usage of an Object

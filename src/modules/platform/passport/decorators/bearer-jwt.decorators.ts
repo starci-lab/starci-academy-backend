@@ -27,10 +27,15 @@ export function extractBearerJwtFromAuthorizationHeader(
     if (typeof header !== "string" || header.length === 0) {
         return undefined
     }
-    const match = /^Bearer\s+(.+)$/iu.exec(
-        header.trim()
-    )
-    return match?.[1]?.trim()
+    // Prefix-match only (`\s+` not immediately followed by another unbounded
+    // `.+`, which is ambiguous since `.` overlaps `\s`) then slice the rest --
+    // avoids the super-linear `\s+(.+)$` shape while returning the identical value.
+    const trimmedHeader = header.trim()
+    const prefixMatch = /^Bearer\s+/iu.exec(trimmedHeader)
+    if (!prefixMatch) {
+        return undefined
+    }
+    return trimmedHeader.slice(prefixMatch[0].length).trim()
 }
 
 function resolveRequest(

@@ -7,6 +7,9 @@ import {
 import {
     MissingRequiredParameterException,
 } from "@modules/platform/exceptions/errors/stdlib/missing-required-parameter"
+import {
+    isStringifiablePrimitive,
+} from "@modules/lib/common/utils/stringify-primitive"
 import type {
     ArrayTrailEntry,
 } from "./types/array-trail"
@@ -379,7 +382,15 @@ export class MergeJsonService {
         if (value === null || value === undefined) {
             return ""
         }
-        return String(value)
+        if (isStringifiablePrimitive(value)) {
+            return String(value)
+        }
+        // a field path configured as a translatable leaf should never resolve to
+        // an object/array -- that means `rootFields`/`leafFields` named a non-leaf
+        // path. Preserve the actual payload instead of collapsing it to the
+        // meaningless "[object Object]", which would otherwise be persisted as
+        // real (wrong) translated content.
+        return JSON.stringify(value)
     }
 
     /** Returns true when `value` is a plain object (not array / null). */

@@ -47,9 +47,6 @@ export interface StartSessionParams {
     accessToken: string
 }
 
-/** Result of starting a session (void). */
-export type StartSessionResult = void
-
 /** Params for asserting that a request belongs to one of the user's active sessions. */
 export interface AssertCurrentSessionParams {
     /** The Keycloak subject (user id) taken from the verified access token. */
@@ -57,9 +54,6 @@ export interface AssertCurrentSessionParams {
     /** The session id presented by the request via the `session_id` cookie. */
     sessionId?: string
 }
-
-/** Result of the assertion (void; throws when the session is stale/evicted). */
-export type AssertCurrentSessionResult = void
 
 /** Params for ending the current device's session (sign-out). */
 export interface EndSessionParams {
@@ -70,9 +64,6 @@ export interface EndSessionParams {
     /** The refresh token whose `sub` claim identifies the user. */
     refreshToken: string
 }
-
-/** Result of ending a session (void). */
-export type EndSessionResult = void
 
 /** Params for listing a user's currently-active login sessions. */
 export interface ListSessionsParams {
@@ -116,9 +107,6 @@ export interface RevokeSessionParams {
     /** The session id to revoke (forces that device to re-authenticate). */
     sessionId: string
 }
-
-/** Result of revoking a session (void; throws when the session does not exist). */
-export type RevokeSessionResult = void
 
 /** Params for the internal "mark a persisted session as revoked" helper. */
 export interface MarkSessionRevokedParams {

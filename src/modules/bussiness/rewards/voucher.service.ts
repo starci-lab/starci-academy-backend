@@ -1,6 +1,6 @@
 import {
     randomBytes,
-} from "crypto"
+} from "node:crypto"
 import {
     Injectable,
 } from "@nestjs/common"

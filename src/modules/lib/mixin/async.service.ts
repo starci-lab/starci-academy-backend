@@ -59,7 +59,7 @@ export class AsyncService {
      * @returns The value of the first promise to complete.
      */
     async raceValue<T extends readonly unknown[]>(
-        promises: [...{ [K in keyof T]: Promise<T[K]> }],
+        promises: { [K in keyof T]: Promise<T[K]> },
     ): Promise<T[number]> {
         return Promise.race(promises)
     }

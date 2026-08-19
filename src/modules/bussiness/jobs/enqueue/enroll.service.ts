@@ -104,9 +104,12 @@ export class EnqueueEnrollJobService {
         // resolve the course ids of this order (multi-course items, else the single
         // course on the transaction) -- drives both the per-course enroll fan-out AND
         // the installment plan's `lockedCourseIds` (all courses gated together)
-        const courseIds = items.length > 0
-            ? items.map((item) => item.courseId)
-            : (transaction.courseId ? [transaction.courseId] : [])
+        let courseIds: Array<string>
+        if (items.length > 0) {
+            courseIds = items.map((item) => item.courseId)
+        } else {
+            courseIds = transaction.courseId ? [transaction.courseId] : []
+        }
         // neither items nor a course -> malformed Enroll transaction; let the caller surface it
         if (courseIds.length === 0) {
             return {

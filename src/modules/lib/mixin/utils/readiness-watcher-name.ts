@@ -1,6 +1,6 @@
 import {
     createHash
-} from "crypto"
+} from "node:crypto"
 import type {
     GetReadinessWatcherNameParams,
 } from "../types/readiness-watcher"

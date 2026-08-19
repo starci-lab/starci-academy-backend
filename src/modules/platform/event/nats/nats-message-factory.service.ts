@@ -11,10 +11,10 @@ import {
     Injectable 
 } from "@nestjs/common"
 import SuperJSON from "superjson"
-import _ from "lodash"
+import isUndefined from "lodash/isUndefined"
+import omitBy from "lodash/omitBy"
 import type {
     NatsCreateMessageParams,
-    NatsCreateMessageResult,
     NatsMessage,
     NatsParseMessageResult,
 } from "./types"
@@ -44,13 +44,13 @@ export class NatsMessageFactoryService {
         message,
         withoutHash = false,
     }: NatsCreateMessageParams<T>): Partial<NatsMessage<T>> {
-        return _.omitBy(
+        return omitBy(
             {
                 data: message,
                 digest: withoutHash ? undefined : createHash(message),
                 id: this.instanceService.getId(),
             },
-            _.isUndefined,
+            isUndefined,
         )
     }
 
@@ -66,7 +66,7 @@ export class NatsMessageFactoryService {
     create<T extends object>({
         message,
         withoutHash = false,
-    }: NatsCreateMessageParams<T>): NatsCreateMessageResult {
+    }: NatsCreateMessageParams<T>): string {
         return this.superjson.stringify(
             this.createMessage({
                 message, withoutHash 

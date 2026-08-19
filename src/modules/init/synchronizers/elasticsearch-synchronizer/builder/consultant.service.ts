@@ -22,7 +22,6 @@ import {
 import {
     buildCompletionSuggest,
 } from "@modules/integrations/elasticsearch/utils/completion"
-import _ from "lodash"
 
 @Injectable()
 /**
@@ -45,7 +44,7 @@ export class ElasticsearchConsultantBuildService {
             ?? Locale.En
         return Object.values(Locale).map(
             (locale) => {
-                const localizedHeadhunter = _.cloneDeep(hydratedHeadhunter)
+                const localizedHeadhunter = structuredClone(hydratedHeadhunter)
                 this.headhunterResolver.transform(
                     localizedHeadhunter,
                     locale,
