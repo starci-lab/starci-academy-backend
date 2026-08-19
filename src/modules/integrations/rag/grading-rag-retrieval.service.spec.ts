@@ -166,6 +166,12 @@ describe("GradingRetrievalService",
                 // round-robin rank-0 (A, B) then rank-1 (B dup->skip, C) -> A, B, C exactly once
                 expect(result.excerpt).toBe("AAAA\n\nBBBB\n\nCCCC")
                 expect(result.retrievedChunks).toBe(3)
+                expect(winstonService.log.mock.calls).not.toContainEqual([
+                    expect.anything(),
+                    expect.objectContaining({
+                        success: false,
+                    }),
+                ])
                 expect(result.degraded).toBe(false)
                 // collection is namespaced by runKey and dropped (start + finally cleanup)
                 expect(fromDocuments.mock.calls[0][2]).toMatchObject({
