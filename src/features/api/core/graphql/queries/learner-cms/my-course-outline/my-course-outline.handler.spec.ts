@@ -646,6 +646,7 @@ describe("MyCourseOutlineHandler",
                         maxScore: 20,
                         completed: true,
                         lastScore: 20,
+                        numAttempts: 1,
                     },
                     {
                         // untouched task -> nullable type passed through, zeroed progress
@@ -655,6 +656,7 @@ describe("MyCourseOutlineHandler",
                         maxScore: 30,
                         completed: false,
                         lastScore: 0,
+                        numAttempts: 0,
                     },
                 ])
                 expect(result.milestones[1].tasks).toEqual([

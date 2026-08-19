@@ -450,7 +450,7 @@ export class MyCourseOutlineHandler
 
     /**
      * Map the tasks of a milestone, sorting by sort index and overlaying the
-     * viewer's per-task progress (completed / lastScore).
+     * viewer's per-task progress (completed / lastScore / numAttempts).
      * @param tasks - The locale-resolved milestone-task entities.
      * @param taskProgressById - Per-task progress keyed by task id.
      * @returns The mapped tasks ordered by sort index.
@@ -472,6 +472,7 @@ export class MyCourseOutlineHandler
                     maxScore: task.maxScore,
                     completed: progress?.completed ?? false,
                     lastScore: progress?.lastScore ?? 0,
+                    numAttempts: progress?.numAttempts ?? 0,
                 }
             })
     }

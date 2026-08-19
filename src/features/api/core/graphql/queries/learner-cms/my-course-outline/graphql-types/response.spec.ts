@@ -198,6 +198,7 @@ describe("myCourseOutline response types",
                     maxScore: "Int!",
                     completed: "Boolean!",
                     lastScore: "Int!",
+                    numAttempts: "Int!",
                 })
             })
 

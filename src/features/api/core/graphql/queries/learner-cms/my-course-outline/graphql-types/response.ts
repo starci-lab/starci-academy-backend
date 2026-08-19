@@ -237,7 +237,7 @@ export class MyCourseOutlineModule {
 })
 /**
  * A single capstone (personal-project) task under a milestone, with the viewer's
- * progress overlaid: the completed flag and the latest score.
+ * progress overlaid: the completed flag, latest score and submission count.
  */
 export class MyCourseOutlineTask {
     @Field(
@@ -288,6 +288,14 @@ export class MyCourseOutlineTask {
         },
     )
         lastScore: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Number of submission attempts the viewer has made for this task.",
+        },
+    )
+        numAttempts: number
 }
 
 @ObjectType({
