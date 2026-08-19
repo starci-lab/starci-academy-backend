@@ -80,9 +80,21 @@ const config: Config = {
             testTimeout: 120_000,
         },
     ],
-    /** Coverage collected from source + apps when `--coverage` is passed. */
+    /**
+     * Coverage describes authored production code. Test lanes, declarations and
+     * bootstrap entrypoints are evidence/assembly, not production behavior in the
+     * denominator. E2E remains linted and runnable through its own lane.
+     */
     collectCoverageFrom: [
-        "**/*.(t|j)s",
+        "src/**/*.ts",
+        "apps/**/*.ts",
+        "!src/tests/**",
+        "!**/*.spec.ts",
+        "!**/*.int-spec.ts",
+        "!**/*.e2e-spec.ts",
+        "!**/*.harness-spec.ts",
+        "!**/*.d.ts",
+        "!**/main.ts",
         // apps/tools/dashboard has no source tree in this repo — only a checked-in,
         // content-hashed Vite build (`dist/assets/index-<hash>.js`). It is generated
         // evidence, not authored code, and there is no hand-written counterpart to test.

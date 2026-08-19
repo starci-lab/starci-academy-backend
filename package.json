@@ -4,6 +4,7 @@
     "description": "",
     "author": "",
     "private": true,
+    "packageManager": "npm@11.6.2",
     "license": "UNLICENSED",
     "scripts": {
         "build": "nest build core",
@@ -31,7 +32,7 @@
         "test:int": "jest --selectProjects integration --runInBand --passWithNoTests",
         "test:watch": "jest --selectProjects unit --watch",
         "test:cov": "jest --selectProjects unit --coverage",
-        "test:ci": "jest --selectProjects unit --ci --coverage --coverageReporters=lcov --coverageReporters=text-summary --passWithNoTests",
+        "test:ci": "jest --selectProjects unit --ci --coverage --coverageReporters=lcov --coverageReporters=json-summary --coverageReporters=json --coverageReporters=text-summary && node scripts/write-patch-coverage.mjs",
         "sonar:check": "sonar-scanner-npm -Dsonar.qualitygate.wait=true -Dsonar.qualitygate.timeout=600",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "node -r ts-node/register/transpile-only src/tests/helpers/e2e-runner.ts",
