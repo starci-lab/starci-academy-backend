@@ -7,13 +7,17 @@
  * derived projections after writing those sources, so normal read paths rebuild them instead of
  * pinning screenshot-only JSON.
  *
- * Usage: npm run seed:dashboard-test-data -- learner@example.com
+ * Usage: npm run seed:dashboard-test-data -- learner@example.com system-design-mastery
  */
 import { readFile } from "node:fs/promises"
 import pg from "pg"
 
 const { Client } = pg
 const TEST_EMAIL = process.argv[2] ?? process.env.DEV_TEST_ACCOUNT_EMAIL ?? "test@starci.local"
+const COURSE_DISPLAY_ID = process.argv[3] ?? process.env.DEV_TEST_COURSE_DISPLAY_ID ?? "system-design-mastery"
+const PROGRESS_TARGET = 0.42
+const VIEWER_TOTAL_XP = 6500
+const DEMO_TOTAL_XP = [9000, 8200, 7300, 6100, 5600, 5100, 4600, 4100, 3600, 3100]
 
 /** Read a normal env value or its Docker-secret `_FILE` counterpart. */
 const secret = async (name, fallback) => {
@@ -131,9 +135,12 @@ const main = async () => {
         if (user.rowCount !== 1) {
             throw new Error(`${TEST_EMAIL} is missing; run the FE seed:test-account script and sign in once first`)
         }
-        const course = await client.query("SELECT id FROM courses ORDER BY created_at LIMIT 1")
+        const course = await client.query(
+            "SELECT id, display_id FROM courses WHERE display_id = $1 LIMIT 1",
+            [COURSE_DISPLAY_ID],
+        )
         if (course.rowCount !== 1) {
-            throw new Error("no authored course exists; run the normal content seed before dashboard fixtures")
+            throw new Error(`course ${COURSE_DISPLAY_ID} is missing; run the normal content seed before dashboard fixtures`)
         }
         const userId = user.rows[0].id
         const courseId = course.rows[0].id
@@ -265,6 +272,71 @@ const main = async () => {
                     [learner.userId, contentId, learner.enrollmentId, readerIndex + index],
                 )
             }
+        }
+
+        // The course command center must render a representative in-progress learner rather than a
+        // screenshot-only zero state. Mark a deterministic 42% slice of the REAL course contents as
+        // read through the same source table the progress projector consumes. This stays stable when
+        // the authored course gains content: rerunning the seed moves the fixture toward the same ratio.
+        const courseContents = await client.query(
+            `SELECT ct.id
+             FROM contents ct
+             JOIN modules m ON m.id = ct.module_id
+             WHERE m.course_id = $1
+             ORDER BY m.order_index, m.id, ct.order_index, ct.id`,
+            [courseId],
+        )
+        const progressContentCount = Math.max(
+            Math.min(LESSONS.length, courseContents.rowCount),
+            Math.round(courseContents.rowCount * PROGRESS_TARGET),
+        )
+        const dimensionTotals = await client.query(
+            `SELECT
+                (SELECT count(*)::int
+                 FROM challenges ch
+                 JOIN contents ct ON ct.id = ch.content_id
+                 JOIN modules m ON m.id = ct.module_id
+                 WHERE m.course_id = $1) AS challenges,
+                (SELECT count(*)::int
+                 FROM milestone_tasks mt
+                 JOIN milestones ms ON ms.id = mt.milestone_id
+                 WHERE ms.course_id = $1) AS milestones`,
+            [courseId],
+        )
+        const progressChallengeCount = Math.round(dimensionTotals.rows[0].challenges * PROGRESS_TARGET)
+        const progressMilestoneCount = Math.round(dimensionTotals.rows[0].milestones * PROGRESS_TARGET)
+        for (const [index, row] of courseContents.rows.slice(0, progressContentCount).entries()) {
+            await client.query(
+                `INSERT INTO user_contents (user_id, content_id, enrollment_id, is_read, is_favorite, updated_at)
+                 VALUES ($1, $2, $3, true, false, now() - ($4 * interval '1 minute'))
+                 ON CONFLICT (user_id, content_id) DO UPDATE SET
+                     enrollment_id = EXCLUDED.enrollment_id,
+                     is_read = true,
+                     updated_at = EXCLUDED.updated_at`,
+                [userId, row.id, enrollmentId, index],
+            )
+        }
+
+        // Rank is production-shaped too: ten enrolled peers carry durable course projections. Exactly
+        // three sit above the fixture viewer, so the learning signal reads "#4" instead of unranked.
+        for (const [index, learner] of demoEnrollments.entries()) {
+            const totalXp = DEMO_TOTAL_XP[index]
+            await client.query(
+                `INSERT INTO user_course_progress_projections
+                    (user_id, course_id, enrollment_id, value, default_locale)
+                 VALUES ($1, $2, $3, $4::jsonb, 'en')
+                 ON CONFLICT (user_id, course_id) DO UPDATE SET
+                     enrollment_id = EXCLUDED.enrollment_id,
+                     value = EXCLUDED.value,
+                     updated_at = now()`,
+                [learner.userId, courseId, learner.enrollmentId, JSON.stringify({
+                    totalScore: Math.max(20, totalXp - 700),
+                    completedChallenges: Math.max(1, 8 - index),
+                    lessonsRead: Math.max(3, progressContentCount - index),
+                    milestoneProgress: Math.max(0, 4 - Math.floor(index / 2)),
+                    totalXp,
+                })],
+            )
         }
 
         // Explore reads the public activity ledger, not an FE fixture. Thirty idempotent events
@@ -516,11 +588,11 @@ const main = async () => {
              ON CONFLICT (user_id, course_id) DO UPDATE SET enrollment_id = EXCLUDED.enrollment_id,
                  value = EXCLUDED.value, updated_at = now()`,
             [userId, courseId, enrollmentId, JSON.stringify({
-                totalScore: 10,
-                completedChallenges: 1,
-                lessonsRead: 3,
-                milestoneProgress: 0,
-                totalXp: 19,
+                totalScore: 5800,
+                completedChallenges: progressChallengeCount,
+                lessonsRead: progressContentCount,
+                milestoneProgress: progressMilestoneCount,
+                totalXp: VIEWER_TOTAL_XP,
             })],
         )
 
@@ -538,6 +610,8 @@ const main = async () => {
             `SELECT
                 (SELECT weekly_kpi_targets FROM users WHERE id = $1) AS targets,
                 (SELECT count(*)::int FROM user_contents WHERE user_id = $1 AND is_read = true) AS learned,
+                (SELECT count(*)::int FROM user_course_progress_projections
+                 WHERE course_id = $7 AND (value->>'totalXp')::int > $8) AS learners_above,
                 (SELECT count(*)::int FROM xp_histories WHERE user_id = $1 AND ref_id LIKE $2) AS fixture_xp,
                 (SELECT count(*)::int FROM activities WHERE user_id = $1 AND idempotency_key LIKE $3) AS activities,
                 (SELECT count(*)::int FROM changelog_entries WHERE slug LIKE 'dashboard-fixture-%' AND is_published) AS changelog,
@@ -552,12 +626,13 @@ const main = async () => {
                    AND ucs.user_id = ANY($5::uuid[])) AS fixture_passers`,
             [userId, `dashboard:${userId}:%`, `dashboard-test:${userId}:%`,
                 IDS.weeklyChallengeSubmission, [userId, ...demoEnrollments.slice(0, 4).map((entry) => entry.userId)],
-                IDS.trendingContents],
+                IDS.trendingContents, courseId, VIEWER_TOTAL_XP],
         )
         const seeded = verification.rows[0]
         if (
             Object.keys(seeded.targets ?? {}).length !== 6
-            || seeded.learned < LESSONS.length
+            || seeded.learned < progressContentCount
+            || seeded.learners_above !== 3
             || seeded.fixture_xp !== STREAK_DAYS + 1
             || seeded.activities < 5
             || seeded.changelog !== CHANGELOG.length
@@ -572,7 +647,7 @@ const main = async () => {
 
         await client.query("COMMIT")
         console.log(
-            `seeded dashboard for ${TEST_EMAIL}: 10 demo learners, 5 weekly passers, 3 resume lessons, ${STREAK_DAYS}-day streak, 6 weekly goals, 105 coins, AI quota reset${hasCodingProblem ? ", coding progress" : ""}`,
+            `seeded ${COURSE_DISPLAY_ID} command center for ${TEST_EMAIL}: 42% course progress (${progressContentCount}/${courseContents.rowCount} contents, ${progressChallengeCount}/${dimensionTotals.rows[0].challenges} challenges, ${progressMilestoneCount}/${dimensionTotals.rows[0].milestones} milestones), rank #4, 10 demo learners, 5 weekly passers, ${STREAK_DAYS}-day streak, 6 weekly goals, 105 coins, AI quota reset${hasCodingProblem ? ", coding progress" : ""}`,
         )
     } catch (error) {
         await client.query("ROLLBACK")
