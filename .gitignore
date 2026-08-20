@@ -100,8 +100,8 @@ claude-legacy/
 .claude_legacy/
 .workspace/
 
-# Source-local project worktrees. Each project owns `.worktrees/<project>/registries`, `sessions`
-# and `cache`; the registry is versioned by its dedicated linked-worktree branch.
+# Source-local project worktrees. Each project owns separate versioned `registries` and `business`
+# linked worktrees plus ignored rebuildable `cache`; no session directory is part of the contract.
 /.worktrees/
 
 # cloudflare tunnel token (never commit)
