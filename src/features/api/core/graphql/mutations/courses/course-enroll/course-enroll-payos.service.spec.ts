@@ -94,6 +94,12 @@ interface ProgramLookupsRows {
     pending?: Record<string, unknown> | null
 }
 
+/** Voucher collaborator methods exercised by the PayOS checkout service. */
+interface VoucherServiceMock {
+    previewDiscount: jest.Mock
+    reserve: jest.Mock
+}
+
 /**
  * Build a minimal user stand-in carrying only the id the service reads.
  *
@@ -136,7 +142,7 @@ describe("CourseEnrollPayOsService",
         let entityManager: EntityManagerMock
         let payos: { paymentRequests: { create: jest.Mock } }
         let enqueueReconcileTransactionJobService: { enqueue: jest.Mock }
-        let voucherService: { reserve: jest.Mock }
+        let voucherService: VoucherServiceMock
         let queryRunner: { connect: jest.Mock, query: jest.Mock, release: jest.Mock, manager: EntityManagerMock }
 
         /** Programs the course + pending-transaction lookups, by entity. */
@@ -207,6 +213,7 @@ describe("CourseEnrollPayOsService",
                 enqueue: jest.fn(),
             }
             voucherService = {
+                previewDiscount: jest.fn().mockResolvedValue(undefined),
                 reserve: jest.fn(),
             }
 
