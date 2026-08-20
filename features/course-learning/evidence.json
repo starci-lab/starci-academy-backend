@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "course-learning",
+  "head": "8117ae4779b0f22a112ce8bd8817a06113a731514b5ba47d4b1184a843c29880",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "eca4e018044f38900441790974c329c9cd4f3400"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/content/page.tsx",
+      "startLine": 1,
+      "endLine": 7,
+      "claim": "The course content home route mounts the content-map page for displayId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/page.tsx",
+      "startLine": 1,
+      "endLine": 38,
+      "claim": "The dynamic module/content route mounts CourseLearnContentPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/components/pages/CourseLearnContentPage/component.tsx",
+      "startLine": 80,
+      "endLine": 216,
+      "claim": "The lesson page defines pending/ready/locked/failed states, reading/source/challenge faces, reactions, discussion, progress and outline data/actions.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]/page.tsx",
+      "startLine": 1,
+      "endLine": 26,
+      "claim": "The embedded challenge route mounts the challenge page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]/result/page.tsx",
+      "startLine": 1,
+      "endLine": 26,
+      "claim": "The embedded challenge result route mounts the result page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/qa/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The course Q&A route mounts CourseQaPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/contents/mark-as-readed/mark-as-readed.resolver.ts",
+      "startLine": 60,
+      "endLine": 90,
+      "claim": "The guarded markContentAsReaded mutation changes a learner's read state for content.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/discussion/create-comment/create-comment.resolver.ts",
+      "startLine": 55,
+      "endLine": 83,
+      "claim": "The guarded createComment mutation creates a top-level comment or reply on content.",
+      "kind": "api"
+    }
+  ]
+}
