@@ -34,7 +34,7 @@
     },
     "course-learning": {
       "featureId": "course-learning",
-      "head": "d62f97ecb54c828d13e80ca59baf7498cfb4e261ae4194b91a3bec93537cfb0a",
+      "head": "55374bab89396fc6cd12cdc9e6aaeceab59c711c12f760478e3e8179900995df",
       "sources": [
         {
           "role": "fe",
@@ -42,7 +42,7 @@
         },
         {
           "role": "be",
-          "head": "0066625ed94b10bf5b6892af775e45bdd6823558"
+          "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
         }
       ]
     },
@@ -169,6 +169,10 @@
       "794fad6a19c53e6baa94f7c20fa08953ac052e16c32cc7b24071c34215ccd149": {
         "hash": "794fad6a19c53e6baa94f7c20fa08953ac052e16c32cc7b24071c34215ccd149",
         "path": "objects/sha256/794fad6a19c53e6baa94f7c20fa08953ac052e16c32cc7b24071c34215ccd149.json"
+      },
+      "55374bab89396fc6cd12cdc9e6aaeceab59c711c12f760478e3e8179900995df": {
+        "hash": "55374bab89396fc6cd12cdc9e6aaeceab59c711c12f760478e3e8179900995df",
+        "path": "objects/sha256/55374bab89396fc6cd12cdc9e6aaeceab59c711c12f760478e3e8179900995df.json"
       }
     }
   }
