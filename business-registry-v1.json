@@ -20,11 +20,11 @@
     },
     "course-marketplace": {
       "featureId": "course-marketplace",
-      "head": "794fad6a19c53e6baa94f7c20fa08953ac052e16c32cc7b24071c34215ccd149",
+      "head": "fbc8d013858790dc883e1f9fa57bd4524a6b285f0879d5c34e60b264261c1b3a",
       "sources": [
         {
           "role": "fe",
-          "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+          "head": "6db677598290cd69c3db6bfc4e731c37ba972b63"
         },
         {
           "role": "be",
@@ -197,6 +197,10 @@
       "a5e52d838376a41249c882e5f71c2d5e0cbbced15eaad87754aca5eae4643a6f": {
         "hash": "a5e52d838376a41249c882e5f71c2d5e0cbbced15eaad87754aca5eae4643a6f",
         "path": "objects/sha256/a5e52d838376a41249c882e5f71c2d5e0cbbced15eaad87754aca5eae4643a6f.json"
+      },
+      "fbc8d013858790dc883e1f9fa57bd4524a6b285f0879d5c34e60b264261c1b3a": {
+        "hash": "fbc8d013858790dc883e1f9fa57bd4524a6b285f0879d5c34e60b264261c1b3a",
+        "path": "objects/sha256/fbc8d013858790dc883e1f9fa57bd4524a6b285f0879d5c34e60b264261c1b3a.json"
       }
     }
   }

@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "course-marketplace",
-  "head": "794fad6a19c53e6baa94f7c20fa08953ac052e16c32cc7b24071c34215ccd149",
+  "head": "fbc8d013858790dc883e1f9fa57bd4524a6b285f0879d5c34e60b264261c1b3a",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+      "head": "6db677598290cd69c3db6bfc4e731c37ba972b63"
     },
     {
       "role": "be",
