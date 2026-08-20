@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "study-library",
-  "head": "c801a8150af4b11f18b353797a3c5f112633dee5123f2ba9fafa2b4033734dd8",
+  "head": "19c336c561b31dc1a07b14a3d2caefc5106fd8c4238b5a7dd6fbf17dfc72fb31",
   "sources": [
     {
       "role": "fe",
@@ -12,7 +12,7 @@
     {
       "role": "be",
       "repository": "https://github.com/starci-lab/starci-academy-backend",
-      "head": "eca4e018044f38900441790974c329c9cd4f3400"
+      "head": "0066625ed94b10bf5b6892af775e45bdd6823558"
     }
   ],
   "evidence": [
