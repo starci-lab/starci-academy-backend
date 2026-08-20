@@ -48,11 +48,11 @@
     },
     "study-library": {
       "featureId": "study-library",
-      "head": "5edbceb5fe0ec51dbed2939196fc5b647a9c47e7757dcf73cc5be2f18b382cfe",
+      "head": "f401f50f55ec0717c638de7f000c2a679f262155062c47e4dec1fd924ab32530",
       "sources": [
         {
           "role": "fe",
-          "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+          "head": "6db677598290cd69c3db6bfc4e731c37ba972b63"
         },
         {
           "role": "be",
@@ -217,6 +217,10 @@
       "7566d9ae48e5b03618b4fd9b3f11e0b8cb3cceb8703d6319240f5a36c88055e2": {
         "hash": "7566d9ae48e5b03618b4fd9b3f11e0b8cb3cceb8703d6319240f5a36c88055e2",
         "path": "objects/sha256/7566d9ae48e5b03618b4fd9b3f11e0b8cb3cceb8703d6319240f5a36c88055e2.json"
+      },
+      "f401f50f55ec0717c638de7f000c2a679f262155062c47e4dec1fd924ab32530": {
+        "hash": "f401f50f55ec0717c638de7f000c2a679f262155062c47e4dec1fd924ab32530",
+        "path": "objects/sha256/f401f50f55ec0717c638de7f000c2a679f262155062c47e4dec1fd924ab32530.json"
       }
     }
   }
