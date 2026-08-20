@@ -90,7 +90,7 @@
     },
     "progress-profile": {
       "featureId": "progress-profile",
-      "head": "270747c88bd992cf607ddf1c6e0e5faecb2abece9bc40027f323eecd1a767595",
+      "head": "0559699a8c0580f5794913a16111e7b3372db95c90f8d0d5e093145bd0b391b8",
       "sources": [
         {
           "role": "fe",
@@ -98,7 +98,7 @@
         },
         {
           "role": "be",
-          "head": "eca4e018044f38900441790974c329c9cd4f3400"
+          "head": "0066625ed94b10bf5b6892af775e45bdd6823558"
         }
       ]
     }
@@ -157,6 +157,10 @@
       "d2e72f87ecce3fcfb48340c448d55c2fe2e0508cc1758a154f786a6354d045f0": {
         "hash": "d2e72f87ecce3fcfb48340c448d55c2fe2e0508cc1758a154f786a6354d045f0",
         "path": "objects/sha256/d2e72f87ecce3fcfb48340c448d55c2fe2e0508cc1758a154f786a6354d045f0.json"
+      },
+      "0559699a8c0580f5794913a16111e7b3372db95c90f8d0d5e093145bd0b391b8": {
+        "hash": "0559699a8c0580f5794913a16111e7b3372db95c90f8d0d5e093145bd0b391b8",
+        "path": "objects/sha256/0559699a8c0580f5794913a16111e7b3372db95c90f8d0d5e093145bd0b391b8.json"
       }
     }
   }
