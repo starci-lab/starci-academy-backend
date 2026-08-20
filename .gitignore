@@ -100,7 +100,7 @@ claude-legacy/
 .claude_legacy/
 .workspace/
 
-# Source-local project worktrees. Each project owns separate versioned `registries` and `business`
+# Source-local project worktrees. Each project owns separate versioned `registries` and `businesses`
 # linked worktrees plus ignored rebuildable `cache`; no session directory is part of the contract.
 /.worktrees/
 
