@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "projects-career",
-  "head": "5879c49105264073469a07bd554395d44c6720211a10981fc8f58c5485e6faeb",
+  "head": "d2e72f87ecce3fcfb48340c448d55c2fe2e0508cc1758a154f786a6354d045f0",
   "sources": [
     {
       "role": "fe",
@@ -12,7 +12,7 @@
     {
       "role": "be",
       "repository": "https://github.com/starci-lab/starci-academy-backend",
-      "head": "eca4e018044f38900441790974c329c9cd4f3400"
+      "head": "0066625ed94b10bf5b6892af775e45bdd6823558"
     }
   ],
   "evidence": [
