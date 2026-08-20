@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "course-learning",
-  "head": "f7fd00fa7e78edac55ebcd9a30f1704a6400ded50adce01094e72ba06cf26db3",
+  "head": "c506754064474070ef4cefc2a40e8b1ce8a364cbd8ebb92fb5843052c7fb491a",
   "sources": [
     {
       "role": "fe",
@@ -108,7 +108,7 @@
     },
     {
       "id": "EV-011",
-      "claim": "The owner accepted composed reader revision 340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece and authorized implementation in the disclosed five-file frontend boundary.",
+      "claim": "The owner accepted composed reader revision 340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece, then explicitly authorized the seven-file SCHEMA V2 language-body corrective boundary.",
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece"
