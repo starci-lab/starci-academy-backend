@@ -14,7 +14,7 @@ Read lesson content and use its engagement tools.
 
 | Region | Kind | Real representative content | States | Actions | Evidence |
 |---|---|---|---|---|---|
-| `lesson-reader` | content | Lesson title; Reading, source or challenge; Course progress | pending, ready, locked, failed | Mark read, React | `EV-002`, `EV-003`, `EV-007`, `EV-011` |
+| `lesson-reader` | content | Lesson title; Reading, source or challenge; Course progress | pending, ready, locked, failed | Mark read, React | `EV-002`, `EV-003`, `EV-007`, `EV-011`, `EV-012`, `EV-013` |
 | `lesson-discussion` | flow | Comments; Write a comment | pending, ready, empty, failed | Post comment, Try again | `EV-003`, `EV-008` |
 
 ## Context rule

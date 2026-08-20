@@ -1,6 +1,6 @@
 # Course learning and discussion
 
-> Business head: `3b1b3c8523d3ebe072221c16f5ddecfa62b9544614b439d2ccc0257f9b114f73`
+> Business head: `51001ee3d9db5fdb5f81173ad63d695b51870734be4de03fd689cff4b0796fa3`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -24,7 +24,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `8c546d8b5ad1fb5b54de8f1d1d41deea50eb6c57` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `ba5182079ac5928b82e96d7927c4f910c1f95589` |
 | be | https://github.com/starci-lab/starci-academy-backend | `0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b` |
 
 ## 3. Actors and access
@@ -78,7 +78,7 @@ Evidence: `EV-001`
 - Regions: `lesson-reader`, `lesson-discussion`
 - Navigation: none
 
-Evidence: `EV-002`, `EV-003`, `EV-011`
+Evidence: `EV-002`, `EV-003`, `EV-011`, `EV-012`, `EV-013`
 
 ### Content challenge
 
@@ -114,7 +114,7 @@ Trigger: An enrolled learner opens a course content route.
 Outcomes:
 - The learner advances through course content with persisted engagement evidence
 
-Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`, `EV-012`, `EV-013`
 
 ## 6. Business rules
 
@@ -153,6 +153,7 @@ Strength: **confirmed** · Evidence: `EV-007`, `EV-008`
 - **AC-01** Course home, content map, lesson, embedded challenge/result and course Q&A routes mount the declared learning surfaces. — `EV-001`, `EV-002`, `EV-004`, `EV-005`, `EV-006`, `EV-009`, `EV-010`
 - **AC-02** Authenticated learners can persist lesson read state and create top-level comments or replies on content. — `EV-007`, `EV-008`
 - **AC-03** The lesson workspace reuses existing nested layouts and presents the course map, centered reader, optional outline and current overlays as one composed full viewport without redesigning existing shell regions. — `EV-011`
+- **AC-04** SCHEMA V2 lessons render every authored programming-language tab, resolve the routed locale with default-body fallback, and rebuild the on-page outline from the selected article. — `EV-012`, `EV-013`
 
 ## 11. Explicit unknowns
 
@@ -173,3 +174,5 @@ Strength: **confirmed** · Evidence: `EV-007`, `EV-008`
 | EV-009 | fe | `src/app/[lang]/courses/[displayId]/learn/page.tsx:1` | route | The bare course learn route mounts CourseLearnTodayPage for the course display id. |
 | EV-010 | fe | `src/components/pages/CourseLearnTodayPage/index.tsx:91` | ui | The connected course home composes progress, ranked next actions and learning signals with independently settling states and course destinations. |
 | EV-011 | owner | `decision:340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece` | owner-decision | The owner accepted composed reader revision 340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece, then explicitly authorized the seven-file SCHEMA V2 language-body corrective boundary. |
+| EV-012 | fe | `src/modules/api/graphql/queries/query-content.ts:23` | api | The authenticated lesson query selects the legacy scalar body and every SCHEMA V2 programming-language body with locale translations. |
+| EV-013 | fe | `src/components/pages/CourseLearnContentPage/index.tsx:98` | ui | The connected lesson reader orders language bodies, preserves a valid language choice, resolves the routed locale with authored fallback, and derives the page outline from the selected markdown. |

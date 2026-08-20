@@ -22,5 +22,5 @@ Enrolled learners navigate course modules and lesson content, read or edit sourc
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `8c546d8b5ad1fb5b54de8f1d1d41deea50eb6c57` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `ba5182079ac5928b82e96d7927c4f910c1f95589` |
 | be | https://github.com/starci-lab/starci-academy-backend | `0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b` |

@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "course-learning",
-  "head": "3b1b3c8523d3ebe072221c16f5ddecfa62b9544614b439d2ccc0257f9b114f73",
+  "head": "51001ee3d9db5fdb5f81173ad63d695b51870734be4de03fd689cff4b0796fa3",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "8c546d8b5ad1fb5b54de8f1d1d41deea50eb6c57"
+      "head": "ba5182079ac5928b82e96d7927c4f910c1f95589"
     },
     {
       "role": "be",
@@ -112,6 +112,24 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece"
+    },
+    {
+      "id": "EV-012",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-content.ts",
+      "startLine": 23,
+      "endLine": 55,
+      "claim": "The authenticated lesson query selects the legacy scalar body and every SCHEMA V2 programming-language body with locale translations.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-013",
+      "role": "fe",
+      "path": "src/components/pages/CourseLearnContentPage/index.tsx",
+      "startLine": 98,
+      "endLine": 230,
+      "claim": "The connected lesson reader orders language bodies, preserves a valid language choice, resolves the routed locale with authored fallback, and derives the page outline from the selected markdown.",
+      "kind": "ui"
     }
   ]
 }
