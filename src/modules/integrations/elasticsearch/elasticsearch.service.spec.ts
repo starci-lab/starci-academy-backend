@@ -54,6 +54,7 @@ describe("ElasticsearchService",
             delete: jest.Mock
             count: jest.Mock
             deleteByQuery: jest.Mock
+            close: jest.Mock
         }
         const createWatcher = jest.fn()
         const log = jest.fn()
@@ -84,6 +85,7 @@ describe("ElasticsearchService",
                 deleteByQuery: jest.fn().mockResolvedValue({
                     deleted: 0,
                 }),
+                close: jest.fn().mockResolvedValue(undefined),
             }
             service = new ElasticsearchService(
                 client as unknown as Client,
@@ -141,6 +143,16 @@ describe("ElasticsearchService",
                         // every entity in the config map is covered: 1 base + 2 locales each,
                         // minus the two locale variants the non-localized index does not own
                         expect(created).toHaveLength(Object.keys(configMap).length * 3 - 2)
+                    })
+            })
+
+        describe("onModuleDestroy",
+            () => {
+                it("closes the pooled transport when the Nest app shuts down",
+                    async () => {
+                        await service.onModuleDestroy()
+
+                        expect(client.close).toHaveBeenCalledTimes(1)
                     })
             })
 

@@ -5,7 +5,8 @@ import {
     ConfigurableModuleClass, OPTIONS_TYPE 
 } from "./redis.module-definition"
 import {
-    createRedisProvider 
+    createRedisProvider,
+    createRedisShutdownProvider,
 } from "./redis.providers"
 
 @Module({
@@ -27,6 +28,9 @@ export class RedisModule extends ConfigurableModuleClass {
             providers: [
                 ...(dynamicModule.providers || []),
                 ...providers,
+                ...instanceKeys.map(
+                    instanceKey => createRedisShutdownProvider(instanceKey),
+                ),
             ],
             exports: [
                 ...providers,

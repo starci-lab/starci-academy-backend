@@ -1,5 +1,6 @@
 import {
-    Provider 
+    OnModuleDestroy,
+    Provider,
 } from "@nestjs/common"
 import {
     createClient, createCluster 
@@ -16,6 +17,29 @@ import {
 import {
     envConfig,
 } from "@modules/platform/env/config"
+import type {
+    RedisClient,
+} from "./types/client"
+
+/**
+ * Nest does not run shutdown hooks on a raw Redis client returned by a
+ * `useFactory` provider. Keep the client provider raw for existing consumers,
+ * and register this small lifecycle owner beside it so app.close() also closes
+ * the socket opened by Keyv/cache-manager.
+ */
+class RedisClientShutdown implements OnModuleDestroy {
+    constructor(private readonly client: RedisClient) { }
+
+    async onModuleDestroy(): Promise<void> {
+        if ("isOpen" in this.client && !this.client.isOpen) {
+            return
+        }
+        await this.client.quit()
+    }
+}
+
+const createRedisShutdownKey = (key: RedisInstanceKey): string =>
+    `REDIS_SHUTDOWN_${key}`
 
 /**
  * Builds a node-redis standalone or cluster client from env for `key`.
@@ -84,4 +108,11 @@ export const createRedisProvider = (key: RedisInstanceKey): Provider => ({
         })
         return client
     },
+})
+
+/** Register the shutdown owner for a raw node-redis client provider. */
+export const createRedisShutdownProvider = (key: RedisInstanceKey): Provider => ({
+    provide: createRedisShutdownKey(key),
+    inject: [createRedisKey(key)],
+    useFactory: (client: RedisClient): RedisClientShutdown => new RedisClientShutdown(client),
 })

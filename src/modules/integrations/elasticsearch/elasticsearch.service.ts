@@ -3,7 +3,8 @@ import type {
 } from "@elastic/elasticsearch"
 import {
     Injectable,
-    OnModuleInit
+    OnModuleDestroy,
+    OnModuleInit,
 } from "@nestjs/common"
 import {
     InjectElasticsearch
@@ -70,7 +71,7 @@ import type {
 /**
  * The service for the Elasticsearch.
  */
-export class ElasticsearchService implements OnModuleInit {
+export class ElasticsearchService implements OnModuleInit, OnModuleDestroy {
     /**
      * Entities whose indices are created at boot.
      *
@@ -133,6 +134,16 @@ export class ElasticsearchService implements OnModuleInit {
                 })
             }
         }
+    }
+
+    /**
+     * Release the Elasticsearch transport with the Nest application that owns
+     * this service. The client keeps pooled sockets alive after the final
+     * request, so app.close() cannot finish the test process unless the
+     * provider participates in Nest's shutdown lifecycle.
+     */
+    async onModuleDestroy(): Promise<void> {
+        await this.client.close()
     }
 
     /**
