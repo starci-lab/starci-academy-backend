@@ -1,8 +1,8 @@
 # AgentOS workspace lifecycle and control center
 
-> Business identity: `nivo/agentos-workspaces@98099a2721d4b93505365cc4c9fc1f7259afe7a31e8d726d5044f1edb0eb9de6`
+> Business identity: `nivo/agentos-workspaces@bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca`
 >
-> Source heads: `fe@97eec8c5bb4c`, `be@947c6f4a117e`
+> Source heads: `fe@9ae3cefc78e0`, `be@947c6f4a117e`
 >
 > Load this file first. Load only the modules named by the current task.
 

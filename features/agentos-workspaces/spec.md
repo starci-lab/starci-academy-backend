@@ -1,6 +1,6 @@
 # AgentOS workspace lifecycle and control center
 
-> Business head: `98099a2721d4b93505365cc4c9fc1f7259afe7a31e8d726d5044f1edb0eb9de6`
+> Business head: `bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -23,7 +23,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `9ae3cefc78e000c3a2c59f9992435fac38275d5b` |
 | be | https://github.com/starci-lab/nivo-backend.git | `947c6f4a117e1677e37ad98ba03f3dac0bca148e` |
 
 ## 3. Actors and access

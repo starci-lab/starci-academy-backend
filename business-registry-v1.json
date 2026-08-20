@@ -48,11 +48,11 @@
     },
     "agentos-workspaces": {
       "featureId": "agentos-workspaces",
-      "head": "98099a2721d4b93505365cc4c9fc1f7259afe7a31e8d726d5044f1edb0eb9de6",
+      "head": "bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca",
       "sources": [
         {
           "role": "fe",
-          "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+          "head": "9ae3cefc78e000c3a2c59f9992435fac38275d5b"
         },
         {
           "role": "be",
@@ -151,6 +151,10 @@
       "241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042": {
         "hash": "241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042",
         "path": "objects/sha256/241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042.json"
+      },
+      "bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca": {
+        "hash": "bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca",
+        "path": "objects/sha256/bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca.json"
       }
     }
   }
