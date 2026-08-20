@@ -1,6 +1,6 @@
 # Course learning and discussion
 
-> Business head: `c66fc9fd2e1b2920d63331311246fff72b397f230126e16288a37d96bbc80a2d`
+> Business head: `19177d94209d6ab3b45c54f1981fa3152e39da0ad656de509076a3d089a60006`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 

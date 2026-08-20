@@ -34,10 +34,10 @@
     },
     "course-learning": {
       "featureId": "course-learning",
-      "head": "c66fc9fd2e1b2920d63331311246fff72b397f230126e16288a37d96bbc80a2d",
-      "authorityStatus": "in-progress",
+      "head": "19177d94209d6ab3b45c54f1981fa3152e39da0ad656de509076a3d089a60006",
+      "authorityStatus": "implemented",
       "baseHead": "51001ee3d9db5fdb5f81173ad63d695b51870734be4de03fd689cff4b0796fa3",
-      "previousHead": "17affc37597c4f7b17a75d069376ccfd15d99e58edd8ad9f4d4ed077cd4e464b",
+      "previousHead": "c66fc9fd2e1b2920d63331311246fff72b397f230126e16288a37d96bbc80a2d",
       "sources": [
         {
           "role": "fe",
@@ -256,6 +256,10 @@
       "c66fc9fd2e1b2920d63331311246fff72b397f230126e16288a37d96bbc80a2d": {
         "hash": "c66fc9fd2e1b2920d63331311246fff72b397f230126e16288a37d96bbc80a2d",
         "path": "objects/sha256/c66fc9fd2e1b2920d63331311246fff72b397f230126e16288a37d96bbc80a2d.json"
+      },
+      "19177d94209d6ab3b45c54f1981fa3152e39da0ad656de509076a3d089a60006": {
+        "hash": "19177d94209d6ab3b45c54f1981fa3152e39da0ad656de509076a3d089a60006",
+        "path": "objects/sha256/19177d94209d6ab3b45c54f1981fa3152e39da0ad656de509076a3d089a60006.json"
       }
     }
   }
