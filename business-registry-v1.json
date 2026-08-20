@@ -76,7 +76,7 @@
     },
     "projects-career": {
       "featureId": "projects-career",
-      "head": "d2e72f87ecce3fcfb48340c448d55c2fe2e0508cc1758a154f786a6354d045f0",
+      "head": "d87df6eed84f022f4aa80e5a4b837dba170d06df4ed003bd8ed161e736ea5629",
       "sources": [
         {
           "role": "fe",
@@ -84,7 +84,7 @@
         },
         {
           "role": "be",
-          "head": "0066625ed94b10bf5b6892af775e45bdd6823558"
+          "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
         }
       ]
     },
@@ -181,6 +181,10 @@
       "344da63988505ba8bb0e5ec3073078640ceab428fc887a6be48d857e6722c394": {
         "hash": "344da63988505ba8bb0e5ec3073078640ceab428fc887a6be48d857e6722c394",
         "path": "objects/sha256/344da63988505ba8bb0e5ec3073078640ceab428fc887a6be48d857e6722c394.json"
+      },
+      "d87df6eed84f022f4aa80e5a4b837dba170d06df4ed003bd8ed161e736ea5629": {
+        "hash": "d87df6eed84f022f4aa80e5a4b837dba170d06df4ed003bd8ed161e736ea5629",
+        "path": "objects/sha256/d87df6eed84f022f4aa80e5a4b837dba170d06df4ed003bd8ed161e736ea5629.json"
       }
     }
   }
