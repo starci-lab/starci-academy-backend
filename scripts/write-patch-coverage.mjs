@@ -38,6 +38,15 @@ export const buildPatchSummary = (report, changedFiles, cwd = process.cwd()) => 
     }}
 }
 
+export const assertPatchThreshold = (summary, threshold = 90) => {
+    if (summary.notApplicable) return summary
+    const failed = Object.entries(summary.total)
+        .filter(([, metric]) => metric.pct === null || metric.pct < threshold)
+        .map(([name, metric]) => `${name}=${metric.pct ?? "n/a"}`)
+    if (failed.length > 0) throw new Error(`Patch coverage below ${threshold}%: ${failed.join(", ")}`)
+    return summary
+}
+
 if (process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))) {
     const reportPath = "coverage/coverage-final.json"
     if (!existsSync(reportPath)) throw new Error(`Coverage report is missing: ${reportPath}`)
@@ -46,5 +55,8 @@ if (process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import
     if (!base) throw new Error("Set COVERAGE_BASE_SHA or pass --base <merge-base-sha> to measure committed PR changes")
     const tracked = execFileSync("git", ["diff", "--name-only", base, "HEAD"], {encoding: "utf8"}).split(/\r?\n/)
     const summary = buildPatchSummary(report, tracked)
+    const packageJson = JSON.parse(readFileSync("package.json", "utf8"))
+    const threshold = packageJson.starci?.deliveryAssurance?.unitCoverage?.patch ?? 90
+    assertPatchThreshold(summary, threshold)
     writeFileSync("coverage/patch-summary.json", JSON.stringify(summary, null, 2) + "\n")
 }

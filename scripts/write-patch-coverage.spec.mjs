@@ -5,7 +5,7 @@ import {tmpdir} from "node:os"
 import {dirname, join} from "node:path"
 import test from "node:test"
 import {fileURLToPath} from "node:url"
-import {buildPatchSummary, lineCounts, resolveBase} from "./write-patch-coverage.mjs"
+import {assertPatchThreshold, buildPatchSummary, lineCounts, resolveBase} from "./write-patch-coverage.mjs"
 
 const file = (name, statementMap, statements) => ({[name]: {statementMap, s: statements, f: {0: statements[0]}, b: {0: statements}}})
 
@@ -36,6 +36,16 @@ test("fails uncovered changed lines instead of synthesizing 100 percent", () => 
         0: {start: {line: 1}, end: {line: 1}},
     }, [0])
     assert.equal(buildPatchSummary(report, ["src/changed.ts"], "C:/repo").total.lines.pct, 0)
+})
+
+test("enforces every patch metric at the declared threshold", () => {
+    const passing = {total: {
+        statements: {pct: 90}, lines: {pct: 91}, functions: {pct: 92}, branches: {pct: 93},
+    }}
+    assert.equal(assertPatchThreshold(passing, 90), passing)
+    assert.throws(() => assertPatchThreshold({total: {
+        statements: {pct: 89}, lines: {pct: 90}, functions: {pct: 90}, branches: {pct: 90},
+    }}, 90), /statements=89/)
 })
 
 test("requires an explicit coverage base", () => {
