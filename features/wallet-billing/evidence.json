@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "wallet-billing",
-  "head": "dd906033d14e74ebc0c2197e81e813a521eb2a664ff887a67d42963da20d56b5",
+  "head": "241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/nivo-fe.git",
-      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+      "head": "9ae3cefc78e000c3a2c59f9992435fac38275d5b"
     },
     {
       "role": "be",

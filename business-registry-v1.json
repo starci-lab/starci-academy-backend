@@ -62,11 +62,11 @@
     },
     "wallet-billing": {
       "featureId": "wallet-billing",
-      "head": "dd906033d14e74ebc0c2197e81e813a521eb2a664ff887a67d42963da20d56b5",
+      "head": "241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042",
       "sources": [
         {
           "role": "fe",
-          "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+          "head": "9ae3cefc78e000c3a2c59f9992435fac38275d5b"
         },
         {
           "role": "be",
@@ -147,6 +147,10 @@
       "b0da977340dc52c1d141196104615d7dd75fcfef1e48a2002c5c446feddd5e64": {
         "hash": "b0da977340dc52c1d141196104615d7dd75fcfef1e48a2002c5c446feddd5e64",
         "path": "objects/sha256/b0da977340dc52c1d141196104615d7dd75fcfef1e48a2002c5c446feddd5e64.json"
+      },
+      "241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042": {
+        "hash": "241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042",
+        "path": "objects/sha256/241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042.json"
       }
     }
   }

@@ -1,6 +1,6 @@
 # Wallet and invoice settlement
 
-> Business head: `dd906033d14e74ebc0c2197e81e813a521eb2a664ff887a67d42963da20d56b5`
+> Business head: `241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -22,7 +22,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `9ae3cefc78e000c3a2c59f9992435fac38275d5b` |
 | be | https://github.com/starci-lab/nivo-backend.git | `947c6f4a117e1677e37ad98ba03f3dac0bca148e` |
 
 ## 3. Actors and access
