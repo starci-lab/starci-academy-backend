@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "features": {
+    "identity-access": [
+      "3464f5814817ca1f95f18613412cc3d40ef019abcdcc2533f8fb9744c0614aba"
+    ]
+  }
+}
