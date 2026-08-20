@@ -194,11 +194,11 @@ describe("ProcessGoogleDocsSubmissionWorker",
             async () => {
                 const missingChallenge = makeWorker()
                 missingChallenge.jobActionService.getJob.mockResolvedValue(job(0))
-                missingChallenge.entityManager.findOne.mockImplementation((entity: unknown) => entity === ChallengeEntity
+                missingChallenge.entityManager.findOne.mockImplementation((entity: unknown) => (entity === ChallengeEntity
                     ? Promise.resolve(null)
                     : Promise.resolve(entity === UserChallengeSubmissionEntity
                         ? missingChallenge.userChallengeSubmission
-                        : missingChallenge.challengeSubmission))
+                        : missingChallenge.challengeSubmission)) as never)
                 await expect(missingChallenge.worker.process(bullJob())).rejects.toThrow(ChallengeNotFoundException)
 
                 const missingStep = makeWorker()
