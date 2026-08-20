@@ -2,6 +2,9 @@ import {
     Test,
 } from "@nestjs/testing"
 import {
+    BullModule as NestBullModule,
+} from "@nestjs/bullmq"
+import {
     ValidationPipe,
     VersioningType,
 } from "@nestjs/common"
@@ -36,6 +39,15 @@ import {
     EnqueueReconcileTransactionJobService,
 } from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
 import {
+    VoucherService,
+} from "@modules/bussiness/rewards/voucher.service"
+import {
+    TransactionActionService,
+} from "@modules/bussiness/transactions/atomic/transaction-action.service"
+import {
+    TransactionReconcileQueryService,
+} from "@modules/bussiness/transactions/atomic/transaction-reconcile-query.service"
+import {
     InstallmentPlanService,
 } from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
@@ -50,6 +62,12 @@ import {
 import {
     SEPAY,
 } from "@modules/integrations/sepay/constants/sepay"
+import {
+    PaypalClient,
+} from "@modules/integrations/paypal/paypal.client"
+import {
+    NowPaymentsClient,
+} from "@modules/integrations/nowpayments/nowpayments.client"
 import {
     PAYOS,
 } from "@modules/integrations/payos/constants/payos"
@@ -86,6 +104,18 @@ import {
 import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
+import {
+    bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
+    BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
+    createSuperJsonServiceProvider,
+} from "@modules/lib/mixin/superjson.providers"
+import {
+    ReconcileTransactionWorker,
+} from "@features/api/processors/reconcile-transaction/reconcile-transaction.worker"
 import type {
     E2eApp,
 } from "./types/e2e-app"
@@ -131,11 +161,22 @@ export const createE2eApp = async (): Promise<E2eApp> => {
         },
     }
     const payosClient: PayosClientMock = {
+        paymentRequests: {
+            get: jest.fn().mockResolvedValue({
+                status: "PAID",
+                amountPaid: 500_000,
+            }),
+        },
         webhooks: {
             verify: jest.fn(),
         },
     }
     const stripeClient: StripeClientMock = {
+        checkout: {
+            sessions: {
+                retrieve: jest.fn(),
+            },
+        },
         webhooks: {
             constructEvent: jest.fn(),
         },
@@ -158,6 +199,17 @@ export const createE2eApp = async (): Promise<E2eApp> => {
             }),
             // CommandBus + automatic @CommandHandler discovery
             CqrsModule,
+            NestBullModule.forRoot({
+                connection: {
+                    host: process.env.REDIS_BULLMQ_HOST,
+                    port: Number(process.env.REDIS_BULLMQ_PORT),
+                    password: process.env.REDIS_BULLMQ_PASSWORD,
+                },
+            }),
+            NestBullModule.registerQueue({
+                name: bullData[BullQueueName.ReconcileTransaction].name,
+                prefix: bullData[BullQueueName.ReconcileTransaction].prefix,
+            }),
         ],
         controllers: [
             SepayWebhookController,
@@ -175,6 +227,11 @@ export const createE2eApp = async (): Promise<E2eApp> => {
             AiEntitlementService,
             InstallmentPlanService,
             TransactionGrantService,
+            ReconcileTransactionWorker,
+            TransactionReconcileQueryService,
+            TransactionActionService,
+            VoucherService,
+            createSuperJsonServiceProvider(),
             DayjsService,
             // every handler logs through WinstonService; stubbed so no test
             // opens the Loki transport
@@ -191,6 +248,19 @@ export const createE2eApp = async (): Promise<E2eApp> => {
             {
                 provide: STRIPE,
                 useValue: stripeClient,
+            },
+            {
+                provide: PaypalClient,
+                useValue: {
+                    retrieveOrder: jest.fn(),
+                    captureOrder: jest.fn(),
+                },
+            },
+            {
+                provide: NowPaymentsClient,
+                useValue: {
+                    getInvoiceStatus: jest.fn(),
+                },
             },
             {
                 provide: EnqueueEnrollJobService,
@@ -211,12 +281,7 @@ export const createE2eApp = async (): Promise<E2eApp> => {
                     enqueue: jest.fn(),
                 },
             },
-            {
-                provide: EnqueueReconcileTransactionJobService,
-                useValue: {
-                    enqueue: jest.fn(),
-                },
-            },
+            EnqueueReconcileTransactionJobService,
             {
                 provide: NotificationService,
                 useValue: {

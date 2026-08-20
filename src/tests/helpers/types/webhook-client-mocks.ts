@@ -18,6 +18,10 @@ export interface PayosClientWebhooksNamespaceMock {
 
 /** A jest-backed stand-in for the payOS SDK client used by the handler. */
 export interface PayosClientMock {
+    /** Payment-status namespace used by the production reconciliation worker. */
+    paymentRequests: {
+        get: jest.Mock
+    }
     /** Webhooks namespace of the SDK. */
     webhooks: PayosClientWebhooksNamespaceMock
 }
@@ -30,6 +34,12 @@ export interface StripeClientWebhooksNamespaceMock {
 
 /** A jest-backed stand-in for the Stripe SDK client used by the handler. */
 export interface StripeClientMock {
+    /** Checkout namespace used by the production reconciliation worker. */
+    checkout: {
+        sessions: {
+            retrieve: jest.Mock
+        }
+    }
     /** Webhooks namespace of the SDK. */
     webhooks: StripeClientWebhooksNamespaceMock
 }

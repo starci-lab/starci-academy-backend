@@ -95,6 +95,27 @@ export class PayosWebhookHandler
             return
         }
 
+        // A provider callback can report success while carrying less than the
+        // amount reserved in our pending transaction. ACK the callback so the
+        // provider does not redeliver it, but do not wake reconciliation for an
+        // underpaid order that must remain pending.
+        const reportedAmount = Number(body.data?.amount)
+        if (Number.isFinite(reportedAmount) && reportedAmount < transaction.amount) {
+            this.winstonService.log(
+                WinstonLog.PaymentWebhookIgnored,
+                {
+                    op: "payos.webhook.ignored",
+                    referenceId: String(orderCode),
+                    meta: {
+                        reason: "underpaid order",
+                        reportedAmount,
+                        expectedAmount: transaction.amount,
+                    },
+                },
+            )
+            return
+        }
+
         await this.enqueueReconcileTransactionJobService.enqueue({
             transactionId: transaction.id,
             attempt: 1,

@@ -38,6 +38,9 @@ import {
 import type {
     E2eApp,
 } from "@tests/helpers/types/e2e-app"
+import {
+    until,
+} from "@tests/helpers/flow-wait"
 
 const POSTGRESQL_PRIMARY = "primary"
 const PAYMENT_AMOUNT = 500_000
@@ -132,6 +135,16 @@ describe("an installment payment webhook advances its plan exactly once",
         const expectAppliedOnce = async (
             seeded: SeededInstallmentPayment,
         ): Promise<void> => {
+            await until(async () => (await entityManager.findOneBy(
+                TransactionEntity,
+                {
+                    id: seeded.transaction.id,
+                },
+            ))?.status === TransactionStatus.Succeeded,
+            {
+                timeout: 20_000,
+                describe: `installment transaction ${seeded.transaction.id} to settle`,
+            })
             const transaction = await entityManager.findOneByOrFail(
                 TransactionEntity,
                 {
@@ -169,11 +182,11 @@ describe("an installment payment webhook advances its plan exactly once",
                 await request(e2e.app.getHttpServer())
                     .post("/v1/payos/webhook")
                     .send(body)
-                    .expect(201)
+                    .expect(200)
                 await request(e2e.app.getHttpServer())
                     .post("/v1/payos/webhook")
                     .send(body)
-                    .expect(201)
+                    .expect(200)
 
                 await expectAppliedOnce(seeded)
             })
@@ -196,12 +209,16 @@ describe("an installment payment webhook advances its plan exactly once",
 
                 await request(e2e.app.getHttpServer())
                     .post("/v1/sepay/webhook")
+                    .set("X-Secret-Key",
+                        "e2e-sepay-secret")
                     .send(body)
-                    .expect(201)
+                    .expect(200)
                 await request(e2e.app.getHttpServer())
                     .post("/v1/sepay/webhook")
+                    .set("X-Secret-Key",
+                        "e2e-sepay-secret")
                     .send(body)
-                    .expect(201)
+                    .expect(200)
 
                 await expectAppliedOnce(seeded)
             })
@@ -224,7 +241,7 @@ describe("an installment payment webhook advances its plan exactly once",
                         signature: "valid-signature",
                     })
 
-                expect(response.status).toBeGreaterThanOrEqual(400)
+                expect(response.status).toBe(200)
                 const transaction = await entityManager.findOneByOrFail(
                     TransactionEntity,
                     {

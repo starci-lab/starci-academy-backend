@@ -1,4 +1,11 @@
 import request from "supertest"
+import {
+    BullModule as NestBullModule,
+    getQueueToken,
+} from "@nestjs/bullmq"
+import type {
+    Queue,
+} from "bullmq"
 import type {
     ExecutionContext,
 } from "@nestjs/common"
@@ -61,6 +68,9 @@ import {
     DayjsService,
 } from "@modules/lib/mixin/dayjs.service"
 import {
+    createSuperJsonServiceProvider,
+} from "@modules/lib/mixin/superjson.providers"
+import {
     RetryService,
 } from "@modules/lib/mixin/retry.service"
 import {
@@ -81,6 +91,12 @@ import {
 import {
     EnqueueReconcileTransactionJobService,
 } from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
+import {
+    bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
+    BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
 import {
     PurchaseAiSubscriptionHandler,
 } from "@features/api/core/graphql/mutations/ai/purchase-ai-subscription/purchase-ai-subscription.handler"
@@ -109,6 +125,15 @@ import {
     EnqueueSendMailJobService,
 } from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
+    VoucherService,
+} from "@modules/bussiness/rewards/voucher.service"
+import {
+    TransactionActionService,
+} from "@modules/bussiness/transactions/atomic/transaction-action.service"
+import {
+    TransactionReconcileQueryService,
+} from "@modules/bussiness/transactions/atomic/transaction-reconcile-query.service"
+import {
     NotificationService,
 } from "@modules/bussiness/notification/notification.service"
 import {
@@ -121,11 +146,19 @@ import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
 import {
+    ReconcileTransactionWorker,
+} from "@features/api/processors/reconcile-transaction/reconcile-transaction.worker"
+import {
     bootFlowWorld,
 } from "@tests/helpers/flow-world"
 import type {
     FlowWorld,
 } from "@tests/helpers/flow-world"
+import {
+    until,
+} from "@tests/helpers/flow-wait"
+
+const reconcileQueueData = bullData[BullQueueName.ReconcileTransaction]
 
 /**
  * A learner buys AI credit through GraphQL, the provider settles through HTTP, and the tier opens.
@@ -155,6 +188,7 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
             checkout: { initCheckoutUrl: jest.Mock; initOneTimePaymentFields: jest.Mock }
             order: { retrieve: jest.Mock }
         }
+        let reconcileQueue: Queue<string>
 
         // carried between steps: this is the flow's own state, and the reason it is one file
         let learnerId: string
@@ -265,6 +299,17 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
                     order
                 })
             expect(response.status).toBe(200)
+
+            await until(async () => (await world.entityManager.findOneBy(
+                TransactionEntity,
+                {
+                    id: transactionId,
+                },
+            ))?.status === TransactionStatus.Succeeded,
+            {
+                timeout: 20_000,
+                describe: `transaction ${transactionId} to settle`,
+            })
         }
 
         beforeAll(async () => {
@@ -285,6 +330,17 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
                 imports: [ApolloServerModule.register({
                     type: ApolloServerType.Monolithic,
                     useServices: false,
+                }),
+                NestBullModule.forRoot({
+                    connection: {
+                        host: process.env.REDIS_BULLMQ_HOST,
+                        port: Number(process.env.REDIS_BULLMQ_PORT),
+                        password: process.env.REDIS_BULLMQ_PASSWORD,
+                    },
+                }),
+                NestBullModule.registerQueue({
+                    name: reconcileQueueData.name,
+                    prefix: reconcileQueueData.prefix,
                 })],
                 controllers: [SepayWebhookController],
                 providers: [
@@ -295,6 +351,12 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
                     AiEntitlementService,
                     InstallmentPlanService,
                     CheckoutGatewayService,
+                    ReconcileTransactionWorker,
+                    TransactionReconcileQueryService,
+                    TransactionActionService,
+                    VoucherService,
+                    createSuperJsonServiceProvider(),
+                    EnqueueReconcileTransactionJobService,
                     DayjsService,
                     RetryService,
                     {
@@ -335,12 +397,6 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
                         provide: NowPaymentsClient,
                         useValue: {
                             createInvoice: jest.fn(),
-                        },
-                    },
-                    {
-                        provide: EnqueueReconcileTransactionJobService,
-                        useValue: {
-                            enqueue: jest.fn(),
                         },
                     },
                     SepayWebhookService,
@@ -391,6 +447,12 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
                 "enrollments",
                 "users",
             )
+            reconcileQueue = world.app.get<Queue<string>>(
+                getQueueToken(reconcileQueueData.name),
+            )
+            await reconcileQueue.obliterate({
+                force: true,
+            })
 
             const learner = await world.mintLearner("ai-subscription")
             learnerId = learner.id
