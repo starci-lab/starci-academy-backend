@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "learner-profile-social",
+  "head": "4918556b21555242078594d54fcd5e78b2476920929e93531ebfff6a2316d9aa",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 53,
+      "endLine": 64,
+      "claim": "Frontend khai báo activity, challenges, CV, overview, projects, skills, wrapped và self-profile routes.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-user-profile.ts",
+      "startLine": 6,
+      "endLine": 45,
+      "claim": "Frontend public lookup theo username đọc identity, bio, follow counts/state, lock/open-to-work và career links.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-set-follow.ts",
+      "startLine": 8,
+      "endLine": 34,
+      "claim": "Frontend gửi follow boolean cho target user bằng mutation có auth.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "test/e2e/social-follows.e2e-spec.ts",
+      "startLine": 72,
+      "endLine": 192,
+      "claim": "Backend follow edge idempotent, unfollow xóa row, self-follow no-op và missing/deleted target bị từ chối sạch.",
+      "kind": "test"
+    }
+  ]
+}

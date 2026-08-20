@@ -1,0 +1,476 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "coding-practice",
+  "title": "Luyện bài coding và nhận verdict",
+  "summary": "Học viên duyệt các domain phỏng vấn, lọc bài toán, đọc đề, viết lời giải theo ngôn ngữ và gửi source/telemetry tới hàng đợi chấm; verdict đến bất đồng bộ theo job.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Practice hub",
+      "Danh sách theo domain",
+      "Problem reader/editor",
+      "Submit và async verdict"
+    ],
+    "excludes": [
+      "Challenge trong course content",
+      "Public profile coding proof"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Học viên đã xác thực",
+      "capabilities": [
+        "Duyệt domain",
+        "Lọc bài theo độ khó/tag",
+        "Viết lời giải",
+        "Gửi chấm",
+        "Theo dõi verdict"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "solve-coding-problem",
+      "title": "Giải bài coding",
+      "trigger": "Học viên mở /[lang]/practice.",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "learner",
+          "action": "Chọn domain.",
+          "result": "Danh sách bài của domain được mở.",
+          "surfaceId": "coding-practice-hub",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-2",
+          "actor": "learner",
+          "action": "Lọc rồi chọn bài.",
+          "result": "Problem reader được mở theo slug.",
+          "surfaceId": "coding-domain",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-3",
+          "actor": "learner",
+          "action": "Viết và gửi lời giải.",
+          "result": "submissionId/jobId được theo dõi tới verdict.",
+          "surfaceId": "coding-problem",
+          "stateId": "ready"
+        }
+      ],
+      "outcomes": [
+        "Submission và job identity được tạo",
+        "Verdict không được giả lập từ response mutation"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Danh sách lọc domain riêng với tag; hai trường không được coi là tương đương.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "SubmitCodingSolution chỉ trả submissionId và jobId; verdict đến sau qua kênh job.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "pending",
+      "label": "Đang tải hoặc đang xử lý",
+      "kind": "pending",
+      "transitions": [
+        "ready",
+        "empty",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "ready",
+      "label": "Dữ liệu sẵn sàng",
+      "kind": "success",
+      "transitions": [
+        "Thực hiện hành động tiếp theo"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "Không có dữ liệu phù hợp",
+      "kind": "empty",
+      "transitions": [
+        "Đổi bộ lọc",
+        "Quay lại"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "error",
+      "label": "Không thể hoàn tất yêu cầu",
+      "kind": "error",
+      "transitions": [
+        "Thử lại"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "coding-problem",
+      "label": "Bài coding",
+      "fields": [
+        "id",
+        "slug",
+        "title",
+        "difficulty",
+        "domain",
+        "points",
+        "tags"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "coding-submission",
+      "label": "Bài nộp coding",
+      "fields": [
+        "submissionId",
+        "jobId",
+        "slug",
+        "language",
+        "sourceCode",
+        "telemetry",
+        "verdict"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-coding-problems",
+      "kind": "query",
+      "name": "codingProblems",
+      "owner": "frontend",
+      "inputs": [
+        "domain",
+        "difficulty",
+        "tag",
+        "page",
+        "limit"
+      ],
+      "outputs": [
+        "total",
+        "problem rows"
+      ],
+      "failures": [
+        "GraphQL error"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "submit-coding-solution",
+      "kind": "mutation",
+      "name": "submitCodingSolution",
+      "owner": "frontend",
+      "inputs": [
+        "slug",
+        "language",
+        "sourceCode",
+        "optional telemetry"
+      ],
+      "outputs": [
+        "submissionId",
+        "jobId"
+      ],
+      "failures": [
+        "Unsupported language",
+        "Judge queue failure",
+        "GraphQL error"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "coding-practice-hub",
+      "routePattern": "/[lang]/practice",
+      "title": "Coding practice",
+      "eyebrow": "Phỏng vấn kỹ thuật",
+      "purpose": "Chọn domain và nhìn mức thành thạo.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "coding-practice-hub-content",
+          "kind": "collection",
+          "title": "Các domain",
+          "summary": "Hub nhóm bài theo domain.",
+          "items": [
+            {
+              "id": "domain",
+              "role": "entity",
+              "label": "Domain phỏng vấn"
+            },
+            {
+              "id": "mastery",
+              "role": "status",
+              "label": "Mức thành thạo"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-domain",
+              "label": "Luyện domain",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "coding-domain",
+      "routePattern": "/[lang]/practice/[domain]",
+      "title": "Bài theo domain",
+      "eyebrow": "Danh sách coding",
+      "purpose": "Lọc và chọn bài trong một domain.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "coding-domain-content",
+          "kind": "collection",
+          "title": "Bài toán",
+          "summary": "Danh sách có difficulty, points và tags.",
+          "items": [
+            {
+              "id": "difficulty",
+              "role": "choice",
+              "label": "Độ khó"
+            },
+            {
+              "id": "tag",
+              "role": "choice",
+              "label": "Tag"
+            },
+            {
+              "id": "problem",
+              "role": "entity",
+              "label": "Bài coding"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-problem",
+              "label": "Giải bài",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "coding-problem",
+      "routePattern": "/[lang]/practice/problem/[slug]",
+      "title": "Trình giải bài",
+      "eyebrow": "Coding",
+      "purpose": "Đọc đề, viết code, gửi chấm và theo dõi verdict.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "coding-problem-content",
+          "kind": "form",
+          "title": "Đề và editor",
+          "summary": "Source, language và telemetry được gửi cho async judge.",
+          "items": [
+            {
+              "id": "statement",
+              "role": "text",
+              "label": "Đề bài"
+            },
+            {
+              "id": "language",
+              "role": "choice",
+              "label": "Ngôn ngữ"
+            },
+            {
+              "id": "source-code",
+              "role": "field",
+              "label": "Mã nguồn"
+            },
+            {
+              "id": "judge-status",
+              "role": "status",
+              "label": "Trạng thái chấm"
+            }
+          ],
+          "actions": [
+            {
+              "id": "submit-solution",
+              "label": "Gửi lời giải",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-003"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Hub phải dẫn tới route domain ổn định.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Domain filter không được thay bằng tag filter.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "UI phải chờ verdict bất đồng bộ thay vì xem mutation response là kết quả chấm.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "coding-backend-contract",
+      "question": "Resolver và transport verdict current-head nào phục vụ codingProblems và submitCodingSolution?",
+      "impact": "Không thể xác nhận danh sách ngôn ngữ, quota hoặc trạng thái verdict backend từ FE documents alone."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 50,
+      "endLine": 52,
+      "claim": "Frontend khai báo practice hub, domain và problem routes.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-coding-problems.ts",
+      "startLine": 8,
+      "endLine": 62,
+      "claim": "Frontend đọc coding problems theo domain/difficulty/tag/page/limit và giữ domain khác tag.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-submit-coding-solution.ts",
+      "startLine": 6,
+      "endLine": 57,
+      "claim": "Frontend gửi source và telemetry, nhận submissionId/jobId, rồi chờ verdict bất đồng bộ.",
+      "kind": "api"
+    }
+  ]
+}

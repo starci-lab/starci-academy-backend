@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "features": {
+    "account-access": [
+      "f155d30db02551d9a7229bedb1d307e4acb8cff3d3fade0754f6f893d93ab761"
+    ],
+    "learning-dashboard": [
+      "3590f9b4e7bb17050a6097bc4fd83741e1ce473f8c7e155a388f4ab6cbcdd1be"
+    ],
+    "course-marketplace": [
+      "806dbd5d25423c2339cace8b53bac2b9f0c598ca5ef84347bfeae644eb739d8b"
+    ],
+    "course-learning": [
+      "fca29fd742e7f48d54a7021439ff4c98d2d234b990d5e9aa8d74ed3003497554"
+    ],
+    "course-study-tools": [
+      "d77b54a12f55a97a7860bbe5b47129de67c16a2e299bcc008619c26177ab6698"
+    ],
+    "course-applied-learning": [
+      "8a1cb573eb6cacb2c3473534f955d06bdc6b1474a8a16f1d657512ae3778f822"
+    ],
+    "coding-practice": [
+      "647e8e19e35baf9ac1c354c7d702583a4fbf40a93f808dddde7eca1ce110518b"
+    ],
+    "exam-preparation": [
+      "d2bd19cee5b28a57fb18f843b840e3a3269e571bd6fcb02e90017ee0e101d096"
+    ],
+    "games-and-ranking": [
+      "f7e3f0e86a9da6dd42a03b860cd99bae2b3f29ec20e62ce017f7543e6ec0c379"
+    ],
+    "learner-profile-social": [
+      "4918556b21555242078594d54fcd5e78b2476920929e93531ebfff6a2316d9aa"
+    ],
+    "membership-payments": [
+      "f1a2dcfee6c5e0b2cbbdc5a7855362040b4954c9cdbedfb58f3759d31d910966"
+    ]
+  }
+}

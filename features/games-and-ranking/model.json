@@ -1,0 +1,484 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "games-and-ranking",
+  "title": "Trò chơi, bảng xếp hạng và streak",
+  "summary": "Học viên chọn một trong bốn trò chơi, chơi solo/couple/team theo mode được hỗ trợ, xem standing global/friends và dùng Coin mua streak freeze theo giới hạn.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Game hub",
+      "Bốn game catalog",
+      "Solo/couple/team modes",
+      "Private friends room",
+      "Global/league standing",
+      "Streak freeze purchase"
+    ],
+    "excludes": [
+      "Course leaderboard",
+      "Shop catalog ngoài streak freeze"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Học viên đã xác thực",
+      "capabilities": [
+        "Chọn game/mode",
+        "Tạo hoặc vào room bạn bè",
+        "Xem leaderboard",
+        "Mua streak freeze"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "play-and-rank",
+      "title": "Chơi game và xem thứ hạng",
+      "trigger": "Học viên mở Game hoặc League.",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "learner",
+          "action": "Chọn game, mode và phòng.",
+          "result": "Game runner mở hoặc lỗi quyền/room được báo.",
+          "surfaceId": "game-hub",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-2",
+          "actor": "learner",
+          "action": "Mở league.",
+          "result": "Standing của viewer và leaderboard được hiển thị.",
+          "surfaceId": "global-league",
+          "stateId": "ready"
+        }
+      ],
+      "outcomes": [
+        "Kết quả của mỗi player được lưu",
+        "Multiplayer yêu cầu membership hoạt động",
+        "Freeze chỉ mua khi đủ Coin và chưa chạm trần"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Catalog hiện có vocab_defense, vocab_race, match_pairs và couple_quiz với mode riêng cho từng game.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Bạn bè có membership hoạt động có thể vào cùng private room; kết quả của cả hai được lưu, còn member không hoạt động bị từ chối.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Mua streak freeze ghi nợ Coin và tăng inventory nguyên tử; chạm trần hoặc thiếu Coin không được ghi nợ.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "pending",
+      "label": "Đang tải hoặc đang xử lý",
+      "kind": "pending",
+      "transitions": [
+        "ready",
+        "empty",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "ready",
+      "label": "Dữ liệu sẵn sàng",
+      "kind": "success",
+      "transitions": [
+        "Thực hiện hành động tiếp theo"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "Không có dữ liệu phù hợp",
+      "kind": "empty",
+      "transitions": [
+        "Đổi bộ lọc",
+        "Quay lại"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "error",
+      "label": "Không thể hoàn tất yêu cầu",
+      "kind": "error",
+      "transitions": [
+        "Thử lại"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "game-definition",
+      "label": "Trò chơi",
+      "fields": [
+        "id",
+        "title",
+        "description",
+        "cover",
+        "modes"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "game-room",
+      "label": "Phòng game",
+      "fields": [
+        "roomId",
+        "mode",
+        "players",
+        "phase",
+        "sessionId"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "game-result",
+      "label": "Kết quả game",
+      "fields": [
+        "user",
+        "game",
+        "score",
+        "season"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "standing",
+      "label": "Thứ hạng",
+      "fields": [
+        "user",
+        "points",
+        "rank",
+        "isFollowing"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "join-game-room",
+      "kind": "command",
+      "name": "Colyseus joinOrCreate/joinById",
+      "owner": "provider",
+      "inputs": [
+        "token",
+        "game id",
+        "mode",
+        "character",
+        "room code"
+      ],
+      "outputs": [
+        "roomId",
+        "sessionId",
+        "shared state"
+      ],
+      "failures": [
+        "Inactive membership",
+        "Unknown room"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "read-global-leaderboard",
+      "kind": "query",
+      "name": "globalLeaderboard",
+      "owner": "frontend",
+      "inputs": [
+        "authenticated learner"
+      ],
+      "outputs": [
+        "myRank",
+        "myPoints",
+        "entries"
+      ],
+      "failures": [
+        "GraphQL error"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "game-hub",
+      "routePattern": "/[lang]/game",
+      "title": "Game hub",
+      "eyebrow": "Chơi và học",
+      "purpose": "Chọn game và mode hỗ trợ.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "game-hub-content",
+          "kind": "collection",
+          "title": "Trò chơi",
+          "summary": "Bốn game có mô tả và mode solo/couple/team theo catalog.",
+          "items": [
+            {
+              "id": "vocab-defense",
+              "role": "entity",
+              "label": "Thủ thành từ vựng"
+            },
+            {
+              "id": "vocab-race",
+              "role": "entity",
+              "label": "Đua từ vựng"
+            },
+            {
+              "id": "match-pairs",
+              "role": "entity",
+              "label": "Ghép cặp"
+            },
+            {
+              "id": "couple-quiz",
+              "role": "entity",
+              "label": "Đấu đôi"
+            }
+          ],
+          "actions": [
+            {
+              "id": "play-solo",
+              "label": "Chơi solo",
+              "kind": "primary"
+            },
+            {
+              "id": "play-with-friend",
+              "label": "Chơi với bạn",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "global-league",
+      "routePattern": "/[lang]/league",
+      "title": "Bảng xếp hạng",
+      "eyebrow": "Cộng đồng",
+      "purpose": "Xem standing toàn cục và vị trí của viewer.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "global-league-content",
+          "kind": "collection",
+          "title": "Thứ hạng học viên",
+          "summary": "Danh sách có username, avatar, points, rank và follow state.",
+          "items": [
+            {
+              "id": "my-standing",
+              "role": "status",
+              "label": "Thứ hạng của tôi"
+            },
+            {
+              "id": "ranked-user",
+              "role": "entity",
+              "label": "Học viên xếp hạng"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-005"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-005"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Chỉ hiển thị mode được khai báo cho từng game; multiplayer từ chối membership không hoạt động.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "League phải phân biệt pending/ready/empty/failed.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-005"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "game-membership-copy",
+      "question": "Surface game sẽ diễn đạt và bán membership khi multiplayer bị khóa như thế nào?",
+      "impact": "Không tự thêm upsell hoặc giá vào game hub ngoài quyền từ chối đã được backend chứng minh."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 7,
+      "endLine": 8,
+      "claim": "Frontend khai báo Game và Pricing routes.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/games/catalog.ts",
+      "startLine": 3,
+      "endLine": 13,
+      "claim": "Frontend khai báo bốn game và các mode được hỗ trợ với nội dung Vietnamese hiện tại.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "be",
+      "path": "test/e2e/colyseus-friends-room.e2e-spec.ts",
+      "startLine": 248,
+      "endLine": 320,
+      "claim": "Hai friend có quyền vào cùng room, hoàn tất và lưu hai result; inactive membership bị từ chối.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "test/e2e/streak.e2e-spec.ts",
+      "startLine": 112,
+      "endLine": 171,
+      "claim": "Mua streak freeze debit Coin và credit inventory; cap/insufficient Coin không tạo thay đổi một phần.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-global-leaderboard.ts",
+      "startLine": 6,
+      "endLine": 9,
+      "claim": "Frontend đọc standing của viewer và các entries global với rank, points và follow state.",
+      "kind": "api"
+    }
+  ]
+}

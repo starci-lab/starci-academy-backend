@@ -1,0 +1,490 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "membership-payments",
+  "title": "Membership, gói tải đề và thanh toán",
+  "summary": "Khách đọc catalog giá do server sở hữu; thành viên chọn membership hoặc gói tải đề, nhận checkout URL và chỉ được cấp quyền sau khi transaction được provider xác nhận.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Public pricing catalog",
+      "Membership monthly/yearly",
+      "Exam download packages",
+      "Provider checkout",
+      "Payment status reconciliation"
+    ],
+    "excludes": [
+      "Course-cart checkout",
+      "Lịch trả góp khóa học",
+      "Quản trị giá"
+    ]
+  },
+  "actors": [
+    {
+      "id": "customer",
+      "label": "Khách xem giá hoặc thành viên mua quyền",
+      "capabilities": [
+        "So sánh membership",
+        "Xem entitlement",
+        "Mua membership",
+        "Mua gói tải đề",
+        "Theo dõi trạng thái thanh toán"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "purchase-access",
+      "title": "Mua quyền truy cập",
+      "trigger": "Khách mở /[lang]/pricing và chọn một offer.",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "customer",
+          "action": "So sánh và chọn offer.",
+          "result": "Checkout details được tạo cho thành viên hoặc yêu cầu đăng nhập được mở.",
+          "surfaceId": "pricing",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-2",
+          "actor": "customer",
+          "action": "Trở về từ provider và kiểm tra trạng thái.",
+          "result": "Succeeded cấp quyền; Unpaid không cấp; Pending tiếp tục chờ.",
+          "surfaceId": "payment-return",
+          "stateId": "ready"
+        }
+      ],
+      "outcomes": [
+        "Checkout transaction được tạo",
+        "Membership hoặc entitlement chỉ cấp khi paid",
+        "Expired/unpaid không cấp quyền"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Pricing catalog public do server trả membership price/entitlements và exam-download packages.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Purchase membership chỉ tạo checkout details; quyền membership được cấp khi reconciliation xác nhận paid.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Giao dịch paid được settle idempotent; unpaid/expired không cấp membership hoặc download entitlement.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "pending",
+      "label": "Đang tải hoặc đang xử lý",
+      "kind": "pending",
+      "transitions": [
+        "ready",
+        "empty",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "ready",
+      "label": "Dữ liệu sẵn sàng",
+      "kind": "success",
+      "transitions": [
+        "Thực hiện hành động tiếp theo"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "Không có dữ liệu phù hợp",
+      "kind": "empty",
+      "transitions": [
+        "Đổi bộ lọc",
+        "Quay lại"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "error",
+      "label": "Không thể hoàn tất yêu cầu",
+      "kind": "error",
+      "transitions": [
+        "Thử lại"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "membership-offer",
+      "label": "Ưu đãi membership",
+      "fields": [
+        "enabled",
+        "monthlyPriceVnd",
+        "yearlyPriceVnd",
+        "demoPaperLimit",
+        "aiCreditsPerDay",
+        "entitlements"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "exam-download-package",
+      "label": "Gói tải đề",
+      "fields": [
+        "packageId",
+        "priceVnd",
+        "continuousUpdates",
+        "zaloSupport",
+        "commercialTeaching",
+        "brandPromotionMonths"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "payment-transaction",
+      "label": "Giao dịch",
+      "fields": [
+        "transactionId",
+        "referenceId",
+        "amount",
+        "status",
+        "checkoutUrl"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "read-pricing",
+      "kind": "query",
+      "name": "pricingCatalog",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "membership offer",
+        "exam download packages"
+      ],
+      "failures": [
+        "Catalog disabled",
+        "GraphQL error"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "purchase-membership",
+      "kind": "mutation",
+      "name": "purchaseMembership",
+      "owner": "backend",
+      "inputs": [
+        "membership request",
+        "authenticated customer"
+      ],
+      "outputs": [
+        "checkoutUrl",
+        "referenceId",
+        "transactionId",
+        "amount",
+        "checkoutFields"
+      ],
+      "failures": [
+        "Offer disabled",
+        "Provider initiation failure"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "reconcile-payment",
+      "kind": "event",
+      "name": "reconcile transaction poll",
+      "owner": "backend",
+      "inputs": [
+        "transaction id",
+        "provider status"
+      ],
+      "outputs": [
+        "Succeeded/Unpaid/Pending",
+        "membership or entitlement grant"
+      ],
+      "failures": [
+        "Provider unknown",
+        "Amount mismatch"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "pricing",
+      "routePattern": "/[lang]/pricing",
+      "title": "Gói MiaMia",
+      "eyebrow": "Nâng cấp",
+      "purpose": "So sánh membership và gói tải đề bằng dữ liệu server-owned.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "pricing-content",
+          "kind": "collection",
+          "title": "Offers",
+          "summary": "Membership có giá tháng/năm và entitlement; exam download có package identity và quyền hỗ trợ/sử dụng.",
+          "items": [
+            {
+              "id": "membership",
+              "role": "entity",
+              "label": "Membership"
+            },
+            {
+              "id": "monthly-price",
+              "role": "fact",
+              "label": "Giá tháng"
+            },
+            {
+              "id": "yearly-price",
+              "role": "fact",
+              "label": "Giá năm"
+            },
+            {
+              "id": "entitlement",
+              "role": "status",
+              "label": "Quyền truy cập"
+            },
+            {
+              "id": "download-package",
+              "role": "entity",
+              "label": "Gói tải đề"
+            }
+          ],
+          "actions": [
+            {
+              "id": "buy-membership",
+              "label": "Chọn membership",
+              "kind": "primary"
+            },
+            {
+              "id": "buy-download",
+              "label": "Mua gói tải đề",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "payment-return",
+      "routePattern": "provider-return-url (không có page chuyên biệt trong FE current head)",
+      "title": "Trạng thái thanh toán",
+      "eyebrow": "Thanh toán",
+      "purpose": "Diễn giải pending/succeeded/unpaid từ transaction thay vì tự suy luận theo redirect.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "payment-return-content",
+          "kind": "content",
+          "title": "Giao dịch",
+          "summary": "Quyền chỉ xuất hiện sau reconciliation paid.",
+          "items": [
+            {
+              "id": "transaction-status",
+              "role": "status",
+              "label": "Trạng thái giao dịch"
+            },
+            {
+              "id": "granted-access",
+              "role": "status",
+              "label": "Quyền đã cấp"
+            }
+          ],
+          "actions": [
+            {
+              "id": "refresh-status",
+              "label": "Kiểm tra lại",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-003",
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Pricing không được hard-code price/entitlement ngoài catalog server trả về.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Redirect về không được coi là paid; chỉ reconciliation provider xác nhận mới cấp quyền.",
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "payment-return-route",
+      "question": "Route FE nào sở hữu payment-return status cho membership và exam download?",
+      "impact": "Business surface giữ routePattern mô tả provider-return vì current FE không có page chuyên biệt; design không được tự chọn route."
+    },
+    {
+      "id": "active-offer-values",
+      "question": "Giá và entitlement production hiện tại là gì tại runtime?",
+      "impact": "Không ghi số đại diện vào prototype; phải render dữ liệu pricingCatalog thật."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 8,
+      "endLine": 14,
+      "claim": "Frontend khai báo Pricing và Cart nhưng không có payment-return page chuyên biệt.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-miamia-pricing-catalog.ts",
+      "startLine": 5,
+      "endLine": 8,
+      "claim": "Public pricing query đọc membership prices/entitlements và exam-download package properties.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-purchase-membership.ts",
+      "startLine": 7,
+      "endLine": 10,
+      "claim": "Membership purchase trả checkout URL, references, transaction, amount và checkout fields.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "test/e2e/reconcile-transaction.e2e-spec.ts",
+      "startLine": 475,
+      "endLine": 583,
+      "claim": "Paid transaction cấp membership hoặc exam-download entitlement đúng một lần; unpaid không cấp quyền.",
+      "kind": "test"
+    }
+  ]
+}

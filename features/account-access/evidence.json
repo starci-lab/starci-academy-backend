@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "account-access",
+  "head": "f155d30db02551d9a7229bedb1d307e4acb8cff3d3fade0754f6f893d93ab761",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/components/pages/AuthenticationPage/index.tsx",
+      "startLine": 7,
+      "endLine": 16,
+      "claim": "Sau xác thực, frontend chỉ chấp nhận returnTo nội bộ và mặc định về /exam.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/blocks/auth/AuthenticationPanel/component.tsx",
+      "startLine": 13,
+      "endLine": 25,
+      "claim": "Màn hình xác thực có ba cây details, code, done; pending và lỗi là trạng thái hiển thị trên cùng cây, với shortcut đứng trước form.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-sign-in-init.ts",
+      "startLine": 11,
+      "endLine": 35,
+      "claim": "Frontend khởi tạo sign-in challenge ẩn danh và đọc toàn bộ envelope cùng challengeId và thời hạn.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "apps/api/src/features/api/core/graphql/mutations/keycloak/sign-in/init/sign-in-init.resolver.ts",
+      "startLine": 49,
+      "endLine": 76,
+      "claim": "Backend bảo vệ signInInit bằng captcha và throttle, xác minh mật khẩu rồi gửi OTP; token chỉ đến sau OTP.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "test/e2e/auth-register.e2e-spec.ts",
+      "startLine": 131,
+      "endLine": 190,
+      "claim": "Đăng ký tạo một user theo Keycloak subject, gửi email xác minh và tái sử dụng row khi subject đã tồn tại.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "test/e2e/two-factor.e2e-spec.ts",
+      "startLine": 277,
+      "endLine": 394,
+      "claim": "TOTP secret được lưu mã hóa; mã hợp lệ bật 2FA, mã sai giữ nguyên trạng thái, và tắt hợp lệ xóa cờ cùng secret.",
+      "kind": "test"
+    }
+  ]
+}

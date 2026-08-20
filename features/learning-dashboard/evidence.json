@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "learning-dashboard",
+  "head": "3590f9b4e7bb17050a6097bc4fd83741e1ce473f8c7e155a388f4ab6cbcdd1be",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 47,
+      "endLine": 49,
+      "claim": "Frontend khai báo route dashboard, league và root redirect.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/pages/DashboardPage/index.tsx",
+      "startLine": 18,
+      "endLine": 42,
+      "claim": "Dashboard giới hạn bốn tab, yêu cầu token và chuyển người chưa xác thực sang /authentication.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-continue-learning.ts",
+      "startLine": 5,
+      "endLine": 8,
+      "claim": "ContinueLearning đọc topic, paper và reviewPhrase cho người dùng đã xác thực.",
+      "kind": "api"
+    }
+  ]
+}

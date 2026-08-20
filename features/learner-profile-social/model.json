@@ -1,0 +1,655 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "learner-profile-social",
+  "title": "Hồ sơ học viên và bằng chứng công khai",
+  "summary": "Người xem mở hồ sơ theo username, xem activity, coding skills, challenge submissions, capstone projects, CV và Wrapped; thành viên có thể follow/unfollow người khác theo edge idempotent.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Profile overview",
+      "Activity",
+      "Skills và coding proof",
+      "Challenge proof",
+      "Projects và roadmap",
+      "Public CV",
+      "Wrapped",
+      "Follow state"
+    ],
+    "excludes": [
+      "Profile editing surface chưa có route",
+      "Direct chat",
+      "Admin moderation"
+    ]
+  },
+  "actors": [
+    {
+      "id": "viewer",
+      "label": "Khách hoặc thành viên xem hồ sơ",
+      "capabilities": [
+        "Xem profile công khai",
+        "Xem bằng chứng kỹ năng/dự án/challenge",
+        "Follow hoặc unfollow khi đã đăng nhập"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "inspect-public-profile",
+      "title": "Xem bằng chứng hồ sơ",
+      "trigger": "Người xem mở /[lang]/profile/[username].",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "viewer",
+          "action": "Mở profile và chọn nhóm bằng chứng.",
+          "result": "Overview hoặc tab bằng chứng được mở.",
+          "surfaceId": "profile-overview",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-2",
+          "actor": "viewer",
+          "action": "Lọc history và mở một proof.",
+          "result": "Chi tiết bài và accepted submission được hiển thị.",
+          "surfaceId": "profile-skills",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-3",
+          "actor": "viewer",
+          "action": "Chọn project hoặc capstone.",
+          "result": "External project hoặc roadmap được mở.",
+          "surfaceId": "profile-projects",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-4",
+          "actor": "viewer",
+          "action": "Chọn course rồi submission.",
+          "result": "Proof đã pass được hiển thị.",
+          "surfaceId": "profile-challenges",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-5",
+          "actor": "viewer",
+          "action": "Chọn activity, CV hoặc Wrapped.",
+          "result": "Bằng chứng tương ứng được hiển thị hoặc empty/error trung thực.",
+          "surfaceId": "profile-activity-cv-wrapped",
+          "stateId": "ready"
+        }
+      ],
+      "outcomes": [
+        "Mỗi nhóm bằng chứng có route riêng",
+        "Follow edge phản ánh live counts và không trùng"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Profile lookup theo username là public và trả identity, bio, follow counts, lock/open-to-work cùng links nghề nghiệp.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Follow cùng target là idempotent, unfollow xóa edge, self-follow không ghi row và target deleted/missing bị từ chối.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "pending",
+      "label": "Đang tải hoặc đang xử lý",
+      "kind": "pending",
+      "transitions": [
+        "ready",
+        "empty",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "ready",
+      "label": "Dữ liệu sẵn sàng",
+      "kind": "success",
+      "transitions": [
+        "Thực hiện hành động tiếp theo"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "Không có dữ liệu phù hợp",
+      "kind": "empty",
+      "transitions": [
+        "Đổi bộ lọc",
+        "Quay lại"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "error",
+      "label": "Không thể hoàn tất yêu cầu",
+      "kind": "error",
+      "transitions": [
+        "Thử lại"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "public-profile",
+      "label": "Hồ sơ công khai",
+      "fields": [
+        "id",
+        "username",
+        "displayName",
+        "bio",
+        "avatar",
+        "githubUsername",
+        "followerCount",
+        "followingCount",
+        "isFollowedByMe",
+        "profileLocked",
+        "openToWork",
+        "roleTitle",
+        "location",
+        "workMode",
+        "links"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "profile-evidence",
+      "label": "Bằng chứng hồ sơ",
+      "fields": [
+        "skills",
+        "coding history",
+        "challenges",
+        "projects",
+        "CV",
+        "activity",
+        "wrapped"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "follow-edge",
+      "label": "Quan hệ theo dõi",
+      "fields": [
+        "followerId",
+        "followingId"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "read-profile",
+      "kind": "query",
+      "name": "userProfile",
+      "owner": "backend",
+      "inputs": [
+        "username"
+      ],
+      "outputs": [
+        "public profile and follow state"
+      ],
+      "failures": [
+        "User not found",
+        "Profile locked"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "set-follow",
+      "kind": "mutation",
+      "name": "setFollow",
+      "owner": "backend",
+      "inputs": [
+        "target user",
+        "follow boolean",
+        "authenticated viewer"
+      ],
+      "outputs": [
+        "success envelope"
+      ],
+      "failures": [
+        "Target missing/deleted"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "profile-overview",
+      "routePattern": "/[lang]/profile/[username]",
+      "title": "Hồ sơ học viên",
+      "eyebrow": "Công khai",
+      "purpose": "Tóm tắt identity, bio, follow state và tiến độ owner-only.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "profile-overview-content",
+          "kind": "content",
+          "title": "Identity và tổng quan",
+          "summary": "Username định danh profile; public/private view chỉ mở dữ liệu owner khi viewer là chính chủ.",
+          "items": [
+            {
+              "id": "identity",
+              "role": "entity",
+              "label": "Học viên"
+            },
+            {
+              "id": "bio",
+              "role": "text",
+              "label": "Giới thiệu"
+            },
+            {
+              "id": "follow-counts",
+              "role": "fact",
+              "label": "Followers và following"
+            },
+            {
+              "id": "open-to-work",
+              "role": "status",
+              "label": "Open to work"
+            }
+          ],
+          "actions": [
+            {
+              "id": "follow",
+              "label": "Theo dõi",
+              "kind": "primary"
+            },
+            {
+              "id": "unfollow",
+              "label": "Bỏ theo dõi",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "profile-skills",
+      "routePattern": "/[lang]/profile/[username]/skills/[slug]",
+      "title": "Kỹ năng coding",
+      "eyebrow": "Bằng chứng",
+      "purpose": "Xem thống kê coding và submission đã accepted.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "profile-skills-content",
+          "kind": "collection",
+          "title": "Kỹ năng và lịch sử",
+          "summary": "Metrics gồm solved, coding XP, percentile, rank; breakdown theo difficulty/domain/language.",
+          "items": [
+            {
+              "id": "coding-metric",
+              "role": "fact",
+              "label": "Chỉ số coding"
+            },
+            {
+              "id": "skill-breakdown",
+              "role": "status",
+              "label": "Phân rã kỹ năng"
+            },
+            {
+              "id": "accepted-submission",
+              "role": "entity",
+              "label": "Submission đã accepted"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-proof",
+              "label": "Xem bằng chứng",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "profile-projects",
+      "routePattern": "/[lang]/profile/[username]/projects/[courseId]",
+      "title": "Dự án",
+      "eyebrow": "Capstone",
+      "purpose": "Xem pinned projects, capstone và roadmap milestone.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "profile-projects-content",
+          "kind": "collection",
+          "title": "Project evidence",
+          "summary": "Pinned link mở ngoài; capstone mở roadmap theo courseId.",
+          "items": [
+            {
+              "id": "pinned-project",
+              "role": "entity",
+              "label": "Dự án ghim"
+            },
+            {
+              "id": "capstone",
+              "role": "entity",
+              "label": "Capstone"
+            },
+            {
+              "id": "milestone",
+              "role": "step",
+              "label": "Milestone"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-project",
+              "label": "Mở dự án",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "profile-challenges",
+      "routePattern": "/[lang]/profile/[username]/challenges/[courseId]/[submissionId]",
+      "title": "Challenge proof",
+      "eyebrow": "Bài nộp",
+      "purpose": "Xem challenge đã pass theo course và submission.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "profile-challenges-content",
+          "kind": "collection",
+          "title": "Bằng chứng challenge",
+          "summary": "Danh sách course dẫn tới submission detail.",
+          "items": [
+            {
+              "id": "course-challenges",
+              "role": "entity",
+              "label": "Challenge theo khóa"
+            },
+            {
+              "id": "submission-proof",
+              "role": "entity",
+              "label": "Submission proof"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-submission",
+              "label": "Xem bài nộp",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "profile-activity-cv-wrapped",
+      "routePattern": "/[lang]/profile/[username]/{activity|cv|wrapped}",
+      "title": "Hoạt động, CV và Wrapped",
+      "eyebrow": "Hồ sơ",
+      "purpose": "Xem thành tích, tài liệu CV công khai và tổng kết học tập.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "profile-activity-cv-wrapped-content",
+          "kind": "content",
+          "title": "Bằng chứng bổ sung",
+          "summary": "Ba route độc lập cho activity, CV và Wrapped.",
+          "items": [
+            {
+              "id": "activity",
+              "role": "entity",
+              "label": "Hoạt động và thành tích"
+            },
+            {
+              "id": "cv",
+              "role": "text",
+              "label": "CV công khai"
+            },
+            {
+              "id": "wrapped",
+              "role": "status",
+              "label": "Wrapped"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-evidence",
+              "label": "Mở bằng chứng",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Public profile dùng username và follow state live; owner-only progress không lộ cho visitor.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Không có accepted submission phải hiển thị empty proof trung thực.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Pinned và capstone phải có loading/error/empty độc lập.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "Route phải giữ courseId và submissionId của bằng chứng.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "CV phải phân biệt empty, uncompiled, ready và error; Wrapped phải giữ route riêng.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "profile-evidence-backend-parity",
+      "question": "Các query profile evidence ngoài userProfile hiện do resolver current-head nào phục vụ?",
+      "impact": "Không coi coding/challenge/project/CV/Wrapped public data là backend-confirmed nếu chưa tìm thấy resolver tương ứng."
+    },
+    {
+      "id": "profile-editing-route",
+      "question": "Bề mặt chỉnh sửa profile/avatar sẽ nằm ở route nào?",
+      "impact": "Backend có update/presign operations nhưng FE routes hiện không chứng minh surface placement."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 53,
+      "endLine": 64,
+      "claim": "Frontend khai báo activity, challenges, CV, overview, projects, skills, wrapped và self-profile routes.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-user-profile.ts",
+      "startLine": 6,
+      "endLine": 45,
+      "claim": "Frontend public lookup theo username đọc identity, bio, follow counts/state, lock/open-to-work và career links.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-set-follow.ts",
+      "startLine": 8,
+      "endLine": 34,
+      "claim": "Frontend gửi follow boolean cho target user bằng mutation có auth.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "test/e2e/social-follows.e2e-spec.ts",
+      "startLine": 72,
+      "endLine": 192,
+      "claim": "Backend follow edge idempotent, unfollow xóa row, self-follow no-op và missing/deleted target bị từ chối sạch.",
+      "kind": "test"
+    }
+  ]
+}

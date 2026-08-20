@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "course-marketplace",
+  "head": "806dbd5d25423c2339cace8b53bac2b9f0c598ca5ef84347bfeae644eb739d8b",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 45,
+      "endLine": 46,
+      "claim": "Frontend khai báo route chi tiết và danh mục khóa học.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-courses.ts",
+      "startLine": 8,
+      "endLine": 38,
+      "claim": "Danh mục đọc course identity, nội dung, giá, lượt đăng ký và trạng thái sở hữu với optional auth.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-courses-checkout.ts",
+      "startLine": 11,
+      "endLine": 40,
+      "claim": "Checkout khóa học trả URL/giao dịch pending, không tự ghi danh và chưa gửi lịch trả góp.",
+      "kind": "api"
+    }
+  ]
+}
