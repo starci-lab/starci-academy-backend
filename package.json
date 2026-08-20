@@ -6,6 +6,18 @@
     "private": true,
     "packageManager": "npm@11.6.2",
     "license": "UNLICENSED",
+    "starci": {
+        "deliveryAssurance": {
+            "required": true,
+            "unitCoverage": {
+                "statements": 80,
+                "lines": 80,
+                "functions": 80,
+                "branches": 75,
+                "patch": 90
+            }
+        }
+    },
     "scripts": {
         "build": "nest build core",
         "sync": "node scripts/sync.mjs",
@@ -22,7 +34,7 @@
         "start:mock": "nest start mock",
         "start:mock:dev": "nest start mock --watch",
         "lint": "eslint \"{src,apps,libs,test,tests}/**/*.ts\" --fix",
-        "lint:check": "eslint \"{src,apps,libs,test,tests}/**/*.ts\"",
+        "lint:check": "eslint \"{src,apps,libs,test,tests}/**/*.ts\" --max-warnings=0",
         "typecheck": "tsc --noEmit --pretty false",
         "gate:backend": "node scripts/run-be-gates.mjs",
         "gate:canon": "node --test \".claude/scripts/*.test.mjs\"",

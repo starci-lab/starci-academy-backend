@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -40,7 +42,13 @@ jobs:
         run: npm run build
 
       - name: Unit tests with coverage
-        run: npm run test:ci -- --coverage
+        env:
+          COVERAGE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: npm run test:ci
+
+      # E2E is a separate behavior lane and never contributes to Sonar coverage.
+      - name: End-to-end behavior
+        run: npm run test:e2e
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -56,7 +64,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
 
-      - name: Wait for SonarQube quality gate
+      - name: Strict sonar-quality-gate proof
         uses: SonarSource/sonarqube-quality-gate-action@v1
         timeout-minutes: 5
         env:
