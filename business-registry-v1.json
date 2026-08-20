@@ -34,11 +34,11 @@
     },
     "course-learning": {
       "featureId": "course-learning",
-      "head": "17b54cb4b32ed08d854569e448ea95fd61d438e81b6d38f22e5d2923d97ea30f",
+      "head": "a5e52d838376a41249c882e5f71c2d5e0cbbced15eaad87754aca5eae4643a6f",
       "sources": [
         {
           "role": "fe",
-          "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+          "head": "6db677598290cd69c3db6bfc4e731c37ba972b63"
         },
         {
           "role": "be",
@@ -193,6 +193,10 @@
       "17b54cb4b32ed08d854569e448ea95fd61d438e81b6d38f22e5d2923d97ea30f": {
         "hash": "17b54cb4b32ed08d854569e448ea95fd61d438e81b6d38f22e5d2923d97ea30f",
         "path": "objects/sha256/17b54cb4b32ed08d854569e448ea95fd61d438e81b6d38f22e5d2923d97ea30f.json"
+      },
+      "a5e52d838376a41249c882e5f71c2d5e0cbbced15eaad87754aca5eae4643a6f": {
+        "hash": "a5e52d838376a41249c882e5f71c2d5e0cbbced15eaad87754aca5eae4643a6f",
+        "path": "objects/sha256/a5e52d838376a41249c882e5f71c2d5e0cbbced15eaad87754aca5eae4643a6f.json"
       }
     }
   }
