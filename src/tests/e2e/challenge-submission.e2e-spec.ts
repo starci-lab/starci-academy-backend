@@ -281,6 +281,12 @@ import {
     ProcessGitSubmissionCompleteStepService,
 } from "@features/api/processors/ai/process-git-submission/steps/process-git-submission-complete-step.service"
 import {
+    SubmissionCompletionNotifierService,
+} from "@features/api/processors/ai/shared/challenge-submission/submission-completion-notifier.service"
+import {
+    LegacyCreditChargeService,
+} from "@features/api/processors/ai/shared/challenge-submission/legacy-credit-charge.service"
+import {
     ProcessGitSubmissionGradeStepService,
 } from "@features/api/processors/ai/process-git-submission/steps/process-git-submission-grade-step.service"
 import {
@@ -505,6 +511,8 @@ describe("a learner's challenge submission is graded by the durable worker",
                     ProcessGitSubmissionStepMappingService,
                     ProcessGitSubmissionGradeStepService,
                     ProcessGitSubmissionCompleteStepService,
+                    SubmissionCompletionNotifierService,
+                    LegacyCreditChargeService,
                     ChallengeEvaluationParseService,
                     ChallengeEvaluationPromptService,
                     GradingRetrievalService,

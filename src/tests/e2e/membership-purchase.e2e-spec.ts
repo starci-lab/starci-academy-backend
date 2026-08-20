@@ -1,4 +1,7 @@
 import request from "supertest"
+import {
+    BullModule as NestBullModule,
+} from "@nestjs/bullmq"
 import type {
     ExecutionContext,
 } from "@nestjs/common"
@@ -55,6 +58,15 @@ import type {
     AppConfig,
 } from "@modules/filesystem/types/config"
 import {
+    bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
+    BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
+    createSuperJsonServiceProvider,
+} from "@modules/lib/mixin/superjson.providers"
+import {
     DayjsService,
 } from "@modules/lib/mixin/dayjs.service"
 import {
@@ -78,6 +90,15 @@ import {
 import {
     EnqueueReconcileTransactionJobService,
 } from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
+import {
+    TransactionActionService,
+} from "@modules/bussiness/transactions/atomic/transaction-action.service"
+import {
+    TransactionReconcileQueryService,
+} from "@modules/bussiness/transactions/atomic/transaction-reconcile-query.service"
+import {
+    CheckoutGatewayService,
+} from "@modules/bussiness/transactions/atomic/checkout-gateway.service"
 import {
     PurchaseMembershipHandler,
 } from "@features/api/core/graphql/mutations/membership/purchase-membership/purchase-membership.handler"
@@ -109,17 +130,28 @@ import {
     InstallmentPlanService,
 } from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
+    VoucherService,
+} from "@modules/bussiness/rewards/voucher.service"
+import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
 import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
 import {
+    ReconcileTransactionWorker,
+} from "@features/api/processors/reconcile-transaction/reconcile-transaction.worker"
+import {
     bootFlowWorld,
 } from "@tests/helpers/flow-world"
 import type {
     FlowWorld,
 } from "@tests/helpers/flow-world"
+import {
+    until,
+} from "@tests/helpers/flow-wait"
+
+const reconcileQueueData = bullData[BullQueueName.ReconcileTransaction]
 
 /**
  * A learner buys community membership, the period opens, and buying again stacks rather than resets.
@@ -164,6 +196,7 @@ describe("a learner buys membership, and buying again extends rather than restar
 
         /** The mounted product config, rebuilt per read so a step can flip the kill switch. */
         const mountFilesystemService = {
+            sepayIpnSecret: (): string => "e2e-sepay-secret",
             appConfig: (): Partial<AppConfig> => ({
                 membership: {
                     priceVnd: MEMBERSHIP_PRICE_VND,
@@ -244,6 +277,8 @@ describe("a learner buys membership, and buying again extends rather than restar
             })
             const response = await request(world.app.getHttpServer())
                 .post("/sepay/webhook")
+                .set("X-Secret-Key",
+                    "e2e-sepay-secret")
                 .send({
                     order: {
                         order_invoice_number: transaction.referenceId,
@@ -251,7 +286,18 @@ describe("a learner buys membership, and buying again extends rather than restar
                         order_status: "CAPTURED",
                     }
                 })
-            expect(response.status).toBe(201)
+            expect(response.status).toBe(200)
+
+            await until(async () => (await world.entityManager.findOneBy(
+                TransactionEntity,
+                {
+                    id: transactionId,
+                },
+            ))?.status === TransactionStatus.Succeeded,
+            {
+                timeout: 20_000,
+                describe: `transaction ${transactionId} to settle`,
+            })
         }
 
         beforeAll(async () => {
@@ -272,12 +318,30 @@ describe("a learner buys membership, and buying again extends rather than restar
                 imports: [ApolloServerModule.register({
                     type: ApolloServerType.Monolithic,
                     useServices: false,
+                }),
+                NestBullModule.forRoot({
+                    connection: {
+                        host: process.env.REDIS_BULLMQ_HOST,
+                        port: Number(process.env.REDIS_BULLMQ_PORT),
+                        password: process.env.REDIS_BULLMQ_PASSWORD,
+                    },
+                }),
+                NestBullModule.registerQueue({
+                    name: reconcileQueueData.name,
+                    prefix: reconcileQueueData.prefix,
                 })],
                 controllers: [SepayWebhookController],
                 providers: [
                     PurchaseMembershipResolver,
                     PurchaseMembershipService,
                     PurchaseMembershipHandler,
+                    CheckoutGatewayService,
+                    ReconcileTransactionWorker,
+                    TransactionReconcileQueryService,
+                    TransactionActionService,
+                    VoucherService,
+                    createSuperJsonServiceProvider(),
+                    EnqueueReconcileTransactionJobService,
                     // REAL: the grant is the subject of this flow
                     MembershipService,
                     InstallmentPlanService,
@@ -321,12 +385,6 @@ describe("a learner buys membership, and buying again extends rather than restar
                         provide: NowPaymentsClient,
                         useValue: {
                             createInvoice: jest.fn(),
-                        },
-                    },
-                    {
-                        provide: EnqueueReconcileTransactionJobService,
-                        useValue: {
-                            enqueue: jest.fn(),
                         },
                     },
                     SepayWebhookService,

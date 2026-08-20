@@ -1,4 +1,7 @@
 import request from "supertest"
+import {
+    BullModule as NestBullModule,
+} from "@nestjs/bullmq"
 import type {
     ExecutionContext,
 } from "@nestjs/common"
@@ -69,6 +72,12 @@ import {
     EnqueueReconcileTransactionJobService,
 } from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
 import {
+    TransactionActionService,
+} from "@modules/bussiness/transactions/atomic/transaction-action.service"
+import {
+    TransactionReconcileQueryService,
+} from "@modules/bussiness/transactions/atomic/transaction-reconcile-query.service"
+import {
     EnqueueEnrollJobService,
 } from "@modules/bussiness/jobs/enqueue/enroll.service"
 import {
@@ -99,6 +108,15 @@ import {
     CoursePricingService,
 } from "@features/api/core/graphql/mutations/courses/course-enroll/course-pricing.service"
 import {
+    CoursePriceCalculatorService,
+} from "@modules/bussiness/course-pricing/course-price-calculator.service"
+import {
+    CoursePriceQuoteService,
+} from "@modules/bussiness/course-pricing/course-price-quote.service"
+import {
+    VoucherService,
+} from "@modules/bussiness/rewards/voucher.service"
+import {
     LoyaltyDiscountService,
 } from "@modules/bussiness/loyalty/loyalty-discount.service"
 import {
@@ -110,6 +128,18 @@ import {
 import {
     InstallmentPlanService,
 } from "@modules/bussiness/installment-plan/installment-plan.service"
+import {
+    MountFilesystemService,
+} from "@modules/filesystem/mount.service"
+import {
+    bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
+    BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
+    createSuperJsonServiceProvider,
+} from "@modules/lib/mixin/superjson.providers"
 import {
     DayjsService,
 } from "@modules/lib/mixin/dayjs.service"
@@ -129,6 +159,9 @@ import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
 import {
+    ReconcileTransactionWorker,
+} from "@features/api/processors/reconcile-transaction/reconcile-transaction.worker"
+import {
     bootFlowWorld,
 } from "@tests/helpers/flow-world"
 import type {
@@ -137,6 +170,8 @@ import type {
 import {
     until,
 } from "@tests/helpers/flow-wait"
+
+const reconcileQueueData = bullData[BullQueueName.ReconcileTransaction]
 
 /**
  * A learner buys a course, and the purchase reaches the point where enrolment is handed off.
@@ -236,6 +271,17 @@ describe("a learner buys a course and the enrolment is handed off",
                         type: ApolloServerType.Monolithic,
                         useServices: false,
                     }),
+                    NestBullModule.forRoot({
+                        connection: {
+                            host: process.env.REDIS_BULLMQ_HOST,
+                            port: Number(process.env.REDIS_BULLMQ_PORT),
+                            password: process.env.REDIS_BULLMQ_PASSWORD,
+                        },
+                    }),
+                    NestBullModule.registerQueue({
+                        name: reconcileQueueData.name,
+                        prefix: reconcileQueueData.prefix,
+                    }),
                 ],
                 controllers: [
                     SepayWebhookController,
@@ -245,13 +291,32 @@ describe("a learner buys a course and the enrolment is handed off",
                     CoursesCheckoutService,
                     CoursesCheckoutHandler,
                     CoursesCheckoutPricingService,
+                    CoursePriceCalculatorService,
+                    CoursePriceQuoteService,
                     CoursePricingService,
                     LoyaltyDiscountService,
+                    VoucherService,
+                    ReconcileTransactionWorker,
+                    TransactionReconcileQueryService,
+                    TransactionActionService,
+                    createSuperJsonServiceProvider(),
+                    EnqueueReconcileTransactionJobService,
                     UserStatsProjectionService,
                     UserXpProjectionService,
                     InstallmentPlanService,
                     DayjsService,
                     RetryService,
+                    {
+                        provide: MountFilesystemService,
+                        useValue: {
+                            appConfig: () => ({
+                                subscriptions: {
+                                    tiers: [],
+                                },
+                            }),
+                            sepayIpnSecret: () => "e2e-sepay-secret",
+                        },
+                    },
                     SepayWebhookHandler,
                     SepayWebhookService,
                     {
@@ -294,12 +359,6 @@ describe("a learner buys a course and the enrolment is handed off",
                         provide: NowPaymentsClient,
                         useValue: {
                             createInvoice: jest.fn(),
-                        },
-                    },
-                    {
-                        provide: EnqueueReconcileTransactionJobService,
-                        useValue: {
-                            enqueue: jest.fn(),
                         },
                     },
                     {
@@ -458,6 +517,8 @@ describe("a learner buys a course and the enrolment is handed off",
 
                 const response = await request(world.app.getHttpServer())
                     .post("/sepay/webhook")
+                    .set("X-Secret-Key",
+                        "e2e-sepay-secret")
                     .send({
                         order: {
                             order_invoice_number: referenceId,
@@ -465,7 +526,7 @@ describe("a learner buys a course and the enrolment is handed off",
                             order_status: "CAPTURED",
                         },
                     })
-                expect(response.status).toBe(201)
+                expect(response.status).toBe(200)
 
                 // the hand-off is the promise this half ends on, and it must be for THIS order
                 await until(() => enqueueEnrollJob.enqueueForTransaction.mock.calls.length === 1,
