@@ -1,10 +1,10 @@
 import OpenAI from "openai"
 import {
     HARNESS_OPENROUTER_JUDGE_API_KEY,
-} from "./harness-credentials"
+} from "../src/tests/helpers/harness-credentials"
 import {
     judge,
-} from "./judge"
+} from "../src/tests/helpers/judge"
 
 jest.mock("openai")
 

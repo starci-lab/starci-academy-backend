@@ -7,10 +7,10 @@ import type {
 } from "node:child_process"
 import {
     runE2e,
-} from "./e2e-runner"
+} from "../src/tests/helpers/e2e-runner"
 import type {
     E2eRunnerDependencies,
-} from "./e2e-runner"
+} from "../src/tests/helpers/e2e-runner"
 
 type ShutdownSignal = "SIGINT" | "SIGTERM"
 

@@ -3,7 +3,7 @@ import {
     HARNESS_OPENROUTER_JUDGE_API_KEY,
     readHarnessOpenRouterApiKey,
     readHarnessOpenRouterJudgeApiKey,
-} from "./harness-credentials"
+} from "../src/tests/helpers/harness-credentials"
 
 describe("harness credentials",
     () => {

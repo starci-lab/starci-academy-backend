@@ -38,6 +38,7 @@ const sharedProjectConfig = {
     roots: [
         "<rootDir>/apps/",
         "<rootDir>/src/",
+        "<rootDir>/testing-support/",
     ],
 }
 

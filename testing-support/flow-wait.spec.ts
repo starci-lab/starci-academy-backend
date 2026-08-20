@@ -2,10 +2,10 @@ import {
     expectNoMessage,
     nextMessage,
     until,
-} from "./flow-wait"
+} from "../src/tests/helpers/flow-wait"
 import type {
     MessageSource,
-} from "./flow-wait"
+} from "../src/tests/helpers/flow-wait"
 
 /**
  * A tiny event source, so these specs test the waiting logic rather than a socket library.

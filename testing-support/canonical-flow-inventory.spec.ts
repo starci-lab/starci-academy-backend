@@ -77,6 +77,9 @@ describe("canonical business flow inventory",
             () => {
                 const missing = CANONICAL_FLOWS.filter(
                     (flow) => !existsSync(join(__dirname,
+                        "..",
+                        "src",
+                        "tests",
                         "e2e",
                         flow + ".e2e-spec.ts")),
                 )
