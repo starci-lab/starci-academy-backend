@@ -27,6 +27,20 @@
           "head": "24b3dc4b0eda44638cff0b70888b8304af7814de"
         }
       ]
+    },
+    "proposal-delivery": {
+      "featureId": "proposal-delivery",
+      "head": "51b9699c36c3a355048a3d1a7286e56711c7565e6b0e59500365605455603e62",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "8c9f46e075dd18c99bd749237818ab4e2ebd4152"
+        },
+        {
+          "role": "be",
+          "head": "24b3dc4b0eda44638cff0b70888b8304af7814de"
+        }
+      ]
     }
   },
   "objects": {
@@ -39,6 +53,10 @@
       "1ebbaeb373306ccff37781b0c6d257a697cd6430ce8f313127c09d8846b622d9": {
         "hash": "1ebbaeb373306ccff37781b0c6d257a697cd6430ce8f313127c09d8846b622d9",
         "path": "objects/sha256/1ebbaeb373306ccff37781b0c6d257a697cd6430ce8f313127c09d8846b622d9.json"
+      },
+      "51b9699c36c3a355048a3d1a7286e56711c7565e6b0e59500365605455603e62": {
+        "hash": "51b9699c36c3a355048a3d1a7286e56711c7565e6b0e59500365605455603e62",
+        "path": "objects/sha256/51b9699c36c3a355048a3d1a7286e56711c7565e6b0e59500365605455603e62.json"
       }
     }
   }
