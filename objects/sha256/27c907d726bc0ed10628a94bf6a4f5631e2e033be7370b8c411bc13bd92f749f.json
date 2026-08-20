@@ -1,0 +1,599 @@
+{
+  "schemaVersion": 1,
+  "project": "tedo",
+  "featureId": "agency-showcase",
+  "title": "Agency showcase and lead capture",
+  "summary": "Vietnamese small-business buyers evaluate TEDO through a localized landing journey, compare services, indicative price ranges, delivery process and past projects, then start a consultation or submit a contact lead.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/tedo-landingpage.git",
+      "head": "8c9f46e075dd18c99bd749237818ab4e2ebd4152"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Localized landing page sections",
+      "Service, pricing, process and proof presentation",
+      "Projects gallery with category filtering",
+      "Low-friction consultation prompt",
+      "Contact form forwarding to a configured delivery webhook"
+    ],
+    "excludes": [
+      "Binding project quotation before discovery",
+      "Back-office editing of marketing content"
+    ]
+  },
+  "actors": [
+    {
+      "id": "buyer",
+      "label": "Prospective buyer",
+      "capabilities": [
+        "Review TEDO services and fit",
+        "Compare indicative price ranges and timing",
+        "Inspect project examples",
+        "Start consultation",
+        "Submit contact details"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "platform",
+      "label": "TEDO platform",
+      "capabilities": [
+        "Render the localized buyer journey",
+        "Validate and forward contact leads"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "agency-showcase-journey",
+      "title": "Agency showcase and lead capture",
+      "trigger": "A prospective buyer opens the localized TEDO landing page.",
+      "steps": [
+        {
+          "id": "evaluate-offer",
+          "actor": "buyer",
+          "action": "Review proof, fit, services, pricing, process, aftercare, engagement, design, stack and FAQ",
+          "result": "The buyer can judge whether TEDO matches the project",
+          "surfaceId": "agency-landing",
+          "stateId": "showcase-ready"
+        },
+        {
+          "id": "inspect-projects",
+          "actor": "buyer",
+          "action": "Open and filter the projects gallery",
+          "result": "Relevant project evidence is displayed",
+          "surfaceId": "projects-gallery",
+          "stateId": "showcase-ready"
+        },
+        {
+          "id": "send-contact",
+          "actor": "buyer",
+          "action": "Submit name, email and project message",
+          "result": "The lead is forwarded to the configured webhook or an explicit error is returned",
+          "surfaceId": "agency-landing",
+          "stateId": "lead-pending"
+        }
+      ],
+      "outcomes": [
+        "A qualified prospective buyer reaches consultation or a delivered contact lead"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "The landing section order follows buyer questions: proof and fit precede services, price is exposed before detailed process, and contact closes the journey.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Published prices are indicative ranges rather than a fixed quote; the exact figure is deferred to discovery.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "A contact lead requires name, email and message and fails explicitly when no delivery webhook is configured or the upstream rejects it.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "showcase-ready",
+      "label": "Showcase ready",
+      "kind": "initial",
+      "transitions": [
+        "lead-pending"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "lead-pending",
+      "label": "Contact lead sending",
+      "kind": "pending",
+      "transitions": [
+        "lead-sent",
+        "lead-error"
+      ],
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "lead-sent",
+      "label": "Contact lead sent",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "lead-error",
+      "label": "Contact lead failed",
+      "kind": "error",
+      "transitions": [
+        "showcase-ready"
+      ],
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "service-offer",
+      "label": "Service offer",
+      "fields": [
+        "title",
+        "body",
+        "included points"
+      ],
+      "evidenceIds": [
+        "EV-003"
+      ]
+    },
+    {
+      "id": "price-tier",
+      "label": "Indicative price tier",
+      "fields": [
+        "name",
+        "price range",
+        "time range",
+        "body",
+        "included points"
+      ],
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "project-case",
+      "label": "Project case",
+      "fields": [
+        "title",
+        "category",
+        "highlights",
+        "stack",
+        "image"
+      ],
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "contact-lead",
+      "label": "Contact lead",
+      "fields": [
+        "name",
+        "email",
+        "company",
+        "service",
+        "message",
+        "receivedAt"
+      ],
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "submit-contact",
+      "kind": "command",
+      "name": "POST /api/contact",
+      "owner": "frontend",
+      "inputs": [
+        "name",
+        "email",
+        "optional company",
+        "optional service",
+        "message"
+      ],
+      "outputs": [
+        "ok"
+      ],
+      "failures": [
+        "invalid fields",
+        "delivery webhook not configured",
+        "upstream delivery failed"
+      ],
+      "evidenceIds": [
+        "EV-008"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "agency-landing",
+      "routePattern": "/[locale]",
+      "title": "TEDO agency landing",
+      "eyebrow": "TEDO",
+      "purpose": "Answer a buyer's core trust, scope, budget, process and contact questions in one localized journey.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "buyer-introduction",
+          "kind": "content",
+          "title": "Project intent",
+          "summary": "Hero message, concrete project prompt and proof navigation.",
+          "items": [
+            {
+              "id": "agency-message",
+              "role": "text",
+              "label": "TEDO value proposition"
+            },
+            {
+              "id": "project-prompt",
+              "role": "field",
+              "label": "Describe your project"
+            },
+            {
+              "id": "case-link",
+              "role": "link",
+              "label": "View project proof"
+            }
+          ],
+          "actions": [
+            {
+              "id": "start-consultation",
+              "label": "Start consultation",
+              "kind": "primary",
+              "target": "/[locale]/chat"
+            },
+            {
+              "id": "view-cases",
+              "label": "View projects",
+              "kind": "secondary",
+              "target": "#cases"
+            }
+          ],
+          "states": [
+            "ready",
+            "validation-error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        },
+        {
+          "id": "offer-evidence",
+          "kind": "collection",
+          "title": "Services, price and process",
+          "summary": "Service cards, indicative pricing tiers, coverage boundaries and four delivery steps with timing.",
+          "items": [
+            {
+              "id": "services",
+              "role": "entity",
+              "label": "Service offers"
+            },
+            {
+              "id": "price-ranges",
+              "role": "fact",
+              "label": "Indicative investment ranges"
+            },
+            {
+              "id": "delivery-steps",
+              "role": "step",
+              "label": "Delivery process"
+            }
+          ],
+          "actions": [
+            {
+              "id": "ask-about-scope",
+              "label": "Discuss your scope",
+              "kind": "link",
+              "target": "#contact"
+            }
+          ],
+          "states": [
+            "ready"
+          ],
+          "evidenceIds": [
+            "EV-003",
+            "EV-004",
+            "EV-005"
+          ]
+        },
+        {
+          "id": "contact-form",
+          "kind": "form",
+          "title": "Contact TEDO",
+          "summary": "Lead details and project message with calendar and direct email alternatives.",
+          "items": [
+            {
+              "id": "contact-name",
+              "role": "field",
+              "label": "Name"
+            },
+            {
+              "id": "contact-email",
+              "role": "field",
+              "label": "Email"
+            },
+            {
+              "id": "contact-company",
+              "role": "field",
+              "label": "Company"
+            },
+            {
+              "id": "contact-service",
+              "role": "choice",
+              "label": "Service"
+            },
+            {
+              "id": "contact-message",
+              "role": "field",
+              "label": "Project message"
+            }
+          ],
+          "actions": [
+            {
+              "id": "submit-contact",
+              "label": "Send request",
+              "kind": "primary",
+              "target": "POST /api/contact"
+            },
+            {
+              "id": "book-calendar",
+              "label": "Book a call",
+              "kind": "secondary",
+              "target": "calendar"
+            }
+          ],
+          "states": [
+            "idle",
+            "sending",
+            "sent",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-007",
+            "EV-008"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "projects-gallery",
+      "routePattern": "/[locale]/du-an",
+      "title": "Projects",
+      "eyebrow": "TEDO",
+      "purpose": "Filter and inspect project cases before returning to contact.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "project-proof",
+          "kind": "collection",
+          "title": "Selected projects",
+          "summary": "Category filters, project cards, highlights, technology stack and contact CTA.",
+          "items": [
+            {
+              "id": "project-filter",
+              "role": "choice",
+              "label": "Project category"
+            },
+            {
+              "id": "project-cards",
+              "role": "entity",
+              "label": "Projects"
+            },
+            {
+              "id": "project-highlights",
+              "role": "fact",
+              "label": "Highlights"
+            },
+            {
+              "id": "project-stack",
+              "role": "fact",
+              "label": "Technology stack"
+            }
+          ],
+          "actions": [
+            {
+              "id": "filter-projects",
+              "label": "Filter",
+              "kind": "secondary",
+              "target": "project-filter"
+            },
+            {
+              "id": "contact-from-projects",
+              "label": "Discuss a project",
+              "kind": "primary",
+              "target": "/[locale]/#contact"
+            }
+          ],
+          "states": [
+            "ready",
+            "filtered"
+          ],
+          "evidenceIds": [
+            "EV-006"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-006"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "The localized home route renders the declared buyer journey and the projects route renders a filterable gallery.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Valid contact leads are forwarded with receivedAt, while invalid, unconfigured and upstream failure states return explicit non-success responses.",
+      "evidenceIds": [
+        "EV-008"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "lead-response-time",
+      "question": "What response-time commitment is guaranteed after a contact submission?",
+      "impact": "The surfaces provide contact channels and success/failure handling but do not establish a service-level promise."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[locale]/page.tsx",
+      "startLine": 30,
+      "endLine": 68,
+      "claim": "The localized landing route composes hero, proof, fit, services, pricing, process, aftercare, engagement, design, stack, FAQ and contact in buyer-question order.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/sections/hero.tsx",
+      "startLine": 10,
+      "endLine": 40,
+      "claim": "The hero presents localized value copy, a project lead prompt and a link to project proof.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/components/sections/services.tsx",
+      "startLine": 8,
+      "endLine": 68,
+      "claim": "The services section renders titled offers with explanatory bodies and included points.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/sections/pricing.tsx",
+      "startLine": 10,
+      "endLine": 47,
+      "claim": "The pricing section models tier name, range, time, body, inclusions and exclusions and explicitly defers exact pricing to discovery.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/components/sections/process.tsx",
+      "startLine": 7,
+      "endLine": 61,
+      "claim": "The process section renders four delivery steps with title, body and indicative duration.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/components/sections/projects-gallery.tsx",
+      "startLine": 14,
+      "endLine": 225,
+      "claim": "The projects surface filters project cases by category and renders highlights, technology stack and a contact CTA.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-007",
+      "role": "fe",
+      "path": "src/components/sections/contact.tsx",
+      "startLine": 17,
+      "endLine": 155,
+      "claim": "The contact section owns idle/sending/sent/error states, lead fields, calendar/email alternatives and submit action.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-008",
+      "role": "fe",
+      "path": "src/app/api/contact/route.ts",
+      "startLine": 3,
+      "endLine": 40,
+      "claim": "The contact API validates name/email/message, fails when delivery is unconfigured, forwards timestamped leads and reports upstream failure.",
+      "kind": "api"
+    }
+  ]
+}

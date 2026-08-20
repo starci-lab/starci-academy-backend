@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "project": "tedo",
+  "features": {
+    "agency-showcase": [
+      "27c907d726bc0ed10628a94bf6a4f5631e2e033be7370b8c411bc13bd92f749f"
+    ]
+  }
+}

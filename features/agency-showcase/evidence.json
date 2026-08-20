@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "project": "tedo",
+  "featureId": "agency-showcase",
+  "head": "27c907d726bc0ed10628a94bf6a4f5631e2e033be7370b8c411bc13bd92f749f",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/tedo-landingpage.git",
+      "head": "8c9f46e075dd18c99bd749237818ab4e2ebd4152"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[locale]/page.tsx",
+      "startLine": 30,
+      "endLine": 68,
+      "claim": "The localized landing route composes hero, proof, fit, services, pricing, process, aftercare, engagement, design, stack, FAQ and contact in buyer-question order.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/sections/hero.tsx",
+      "startLine": 10,
+      "endLine": 40,
+      "claim": "The hero presents localized value copy, a project lead prompt and a link to project proof.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/components/sections/services.tsx",
+      "startLine": 8,
+      "endLine": 68,
+      "claim": "The services section renders titled offers with explanatory bodies and included points.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/sections/pricing.tsx",
+      "startLine": 10,
+      "endLine": 47,
+      "claim": "The pricing section models tier name, range, time, body, inclusions and exclusions and explicitly defers exact pricing to discovery.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/components/sections/process.tsx",
+      "startLine": 7,
+      "endLine": 61,
+      "claim": "The process section renders four delivery steps with title, body and indicative duration.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/components/sections/projects-gallery.tsx",
+      "startLine": 14,
+      "endLine": 225,
+      "claim": "The projects surface filters project cases by category and renders highlights, technology stack and a contact CTA.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-007",
+      "role": "fe",
+      "path": "src/components/sections/contact.tsx",
+      "startLine": 17,
+      "endLine": 155,
+      "claim": "The contact section owns idle/sending/sent/error states, lead fields, calendar/email alternatives and submit action.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-008",
+      "role": "fe",
+      "path": "src/app/api/contact/route.ts",
+      "startLine": 3,
+      "endLine": 40,
+      "claim": "The contact API validates name/email/message, fails when delivery is unconfigured, forwards timestamped leads and reports upstream failure.",
+      "kind": "api"
+    }
+  ]
+}
