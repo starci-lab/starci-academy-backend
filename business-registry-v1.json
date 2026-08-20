@@ -51,10 +51,10 @@
     },
     "study-library": {
       "featureId": "study-library",
-      "head": "9522d8c3013605d19db6fa700b54e14013003ce7281a25d5c9161eda1e2c8bb2",
-      "authorityStatus": "pending",
+      "head": "228ae337362749d918e300effb4fa41efcbc6cb3c7f2c52c42bad08dfa992cfe",
+      "authorityStatus": "in-progress",
       "baseHead": "f401f50f55ec0717c638de7f000c2a679f262155062c47e4dec1fd924ab32530",
-      "previousHead": "f401f50f55ec0717c638de7f000c2a679f262155062c47e4dec1fd924ab32530",
+      "previousHead": "9522d8c3013605d19db6fa700b54e14013003ce7281a25d5c9161eda1e2c8bb2",
       "sources": [
         {
           "role": "fe",
@@ -267,6 +267,10 @@
       "9522d8c3013605d19db6fa700b54e14013003ce7281a25d5c9161eda1e2c8bb2": {
         "hash": "9522d8c3013605d19db6fa700b54e14013003ce7281a25d5c9161eda1e2c8bb2",
         "path": "objects/sha256/9522d8c3013605d19db6fa700b54e14013003ce7281a25d5c9161eda1e2c8bb2.json"
+      },
+      "228ae337362749d918e300effb4fa41efcbc6cb3c7f2c52c42bad08dfa992cfe": {
+        "hash": "228ae337362749d918e300effb4fa41efcbc6cb3c7f2c52c42bad08dfa992cfe",
+        "path": "objects/sha256/228ae337362749d918e300effb4fa41efcbc6cb3c7f2c52c42bad08dfa992cfe.json"
       }
     }
   }

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "study-library",
-  "head": "9522d8c3013605d19db6fa700b54e14013003ce7281a25d5c9161eda1e2c8bb2",
+  "head": "228ae337362749d918e300effb4fa41efcbc6cb3c7f2c52c42bad08dfa992cfe",
   "sources": [
     {
       "role": "fe",
