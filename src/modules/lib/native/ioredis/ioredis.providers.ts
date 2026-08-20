@@ -1,4 +1,5 @@
 import {
+    OnModuleDestroy,
     Provider 
 } from "@nestjs/common"
 import Redis from "ioredis"
@@ -15,6 +16,27 @@ import {
 import {
     IoRedisInstanceKeyOptions,
 } from "./types/options"
+import type {
+    RedisOrCluster,
+    ValkeyOrCluster,
+} from "./types/client"
+
+type IoRedisClient = RedisOrCluster | ValkeyOrCluster
+
+/** Own the lifecycle of a raw ioredis/iovalkey client registered by Nest. */
+export class IoRedisClientShutdown implements OnModuleDestroy {
+    constructor(private readonly client: IoRedisClient) { }
+
+    async onModuleDestroy(): Promise<void> {
+        if (this.client.status === "end") {
+            return
+        }
+        await this.client.quit().catch(() => this.client.disconnect())
+    }
+}
+
+const createIoRedisShutdownKey = (key: IoRedisInstanceKey): string =>
+    `IOREDIS_SHUTDOWN_${key}`
 
 /**
  * Builds the client for `key`: Cache -> Valkey (cluster-capable), others ->
@@ -109,4 +131,11 @@ export const createIoRedisProvider = (key: IoRedisInstanceKey): Provider => ({
             }
         )
     },
+})
+
+/** Register the shutdown owner beside a raw ioredis/iovalkey provider. */
+export const createIoRedisShutdownProvider = (key: IoRedisInstanceKey): Provider => ({
+    provide: createIoRedisShutdownKey(key),
+    inject: [createIoRedisKey(key)],
+    useFactory: (client: IoRedisClient): IoRedisClientShutdown => new IoRedisClientShutdown(client),
 })

@@ -5,7 +5,8 @@ import {
     ConfigurableModuleClass, OPTIONS_TYPE 
 } from "./ioredis.module-definition"
 import {
-    createIoRedisProvider 
+    createIoRedisProvider,
+    createIoRedisShutdownProvider,
 } from "./ioredis.providers"
 
 @Module({
@@ -26,6 +27,9 @@ export class IoRedisModule extends ConfigurableModuleClass {
             providers: [
                 ...(dynamicModule.providers || []),
                 ...providers,
+                ...instanceKeys.map(
+                    instanceKey => createIoRedisShutdownProvider(instanceKey),
+                ),
             ],
             exports: [
                 ...providers,
