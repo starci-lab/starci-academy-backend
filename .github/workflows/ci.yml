@@ -17,6 +17,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,10 +54,6 @@ jobs:
           COVERAGE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
         run: npm run test:ci
 
-      # E2E is a separate behavior lane and never contributes to Sonar coverage.
-      - name: End-to-end behavior
-        run: npm run test:e2e
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
@@ -77,3 +74,31 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+
+  # E2E is an independent behavior lane. It never creates, mutates or blocks
+  # the unit LCOV consumed by Codecov and Sonar.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Checkout private course data
+        uses: actions/checkout@v4
+        with:
+          repository: starci-lab/data
+          ssh-key: ${{ secrets.STARCI_DATA_DEPLOY_KEY }}
+          path: .gitmounts/data
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "25.2.1"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: End-to-end behavior
+        run: npm run test:e2e
