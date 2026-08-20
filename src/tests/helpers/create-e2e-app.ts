@@ -33,11 +33,17 @@ import {
     EnqueueSendMailJobService,
 } from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
+    EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
+import {
     InstallmentPlanService,
 } from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
     NotificationService,
 } from "@modules/bussiness/notification/notification.service"
+import {
+    TransactionGrantService,
+} from "@modules/bussiness/transactions/atomic/transaction-grant.service"
 import {
     MembershipService,
 } from "@modules/membership/membership.service"
@@ -168,6 +174,7 @@ export const createE2eApp = async (): Promise<E2eApp> => {
             // real services so grantTier mutates the real DB
             AiEntitlementService,
             InstallmentPlanService,
+            TransactionGrantService,
             DayjsService,
             // every handler logs through WinstonService; stubbed so no test
             // opens the Loki transport
@@ -205,6 +212,12 @@ export const createE2eApp = async (): Promise<E2eApp> => {
                 },
             },
             {
+                provide: EnqueueReconcileTransactionJobService,
+                useValue: {
+                    enqueue: jest.fn(),
+                },
+            },
+            {
                 provide: NotificationService,
                 useValue: {
                     createNotification: jest.fn(),
@@ -213,6 +226,7 @@ export const createE2eApp = async (): Promise<E2eApp> => {
             {
                 provide: MountFilesystemService,
                 useValue: {
+                    sepayIpnSecret: () => "e2e-sepay-secret",
                     appConfig: () => ({
                         subscriptions: {
                             tiers: [],

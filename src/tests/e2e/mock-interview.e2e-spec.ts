@@ -109,6 +109,9 @@ import {
     MockInterviewGradePromptService,
 } from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/grade-mock-interview-session-prompt.service"
 import {
+    GradeMockInterviewSessionParseService,
+} from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/grade-mock-interview-session-parse.service"
+import {
     bootFlowWorld,
 } from "@tests/helpers/flow-world"
 import type {
@@ -223,6 +226,7 @@ describe("a learner runs a mock interview and receives a grade",
                     SyncMockInterviewSessionTurnsService,
                     SyncMockInterviewSessionTurnsHandler,
                     MockInterviewGradePromptService,
+                    GradeMockInterviewSessionParseService,
                     MockInterviewGradingService,
                     GradeMockInterviewSessionResolver,
                     GradeMockInterviewSessionService,

@@ -46,6 +46,9 @@ import {
     NotificationService,
 } from "@modules/bussiness/notification/notification.service"
 import {
+    TransactionGrantService,
+} from "@modules/bussiness/transactions/atomic/transaction-grant.service"
+import {
     MembershipService,
 } from "@modules/membership/membership.service"
 import {
@@ -118,6 +121,7 @@ describe("NOWPayments settles a finished crypto payment through its IPN",
                 providers: [
                     NowPaymentsWebhookService,
                     NowPaymentsWebhookHandler,
+                    TransactionGrantService,
                     AiEntitlementService,
                     DayjsService,
                     {
@@ -195,6 +199,9 @@ describe("NOWPayments settles a finished crypto payment through its IPN",
         })
 
         afterEach(async () => {
+            if (!entityManager) {
+                return
+            }
             await entityManager.query(
                 "TRUNCATE TABLE \"ai_subscriptions\", \"transactions\", \"users\" RESTART IDENTITY CASCADE",
             )
@@ -202,7 +209,7 @@ describe("NOWPayments settles a finished crypto payment through its IPN",
         })
 
         afterAll(async () => {
-            await app.close().catch(() => undefined)
+            await app?.close().catch(() => undefined)
         })
 
         const seedPendingPurchase = async (

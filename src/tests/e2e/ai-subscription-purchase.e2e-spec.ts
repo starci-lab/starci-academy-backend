@@ -115,6 +115,9 @@ import {
     InstallmentPlanService,
 } from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
+    CheckoutGatewayService,
+} from "@modules/bussiness/transactions/atomic/checkout-gateway.service"
+import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
 import {
@@ -160,6 +163,7 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
 
         /** The mounted catalog, rebuilt per read so a step can withdraw a tier. */
         const mountFilesystemService = {
+            sepayIpnSecret: (): string => "e2e-sepay-secret",
             appConfig: (): Partial<AppConfig> => ({
                 subscriptions: {
                     tiers: [
@@ -255,10 +259,12 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
             })
             const response = await request(world.app.getHttpServer())
                 .post("/sepay/webhook")
+                .set("X-Secret-Key",
+                    "e2e-sepay-secret")
                 .send({
                     order
                 })
-            expect(response.status).toBe(201)
+            expect(response.status).toBe(200)
         }
 
         beforeAll(async () => {
@@ -288,6 +294,7 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
                     // REAL: the entitlement is what was bought
                     AiEntitlementService,
                     InstallmentPlanService,
+                    CheckoutGatewayService,
                     DayjsService,
                     RetryService,
                     {
