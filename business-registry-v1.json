@@ -6,7 +6,7 @@
   "featureHeads": {
     "identity-access": {
       "featureId": "identity-access",
-      "head": "3464f5814817ca1f95f18613412cc3d40ef019abcdcc2533f8fb9744c0614aba",
+      "head": "d9170beac6e480043156399203ea3fb6afd58a3c77f6ebfc9fee1d8aa56c1388",
       "sources": [
         {
           "role": "fe",
@@ -14,7 +14,7 @@
         },
         {
           "role": "be",
-          "head": "eca4e018044f38900441790974c329c9cd4f3400"
+          "head": "0066625ed94b10bf5b6892af775e45bdd6823558"
         }
       ]
     },
@@ -133,6 +133,10 @@
       "270747c88bd992cf607ddf1c6e0e5faecb2abece9bc40027f323eecd1a767595": {
         "hash": "270747c88bd992cf607ddf1c6e0e5faecb2abece9bc40027f323eecd1a767595",
         "path": "objects/sha256/270747c88bd992cf607ddf1c6e0e5faecb2abece9bc40027f323eecd1a767595.json"
+      },
+      "d9170beac6e480043156399203ea3fb6afd58a3c77f6ebfc9fee1d8aa56c1388": {
+        "hash": "d9170beac6e480043156399203ea3fb6afd58a3c77f6ebfc9fee1d8aa56c1388",
+        "path": "objects/sha256/d9170beac6e480043156399203ea3fb6afd58a3c77f6ebfc9fee1d8aa56c1388.json"
       }
     }
   }
