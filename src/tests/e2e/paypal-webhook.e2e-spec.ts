@@ -46,6 +46,9 @@ import {
     NotificationService,
 } from "@modules/bussiness/notification/notification.service"
 import {
+    TransactionGrantService,
+} from "@modules/bussiness/transactions/atomic/transaction-grant.service"
+import {
     MembershipService,
 } from "@modules/membership/membership.service"
 import {
@@ -120,6 +123,7 @@ describe("PayPal settles a captured payment through its webhook",
                 providers: [
                     PaypalWebhookService,
                     PaypalWebhookHandler,
+                    TransactionGrantService,
                     AiEntitlementService,
                     DayjsService,
                     {

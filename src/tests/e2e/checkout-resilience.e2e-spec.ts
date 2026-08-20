@@ -123,6 +123,12 @@ import {
     LoyaltyDiscountService,
 } from "@modules/bussiness/loyalty/loyalty-discount.service"
 import {
+    CoursePriceCalculatorService,
+} from "@modules/bussiness/course-pricing/course-price-calculator.service"
+import {
+    CoursePriceQuoteService,
+} from "@modules/bussiness/course-pricing/course-price-quote.service"
+import {
     VoucherService,
 } from "@modules/bussiness/rewards/voucher.service"
 import {
@@ -221,6 +227,8 @@ describe("checkout remains single and atomic across retries and races",
                     CourseEnrollPaypalService,
                     CourseEnrollCryptoService,
                     LoyaltyDiscountService,
+                    CoursePriceCalculatorService,
+                    CoursePriceQuoteService,
                     VoucherService,
                     UserStatsProjectionService,
                     UserXpProjectionService,

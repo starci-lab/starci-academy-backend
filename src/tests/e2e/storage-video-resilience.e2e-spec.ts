@@ -5,6 +5,9 @@ import {
     S3Client,
 } from "@aws-sdk/client-s3"
 import {
+    FetchHttpHandler,
+} from "@smithy/fetch-http-handler"
+import {
     BullModule as NestBullModule,
     getQueueToken,
 } from "@nestjs/bullmq"
@@ -42,6 +45,10 @@ import {
 import {
     S3Module,
 } from "@modules/integrations/s3/s3.module"
+import {
+    MINIO_S3,
+    MINIO_S3_PRESIGN,
+} from "@modules/integrations/s3/constants/s3"
 import {
     PrimaryPostgreSQLModule,
 } from "@modules/databases/postgresql/primary/primary.module"
@@ -242,6 +249,17 @@ describe("an uploaded video survives worker retry and reaches durable storage",
             process.env.BULLMQ_DELAY = "10ms"
             process.env.S3_ACCESS_KEY_ID = ""
 
+            s3 = new S3Client({
+                endpoint: process.env.S3_MINIO_ENDPOINT,
+                region: process.env.S3_MINIO_REGION,
+                credentials: {
+                    accessKeyId: process.env.S3_MINIO_ACCESS_KEY_ID ?? "",
+                    secretAccessKey: process.env.S3_MINIO_SECRET_ACCESS_KEY ?? "",
+                },
+                forcePathStyle: true,
+                requestHandler: new FetchHttpHandler(),
+            })
+
             const moduleRef = await Test.createTestingModule({
                 imports: [
                     PrimaryPostgreSQLModule.register({
@@ -328,7 +346,12 @@ describe("an uploaded video survives worker retry and reaches durable storage",
                         },
                     },
                 ],
-            }).compile()
+            })
+                .overrideProvider(MINIO_S3)
+                .useValue(s3)
+                .overrideProvider(MINIO_S3_PRESIGN)
+                .useValue(s3)
+                .compile()
 
             app = moduleRef.createNestApplication()
             app.enableVersioning({
@@ -345,15 +368,6 @@ describe("an uploaded video survives worker retry and reaches durable storage",
             )
             await processVideoQueue.drain(true)
 
-            s3 = new S3Client({
-                endpoint: process.env.S3_MINIO_ENDPOINT,
-                region: process.env.S3_MINIO_REGION,
-                credentials: {
-                    accessKeyId: process.env.S3_MINIO_ACCESS_KEY_ID ?? "",
-                    secretAccessKey: process.env.S3_MINIO_SECRET_ACCESS_KEY ?? "",
-                },
-                forcePathStyle: true,
-            })
             await s3.send(new CreateBucketCommand({
                 Bucket: process.env.S3_MINIO_BUCKET,
             })).catch((error: unknown) => {

@@ -41,6 +41,9 @@ import {
     CacheService,
 } from "@modules/integrations/cache/cache.service"
 import {
+    EmailBloomFilterService,
+} from "@modules/bussiness/bloom-filters/email.service"
+import {
     TestHelpersModule,
 } from "./test-helpers.module"
 import type {
@@ -206,6 +209,15 @@ export const bootFlowWorld = async (
                         _key: string,
                         produce: () => unknown,
                     ) => produce()),
+                },
+            },
+            // Sign-in OTP flows update the best-effort email bloom filter when
+            // they create a learner. Keep the cache seam deterministic while
+            // retaining the real handler and database path.
+            {
+                provide: EmailBloomFilterService,
+                useValue: {
+                    add: jest.fn().mockResolvedValue(undefined),
                 },
             },
             /*

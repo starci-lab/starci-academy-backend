@@ -196,6 +196,19 @@ export class CourseEnrollPayOsService {
                 },
             )
         }
+        // Re-check the voucher while holding the same advisory-lock session
+        // that guards the external order call. A competing course checkout
+        // using this code must fail before it creates a second provider order;
+        // reserving later inside the write transaction is still the final
+        // atomic claim.
+        if (voucherCode) {
+            await this.voucherService.previewDiscount({
+                entityManager: manager,
+                userId: user.id,
+                code: voucherCode,
+                courseId: course.id,
+            })
+        }
         // generate order code
         const orderCode = this.generatePayOsOrderCode()
 

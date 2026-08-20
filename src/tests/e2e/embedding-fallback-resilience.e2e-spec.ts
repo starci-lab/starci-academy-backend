@@ -29,7 +29,7 @@ import {
 } from "@langchain/qdrant"
 import {
     OllamaEmbeddings,
-} from "@langchain/community/embeddings/ollama"
+} from "@langchain/ollama"
 import {
     OpenAIEmbeddings,
 } from "@langchain/openai"

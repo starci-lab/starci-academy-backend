@@ -153,12 +153,15 @@ export class VoucherService {
      */
     async previewDiscount(
         {
+            entityManager = this.entityManager,
             userId,
             code,
             courseId,
-        }: ResolveVoucherParams,
+        }: ResolveVoucherParams & {
+            entityManager?: EntityManager
+        },
     ): Promise<VoucherPreview> {
-        const voucher = await this.entityManager.findOne(
+        const voucher = await entityManager.findOne(
             CourseVoucherEntity,
             {
                 where: {

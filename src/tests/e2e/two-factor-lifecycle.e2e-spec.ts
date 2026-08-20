@@ -42,6 +42,9 @@ import {
     EnqueueSendMailJobService
 } from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
+    EmailBloomFilterService,
+} from "@modules/bussiness/bloom-filters/email.service"
+import {
     CaptchaService
 } from "@modules/integrations/captcha/captcha.service"
 import {
@@ -216,6 +219,11 @@ describe("a learner enables two-factor authentication and it is then required",
                     {
                         provide: EnqueueSendMailJobService, useValue: {
                             enqueue: jest.fn().mockResolvedValue(undefined)
+                        }
+                    },
+                    {
+                        provide: EmailBloomFilterService, useValue: {
+                            add: jest.fn().mockResolvedValue(undefined),
                         }
                     },
                     {
