@@ -1,6 +1,6 @@
 # Practice and assessment
 
-> Business head: `8e135726133a9292d4d5518d334a3f35b0e67a5d39293eb80990fabcf6a689cd`
+> Business head: `1e969a6b13d82fc95fecac538cb2a8f39be50c855996ba48b2af7ff40cfdbf9b`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -22,7 +22,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `6db677598290cd69c3db6bfc4e731c37ba972b63` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `b78f77ec44905abd1619ac95ac50bfad744c7e96` |
 | be | https://github.com/starci-lab/starci-academy-backend | `0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b` |
 
 ## 3. Actors and access
@@ -182,3 +182,4 @@ Strength: **confirmed** · Evidence: `EV-010`
 | EV-008 | fe | `src/app/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]/result/page.tsx:1` | route | The interview result route mounts the result page. |
 | EV-009 | be | `src/features/api/core/graphql/mutations/coding/submit-coding-solution/submit-coding-solution.resolver.ts:70` | api | The authenticated submitCodingSolution mutation accepts problem slug, language and source and returns submission plus job ids. |
 | EV-010 | be | `src/features/api/core/graphql/mutations/interview/start-mock-interview-session/start-mock-interview-session.resolver.ts:70` | api | The guarded startMockInterviewSession mutation server-draws and persists a course, level and kind session. |
+| EV-011 | owner | `decision:2e6794d9a35c5acc029dee9eafc2978fa91dd9589da5f8ce3f6111cbfb465275` | owner-decision | The owner authorized refreshing study-library and practice-assessment to current routed source heads before continuing the four-layout design set. |
