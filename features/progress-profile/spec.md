@@ -1,6 +1,6 @@
 # Progress, profile and league
 
-> Business head: `31d2afa0ff6912fd4a43fb6febc53550ff4c42b5b6280d2c49b752616edc3d61`
+> Business head: `11029753f34b38d79333a42d96b955e849b94b7976aea8b37aed00387d158604`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -23,7 +23,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `84bf3be6565a20b1fee9c83cab8b9ba810d13e11` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `6db677598290cd69c3db6bfc4e731c37ba972b63` |
 | be | https://github.com/starci-lab/starci-academy-backend | `0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b` |
 
 ## 3. Actors and access
