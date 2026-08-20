@@ -1,8 +1,8 @@
 # Progress, profile and league
 
-> Business identity: `starci-academy/progress-profile@0559699a8c0580f5794913a16111e7b3372db95c90f8d0d5e093145bd0b391b8`
+> Business identity: `starci-academy/progress-profile@31d2afa0ff6912fd4a43fb6febc53550ff4c42b5b6280d2c49b752616edc3d61`
 >
-> Source heads: `fe@84bf3be6565a`, `be@0066625ed94b`
+> Source heads: `fe@84bf3be6565a`, `be@0ed7b7bc8e1b`
 >
 > Load this file first. Load only the modules named by the current task.
 
