@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "course-marketplace",
+  "head": "e1891d1154316864680bf370dccf92acc293fdfa68a6d8f78e1b7c958b1e5102",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "eca4e018044f38900441790974c329c9cd4f3400"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/page.tsx",
+      "startLine": 24,
+      "endLine": 52,
+      "claim": "The localized public catalog publishes metadata and mounts CoursesCatalogPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/page.tsx",
+      "startLine": 24,
+      "endLine": 69,
+      "claim": "The dynamic course route mounts CourseDetailPage for displayId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/app/[lang]/cart/page.tsx",
+      "startLine": 1,
+      "endLine": 13,
+      "claim": "The force-dynamic viewer-owned cart route mounts CartPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/pages/CoursesCatalogPage/component.tsx",
+      "startLine": 44,
+      "endLine": 119,
+      "claim": "The catalog owns search, view, pagination, owned/discover groups and settled notice states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/components/pages/CourseDetailPage/component.tsx",
+      "startLine": 101,
+      "endLine": 202,
+      "claim": "The detail page exposes overview/curriculum/reviews/FAQ data, pricing rail actions and pending/not-found/failed states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/components/pages/CartPage/component.tsx",
+      "startLine": 39,
+      "endLine": 102,
+      "claim": "The cart defines lines, totals, checkout and confirm-clear actions plus pending/ready/empty/failed states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout.resolver.ts",
+      "startLine": 65,
+      "endLine": 95,
+      "claim": "The authenticated coursesCheckout mutation starts one checkout for course ids, payment type and redirect URLs.",
+      "kind": "api"
+    }
+  ]
+}

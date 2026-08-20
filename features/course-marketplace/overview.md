@@ -1,0 +1,23 @@
+# Overview · Course marketplace and checkout
+
+## Purpose
+
+Visitors discover localized courses, inspect curriculum and pricing evidence, collect courses in a personal cart, and start one authenticated checkout for the selected course set.
+
+## Included
+
+- Course catalog search, view and pagination
+- Course detail overview, curriculum, reviews, FAQ and pricing rail
+- Personal cart lines, totals, empty/error handling and checkout
+
+## Excluded
+
+- Payment-provider webhook settlement after checkout leaves the application
+- Administrative course authoring
+
+## Source heads
+
+| Role | Repository | Head |
+|---|---|---|
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `84bf3be6565a20b1fee9c83cab8b9ba810d13e11` |
+| be | https://github.com/starci-lab/starci-academy-backend | `eca4e018044f38900441790974c329c9cd4f3400` |
