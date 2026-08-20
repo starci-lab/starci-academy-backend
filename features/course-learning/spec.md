@@ -1,6 +1,6 @@
 # Course learning and discussion
 
-> Business head: `a5e52d838376a41249c882e5f71c2d5e0cbbced15eaad87754aca5eae4643a6f`
+> Business head: `4b632baee996f6948ef8e889d6ed973b991f938a55971790fb8593a39332ec47`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -24,7 +24,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `6db677598290cd69c3db6bfc4e731c37ba972b63` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `45b7b5201a81fd571167e86c29f5f9c63ca2918f` |
 | be | https://github.com/starci-lab/starci-academy-backend | `0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b` |
 
 ## 3. Actors and access
@@ -78,7 +78,7 @@ Evidence: `EV-001`
 - Regions: `lesson-reader`, `lesson-discussion`
 - Navigation: none
 
-Evidence: `EV-002`, `EV-003`
+Evidence: `EV-002`, `EV-003`, `EV-011`
 
 ### Content challenge
 
@@ -152,6 +152,7 @@ Strength: **confirmed** · Evidence: `EV-007`, `EV-008`
 
 - **AC-01** Course home, content map, lesson, embedded challenge/result and course Q&A routes mount the declared learning surfaces. — `EV-001`, `EV-002`, `EV-004`, `EV-005`, `EV-006`, `EV-009`, `EV-010`
 - **AC-02** Authenticated learners can persist lesson read state and create top-level comments or replies on content. — `EV-007`, `EV-008`
+- **AC-03** The lesson workspace reuses existing nested layouts and presents the course map, centered reader, optional outline and current overlays as one composed full viewport without redesigning existing shell regions. — `EV-011`
 
 ## 11. Explicit unknowns
 
@@ -171,3 +172,4 @@ Strength: **confirmed** · Evidence: `EV-007`, `EV-008`
 | EV-008 | be | `src/features/api/core/graphql/mutations/discussion/create-comment/create-comment.resolver.ts:55` | api | The guarded createComment mutation creates a top-level comment or reply on content. |
 | EV-009 | fe | `src/app/[lang]/courses/[displayId]/learn/page.tsx:1` | route | The bare course learn route mounts CourseLearnTodayPage for the course display id. |
 | EV-010 | fe | `src/components/pages/CourseLearnTodayPage/index.tsx:91` | ui | The connected course home composes progress, ranked next actions and learning signals with independently settling states and course destinations. |
+| EV-011 | owner | `decision:340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece` | owner-decision | The owner accepted composed reader revision 340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece and authorized implementation in the disclosed five-file frontend boundary. |

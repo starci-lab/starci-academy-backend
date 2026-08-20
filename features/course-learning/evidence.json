@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "course-learning",
-  "head": "a5e52d838376a41249c882e5f71c2d5e0cbbced15eaad87754aca5eae4643a6f",
+  "head": "4b632baee996f6948ef8e889d6ed973b991f938a55971790fb8593a39332ec47",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "6db677598290cd69c3db6bfc4e731c37ba972b63"
+      "head": "45b7b5201a81fd571167e86c29f5f9c63ca2918f"
     },
     {
       "role": "be",
@@ -84,7 +84,7 @@
       "role": "be",
       "path": "src/features/api/core/graphql/mutations/discussion/create-comment/create-comment.resolver.ts",
       "startLine": 55,
-      "endLine": 83,
+      "endLine": 82,
       "claim": "The guarded createComment mutation creates a top-level comment or reply on content.",
       "kind": "api"
     },
@@ -105,6 +105,13 @@
       "endLine": 300,
       "claim": "The connected course home composes progress, ranked next actions and learning signals with independently settling states and course destinations.",
       "kind": "ui"
+    },
+    {
+      "id": "EV-011",
+      "claim": "The owner accepted composed reader revision 340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece and authorized implementation in the disclosed five-file frontend boundary.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece"
     }
   ]
 }
