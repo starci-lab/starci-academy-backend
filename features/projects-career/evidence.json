@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "projects-career",
+  "head": "5879c49105264073469a07bd554395d44c6720211a10981fc8f58c5485e6faeb",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "eca4e018044f38900441790974c329c9cd4f3400"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/personal-project/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The personal project route mounts the roadmap page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/personal-project/tasks/[taskId]/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The personal project task route mounts the task page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/personal-project/tasks/[taskId]/result/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The task result route mounts the project result page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/pages/CoursePersonalProjectPage/component.tsx",
+      "startLine": 30,
+      "endLine": 50,
+      "claim": "The roadmap defines next task, completion evidence, milestone tasks and pending/ready/empty/failed states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/headhuntings/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The course career route mounts the headhunting directory.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/headhunting-companies/[companyId]/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The dynamic company route mounts one headhunting company page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/personal-project/submit-personal-github-url/submit-personal-github-url.handler.spec.ts",
+      "startLine": 75,
+      "endLine": 145,
+      "claim": "The handler rejects missing users, stores the GitHub URL on the user's course enrollment and propagates missing-enrollment failure.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/features/api/core/graphql/queries/headhuntings/headhunting-companies/headhunting-companies.resolver.ts",
+      "startLine": 55,
+      "endLine": 78,
+      "claim": "The optionally authenticated headhuntingCompanies query lists all companies.",
+      "kind": "api"
+    }
+  ]
+}
