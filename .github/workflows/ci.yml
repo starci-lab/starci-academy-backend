@@ -23,6 +23,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout private course data
+        uses: actions/checkout@v4
+        with:
+          repository: starci-lab/data
+          ssh-key: ${{ secrets.STARCI_DATA_DEPLOY_KEY }}
+          path: .gitmounts/data
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
