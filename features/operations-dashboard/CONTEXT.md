@@ -1,8 +1,8 @@
 # Operations dashboard
 
-> Business identity: `nivo/operations-dashboard@aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290`
+> Business identity: `nivo/operations-dashboard@b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8`
 >
-> Source heads: `fe@97eec8c5bb4c`, `be@947c6f4a117e`
+> Source heads: authority `pending` · base `aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290` · `fe@9ae3cefc78e0`, `be@947c6f4a117e`
 >
 > Load this file first. Load only the modules named by the current task.
 
@@ -20,6 +20,7 @@
 
 - `BR-01` — Each overview section settles independently; one refusal does not turn the whole dashboard into an error.
 - `BR-02` — List responses without a declared total are represented by members and navigation, not an invented count.
+- `BR-03` — Below the desktop breakpoint, console destinations live in one right-edge drawer opened by a visible menu control; the standing rail and bottom tab bar are absent.
 
 ## Primary flow
 

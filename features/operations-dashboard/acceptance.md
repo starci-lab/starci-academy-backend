@@ -4,6 +4,7 @@
 |---|---|---|
 | `AC-01` | The owner sees every answer that succeeded even when another query is refused | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005` |
 | `AC-02` | The Operations dashboard surface renders only the states, identities and actions proven by current routed source. | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005` |
+| `AC-03` | The mobile overview exposes all available console destinations through a keyboard-operable right-side drawer without covering the page when closed. | `EV-006` |
 
 ## Completion
 

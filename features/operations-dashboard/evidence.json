@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "operations-dashboard",
-  "head": "aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290",
+  "head": "b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/nivo-fe.git",
-      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+      "head": "9ae3cefc78e000c3a2c59f9992435fac38275d5b"
     },
     {
       "role": "be",
@@ -30,7 +30,7 @@
       "role": "fe",
       "path": "apps/app/src/components/pages/OverviewPage/index.tsx",
       "startLine": 174,
-      "endLine": 442,
+      "endLine": 209,
       "claim": "The connected overview queries apps, AgentOS, domains and wallet data, maps resting/empty/answered/refused states and routes to available destinations.",
       "kind": "ui"
     },
@@ -60,6 +60,13 @@
       "endLine": 29,
       "claim": "The wallet handler test proves an owner-scoped wallet is created/read for the requesting user.",
       "kind": "test"
+    },
+    {
+      "id": "EV-006",
+      "claim": "The owner requested a production-quality Nivo dashboard using the current product visual language and explicitly selected a mobile navigation drawer that opens from the right edge.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "5c3005db18db6b470c0b84a97865aa8bd99eeb92c225d40e64fd3436faaa6e4e"
     }
   ]
 }

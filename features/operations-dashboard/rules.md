@@ -13,3 +13,10 @@ List responses without a declared total are represented by members and navigatio
 
 - Strength: `confirmed`
 - Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`
+
+## BR-03
+
+Below the desktop breakpoint, console destinations live in one right-edge drawer opened by a visible menu control; the standing rail and bottom tab bar are absent.
+
+- Strength: `confirmed`
+- Evidence: `EV-006`

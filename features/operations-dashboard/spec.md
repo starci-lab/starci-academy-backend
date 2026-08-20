@@ -1,6 +1,6 @@
 # Operations dashboard
 
-> Business head: `aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290`
+> Business head: `b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -12,6 +12,7 @@ Included:
 - Protected console navigation
 - Apps, AgentOS, servers, domains and wallet overview sections
 - Independent loading, empty, answered and refused states
+- Responsive console navigation with a standing desktop rail and one mobile drawer opening from the right edge
 
 Excluded:
 - Standalone Servers, Domains or Support destinations
@@ -21,7 +22,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `9ae3cefc78e000c3a2c59f9992435fac38275d5b` |
 | be | https://github.com/starci-lab/nivo-backend.git | `947c6f4a117e1677e37ad98ba03f3dac0bca148e` |
 
 ## 3. Actors and access
@@ -73,6 +74,12 @@ List responses without a declared total are represented by members and navigatio
 
 Strength: **confirmed** · Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`
 
+### BR-03
+
+Below the desktop breakpoint, console destinations live in one right-edge drawer opened by a visible menu control; the standing rail and bottom tab bar are absent.
+
+Strength: **confirmed** · Evidence: `EV-006`
+
 ## 7. State model
 
 - **resting** (`resting`, initial) → empty — `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`
@@ -95,6 +102,7 @@ Strength: **confirmed** · Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV
 
 - **AC-01** The owner sees every answer that succeeded even when another query is refused — `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`
 - **AC-02** The Operations dashboard surface renders only the states, identities and actions proven by current routed source. — `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`
+- **AC-03** The mobile overview exposes all available console destinations through a keyboard-operable right-side drawer without covering the page when closed. — `EV-006`
 
 ## 11. Explicit unknowns
 
@@ -109,3 +117,4 @@ Strength: **confirmed** · Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV
 | EV-003 | fe | `apps/app/src/components/layouts/ConsoleNav/index.tsx:67` | route | Console navigation exposes Overview, Apps, AgentOS and Wallet routes while Servers, Domains and Support remain unavailable. |
 | EV-004 | be | `src/features/core/api/core/graphql/queries/expert-sites/my-expert-sites/my-expert-sites.resolver.ts:38` | api | myExpertSites is an authenticated viewer-owned query ordered newest first. |
 | EV-005 | be | `src/features/core/api/core/graphql/queries/wallet/my-wallet/my-wallet.handler.spec.ts:8` | test | The wallet handler test proves an owner-scoped wallet is created/read for the requesting user. |
+| EV-006 | owner | `decision:5c3005db18db6b470c0b84a97865aa8bd99eeb92c225d40e64fd3436faaa6e4e` | owner-decision | The owner requested a production-quality Nivo dashboard using the current product visual language and explicitly selected a mobile navigation drawer that opens from the right edge. |

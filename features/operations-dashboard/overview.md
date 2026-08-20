@@ -9,6 +9,7 @@ The authenticated console overview independently summarizes owned apps, AgentOS 
 - Protected console navigation
 - Apps, AgentOS, servers, domains and wallet overview sections
 - Independent loading, empty, answered and refused states
+- Responsive console navigation with a standing desktop rail and one mobile drawer opening from the right edge
 
 ## Excluded
 
@@ -19,5 +20,5 @@ The authenticated console overview independently summarizes owned apps, AgentOS 
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `9ae3cefc78e000c3a2c59f9992435fac38275d5b` |
 | be | https://github.com/starci-lab/nivo-backend.git | `947c6f4a117e1677e37ad98ba03f3dac0bca148e` |

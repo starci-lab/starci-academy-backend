@@ -20,11 +20,14 @@
     },
     "operations-dashboard": {
       "featureId": "operations-dashboard",
-      "head": "aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290",
+      "head": "b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8",
+      "authorityStatus": "pending",
+      "baseHead": "aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290",
+      "previousHead": "aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290",
       "sources": [
         {
           "role": "fe",
-          "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+          "head": "9ae3cefc78e000c3a2c59f9992435fac38275d5b"
         },
         {
           "role": "be",
@@ -155,6 +158,10 @@
       "bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca": {
         "hash": "bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca",
         "path": "objects/sha256/bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca.json"
+      },
+      "b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8": {
+        "hash": "b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8",
+        "path": "objects/sha256/b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8.json"
       }
     }
   }
