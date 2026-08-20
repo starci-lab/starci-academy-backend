@@ -1,6 +1,6 @@
 # StarCi Academy — Backend Curriculum
 
-[![Codecov](https://codecov.io/gh/starci-lab/starci-academy-backend/graph/badge.svg?token=6IGELNAJ2G)](https://app.codecov.io/gh/starci-lab/starci-academy-backend)
+[![Codecov](https://codecov.io/gh/starci-lab/starci-academy-backend/graph/badge.svg?branch=mtp&token=6IGELNAJ2G)](https://app.codecov.io/gh/starci-lab/starci-academy-backend)
 [![SonarQube Quality Gate](https://sonar.starci.org/api/project_badges/measure?project=starci-academy-backend&metric=alert_status&token=sqb_f24db4ee767de019595e0538804586fa00705303)](https://sonar.starci.org/dashboard?id=starci-academy-backend)
 [![SonarQube Coverage](https://sonar.starci.org/api/project_badges/measure?project=starci-academy-backend&metric=coverage&token=sqb_f24db4ee767de019595e0538804586fa00705303)](https://sonar.starci.org/dashboard?id=starci-academy-backend)
 [![SonarQube Bugs](https://sonar.starci.org/api/project_badges/measure?project=starci-academy-backend&metric=bugs&token=sqb_f24db4ee767de019595e0538804586fa00705303)](https://sonar.starci.org/dashboard?id=starci-academy-backend)
