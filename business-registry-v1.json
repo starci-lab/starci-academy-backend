@@ -59,6 +59,20 @@
           "head": "eca4e018044f38900441790974c329c9cd4f3400"
         }
       ]
+    },
+    "practice-assessment": {
+      "featureId": "practice-assessment",
+      "head": "9f773dfad7f4f70b5d363829d51a81d23a34fb757ad34b0dfae89f016e808e27",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+        },
+        {
+          "role": "be",
+          "head": "eca4e018044f38900441790974c329c9cd4f3400"
+        }
+      ]
     }
   },
   "objects": {
@@ -79,6 +93,10 @@
       "c801a8150af4b11f18b353797a3c5f112633dee5123f2ba9fafa2b4033734dd8": {
         "hash": "c801a8150af4b11f18b353797a3c5f112633dee5123f2ba9fafa2b4033734dd8",
         "path": "objects/sha256/c801a8150af4b11f18b353797a3c5f112633dee5123f2ba9fafa2b4033734dd8.json"
+      },
+      "9f773dfad7f4f70b5d363829d51a81d23a34fb757ad34b0dfae89f016e808e27": {
+        "hash": "9f773dfad7f4f70b5d363829d51a81d23a34fb757ad34b0dfae89f016e808e27",
+        "path": "objects/sha256/9f773dfad7f4f70b5d363829d51a81d23a34fb757ad34b0dfae89f016e808e27.json"
       }
     }
   }

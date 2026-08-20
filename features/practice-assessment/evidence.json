@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "practice-assessment",
+  "head": "9f773dfad7f4f70b5d363829d51a81d23a34fb757ad34b0dfae89f016e808e27",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "eca4e018044f38900441790974c329c9cd4f3400"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/practice/page.tsx",
+      "startLine": 1,
+      "endLine": 6,
+      "claim": "The practice route mounts CodingPracticeHubPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/pages/CodingPracticeHubPage/component.tsx",
+      "startLine": 40,
+      "endLine": 97,
+      "claim": "The coding hub exposes guest/signed-in access, domain mastery, resume work and ranked standing.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/app/[lang]/practice/problem/[slug]/page.tsx",
+      "startLine": 1,
+      "endLine": 15,
+      "claim": "The problem route mounts CodingProblemPage for a slug.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/playground/page.tsx",
+      "startLine": 1,
+      "endLine": 11,
+      "claim": "The course playground route mounts the playground catalog.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/playground/[slug]/session/page.tsx",
+      "startLine": 1,
+      "endLine": 11,
+      "claim": "The playground session route mounts the live session page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/mock-interview/page.tsx",
+      "startLine": 1,
+      "endLine": 11,
+      "claim": "The mock interview route mounts the setup page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-007",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The interview session route mounts the active session page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-008",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]/result/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The interview result route mounts the result page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-009",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/coding/submit-coding-solution/submit-coding-solution.resolver.ts",
+      "startLine": 70,
+      "endLine": 100,
+      "claim": "The authenticated submitCodingSolution mutation accepts problem slug, language and source and returns submission plus job ids.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/interview/start-mock-interview-session/start-mock-interview-session.resolver.ts",
+      "startLine": 70,
+      "endLine": 99,
+      "claim": "The guarded startMockInterviewSession mutation server-draws and persists a course, level and kind session.",
+      "kind": "api"
+    }
+  ]
+}
