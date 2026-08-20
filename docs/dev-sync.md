@@ -8,7 +8,7 @@ Ba thứ giữ cho việc đó chạy được:
 - **một khoá master duy nhất** ở `~/.starci/master.identity` (dùng chung cho **mọi** dự án),
 - **`.stacks/`** — config tách theo *stack triển khai* (`dev` / `vps` / `k8s`), mã hoá bằng
   **sops + age**,
-- **`.workspace/ports.json`** ở Source — nguồn phân bổ offset/slot; `metadata.json` ở repo chỉ
+- **`.workspace/ports/config.json` + `.workspace/ports/starci-academy.json`** ở Source — nguồn phân bổ slot step/offset/slot; `metadata.json` ở repo chỉ
   khai service identity và giữ projection đã resolve cho runtime.
 
 Một lệnh duy nhất để kéo mọi thứ về: **`npm run sync`**.
@@ -23,7 +23,7 @@ file này chỉ nói **làm thế nào**.
 | Code BE | git — repo này | |
 | `.gitmounts/data/` — nội dung seed (course, coding problem, achievement, changelog, …) | `npm run sync` clone repo private | thay cho `.mount/data`; **chỉ dữ liệu**, không một khoá nào |
 | `.stacks/` — secrets theo stack | git (bản `.enc`) + `npm run sync` giải mã | **chỉ `dev` có file giá trị trên đĩa**; `vps` và `k8s` mới có `KEYS.md` |
-| Infra local (postgres / redis / elasticsearch / qdrant / kafka / minio / nats / keycloak / cadvisor / prometheus) | `npm run compose` | projection theo `metadata.json`, allocation theo Source `.workspace/ports.json` |
+| Infra local (postgres / redis / elasticsearch / qdrant / kafka / minio / nats / keycloak / cadvisor / prometheus) | `npm run compose` | projection theo `metadata.json`, allocation theo Source `.workspace/ports/starci-academy.json` |
 | `.stacks/dev/runtime/config/seed.yaml` | **không sync** — theo máy | tạo từ `config/seed.example.yaml` khi thiếu |
 
 `KEYS.md` là **danh sách tên biến** stack đó cần, không phải giá trị. Nó luôn đọc được, kể
@@ -52,7 +52,8 @@ POSIX:    ~/.starci/master.identity
 
 Owner chạy nhiều dự án trên **cùng một máy**. Dự án nào cũng bind Postgres vào `5432`, Redis
 vào `6379` thì stack thứ hai bật lên là đụng port. Source cấp offset theo family và slot theo
-application trong `.workspace/ports.json`; product không tự giữ hai giá trị đó.
+application trong `.workspace/ports/starci-academy.json`; slot step chung nằm ở `.workspace/ports/config.json`;
+product không tự giữ các giá trị đó.
 
 ```
 shared      = base port + family offset
@@ -79,7 +80,7 @@ Dự án này dùng family `starci-academy` offset `+0`, application `main` slot
 | cadvisor | 8081 | 8081 | shared |
 | prometheus | 9090 | 9090 | shared |
 
-⚠️ **Bảng trên là projection cho dễ đọc.** Đổi allocation thì sửa Source `.workspace/ports.json`,
+⚠️ **Bảng trên là projection cho dễ đọc.** Đổi allocation thì sửa Source `.workspace/ports/starci-academy.json`,
 refresh `metadata.json`, rồi chạy checker; không đưa `portOffset` hoặc application slot trở lại product.
 
 Cũng vì vậy mà mặc định trong `src/modules/platform/env/config.ts` (`CORE_PORT` 3001,

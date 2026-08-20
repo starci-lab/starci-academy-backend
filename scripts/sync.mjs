@@ -1556,7 +1556,7 @@ const printSummary = (ports, target) => {
         info(`${name.padEnd(width)}  ${port}`)
     }
     console.log(`\n    ${green("core")}  http://localhost:${ports.core}`)
-    console.log(`    ${dim("resolved ports: metadata.json; allocation: Source .workspace/ports.json")}`)
+    console.log(`    ${dim("resolved ports: metadata.json; allocation: Source .workspace/ports/starci-academy.json")}`)
     console.log(`\n    ${cyan("next:")}`)
     console.log("      npm ci")
     console.log("      npm run compose")

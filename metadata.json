@@ -1,6 +1,6 @@
 {
     "project": "starci-academy-backend",
-    "description": "StarCi Academy backend — service port declarations, resolved runtime projection, stack metadata, and the declaration site for git-mounted operational data repositories. Source offsets and application slots live only in .workspace/ports.json; secrets live under .stacks/, sops-encrypted. NOTE: this is not .mount/config/metadata.json, which is i18n content read by the app.",
+    "description": "StarCi Academy backend — service port declarations, resolved runtime projection, stack metadata, and the declaration site for git-mounted operational data repositories. Source allocation lives in .workspace/ports/starci-academy.json with the shared slot step in .workspace/ports/config.json; secrets live under .stacks/, sops-encrypted. NOTE: this is not .mount/config/metadata.json, which is i18n content read by the app.",
     "ports": {
         "web": 3000,
         "core": 3001,
@@ -17,7 +17,12 @@
         "keycloak": 8080,
         "cadvisor": 8081,
         "prometheus": 9090,
-        "sonarqube": 9010
+        "sonarqube": 9010,
+        "sourceSonarqube": 9011,
+        "sourceContextQdrant": 6336,
+        "sourceContextQdrantGrpc": 6337,
+        "sourceContextMcpGateway": 8011,
+        "sourceContextShowcase": 8012
     },
     "portServices": {
         "web": {"scope": "application", "application": "main", "basePort": 3000},
@@ -35,7 +40,12 @@
         "keycloak": {"scope": "shared", "basePort": 8080},
         "cadvisor": {"scope": "shared", "basePort": 8081},
         "prometheus": {"scope": "shared", "basePort": 9090},
-        "sonarqube": {"scope": "shared", "basePort": 9010}
+        "sonarqube": {"scope": "shared", "basePort": 9010},
+        "sourceSonarqube": {"scope": "tool", "port": 9011, "reason": "The Source-wide SonarQube control plane binds separately from the product stack."},
+        "sourceContextQdrant": {"scope": "tool", "port": 6336, "reason": "The Source context index uses its own isolated Qdrant HTTP listener."},
+        "sourceContextQdrantGrpc": {"scope": "tool", "port": 6337, "reason": "The Source context index uses its own isolated Qdrant gRPC listener."},
+        "sourceContextMcpGateway": {"scope": "tool", "port": 8011, "reason": "The Source context MCP gateway is a Source operation rather than a product service."},
+        "sourceContextShowcase": {"scope": "tool", "port": 8012, "reason": "The Source context showcase is a Source operation rather than a product service."}
     },
     "secrets": {
         "masterKey": "~/.starci/master.identity",
