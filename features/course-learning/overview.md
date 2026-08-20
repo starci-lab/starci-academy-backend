@@ -11,6 +11,7 @@ Enrolled learners navigate course modules and lesson content, read or edit sourc
 - Read state, reactions and lesson discussion
 - Embedded challenge and result route family
 - Course Q&A entry surface
+- Course learning home with progress, next actions and learning signals
 
 ## Excluded
 

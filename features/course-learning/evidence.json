@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "course-learning",
-  "head": "55374bab89396fc6cd12cdc9e6aaeceab59c711c12f760478e3e8179900995df",
+  "head": "17b54cb4b32ed08d854569e448ea95fd61d438e81b6d38f22e5d2923d97ea30f",
   "sources": [
     {
       "role": "fe",
@@ -87,6 +87,24 @@
       "endLine": 83,
       "claim": "The guarded createComment mutation creates a top-level comment or reply on content.",
       "kind": "api"
+    },
+    {
+      "id": "EV-009",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The bare course learn route mounts CourseLearnTodayPage for the course display id.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-010",
+      "role": "fe",
+      "path": "src/components/pages/CourseLearnTodayPage/index.tsx",
+      "startLine": 91,
+      "endLine": 300,
+      "claim": "The connected course home composes progress, ranked next actions and learning signals with independently settling states and course destinations.",
+      "kind": "ui"
     }
   ]
 }

@@ -34,7 +34,7 @@
     },
     "course-learning": {
       "featureId": "course-learning",
-      "head": "55374bab89396fc6cd12cdc9e6aaeceab59c711c12f760478e3e8179900995df",
+      "head": "17b54cb4b32ed08d854569e448ea95fd61d438e81b6d38f22e5d2923d97ea30f",
       "sources": [
         {
           "role": "fe",
@@ -189,6 +189,10 @@
       "31d2afa0ff6912fd4a43fb6febc53550ff4c42b5b6280d2c49b752616edc3d61": {
         "hash": "31d2afa0ff6912fd4a43fb6febc53550ff4c42b5b6280d2c49b752616edc3d61",
         "path": "objects/sha256/31d2afa0ff6912fd4a43fb6febc53550ff4c42b5b6280d2c49b752616edc3d61.json"
+      },
+      "17b54cb4b32ed08d854569e448ea95fd61d438e81b6d38f22e5d2923d97ea30f": {
+        "hash": "17b54cb4b32ed08d854569e448ea95fd61d438e81b6d38f22e5d2923d97ea30f",
+        "path": "objects/sha256/17b54cb4b32ed08d854569e448ea95fd61d438e81b6d38f22e5d2923d97ea30f.json"
       }
     }
   }

@@ -1,6 +1,6 @@
 # Course learning and discussion
 
-> Business head: `55374bab89396fc6cd12cdc9e6aaeceab59c711c12f760478e3e8179900995df`
+> Business head: `17b54cb4b32ed08d854569e448ea95fd61d438e81b6d38f22e5d2923d97ea30f`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -14,6 +14,7 @@ Included:
 - Read state, reactions and lesson discussion
 - Embedded challenge and result route family
 - Course Q&A entry surface
+- Course learning home with progress, next actions and learning signals
 
 Excluded:
 - Standalone coding-practice catalog
@@ -35,8 +36,9 @@ Excluded:
 - Use source workspace
 - React and discuss
 - Attempt embedded challenges
+- Review course progress and choose the next action
 
-Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`
 
 ### StarCi Academy platform
 
@@ -47,6 +49,16 @@ Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, 
 Evidence: `EV-007`, `EV-008`
 
 ## 4. Entry points and surfaces
+
+### Course learning home
+
+- ID: `course-home`
+- Route: `/[lang]/courses/[displayId]/learn`
+- Purpose: Review course progress and continue with the most relevant learning action.
+- Regions: `course-home-summary`
+- Navigation: none
+
+Evidence: `EV-009`, `EV-010`
 
 ### Course content map
 
@@ -94,14 +106,15 @@ Evidence: `EV-006`
 
 Trigger: An enrolled learner opens a course content route.
 
-1. **learner** — Choose a module and lesson from the course map → The lesson reader opens
-2. **learner** — Read, use source, react or discuss → Progress and discussion operations are submitted
-3. **learner** — Open an embedded challenge and submit an attempt → A challenge result surface becomes available
+1. **learner** — Review course progress, next actions and learning signals → The learner can continue into the relevant course destination
+2. **learner** — Choose a module and lesson from the course map → The lesson reader opens
+3. **learner** — Read, use source, react or discuss → Progress and discussion operations are submitted
+4. **learner** — Open an embedded challenge and submit an attempt → A challenge result surface becomes available
 
 Outcomes:
 - The learner advances through course content with persisted engagement evidence
 
-Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`
 
 ## 6. Business rules
 
@@ -119,6 +132,7 @@ Strength: **confirmed** · Evidence: `EV-007`, `EV-008`
 
 ## 7. State model
 
+- **Course home ready** (`course-home-ready`, initial) → lesson-ready — `EV-009`, `EV-010`
 - **Lesson ready** (`lesson-ready`, initial) → lesson-pending, lesson-error — `EV-001`, `EV-002`, `EV-003`
 - **Engagement pending** (`lesson-pending`, pending) → lesson-ready, lesson-error — `EV-007`, `EV-008`
 - **Lesson locked** (`lesson-locked`, partial) → terminal — `EV-003`
@@ -136,7 +150,7 @@ Strength: **confirmed** · Evidence: `EV-007`, `EV-008`
 
 ## 10. Acceptance conditions
 
-- **AC-01** Content map, lesson, embedded challenge/result and course Q&A routes mount the declared learning surfaces. — `EV-001`, `EV-002`, `EV-004`, `EV-005`, `EV-006`
+- **AC-01** Course home, content map, lesson, embedded challenge/result and course Q&A routes mount the declared learning surfaces. — `EV-001`, `EV-002`, `EV-004`, `EV-005`, `EV-006`, `EV-009`, `EV-010`
 - **AC-02** Authenticated learners can persist lesson read state and create top-level comments or replies on content. — `EV-007`, `EV-008`
 
 ## 11. Explicit unknowns
@@ -155,3 +169,5 @@ Strength: **confirmed** · Evidence: `EV-007`, `EV-008`
 | EV-006 | fe | `src/app/[lang]/courses/[displayId]/learn/qa/page.tsx:1` | route | The course Q&A route mounts CourseQaPage. |
 | EV-007 | be | `src/features/api/core/graphql/mutations/contents/mark-as-readed/mark-as-readed.resolver.ts:60` | api | The guarded markContentAsReaded mutation changes a learner's read state for content. |
 | EV-008 | be | `src/features/api/core/graphql/mutations/discussion/create-comment/create-comment.resolver.ts:55` | api | The guarded createComment mutation creates a top-level comment or reply on content. |
+| EV-009 | fe | `src/app/[lang]/courses/[displayId]/learn/page.tsx:1` | route | The bare course learn route mounts CourseLearnTodayPage for the course display id. |
+| EV-010 | fe | `src/components/pages/CourseLearnTodayPage/index.tsx:91` | ui | The connected course home composes progress, ranked next actions and learning signals with independently settling states and course destinations. |

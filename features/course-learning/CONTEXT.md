@@ -1,6 +1,6 @@
 # Course learning and discussion
 
-> Business identity: `starci-academy/course-learning@55374bab89396fc6cd12cdc9e6aaeceab59c711c12f760478e3e8179900995df`
+> Business identity: `starci-academy/course-learning@17b54cb4b32ed08d854569e448ea95fd61d438e81b6d38f22e5d2923d97ea30f`
 >
 > Source heads: `fe@84bf3be6565a`, `be@0ed7b7bc8e1b`
 >
@@ -24,13 +24,14 @@
 ## Primary flow
 
 ```text
-lesson-ready → lesson-pending → lesson-ready
+course-home-ready → lesson-ready → lesson-pending → lesson-ready
 ```
 
 ## Surface map
 
 | Surface | Route | Owns | Module |
 |---|---|---|---|
+| `course-home` | `/[lang]/courses/[displayId]/learn` | Review course progress and continue with the most relevant learning action. | [surface](surfaces/course-home.md) |
 | `content-map` | `/[lang]/courses/[displayId]/learn/content` | Choose the next module or lesson. | [surface](surfaces/content-map.md) |
 | `lesson-workspace` | `/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]` | Read lesson content and use its engagement tools. | [surface](surfaces/lesson-workspace.md) |
 | `content-challenge` | `/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]{/result}` | Attempt a challenge attached to a lesson and inspect its result. | [surface](surfaces/content-challenge.md) |
