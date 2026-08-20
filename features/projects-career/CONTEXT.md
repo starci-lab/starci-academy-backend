@@ -1,8 +1,8 @@
 # Projects and career
 
-> Business identity: `starci-academy/projects-career@d87df6eed84f022f4aa80e5a4b837dba170d06df4ed003bd8ed161e736ea5629`
+> Business identity: `starci-academy/projects-career@7566d9ae48e5b03618b4fd9b3f11e0b8cb3cceb8703d6319240f5a36c88055e2`
 >
-> Source heads: `fe@84bf3be6565a`, `be@0ed7b7bc8e1b`
+> Source heads: `fe@6db677598290`, `be@0ed7b7bc8e1b`
 >
 > Load this file first. Load only the modules named by the current task.
 
