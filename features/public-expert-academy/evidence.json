@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "public-expert-academy",
+  "head": "866a162d6dc8de3a31751be89172b05073cf5a5d5c32225a6f1eb16f7fbb8fb6",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/expert/src/modules/api/academy.ts",
+      "startLine": 3,
+      "endLine": 88,
+      "claim": "The public academy reads a six-field course catalogue and submits name/contact leads without a token.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/expert/src/components/blocks/academy/AcademySections/index.tsx",
+      "startLine": 21,
+      "endLine": 88,
+      "claim": "The connected sections layer resolves visible authored and system sections and drops empty list-backed sections before drawing.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/expert/src/components/blocks/academy/AcademySections/component.tsx",
+      "startLine": 323,
+      "endLine": 404,
+      "claim": "The lead band is the only section that accepts visitor data and exposes idle/sending/sent/failed feedback.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "apps/expert/src/components/blocks/academy/AcademySections/component.interaction.spec.tsx",
+      "startLine": 26,
+      "endLine": 45,
+      "claim": "Interaction tests prove authored section ordering and lead submission with name and contact.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/expert/graphql/queries/classroom/courses/courses.resolver.ts",
+      "startLine": 43,
+      "endLine": 76,
+      "claim": "The expert API exposes the course catalogue publicly.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/expert/graphql/mutations/leads/submit-lead/submit-lead.resolver.ts",
+      "startLine": 29,
+      "endLine": 51,
+      "claim": "The expert API exposes public lead submission.",
+      "kind": "api"
+    }
+  ]
+}

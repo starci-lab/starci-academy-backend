@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "features": {
+    "authentication": [
+      "90667ae7206e0c5a282a579796572c369962b2dd7681d4d61c06f5fbfb267231"
+    ],
+    "operations-dashboard": [
+      "aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290"
+    ],
+    "app-lifecycle": [
+      "2045cdf4a9b8b09eea639d599b6db17a1ee2b825491584c551296c0d3d5162fc"
+    ],
+    "agentos-workspaces": [
+      "98099a2721d4b93505365cc4c9fc1f7259afe7a31e8d726d5044f1edb0eb9de6"
+    ],
+    "wallet-billing": [
+      "dd906033d14e74ebc0c2197e81e813a521eb2a664ff887a67d42963da20d56b5"
+    ],
+    "academy-control-center": [
+      "1ee853b5fb1f388d076cdb02ae830116fae72fa2ce0fe14518d530f920a0866d"
+    ],
+    "public-expert-academy": [
+      "866a162d6dc8de3a31751be89172b05073cf5a5d5c32225a6f1eb16f7fbb8fb6"
+    ],
+    "public-landing": [
+      "b0da977340dc52c1d141196104615d7dd75fcfef1e48a2002c5c446feddd5e64"
+    ]
+  }
+}

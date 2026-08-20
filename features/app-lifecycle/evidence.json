@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "app-lifecycle",
+  "head": "2045cdf4a9b8b09eea639d599b6db17a1ee2b825491584c551296c0d3d5162fc",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AppsPage/index.tsx",
+      "startLine": 31,
+      "endLine": 257,
+      "claim": "The Apps page jointly reads owned sites, orders and the site-template catalogue and routes supported offers or owned sites.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AppsPage/component.tsx",
+      "startLine": 19,
+      "endLine": 102,
+      "claim": "Owned apps and template offers are distinct sections with lifecycle, price and action semantics and no invented counts.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/provisioning/TemplateAppProvisioning/index.tsx",
+      "startLine": 17,
+      "endLine": 80,
+      "claim": "The template provisioning controller declares request, accepted, preparing, ready, failed and unsupported phases.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/expert-sites/create-expert-site/create-expert-site.resolver.ts",
+      "startLine": 42,
+      "endLine": 84,
+      "claim": "createExpertSite creates a viewer-owned Draft site from the requested slug.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/expert-sites/create-expert-site/create-expert-site.handler.spec.ts",
+      "startLine": 8,
+      "endLine": 29,
+      "claim": "The create-site handler test proves the viewer identity and requested slug are delegated together.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/expert-sites/my-expert-site-deployment/my-expert-site-deployment.resolver.ts",
+      "startLine": 40,
+      "endLine": 78,
+      "claim": "myExpertSiteDeployment returns the latest deployment for one viewer-owned site for status and retry presentation.",
+      "kind": "api"
+    }
+  ]
+}

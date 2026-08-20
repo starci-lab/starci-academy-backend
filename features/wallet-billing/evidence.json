@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "wallet-billing",
+  "head": "dd906033d14e74ebc0c2197e81e813a521eb2a664ff887a67d42963da20d56b5",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/WalletPage/component.tsx",
+      "startLine": 11,
+      "endLine": 101,
+      "claim": "The wallet surface defines balance, transaction and invoice sections with independent states and pay/top-up action slots.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/WalletPage/index.tsx",
+      "startLine": 24,
+      "endLine": 255,
+      "claim": "The connected wallet reads wallet, invoices and transactions, pays the newest unpaid invoice and refreshes every ledger.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/wallet/my-wallet/my-wallet.resolver.ts",
+      "startLine": 38,
+      "endLine": 75,
+      "claim": "myWallet returns a viewer-owned wallet and auto-provisions it on first read.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/invoices/my-invoices/my-invoices.resolver.ts",
+      "startLine": 38,
+      "endLine": 74,
+      "claim": "myInvoices returns the authenticated user's invoices with linked product information.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/invoices/pay-invoice/pay-invoice.resolver.ts",
+      "startLine": 42,
+      "endLine": 86,
+      "claim": "payInvoice pays one viewer-owned unpaid invoice and starts linked service provisioning.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/invoices/pay-invoice/pay-invoice.service.spec.ts",
+      "startLine": 147,
+      "endLine": 220,
+      "claim": "Service tests cover payment behavior and refusal when the viewer has no matching invoice.",
+      "kind": "test"
+    }
+  ]
+}

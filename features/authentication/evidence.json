@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "authentication",
+  "head": "90667ae7206e0c5a282a579796572c369962b2dd7681d4d61c06f5fbfb267231",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AuthenticationPage/component.tsx",
+      "startLine": 5,
+      "endLine": 55,
+      "claim": "The authentication page is one bounded card at one route for the three authentication journeys.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AuthenticationPage/index.tsx",
+      "startLine": 33,
+      "endLine": 338,
+      "claim": "The connected page implements sign-in, emailed-OTP sign-up, emailed-OTP password reset, two-factor branching, refusal handling and session adoption.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/modules/auth/session.tsx",
+      "startLine": 26,
+      "endLine": 110,
+      "claim": "Session state restores on mount and refuses to adopt an auth payload that still requires two-factor verification or lacks an access token.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/authentication-page-interaction.spec.tsx",
+      "startLine": 8,
+      "endLine": 24,
+      "claim": "The interaction test submits sign-in credentials and verifies that an API refusal is rendered.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/auth/sign-in/sign-in.resolver.ts",
+      "startLine": 38,
+      "endLine": 90,
+      "claim": "The signIn mutation accepts email/password, delegates to the service, conditionally sets the refresh cookie, and returns either an access payload or pending two-factor challenge.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "apps/app/src/modules/api/auth.ts",
+      "startLine": 195,
+      "endLine": 286,
+      "claim": "Frontend GraphQL operations define sign-up and forgot-password OTP initiation, resend and verification contracts, including the boolean password-reset result.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/auth/graphql-types/auth-payload.ts",
+      "startLine": 6,
+      "endLine": 59,
+      "claim": "The backend AuthPayload distinguishes usable access from a pending two-factor challenge and keeps refresh tokens out of the GraphQL payload.",
+      "kind": "schema"
+    }
+  ]
+}

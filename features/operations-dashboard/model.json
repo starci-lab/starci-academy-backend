@@ -1,0 +1,533 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "operations-dashboard",
+  "title": "Operations dashboard",
+  "summary": "The authenticated console overview independently summarizes owned apps, AgentOS workspaces, infrastructure context, domains and account wallet state, preserving partial answers when another section is refused.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Protected console navigation",
+      "Apps, AgentOS, servers, domains and wallet overview sections",
+      "Independent loading, empty, answered and refused states"
+    ],
+    "excludes": [
+      "Standalone Servers, Domains or Support destinations",
+      "Invented totals for list responses"
+    ]
+  },
+  "actors": [
+    {
+      "id": "account-actor",
+      "label": "Authenticated account owner",
+      "capabilities": [
+        "Review the operational state of services and open Apps, AgentOS or Wallet management"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "operations-dashboard-journey",
+      "title": "Operations dashboard",
+      "trigger": "Open the protected overview",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "account-actor",
+          "action": "Open the protected overview",
+          "result": "Read independently settled service summaries",
+          "surfaceId": "operations-overview",
+          "stateId": "resting"
+        },
+        {
+          "id": "step-2",
+          "actor": "account-actor",
+          "action": "Read independently settled service summaries",
+          "result": "Follow an available management destination",
+          "surfaceId": "operations-overview",
+          "stateId": "empty"
+        },
+        {
+          "id": "step-3",
+          "actor": "account-actor",
+          "action": "Follow an available management destination",
+          "result": "The owner sees every answer that succeeded even when another query is refused",
+          "surfaceId": "operations-overview",
+          "stateId": "answered"
+        }
+      ],
+      "outcomes": [
+        "The owner sees every answer that succeeded even when another query is refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Each overview section settles independently; one refusal does not turn the whole dashboard into an error.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "List responses without a declared total are represented by members and navigation, not an invented count.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "resting",
+      "label": "resting",
+      "kind": "initial",
+      "transitions": [
+        "empty"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "empty",
+      "kind": "empty",
+      "transitions": [
+        "answered"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "answered",
+      "label": "answered",
+      "kind": "success",
+      "transitions": [
+        "refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "refused",
+      "label": "refused",
+      "kind": "error",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "entity-1",
+      "label": "Operations snapshot",
+      "fields": [
+        "expert sites",
+        "AgentOS workspaces",
+        "pod reachability",
+        "domains",
+        "wallet balance",
+        "unpaid invoice"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "operation-1",
+      "kind": "query",
+      "name": "myExpertSites",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "owned expert sites"
+      ],
+      "failures": [
+        "transport or API refusal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "operation-2",
+      "kind": "query",
+      "name": "myAgentWorkspace",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "owned AgentOS workspace"
+      ],
+      "failures": [
+        "not found or refusal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "operation-3",
+      "kind": "query",
+      "name": "myDomains",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "owned domains"
+      ],
+      "failures": [
+        "transport or API refusal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "operation-4",
+      "kind": "query",
+      "name": "myWallet",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "wallet balance"
+      ],
+      "failures": [
+        "transport or API refusal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "operations-overview",
+      "routePattern": "/[locale]/overview",
+      "title": "Overview",
+      "eyebrow": "Console",
+      "purpose": "Scan the account's current service and money state from one protected page.",
+      "navigation": [
+        {
+          "id": "operations-overview-nav",
+          "label": "Overview",
+          "group": "operations-dashboard",
+          "availability": "active"
+        }
+      ],
+      "regions": [
+        {
+          "id": "apps-summary",
+          "kind": "collection",
+          "title": "Apps",
+          "summary": "Apps presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "apps-summary-item-1",
+              "role": "entity",
+              "label": "Owned apps"
+            },
+            {
+              "id": "apps-summary-item-2",
+              "role": "entity",
+              "label": "Template catalogue"
+            }
+          ],
+          "actions": [
+            {
+              "id": "apps-summary-action-1",
+              "label": "Open Apps",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "resting",
+            "empty",
+            "answered",
+            "refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005"
+          ]
+        },
+        {
+          "id": "agentos-summary",
+          "kind": "summary",
+          "title": "AgentOS",
+          "summary": "AgentOS presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "agentos-summary-item-1",
+              "role": "fact",
+              "label": "Workspace name"
+            },
+            {
+              "id": "agentos-summary-item-2",
+              "role": "fact",
+              "label": "Pod reachability"
+            }
+          ],
+          "actions": [
+            {
+              "id": "agentos-summary-action-1",
+              "label": "Open service",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "resting",
+            "empty",
+            "answered",
+            "refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005"
+          ]
+        },
+        {
+          "id": "infrastructure-summary",
+          "kind": "summary",
+          "title": "Servers and domains",
+          "summary": "Servers and domains presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "infrastructure-summary-item-1",
+              "role": "fact",
+              "label": "Infrastructure is derived from built services"
+            },
+            {
+              "id": "infrastructure-summary-item-2",
+              "role": "fact",
+              "label": "Domain and expiry"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "resting",
+            "empty",
+            "answered",
+            "refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005"
+          ]
+        },
+        {
+          "id": "wallet-summary",
+          "kind": "summary",
+          "title": "Wallet",
+          "summary": "Wallet presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "wallet-summary-item-1",
+              "role": "fact",
+              "label": "Balance"
+            },
+            {
+              "id": "wallet-summary-item-2",
+              "role": "fact",
+              "label": "Unpaid invoice"
+            }
+          ],
+          "actions": [
+            {
+              "id": "wallet-summary-action-1",
+              "label": "See transactions",
+              "kind": "primary"
+            },
+            {
+              "id": "wallet-summary-action-2",
+              "label": "Top up",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "resting",
+            "empty",
+            "answered",
+            "refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "The owner sees every answer that succeeded even when another query is refused",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "The Operations dashboard surface renders only the states, identities and actions proven by current routed source.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "standalone-console-destinations",
+      "question": "When will Servers, Domains and Support have standalone routes?",
+      "impact": "They are visible in navigation, but current destinations are deliberately unavailable."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/OverviewPage/component.tsx",
+      "startLine": 18,
+      "endLine": 47,
+      "claim": "The overview is five independently settled service sections and preserves partial answers without invented counts.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/OverviewPage/index.tsx",
+      "startLine": 174,
+      "endLine": 442,
+      "claim": "The connected overview queries apps, AgentOS, domains and wallet data, maps resting/empty/answered/refused states and routes to available destinations.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/components/layouts/ConsoleNav/index.tsx",
+      "startLine": 67,
+      "endLine": 84,
+      "claim": "Console navigation exposes Overview, Apps, AgentOS and Wallet routes while Servers, Domains and Support remain unavailable.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/expert-sites/my-expert-sites/my-expert-sites.resolver.ts",
+      "startLine": 38,
+      "endLine": 71,
+      "claim": "myExpertSites is an authenticated viewer-owned query ordered newest first.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/wallet/my-wallet/my-wallet.handler.spec.ts",
+      "startLine": 8,
+      "endLine": 29,
+      "claim": "The wallet handler test proves an owner-scoped wallet is created/read for the requesting user.",
+      "kind": "test"
+    }
+  ]
+}

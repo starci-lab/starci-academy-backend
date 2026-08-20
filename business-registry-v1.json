@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "hashAlgorithm": "sha256",
+  "canonicalization": "RFC8785-JCS",
+  "featureHeads": {
+    "authentication": {
+      "featureId": "authentication",
+      "head": "90667ae7206e0c5a282a579796572c369962b2dd7681d4d61c06f5fbfb267231",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+        },
+        {
+          "role": "be",
+          "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+        }
+      ]
+    },
+    "operations-dashboard": {
+      "featureId": "operations-dashboard",
+      "head": "aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+        },
+        {
+          "role": "be",
+          "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+        }
+      ]
+    },
+    "app-lifecycle": {
+      "featureId": "app-lifecycle",
+      "head": "2045cdf4a9b8b09eea639d599b6db17a1ee2b825491584c551296c0d3d5162fc",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+        },
+        {
+          "role": "be",
+          "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+        }
+      ]
+    },
+    "agentos-workspaces": {
+      "featureId": "agentos-workspaces",
+      "head": "98099a2721d4b93505365cc4c9fc1f7259afe7a31e8d726d5044f1edb0eb9de6",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+        },
+        {
+          "role": "be",
+          "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+        }
+      ]
+    },
+    "wallet-billing": {
+      "featureId": "wallet-billing",
+      "head": "dd906033d14e74ebc0c2197e81e813a521eb2a664ff887a67d42963da20d56b5",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+        },
+        {
+          "role": "be",
+          "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+        }
+      ]
+    },
+    "academy-control-center": {
+      "featureId": "academy-control-center",
+      "head": "1ee853b5fb1f388d076cdb02ae830116fae72fa2ce0fe14518d530f920a0866d",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+        },
+        {
+          "role": "be",
+          "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+        }
+      ]
+    },
+    "public-expert-academy": {
+      "featureId": "public-expert-academy",
+      "head": "866a162d6dc8de3a31751be89172b05073cf5a5d5c32225a6f1eb16f7fbb8fb6",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+        },
+        {
+          "role": "be",
+          "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+        }
+      ]
+    },
+    "public-landing": {
+      "featureId": "public-landing",
+      "head": "b0da977340dc52c1d141196104615d7dd75fcfef1e48a2002c5c446feddd5e64",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+        }
+      ]
+    }
+  },
+  "objects": {
+    "immutable": true,
+    "byHash": {
+      "90667ae7206e0c5a282a579796572c369962b2dd7681d4d61c06f5fbfb267231": {
+        "hash": "90667ae7206e0c5a282a579796572c369962b2dd7681d4d61c06f5fbfb267231",
+        "path": "objects/sha256/90667ae7206e0c5a282a579796572c369962b2dd7681d4d61c06f5fbfb267231.json"
+      },
+      "aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290": {
+        "hash": "aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290",
+        "path": "objects/sha256/aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290.json"
+      },
+      "2045cdf4a9b8b09eea639d599b6db17a1ee2b825491584c551296c0d3d5162fc": {
+        "hash": "2045cdf4a9b8b09eea639d599b6db17a1ee2b825491584c551296c0d3d5162fc",
+        "path": "objects/sha256/2045cdf4a9b8b09eea639d599b6db17a1ee2b825491584c551296c0d3d5162fc.json"
+      },
+      "98099a2721d4b93505365cc4c9fc1f7259afe7a31e8d726d5044f1edb0eb9de6": {
+        "hash": "98099a2721d4b93505365cc4c9fc1f7259afe7a31e8d726d5044f1edb0eb9de6",
+        "path": "objects/sha256/98099a2721d4b93505365cc4c9fc1f7259afe7a31e8d726d5044f1edb0eb9de6.json"
+      },
+      "dd906033d14e74ebc0c2197e81e813a521eb2a664ff887a67d42963da20d56b5": {
+        "hash": "dd906033d14e74ebc0c2197e81e813a521eb2a664ff887a67d42963da20d56b5",
+        "path": "objects/sha256/dd906033d14e74ebc0c2197e81e813a521eb2a664ff887a67d42963da20d56b5.json"
+      },
+      "1ee853b5fb1f388d076cdb02ae830116fae72fa2ce0fe14518d530f920a0866d": {
+        "hash": "1ee853b5fb1f388d076cdb02ae830116fae72fa2ce0fe14518d530f920a0866d",
+        "path": "objects/sha256/1ee853b5fb1f388d076cdb02ae830116fae72fa2ce0fe14518d530f920a0866d.json"
+      },
+      "866a162d6dc8de3a31751be89172b05073cf5a5d5c32225a6f1eb16f7fbb8fb6": {
+        "hash": "866a162d6dc8de3a31751be89172b05073cf5a5d5c32225a6f1eb16f7fbb8fb6",
+        "path": "objects/sha256/866a162d6dc8de3a31751be89172b05073cf5a5d5c32225a6f1eb16f7fbb8fb6.json"
+      },
+      "b0da977340dc52c1d141196104615d7dd75fcfef1e48a2002c5c446feddd5e64": {
+        "hash": "b0da977340dc52c1d141196104615d7dd75fcfef1e48a2002c5c446feddd5e64",
+        "path": "objects/sha256/b0da977340dc52c1d141196104615d7dd75fcfef1e48a2002c5c446feddd5e64.json"
+      }
+    }
+  }
+}

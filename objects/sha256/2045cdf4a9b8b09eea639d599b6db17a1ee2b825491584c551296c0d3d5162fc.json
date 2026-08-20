@@ -1,0 +1,672 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "app-lifecycle",
+  "title": "Template app lifecycle",
+  "summary": "An authenticated owner browses template offers beside owned apps, starts the supported academy template, and follows its isolated provisioning snapshot through request, build, ready or failed states into its control center.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Owned app fleet",
+      "Template catalogue",
+      "Academy template creation",
+      "Provisioning progress and recovery",
+      "Owned app management entry"
+    ],
+    "excludes": [
+      "Provisioning catalogue templates not wired by the frontend",
+      "Manual infrastructure operations outside published mutations"
+    ]
+  },
+  "actors": [
+    {
+      "id": "account-actor",
+      "label": "Authenticated app owner",
+      "capabilities": [
+        "Build an academy template app and monitor it until it can be managed"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "app-lifecycle-journey",
+      "title": "Template app lifecycle",
+      "trigger": "Choose Build on a supported template",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "account-actor",
+          "action": "Choose Build on a supported template",
+          "result": "Submit a stable app slug",
+          "surfaceId": "apps-catalogue",
+          "stateId": "catalog-loading"
+        },
+        {
+          "id": "step-2",
+          "actor": "account-actor",
+          "action": "Submit a stable app slug",
+          "result": "Follow deployment progress",
+          "surfaceId": "template-app-provisioning",
+          "stateId": "request"
+        },
+        {
+          "id": "step-3",
+          "actor": "account-actor",
+          "action": "Follow deployment progress",
+          "result": "Open the ready app control center",
+          "surfaceId": "template-app-provisioning",
+          "stateId": "submitting"
+        },
+        {
+          "id": "step-4",
+          "actor": "account-actor",
+          "action": "Open the ready app control center",
+          "result": "A draft expert site and deployment identity are created",
+          "surfaceId": "template-app-provisioning",
+          "stateId": "accepted"
+        }
+      ],
+      "outcomes": [
+        "A draft expert site and deployment identity are created",
+        "A failed or unsupported request is shown explicitly"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Owned apps and buyable templates share the same Apps surface but keep distinct lifecycle and price semantics.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Only the ai_academy template currently exposes a build action; other named templates remain unavailable.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "catalog-loading",
+      "label": "catalog-loading",
+      "kind": "initial",
+      "transitions": [
+        "request"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "request",
+      "label": "request",
+      "kind": "pending",
+      "transitions": [
+        "submitting"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "submitting",
+      "label": "submitting",
+      "kind": "pending",
+      "transitions": [
+        "accepted"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "accepted",
+      "label": "accepted",
+      "kind": "pending",
+      "transitions": [
+        "preparing"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "preparing",
+      "label": "preparing",
+      "kind": "pending",
+      "transitions": [
+        "ready"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "ready",
+      "label": "ready",
+      "kind": "success",
+      "transitions": [
+        "failed"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "failed",
+      "label": "failed",
+      "kind": "error",
+      "transitions": [
+        "unsupported"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "unsupported",
+      "label": "unsupported",
+      "kind": "pending",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "entity-1",
+      "label": "Expert site",
+      "fields": [
+        "id",
+        "slug",
+        "provisionStatus",
+        "publicHost",
+        "template identity"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "entity-2",
+      "label": "Deployment snapshot",
+      "fields": [
+        "deploymentId",
+        "status",
+        "publicHost",
+        "failure reason"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "operation-1",
+      "kind": "query",
+      "name": "catalogItems",
+      "owner": "backend",
+      "inputs": [
+        "site_from_template"
+      ],
+      "outputs": [
+        "template offers and tiers"
+      ],
+      "failures": [
+        "catalogue refusal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "operation-2",
+      "kind": "mutation",
+      "name": "createExpertSite",
+      "owner": "backend",
+      "inputs": [
+        "slug"
+      ],
+      "outputs": [
+        "draft expert site"
+      ],
+      "failures": [
+        "invalid or unavailable slug"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "operation-3",
+      "kind": "query",
+      "name": "myExpertSiteDeployment",
+      "owner": "backend",
+      "inputs": [
+        "siteId"
+      ],
+      "outputs": [
+        "latest deployment snapshot"
+      ],
+      "failures": [
+        "site not owned or not found"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "apps-catalogue",
+      "routePattern": "/[locale]/apps",
+      "title": "Apps",
+      "eyebrow": "Console",
+      "purpose": "Review owned apps and start another from the template catalogue.",
+      "navigation": [
+        {
+          "id": "apps-catalogue-nav",
+          "label": "Apps",
+          "group": "app-lifecycle",
+          "availability": "active"
+        },
+        {
+          "id": "template-app-provisioning-nav",
+          "label": "Provisioning",
+          "group": "app-lifecycle",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "owned-apps",
+          "kind": "collection",
+          "title": "Your apps",
+          "summary": "Your apps presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "owned-apps-item-1",
+              "role": "entity",
+              "label": "App name"
+            },
+            {
+              "id": "owned-apps-item-2",
+              "role": "entity",
+              "label": "Template kind"
+            },
+            {
+              "id": "owned-apps-item-3",
+              "role": "entity",
+              "label": "Lifecycle status"
+            }
+          ],
+          "actions": [
+            {
+              "id": "owned-apps-action-1",
+              "label": "Open",
+              "kind": "primary"
+            },
+            {
+              "id": "owned-apps-action-2",
+              "label": "View record",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "catalog-loading",
+            "request",
+            "submitting",
+            "accepted",
+            "preparing",
+            "ready",
+            "failed",
+            "unsupported"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006"
+          ]
+        },
+        {
+          "id": "template-catalogue",
+          "kind": "collection",
+          "title": "Build another app",
+          "summary": "Build another app presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "template-catalogue-item-1",
+              "role": "entity",
+              "label": "AI academy"
+            },
+            {
+              "id": "template-catalogue-item-2",
+              "role": "entity",
+              "label": "From monthly price"
+            },
+            {
+              "id": "template-catalogue-item-3",
+              "role": "entity",
+              "label": "Template app"
+            }
+          ],
+          "actions": [
+            {
+              "id": "template-catalogue-action-1",
+              "label": "Build",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "catalog-loading",
+            "request",
+            "submitting",
+            "accepted",
+            "preparing",
+            "ready",
+            "failed",
+            "unsupported"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "template-app-provisioning",
+      "routePattern": "/[locale]/apps/new/[templateKey] | /[locale]/apps/[siteId]/provisioning",
+      "title": "Provisioning",
+      "eyebrow": "Apps",
+      "purpose": "Create or resume one exact template-app provisioning flow.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "provisioning-progress",
+          "kind": "flow",
+          "title": "Kubernetes is building",
+          "summary": "Kubernetes is building presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "provisioning-progress-item-1",
+              "role": "step",
+              "label": "Request"
+            },
+            {
+              "id": "provisioning-progress-item-2",
+              "role": "step",
+              "label": "Create app"
+            },
+            {
+              "id": "provisioning-progress-item-3",
+              "role": "step",
+              "label": "Build infrastructure"
+            },
+            {
+              "id": "provisioning-progress-item-4",
+              "role": "step",
+              "label": "Manage"
+            }
+          ],
+          "actions": [
+            {
+              "id": "provisioning-progress-action-1",
+              "label": "Create app",
+              "kind": "primary"
+            },
+            {
+              "id": "provisioning-progress-action-2",
+              "label": "Back to Apps",
+              "kind": "secondary"
+            },
+            {
+              "id": "provisioning-progress-action-3",
+              "label": "Manage apps",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "catalog-loading",
+            "request",
+            "submitting",
+            "accepted",
+            "preparing",
+            "ready",
+            "failed",
+            "unsupported"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "A draft expert site and deployment identity are created",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "The Template app lifecycle surface renders only the states, identities and actions proven by current routed source.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "additional-template-provisioners",
+      "question": "Which catalogue templates beyond ai_academy will receive provisioning flows?",
+      "impact": "They may be listed, but the current UI correctly labels them unavailable instead of inventing behavior."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AppsPage/index.tsx",
+      "startLine": 31,
+      "endLine": 257,
+      "claim": "The Apps page jointly reads owned sites, orders and the site-template catalogue and routes supported offers or owned sites.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AppsPage/component.tsx",
+      "startLine": 19,
+      "endLine": 102,
+      "claim": "Owned apps and template offers are distinct sections with lifecycle, price and action semantics and no invented counts.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/provisioning/TemplateAppProvisioning/index.tsx",
+      "startLine": 17,
+      "endLine": 80,
+      "claim": "The template provisioning controller declares request, accepted, preparing, ready, failed and unsupported phases.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/expert-sites/create-expert-site/create-expert-site.resolver.ts",
+      "startLine": 42,
+      "endLine": 84,
+      "claim": "createExpertSite creates a viewer-owned Draft site from the requested slug.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/expert-sites/create-expert-site/create-expert-site.handler.spec.ts",
+      "startLine": 8,
+      "endLine": 29,
+      "claim": "The create-site handler test proves the viewer identity and requested slug are delegated together.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/expert-sites/my-expert-site-deployment/my-expert-site-deployment.resolver.ts",
+      "startLine": 40,
+      "endLine": 78,
+      "claim": "myExpertSiteDeployment returns the latest deployment for one viewer-owned site for status and retry presentation.",
+      "kind": "api"
+    }
+  ]
+}

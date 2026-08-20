@@ -1,0 +1,588 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "authentication",
+  "title": "Account authentication",
+  "summary": "One public authentication surface lets a visitor sign in, create an account through an emailed OTP, or reset a password through an emailed OTP before entering the protected console.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Email/password sign-in",
+      "Email OTP account creation",
+      "Email OTP password reset",
+      "Session restoration and protected-console redirect",
+      "Backend two-factor challenge contract"
+    ],
+    "excludes": [
+      "Two-factor code completion in the current frontend",
+      "Account profile management",
+      "Authorization roles beyond authenticated versus anonymous"
+    ]
+  },
+  "actors": [
+    {
+      "id": "visitor",
+      "label": "Visitor",
+      "capabilities": [
+        "Choose sign in, account creation, or password reset",
+        "Submit an email/password or emailed verification code",
+        "Continue to the console after a usable session is established"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-004"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "sign-in",
+      "title": "Sign in",
+      "trigger": "A visitor submits an email and password on /authentication.",
+      "steps": [
+        {
+          "id": "enter-credentials",
+          "actor": "visitor",
+          "action": "Enter email and password and press Sign in",
+          "result": "The frontend sends signIn",
+          "surfaceId": "authentication-screen",
+          "stateId": "details"
+        },
+        {
+          "id": "adopt-session",
+          "actor": "visitor",
+          "action": "Receive a usable auth payload",
+          "result": "The session is adopted and the console becomes available",
+          "surfaceId": "authentication-screen",
+          "stateId": "authenticated"
+        }
+      ],
+      "outcomes": [
+        "A usable session is established",
+        "Invalid credentials are shown as a refusal",
+        "A two-factor-enabled account remains a pending challenge rather than becoming a session"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "create-account",
+      "title": "Create an account",
+      "trigger": "A visitor switches the authentication surface to Create one.",
+      "steps": [
+        {
+          "id": "request-sign-up-code",
+          "actor": "visitor",
+          "action": "Submit email and a new password",
+          "result": "An emailed OTP challenge starts",
+          "surfaceId": "authentication-screen",
+          "stateId": "details"
+        },
+        {
+          "id": "verify-sign-up-code",
+          "actor": "visitor",
+          "action": "Submit the six-digit code",
+          "result": "The account is created and the returned session is adopted",
+          "surfaceId": "authentication-screen",
+          "stateId": "code"
+        }
+      ],
+      "outcomes": [
+        "The account is created and signed in",
+        "A refused or expired code stays visible without inventing success"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "reset-password",
+      "title": "Reset a password",
+      "trigger": "A visitor chooses Forgot your password?.",
+      "steps": [
+        {
+          "id": "request-reset-code",
+          "actor": "visitor",
+          "action": "Submit the account email",
+          "result": "A generic emailed OTP challenge starts",
+          "surfaceId": "authentication-screen",
+          "stateId": "details"
+        },
+        {
+          "id": "verify-reset-code",
+          "actor": "visitor",
+          "action": "Submit the code and new password",
+          "result": "The password is changed but no session is created",
+          "surfaceId": "authentication-screen",
+          "stateId": "code"
+        }
+      ],
+      "outcomes": [
+        "The visitor is returned to sign in with the new password",
+        "The surface does not reveal whether the submitted email owns an account"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-006"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Sign in, account creation, and password reset are modes of the same /authentication surface, not separate routes.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "A two-factor challenge is not a usable session: accessToken is null until verifyTwoFactor succeeds, while the refresh token remains in an HttpOnly cookie.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-003",
+        "EV-005",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Completing password reset changes the password and returns a boolean; it does not sign the visitor in.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "details",
+      "label": "Enter details",
+      "kind": "initial",
+      "transitions": [
+        "code",
+        "authenticated",
+        "two-factor",
+        "refused"
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "code",
+      "label": "Verification code requested",
+      "kind": "pending",
+      "transitions": [
+        "authenticated",
+        "done",
+        "refused"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "authenticated",
+      "label": "Authenticated session",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-002",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "done",
+      "label": "Password changed",
+      "kind": "success",
+      "transitions": [
+        "details"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "two-factor",
+      "label": "Two-factor verification required",
+      "kind": "partial",
+      "transitions": [
+        "details"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "refused",
+      "label": "Credentials or code refused",
+      "kind": "error",
+      "transitions": [
+        "details",
+        "code"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-004"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "auth-payload",
+      "label": "Authentication payload",
+      "fields": [
+        "accessToken",
+        "requiresTwoFactor",
+        "twoFactorToken"
+      ],
+      "evidenceIds": [
+        "EV-007"
+      ]
+    },
+    {
+      "id": "otp-challenge",
+      "label": "Email OTP challenge",
+      "fields": [
+        "challengeId",
+        "expiresInSeconds",
+        "otp"
+      ],
+      "evidenceIds": [
+        "EV-006"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "sign-in-operation",
+      "kind": "mutation",
+      "name": "signIn",
+      "owner": "backend",
+      "inputs": [
+        "email",
+        "password"
+      ],
+      "outputs": [
+        "AuthPayload",
+        "refresh cookie when usable"
+      ],
+      "failures": [
+        "invalid credentials",
+        "two-factor challenge instead of session"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "sign-up-init-operation",
+      "kind": "mutation",
+      "name": "signUpInit",
+      "owner": "backend",
+      "inputs": [
+        "email",
+        "password"
+      ],
+      "outputs": [
+        "OtpChallenge"
+      ],
+      "failures": [
+        "email already used",
+        "request refused"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "sign-up-verify-operation",
+      "kind": "mutation",
+      "name": "signUpVerifyOtp",
+      "owner": "backend",
+      "inputs": [
+        "challengeId",
+        "otp"
+      ],
+      "outputs": [
+        "AuthPayload"
+      ],
+      "failures": [
+        "invalid or expired code"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "forgot-password-init-operation",
+      "kind": "mutation",
+      "name": "forgotPasswordInit",
+      "owner": "backend",
+      "inputs": [
+        "email"
+      ],
+      "outputs": [
+        "OtpChallenge"
+      ],
+      "failures": [
+        "request refused"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "forgot-password-verify-operation",
+      "kind": "mutation",
+      "name": "forgotPasswordVerifyOtp",
+      "owner": "backend",
+      "inputs": [
+        "challengeId",
+        "otp",
+        "newPassword"
+      ],
+      "outputs": [
+        "password changed boolean"
+      ],
+      "failures": [
+        "invalid or expired code"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-006"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "authentication-screen",
+      "routePattern": "/[locale]/authentication",
+      "title": "Sign in",
+      "eyebrow": "nivo account",
+      "purpose": "Establish or recover the account session used by the protected operations console.",
+      "navigation": [
+        {
+          "id": "sign-in-mode",
+          "label": "Sign in",
+          "group": "authentication",
+          "availability": "active"
+        },
+        {
+          "id": "create-account-mode",
+          "label": "Create one",
+          "group": "authentication",
+          "availability": "available"
+        },
+        {
+          "id": "forgot-password-mode",
+          "label": "Forgot your password?",
+          "group": "authentication",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "authentication-form",
+          "kind": "form",
+          "title": "Manage the systems you run on nivo.",
+          "summary": "A bounded card changes fields and instructions according to the selected journey.",
+          "items": [
+            {
+              "id": "email-field",
+              "role": "field",
+              "label": "Email",
+              "value": "you@company.com"
+            },
+            {
+              "id": "password-field",
+              "role": "field",
+              "label": "Password",
+              "value": "8 characters or more"
+            },
+            {
+              "id": "verification-code-field",
+              "role": "field",
+              "label": "Verification code",
+              "value": "6 digits"
+            },
+            {
+              "id": "journey-status",
+              "role": "status",
+              "label": "Current step",
+              "status": "Enter details / verification code / done / refused"
+            }
+          ],
+          "actions": [
+            {
+              "id": "submit-authentication",
+              "label": "Sign in",
+              "kind": "primary",
+              "target": "signIn"
+            },
+            {
+              "id": "continue-google",
+              "label": "Continue with Google",
+              "kind": "secondary",
+              "target": "OAuth redirect"
+            },
+            {
+              "id": "resend-code",
+              "label": "Send another code",
+              "kind": "link",
+              "target": "current OTP challenge"
+            }
+          ],
+          "states": [
+            "details",
+            "code",
+            "done",
+            "two-factor",
+            "refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-004"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Submitting refused sign-in credentials exposes the refusal on the authentication surface.",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "A successful password sign-in sets the refresh cookie only when the backend returns a usable refresh token.",
+      "evidenceIds": [
+        "EV-005"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "The same route can advance account creation and password reset from details to OTP verification.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "A two-factor-required payload is not adopted as a session by the frontend.",
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "two-factor-ui-completion",
+      "question": "When will the frontend accept the TOTP code and call verifyTwoFactor?",
+      "impact": "The backend contract supports two-factor completion, but the current surface explicitly tells affected users that this step is unsupported in this build."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AuthenticationPage/component.tsx",
+      "startLine": 5,
+      "endLine": 55,
+      "claim": "The authentication page is one bounded card at one route for the three authentication journeys.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AuthenticationPage/index.tsx",
+      "startLine": 33,
+      "endLine": 338,
+      "claim": "The connected page implements sign-in, emailed-OTP sign-up, emailed-OTP password reset, two-factor branching, refusal handling and session adoption.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/modules/auth/session.tsx",
+      "startLine": 26,
+      "endLine": 110,
+      "claim": "Session state restores on mount and refuses to adopt an auth payload that still requires two-factor verification or lacks an access token.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/authentication-page-interaction.spec.tsx",
+      "startLine": 8,
+      "endLine": 24,
+      "claim": "The interaction test submits sign-in credentials and verifies that an API refusal is rendered.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/auth/sign-in/sign-in.resolver.ts",
+      "startLine": 38,
+      "endLine": 90,
+      "claim": "The signIn mutation accepts email/password, delegates to the service, conditionally sets the refresh cookie, and returns either an access payload or pending two-factor challenge.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "apps/app/src/modules/api/auth.ts",
+      "startLine": 195,
+      "endLine": 286,
+      "claim": "Frontend GraphQL operations define sign-up and forgot-password OTP initiation, resend and verification contracts, including the boolean password-reset result.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/auth/graphql-types/auth-payload.ts",
+      "startLine": 6,
+      "endLine": 59,
+      "claim": "The backend AuthPayload distinguishes usable access from a pending two-factor challenge and keeps refresh tokens out of the GraphQL payload.",
+      "kind": "schema"
+    }
+  ]
+}

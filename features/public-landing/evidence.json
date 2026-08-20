@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "public-landing",
+  "head": "b0da977340dc52c1d141196104615d7dd75fcfef1e48a2002c5c446feddd5e64",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/landing/src/app/page.tsx",
+      "startLine": 4,
+      "endLine": 10,
+      "claim": "The root route mounts the public LandingPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/landing/src/components/pages/LandingPage/index.tsx",
+      "startLine": 4,
+      "endLine": 38,
+      "claim": "The landing surface renders the brand mark, nivo heading and shared description and explicitly makes no request.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/landing/src/resources/copy.ts",
+      "startLine": 1,
+      "endLine": 3,
+      "claim": "The landing description is shipped as product copy.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "apps/landing/src/resources/copy.spec.ts",
+      "startLine": 1,
+      "endLine": 8,
+      "claim": "The copy test protects the shipped public description.",
+      "kind": "test"
+    }
+  ]
+}

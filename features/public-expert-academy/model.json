@@ -1,0 +1,605 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "public-expert-academy",
+  "title": "Public expert academy",
+  "summary": "A public academy landing page renders expert-authored sections in their configured order, combines them with a public course catalogue, and accepts a visitor contact lead without requiring an account.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Expert-authored landing sections",
+      "Public course catalogue",
+      "Public lead capture",
+      "Empty catalogue and submit feedback"
+    ],
+    "excludes": [
+      "Authenticated classroom and course consumption",
+      "Owner control-center operations"
+    ]
+  },
+  "actors": [
+    {
+      "id": "account-actor",
+      "label": "Academy visitor",
+      "capabilities": [
+        "Learn about an academy, browse offered courses and submit contact details"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "public-expert-academy-journey",
+      "title": "Public expert academy",
+      "trigger": "Open the public academy",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "account-actor",
+          "action": "Open the public academy",
+          "result": "Read authored and system sections",
+          "surfaceId": "public-academy",
+          "stateId": "catalog-ready"
+        },
+        {
+          "id": "step-2",
+          "actor": "account-actor",
+          "action": "Read authored and system sections",
+          "result": "Browse courses",
+          "surfaceId": "public-academy",
+          "stateId": "catalog-empty"
+        },
+        {
+          "id": "step-3",
+          "actor": "account-actor",
+          "action": "Browse courses",
+          "result": "Submit name and contact in the lead section",
+          "surfaceId": "public-academy",
+          "stateId": "lead-idle"
+        },
+        {
+          "id": "step-4",
+          "actor": "account-actor",
+          "action": "Submit name and contact in the lead section",
+          "result": "The public catalogue remains browsable without an account",
+          "surfaceId": "public-academy",
+          "stateId": "lead-sending"
+        }
+      ],
+      "outcomes": [
+        "The public catalogue remains browsable without an account",
+        "An accepted or refused lead submission is shown in the lead section"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Authored visible sections render in the expert's configured order; empty list-backed sections are omitted where the connected layer decides they have nothing to say.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "The lead section is the only public section allowed to collect visitor data.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "catalog-ready",
+      "label": "catalog-ready",
+      "kind": "initial",
+      "transitions": [
+        "catalog-empty"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "catalog-empty",
+      "label": "catalog-empty",
+      "kind": "empty",
+      "transitions": [
+        "lead-idle"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "lead-idle",
+      "label": "lead-idle",
+      "kind": "pending",
+      "transitions": [
+        "lead-sending"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "lead-sending",
+      "label": "lead-sending",
+      "kind": "pending",
+      "transitions": [
+        "lead-sent"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "lead-sent",
+      "label": "lead-sent",
+      "kind": "success",
+      "transitions": [
+        "lead-failed"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "lead-failed",
+      "label": "lead-failed",
+      "kind": "error",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "entity-1",
+      "label": "Public course",
+      "fields": [
+        "id",
+        "slug",
+        "title",
+        "summary",
+        "priceText",
+        "sortIndex"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "entity-2",
+      "label": "Lead submission",
+      "fields": [
+        "name",
+        "contact",
+        "optional message"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "operation-1",
+      "kind": "query",
+      "name": "courses",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "public ordered course catalogue"
+      ],
+      "failures": [
+        "empty catalogue fallback"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "operation-2",
+      "kind": "mutation",
+      "name": "submitLead",
+      "owner": "backend",
+      "inputs": [
+        "name",
+        "contact",
+        "optional message"
+      ],
+      "outputs": [
+        "lead ID"
+      ],
+      "failures": [
+        "validation or transport refusal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "public-academy",
+      "routePattern": "/[locale]",
+      "title": "Expert academy",
+      "eyebrow": "Academy",
+      "purpose": "Turn an expert's configured story and course catalogue into a public discovery and lead-capture page.",
+      "navigation": [
+        {
+          "id": "public-academy-nav",
+          "label": "Expert academy",
+          "group": "public-expert-academy",
+          "availability": "active"
+        }
+      ],
+      "regions": [
+        {
+          "id": "academy-story",
+          "kind": "content",
+          "title": "Expert-authored story",
+          "summary": "Expert-authored story presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "academy-story-item-1",
+              "role": "fact",
+              "label": "Hero"
+            },
+            {
+              "id": "academy-story-item-2",
+              "role": "fact",
+              "label": "Problems"
+            },
+            {
+              "id": "academy-story-item-3",
+              "role": "fact",
+              "label": "Outcomes"
+            },
+            {
+              "id": "academy-story-item-4",
+              "role": "fact",
+              "label": "Roadmap"
+            },
+            {
+              "id": "academy-story-item-5",
+              "role": "fact",
+              "label": "Instructor"
+            },
+            {
+              "id": "academy-story-item-6",
+              "role": "fact",
+              "label": "Testimonials"
+            },
+            {
+              "id": "academy-story-item-7",
+              "role": "fact",
+              "label": "Gallery"
+            },
+            {
+              "id": "academy-story-item-8",
+              "role": "fact",
+              "label": "Community"
+            },
+            {
+              "id": "academy-story-item-9",
+              "role": "fact",
+              "label": "Offer"
+            },
+            {
+              "id": "academy-story-item-10",
+              "role": "fact",
+              "label": "FAQ"
+            },
+            {
+              "id": "academy-story-item-11",
+              "role": "fact",
+              "label": "Lead magnet"
+            }
+          ],
+          "actions": [
+            {
+              "id": "academy-story-action-1",
+              "label": "Try free",
+              "kind": "primary"
+            },
+            {
+              "id": "academy-story-action-2",
+              "label": "See courses",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "catalog-ready",
+            "catalog-empty",
+            "lead-idle",
+            "lead-sending",
+            "lead-sent",
+            "lead-failed"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006"
+          ]
+        },
+        {
+          "id": "course-catalogue",
+          "kind": "collection",
+          "title": "Courses",
+          "summary": "Courses presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "course-catalogue-item-1",
+              "role": "entity",
+              "label": "Course title"
+            },
+            {
+              "id": "course-catalogue-item-2",
+              "role": "entity",
+              "label": "Summary"
+            },
+            {
+              "id": "course-catalogue-item-3",
+              "role": "entity",
+              "label": "Price"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "catalog-ready",
+            "catalog-empty",
+            "lead-idle",
+            "lead-sending",
+            "lead-sent",
+            "lead-failed"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006"
+          ]
+        },
+        {
+          "id": "lead-form",
+          "kind": "form",
+          "title": "Contact",
+          "summary": "Contact presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "lead-form-item-1",
+              "role": "fact",
+              "label": "Name"
+            },
+            {
+              "id": "lead-form-item-2",
+              "role": "fact",
+              "label": "Phone or email"
+            },
+            {
+              "id": "lead-form-item-3",
+              "role": "fact",
+              "label": "Submission status"
+            }
+          ],
+          "actions": [
+            {
+              "id": "lead-form-action-1",
+              "label": "Send",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "catalog-ready",
+            "catalog-empty",
+            "lead-idle",
+            "lead-sending",
+            "lead-sent",
+            "lead-failed"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "The public catalogue remains browsable without an account",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "The Public expert academy surface renders only the states, identities and actions proven by current routed source.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "classroom-entry",
+      "question": "What authenticated learner journey should the current Try free action enter?",
+      "impact": "The public surface links toward sign-in, but this feature does not contain an implemented classroom journey."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/expert/src/modules/api/academy.ts",
+      "startLine": 3,
+      "endLine": 88,
+      "claim": "The public academy reads a six-field course catalogue and submits name/contact leads without a token.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/expert/src/components/blocks/academy/AcademySections/index.tsx",
+      "startLine": 21,
+      "endLine": 88,
+      "claim": "The connected sections layer resolves visible authored and system sections and drops empty list-backed sections before drawing.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/expert/src/components/blocks/academy/AcademySections/component.tsx",
+      "startLine": 323,
+      "endLine": 404,
+      "claim": "The lead band is the only section that accepts visitor data and exposes idle/sending/sent/failed feedback.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "apps/expert/src/components/blocks/academy/AcademySections/component.interaction.spec.tsx",
+      "startLine": 26,
+      "endLine": 45,
+      "claim": "Interaction tests prove authored section ordering and lead submission with name and contact.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/expert/graphql/queries/classroom/courses/courses.resolver.ts",
+      "startLine": 43,
+      "endLine": 76,
+      "claim": "The expert API exposes the course catalogue publicly.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/expert/graphql/mutations/leads/submit-lead/submit-lead.resolver.ts",
+      "startLine": 29,
+      "endLine": 51,
+      "claim": "The expert API exposes public lead submission.",
+      "kind": "api"
+    }
+  ]
+}
