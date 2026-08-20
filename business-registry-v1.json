@@ -48,7 +48,7 @@
     },
     "study-library": {
       "featureId": "study-library",
-      "head": "19c336c561b31dc1a07b14a3d2caefc5106fd8c4238b5a7dd6fbf17dfc72fb31",
+      "head": "5edbceb5fe0ec51dbed2939196fc5b647a9c47e7757dcf73cc5be2f18b382cfe",
       "sources": [
         {
           "role": "fe",
@@ -56,7 +56,7 @@
         },
         {
           "role": "be",
-          "head": "0066625ed94b10bf5b6892af775e45bdd6823558"
+          "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
         }
       ]
     },
@@ -173,6 +173,10 @@
       "55374bab89396fc6cd12cdc9e6aaeceab59c711c12f760478e3e8179900995df": {
         "hash": "55374bab89396fc6cd12cdc9e6aaeceab59c711c12f760478e3e8179900995df",
         "path": "objects/sha256/55374bab89396fc6cd12cdc9e6aaeceab59c711c12f760478e3e8179900995df.json"
+      },
+      "5edbceb5fe0ec51dbed2939196fc5b647a9c47e7757dcf73cc5be2f18b382cfe": {
+        "hash": "5edbceb5fe0ec51dbed2939196fc5b647a9c47e7757dcf73cc5be2f18b382cfe",
+        "path": "objects/sha256/5edbceb5fe0ec51dbed2939196fc5b647a9c47e7757dcf73cc5be2f18b382cfe.json"
       }
     }
   }
