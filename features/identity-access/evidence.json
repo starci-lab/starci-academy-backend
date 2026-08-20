@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "identity-access",
-  "head": "f49b835dbd6cfae1ce47d6b4033e1d4e6bb5ebd62fa885dfd5c905a9e37bbdda",
+  "head": "e3918841ef3923a36bd3b155691689032bd27b1d9645b56c617584d97f42e887",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+      "head": "6db677598290cd69c3db6bfc4e731c37ba972b63"
     },
     {
       "role": "be",

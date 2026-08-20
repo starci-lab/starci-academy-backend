@@ -1,6 +1,6 @@
 # Identity and access
 
-> Business head: `f49b835dbd6cfae1ce47d6b4033e1d4e6bb5ebd62fa885dfd5c905a9e37bbdda`
+> Business head: `e3918841ef3923a36bd3b155691689032bd27b1d9645b56c617584d97f42e887`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -22,7 +22,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `84bf3be6565a20b1fee9c83cab8b9ba810d13e11` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `6db677598290cd69c3db6bfc4e731c37ba972b63` |
 | be | https://github.com/starci-lab/starci-academy-backend | `0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b` |
 
 ## 3. Actors and access
