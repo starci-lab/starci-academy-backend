@@ -13,6 +13,20 @@
           "head": "8c9f46e075dd18c99bd749237818ab4e2ebd4152"
         }
       ]
+    },
+    "consultation-discovery": {
+      "featureId": "consultation-discovery",
+      "head": "1ebbaeb373306ccff37781b0c6d257a697cd6430ce8f313127c09d8846b622d9",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "8c9f46e075dd18c99bd749237818ab4e2ebd4152"
+        },
+        {
+          "role": "be",
+          "head": "24b3dc4b0eda44638cff0b70888b8304af7814de"
+        }
+      ]
     }
   },
   "objects": {
@@ -21,6 +35,10 @@
       "27c907d726bc0ed10628a94bf6a4f5631e2e033be7370b8c411bc13bd92f749f": {
         "hash": "27c907d726bc0ed10628a94bf6a4f5631e2e033be7370b8c411bc13bd92f749f",
         "path": "objects/sha256/27c907d726bc0ed10628a94bf6a4f5631e2e033be7370b8c411bc13bd92f749f.json"
+      },
+      "1ebbaeb373306ccff37781b0c6d257a697cd6430ce8f313127c09d8846b622d9": {
+        "hash": "1ebbaeb373306ccff37781b0c6d257a697cd6430ce8f313127c09d8846b622d9",
+        "path": "objects/sha256/1ebbaeb373306ccff37781b0c6d257a697cd6430ce8f313127c09d8846b622d9.json"
       }
     }
   }

@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "project": "tedo",
+  "featureId": "consultation-discovery",
+  "head": "1ebbaeb373306ccff37781b0c6d257a697cd6430ce8f313127c09d8846b622d9",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/tedo-landingpage.git",
+      "head": "8c9f46e075dd18c99bd749237818ab4e2ebd4152"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/tedo-backend.git",
+      "head": "24b3dc4b0eda44638cff0b70888b8304af7814de"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[locale]/chat/page.tsx",
+      "startLine": 7,
+      "endLine": 21,
+      "claim": "The localized no-index consultation route mounts the chat entry point.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/app/[locale]/chat/[conversationId]/page.tsx",
+      "startLine": 6,
+      "endLine": 27,
+      "claim": "The saved consultation route validates a UUID conversation id and restores the chat for that id.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/components/consultation/lead-prompt.tsx",
+      "startLine": 10,
+      "endLine": 58,
+      "claim": "The landing consultation prompt accepts free text, suggested prompts and validation errors before opening chat.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/consultation/consultation-lead-form.tsx",
+      "startLine": 18,
+      "endLine": 142,
+      "claim": "The lead form captures name, phone, email, company, preferred Zalo/phone/email channel and consent with sending/sent/error handling.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/api/http/consultation/ask-consultant/ask-consultant.controller.ts",
+      "startLine": 12,
+      "endLine": 57,
+      "claim": "The consultation HTTP boundary accepts messages and attachments, supplies attachment-only text, and exposes attachment download.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/api/http/consultation/ask-consultant/ask-consultant.handler.spec.ts",
+      "startLine": 15,
+      "endLine": 209,
+      "claim": "Tests prove priced responses, saved proposal document links, persisted requirements merge, manual-review handoff and empty-message refusal.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/graphql/consultation/qualify-consultation-lead/qualify-consultation-lead.resolver.spec.ts",
+      "startLine": 1,
+      "endLine": 13,
+      "claim": "Lead qualification ties name, phone, preferred channel and consent to a conversation and returns lead status.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/modules/requirements/discovery-engine.service.ts",
+      "startLine": 102,
+      "endLine": 166,
+      "claim": "The discovery engine derives applicable questions, product-type module choices, missing fields, completeness and next questions from current requirements.",
+      "kind": "policy"
+    }
+  ]
+}

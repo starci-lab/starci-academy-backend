@@ -1,0 +1,691 @@
+{
+  "schemaVersion": 1,
+  "project": "tedo",
+  "featureId": "consultation-discovery",
+  "title": "Consultation and project discovery",
+  "summary": "Prospective buyers start or restore an AI-assisted consultation, exchange messages and attachments, progressively capture project requirements and quote guidance, then provide consented contact details for human follow-up.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/tedo-landingpage.git",
+      "head": "8c9f46e075dd18c99bd749237818ab4e2ebd4152"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/tedo-backend.git",
+      "head": "24b3dc4b0eda44638cff0b70888b8304af7814de"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "New and restored consultation routes",
+      "Prompt suggestions and message submission",
+      "Conversation persistence and attachments",
+      "Progressive requirements discovery",
+      "Indicative or manual-review quote guidance",
+      "Consented lead qualification"
+    ],
+    "excludes": [
+      "Final commercial approval and signed contract",
+      "Generated proposal documents after requirements confirmation"
+    ]
+  },
+  "actors": [
+    {
+      "id": "buyer",
+      "label": "Prospective buyer",
+      "capabilities": [
+        "Describe a project in natural language",
+        "Use a suggested starting prompt",
+        "Resume a saved consultation",
+        "Attach supporting material",
+        "Answer missing-scope questions",
+        "Submit consented contact details"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "platform",
+      "label": "TEDO platform",
+      "capabilities": [
+        "Persist consultation messages and requirements",
+        "Retrieve relevant knowledge",
+        "Extract project scope",
+        "Estimate quote status",
+        "Save a qualified lead"
+      ],
+      "evidenceIds": [
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "consultation-discovery-journey",
+      "title": "Consultation and project discovery",
+      "trigger": "A buyer submits a project prompt from the landing page or opens the consultation route.",
+      "steps": [
+        {
+          "id": "start-conversation",
+          "actor": "buyer",
+          "action": "Submit a free-text project prompt or a suggestion",
+          "result": "A new consultation message is sent",
+          "surfaceId": "consultation-chat",
+          "stateId": "conversation-pending"
+        },
+        {
+          "id": "discover-requirements",
+          "actor": "platform",
+          "action": "Extract known scope and ask the next applicable missing questions",
+          "result": "The durable requirements revision advances",
+          "surfaceId": "consultation-chat",
+          "stateId": "discovery-partial"
+        },
+        {
+          "id": "resume-conversation",
+          "actor": "buyer",
+          "action": "Open a validated saved conversation id",
+          "result": "Message history and current requirements are restored",
+          "surfaceId": "saved-consultation",
+          "stateId": "conversation-ready"
+        },
+        {
+          "id": "qualify-lead",
+          "actor": "buyer",
+          "action": "Submit contact details, preferred channel and consent",
+          "result": "A reachable lead is saved against the conversation",
+          "surfaceId": "consultation-chat",
+          "stateId": "lead-pending"
+        }
+      ],
+      "outcomes": [
+        "TEDO holds a durable consultation, its current requirements revision and an optional consented follow-up lead"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "A saved consultation route accepts only a UUID-shaped conversation id; invalid identifiers resolve as not found.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "The discovery engine asks only applicable unanswered questions and expands module choices from the selected product type.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-008"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "An empty message is accepted only when files are attached, in which case the system supplies an attachment-analysis message.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-005"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "Human follow-up requires contact identity, a preferred channel and affirmative consent tied to the conversation.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "BR-05",
+      "statement": "Pricing may settle as priced, insufficient-scope or manual-review; manual negotiation intent remains manual-review rather than fabricated automatic pricing.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-006"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "conversation-ready",
+      "label": "Conversation ready",
+      "kind": "initial",
+      "transitions": [
+        "conversation-pending",
+        "lead-pending",
+        "conversation-error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "conversation-pending",
+      "label": "Message pending",
+      "kind": "pending",
+      "transitions": [
+        "discovery-partial",
+        "conversation-ready",
+        "conversation-error"
+      ],
+      "evidenceIds": [
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "discovery-partial",
+      "label": "Requirements incomplete",
+      "kind": "partial",
+      "transitions": [
+        "conversation-pending",
+        "lead-pending"
+      ],
+      "evidenceIds": [
+        "EV-006",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "lead-pending",
+      "label": "Lead submission pending",
+      "kind": "pending",
+      "transitions": [
+        "lead-saved",
+        "conversation-error"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "lead-saved",
+      "label": "Lead saved",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-007"
+      ]
+    },
+    {
+      "id": "conversation-error",
+      "label": "Consultation failed",
+      "kind": "error",
+      "transitions": [
+        "conversation-ready"
+      ],
+      "evidenceIds": [
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "consultation-session",
+      "label": "Consultation session",
+      "fields": [
+        "conversation id",
+        "messages",
+        "attachments",
+        "created/updated time"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "project-requirements",
+      "label": "Project requirements",
+      "fields": [
+        "product type",
+        "industry",
+        "business model",
+        "stage",
+        "locations",
+        "languages",
+        "channels",
+        "roles",
+        "modules",
+        "integrations",
+        "branding",
+        "UX/UI",
+        "delivery"
+      ],
+      "evidenceIds": [
+        "EV-006",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "consultation-lead",
+      "label": "Consultation lead",
+      "fields": [
+        "name",
+        "phone",
+        "email",
+        "company",
+        "preferred channel",
+        "consent",
+        "conversation id",
+        "status"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-007"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "ask-consultant",
+      "kind": "command",
+      "name": "POST /v1/consultations/messages",
+      "owner": "backend",
+      "inputs": [
+        "optional conversation id",
+        "message or attachments",
+        "locale/channel context"
+      ],
+      "outputs": [
+        "answer",
+        "conversation id",
+        "message id",
+        "requirements",
+        "quote status",
+        "optional documents"
+      ],
+      "failures": [
+        "empty message without files",
+        "attachment validation failed",
+        "AI or persistence failed"
+      ],
+      "evidenceIds": [
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "qualify-lead",
+      "kind": "mutation",
+      "name": "qualifyConsultationLead",
+      "owner": "backend",
+      "inputs": [
+        "conversation id",
+        "name",
+        "phone/email",
+        "company",
+        "preferred channel",
+        "consent"
+      ],
+      "outputs": [
+        "lead id and status"
+      ],
+      "failures": [
+        "conversation missing",
+        "contact invalid",
+        "consent absent"
+      ],
+      "evidenceIds": [
+        "EV-007"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "consultation-chat",
+      "routePattern": "/[locale]/chat",
+      "title": "Project consultation",
+      "eyebrow": "TEDO",
+      "purpose": "Turn an initial project prompt into a progressively qualified project scope.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "project-prompt",
+          "kind": "form",
+          "title": "Describe your project",
+          "summary": "Free-text project intent with suggested starting prompts.",
+          "items": [
+            {
+              "id": "prompt-text",
+              "role": "field",
+              "label": "Project description"
+            },
+            {
+              "id": "prompt-suggestions",
+              "role": "choice",
+              "label": "Suggested prompts"
+            }
+          ],
+          "actions": [
+            {
+              "id": "start-chat",
+              "label": "Start consultation",
+              "kind": "primary",
+              "target": "POST /v1/consultations/messages"
+            }
+          ],
+          "states": [
+            "ready",
+            "validation-error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-003",
+            "EV-005"
+          ]
+        },
+        {
+          "id": "consultation-thread",
+          "kind": "flow",
+          "title": "Conversation",
+          "summary": "Durable buyer and assistant messages, attachments, requirements progress and quote guidance.",
+          "items": [
+            {
+              "id": "message-history",
+              "role": "entity",
+              "label": "Messages"
+            },
+            {
+              "id": "attachments",
+              "role": "entity",
+              "label": "Attachments"
+            },
+            {
+              "id": "requirements-status",
+              "role": "status",
+              "label": "Requirements progress"
+            },
+            {
+              "id": "quote-status",
+              "role": "status",
+              "label": "Quote status"
+            }
+          ],
+          "actions": [
+            {
+              "id": "send-message",
+              "label": "Send message",
+              "kind": "primary",
+              "target": "POST /v1/consultations/messages"
+            },
+            {
+              "id": "attach-file",
+              "label": "Attach file",
+              "kind": "secondary",
+              "target": "attachment"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "partial",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-005",
+            "EV-006",
+            "EV-008"
+          ]
+        },
+        {
+          "id": "follow-up-lead",
+          "kind": "form",
+          "title": "Talk to a consultant",
+          "summary": "Consented contact data and preferred follow-up channel.",
+          "items": [
+            {
+              "id": "lead-name",
+              "role": "field",
+              "label": "Name"
+            },
+            {
+              "id": "lead-phone",
+              "role": "field",
+              "label": "Phone"
+            },
+            {
+              "id": "lead-email",
+              "role": "field",
+              "label": "Email"
+            },
+            {
+              "id": "lead-company",
+              "role": "field",
+              "label": "Company"
+            },
+            {
+              "id": "preferred-channel",
+              "role": "choice",
+              "label": "Zalo, phone or email"
+            },
+            {
+              "id": "lead-consent",
+              "role": "choice",
+              "label": "Consent"
+            }
+          ],
+          "actions": [
+            {
+              "id": "submit-lead",
+              "label": "Request follow-up",
+              "kind": "primary",
+              "target": "qualifyConsultationLead"
+            }
+          ],
+          "states": [
+            "idle",
+            "sending",
+            "sent",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-004",
+            "EV-007"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "saved-consultation",
+      "routePattern": "/[locale]/chat/[conversationId]",
+      "title": "Saved consultation",
+      "eyebrow": "TEDO",
+      "purpose": "Restore one validated consultation with its current durable state.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "restored-thread",
+          "kind": "flow",
+          "title": "Saved conversation",
+          "summary": "Message history and current requirements for the validated conversation id.",
+          "items": [
+            {
+              "id": "conversation-id",
+              "role": "fact",
+              "label": "Conversation id"
+            },
+            {
+              "id": "restored-messages",
+              "role": "entity",
+              "label": "Message history"
+            },
+            {
+              "id": "restored-requirements",
+              "role": "status",
+              "label": "Requirements revision"
+            }
+          ],
+          "actions": [
+            {
+              "id": "continue-chat",
+              "label": "Continue consultation",
+              "kind": "primary",
+              "target": "POST /v1/consultations/messages"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "not-found",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-002",
+            "EV-005"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "New and UUID-validated saved chat routes mount the consultation surface without search indexing.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "A message or attachment advances one durable conversation and returns requirements plus quote state.",
+      "evidenceIds": [
+        "EV-005",
+        "EV-006",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "A consented contact submission is saved against the selected conversation with the preferred channel.",
+      "evidenceIds": [
+        "EV-004",
+        "EV-007"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "human-handoff-timing",
+      "question": "When exactly does a saved lead receive the first human response on the chosen channel?",
+      "impact": "Source proves durable lead qualification and channel choice, but not an operational response-time commitment."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[locale]/chat/page.tsx",
+      "startLine": 7,
+      "endLine": 21,
+      "claim": "The localized no-index consultation route mounts the chat entry point.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/app/[locale]/chat/[conversationId]/page.tsx",
+      "startLine": 6,
+      "endLine": 27,
+      "claim": "The saved consultation route validates a UUID conversation id and restores the chat for that id.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/components/consultation/lead-prompt.tsx",
+      "startLine": 10,
+      "endLine": 58,
+      "claim": "The landing consultation prompt accepts free text, suggested prompts and validation errors before opening chat.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/consultation/consultation-lead-form.tsx",
+      "startLine": 18,
+      "endLine": 142,
+      "claim": "The lead form captures name, phone, email, company, preferred Zalo/phone/email channel and consent with sending/sent/error handling.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/api/http/consultation/ask-consultant/ask-consultant.controller.ts",
+      "startLine": 12,
+      "endLine": 57,
+      "claim": "The consultation HTTP boundary accepts messages and attachments, supplies attachment-only text, and exposes attachment download.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/api/http/consultation/ask-consultant/ask-consultant.handler.spec.ts",
+      "startLine": 15,
+      "endLine": 209,
+      "claim": "Tests prove priced responses, saved proposal document links, persisted requirements merge, manual-review handoff and empty-message refusal.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/graphql/consultation/qualify-consultation-lead/qualify-consultation-lead.resolver.spec.ts",
+      "startLine": 1,
+      "endLine": 13,
+      "claim": "Lead qualification ties name, phone, preferred channel and consent to a conversation and returns lead status.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/modules/requirements/discovery-engine.service.ts",
+      "startLine": 102,
+      "endLine": 166,
+      "claim": "The discovery engine derives applicable questions, product-type module choices, missing fields, completeness and next questions from current requirements.",
+      "kind": "policy"
+    }
+  ]
+}
