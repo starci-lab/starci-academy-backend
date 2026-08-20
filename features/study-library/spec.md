@@ -1,6 +1,6 @@
 # Study library
 
-> Business head: `228ae337362749d918e300effb4fa41efcbc6cb3c7f2c52c42bad08dfa992cfe`
+> Business head: `32dfc8af971c614a5c5bdd6ba78d194b07af476e13a28e643f69edc63e0feef1`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
