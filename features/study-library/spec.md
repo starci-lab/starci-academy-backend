@@ -1,6 +1,6 @@
 # Study library
 
-> Business head: `f401f50f55ec0717c638de7f000c2a679f262155062c47e4dec1fd924ab32530`
+> Business head: `9522d8c3013605d19db6fa700b54e14013003ce7281a25d5c9161eda1e2c8bb2`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -22,7 +22,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `6db677598290cd69c3db6bfc4e731c37ba972b63` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `b78f77ec44905abd1619ac95ac50bfad744c7e96` |
 | be | https://github.com/starci-lab/starci-academy-backend | `0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b` |
 
 ## 3. Actors and access
@@ -160,3 +160,4 @@ Strength: **confirmed** · Evidence: `EV-004`, `EV-007`
 | EV-005 | fe | `src/app/[lang]/courses/[displayId]/learn/mind-map/page.tsx:1` | route | The course mind-map route mounts CourseMindMapPage. |
 | EV-006 | be | `src/features/api/core/graphql/mutations/flashcard/start-flashcard-review-session/start-flashcard-review-session.resolver.ts:68` | api | The guarded mutation persists a resumable flashcard review session for a deck and card order. |
 | EV-007 | be | `src/features/api/core/graphql/queries/foundations/foundations/foundations.resolver.ts:45` | api | The foundations query lists paginated foundations for a category. |
+| EV-008 | owner | `decision:2e6794d9a35c5acc029dee9eafc2978fa91dd9589da5f8ce3f6111cbfb465275` | owner-decision | The owner authorized refreshing study-library and practice-assessment to current routed source heads before continuing the four-layout design set. |

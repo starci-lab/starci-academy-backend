@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "study-library",
-  "head": "f401f50f55ec0717c638de7f000c2a679f262155062c47e4dec1fd924ab32530",
+  "head": "9522d8c3013605d19db6fa700b54e14013003ce7281a25d5c9161eda1e2c8bb2",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "6db677598290cd69c3db6bfc4e731c37ba972b63"
+      "head": "b78f77ec44905abd1619ac95ac50bfad744c7e96"
     },
     {
       "role": "be",
@@ -66,7 +66,7 @@
       "role": "be",
       "path": "src/features/api/core/graphql/mutations/flashcard/start-flashcard-review-session/start-flashcard-review-session.resolver.ts",
       "startLine": 68,
-      "endLine": 94,
+      "endLine": 93,
       "claim": "The guarded mutation persists a resumable flashcard review session for a deck and card order.",
       "kind": "api"
     },
@@ -75,9 +75,16 @@
       "role": "be",
       "path": "src/features/api/core/graphql/queries/foundations/foundations/foundations.resolver.ts",
       "startLine": 45,
-      "endLine": 68,
+      "endLine": 67,
       "claim": "The foundations query lists paginated foundations for a category.",
       "kind": "api"
+    },
+    {
+      "id": "EV-008",
+      "claim": "The owner authorized refreshing study-library and practice-assessment to current routed source heads before continuing the four-layout design set.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "2e6794d9a35c5acc029dee9eafc2978fa91dd9589da5f8ce3f6111cbfb465275"
     }
   ]
 }
