@@ -26,6 +26,9 @@ import {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
+    UserLeagueEntity,
+} from "@modules/databases/postgresql/primary/entities/user-league.entity"
+import {
     XpHistoryEntity,
 } from "@modules/databases/postgresql/primary/entities/xp-history.entity"
 import {
@@ -43,6 +46,9 @@ import {
 import {
     LeagueCohortPointsProjectionService,
 } from "@modules/bussiness/projections/league-cohort-points/league-cohort-points-projection.service"
+import {
+    PostgreSqlAdvisoryLockService,
+} from "@modules/databases/postgresql/primary/lock/postgresql-advisory-lock.service"
 import {
     MyLeagueResolver,
 } from "@features/api/core/graphql/queries/league/my-league/my-league.resolver"
@@ -104,7 +110,6 @@ describe("Weekly league reads (e2e)",
                             username
                             weekPoints
                             rank
-                            isFollowing
                         }
                     }
                 }
@@ -155,6 +160,7 @@ describe("Weekly league reads (e2e)",
                     GlobalLeaderboardResolver,
                     LeagueService,
                     LeagueCohortPointsProjectionService,
+                    PostgreSqlAdvisoryLockService,
                 ],
             })
                 .overrideGuard(KeycloakAuthGraphQLGuard)
@@ -230,6 +236,35 @@ describe("Weekly league reads (e2e)",
                         expect(entries[0].username).toBe("league-happy")
                         expect(entries[0].weekPoints).toBe(20)
                         expect(entries[0].rank).toBe(1)
+
+                        const persistedLeague = await entityManager.findOne(
+                            UserLeagueEntity,
+                            {
+                                where: {
+                                    userId: currentUser.id,
+                                },
+                                relations: {
+                                    cohort: true,
+                                },
+                            },
+                        )
+                        expect(persistedLeague?.tier).toBe("bronze")
+                        expect(persistedLeague?.cohort?.tier).toBe("bronze")
+                        expect(persistedLeague?.cohortId).toBeTruthy()
+
+                        const projectionRows = await entityManager.query(
+                            "SELECT value FROM league_cohort_points_projections WHERE cohort_id = $1",
+                            [
+                                persistedLeague?.cohortId,
+                            ],
+                        ) as Array<{ value: { members?: Array<{ userId: string, weekPoints: number }> } }>
+                        expect(projectionRows).toHaveLength(1)
+                        expect(projectionRows[0].value.members).toEqual([
+                            expect.objectContaining({
+                                userId: currentUser.id,
+                                weekPoints: 20,
+                            }),
+                        ])
                     })
 
                 it("no user attached to the request → guard denies before the resolver ever runs",
