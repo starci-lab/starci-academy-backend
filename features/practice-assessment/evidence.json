@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "practice-assessment",
-  "head": "344da63988505ba8bb0e5ec3073078640ceab428fc887a6be48d857e6722c394",
+  "head": "8e135726133a9292d4d5518d334a3f35b0e67a5d39293eb80990fabcf6a689cd",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+      "head": "6db677598290cd69c3db6bfc4e731c37ba972b63"
     },
     {
       "role": "be",
