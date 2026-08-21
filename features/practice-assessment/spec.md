@@ -1,6 +1,6 @@
 # Practice and assessment
 
-> Business head: `1e6dd347f5fcf678e1b96f70041a9a1013006a89b87a107140b3c9ae171b5811`
+> Business head: `de60e36e9b67893bcbcd1a42d376b0921afd19ec7da23e72461b8c16dcc2bcd8`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -22,7 +22,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `d9e352a60a6181782e002e670ff45d088b22711f` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `3ddee49455eac29501b9b04e0bf123c51e0a81db` |
 | be | https://github.com/starci-lab/starci-academy-backend | `88a3959084772f9eaa0f5dcbc4e480d4356210f0` |
 
 ## 3. Actors and access

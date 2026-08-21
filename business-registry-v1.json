@@ -68,14 +68,14 @@
     },
     "practice-assessment": {
       "featureId": "practice-assessment",
-      "head": "1e6dd347f5fcf678e1b96f70041a9a1013006a89b87a107140b3c9ae171b5811",
-      "authorityStatus": "in-progress",
+      "head": "de60e36e9b67893bcbcd1a42d376b0921afd19ec7da23e72461b8c16dcc2bcd8",
+      "authorityStatus": "implemented",
       "baseHead": "2df136cf2975aa81336d78711f848041be2bf421e0da2207c961d58c0b2ce345",
-      "previousHead": "de2b83bebdc7ba06ae11c6a09dc5d72b41645b7907fae2984b79a338e04efeeb",
+      "previousHead": "1e6dd347f5fcf678e1b96f70041a9a1013006a89b87a107140b3c9ae171b5811",
       "sources": [
         {
           "role": "fe",
-          "head": "d9e352a60a6181782e002e670ff45d088b22711f"
+          "head": "3ddee49455eac29501b9b04e0bf123c51e0a81db"
         },
         {
           "role": "be",
@@ -298,6 +298,10 @@
       "1e6dd347f5fcf678e1b96f70041a9a1013006a89b87a107140b3c9ae171b5811": {
         "hash": "1e6dd347f5fcf678e1b96f70041a9a1013006a89b87a107140b3c9ae171b5811",
         "path": "objects/sha256/1e6dd347f5fcf678e1b96f70041a9a1013006a89b87a107140b3c9ae171b5811.json"
+      },
+      "de60e36e9b67893bcbcd1a42d376b0921afd19ec7da23e72461b8c16dcc2bcd8": {
+        "hash": "de60e36e9b67893bcbcd1a42d376b0921afd19ec7da23e72461b8c16dcc2bcd8",
+        "path": "objects/sha256/de60e36e9b67893bcbcd1a42d376b0921afd19ec7da23e72461b8c16dcc2bcd8.json"
       }
     }
   }
