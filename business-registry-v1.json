@@ -68,10 +68,10 @@
     },
     "practice-assessment": {
       "featureId": "practice-assessment",
-      "head": "de2b83bebdc7ba06ae11c6a09dc5d72b41645b7907fae2984b79a338e04efeeb",
-      "authorityStatus": "pending",
+      "head": "1e6dd347f5fcf678e1b96f70041a9a1013006a89b87a107140b3c9ae171b5811",
+      "authorityStatus": "in-progress",
       "baseHead": "2df136cf2975aa81336d78711f848041be2bf421e0da2207c961d58c0b2ce345",
-      "previousHead": "2df136cf2975aa81336d78711f848041be2bf421e0da2207c961d58c0b2ce345",
+      "previousHead": "de2b83bebdc7ba06ae11c6a09dc5d72b41645b7907fae2984b79a338e04efeeb",
       "sources": [
         {
           "role": "fe",
@@ -294,6 +294,10 @@
       "de2b83bebdc7ba06ae11c6a09dc5d72b41645b7907fae2984b79a338e04efeeb": {
         "hash": "de2b83bebdc7ba06ae11c6a09dc5d72b41645b7907fae2984b79a338e04efeeb",
         "path": "objects/sha256/de2b83bebdc7ba06ae11c6a09dc5d72b41645b7907fae2984b79a338e04efeeb.json"
+      },
+      "1e6dd347f5fcf678e1b96f70041a9a1013006a89b87a107140b3c9ae171b5811": {
+        "hash": "1e6dd347f5fcf678e1b96f70041a9a1013006a89b87a107140b3c9ae171b5811",
+        "path": "objects/sha256/1e6dd347f5fcf678e1b96f70041a9a1013006a89b87a107140b3c9ae171b5811.json"
       }
     }
   }

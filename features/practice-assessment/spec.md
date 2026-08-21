@@ -1,6 +1,6 @@
 # Practice and assessment
 
-> Business head: `de2b83bebdc7ba06ae11c6a09dc5d72b41645b7907fae2984b79a338e04efeeb`
+> Business head: `1e6dd347f5fcf678e1b96f70041a9a1013006a89b87a107140b3c9ae171b5811`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
