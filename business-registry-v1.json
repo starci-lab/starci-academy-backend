@@ -116,9 +116,10 @@
     },
     "console-shell-navigation": {
       "featureId": "console-shell-navigation",
-      "head": "5a56705d6adf4a0c54f40c665768ed91d083c29e598521be84819acb06ec6737",
-      "authorityStatus": "implemented",
-      "previousHead": "c4427d3ef7eb089efbd1f65733f42d53d8b9e7237ec529f14bbcf129569bb5f0",
+      "head": "1e932880f05b19017362637c8dbc1ddcb1a4c07849befd05993897cdde5220ac",
+      "authorityStatus": "pending",
+      "baseHead": "5a56705d6adf4a0c54f40c665768ed91d083c29e598521be84819acb06ec6737",
+      "previousHead": "5a56705d6adf4a0c54f40c665768ed91d083c29e598521be84819acb06ec6737",
       "sources": [
         {
           "role": "fe",
@@ -193,6 +194,10 @@
       "5a56705d6adf4a0c54f40c665768ed91d083c29e598521be84819acb06ec6737": {
         "hash": "5a56705d6adf4a0c54f40c665768ed91d083c29e598521be84819acb06ec6737",
         "path": "objects/sha256/5a56705d6adf4a0c54f40c665768ed91d083c29e598521be84819acb06ec6737.json"
+      },
+      "1e932880f05b19017362637c8dbc1ddcb1a4c07849befd05993897cdde5220ac": {
+        "hash": "1e932880f05b19017362637c8dbc1ddcb1a4c07849befd05993897cdde5220ac",
+        "path": "objects/sha256/1e932880f05b19017362637c8dbc1ddcb1a4c07849befd05993897cdde5220ac.json"
       }
     }
   }

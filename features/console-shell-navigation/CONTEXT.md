@@ -1,30 +1,33 @@
 # Shared console shell navigation
 
-> Business identity: `nivo/console-shell-navigation@5a56705d6adf4a0c54f40c665768ed91d083c29e598521be84819acb06ec6737`
+> Business identity: `nivo/console-shell-navigation@1e932880f05b19017362637c8dbc1ddcb1a4c07849befd05993897cdde5220ac`
 >
-> Source heads: authority `implemented` · `fe@3102d35bfa73`
+> Source heads: authority `pending` · base `5a56705d6adf4a0c54f40c665768ed91d083c29e598521be84819acb06ec6737` · `fe@3102d35bfa73`
 >
 > Load this file first. Load only the modules named by the current task.
 
 ## Decision capsule
 
-**Purpose.** Every authenticated console route shares one fixed expanded desktop destination rail, while narrow screens use one right-edge drawer with the same destination identities.
+**Purpose.** Every authenticated console route shares one desktop navigation rail with expanded and compact presentations, while narrow screens use one right-edge drawer with the same destination identities.
 
 **Primary actor.** Authenticated account owner
 
-**Primary outcome.** The account owner keeps one stable way to navigate across every current console route and viewport
+**Primary outcome.** The account owner keeps one stable way to navigate across every console route and viewport
 
 **Never does.** Continuously resizable navigation width
 
 ## Invariants
 
 - `BR-01` — The destination collection preserves one selected key, keyboard traversal, focus-visible feedback and the same destination order on every console route.
+- `BR-02` — The desktop rail has exactly two persisted presentations: expanded at 256px and collapsed at 64px, toggled by one visible keyboard-operable control while the adjacent body reflows.
+- `BR-03` — Collapsed destinations keep stable circular glyphs, accessible labels and target size; visible copy may disappear but destination meaning may not.
+- `BR-04` — Collapse control and Overview remain pinned while only long destination groups own internal scrolling.
 - `BR-05` — Below the desktop breakpoint the standing rail and bottom tab bar are absent; one right-edge drawer exposes the complete destination set.
 
 ## Primary flow
 
 ```text
-expanded → mobile-open
+expanded → collapsed → mobile-open
 ```
 
 ## Surface map

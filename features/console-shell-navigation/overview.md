@@ -2,13 +2,16 @@
 
 ## Purpose
 
-Every authenticated console route shares one fixed expanded desktop destination rail, while narrow screens use one right-edge drawer with the same destination identities.
+Every authenticated console route shares one desktop navigation rail with expanded and compact presentations, while narrow screens use one right-edge drawer with the same destination identities.
 
 ## Included
 
 - Shared console chrome for Overview, Apps, AgentOS and Wallet routes
-- Fixed expanded desktop navigation rail
-- Single-selection keyboard-operable destination collection
+- Desktop rail expanded and compact presentations
+- Visible keyboard-operable collapse and expand control
+- Persisted collapse preference and adjacent body reflow
+- Circular icon-only compact destinations with accessible labels
+- Pinned controls with destination-group internal scrolling
 - Right-edge mobile navigation drawer with the complete destination set
 
 ## Excluded
