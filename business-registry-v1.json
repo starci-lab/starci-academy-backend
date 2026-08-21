@@ -113,6 +113,17 @@
           "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
         }
       ]
+    },
+    "console-shell-navigation": {
+      "featureId": "console-shell-navigation",
+      "head": "cf2a1014109b649182fbd9c35ebced77e948ad5edb66d689d17a22374f299aa4",
+      "authorityStatus": "pending",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "3102d35bfa73e51c52d087352c68ee106b4a5a46"
+        }
+      ]
     }
   },
   "objects": {
@@ -169,6 +180,10 @@
       "cecf53f7f29811d83a18c70a8c064abe3387037114da1f9efedb9fc08d86a991": {
         "hash": "cecf53f7f29811d83a18c70a8c064abe3387037114da1f9efedb9fc08d86a991",
         "path": "objects/sha256/cecf53f7f29811d83a18c70a8c064abe3387037114da1f9efedb9fc08d86a991.json"
+      },
+      "cf2a1014109b649182fbd9c35ebced77e948ad5edb66d689d17a22374f299aa4": {
+        "hash": "cf2a1014109b649182fbd9c35ebced77e948ad5edb66d689d17a22374f299aa4",
+        "path": "objects/sha256/cf2a1014109b649182fbd9c35ebced77e948ad5edb66d689d17a22374f299aa4.json"
       }
     }
   }

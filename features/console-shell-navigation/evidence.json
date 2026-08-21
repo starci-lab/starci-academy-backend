@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "console-shell-navigation",
+  "head": "cf2a1014109b649182fbd9c35ebced77e948ad5edb66d689d17a22374f299aa4",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "3102d35bfa73e51c52d087352c68ee106b4a5a46"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/layout.tsx",
+      "startLine": 73,
+      "endLine": 95,
+      "claim": "The authenticated route-group layout mounts one shared mobile navigation owner, one desktop sidebar owner and one routed main body.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/layouts/ConsoleNav/index.tsx",
+      "startLine": 77,
+      "endLine": 209,
+      "claim": "Console navigation owns the complete grouped destination set, selected route, desktop ListBox and mobile right-edge drawer composition.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "packages/ui/src/leaves/SelectionList/index.tsx",
+      "startLine": 21,
+      "endLine": 75,
+      "claim": "The shared SelectionList delegates single-selection and keyboard mechanics to HeroUI ListBox.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "packages/ui/src/branches/DrawerBranch/index.tsx",
+      "startLine": 6,
+      "endLine": 33,
+      "claim": "The shared DrawerBranch owns right-edge placement, backdrop, focus, dismissal and the single drawer body.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "apps/app/src/components/layouts/ConsoleNav/index.spec.tsx",
+      "startLine": 27,
+      "endLine": 60,
+      "claim": "Interaction tests prove seven desktop destinations, the complete mobile drawer set, disabled routes and locale-aware activation.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-006",
+      "claim": "The owner explicitly requires the shared Nivo console shell to implement the full StarCi collapsible navigation grammar: a visible collapse control, persisted 256px-to-64px rail, compact circular icon destinations, pinned controls, internal group scrolling and the existing right-edge mobile drawer across Dashboard and AgentOS.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "019ec82f322a2ba974657b422eba74e23f967d6595a390f4b15ca518f64a4be3"
+    }
+  ]
+}
