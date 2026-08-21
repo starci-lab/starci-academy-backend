@@ -1,6 +1,6 @@
 # Wallet, SePay top-up and billing management
 
-> Business head: `157cfe622695ef39445ddbe5aee97bad553f62981b877ff0bcf44b12cbb6b9a1`
+> Business head: `7addf0b44e299e15e0bbe441069ee2ae2a7d131df2066324c35003666cb1891e`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
