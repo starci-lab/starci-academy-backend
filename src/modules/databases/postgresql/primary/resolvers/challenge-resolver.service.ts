@@ -13,8 +13,8 @@ import {
 
 @Injectable()
 /**
- * Applies translations to a challenge and its nested SCHEMA V2 items
- * (requirements/steps/outputs/prerequisites) for CDN materialization.
+ * Applies translations to a challenge, its nested SCHEMA V2 items and its
+ * submission definitions for CDN materialization.
  */
 export class ChallengeResolverService {
     constructor(
@@ -143,6 +143,30 @@ export class ChallengeResolverService {
                     return lang
                 })
                 return prerequisite
+            })
+        }
+        if (challenge.submissions?.length) {
+            challenge.submissions = challenge.submissions.map((submission) => {
+                const canonicalTitle = submission.title
+                const canonicalDescription = submission.description
+                submission.title = this.translationResolver.resolve(
+                    {
+                        translations: submission.translations,
+                        field: "title",
+                        locale,
+                        fallbackLocale: challengeFallback,
+                    },
+                ) || canonicalTitle
+                submission.description = this.translationResolver.resolve(
+                    {
+                        translations: submission.translations,
+                        field: "description",
+                        locale,
+                        fallbackLocale: challengeFallback,
+                    },
+                ) || canonicalDescription
+                delete (submission as Partial<typeof submission>).translations
+                return submission
             })
         }
     }

@@ -5,6 +5,9 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
+    In,
+} from "typeorm"
+import {
     ChallengeOutputEntity,
 } from "../entities/challenge-output.entity"
 import {
@@ -17,6 +20,9 @@ import {
     ChallengeStepEntity,
 } from "../entities/challenge-step.entity"
 import {
+    ChallengeSubmissionEntity,
+} from "../entities/challenge-submission.entity"
+import {
     ChallengeEntity,
 } from "../entities/challenge.entity"
 import {
@@ -28,8 +34,8 @@ import {
 
 @Injectable()
 /**
- * Loads a challenge plus SCHEMA V2 langs/steps/outputs/prerequisites for the
- * CDN/API read path so each resolver does not invent its own relation set.
+ * Loads complete challenge graphs for the CDN/API read path so each caller
+ * receives the same ordered nested collections and submission definitions.
  */
 export class ChallengeHydrationService {
     constructor(
@@ -56,20 +62,52 @@ export class ChallengeHydrationService {
                 id,
             })
         }
-        const hydratedChallenge = challenge.toPlain<ChallengeEntity>()
+        const [hydratedChallenge] = await this.hydrateChallenges([challenge])
+        return hydratedChallenge
+    }
+
+    async loadByContentId(
+        contentId: string,
+    ): Promise<Array<ChallengeEntity>> {
+        const challenges = await this.entityManager.find(
+            ChallengeEntity,
+            {
+                where: {
+                    content: {
+                        id: contentId,
+                    },
+                },
+                relations: {
+                    translations: true,
+                },
+                order: {
+                    sortIndex: "ASC",
+                },
+            },
+        )
+        return this.hydrateChallenges(challenges)
+    }
+
+    private async hydrateChallenges(
+        challenges: Array<ChallengeEntity>,
+    ): Promise<Array<ChallengeEntity>> {
+        if (!challenges.length) {
+            return []
+        }
+        const challengeIds = challenges.map((challenge) => challenge.id)
         const [
             requirements,
             steps,
             outputs,
             prerequisites,
+            submissions,
         ] = await Promise.all([
-            // SCHEMA V2 items -- per-programming-language langs (+ lang translations)
             this.entityManager.find(
                 ChallengeRequirementEntity,
                 {
                     where: {
                         challenge: {
-                            id: hydratedChallenge.id,
+                            id: In(challengeIds),
                         },
                     },
                     relations: {
@@ -87,7 +125,7 @@ export class ChallengeHydrationService {
                 {
                     where: {
                         challenge: {
-                            id: hydratedChallenge.id,
+                            id: In(challengeIds),
                         },
                     },
                     relations: {
@@ -105,7 +143,7 @@ export class ChallengeHydrationService {
                 {
                     where: {
                         challenge: {
-                            id: hydratedChallenge.id,
+                            id: In(challengeIds),
                         },
                     },
                     relations: {
@@ -123,7 +161,7 @@ export class ChallengeHydrationService {
                 {
                     where: {
                         challenge: {
-                            id: hydratedChallenge.id,
+                            id: In(challengeIds),
                         },
                     },
                     relations: {
@@ -136,19 +174,41 @@ export class ChallengeHydrationService {
                     },
                 },
             ),
+            this.entityManager.find(
+                ChallengeSubmissionEntity,
+                {
+                    where: {
+                        challenge: {
+                            id: In(challengeIds),
+                        },
+                    },
+                    relations: {
+                        translations: true,
+                    },
+                    order: {
+                        sortIndex: "ASC",
+                    },
+                },
+            ),
         ])
-        hydratedChallenge.requirements = requirements.map(
-            (requirement) => requirement.toPlain<ChallengeRequirementEntity>(),
-        )
-        hydratedChallenge.steps = steps.map(
-            (step) => step.toPlain<ChallengeStepEntity>(),
-        )
-        hydratedChallenge.outputs = outputs.map(
-            (output) => output.toPlain<ChallengeOutputEntity>(),
-        )
-        hydratedChallenge.prerequisites = prerequisites.map(
-            (prerequisite) => prerequisite.toPlain<ChallengePrerequisiteEntity>(),
-        )
-        return hydratedChallenge
+        return challenges.map((challenge) => {
+            const hydratedChallenge = challenge.toPlain<ChallengeEntity>()
+            hydratedChallenge.requirements = requirements
+                .filter((requirement) => requirement.challengeId === challenge.id)
+                .map((requirement) => requirement.toPlain<ChallengeRequirementEntity>())
+            hydratedChallenge.steps = steps
+                .filter((step) => step.challengeId === challenge.id)
+                .map((step) => step.toPlain<ChallengeStepEntity>())
+            hydratedChallenge.outputs = outputs
+                .filter((output) => output.challengeId === challenge.id)
+                .map((output) => output.toPlain<ChallengeOutputEntity>())
+            hydratedChallenge.prerequisites = prerequisites
+                .filter((prerequisite) => prerequisite.challengeId === challenge.id)
+                .map((prerequisite) => prerequisite.toPlain<ChallengePrerequisiteEntity>())
+            hydratedChallenge.submissions = submissions
+                .filter((submission) => submission.challengeId === challenge.id)
+                .map((submission) => submission.toPlain<ChallengeSubmissionEntity>())
+            return hydratedChallenge
+        })
     }
 }

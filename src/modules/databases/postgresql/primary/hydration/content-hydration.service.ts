@@ -5,9 +5,6 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    ChallengeEntity,
-} from "../entities/challenge.entity"
-import {
     CodeExplainingEntity,
 } from "../entities/code-explaining.entity"
 import {
@@ -25,6 +22,9 @@ import {
 import {
     ContentNotFoundException,
 } from "@modules/platform/exceptions/errors/courses/content-not-found"
+import {
+    ChallengeHydrationService,
+} from "./challenge-hydration.service"
 
 @Injectable()
 /**
@@ -34,6 +34,7 @@ export class ContentHydrationService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly challengeHydrationService: ChallengeHydrationService,
     ) { }
 
     async loadById(
@@ -94,22 +95,7 @@ export class ContentHydrationService {
                     },
                 },
             ),
-            this.entityManager.find(
-                ChallengeEntity,
-                {
-                    where: {
-                        content: {
-                            id: hydratedContent.id,
-                        },
-                    },
-                    relations: {
-                        translations: true,
-                    },
-                    order: {
-                        sortIndex: "ASC",
-                    },
-                },
-            ),
+            this.challengeHydrationService.loadByContentId(hydratedContent.id),
             // SCHEMA V2 per-language lesson bodies -- locale variants live in the translation relation
             this.entityManager.find(
                 ContentBodyEntity,
@@ -134,9 +120,7 @@ export class ContentHydrationService {
         hydratedContent.codeImplementations = codeImplementations.map(
             (row) => row.toPlain<CodeImplementationEntity>(),
         )
-        hydratedContent.challenges = challenges.map(
-            (challenge) => challenge.toPlain<ChallengeEntity>(),
-        )
+        hydratedContent.challenges = challenges
         hydratedContent.bodies = bodies.map(
             (body) => body.toPlain<ContentBodyEntity>(),
         )
