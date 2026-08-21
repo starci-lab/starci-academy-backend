@@ -119,14 +119,13 @@
     },
     "console-shell-navigation": {
       "featureId": "console-shell-navigation",
-      "head": "d4db8e14f1430fba8ac89eb4d8ff99a8f775fbdeb802c46391ffbd7618ce135d",
-      "authorityStatus": "in-progress",
-      "baseHead": "5a56705d6adf4a0c54f40c665768ed91d083c29e598521be84819acb06ec6737",
-      "previousHead": "1e932880f05b19017362637c8dbc1ddcb1a4c07849befd05993897cdde5220ac",
+      "head": "fa00110a15a1c5fe40ae5131fec40f0e6010a9b927753a12367beadf599271be",
+      "authorityStatus": "implemented",
+      "previousHead": "d4db8e14f1430fba8ac89eb4d8ff99a8f775fbdeb802c46391ffbd7618ce135d",
       "sources": [
         {
           "role": "fe",
-          "head": "3102d35bfa73e51c52d087352c68ee106b4a5a46"
+          "head": "223c252250b935ff2ac8803c5747b9b842d9b4da"
         }
       ]
     }
@@ -225,6 +224,10 @@
       "7b92e4fbc866330ef2e99322762ff7087c477611cd8c5d1b34ff73eba47fa16d": {
         "hash": "7b92e4fbc866330ef2e99322762ff7087c477611cd8c5d1b34ff73eba47fa16d",
         "path": "objects/sha256/7b92e4fbc866330ef2e99322762ff7087c477611cd8c5d1b34ff73eba47fa16d.json"
+      },
+      "fa00110a15a1c5fe40ae5131fec40f0e6010a9b927753a12367beadf599271be": {
+        "hash": "fa00110a15a1c5fe40ae5131fec40f0e6010a9b927753a12367beadf599271be",
+        "path": "objects/sha256/fa00110a15a1c5fe40ae5131fec40f0e6010a9b927753a12367beadf599271be.json"
       }
     }
   }
