@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "console-shell-navigation",
-  "head": "1e932880f05b19017362637c8dbc1ddcb1a4c07849befd05993897cdde5220ac",
+  "head": "d4db8e14f1430fba8ac89eb4d8ff99a8f775fbdeb802c46391ffbd7618ce135d",
   "sources": [
     {
       "role": "fe",
