@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "wallet-billing",
-  "head": "241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042",
+  "head": "157cfe622695ef39445ddbe5aee97bad553f62981b877ff0bcf44b12cbb6b9a1",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/nivo-fe.git",
-      "head": "9ae3cefc78e000c3a2c59f9992435fac38275d5b"
+      "head": "3102d35bfa73e51c52d087352c68ee106b4a5a46"
     },
     {
       "role": "be",
@@ -21,8 +21,8 @@
       "role": "fe",
       "path": "apps/app/src/components/pages/WalletPage/component.tsx",
       "startLine": 11,
-      "endLine": 101,
-      "claim": "The wallet surface defines balance, transaction and invoice sections with independent states and pay/top-up action slots.",
+      "endLine": 230,
+      "claim": "The Wallet drawing defines independent balance, transaction and invoice sections, top-up and invoice actions, and resting, empty, answered and refused states.",
       "kind": "ui"
     },
     {
@@ -30,45 +30,88 @@
       "role": "fe",
       "path": "apps/app/src/components/pages/WalletPage/index.tsx",
       "startLine": 24,
-      "endLine": 255,
-      "claim": "The connected wallet reads wallet, invoices and transactions, pays the newest unpaid invoice and refreshes every ledger.",
+      "endLine": 261,
+      "claim": "The connected Wallet loads balance, invoices and transactions independently, pays an unpaid invoice and refreshes all three ledgers, while currently omitting the top-up callback.",
       "kind": "ui"
     },
     {
       "id": "EV-003",
-      "role": "be",
-      "path": "src/features/core/api/core/graphql/queries/wallet/my-wallet/my-wallet.resolver.ts",
-      "startLine": 38,
-      "endLine": 75,
-      "claim": "myWallet returns a viewer-owned wallet and auto-provisions it on first read.",
-      "kind": "api"
+      "role": "fe",
+      "path": "apps/app/src/modules/api/console.ts",
+      "startLine": 115,
+      "endLine": 506,
+      "claim": "The frontend console contract exposes wallet, transaction and invoice identities and reads, but no wallet-top-up pay-link or payment-status operation yet.",
+      "kind": "contract"
     },
     {
       "id": "EV-004",
       "role": "be",
-      "path": "src/features/core/api/core/graphql/queries/invoices/my-invoices/my-invoices.resolver.ts",
-      "startLine": 38,
-      "endLine": 74,
-      "claim": "myInvoices returns the authenticated user's invoices with linked product information.",
+      "path": "src/features/core/api/core/graphql/mutations/wallet/create-wallet-top-up-pay-link/graphql-types/input.ts",
+      "startLine": 17,
+      "endLine": 73,
+      "claim": "The wallet top-up mutation accepts a positive integer VND amount, gateway, success URL and cancellation URL.",
       "kind": "api"
     },
     {
       "id": "EV-005",
       "role": "be",
-      "path": "src/features/core/api/core/graphql/mutations/invoices/pay-invoice/pay-invoice.resolver.ts",
-      "startLine": 42,
-      "endLine": 86,
-      "claim": "payInvoice pays one viewer-owned unpaid invoice and starts linked service provisioning.",
+      "path": "src/features/core/api/core/graphql/mutations/wallet/create-wallet-top-up-pay-link/graphql-types/wallet-top-up-pay-link.ts",
+      "startLine": 19,
+      "endLine": 79,
+      "claim": "The top-up result returns payment and gateway references, checkout URL, optional PayOS QR, optional SePay signed fields, and credited and charged amounts.",
       "kind": "api"
     },
     {
       "id": "EV-006",
       "role": "be",
-      "path": "src/features/core/api/core/graphql/mutations/invoices/pay-invoice/pay-invoice.service.spec.ts",
+      "path": "src/features/core/api/core/graphql/mutations/wallet/create-wallet-top-up-pay-link/create-wallet-top-up-pay-link.service.ts",
+      "startLine": 52,
+      "endLine": 183,
+      "claim": "The service creates a pending wallet-top-up payment and implements distinct PayOS and signed SePay checkout branches without crediting the wallet early.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/core/api/core/http/payment-gateway/sepay-webhook.controller.ts",
+      "startLine": 60,
+      "endLine": 147,
+      "claim": "The SePay webhook authenticates payment by retrieving the provider order, acknowledges unpaid or unrecognised references without settlement, and routes paid references to settlement.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/wallet/my-wallet-transactions/my-wallet-transactions.service.ts",
+      "startLine": 1,
+      "endLine": 26,
+      "claim": "Wallet transactions are loaded for the viewer's wallet newest first.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-009",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/invoices/pay-invoice/pay-invoice.resolver.ts",
+      "startLine": 42,
+      "endLine": 88,
+      "claim": "The payInvoice mutation settles one viewer-owned unpaid invoice and returns the resulting invoice after service logic starts the linked consequence.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "src/tests/helpers/flow-money.ts",
       "startLine": 147,
-      "endLine": 220,
-      "claim": "Service tests cover payment behavior and refusal when the viewer has no matching invoice.",
+      "endLine": 225,
+      "claim": "The shared money-flow helper creates a real SePay wallet-top-up pay link, simulates provider-paid retrieval, delivers the webhook and proves the wallet-credit path rather than a direct deposit shortcut.",
       "kind": "test"
+    },
+    {
+      "id": "EV-011",
+      "claim": "The owner requires the Nivo payment flow to correct Wallet surface patterns and cover SePay wallet top-up, return or cancellation reconciliation, transaction management and invoice management under the one strict StarCi visual grammar, across the full desktop and mobile journey.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "70291b8b8e607f84c809331f613b4e1ff3b48d961e9522c6ed3c7e0320b2d809"
     }
   ]
 }

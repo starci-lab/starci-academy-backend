@@ -1,50 +1,57 @@
-# Wallet and invoice settlement
+# Wallet, SePay top-up and billing management
 
-> Business identity: `nivo/wallet-billing@241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042`
+> Business identity: `nivo/wallet-billing@157cfe622695ef39445ddbe5aee97bad553f62981b877ff0bcf44b12cbb6b9a1`
 >
-> Source heads: `fe@9ae3cefc78e0`, `be@947c6f4a117e`
+> Source heads: authority `pending` · base `241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042` · `fe@3102d35bfa73`, `be@947c6f4a117e`
 >
 > Load this file first. Load only the modules named by the current task.
 
 ## Decision capsule
 
-**Purpose.** An authenticated account owner reads a real auto-provisioned wallet balance, transaction ledger and invoice ledger, then pays the newest unpaid invoice and refreshes all three views.
+**Purpose.** An authenticated account owner reviews the wallet, starts a real SePay top-up, returns to reconcile the credited balance and transaction ledger, and manages wallet transactions and service invoices from one coherent payment flow.
 
 **Primary actor.** Authenticated account owner
 
-**Primary outcome.** The invoice becomes paid and linked provisioning starts
+**Primary outcome.** A confirmed SePay top-up credits the wallet exactly once and appears in the transaction ledger
 
-**Never does.** A wired wallet top-up flow
+**Never does.** Frontend or backend source implementation in this business-analysis run
 
 ## Invariants
 
-- `BR-01` — A first wallet read creates a real wallet row, so zero balance is an answer rather than an absent state.
-- `BR-02` — Invoice payment is restricted to an unpaid invoice owned by the viewer and starts provisioning for the linked service.
+- `BR-01` — A first wallet read creates a real zero-balance wallet; zero is an answered value, not an absent wallet.
+- `BR-02` — A SePay top-up accepts a positive VND amount, records a pending wallet-top-up payment and returns a reference, checkout endpoint and signed checkout fields before any wallet credit is claimed.
+- `BR-03` — Wallet credit occurs only after the authenticated SePay webhook retrieves a paid provider order and routes the matching wallet-top-up settlement.
+- `BR-04` — Wallet transactions are viewer-scoped and returned newest first with deposit or spend direction, amount, optional note and creation time.
+- `BR-05` — Invoice settlement is restricted to an owned unpaid invoice and starts provisioning for its linked service after payment.
 
 ## Primary flow
 
 ```text
-resting → empty → answered → refused
+wallet-ready → top-up-entry → checkout-creating → checkout-handoff → reconciling → history-ready
 ```
 
 ## Surface map
 
 | Surface | Route | Owns | Module |
 |---|---|---|---|
-| `wallet` | `/[locale]/wallet` | Understand the account's available funds and settle service invoices. | [surface](surfaces/wallet.md) |
+| `wallet-payment` | `/:locale/wallet` | Top up account funds, trace every wallet movement and settle service invoices without losing the payment consequence. | [surface](surfaces/wallet-payment.md) |
 
 ## Data and operation map
 
 | Operation | Owner | Input | Result |
 |---|---|---|---|
-| `myWallet` | backend | none | auto-provisioned wallet |
-| `myWalletTransactions` | backend | none | complete transaction ledger |
-| `myInvoices` | backend | none | invoice ledger with product labels |
-| `payInvoice` | backend | invoiceId | paid invoice and provisioning start |
+| `myWallet` | backend | none | viewer-owned auto-provisioned wallet |
+| `myWalletTransactions` | backend | none | viewer-owned wallet transactions newest first |
+| `myInvoices` | backend | none | viewer-owned invoice ledger with product labels |
+| `createWalletTopUpPayLink` | backend | amountVnd, gateway, returnUrl, cancelUrl | pending payment id, gateway reference, checkout URL, signed SePay checkout fields, credit and charged amounts |
+| `SePay signed checkout handoff` | provider | checkoutUrl, checkoutFields | provider payment collection, success or cancellation redirect |
+| `SePay payment webhook settlement` | backend | provider order reference | authenticated paid order routed to wallet-top-up settlement |
+| `payInvoice` | backend | invoiceId | paid invoice, linked provisioning start |
 
 ## Explicit unknowns
 
-- `wallet-top-up-entry` — What flow should the visible Top up action open? Impact: The surface labels the action, but the current connected page supplies no top-up callback.
+- `payment-status-read` — Which authenticated operation returns the payment ledger status and expiry after the browser returns from SePay? Impact: The current contract can prove wallet credit by refreshing balance and transactions, but it cannot distinguish authoritative pending, failed and expired payment states in the UI.
+- `provider-error-disposition` — How should the frontend distinguish a buyer cancellation from a SePay provider error when both currently return through the cancellation URL? Impact: The design can render honest cancelled-or-unresolved recovery, but separate final error copy needs a stronger redirect or payment-status contract.
 
 ## LOADS
 
