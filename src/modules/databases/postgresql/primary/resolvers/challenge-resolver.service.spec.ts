@@ -67,6 +67,20 @@ describe("ChallengeResolverService",
                             text: "Prerequisite text" 
                         })],
                     }],
+                    submissions: [{
+                        title: "Canonical submission title",
+                        description: "Canonical submission description",
+                        translations: [{
+                            locale: Locale.Vi,
+                            field: "title",
+                            value: "Submission title",
+                        },
+                        {
+                            locale: Locale.Vi,
+                            field: "description",
+                            value: "Submission description",
+                        }],
+                    }],
                 }
 
                 service.transform(challenge as never,
@@ -90,6 +104,11 @@ describe("ChallengeResolverService",
                 expect(challenge.prerequisites[0].langs[0]).toMatchObject({
                     text: "Translated text",
                 })
+                expect(challenge.submissions[0]).toMatchObject({
+                    title: "Translated title",
+                    description: "Translated description",
+                })
+                expect(challenge.submissions[0].translations).toBeUndefined()
                 expect(challenge.requirements[0].langs[0].translations).toBeUndefined()
                 expect(translationResolver.resolve).toHaveBeenCalled()
             })
@@ -110,6 +129,7 @@ describe("ChallengeResolverService",
                     steps: undefined,
                     outputs: null,
                     prerequisites: [],
+                    submissions: undefined,
                 }
 
                 service.transform(challenge as never,
@@ -122,6 +142,103 @@ describe("ChallengeResolverService",
                 expect(challenge.steps).toBeUndefined()
                 expect(challenge.outputs).toBeNull()
                 expect(challenge.prerequisites).toEqual([])
+                expect(challenge.submissions).toBeUndefined()
+                expect(translationResolver.resolve).toHaveBeenCalledWith(expect.objectContaining({
+                    fallbackLocale: Locale.Vi,
+                }))
+            })
+
+        it("retains canonical submission values when translations are absent or empty",
+            () => {
+                const translationResolver = {
+                    resolve: jest.fn().mockReturnValue(""),
+                }
+                const service = new ChallengeResolverService(translationResolver as never)
+                const challenge = {
+                    defaultLocale: Locale.En,
+                    title: "Title",
+                    description: "Description",
+                    translations: [],
+                    submissions: [{
+                        title: "Repository",
+                        description: null,
+                        translations: [],
+                    },
+                    {
+                        title: "Runbook",
+                        description: "Explain the rollback plan",
+                        translations: undefined,
+                    }],
+                }
+
+                service.transform(challenge as never,
+                    Locale.Vi,
+                    Locale.En)
+
+                expect(challenge.submissions).toEqual([{
+                    title: "Repository",
+                    description: null,
+                },
+                {
+                    title: "Runbook",
+                    description: "Explain the rollback plan",
+                }])
+            })
+
+        it("uses challenge fallback and empty canonical values for incomplete nested locale rows",
+            () => {
+                const translationResolver = {
+                    resolve: jest.fn().mockReturnValue(""),
+                }
+                const service = new ChallengeResolverService(translationResolver as never)
+                const incompleteLang = () => ({
+                    defaultLocale: null,
+                    title: null,
+                    body: null,
+                    text: null,
+                    translations: [],
+                })
+                const challenge = {
+                    defaultLocale: Locale.Vi,
+                    title: "Title",
+                    description: "Description",
+                    translations: [],
+                    requirements: [{
+                        defaultLocale: null,
+                        langs: [incompleteLang()],
+                    }],
+                    steps: [{
+                        defaultLocale: null,
+                        langs: [incompleteLang()],
+                    }],
+                    outputs: [{
+                        defaultLocale: null,
+                        langs: [incompleteLang()],
+                    }],
+                    prerequisites: [{
+                        defaultLocale: null,
+                        langs: [incompleteLang()],
+                    }],
+                }
+
+                service.transform(challenge as never,
+                    Locale.En,
+                    Locale.Vi)
+
+                expect(challenge.requirements[0].langs[0]).toMatchObject({
+                    title: "",
+                    body: "",
+                })
+                expect(challenge.steps[0].langs[0]).toMatchObject({
+                    title: "",
+                    body: "",
+                })
+                expect(challenge.outputs[0].langs[0]).toMatchObject({
+                    text: "",
+                })
+                expect(challenge.prerequisites[0].langs[0]).toMatchObject({
+                    text: "",
+                })
                 expect(translationResolver.resolve).toHaveBeenCalledWith(expect.objectContaining({
                     fallbackLocale: Locale.Vi,
                 }))
