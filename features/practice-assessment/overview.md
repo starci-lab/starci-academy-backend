@@ -20,5 +20,5 @@ Learners choose coding domains and problems, submit code for asynchronous judgin
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `b78f77ec44905abd1619ac95ac50bfad744c7e96` |
-| be | https://github.com/starci-lab/starci-academy-backend | `0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `d9e352a60a6181782e002e670ff45d088b22711f` |
+| be | https://github.com/starci-lab/starci-academy-backend | `88a3959084772f9eaa0f5dcbc4e480d4356210f0` |

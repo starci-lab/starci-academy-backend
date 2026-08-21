@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "practice-assessment",
-  "head": "2df136cf2975aa81336d78711f848041be2bf421e0da2207c961d58c0b2ce345",
+  "head": "de2b83bebdc7ba06ae11c6a09dc5d72b41645b7907fae2984b79a338e04efeeb",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "b78f77ec44905abd1619ac95ac50bfad744c7e96"
+      "head": "d9e352a60a6181782e002e670ff45d088b22711f"
     },
     {
       "role": "be",
       "repository": "https://github.com/starci-lab/starci-academy-backend",
-      "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
+      "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
     }
   ],
   "evidence": [
@@ -112,6 +112,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "2e6794d9a35c5acc029dee9eafc2978fa91dd9589da5f8ce3f6111cbfb465275"
+    },
+    {
+      "id": "EV-012",
+      "claim": "Owner approved reconciling practice-assessment to the current routed FE and BE commits before executing the accepted mock interview flow.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "fee04602de7b3f4deab3147add8577d5ce22603c29b5b152f1266c45c10b1e9f"
     }
   ]
 }
