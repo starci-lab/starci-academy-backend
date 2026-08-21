@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "wallet-billing",
-  "head": "69273cb65245edd6557f21e8da3c47d07c965ef58b7ce13ff38ea0c01f1fdb45",
+  "head": "7b92e4fbc866330ef2e99322762ff7087c477611cd8c5d1b34ff73eba47fa16d",
   "sources": [
     {
       "role": "fe",
