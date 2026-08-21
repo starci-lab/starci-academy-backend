@@ -1,6 +1,6 @@
 # Shared console shell navigation
 
-> Business head: `cf2a1014109b649182fbd9c35ebced77e948ad5edb66d689d17a22374f299aa4`
+> Business head: `c4427d3ef7eb089efbd1f65733f42d53d8b9e7237ec529f14bbcf129569bb5f0`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
