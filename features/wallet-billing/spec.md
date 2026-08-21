@@ -1,6 +1,6 @@
 # Wallet, SePay top-up and billing management
 
-> Business head: `4c3ba3ac447681793e338301298c0b4621892c243c21502c9470a09fa1804df9`
+> Business head: `69273cb65245edd6557f21e8da3c47d07c965ef58b7ce13ff38ea0c01f1fdb45`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -26,7 +26,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `3102d35bfa73e51c52d087352c68ee106b4a5a46` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `223c252250b935ff2ac8803c5747b9b842d9b4da` |
 | be | https://github.com/starci-lab/nivo-backend.git | `947c6f4a117e1677e37ad98ba03f3dac0bca148e` |
 
 ## 3. Actors and access

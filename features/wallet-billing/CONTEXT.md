@@ -1,8 +1,8 @@
 # Wallet, SePay top-up and billing management
 
-> Business identity: `nivo/wallet-billing@4c3ba3ac447681793e338301298c0b4621892c243c21502c9470a09fa1804df9`
+> Business identity: `nivo/wallet-billing@69273cb65245edd6557f21e8da3c47d07c965ef58b7ce13ff38ea0c01f1fdb45`
 >
-> Source heads: authority `rejected` · base `241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042` · `fe@3102d35bfa73`, `be@947c6f4a117e`
+> Source heads: authority `pending` · base `241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042` · `fe@223c252250b9`, `be@947c6f4a117e`
 >
 > Load this file first. Load only the modules named by the current task.
 

@@ -64,14 +64,14 @@
     },
     "wallet-billing": {
       "featureId": "wallet-billing",
-      "head": "4c3ba3ac447681793e338301298c0b4621892c243c21502c9470a09fa1804df9",
-      "authorityStatus": "rejected",
+      "head": "69273cb65245edd6557f21e8da3c47d07c965ef58b7ce13ff38ea0c01f1fdb45",
+      "authorityStatus": "pending",
       "baseHead": "241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042",
-      "previousHead": "7addf0b44e299e15e0bbe441069ee2ae2a7d131df2066324c35003666cb1891e",
+      "previousHead": "4c3ba3ac447681793e338301298c0b4621892c243c21502c9470a09fa1804df9",
       "sources": [
         {
           "role": "fe",
-          "head": "3102d35bfa73e51c52d087352c68ee106b4a5a46"
+          "head": "223c252250b935ff2ac8803c5747b9b842d9b4da"
         },
         {
           "role": "be",
@@ -217,6 +217,10 @@
       "4c3ba3ac447681793e338301298c0b4621892c243c21502c9470a09fa1804df9": {
         "hash": "4c3ba3ac447681793e338301298c0b4621892c243c21502c9470a09fa1804df9",
         "path": "objects/sha256/4c3ba3ac447681793e338301298c0b4621892c243c21502c9470a09fa1804df9.json"
+      },
+      "69273cb65245edd6557f21e8da3c47d07c965ef58b7ce13ff38ea0c01f1fdb45": {
+        "hash": "69273cb65245edd6557f21e8da3c47d07c965ef58b7ce13ff38ea0c01f1fdb45",
+        "path": "objects/sha256/69273cb65245edd6557f21e8da3c47d07c965ef58b7ce13ff38ea0c01f1fdb45.json"
       }
     }
   }
