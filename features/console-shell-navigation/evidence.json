@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "console-shell-navigation",
-  "head": "c4427d3ef7eb089efbd1f65733f42d53d8b9e7237ec529f14bbcf129569bb5f0",
+  "head": "5a56705d6adf4a0c54f40c665768ed91d083c29e598521be84819acb06ec6737",
   "sources": [
     {
       "role": "fe",
@@ -55,13 +55,6 @@
       "endLine": 60,
       "claim": "Interaction tests prove seven desktop destinations, the complete mobile drawer set, disabled routes and locale-aware activation.",
       "kind": "test"
-    },
-    {
-      "id": "EV-006",
-      "claim": "The owner explicitly requires the shared Nivo console shell to implement the full StarCi collapsible navigation grammar: a visible collapse control, persisted 256px-to-64px rail, compact circular icon destinations, pinned controls, internal group scrolling and the existing right-edge mobile drawer across Dashboard and AgentOS.",
-      "kind": "owner-decision",
-      "authority": "owner",
-      "decisionId": "019ec82f322a2ba974657b422eba74e23f967d6595a390f4b15ca518f64a4be3"
     }
   ]
 }

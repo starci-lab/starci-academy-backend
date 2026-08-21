@@ -20,8 +20,8 @@ Keep navigation identity, state and interaction stable while routed console cont
 
 | Region | Kind | Real representative content | States | Actions | Evidence |
 |---|---|---|---|---|---|
-| `desktop-console-navigation` | navigation | Collapse or expand navigation; Current destination; Home, Services and Account destinations | expanded, collapsed | Collapse navigation, Expand navigation | `EV-001`, `EV-002`, `EV-003`, `EV-006` |
-| `mobile-console-navigation` | navigation | Complete console destinations | mobile-closed, mobile-open | Open navigation, Close navigation | `EV-001`, `EV-002`, `EV-004`, `EV-005`, `EV-006` |
+| `desktop-console-navigation` | navigation | Current destination; Home, Services and Account destinations | expanded | none | `EV-001`, `EV-002`, `EV-003` |
+| `mobile-console-navigation` | navigation | Complete console destinations | mobile-closed, mobile-open | Open navigation, Close navigation | `EV-001`, `EV-002`, `EV-004`, `EV-005` |
 
 ## Context rule
 

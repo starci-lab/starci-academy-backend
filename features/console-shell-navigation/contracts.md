@@ -2,9 +2,9 @@
 
 ## Entity · Console navigation preference (`navigation-preference`)
 
-Fields: `collapsed state`, `selected destination`, `viewport presentation`
+Fields: `selected destination`, `viewport presentation`
 
-Evidence: `EV-002`, `EV-003`, `EV-006`
+Evidence: `EV-002`, `EV-003`
 
 No operation is confirmed.
 

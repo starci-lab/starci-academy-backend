@@ -1,20 +1,17 @@
 # Shared console shell navigation
 
-> Business head: `c4427d3ef7eb089efbd1f65733f42d53d8b9e7237ec529f14bbcf129569bb5f0`
+> Business head: `5a56705d6adf4a0c54f40c665768ed91d083c29e598521be84819acb06ec6737`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
 ## 1. Overview
 
-Every authenticated console route shares one desktop navigation rail with expanded and compact presentations, while narrow screens use one right-edge drawer with the same destination identities.
+Every authenticated console route shares one fixed expanded desktop destination rail, while narrow screens use one right-edge drawer with the same destination identities.
 
 Included:
 - Shared console chrome for Overview, Apps, AgentOS and Wallet routes
-- Desktop rail expanded and compact presentations
-- Visible keyboard-operable collapse and expand control
-- Persisted collapse preference and adjacent body reflow
-- Circular icon-only compact destinations with accessible labels
-- Pinned controls with destination-group internal scrolling
+- Fixed expanded desktop navigation rail
+- Single-selection keyboard-operable destination collection
 - Right-edge mobile navigation drawer with the complete destination set
 
 Excluded:
@@ -32,9 +29,9 @@ Excluded:
 
 ### Authenticated account owner
 
-- Navigate every available console destination and choose a persistent compact or expanded desktop rail
+- Navigate every available console destination from the shared desktop rail or mobile drawer
 
-Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`
 
 ## 4. Entry points and surfaces
 
@@ -46,7 +43,7 @@ Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`
 - Regions: `desktop-console-navigation`, `mobile-console-navigation`
 - Navigation: Overview (available), Apps (available), AgentOS (available), Servers (unavailable), Domains (unavailable), Wallet (available), Support (unavailable)
 
-Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`
 
 ## 5. Business flows
 
@@ -54,14 +51,13 @@ Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`
 
 Trigger: Open any authenticated console route
 
-1. **account-owner** — Read the expanded destination rail and activate the visible collapse control → The same rail host becomes compact and the routed body reflows
-2. **account-owner** — Traverse circular icon destinations or activate the expand control → Navigation remains operable and the expanded rail is restored
-3. **account-owner** — Open and close the right-edge drawer on a narrow viewport → The complete destination set remains reachable without a bottom tab bar
+1. **account-owner** — Read the fixed expanded destination rail and choose an available route → The routed body changes while the shared rail remains mounted
+2. **account-owner** — Open and close the right-edge drawer on a narrow viewport → The complete destination set remains reachable without a bottom tab bar
 
 Outcomes:
-- The account owner keeps one stable way to navigate across every console route and viewport
+- The account owner keeps one stable way to navigate across every current console route and viewport
 
-Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`
 
 ## 6. Business rules
 
@@ -69,42 +65,23 @@ Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`
 
 The destination collection preserves one selected key, keyboard traversal, focus-visible feedback and the same destination order on every console route.
 
-Strength: **confirmed** · Evidence: `EV-002`, `EV-003`, `EV-005`, `EV-006`
-
-### BR-02
-
-The desktop rail has exactly two persisted presentations: expanded at 256px and collapsed at 64px, toggled by one visible keyboard-operable control while the adjacent body reflows.
-
-Strength: **confirmed** · Evidence: `EV-006`
-
-### BR-03
-
-Collapsed destinations keep stable circular glyphs, accessible labels and target size; visible copy may disappear but destination meaning may not.
-
-Strength: **confirmed** · Evidence: `EV-006`
-
-### BR-04
-
-Collapse control and Overview remain pinned while only long destination groups own internal scrolling.
-
-Strength: **confirmed** · Evidence: `EV-006`
+Strength: **confirmed** · Evidence: `EV-002`, `EV-003`, `EV-005`
 
 ### BR-05
 
 Below the desktop breakpoint the standing rail and bottom tab bar are absent; one right-edge drawer exposes the complete destination set.
 
-Strength: **confirmed** · Evidence: `EV-001`, `EV-002`, `EV-004`, `EV-005`, `EV-006`
+Strength: **confirmed** · Evidence: `EV-001`, `EV-002`, `EV-004`, `EV-005`
 
 ## 7. State model
 
-- **Expanded desktop rail** (`expanded`, initial) → collapsed — `EV-001`, `EV-002`, `EV-006`
-- **Compact desktop rail** (`collapsed`, success) → expanded — `EV-006`
-- **Mobile drawer closed** (`mobile-closed`, initial) → mobile-open — `EV-001`, `EV-004`, `EV-005`, `EV-006`
-- **Mobile drawer open** (`mobile-open`, success) → mobile-closed — `EV-004`, `EV-005`, `EV-006`
+- **Expanded desktop rail** (`expanded`, initial) → terminal — `EV-001`, `EV-002`
+- **Mobile drawer closed** (`mobile-closed`, initial) → mobile-open — `EV-001`, `EV-004`, `EV-005`
+- **Mobile drawer open** (`mobile-open`, success) → mobile-closed — `EV-004`, `EV-005`
 
 ## 8. Entities and data
 
-- **Console navigation preference**: collapsed state, selected destination, viewport presentation — `EV-002`, `EV-003`, `EV-006`
+- **Console navigation preference**: selected destination, viewport presentation — `EV-002`, `EV-003`
 
 ## 9. Operations and APIs
 
@@ -112,11 +89,8 @@ No operation is confirmed.
 
 ## 10. Acceptance conditions
 
-- **AC-01** Every authenticated console route renders the same expanded or collapsed desktop rail state without remounting its host. — `EV-001`, `EV-002`, `EV-006`
-- **AC-02** A visible keyboard-operable toggle changes the desktop rail between 256px and 64px, persists the choice and reflows the routed body. — `EV-006`
-- **AC-03** Compact mode retains circular icon targets, accessible labels, selected state and destination order. — `EV-003`, `EV-006`
-- **AC-04** Only destination groups scroll; toggle and Overview remain pinned. — `EV-006`
-- **AC-05** A narrow viewport exposes all destinations in a right-edge drawer and renders neither desktop rail nor bottom tab bar. — `EV-001`, `EV-004`, `EV-005`, `EV-006`
+- **AC-01** Every authenticated console route renders the same fixed desktop rail without remounting its host. — `EV-001`, `EV-002`, `EV-003`, `EV-005`
+- **AC-05** A narrow viewport exposes all destinations in a right-edge drawer and renders neither desktop rail nor bottom tab bar. — `EV-001`, `EV-004`, `EV-005`
 
 ## 11. Explicit unknowns
 
@@ -131,4 +105,3 @@ No unresolved question is recorded.
 | EV-003 | fe | `packages/ui/src/leaves/SelectionList/index.tsx:21` | ui | The shared SelectionList delegates single-selection and keyboard mechanics to HeroUI ListBox. |
 | EV-004 | fe | `packages/ui/src/branches/DrawerBranch/index.tsx:6` | ui | The shared DrawerBranch owns right-edge placement, backdrop, focus, dismissal and the single drawer body. |
 | EV-005 | fe | `apps/app/src/components/layouts/ConsoleNav/index.spec.tsx:27` | test | Interaction tests prove seven desktop destinations, the complete mobile drawer set, disabled routes and locale-aware activation. |
-| EV-006 | owner | `decision:019ec82f322a2ba974657b422eba74e23f967d6595a390f4b15ca518f64a4be3` | owner-decision | The owner explicitly requires the shared Nivo console shell to implement the full StarCi collapsible navigation grammar: a visible collapse control, persisted 256px-to-64px rail, compact circular icon destinations, pinned controls, internal group scrolling and the existing right-edge mobile drawer across Dashboard and AgentOS. |
