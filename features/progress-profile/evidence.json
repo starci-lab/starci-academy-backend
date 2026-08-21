@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "progress-profile",
-  "head": "11029753f34b38d79333a42d96b955e849b94b7976aea8b37aed00387d158604",
+  "head": "83245d75882870bf2b2980af7325140a697a38228ed7db4d84bb56ac7f1e84a0",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "6db677598290cd69c3db6bfc4e731c37ba972b63"
+      "head": "d019b01d32e3fa124a63bcfa499f795a1d2ed2eb"
     },
     {
       "role": "be",
       "repository": "https://github.com/starci-lab/starci-academy-backend",
-      "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
+      "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
     }
   ],
   "evidence": [
