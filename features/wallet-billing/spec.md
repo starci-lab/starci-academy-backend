@@ -1,6 +1,6 @@
 # Wallet, SePay top-up and billing management
 
-> Business head: `7b92e4fbc866330ef2e99322762ff7087c477611cd8c5d1b34ff73eba47fa16d`
+> Business head: `3fc6e87beddba3c1b082cfa34979747bdc4d36297744ef11a52bd5ea933ab551`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -26,7 +26,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `223c252250b935ff2ac8803c5747b9b842d9b4da` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `385a4568195e59287d0555a1f473a80d85123411` |
 | be | https://github.com/starci-lab/nivo-backend.git | `947c6f4a117e1677e37ad98ba03f3dac0bca148e` |
 
 ## 3. Actors and access
@@ -170,9 +170,9 @@ Strength: **partial** · Evidence: `EV-002`, `EV-003`, `EV-011`
 
 | ID | Role | Source | Kind | Claim |
 |---|---|---|---|---|
-| EV-001 | fe | `apps/app/src/components/pages/WalletPage/component.tsx:11` | ui | The Wallet drawing defines independent balance, transaction and invoice sections, top-up and invoice actions, and resting, empty, answered and refused states. |
-| EV-002 | fe | `apps/app/src/components/pages/WalletPage/index.tsx:24` | ui | The connected Wallet loads balance, invoices and transactions independently, pays an unpaid invoice and refreshes all three ledgers, while currently omitting the top-up callback. |
-| EV-003 | fe | `apps/app/src/modules/api/console.ts:115` | contract | The frontend console contract exposes wallet, transaction and invoice identities and reads, but no wallet-top-up pay-link or payment-status operation yet. |
+| EV-001 | fe | `apps/app/src/components/pages/WalletPage/component.tsx:11` | ui | The Wallet drawing implements the grammar-locked padded balance surface, joined transaction and invoice ledgers, top-up and result modals, and transaction or invoice detail drawers across loading, empty, answered and refused states. |
+| EV-002 | fe | `apps/app/src/components/pages/WalletPage/index.tsx:39` | ui | The connected Wallet loads balance, invoices and transactions, creates a real signed SePay checkout, persists reconciliation evidence, submits provider fields, reports gateway refusal locally, reconciles return or cancellation without fabricating status, and retains invoice settlement. |
+| EV-003 | fe | `apps/app/src/modules/api/console.ts:115` | contract | The frontend console contract exposes wallet, transaction and invoice identities and reads plus the createWalletTopUpPayLink SePay mutation; it still exposes no authoritative payment-status read operation. |
 | EV-004 | be | `src/features/core/api/core/graphql/mutations/wallet/create-wallet-top-up-pay-link/graphql-types/input.ts:17` | api | The wallet top-up mutation accepts a positive integer VND amount, gateway, success URL and cancellation URL. |
 | EV-005 | be | `src/features/core/api/core/graphql/mutations/wallet/create-wallet-top-up-pay-link/graphql-types/wallet-top-up-pay-link.ts:19` | api | The top-up result returns payment and gateway references, checkout URL, optional PayOS QR, optional SePay signed fields, and credited and charged amounts. |
 | EV-006 | be | `src/features/core/api/core/graphql/mutations/wallet/create-wallet-top-up-pay-link/create-wallet-top-up-pay-link.service.ts:52` | api | The service creates a pending wallet-top-up payment and implements distinct PayOS and signed SePay checkout branches without crediting the wallet early. |

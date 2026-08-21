@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "wallet-billing",
-  "head": "7b92e4fbc866330ef2e99322762ff7087c477611cd8c5d1b34ff73eba47fa16d",
+  "head": "3fc6e87beddba3c1b082cfa34979747bdc4d36297744ef11a52bd5ea933ab551",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/nivo-fe.git",
-      "head": "223c252250b935ff2ac8803c5747b9b842d9b4da"
+      "head": "385a4568195e59287d0555a1f473a80d85123411"
     },
     {
       "role": "be",
@@ -21,17 +21,17 @@
       "role": "fe",
       "path": "apps/app/src/components/pages/WalletPage/component.tsx",
       "startLine": 11,
-      "endLine": 230,
-      "claim": "The Wallet drawing defines independent balance, transaction and invoice sections, top-up and invoice actions, and resting, empty, answered and refused states.",
+      "endLine": 173,
+      "claim": "The Wallet drawing implements the grammar-locked padded balance surface, joined transaction and invoice ledgers, top-up and result modals, and transaction or invoice detail drawers across loading, empty, answered and refused states.",
       "kind": "ui"
     },
     {
       "id": "EV-002",
       "role": "fe",
       "path": "apps/app/src/components/pages/WalletPage/index.tsx",
-      "startLine": 24,
-      "endLine": 261,
-      "claim": "The connected Wallet loads balance, invoices and transactions independently, pays an unpaid invoice and refreshes all three ledgers, while currently omitting the top-up callback.",
+      "startLine": 39,
+      "endLine": 197,
+      "claim": "The connected Wallet loads balance, invoices and transactions, creates a real signed SePay checkout, persists reconciliation evidence, submits provider fields, reports gateway refusal locally, reconciles return or cancellation without fabricating status, and retains invoice settlement.",
       "kind": "ui"
     },
     {
@@ -39,8 +39,8 @@
       "role": "fe",
       "path": "apps/app/src/modules/api/console.ts",
       "startLine": 115,
-      "endLine": 506,
-      "claim": "The frontend console contract exposes wallet, transaction and invoice identities and reads, but no wallet-top-up pay-link or payment-status operation yet.",
+      "endLine": 523,
+      "claim": "The frontend console contract exposes wallet, transaction and invoice identities and reads plus the createWalletTopUpPayLink SePay mutation; it still exposes no authoritative payment-status read operation.",
       "kind": "contract"
     },
     {

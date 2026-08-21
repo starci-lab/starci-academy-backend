@@ -24,5 +24,5 @@ An authenticated account owner reviews the wallet, starts a real SePay top-up, r
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `223c252250b935ff2ac8803c5747b9b842d9b4da` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `385a4568195e59287d0555a1f473a80d85123411` |
 | be | https://github.com/starci-lab/nivo-backend.git | `947c6f4a117e1677e37ad98ba03f3dac0bca148e` |
