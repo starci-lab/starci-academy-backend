@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "course-learning",
-  "head": "19177d94209d6ab3b45c54f1981fa3152e39da0ad656de509076a3d089a60006",
+  "head": "a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "b78f77ec44905abd1619ac95ac50bfad744c7e96"
+      "head": "d019b01d32e3fa124a63bcfa499f795a1d2ed2eb"
     },
     {
       "role": "be",
       "repository": "https://github.com/starci-lab/starci-academy-backend",
-      "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
+      "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
     }
   ],
   "evidence": [
