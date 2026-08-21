@@ -20,14 +20,13 @@
     },
     "operations-dashboard": {
       "featureId": "operations-dashboard",
-      "head": "fb803dc92d8e96d6377aec0f6de0b351210d6472801d9eb93babaad14983b8d4",
-      "authorityStatus": "in-progress",
-      "baseHead": "aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290",
-      "previousHead": "b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8",
+      "head": "cecf53f7f29811d83a18c70a8c064abe3387037114da1f9efedb9fc08d86a991",
+      "authorityStatus": "implemented",
+      "previousHead": "fb803dc92d8e96d6377aec0f6de0b351210d6472801d9eb93babaad14983b8d4",
       "sources": [
         {
           "role": "fe",
-          "head": "b1a7ad71ae7b90fe8a25bf0920d0698db28b7b20"
+          "head": "3102d35bfa73e51c52d087352c68ee106b4a5a46"
         },
         {
           "role": "be",
@@ -166,6 +165,10 @@
       "fb803dc92d8e96d6377aec0f6de0b351210d6472801d9eb93babaad14983b8d4": {
         "hash": "fb803dc92d8e96d6377aec0f6de0b351210d6472801d9eb93babaad14983b8d4",
         "path": "objects/sha256/fb803dc92d8e96d6377aec0f6de0b351210d6472801d9eb93babaad14983b8d4.json"
+      },
+      "cecf53f7f29811d83a18c70a8c064abe3387037114da1f9efedb9fc08d86a991": {
+        "hash": "cecf53f7f29811d83a18c70a8c064abe3387037114da1f9efedb9fc08d86a991",
+        "path": "objects/sha256/cecf53f7f29811d83a18c70a8c064abe3387037114da1f9efedb9fc08d86a991.json"
       }
     }
   }

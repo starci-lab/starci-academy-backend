@@ -19,4 +19,4 @@ List responses without a declared total are represented by members and navigatio
 Below the desktop breakpoint, console destinations live in one right-edge drawer opened by a visible menu control; the standing rail and bottom tab bar are absent.
 
 - Strength: `confirmed`
-- Evidence: `EV-006`
+- Evidence: `EV-003`, `EV-006`

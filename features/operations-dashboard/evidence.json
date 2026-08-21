@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "operations-dashboard",
-  "head": "fb803dc92d8e96d6377aec0f6de0b351210d6472801d9eb93babaad14983b8d4",
+  "head": "cecf53f7f29811d83a18c70a8c064abe3387037114da1f9efedb9fc08d86a991",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/nivo-fe.git",
-      "head": "b1a7ad71ae7b90fe8a25bf0920d0698db28b7b20"
+      "head": "3102d35bfa73e51c52d087352c68ee106b4a5a46"
     },
     {
       "role": "be",
@@ -20,27 +20,27 @@
       "id": "EV-001",
       "role": "fe",
       "path": "apps/app/src/components/pages/OverviewPage/component.tsx",
-      "startLine": 18,
-      "endLine": 47,
-      "claim": "The overview is five independently settled service sections and preserves partial answers without invented counts.",
+      "startLine": 94,
+      "endLine": 111,
+      "claim": "The overview draws four independently settled summary blocks for Apps, AgentOS, combined infrastructure/domain evidence and Wallet.",
       "kind": "ui"
     },
     {
       "id": "EV-002",
       "role": "fe",
       "path": "apps/app/src/components/pages/OverviewPage/index.tsx",
-      "startLine": 174,
-      "endLine": 209,
-      "claim": "The connected overview queries apps, AgentOS, domains and wallet data, maps resting/empty/answered/refused states and routes to available destinations.",
+      "startLine": 69,
+      "endLine": 203,
+      "claim": "The connected overview independently queries apps, AgentOS, domains and wallet/invoice data, maps pending, empty, populated, partial and failed states, and routes to available destinations.",
       "kind": "ui"
     },
     {
       "id": "EV-003",
       "role": "fe",
       "path": "apps/app/src/components/layouts/ConsoleNav/index.tsx",
-      "startLine": 67,
-      "endLine": 84,
-      "claim": "Console navigation exposes Overview, Apps, AgentOS and Wallet routes while Servers, Domains and Support remain unavailable.",
+      "startLine": 77,
+      "endLine": 209,
+      "claim": "Console navigation exposes the complete grouped destination set through one controlled HeroUI ListBox on desktop and the same set inside a right-edge mobile drawer.",
       "kind": "route"
     },
     {
