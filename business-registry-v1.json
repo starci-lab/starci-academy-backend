@@ -20,14 +20,14 @@
     },
     "operations-dashboard": {
       "featureId": "operations-dashboard",
-      "head": "b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8",
-      "authorityStatus": "pending",
+      "head": "fb803dc92d8e96d6377aec0f6de0b351210d6472801d9eb93babaad14983b8d4",
+      "authorityStatus": "in-progress",
       "baseHead": "aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290",
-      "previousHead": "aa6f1b73d8a670bbb94c356c96ac38022cd0dc497227251eceab2050e9207290",
+      "previousHead": "b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8",
       "sources": [
         {
           "role": "fe",
-          "head": "9ae3cefc78e000c3a2c59f9992435fac38275d5b"
+          "head": "b1a7ad71ae7b90fe8a25bf0920d0698db28b7b20"
         },
         {
           "role": "be",
@@ -162,6 +162,10 @@
       "b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8": {
         "hash": "b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8",
         "path": "objects/sha256/b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8.json"
+      },
+      "fb803dc92d8e96d6377aec0f6de0b351210d6472801d9eb93babaad14983b8d4": {
+        "hash": "fb803dc92d8e96d6377aec0f6de0b351210d6472801d9eb93babaad14983b8d4",
+        "path": "objects/sha256/fb803dc92d8e96d6377aec0f6de0b351210d6472801d9eb93babaad14983b8d4.json"
       }
     }
   }

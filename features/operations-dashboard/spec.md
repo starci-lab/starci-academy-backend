@@ -1,6 +1,6 @@
 # Operations dashboard
 
-> Business head: `b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8`
+> Business head: `fb803dc92d8e96d6377aec0f6de0b351210d6472801d9eb93babaad14983b8d4`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -22,7 +22,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `9ae3cefc78e000c3a2c59f9992435fac38275d5b` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `b1a7ad71ae7b90fe8a25bf0920d0698db28b7b20` |
 | be | https://github.com/starci-lab/nivo-backend.git | `947c6f4a117e1677e37ad98ba03f3dac0bca148e` |
 
 ## 3. Actors and access

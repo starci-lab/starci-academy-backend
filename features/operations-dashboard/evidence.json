@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "operations-dashboard",
-  "head": "b179b657684d8ed488040c0210515eb1ef27dfc8f2795ab8a8487775317077b8",
+  "head": "fb803dc92d8e96d6377aec0f6de0b351210d6472801d9eb93babaad14983b8d4",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/nivo-fe.git",
-      "head": "9ae3cefc78e000c3a2c59f9992435fac38275d5b"
+      "head": "b1a7ad71ae7b90fe8a25bf0920d0698db28b7b20"
     },
     {
       "role": "be",
