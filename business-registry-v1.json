@@ -64,10 +64,10 @@
     },
     "wallet-billing": {
       "featureId": "wallet-billing",
-      "head": "7addf0b44e299e15e0bbe441069ee2ae2a7d131df2066324c35003666cb1891e",
-      "authorityStatus": "in-progress",
+      "head": "4c3ba3ac447681793e338301298c0b4621892c243c21502c9470a09fa1804df9",
+      "authorityStatus": "rejected",
       "baseHead": "241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042",
-      "previousHead": "157cfe622695ef39445ddbe5aee97bad553f62981b877ff0bcf44b12cbb6b9a1",
+      "previousHead": "7addf0b44e299e15e0bbe441069ee2ae2a7d131df2066324c35003666cb1891e",
       "sources": [
         {
           "role": "fe",
@@ -213,6 +213,10 @@
       "7addf0b44e299e15e0bbe441069ee2ae2a7d131df2066324c35003666cb1891e": {
         "hash": "7addf0b44e299e15e0bbe441069ee2ae2a7d131df2066324c35003666cb1891e",
         "path": "objects/sha256/7addf0b44e299e15e0bbe441069ee2ae2a7d131df2066324c35003666cb1891e.json"
+      },
+      "4c3ba3ac447681793e338301298c0b4621892c243c21502c9470a09fa1804df9": {
+        "hash": "4c3ba3ac447681793e338301298c0b4621892c243c21502c9470a09fa1804df9",
+        "path": "objects/sha256/4c3ba3ac447681793e338301298c0b4621892c243c21502c9470a09fa1804df9.json"
       }
     }
   }
