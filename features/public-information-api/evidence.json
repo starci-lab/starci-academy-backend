@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "tayson",
   "featureId": "public-information-api",
-  "head": "4386640cc7376e96c9f4678ad5e939063d843e393d73b9d5f78cd030c00730fe",
+  "head": "742352cc959645eaf1255c944a369ef5d7cf19ff76687be2f282626fb3dc4e82",
   "sources": [
     {
       "role": "fe",
       "repository": "local-only:D:/Repositories/tayson-fe",
-      "head": "3fa4956e035a06ca0afebb7b30659ad2ee8724a2"
+      "head": "6a954d40294c3dfaf7678d2eb4c34c1cd3c389d2"
     },
     {
       "role": "be",
