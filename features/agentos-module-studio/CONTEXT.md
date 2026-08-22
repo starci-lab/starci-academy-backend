@@ -1,8 +1,8 @@
 # AgentOS custom module studio
 
-> Business identity: `nivo/agentos-module-studio@f1e1843c1737fe9db47454df9d995b3c9aeb2d41947bbc1baf7abe3f46004300`
+> Business identity: `nivo/agentos-module-studio@2bf93759d04613ebeaf06f4ed3282dc9b28883c75fef7ba38904d37bebbe2201`
 >
-> Source heads: authority `pending` · `fe@894e608bba73`, `be@ac05d90e7b6b`
+> Source heads: authority `in-progress` · `fe@894e608bba73`, `be@ac05d90e7b6b`
 >
 > Load this file first. Load only the modules named by the current task.
 

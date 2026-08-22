@@ -1,6 +1,6 @@
 # AgentOS custom module studio
 
-> Business head: `f1e1843c1737fe9db47454df9d995b3c9aeb2d41947bbc1baf7abe3f46004300`
+> Business head: `2bf93759d04613ebeaf06f4ed3282dc9b28883c75fef7ba38904d37bebbe2201`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
