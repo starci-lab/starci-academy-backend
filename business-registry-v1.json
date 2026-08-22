@@ -34,9 +34,9 @@
     },
     "public-information-api": {
       "featureId": "public-information-api",
-      "head": "fdf855dc018834bdc435c459160c5c184980ca462fca86adde78fd01ff4c26f2",
-      "authorityStatus": "in-progress",
-      "previousHead": "32380cf78b31420af08586014396645d5675feb155a268ccf637ffcb90728439",
+      "head": "873128c191b59680804d0a05626454eb2dc98fc8397fb562b06f8d628add7252",
+      "authorityStatus": "implemented",
+      "previousHead": "fdf855dc018834bdc435c459160c5c184980ca462fca86adde78fd01ff4c26f2",
       "sources": [
         {
           "role": "fe",
@@ -44,7 +44,7 @@
         },
         {
           "role": "be",
-          "head": "3d52563145475e0f292f3772964d526cac5a52ea"
+          "head": "d7cb09bb1a88365b28821235626d1ad9f03a7108"
         }
       ]
     }
@@ -75,6 +75,10 @@
       "fdf855dc018834bdc435c459160c5c184980ca462fca86adde78fd01ff4c26f2": {
         "hash": "fdf855dc018834bdc435c459160c5c184980ca462fca86adde78fd01ff4c26f2",
         "path": "objects/sha256/fdf855dc018834bdc435c459160c5c184980ca462fca86adde78fd01ff4c26f2.json"
+      },
+      "873128c191b59680804d0a05626454eb2dc98fc8397fb562b06f8d628add7252": {
+        "hash": "873128c191b59680804d0a05626454eb2dc98fc8397fb562b06f8d628add7252",
+        "path": "objects/sha256/873128c191b59680804d0a05626454eb2dc98fc8397fb562b06f8d628add7252.json"
       }
     }
   }

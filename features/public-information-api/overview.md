@@ -25,4 +25,4 @@ Backend cung cấp truy vấn chỉ đọc tài liệu thông tin công khai đ�
 | Role | Repository | Head |
 |---|---|---|
 | fe | local-only:D:/Repositories/tayson-fe | `3fa4956e035a06ca0afebb7b30659ad2ee8724a2` |
-| be | local-only:D:/Repositories/tayson-backend | `3d52563145475e0f292f3772964d526cac5a52ea` |
+| be | local-only:D:/Repositories/tayson-backend | `d7cb09bb1a88365b28821235626d1ad9f03a7108` |

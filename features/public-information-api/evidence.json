@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "tayson",
   "featureId": "public-information-api",
-  "head": "fdf855dc018834bdc435c459160c5c184980ca462fca86adde78fd01ff4c26f2",
+  "head": "873128c191b59680804d0a05626454eb2dc98fc8397fb562b06f8d628add7252",
   "sources": [
     {
       "role": "fe",
@@ -12,7 +12,7 @@
     {
       "role": "be",
       "repository": "local-only:D:/Repositories/tayson-backend",
-      "head": "3d52563145475e0f292f3772964d526cac5a52ea"
+      "head": "d7cb09bb1a88365b28821235626d1ad9f03a7108"
     }
   ],
   "evidence": [
