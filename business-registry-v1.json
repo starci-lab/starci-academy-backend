@@ -127,6 +127,17 @@
           "head": "223c252250b935ff2ac8803c5747b9b842d9b4da"
         }
       ]
+    },
+    "seeded-owned-apps": {
+      "featureId": "seeded-owned-apps",
+      "head": "552433009221d6fdd8d0a1b16e8df95c2d8ddb888c33d0c56ba954fa9aeeee68",
+      "authorityStatus": "pending",
+      "sources": [
+        {
+          "role": "be",
+          "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+        }
+      ]
     }
   },
   "objects": {
@@ -231,6 +242,10 @@
       "3fc6e87beddba3c1b082cfa34979747bdc4d36297744ef11a52bd5ea933ab551": {
         "hash": "3fc6e87beddba3c1b082cfa34979747bdc4d36297744ef11a52bd5ea933ab551",
         "path": "objects/sha256/3fc6e87beddba3c1b082cfa34979747bdc4d36297744ef11a52bd5ea933ab551.json"
+      },
+      "552433009221d6fdd8d0a1b16e8df95c2d8ddb888c33d0c56ba954fa9aeeee68": {
+        "hash": "552433009221d6fdd8d0a1b16e8df95c2d8ddb888c33d0c56ba954fa9aeeee68",
+        "path": "objects/sha256/552433009221d6fdd8d0a1b16e8df95c2d8ddb888c33d0c56ba954fa9aeeee68.json"
       }
     }
   }
