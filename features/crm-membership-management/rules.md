@@ -41,3 +41,24 @@ Phiên bản đầu của CRM hội viên sử dụng tiếng Việt và không 
 
 - Strength: `confirmed`
 - Evidence: `EV-001`
+
+## BR-07
+
+Hồ sơ CRM V1 gồm mã hồ sơ, tên doanh nghiệp, mã số thuế, người đại diện và chức vụ, địa chỉ doanh nghiệp, email, điện thoại, lĩnh vực và phần giới thiệu; sau khi approved chỉ tên doanh nghiệp, lĩnh vực và phần giới thiệu được phép công khai.
+
+- Strength: `confirmed`
+- Evidence: `EV-003`
+
+## BR-08
+
+Hàng đợi cho phép tìm theo mã hồ sơ, tên doanh nghiệp hoặc mã số thuế, lọc theo trạng thái, sắp xếp hồ sơ mới nhất trước và phân trang 20 hồ sơ mỗi trang.
+
+- Strength: `confirmed`
+- Evidence: `EV-003`
+
+## BR-09
+
+Từ chối bắt buộc có lý do, duyệt cho phép ghi chú nội bộ tùy chọn, cả hai quyết định đều cần xác nhận và audit ghi người thao tác, thời điểm, quyết định cùng lý do hoặc ghi chú tương ứng.
+
+- Strength: `confirmed`
+- Evidence: `EV-003`

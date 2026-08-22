@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "tayson",
   "featureId": "crm-membership-management",
-  "head": "045f96e7829e77924cce0b2e526b55f5d6ea0dcf3e250990b5a4ccd50d53bfe0",
+  "head": "4466633f2fb0909d8454f38bc1130ddde2664ba260b4584e5bfd79ac42f104bb",
   "sources": [
     {
       "role": "fe",
@@ -29,6 +29,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "9058a36a3e8162332ac8a76f3c461fff8851f053f39f9e5e743e291f368d5daf"
+    },
+    {
+      "id": "EV-003",
+      "claim": "Owner chốt mặc định CRM V1: schema hồ sơ và trường công khai an toàn, queue tìm-lọc-sắp xếp-phân trang 20 hồ sơ, cùng quy tắc xác nhận, lý do từ chối, ghi chú duyệt và audit quyết định.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "dafdcd4fe4242c476570bf977f1126570465d1b300faf29f2e47e1d9d52b5a26"
     }
   ]
 }

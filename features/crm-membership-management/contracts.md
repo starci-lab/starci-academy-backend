@@ -2,44 +2,44 @@
 
 ## Entity · Hồ sơ đăng ký hội viên (`member-application`)
 
-Fields: `Dữ liệu biểu mẫu do người đăng ký cung cấp`, `Trạng thái xử lý`, `Thời điểm gửi`, `Dấu thời gian xóa mềm`
+Fields: `Mã hồ sơ`, `Tên doanh nghiệp`, `Mã số thuế`, `Tên người đại diện`, `Chức vụ người đại diện`, `Địa chỉ doanh nghiệp`, `Email liên hệ`, `Điện thoại liên hệ`, `Lĩnh vực hoạt động`, `Phần giới thiệu doanh nghiệp`, `Trạng thái xử lý`, `Thời điểm gửi`, `Dấu thời gian xóa mềm`
 
-Evidence: `EV-001`, `EV-002`
+Evidence: `EV-001`, `EV-002`, `EV-003`
 
 ## Entity · Hồ sơ hội viên và doanh nghiệp (`member-profile`)
 
-Fields: `Thông tin doanh nghiệp`, `Trạng thái duyệt`, `Trạng thái công khai`, `Dấu thời gian xóa mềm`
+Fields: `Tên doanh nghiệp được phép công khai`, `Lĩnh vực hoạt động được phép công khai`, `Phần giới thiệu doanh nghiệp được phép công khai`, `Trạng thái duyệt`, `Trạng thái công khai`, `Dấu thời gian xóa mềm`
 
-Evidence: `EV-001`
+Evidence: `EV-001`, `EV-003`
 
 ## Entity · Nhật ký quản trị (`audit-entry`)
 
-Fields: `Người thao tác`, `Hành động`, `Đối tượng`, `Thời điểm`, `Chi tiết cần thiết`
+Fields: `Người thao tác`, `Hành động`, `Đối tượng`, `Thời điểm`, `Quyết định xử lý`, `Lý do từ chối hoặc ghi chú duyệt`
 
-Evidence: `EV-001`
+Evidence: `EV-001`, `EV-003`
 
 ## Operation · Đọc hàng đợi hồ sơ hội viên
 
 - Kind/owner: `query` / `backend`
-- Inputs: none
-- Outputs: Các hồ sơ được phép xem, Trạng thái xử lý hiện tại
+- Inputs: Từ khóa tìm theo mã hồ sơ, tên doanh nghiệp hoặc mã số thuế, Bộ lọc trạng thái, Trang hiện tại với 20 hồ sơ mỗi trang, Sắp xếp thời điểm gửi mới nhất trước
+- Outputs: Các hồ sơ được phép xem, Trạng thái xử lý hiện tại, Thông tin phân trang
 - Failures: Không đủ quyền, Không thể tải dữ liệu
-- Evidence: `EV-001`, `EV-002`
+- Evidence: `EV-001`, `EV-002`, `EV-003`
 
 ## Operation · Đọc một hồ sơ đăng ký hội viên
 
 - Kind/owner: `query` / `backend`
 - Inputs: Định danh hồ sơ
-- Outputs: Dữ liệu do người đăng ký cung cấp, Trạng thái xử lý, Thời điểm gửi
+- Outputs: Các trường hồ sơ CRM V1, Phân loại trường nội bộ và trường được phép công khai, Trạng thái xử lý, Thời điểm gửi
 - Failures: Không đủ quyền, Không tìm thấy
-- Evidence: `EV-001`, `EV-002`
+- Evidence: `EV-001`, `EV-002`, `EV-003`
 
 ## Operation · Xử lý hồ sơ đăng ký hội viên
 
 - Kind/owner: `command` / `backend`
-- Inputs: Định danh hồ sơ, Quyết định xử lý
+- Inputs: Định danh hồ sơ, Quyết định xử lý, Lý do bắt buộc khi từ chối, Ghi chú nội bộ tùy chọn khi duyệt, Xác nhận quyết định
 - Outputs: Trạng thái hồ sơ đã cập nhật, Hồ sơ công khai nếu approved, Audit entry
 - Failures: Không đủ quyền, Chuyển trạng thái không hợp lệ, Không tìm thấy
-- Evidence: `EV-001`, `EV-002`
+- Evidence: `EV-001`, `EV-002`, `EV-003`
 
 No field, failure or operation may appear here without routed source evidence.

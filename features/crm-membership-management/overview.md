@@ -22,7 +22,7 @@ CRM nội bộ tại /hoi-vien cho phép nhân sự được phân quyền tiế
 - Quản trị nội dung website, biểu mẫu liên hệ hoặc cấu hình hệ thống
 - Quản lý tài khoản quản trị và cơ chế khôi phục đăng nhập
 - Upload hoặc lưu trữ file
-- Tự xác định trường dữ liệu cá nhân, doanh nghiệp hoặc trường được phép công khai
+- Công khai tên người đại diện, chức vụ, địa chỉ, email, điện thoại hoặc mã số thuế của hồ sơ hội viên
 
 ## Source heads
 

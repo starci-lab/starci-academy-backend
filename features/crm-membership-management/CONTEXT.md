@@ -1,8 +1,8 @@
 # CRM quản lý hồ sơ hội viên Tây Sơn
 
-> Business identity: `tayson/crm-membership-management@045f96e7829e77924cce0b2e526b55f5d6ea0dcf3e250990b5a4ccd50d53bfe0`
+> Business identity: `tayson/crm-membership-management@4466633f2fb0909d8454f38bc1130ddde2664ba260b4584e5bfd79ac42f104bb`
 >
-> Source heads: authority `pending` · `fe@6a954d40294c`, `be@661c37a1c6bb`
+> Source heads: authority `in-progress` · `fe@6a954d40294c`, `be@661c37a1c6bb`
 >
 > Load this file first. Load only the modules named by the current task.
 
@@ -27,7 +27,7 @@
 ## Primary flow
 
 ```text
-collection-ready → membership-new → membership-reviewing → membership-approved
+collection-ready → membership-new → membership-reviewing → Xác nhận duyệt hoặc từ chối hồ sơ đang xem xét
 ```
 
 ## Surface map
@@ -40,15 +40,12 @@ collection-ready → membership-new → membership-reviewing → membership-appr
 
 | Operation | Owner | Input | Result |
 |---|---|---|---|
-| `Đọc hàng đợi hồ sơ hội viên` | backend | none | Các hồ sơ được phép xem, Trạng thái xử lý hiện tại |
-| `Đọc một hồ sơ đăng ký hội viên` | backend | Định danh hồ sơ | Dữ liệu do người đăng ký cung cấp, Trạng thái xử lý, Thời điểm gửi |
-| `Xử lý hồ sơ đăng ký hội viên` | backend | Định danh hồ sơ, Quyết định xử lý | Trạng thái hồ sơ đã cập nhật, Hồ sơ công khai nếu approved, Audit entry |
+| `Đọc hàng đợi hồ sơ hội viên` | backend | Từ khóa tìm theo mã hồ sơ, tên doanh nghiệp hoặc mã số thuế, Bộ lọc trạng thái, Trang hiện tại với 20 hồ sơ mỗi trang, Sắp xếp thời điểm gửi mới nhất trước | Các hồ sơ được phép xem, Trạng thái xử lý hiện tại, Thông tin phân trang |
+| `Đọc một hồ sơ đăng ký hội viên` | backend | Định danh hồ sơ | Các trường hồ sơ CRM V1, Phân loại trường nội bộ và trường được phép công khai, Trạng thái xử lý, Thời điểm gửi |
+| `Xử lý hồ sơ đăng ký hội viên` | backend | Định danh hồ sơ, Quyết định xử lý, Lý do bắt buộc khi từ chối, Ghi chú nội bộ tùy chọn khi duyệt, Xác nhận quyết định | Trạng thái hồ sơ đã cập nhật, Hồ sơ công khai nếu approved, Audit entry |
 
 ## Explicit unknowns
 
-- `member-field-schema` — Hồ sơ đăng ký và hồ sơ doanh nghiệp gồm những trường nào, trường nào được phép công khai? Impact: Chặn schema cuối cùng, validation, privacy và anatomy chi tiết của màn xem hồ sơ.
-- `queue-query-policy` — Hàng đợi cần pagination, filter, search và sort theo quy tắc nào? Impact: Chặn input query và điều khiển collection cuối cùng nhưng không chặn route hoặc lifecycle.
-- `decision-details` — Từ chối hoặc duyệt có bắt buộc lý do, ghi chú nội bộ hay xác nhận bổ sung không? Impact: Chặn contract form quyết định và dữ liệu audit chi tiết.
 - `auth-session-contract` — Cơ chế phiên, mời tài khoản, đặt lại mật khẩu, 2FA và thời hạn phiên của CRM là gì? Impact: Chặn auth implementation nhưng không thay đổi quyền nghiệp vụ của route /hoi-vien.
 - `membership-api-shape` — Backend sẽ công bố query và command hội viên bằng GraphQL shape nào cùng persistence schema nào? Impact: Chặn backend file plan và kết nối FE thật; business model không khóa transport hoặc database shape.
 - `membership-notifications` — Có cần gửi email hoặc thông báo khi hồ sơ chuyển reviewing, approved hoặc rejected không? Impact: Quyết định provider và event flow; hiện nằm ngoài operation đã chốt.
