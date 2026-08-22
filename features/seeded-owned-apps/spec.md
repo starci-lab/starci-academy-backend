@@ -1,6 +1,6 @@
 # Seeded owned apps
 
-> Business head: `fc9ab6a9e709076658a82d630cfc60c3e3199538ea5a92bf37f2fe2424ff079c`
+> Business head: `7536d86f1222e9e9af68ab35411d8f81e88e588499e89e2bdebc20a721df38a0`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
