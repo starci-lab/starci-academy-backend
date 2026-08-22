@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "agentos-ai-knowledge-provisioning",
+  "head": "7da1c6645d9d10f087553bec77a7fd1d954afe74c532cf67e2c89f4ea43e45c5",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "894e608bba73d791e5d2767cdc420da770c8c42b"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "ac05d90e7b6b59eb9dc4128872f3c02ba254e59a"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "Create Nivo agentos-ai-knowledge-provisioning as pending owner intent with per-workspace OpenRouter credentials, DeepSeek deepseek/deepseek-v4-flash, immutable Nivo common and module knowledge snapshots, scanned uploaded-document extraction and vector ingestion, non-destructive workspace Qdrant recovery, and an owner-safe AI readiness test that gates workspace readiness without exposing secrets, raw documents, point identifiers, or raw provider responses.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "2d5c21ecafe90bb00091ac3021bcbcd37dcf4f4080593685afb7df4dadca0ecd"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The frontend mounts one exact locale-aware owner workspace control-center route by workspaceId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/modules/[installationId]/page.tsx",
+      "startLine": 1,
+      "endLine": 11,
+      "claim": "The frontend mounts one solution-module installation detail beneath the exact workspace and binds workspaceId plus installationId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "apps/agentos-cli/src/config.ts",
+      "startLine": 112,
+      "endLine": 126,
+      "claim": "The AgentOS CLI resolves a workspace-local Qdrant endpoint and named collection rather than a central control-plane search path.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "apps/agentos-cli/src/config.ts",
+      "startLine": 176,
+      "endLine": 200,
+      "claim": "The AgentOS CLI defaults the OpenRouter model to deepseek/deepseek-v4-flash and requires OPENROUTER_INSTANCE_KEY as the instance-owned credential.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/modules/bussiness/expert-provision/secrets/instance-model-key.service.ts",
+      "startLine": 108,
+      "endLine": 175,
+      "claim": "The backend can idempotently mint a bounded OpenRouter key per instance, persist the provider key id and store the raw value through encrypted provision-secret custody.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/modules/bussiness/pod-registration/pod-access-token.service.ts",
+      "startLine": 42,
+      "endLine": 52,
+      "claim": "The committed AgentOS pod credential path explicitly says per-instance OpenRouter mint delivery remains a separate unwired change.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "apps/agentos-cli/src/knowledge/knowledge-snapshot.service.ts",
+      "startLine": 18,
+      "endLine": 105,
+      "claim": "The AgentOS CLI recovers a versioned Qdrant snapshot by presigned URL, while its committed contract explicitly names backend snapshot publication and version-mismatch fallback as unbuilt follow-up work.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-009",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-solution-modules/types/manifest.ts",
+      "startLine": 1,
+      "endLine": 43,
+      "claim": "Solution-module manifests expose immutable module versions, common and private knowledge versions and an operational-data knowledge-package locator rather than embedding mutable document bodies in new manifests.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "apps/agentos-controlplane/src/module-runtime/module-knowledge-reconciler.service.ts",
+      "startLine": 14,
+      "endLine": 36,
+      "claim": "The control plane currently writes module package documents into workspace knowledge with installationId, moduleKey and knowledgeVersion metadata.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-011",
+      "role": "be",
+      "path": "apps/agentos-cli/src/documents/queue-drain.service.ts",
+      "startLine": 72,
+      "endLine": 160,
+      "claim": "The upload queue owns per-document indexing and failure states but currently embeds only the filename; MinIO download, extraction and chunking are explicitly unbuilt.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-012",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/agent-workspace/my-agent-workspace-knowledge-runtime/my-agent-workspace-knowledge-runtime.handler.ts",
+      "startLine": 20,
+      "endLine": 36,
+      "claim": "The owner-scoped backend query returns MCP/Qdrant health, document counts and origins, timestamps and reindex status for one exact workspace.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-013",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/agent-workspace/reindex-agent-workspace-knowledge/reindex-agent-workspace-knowledge.handler.ts",
+      "startLine": 20,
+      "endLine": 41,
+      "claim": "The backend exposes an owner-scoped idempotent workspace knowledge-reindex operation and returns its operation status.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-014",
+      "role": "be",
+      "path": "src/tests/harness/draft-lead-reply.harness-spec.ts",
+      "startLine": 20,
+      "endLine": 83,
+      "claim": "The AI harness calls the OpenRouter-compatible production prompt lane, grades nondeterministic output and loudly skips rather than faking success when its provider credential is absent.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-015",
+      "role": "be",
+      "path": "src/tests/e2e/controlplane/instance-key-attribution.live-spec.ts",
+      "startLine": 222,
+      "endLine": 275,
+      "claim": "A live test mints a bounded per-instance OpenRouter key, sends a real DeepSeek call and distinguishes spend on that key from spend on Nivo's platform key.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-016",
+      "role": "be",
+      "path": "package.json",
+      "startLine": 15,
+      "endLine": 44,
+      "claim": "The repository declares separate AI harness and AgentOS live-test commands rather than making paid-provider tests part of the ordinary deterministic lane.",
+      "kind": "test"
+    }
+  ]
+}
