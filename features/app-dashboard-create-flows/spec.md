@@ -1,6 +1,6 @@
 # Separated app dashboards and create flows
 
-> Business head: `ab4229558269b09532a106f599f59806372cc5bf517861b90846d29a39c91f00`
+> Business head: `03017c0b919f9d0c2d81c364480a8649d88b12465d6e1d845372b76b16f61d88`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
