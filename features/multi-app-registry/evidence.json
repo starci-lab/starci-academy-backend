@@ -2,8 +2,13 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "multi-app-registry",
-  "head": "80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b",
+  "head": "761df8bcae551ec8d72c8acf56ac2c7a78d17b367d36d37feb1a54a62f73ef40",
   "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "269c99b0cf974ee476bda48f916c3a5ad3cdd3bf"
+    },
     {
       "role": "be",
       "repository": "https://github.com/starci-lab/nivo-backend.git",
@@ -64,6 +69,13 @@
       "endLine": 220,
       "claim": "Chart source tests prove different app keys resolve their own chart references and missing chart sources are refused.",
       "kind": "test"
+    },
+    {
+      "id": "EV-007",
+      "claim": "The owner requested a production-quality multi-app Apps flow for Học viện Chuyên gia and MMO, each with its own black-red SVG logo, backed by seeded data when provisioning is unavailable.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "17cfc12ba70b86cedd38ad1161916b6c65c8db798b2f950104e84adee9de26d4"
     }
   ]
 }

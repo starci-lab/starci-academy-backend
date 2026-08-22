@@ -27,3 +27,17 @@ Chart contents, prices, marketing copy and per-tenant values remain owned outsid
 
 - Strength: `confirmed`
 - Evidence: `EV-001`
+
+## BR-05
+
+The Apps console consumes only safe owned-instance fields; Helm chart and child-policy infrastructure remain backend-private.
+
+- Strength: `confirmed`
+- Evidence: `EV-003`, `EV-007`
+
+## BR-06
+
+Học viện Chuyên gia and MMO each own a distinct black-red SVG identity mark while the Nivo console retains its shared visual system.
+
+- Strength: `confirmed`
+- Evidence: `EV-007`

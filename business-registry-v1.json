@@ -142,9 +142,15 @@
     },
     "multi-app-registry": {
       "featureId": "multi-app-registry",
-      "head": "80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b",
-      "authorityStatus": "implemented",
+      "head": "761df8bcae551ec8d72c8acf56ac2c7a78d17b367d36d37feb1a54a62f73ef40",
+      "authorityStatus": "pending",
+      "baseHead": "80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b",
+      "previousHead": "80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b",
       "sources": [
+        {
+          "role": "fe",
+          "head": "269c99b0cf974ee476bda48f916c3a5ad3cdd3bf"
+        },
         {
           "role": "be",
           "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
@@ -270,6 +276,10 @@
       "80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b": {
         "hash": "80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b",
         "path": "objects/sha256/80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b.json"
+      },
+      "761df8bcae551ec8d72c8acf56ac2c7a78d17b367d36d37feb1a54a62f73ef40": {
+        "hash": "761df8bcae551ec8d72c8acf56ac2c7a78d17b367d36d37feb1a54a62f73ef40",
+        "path": "objects/sha256/761df8bcae551ec8d72c8acf56ac2c7a78d17b367d36d37feb1a54a62f73ef40.json"
       }
     }
   }
