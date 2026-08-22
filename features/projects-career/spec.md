@@ -1,6 +1,6 @@
 # Projects and career
 
-> Business head: `4ae25832ba1a8fe669605af6371e4e7c5c4aa07dee821671478dc8a654501ace`
+> Business head: `05229e6d47d376406d216ad7386fa2b4ef68be0fa0fd990473d696046f53fd85`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
