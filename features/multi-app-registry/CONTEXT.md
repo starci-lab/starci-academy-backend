@@ -1,8 +1,8 @@
 # Multi-app provisioning registry
 
-> Business identity: `nivo/multi-app-registry@761df8bcae551ec8d72c8acf56ac2c7a78d17b367d36d37feb1a54a62f73ef40`
+> Business identity: `nivo/multi-app-registry@588eb960eccb41541da08aa1bf3665385caa1c4f530fa3b2bf68c91edcc5495f`
 >
-> Source heads: authority `pending` · base `80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b` · `fe@269c99b0cf97`, `be@947c6f4a117e`
+> Source heads: authority `in-progress` · base `80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b` · `fe@269c99b0cf97`, `be@947c6f4a117e`
 >
 > Load this file first. Load only the modules named by the current task.
 

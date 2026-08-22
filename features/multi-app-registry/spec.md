@@ -1,6 +1,6 @@
 # Multi-app provisioning registry
 
-> Business head: `761df8bcae551ec8d72c8acf56ac2c7a78d17b367d36d37feb1a54a62f73ef40`
+> Business head: `588eb960eccb41541da08aa1bf3665385caa1c4f530fa3b2bf68c91edcc5495f`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 

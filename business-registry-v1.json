@@ -142,10 +142,10 @@
     },
     "multi-app-registry": {
       "featureId": "multi-app-registry",
-      "head": "761df8bcae551ec8d72c8acf56ac2c7a78d17b367d36d37feb1a54a62f73ef40",
-      "authorityStatus": "pending",
+      "head": "588eb960eccb41541da08aa1bf3665385caa1c4f530fa3b2bf68c91edcc5495f",
+      "authorityStatus": "in-progress",
       "baseHead": "80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b",
-      "previousHead": "80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b",
+      "previousHead": "761df8bcae551ec8d72c8acf56ac2c7a78d17b367d36d37feb1a54a62f73ef40",
       "sources": [
         {
           "role": "fe",
@@ -280,6 +280,10 @@
       "761df8bcae551ec8d72c8acf56ac2c7a78d17b367d36d37feb1a54a62f73ef40": {
         "hash": "761df8bcae551ec8d72c8acf56ac2c7a78d17b367d36d37feb1a54a62f73ef40",
         "path": "objects/sha256/761df8bcae551ec8d72c8acf56ac2c7a78d17b367d36d37feb1a54a62f73ef40.json"
+      },
+      "588eb960eccb41541da08aa1bf3665385caa1c4f530fa3b2bf68c91edcc5495f": {
+        "hash": "588eb960eccb41541da08aa1bf3665385caa1c4f530fa3b2bf68c91edcc5495f",
+        "path": "objects/sha256/588eb960eccb41541da08aa1bf3665385caa1c4f530fa3b2bf68c91edcc5495f.json"
       }
     }
   }
