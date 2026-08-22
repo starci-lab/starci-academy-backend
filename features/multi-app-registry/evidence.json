@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "multi-app-registry",
+  "head": "80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b",
+  "sources": [
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/provisionable-app.entity.ts",
+      "startLine": 45,
+      "endLine": 350,
+      "claim": "ProvisionableAppEntity is the generic application registry and stores chart, identity, child pipeline, step config, secret, config-builder, default-plan and availability policies while excluding chart contents, catalogue and tenant data.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-002",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/provisionable-app-seeder.service.ts",
+      "startLine": 29,
+      "endLine": 350,
+      "claim": "The reviewed registry seed defines multiple applications with distinct chart, identity and pipeline values, including a deliberately non-provisionable MMO row.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-003",
+      "role": "be",
+      "path": "src/modules/bussiness/catalog-fulfillment/catalog-fulfillment.dispatcher.ts",
+      "startLine": 588,
+      "endLine": 810,
+      "claim": "Generic fulfillment resolves and gates a registry row, creates an app-bound instance and derives identity from the row without adding a new product enum branch.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/modules/bussiness/expert-provision/chart/chart-source.service.ts",
+      "startLine": 46,
+      "endLine": 162,
+      "claim": "ChartSourceService resolves the instance app's chart ref and version from the registry and refuses missing or unresolved local chart sources before Helm runs.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/modules/bussiness/catalog-fulfillment/catalog-fulfillment.dispatcher.spec.ts",
+      "startLine": 132,
+      "endLine": 808,
+      "claim": "Fulfillment tests cover generic registered apps, the non-provisionable MMO shape, app-key resolution and refusal before fulfillment effects.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/modules/bussiness/expert-provision/chart/chart-source.service.spec.ts",
+      "startLine": 44,
+      "endLine": 220,
+      "claim": "Chart source tests prove different app keys resolve their own chart references and missing chart sources are refused.",
+      "kind": "test"
+    }
+  ]
+}

@@ -139,6 +139,17 @@
           "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
         }
       ]
+    },
+    "multi-app-registry": {
+      "featureId": "multi-app-registry",
+      "head": "80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b",
+      "authorityStatus": "implemented",
+      "sources": [
+        {
+          "role": "be",
+          "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+        }
+      ]
     }
   },
   "objects": {
@@ -255,6 +266,10 @@
       "7536d86f1222e9e9af68ab35411d8f81e88e588499e89e2bdebc20a721df38a0": {
         "hash": "7536d86f1222e9e9af68ab35411d8f81e88e588499e89e2bdebc20a721df38a0",
         "path": "objects/sha256/7536d86f1222e9e9af68ab35411d8f81e88e588499e89e2bdebc20a721df38a0.json"
+      },
+      "80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b": {
+        "hash": "80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b",
+        "path": "objects/sha256/80dc8e9a0abc3324878e6540fcfd858c5d7bd815a2b7ee50e56a1fdba5fa186b.json"
       }
     }
   }
