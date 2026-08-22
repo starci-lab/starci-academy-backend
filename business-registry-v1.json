@@ -22,8 +22,9 @@
     },
     "public-information-page": {
       "featureId": "public-information-page",
-      "head": "c2e6b5db6ca026baa3693627defcbde2a09749494e7a6cc127131dfc044a3ffa",
-      "authorityStatus": "pending",
+      "head": "c24fadecd6f84f17b9abdbfefaa529acf5603f228131647bb2604e04f64f1150",
+      "authorityStatus": "in-progress",
+      "previousHead": "c2e6b5db6ca026baa3693627defcbde2a09749494e7a6cc127131dfc044a3ffa",
       "sources": [
         {
           "role": "fe",
@@ -46,6 +47,10 @@
       "c2e6b5db6ca026baa3693627defcbde2a09749494e7a6cc127131dfc044a3ffa": {
         "hash": "c2e6b5db6ca026baa3693627defcbde2a09749494e7a6cc127131dfc044a3ffa",
         "path": "objects/sha256/c2e6b5db6ca026baa3693627defcbde2a09749494e7a6cc127131dfc044a3ffa.json"
+      },
+      "c24fadecd6f84f17b9abdbfefaa529acf5603f228131647bb2604e04f64f1150": {
+        "hash": "c24fadecd6f84f17b9abdbfefaa529acf5603f228131647bb2604e04f64f1150",
+        "path": "objects/sha256/c24fadecd6f84f17b9abdbfefaa529acf5603f228131647bb2604e04f64f1150.json"
       }
     }
   }

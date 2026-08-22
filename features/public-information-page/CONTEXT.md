@@ -1,8 +1,8 @@
 # Trang thông tin cộng đồng Tây Sơn
 
-> Business identity: `tayson/public-information-page@c2e6b5db6ca026baa3693627defcbde2a09749494e7a6cc127131dfc044a3ffa`
+> Business identity: `tayson/public-information-page@c24fadecd6f84f17b9abdbfefaa529acf5603f228131647bb2604e04f64f1150`
 >
-> Source heads: authority `pending` · `fe@e89b39a3c6f8`
+> Source heads: authority `in-progress` · `fe@e89b39a3c6f8`
 >
 > Load this file first. Load only the modules named by the current task.
 
