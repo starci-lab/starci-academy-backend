@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "project": "tayson",
+  "featureId": "crm-membership-management",
+  "head": "045f96e7829e77924cce0b2e526b55f5d6ea0dcf3e250990b5a4ccd50d53bfe0",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "local-only:D:/Repositories/tayson-fe",
+      "head": "6a954d40294c3dfaf7678d2eb4c34c1cd3c389d2"
+    },
+    {
+      "role": "be",
+      "repository": "local-only:D:/Repositories/tayson-backend",
+      "head": "661c37a1c6bb29540f0c644680e295abcf5267c7"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "Owner đã chấp thuận nền tảng Tây Sơn có CRM Admin, Manager và Staff, vòng đời hồ sơ new → reviewing → approved hoặc rejected, chỉ approved được công khai, audit và xóa mềm.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "385cfe6dd712eff610dbefaf8060661780d51183c7c9bfe18b5c148ca750bdf1"
+    },
+    {
+      "id": "EV-002",
+      "claim": "Owner yêu cầu tạo business authority cho CRM hội viên Tây Sơn và chốt route quản trị /hoi-vien.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "9058a36a3e8162332ac8a76f3c461fff8851f053f39f9e5e743e291f368d5daf"
+    }
+  ]
+}

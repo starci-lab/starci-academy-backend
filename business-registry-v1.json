@@ -48,6 +48,21 @@
           "head": "661c37a1c6bb29540f0c644680e295abcf5267c7"
         }
       ]
+    },
+    "crm-membership-management": {
+      "featureId": "crm-membership-management",
+      "head": "045f96e7829e77924cce0b2e526b55f5d6ea0dcf3e250990b5a4ccd50d53bfe0",
+      "authorityStatus": "pending",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "6a954d40294c3dfaf7678d2eb4c34c1cd3c389d2"
+        },
+        {
+          "role": "be",
+          "head": "661c37a1c6bb29540f0c644680e295abcf5267c7"
+        }
+      ]
     }
   },
   "objects": {
@@ -88,6 +103,10 @@
       "742352cc959645eaf1255c944a369ef5d7cf19ff76687be2f282626fb3dc4e82": {
         "hash": "742352cc959645eaf1255c944a369ef5d7cf19ff76687be2f282626fb3dc4e82",
         "path": "objects/sha256/742352cc959645eaf1255c944a369ef5d7cf19ff76687be2f282626fb3dc4e82.json"
+      },
+      "045f96e7829e77924cce0b2e526b55f5d6ea0dcf3e250990b5a4ccd50d53bfe0": {
+        "hash": "045f96e7829e77924cce0b2e526b55f5d6ea0dcf3e250990b5a4ccd50d53bfe0",
+        "path": "objects/sha256/045f96e7829e77924cce0b2e526b55f5d6ea0dcf3e250990b5a4ccd50d53bfe0.json"
       }
     }
   }
