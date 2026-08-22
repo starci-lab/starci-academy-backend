@@ -1,6 +1,6 @@
 # AgentOS AI and knowledge provisioning
 
-> Business head: `7da1c6645d9d10f087553bec77a7fd1d954afe74c532cf67e2c89f4ea43e45c5`
+> Business head: `4abf705ead029f7d282b75a5b40948a4ddd3c2def530c65c400ef12a8ad29c7e`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
