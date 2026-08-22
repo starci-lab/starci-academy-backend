@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "agentos-workspaces",
-  "head": "778a16ba84d7570b0fed464a29bd634093c3d86dffe27112751ca5f20e04d29e",
+  "head": "169c0cec0fb283d2505fe81b870552c1517cbd9583295ca3454d90852ebed452",
   "sources": [
     {
       "role": "fe",
@@ -148,6 +148,13 @@
       "endLine": 82,
       "claim": "The authenticated payInvoice operation settles one exact invoice by invoiceId and returns its updated payment state.",
       "kind": "api"
+    },
+    {
+      "id": "EV-016",
+      "claim": "Supersede the current in-progress AgentOS workspace scope so a later accepted intent can add secure n8n launch, public owner-scoped workspace operations, and owner-safe MCP-Qdrant knowledge runtime without reusable credentials.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "ac2edd83cbb0439eb877516085bb1fb40a861549b349bbebf5bf675200150313"
     }
   ]
 }

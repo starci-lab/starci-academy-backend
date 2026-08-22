@@ -1,6 +1,6 @@
 # AgentOS workspace lifecycle and control center
 
-> Business head: `778a16ba84d7570b0fed464a29bd634093c3d86dffe27112751ca5f20e04d29e`
+> Business head: `169c0cec0fb283d2505fe81b870552c1517cbd9583295ca3454d90852ebed452`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -256,3 +256,4 @@ Strength: **partial** · Evidence: `EV-001`, `EV-011`, `EV-012`
 | EV-013 | be | `src/modules/bussiness/workspace-app-launch/workspace-app-launch.service.ts:35` | api | OpenClaw access uses a hashed one-use grant and owner-scoped short-lived Redis lease with independent redeem, renew, revoke and validate behavior. |
 | EV-014 | be | `src/features/core/api/core/graphql/mutations/catalog/order-catalog-item/order-catalog-item.resolver.ts:41` | api | The authenticated orderCatalogItem operation creates the catalogue order and linked invoice but does not itself provision AgentOS. |
 | EV-015 | be | `src/features/core/api/core/graphql/mutations/invoices/pay-invoice/pay-invoice.resolver.ts:42` | api | The authenticated payInvoice operation settles one exact invoice by invoiceId and returns its updated payment state. |
+| EV-016 | owner | `decision:ac2edd83cbb0439eb877516085bb1fb40a861549b349bbebf5bf675200150313` | owner-decision | Supersede the current in-progress AgentOS workspace scope so a later accepted intent can add secure n8n launch, public owner-scoped workspace operations, and owner-safe MCP-Qdrant knowledge runtime without reusable credentials. |
