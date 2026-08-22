@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "project": "tayson",
+  "featureId": "community-website-platform",
+  "head": "373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "local-only:D:/Repositories/tayson-fe",
+      "head": "78a62ea3c5251e1bae47d9cb25af69792cc72b7a"
+    },
+    {
+      "role": "be",
+      "repository": "local-only:D:/Repositories/tayson-backend",
+      "head": "acf8ea0ba96f3f7f531675b2e96678c37e7e4bb4"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "Owner cung cấp hợp đồng/phụ lục Tây Sơn có SHA-256 b7c71e5034ee8f2d2a79fb0ba42be16a93c91f27ded43fb18e75b8caf92ab973 và chấp thuận scope cùng các mặc định business được hiển thị trước khi publish pending.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "385cfe6dd712eff610dbefaf8060661780d51183c7c9bfe18b5c148ca750bdf1"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "project": "tayson",
+  "features": {
+    "community-website-platform": [
+      "373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295"
+    ]
+  }
+}

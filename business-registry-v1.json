@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "project": "tayson",
+  "hashAlgorithm": "sha256",
+  "canonicalization": "RFC8785-JCS",
+  "featureHeads": {
+    "community-website-platform": {
+      "featureId": "community-website-platform",
+      "head": "373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295",
+      "authorityStatus": "pending",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "78a62ea3c5251e1bae47d9cb25af69792cc72b7a"
+        },
+        {
+          "role": "be",
+          "head": "acf8ea0ba96f3f7f531675b2e96678c37e7e4bb4"
+        }
+      ]
+    }
+  },
+  "objects": {
+    "immutable": true,
+    "byHash": {
+      "373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295": {
+        "hash": "373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295",
+        "path": "objects/sha256/373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295.json"
+      }
+    }
+  }
+}
