@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "tayson",
   "featureId": "public-information-api",
-  "head": "32380cf78b31420af08586014396645d5675feb155a268ccf637ffcb90728439",
+  "head": "fdf855dc018834bdc435c459160c5c184980ca462fca86adde78fd01ff4c26f2",
   "sources": [
     {
       "role": "fe",
@@ -36,6 +36,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "084369a4c8abb6d0e4e21ea434c7969051402689a80bdf08810f8f695796a5ea"
+    },
+    {
+      "id": "EV-004",
+      "claim": "Owner chấp thuận chuyển public-information-api từ pending sang in-progress mà không thay đổi scope, contract hoặc source boundary đã duyệt.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "565339bc4d33d72817b583024112eb7f5cdf3e5eef0252d6ec1b9c9a94e12bb3"
     }
   ]
 }

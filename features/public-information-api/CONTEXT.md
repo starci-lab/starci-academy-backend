@@ -1,8 +1,8 @@
 # API thông tin công khai Tây Sơn
 
-> Business identity: `tayson/public-information-api@32380cf78b31420af08586014396645d5675feb155a268ccf637ffcb90728439`
+> Business identity: `tayson/public-information-api@fdf855dc018834bdc435c459160c5c184980ca462fca86adde78fd01ff4c26f2`
 >
-> Source heads: authority `pending` · `fe@3fa4956e035a`, `be@3d5256314547`
+> Source heads: authority `in-progress` · `fe@3fa4956e035a`, `be@3d5256314547`
 >
 > Load this file first. Load only the modules named by the current task.
 

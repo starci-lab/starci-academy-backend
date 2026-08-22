@@ -1,6 +1,6 @@
 # API thông tin công khai Tây Sơn
 
-> Business head: `32380cf78b31420af08586014396645d5675feb155a268ccf637ffcb90728439`
+> Business head: `fdf855dc018834bdc435c459160c5c184980ca462fca86adde78fd01ff4c26f2`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -136,3 +136,4 @@ Strength: **confirmed** · Evidence: `EV-002`, `EV-003`
 | EV-001 | owner | `decision:385cfe6dd712eff610dbefaf8060661780d51183c7c9bfe18b5c148ca750bdf1` | owner-decision | Owner đã chấp thuận nền tảng Tây Sơn có backend đọc nội dung công khai và vòng đời nội dung draft → published → archived trong authority community-website-platform. |
 | EV-002 | owner | `decision:8d7d66eecd37fea3e7e3c3c49b3474467deb7ec5e118d3aa7c4e6aa39a7c3f95` | owner-decision | Owner đã duyệt route /gioi-thieu, tài liệu thông tin công khai, các phần theo thứ tự và bốn trạng thái loading, ready, error, unavailable của frontend Tây Sơn. |
 | EV-003 | owner | `decision:084369a4c8abb6d0e4e21ea434c7969051402689a80bdf08810f8f695796a5ea` | owner-decision | Owner duyệt pending authority public-information-api với backend query chỉ đọc, published-only, output tiêu đề và các phần theo thứ tự, kết quả ready/unavailable/error, không gồm CMS mutation và chưa khóa transport hoặc database schema. |
+| EV-004 | owner | `decision:565339bc4d33d72817b583024112eb7f5cdf3e5eef0252d6ec1b9c9a94e12bb3` | owner-decision | Owner chấp thuận chuyển public-information-api từ pending sang in-progress mà không thay đổi scope, contract hoặc source boundary đã duyệt. |
