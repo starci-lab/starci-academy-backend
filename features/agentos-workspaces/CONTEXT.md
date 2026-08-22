@@ -1,52 +1,65 @@
 # AgentOS workspace lifecycle and control center
 
-> Business identity: `nivo/agentos-workspaces@bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca`
+> Business identity: `nivo/agentos-workspaces@933b9700dfbb30f0cde2802a80252a02e7d4b2ea86d98143e17b88011df771bf`
 >
-> Source heads: `fe@9ae3cefc78e0`, `be@947c6f4a117e`
+> Source heads: authority `pending` · base `bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca` · `fe@269c99b0cf97`, `be@947c6f4a117e`
 >
 > Load this file first. Load only the modules named by the current task.
 
 ## Decision capsule
 
-**Purpose.** An authenticated owner orders an AgentOS workspace through billing, observes fulfillment, and manages the exact owned workspace across overview, solutions, applications, infrastructure, operations and access surfaces.
+**Purpose.** An authenticated owner requests AgentOS, settles the linked invoice through Wallet without losing the exact order context, observes provisioning, and arrives at the exact owned workspace; module detail and OpenClaw remain optional post-ready branches, while launch advances on an independent state axis.
 
 **Primary actor.** Authenticated AgentOS owner
 
-**Primary outcome.** The ready workspace appears in AgentOS management
+**Primary outcome.** The owner lands in the exact owned workspace that fulfilled the paid order
 
-**Never does.** Runnable update, backup, reset or rebuild controls not published by Core GraphQL
+**Never does.** Treating module detail or OpenClaw launch as required provisioning stages
 
 ## Invariants
 
-- `BR-01` — Workspace state is settled from the latest owner-scoped order, invoice and workspace facts, with the later workspace fact taking precedence.
-- `BR-02` — Secure OpenClaw access is issued, renewed and revoked as a short-lived launch rather than exposing reusable credentials.
+- `BR-01` — Wallet is the payment waypoint for the invoice linked to the exact AgentOS order, and completion returns the owner to that same order context.
+- `BR-02` — The primary journey terminates at /[locale]/agentos/workspaces/[workspaceId] for the exact workspace that fulfilled the order.
+- `BR-03` — Module detail and OpenClaw launch are optional branches available only after the exact workspace is ready; neither is a required provisioning stage.
+- `BR-04` — Workspace provisioning and OpenClaw launch are independent state axes; a launch transition never changes the workspace lifecycle state.
+- `BR-05` — Workspace lifecycle is reconciled from owner-scoped order, invoice and workspace facts, with the later workspace fact taking precedence.
 
 ## Primary flow
 
 ```text
-request → submitting → awaiting-payment → accepted
+order-submitting → wallet-awaiting-payment → wallet-paying → workspace-preparing → workspace-ready
 ```
 
 ## Surface map
 
 | Surface | Route | Owns | Module |
 |---|---|---|---|
-| `agentos-order` | `/[locale]/agentos | /[locale]/agentos/orders/[orderId]` | Request or resume one AgentOS order until a workspace is ready. | [surface](surfaces/agentos-order.md) |
-| `agentos-workspace` | `/[locale]/agentos/workspaces/[workspaceId]` | Manage one exact owned workspace across its product and runtime areas. | [surface](surfaces/agentos-workspace.md) |
-| `agentos-solution-detail` | `/[locale]/agentos/workspaces/[workspaceId]/modules/[installationId]` | Inspect one owned immutable module installation and its generated bindings. | [surface](surfaces/agentos-solution-detail.md) |
+| `agentos-order` | `/[locale]/agentos | /[locale]/agentos/orders/[orderId]` | Create an AgentOS order or resume one exact order through payment and provisioning. | [surface](surfaces/agentos-order.md) |
+| `wallet-waypoint` | `/[locale]/wallet` | Settle the invoice linked to the exact AgentOS order, then resume that order context. | [surface](surfaces/wallet-waypoint.md) |
+| `agentos-workspace` | `/[locale]/agentos/workspaces/[workspaceId]` | Serve as the primary terminal for managing one exact owned ready workspace. | [surface](surfaces/agentos-workspace.md) |
+| `agentos-module` | `/[locale]/agentos/workspaces/[workspaceId]/modules/[installationId]` | Inspect one installation that belongs to the exact ready workspace without extending the primary journey. | [surface](surfaces/agentos-module.md) |
+| `openclaw-launch` | `/[locale]/launch/agentos/[workspaceId]/openclaw` | Issue and relay a safe short-lived launch for the exact ready workspace on an independent state axis. | [surface](surfaces/openclaw-launch.md) |
 
 ## Data and operation map
 
 | Operation | Owner | Input | Result |
 |---|---|---|---|
-| `orderAgentOs` | backend | catalogItemSlug, catalogTierId | catalog order |
-| `myAgentWorkspaceControlCenter` | backend | workspaceId | workspace aggregate snapshot |
+| `orderCatalogItem` | backend | catalogItemSlug = nivo-ai-agent, catalogTierId | PendingPayment catalogue order, linked Unpaid invoice |
+| `openAgentosPaymentWaypoint` | frontend | orderId, linked invoiceId, safe internal returnTo | Wallet route preserving exact AgentOS continuation |
+| `payInvoice` | backend | invoiceId | paid invoice |
+| `myAgentWorkspaceControlCenter` | backend | workspaceId | exact owner-scoped workspace aggregate |
 | `installAgentosSolutionModule` | backend | workspaceId, moduleKey | installation in provisioning |
-| `issueAgentWorkspaceAppLaunch` | backend | workspaceId | short-lived secure launch |
+| `issueAgentWorkspaceAppLaunch` | backend | workspaceId | launchId, safe redirectUrl, expiresAt |
+| `renewAgentWorkspaceAppLaunch` | backend | launchId | launchId, expiresAt |
+| `revokeAgentWorkspaceAppLaunch` | backend | launchId | launchId, revoked |
 
 ## Explicit unknowns
 
-- `workspace-operation-mutations` — When will update, plan change, backup, reset and rebuild mutations become public? Impact: The control center can read runtime state but intentionally does not render fake runnable controls.
+- `wallet-order-correlation` — Which route or durable correlation contract carries orderId and invoiceId into Wallet and back to the exact AgentOS order? Impact: Current Wallet pays the first unpaid invoice, so AC-02 is not yet implemented.
+- `post-ready-guard` — Which shared guard makes module detail and OpenClaw unavailable until the workspace status is ready? Impact: The branches exist under the workspace today, but the frontend does not enforce the requested readiness boundary.
+- `workspace-operation-mutations` — When will update, plan change, backup, reset and rebuild mutations become public? Impact: The control center must keep those operations descriptive rather than render fake runnable controls.
+- `secure-n8n-launch` — When will a secure short-lived n8n launch adapter exist? Impact: No n8n credential or launch action may be inferred from OpenClaw.
+- `launch-disconnected-transition` — Which observable event moves an active OpenClaw launch into disconnected? Impact: The state is declared but its production transition is not yet proven.
 
 ## LOADS
 

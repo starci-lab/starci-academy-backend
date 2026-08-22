@@ -2,13 +2,23 @@
 
 | State | Kind | Reader sees | Transitions | Evidence |
 |---|---|---|---|---|
-| `request` | initial | request | submitting | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007` |
-| `submitting` | pending | submitting | awaiting-payment | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007` |
-| `awaiting-payment` | pending | awaiting-payment | accepted | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007` |
-| `accepted` | pending | accepted | preparing | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007` |
-| `preparing` | pending | preparing | ready | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007` |
-| `ready` | success | ready | failed | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007` |
-| `failed` | error | failed | launch-opening | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007` |
-| `launch-opening` | pending | launch-opening | launch-connected | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007` |
-| `launch-connected` | pending | launch-connected | launch-expired | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007` |
-| `launch-expired` | error | launch-expired | terminal | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007` |
+| `order-request` | initial | Order · request | order-submitting | `EV-002` |
+| `order-submitting` | pending | Order · submitting | order-awaiting-payment, workspace-failed | `EV-002` |
+| `order-awaiting-payment` | pending | Order · awaiting payment | order-accepted, workspace-failed | `EV-002`, `EV-003` |
+| `order-accepted` | pending | Order · accepted | workspace-preparing, workspace-failed | `EV-002` |
+| `wallet-awaiting-payment` | initial | Wallet · awaiting payment | wallet-paying | `EV-001`, `EV-004` |
+| `wallet-paying` | pending | Wallet · paying | wallet-paid, wallet-refused | `EV-004` |
+| `wallet-paid` | success | Wallet · paid | terminal | `EV-001`, `EV-004` |
+| `wallet-refused` | error | Wallet · refused | wallet-paying | `EV-004` |
+| `workspace-preparing` | pending | Workspace · preparing | workspace-ready, workspace-failed | `EV-002` |
+| `workspace-ready` | success | Workspace · ready | terminal | `EV-001`, `EV-002`, `EV-005`, `EV-010` |
+| `workspace-failed` | error | Workspace · failed | terminal | `EV-002` |
+| `module-loading` | pending | Module · loading | module-ready, module-refused | `EV-006`, `EV-011` |
+| `module-ready` | success | Module · ready | terminal | `EV-006`, `EV-011` |
+| `module-refused` | error | Module · refused | terminal | `EV-006`, `EV-011` |
+| `launch-idle` | initial | Launch · idle | launch-opening | `EV-008` |
+| `launch-opening` | pending | Launch · opening | launch-connected, launch-blocked, launch-expired | `EV-008`, `EV-012`, `EV-013` |
+| `launch-connected` | success | Launch · connected | launch-expired, launch-disconnected | `EV-008`, `EV-013` |
+| `launch-blocked` | error | Launch · blocked | launch-opening | `EV-008`, `EV-012`, `EV-013` |
+| `launch-expired` | error | Launch · expired | launch-opening | `EV-008`, `EV-013` |
+| `launch-disconnected` | partial | Launch · disconnected | launch-opening | `EV-008` |

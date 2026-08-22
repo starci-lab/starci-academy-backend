@@ -1,22 +1,21 @@
-# Surface · AgentOS
+# Surface · AgentOS order
 
 > ID: `agentos-order` · Route: `/[locale]/agentos | /[locale]/agentos/orders/[orderId]`
 
 ## Job
 
-Request or resume one AgentOS order until a workspace is ready.
+Create an AgentOS order or resume one exact order through payment and provisioning.
 
 ## Navigation
 
 - agentos-workspaces / AgentOS — active
-- agentos-workspaces / AgentOS workspace — available
-- agentos-workspaces / Solution module — available
+- billing / Wallet — available
 
 ## Prototype contract
 
 | Region | Kind | Real representative content | States | Actions | Evidence |
 |---|---|---|---|---|---|
-| `agentos-progress` | flow | Request; Payment; Create workspace; Manage | request, submitting, awaiting-payment, accepted, preparing, ready, failed, launch-opening, launch-connected, launch-expired | Request AgentOS, Open Wallet, Manage AgentOS | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007` |
+| `order-progress` | flow | Request; Payment; Create workspace; Manage exact workspace | order-request, order-submitting, order-awaiting-payment, order-accepted, workspace-preparing, workspace-ready, workspace-failed | Request AgentOS, Open Wallet, Open exact workspace | `EV-001`, `EV-002`, `EV-003`, `EV-005` |
 
 ## Context rule
 

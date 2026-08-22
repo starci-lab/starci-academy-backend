@@ -50,11 +50,14 @@
     },
     "agentos-workspaces": {
       "featureId": "agentos-workspaces",
-      "head": "bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca",
+      "head": "933b9700dfbb30f0cde2802a80252a02e7d4b2ea86d98143e17b88011df771bf",
+      "authorityStatus": "pending",
+      "baseHead": "bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca",
+      "previousHead": "bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca",
       "sources": [
         {
           "role": "fe",
-          "head": "9ae3cefc78e000c3a2c59f9992435fac38275d5b"
+          "head": "269c99b0cf974ee476bda48f916c3a5ad3cdd3bf"
         },
         {
           "role": "be",
@@ -284,6 +287,10 @@
       "588eb960eccb41541da08aa1bf3665385caa1c4f530fa3b2bf68c91edcc5495f": {
         "hash": "588eb960eccb41541da08aa1bf3665385caa1c4f530fa3b2bf68c91edcc5495f",
         "path": "objects/sha256/588eb960eccb41541da08aa1bf3665385caa1c4f530fa3b2bf68c91edcc5495f.json"
+      },
+      "933b9700dfbb30f0cde2802a80252a02e7d4b2ea86d98143e17b88011df771bf": {
+        "hash": "933b9700dfbb30f0cde2802a80252a02e7d4b2ea86d98143e17b88011df771bf",
+        "path": "objects/sha256/933b9700dfbb30f0cde2802a80252a02e7d4b2ea86d98143e17b88011df771bf.json"
       }
     }
   }
