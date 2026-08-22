@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "public-landing",
-  "head": "b0da977340dc52c1d141196104615d7dd75fcfef1e48a2002c5c446feddd5e64",
+  "head": "d0fecdaed1f8a4ac8cbd46f30e0b98fdaa93c209f84408669aeb99d5f0216b09",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/nivo-fe.git",
-      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+      "head": "894e608bba73d791e5d2767cdc420da770c8c42b"
     }
   ],
   "evidence": [
@@ -33,8 +33,8 @@
       "id": "EV-003",
       "role": "fe",
       "path": "apps/landing/src/resources/copy.ts",
-      "startLine": 1,
-      "endLine": 3,
+      "startLine": 12,
+      "endLine": 13,
       "claim": "The landing description is shipped as product copy.",
       "kind": "ui"
     },

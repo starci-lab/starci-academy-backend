@@ -1,8 +1,8 @@
 # Public nivo landing
 
-> Business identity: `nivo/public-landing@b0da977340dc52c1d141196104615d7dd75fcfef1e48a2002c5c446feddd5e64`
+> Business identity: `nivo/public-landing@d0fecdaed1f8a4ac8cbd46f30e0b98fdaa93c209f84408669aeb99d5f0216b09`
 >
-> Source heads: `fe@97eec8c5bb4c`
+> Source heads: authority `implemented` · base `b0da977340dc52c1d141196104615d7dd75fcfef1e48a2002c5c446feddd5e64` · `fe@894e608bba73`
 >
 > Load this file first. Load only the modules named by the current task.
 

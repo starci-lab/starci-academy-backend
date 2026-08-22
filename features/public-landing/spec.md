@@ -1,6 +1,6 @@
 # Public nivo landing
 
-> Business head: `b0da977340dc52c1d141196104615d7dd75fcfef1e48a2002c5c446feddd5e64`
+> Business head: `d0fecdaed1f8a4ac8cbd46f30e0b98fdaa93c209f84408669aeb99d5f0216b09`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -20,7 +20,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `894e608bba73d791e5d2767cdc420da770c8c42b` |
 
 ## 3. Actors and access
 
@@ -91,5 +91,5 @@ No operation is confirmed.
 |---|---|---|---|---|
 | EV-001 | fe | `apps/landing/src/app/page.tsx:4` | route | The root route mounts the public LandingPage. |
 | EV-002 | fe | `apps/landing/src/components/pages/LandingPage/index.tsx:4` | ui | The landing surface renders the brand mark, nivo heading and shared description and explicitly makes no request. |
-| EV-003 | fe | `apps/landing/src/resources/copy.ts:1` | ui | The landing description is shipped as product copy. |
+| EV-003 | fe | `apps/landing/src/resources/copy.ts:12` | ui | The landing description is shipped as product copy. |
 | EV-004 | fe | `apps/landing/src/resources/copy.spec.ts:1` | test | The copy test protects the shipped public description. |
