@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "agentos-workspaces",
-  "head": "933b9700dfbb30f0cde2802a80252a02e7d4b2ea86d98143e17b88011df771bf",
+  "head": "778a16ba84d7570b0fed464a29bd634093c3d86dffe27112751ca5f20e04d29e",
   "sources": [
     {
       "role": "fe",
