@@ -1,6 +1,6 @@
 # Shared console shell navigation
 
-> Business head: `fa00110a15a1c5fe40ae5131fec40f0e6010a9b927753a12367beadf599271be`
+> Business head: `324f8dddadad7faca67174af26a11ab074125409d1afd3f7fa8b998a98f8a90c`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -26,7 +26,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `223c252250b935ff2ac8803c5747b9b842d9b4da` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `894e608bba73d791e5d2767cdc420da770c8c42b` |
 
 ## 3. Actors and access
 
@@ -126,9 +126,9 @@ No unresolved question is recorded.
 
 | ID | Role | Source | Kind | Claim |
 |---|---|---|---|---|
-| EV-001 | fe | `apps/app/src/app/[locale]/(console)/layout.tsx:55` | route | The authenticated route-group layout mounts one strict StarCi theme boundary, desktop topbar, collapsible desktop rail, mobile navigation owner and routed main body. |
-| EV-002 | fe | `apps/app/src/components/layouts/ConsoleNav/index.tsx:76` | ui | Console navigation owns the complete grouped destination set, selected route, expanded and compact ListBox presentations, persisted collapsible rail and mobile right-edge drawer. |
-| EV-003 | fe | `packages/ui/src/leaves/SelectionList/index.tsx:10` | ui | SelectionList preserves one HeroUI ListBox owner while expanded labels and compact circular icon targets share selected, focus and keyboard behavior; the first destination group stays pinned. |
+| EV-001 | fe | `apps/app/src/app/[locale]/(console)/layout.tsx:53` | route | The authenticated route-group layout mounts one strict StarCi theme boundary, desktop topbar, collapsible desktop rail, mobile navigation owner and routed main body. |
+| EV-002 | fe | `apps/app/src/components/layouts/ConsoleNav/index.tsx:82` | ui | Console navigation owns the complete grouped destination set, selected route, expanded and compact ListBox presentations, persisted collapsible rail and mobile right-edge drawer. |
+| EV-003 | fe | `packages/ui/src/leaves/SelectionList/index.tsx:43` | ui | SelectionList preserves one HeroUI ListBox owner while expanded labels and compact circular icon targets share selected, focus and keyboard behavior; the first destination group stays pinned. |
 | EV-004 | fe | `packages/ui/src/branches/DrawerBranch/index.tsx:6` | ui | DrawerBranch owns right-edge placement, backdrop, focus, dismissal and the single drawer body. |
 | EV-005 | fe | `apps/app/src/components/layouts/ConsoleNav/index.spec.tsx:19` | test | Interaction tests prove seven destinations, disabled routes, compact icon presentation, collapse control, the complete mobile drawer and locale-aware activation. |
 | EV-006 | fe | `packages/ui/src/branches/CollapsibleRail/index.tsx:7` | ui | CollapsibleRail owns one stable desktop motion host, persisted 256px and 64px states, reduced-motion behavior, invariant inset, accessible toggle and safe storage fallback. |

@@ -124,13 +124,14 @@
     },
     "console-shell-navigation": {
       "featureId": "console-shell-navigation",
-      "head": "fa00110a15a1c5fe40ae5131fec40f0e6010a9b927753a12367beadf599271be",
+      "head": "324f8dddadad7faca67174af26a11ab074125409d1afd3f7fa8b998a98f8a90c",
       "authorityStatus": "implemented",
-      "previousHead": "d4db8e14f1430fba8ac89eb4d8ff99a8f775fbdeb802c46391ffbd7618ce135d",
+      "baseHead": "fa00110a15a1c5fe40ae5131fec40f0e6010a9b927753a12367beadf599271be",
+      "previousHead": "fa00110a15a1c5fe40ae5131fec40f0e6010a9b927753a12367beadf599271be",
       "sources": [
         {
           "role": "fe",
-          "head": "223c252250b935ff2ac8803c5747b9b842d9b4da"
+          "head": "894e608bba73d791e5d2767cdc420da770c8c42b"
         }
       ]
     },
@@ -342,6 +343,10 @@
       "d0fecdaed1f8a4ac8cbd46f30e0b98fdaa93c209f84408669aeb99d5f0216b09": {
         "hash": "d0fecdaed1f8a4ac8cbd46f30e0b98fdaa93c209f84408669aeb99d5f0216b09",
         "path": "objects/sha256/d0fecdaed1f8a4ac8cbd46f30e0b98fdaa93c209f84408669aeb99d5f0216b09.json"
+      },
+      "324f8dddadad7faca67174af26a11ab074125409d1afd3f7fa8b998a98f8a90c": {
+        "hash": "324f8dddadad7faca67174af26a11ab074125409d1afd3f7fa8b998a98f8a90c",
+        "path": "objects/sha256/324f8dddadad7faca67174af26a11ab074125409d1afd3f7fa8b998a98f8a90c.json"
       }
     }
   }
