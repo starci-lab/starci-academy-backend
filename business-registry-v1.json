@@ -31,6 +31,21 @@
           "head": "e89b39a3c6f8a9266e7a024ad2ce27e7406f926d"
         }
       ]
+    },
+    "public-information-api": {
+      "featureId": "public-information-api",
+      "head": "32380cf78b31420af08586014396645d5675feb155a268ccf637ffcb90728439",
+      "authorityStatus": "pending",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "3fa4956e035a06ca0afebb7b30659ad2ee8724a2"
+        },
+        {
+          "role": "be",
+          "head": "3d52563145475e0f292f3772964d526cac5a52ea"
+        }
+      ]
     }
   },
   "objects": {
@@ -51,6 +66,10 @@
       "c24fadecd6f84f17b9abdbfefaa529acf5603f228131647bb2604e04f64f1150": {
         "hash": "c24fadecd6f84f17b9abdbfefaa529acf5603f228131647bb2604e04f64f1150",
         "path": "objects/sha256/c24fadecd6f84f17b9abdbfefaa529acf5603f228131647bb2604e04f64f1150.json"
+      },
+      "32380cf78b31420af08586014396645d5675feb155a268ccf637ffcb90728439": {
+        "hash": "32380cf78b31420af08586014396645d5675feb155a268ccf637ffcb90728439",
+        "path": "objects/sha256/32380cf78b31420af08586014396645d5675feb155a268ccf637ffcb90728439.json"
       }
     }
   }
