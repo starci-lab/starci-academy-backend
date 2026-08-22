@@ -34,9 +34,10 @@
     },
     "public-information-api": {
       "featureId": "public-information-api",
-      "head": "873128c191b59680804d0a05626454eb2dc98fc8397fb562b06f8d628add7252",
+      "head": "4386640cc7376e96c9f4678ad5e939063d843e393d73b9d5f78cd030c00730fe",
       "authorityStatus": "implemented",
-      "previousHead": "fdf855dc018834bdc435c459160c5c184980ca462fca86adde78fd01ff4c26f2",
+      "baseHead": "873128c191b59680804d0a05626454eb2dc98fc8397fb562b06f8d628add7252",
+      "previousHead": "873128c191b59680804d0a05626454eb2dc98fc8397fb562b06f8d628add7252",
       "sources": [
         {
           "role": "fe",
@@ -44,7 +45,7 @@
         },
         {
           "role": "be",
-          "head": "d7cb09bb1a88365b28821235626d1ad9f03a7108"
+          "head": "661c37a1c6bb29540f0c644680e295abcf5267c7"
         }
       ]
     }
@@ -79,6 +80,10 @@
       "873128c191b59680804d0a05626454eb2dc98fc8397fb562b06f8d628add7252": {
         "hash": "873128c191b59680804d0a05626454eb2dc98fc8397fb562b06f8d628add7252",
         "path": "objects/sha256/873128c191b59680804d0a05626454eb2dc98fc8397fb562b06f8d628add7252.json"
+      },
+      "4386640cc7376e96c9f4678ad5e939063d843e393d73b9d5f78cd030c00730fe": {
+        "hash": "4386640cc7376e96c9f4678ad5e939063d843e393d73b9d5f78cd030c00730fe",
+        "path": "objects/sha256/4386640cc7376e96c9f4678ad5e939063d843e393d73b9d5f78cd030c00730fe.json"
       }
     }
   }

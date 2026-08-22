@@ -1,6 +1,6 @@
 # API thông tin công khai Tây Sơn
 
-> Business head: `873128c191b59680804d0a05626454eb2dc98fc8397fb562b06f8d628add7252`
+> Business head: `4386640cc7376e96c9f4678ad5e939063d843e393d73b9d5f78cd030c00730fe`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -27,7 +27,7 @@ Excluded:
 | Role | Repository | Head |
 |---|---|---|
 | fe | local-only:D:/Repositories/tayson-fe | `3fa4956e035a06ca0afebb7b30659ad2ee8724a2` |
-| be | local-only:D:/Repositories/tayson-backend | `d7cb09bb1a88365b28821235626d1ad9f03a7108` |
+| be | local-only:D:/Repositories/tayson-backend | `661c37a1c6bb29540f0c644680e295abcf5267c7` |
 
 ## 3. Actors and access
 
