@@ -20,5 +20,5 @@ The authenticated console overview independently summarizes owned apps, AgentOS 
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `3102d35bfa73e51c52d087352c68ee106b4a5a46` |
-| be | https://github.com/starci-lab/nivo-backend.git | `947c6f4a117e1677e37ad98ba03f3dac0bca148e` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `894e608bba73d791e5d2767cdc420da770c8c42b` |
+| be | https://github.com/starci-lab/nivo-backend.git | `ac05d90e7b6b59eb9dc4128872f3c02ba254e59a` |

@@ -1,6 +1,6 @@
 # Operations dashboard
 
-> Business head: `cecf53f7f29811d83a18c70a8c064abe3387037114da1f9efedb9fc08d86a991`
+> Business head: `3a9e04235aa047ce0d24a51770a2bb11e4a0c3f241bc2381f8723c3ce404fc78`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -22,8 +22,8 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `3102d35bfa73e51c52d087352c68ee106b4a5a46` |
-| be | https://github.com/starci-lab/nivo-backend.git | `947c6f4a117e1677e37ad98ba03f3dac0bca148e` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `894e608bba73d791e5d2767cdc420da770c8c42b` |
+| be | https://github.com/starci-lab/nivo-backend.git | `ac05d90e7b6b59eb9dc4128872f3c02ba254e59a` |
 
 ## 3. Actors and access
 
@@ -112,9 +112,9 @@ Strength: **confirmed** · Evidence: `EV-003`, `EV-006`
 
 | ID | Role | Source | Kind | Claim |
 |---|---|---|---|---|
-| EV-001 | fe | `apps/app/src/components/pages/OverviewPage/component.tsx:94` | ui | The overview draws four independently settled summary blocks for Apps, AgentOS, combined infrastructure/domain evidence and Wallet. |
-| EV-002 | fe | `apps/app/src/components/pages/OverviewPage/index.tsx:69` | ui | The connected overview independently queries apps, AgentOS, domains and wallet/invoice data, maps pending, empty, populated, partial and failed states, and routes to available destinations. |
-| EV-003 | fe | `apps/app/src/components/layouts/ConsoleNav/index.tsx:77` | route | Console navigation exposes the complete grouped destination set through one controlled HeroUI ListBox on desktop and the same set inside a right-edge mobile drawer. |
+| EV-001 | fe | `apps/app/src/components/pages/OverviewPage/component.tsx:144` | ui | The overview draws four independently settled summary blocks for Apps, AgentOS, combined infrastructure/domain evidence and Wallet. |
+| EV-002 | fe | `apps/app/src/components/pages/OverviewPage/index.tsx:70` | ui | The connected overview independently queries apps, AgentOS, domains and wallet/invoice data, maps pending, empty, populated, partial and failed states, and routes to available destinations. |
+| EV-003 | fe | `apps/app/src/components/layouts/ConsoleNav/index.tsx:82` | route | Console navigation exposes the complete grouped destination set through one controlled HeroUI ListBox on desktop and the same set inside a right-edge mobile drawer. |
 | EV-004 | be | `src/features/core/api/core/graphql/queries/expert-sites/my-expert-sites/my-expert-sites.resolver.ts:38` | api | myExpertSites is an authenticated viewer-owned query ordered newest first. |
 | EV-005 | be | `src/features/core/api/core/graphql/queries/wallet/my-wallet/my-wallet.handler.spec.ts:8` | test | The wallet handler test proves an owner-scoped wallet is created/read for the requesting user. |
 | EV-006 | owner | `decision:5c3005db18db6b470c0b84a97865aa8bd99eeb92c225d40e64fd3436faaa6e4e` | owner-decision | The owner requested a production-quality Nivo dashboard using the current product visual language and explicitly selected a mobile navigation drawer that opens from the right edge. |
