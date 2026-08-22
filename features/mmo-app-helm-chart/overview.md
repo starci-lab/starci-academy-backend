@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Nivo gains one generic MMO Helm chart at charts/mmo in the dedicated nivo-charts repository, while backend provisioning activation remains separately authorized.
+Nivo has one validated generic MMO Helm chart at charts/mmo in the dedicated nivo-charts repository, while backend provisioning activation remains separately authorized.
 
 ## Included
 
@@ -25,4 +25,4 @@ Nivo gains one generic MMO Helm chart at charts/mmo in the dedicated nivo-charts
 | Role | Repository | Head |
 |---|---|---|
 | be | https://github.com/starci-lab/nivo-backend.git | `947c6f4a117e1677e37ad98ba03f3dac0bca148e` |
-| chart | https://github.com/starci-lab/nivo-charts.git | `4a3aabb9d4db60f0f9e7332195b46276368b5295` |
+| chart | https://github.com/starci-lab/nivo-charts.git | `c1f88fc9e21bfbc61ae120e8b0d8cbf74a957446` |

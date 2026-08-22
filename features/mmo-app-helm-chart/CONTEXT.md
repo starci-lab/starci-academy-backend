@@ -1,14 +1,14 @@
 # MMO application Helm chart
 
-> Business identity: `nivo/mmo-app-helm-chart@26bb61ae9faaa75b79f61bf47813cc5b3e8edb4e6812d7e9e651983003fe3167`
+> Business identity: `nivo/mmo-app-helm-chart@4eafdcbc8c72d9eca144dd93e86a41b83988c42e26f7ca647bcdac68f028cd21`
 >
-> Source heads: authority `in-progress` · `be@947c6f4a117e`, `chart@4a3aabb9d4db`
+> Source heads: authority `implemented` · `be@947c6f4a117e`, `chart@c1f88fc9e21b`
 >
 > Load this file first. Load only the modules named by the current task.
 
 ## Decision capsule
 
-**Purpose.** Nivo gains one generic MMO Helm chart at charts/mmo in the dedicated nivo-charts repository, while backend provisioning activation remains separately authorized.
+**Purpose.** Nivo has one validated generic MMO Helm chart at charts/mmo in the dedicated nivo-charts repository, while backend provisioning activation remains separately authorized.
 
 **Primary actor.** Nivo control-plane maintainer
 

@@ -14,7 +14,7 @@ Define and validate the generic charts/mmo artifact the backend may resolve with
 
 | Region | Kind | Real representative content | States | Actions | Evidence |
 |---|---|---|---|---|---|
-| `chart-contract` | summary | Application key: mmo; Chart path: charts/mmo; Required values: image.repository, image.tag, service.port; Provisioning: Not activated: unavailable | chart-unresolved, chart-defined, chart-validated, chart-refused | none | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-006`, `EV-007`, `EV-009` |
+| `chart-contract` | summary | Application key: mmo; Chart path: charts/mmo; Required values: image.repository, image.tag, service.port; Provisioning: Not activated: unavailable | chart-unresolved, chart-defined, chart-validated, chart-refused | none | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-006`, `EV-007`, `EV-009`, `EV-010`, `EV-011`, `EV-012`, `EV-013`, `EV-014` |
 
 ## Context rule
 

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "mmo-app-helm-chart",
-  "head": "26bb61ae9faaa75b79f61bf47813cc5b3e8edb4e6812d7e9e651983003fe3167",
+  "head": "4eafdcbc8c72d9eca144dd93e86a41b83988c42e26f7ca647bcdac68f028cd21",
   "sources": [
     {
       "role": "be",
@@ -12,7 +12,7 @@
     {
       "role": "chart",
       "repository": "https://github.com/starci-lab/nivo-charts.git",
-      "head": "4a3aabb9d4db60f0f9e7332195b46276368b5295"
+      "head": "c1f88fc9e21bfbc61ae120e8b0d8cbf74a957446"
     }
   ],
   "evidence": [
@@ -92,6 +92,51 @@
       "endLine": 29,
       "claim": "An existing clean sibling chart establishes the repository's Helm v2 application metadata shape with explicit chart and app versions.",
       "kind": "schema"
+    },
+    {
+      "id": "EV-010",
+      "role": "chart",
+      "path": "charts/mmo/Chart.yaml",
+      "startLine": 1,
+      "endLine": 16,
+      "claim": "The implemented charts/mmo artifact is a distinct Helm v2 application chart with explicit chart and app versions.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-011",
+      "role": "chart",
+      "path": "charts/mmo/values.schema.json",
+      "startLine": 1,
+      "endLine": 70,
+      "claim": "The MMO values schema requires a non-empty image repository, non-empty image tag and service port in the valid Kubernetes port range.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-012",
+      "role": "chart",
+      "path": "charts/mmo/templates/deployment.yaml",
+      "startLine": 1,
+      "endLine": 105,
+      "claim": "The MMO Deployment renders the required image and port while exposing configurable probes, environment, resources, persistence and additional volumes.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-013",
+      "role": "chart",
+      "path": "charts/mmo/templates/ingress.yaml",
+      "startLine": 1,
+      "endLine": 31,
+      "claim": "The MMO Ingress is opt-in and requires an explicit host when enabled.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-014",
+      "role": "chart",
+      "path": "charts/mmo/templates/pvc.yaml",
+      "startLine": 1,
+      "endLine": 25,
+      "claim": "The MMO PVC is opt-in and exposes explicit access mode, storage class and requested size configuration.",
+      "kind": "policy"
     }
   ]
 }
