@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "app-dashboard-create-flows",
+  "head": "ab4229558269b09532a106f599f59806372cc5bf517861b90846d29a39c91f00",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "894e608bba73d791e5d2767cdc420da770c8c42b"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "The owner approved separate management dashboards and pre-persistence create routes for both AgentOS and Template Apps, with persisted resources resuming only on order-, workspace-, or site-owned routes.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "1a64ef74f4cc208f2e4a26ce7a1fff0887c2fe40f78fe111b75b6accc36dbd53"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/page.tsx",
+      "startLine": 1,
+      "endLine": 6,
+      "claim": "The current AgentOS root route mounts new-order mode, demonstrating that management and creation are presently co-located at /agentos.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/orders/[orderId]/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The frontend already owns a persisted AgentOS order resume route keyed by orderId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The frontend already owns a terminal AgentOS workspace route keyed by workspaceId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/apps/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The frontend already owns the Apps dashboard route at /apps.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/apps/new/[templateKey]/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The current Template App pre-persistence entry is keyed by templateKey and mounts new-request mode.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-007",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AppsPage/index.tsx",
+      "startLine": 240,
+      "endLine": 248,
+      "claim": "The Apps page already distinguishes template selection navigation from persisted site navigation.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-008",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/provisioning/TemplateAppProvisioning/index.tsx",
+      "startLine": 174,
+      "endLine": 194,
+      "claim": "Template App creation returns a siteId and replaces the route with the site-owned provisioning path after persistence.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-009",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/apps/[siteId]/provisioning/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The frontend already owns a persisted Template App provisioning resume route keyed by siteId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-010",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/apps/[siteId]/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The frontend already owns a terminal Template App management route keyed by siteId.",
+      "kind": "route"
+    }
+  ]
+}

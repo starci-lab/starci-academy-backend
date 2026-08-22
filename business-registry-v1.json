@@ -179,6 +179,17 @@
           "head": "c1f88fc9e21bfbc61ae120e8b0d8cbf74a957446"
         }
       ]
+    },
+    "app-dashboard-create-flows": {
+      "featureId": "app-dashboard-create-flows",
+      "head": "ab4229558269b09532a106f599f59806372cc5bf517861b90846d29a39c91f00",
+      "authorityStatus": "pending",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "894e608bba73d791e5d2767cdc420da770c8c42b"
+        }
+      ]
     }
   },
   "objects": {
@@ -347,6 +358,10 @@
       "324f8dddadad7faca67174af26a11ab074125409d1afd3f7fa8b998a98f8a90c": {
         "hash": "324f8dddadad7faca67174af26a11ab074125409d1afd3f7fa8b998a98f8a90c",
         "path": "objects/sha256/324f8dddadad7faca67174af26a11ab074125409d1afd3f7fa8b998a98f8a90c.json"
+      },
+      "ab4229558269b09532a106f599f59806372cc5bf517861b90846d29a39c91f00": {
+        "hash": "ab4229558269b09532a106f599f59806372cc5bf517861b90846d29a39c91f00",
+        "path": "objects/sha256/ab4229558269b09532a106f599f59806372cc5bf517861b90846d29a39c91f00.json"
       }
     }
   }
