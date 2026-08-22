@@ -1,6 +1,6 @@
 # AgentOS workspace lifecycle and control center
 
-> Business head: `d35a2a75c636aacbcd3b5aad0177d390300f42a43ea7c4ca8572bbc69ff78e6b`
+> Business head: `f5321acfa014b3daaa340f86d72da7ada0f5703e6ba1f138d0a1f983f0d0652d`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
