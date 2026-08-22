@@ -6,8 +6,9 @@
   "featureHeads": {
     "community-website-platform": {
       "featureId": "community-website-platform",
-      "head": "373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295",
-      "authorityStatus": "pending",
+      "head": "dd2daf5a201472064ea9e19111607b6f7a48941ccd03cc8dc2a71371ab913b52",
+      "authorityStatus": "in-progress",
+      "previousHead": "373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295",
       "sources": [
         {
           "role": "fe",
@@ -26,6 +27,10 @@
       "373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295": {
         "hash": "373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295",
         "path": "objects/sha256/373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295.json"
+      },
+      "dd2daf5a201472064ea9e19111607b6f7a48941ccd03cc8dc2a71371ab913b52": {
+        "hash": "dd2daf5a201472064ea9e19111607b6f7a48941ccd03cc8dc2a71371ab913b52",
+        "path": "objects/sha256/dd2daf5a201472064ea9e19111607b6f7a48941ccd03cc8dc2a71371ab913b52.json"
       }
     }
   }

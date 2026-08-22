@@ -3,7 +3,8 @@
   "project": "tayson",
   "features": {
     "community-website-platform": [
-      "373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295"
+      "373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295",
+      "dd2daf5a201472064ea9e19111607b6f7a48941ccd03cc8dc2a71371ab913b52"
     ]
   }
 }
