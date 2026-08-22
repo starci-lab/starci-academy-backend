@@ -51,18 +51,18 @@
     },
     "study-library": {
       "featureId": "study-library",
-      "head": "32dfc8af971c614a5c5bdd6ba78d194b07af476e13a28e643f69edc63e0feef1",
+      "head": "b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699",
       "authorityStatus": "implemented",
-      "baseHead": "f401f50f55ec0717c638de7f000c2a679f262155062c47e4dec1fd924ab32530",
-      "previousHead": "228ae337362749d918e300effb4fa41efcbc6cb3c7f2c52c42bad08dfa992cfe",
+      "baseHead": "32dfc8af971c614a5c5bdd6ba78d194b07af476e13a28e643f69edc63e0feef1",
+      "previousHead": "32dfc8af971c614a5c5bdd6ba78d194b07af476e13a28e643f69edc63e0feef1",
       "sources": [
         {
           "role": "fe",
-          "head": "b78f77ec44905abd1619ac95ac50bfad744c7e96"
+          "head": "e06ee0cb1a19e47ab3d66dd4b37de141e19f1343"
         },
         {
           "role": "be",
-          "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
+          "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
         }
       ]
     },
@@ -328,6 +328,10 @@
       "05229e6d47d376406d216ad7386fa2b4ef68be0fa0fd990473d696046f53fd85": {
         "hash": "05229e6d47d376406d216ad7386fa2b4ef68be0fa0fd990473d696046f53fd85",
         "path": "objects/sha256/05229e6d47d376406d216ad7386fa2b4ef68be0fa0fd990473d696046f53fd85.json"
+      },
+      "b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699": {
+        "hash": "b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699",
+        "path": "objects/sha256/b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699.json"
       }
     }
   }

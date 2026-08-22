@@ -1,8 +1,8 @@
 # Study library
 
-> Business identity: `starci-academy/study-library@32dfc8af971c614a5c5bdd6ba78d194b07af476e13a28e643f69edc63e0feef1`
+> Business identity: `starci-academy/study-library@b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699`
 >
-> Source heads: authority `implemented` · base `f401f50f55ec0717c638de7f000c2a679f262155062c47e4dec1fd924ab32530` · `fe@b78f77ec4490`, `be@0ed7b7bc8e1b`
+> Source heads: authority `implemented` · base `32dfc8af971c614a5c5bdd6ba78d194b07af476e13a28e643f69edc63e0feef1` · `fe@e06ee0cb1a19`, `be@88a395908477`
 >
 > Load this file first. Load only the modules named by the current task.
 

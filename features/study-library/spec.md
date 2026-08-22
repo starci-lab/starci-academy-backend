@@ -1,6 +1,6 @@
 # Study library
 
-> Business head: `32dfc8af971c614a5c5bdd6ba78d194b07af476e13a28e643f69edc63e0feef1`
+> Business head: `b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -22,8 +22,8 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `b78f77ec44905abd1619ac95ac50bfad744c7e96` |
-| be | https://github.com/starci-lab/starci-academy-backend | `0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `e06ee0cb1a19e47ab3d66dd4b37de141e19f1343` |
+| be | https://github.com/starci-lab/starci-academy-backend | `88a3959084772f9eaa0f5dcbc4e480d4356210f0` |
 
 ## 3. Actors and access
 
@@ -154,9 +154,9 @@ Strength: **confirmed** · Evidence: `EV-004`, `EV-007`
 | ID | Role | Source | Kind | Claim |
 |---|---|---|---|---|
 | EV-001 | fe | `src/app/[lang]/courses/[displayId]/learn/flashcards/review/page.tsx:1` | route | The flashcard review route mounts the review catalog for a course. |
-| EV-002 | fe | `src/components/pages/CourseFlashcardsReviewPage/component.tsx:14` | ui | The review page exposes due/deck counts, statistics, start/resume actions and settled states. |
+| EV-002 | fe | `src/components/blocks/learn/CourseFlashcardsReviewBlock/index.tsx:128` | ui | The review page exposes due/deck counts, statistics, start/resume actions and settled states. |
 | EV-003 | fe | `src/app/[lang]/courses/[displayId]/learn/foundations/page.tsx:1` | route | The foundations route mounts the course foundation library. |
-| EV-004 | fe | `src/components/pages/CourseFoundationsPage/component.tsx:15` | ui | The foundation library defines search, pagination, categories, enrollment recovery and pending/ready/empty/failed/partial states. |
+| EV-004 | fe | `src/components/blocks/learn/CourseFoundationsBlock/index.tsx:11` | ui | The foundation library defines search, pagination, categories, enrollment recovery and pending/ready/empty/failed/partial states. |
 | EV-005 | fe | `src/app/[lang]/courses/[displayId]/learn/mind-map/page.tsx:1` | route | The course mind-map route mounts CourseMindMapPage. |
 | EV-006 | be | `src/features/api/core/graphql/mutations/flashcard/start-flashcard-review-session/start-flashcard-review-session.resolver.ts:68` | api | The guarded mutation persists a resumable flashcard review session for a deck and card order. |
 | EV-007 | be | `src/features/api/core/graphql/queries/foundations/foundations/foundations.resolver.ts:45` | api | The foundations query lists paginated foundations for a category. |

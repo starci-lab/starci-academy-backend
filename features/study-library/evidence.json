@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "study-library",
-  "head": "32dfc8af971c614a5c5bdd6ba78d194b07af476e13a28e643f69edc63e0feef1",
+  "head": "b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "b78f77ec44905abd1619ac95ac50bfad744c7e96"
+      "head": "e06ee0cb1a19e47ab3d66dd4b37de141e19f1343"
     },
     {
       "role": "be",
       "repository": "https://github.com/starci-lab/starci-academy-backend",
-      "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
+      "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
     }
   ],
   "evidence": [
@@ -28,9 +28,9 @@
     {
       "id": "EV-002",
       "role": "fe",
-      "path": "src/components/pages/CourseFlashcardsReviewPage/component.tsx",
-      "startLine": 14,
-      "endLine": 55,
+      "path": "src/components/blocks/learn/CourseFlashcardsReviewBlock/index.tsx",
+      "startLine": 128,
+      "endLine": 274,
       "claim": "The review page exposes due/deck counts, statistics, start/resume actions and settled states.",
       "kind": "ui"
     },
@@ -46,9 +46,9 @@
     {
       "id": "EV-004",
       "role": "fe",
-      "path": "src/components/pages/CourseFoundationsPage/component.tsx",
-      "startLine": 15,
-      "endLine": 36,
+      "path": "src/components/blocks/learn/CourseFoundationsBlock/index.tsx",
+      "startLine": 11,
+      "endLine": 21,
       "claim": "The foundation library defines search, pagination, categories, enrollment recovery and pending/ready/empty/failed/partial states.",
       "kind": "ui"
     },
