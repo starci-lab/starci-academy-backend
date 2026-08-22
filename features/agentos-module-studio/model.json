@@ -1,0 +1,1518 @@
+{
+  "schemaVersion": 2,
+  "authority": {
+    "status": "pending",
+    "basis": "owner-intent",
+    "requiredRoles": [
+      "fe",
+      "be"
+    ]
+  },
+  "project": "nivo",
+  "featureId": "agentos-module-studio",
+  "title": "AgentOS custom module studio",
+  "summary": "An authenticated owner creates and manages workspace-owned custom module drafts through a resumable adaptive interview, supplies scanned supporting files and write-only integration secrets, reviews a backend-owned completeness profile and explicitly publishes a versioned module specification into the existing AgentOS installation lifecycle.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "894e608bba73d791e5d2767cdc420da770c8c42b"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "ac05d90e7b6b59eb9dc4128872f3c02ba254e59a"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Custom-module management nested under one exact ready AgentOS workspace",
+      "Pre-persistence module creation followed by a persistent resumable module studio",
+      "Backend-owned adaptive follow-up questions, structured module profile, missing fields, progress and completion",
+      "Quarantined image and document attachment intake with scan, retry and removal states",
+      "Write-only encrypted named integration-secret intake with masked configuration status",
+      "Versioned reviewable module specification and an explicit publish or install transition"
+    ],
+    "excludes": [
+      "Changing the existing immutable solution-module catalogue, catalogue install mutation or installation-detail route",
+      "Changing AgentOS order, Wallet payment, workspace provisioning or readiness semantics",
+      "Returning, rendering or logging secret values, storage credentials, scanner internals or raw control-plane access",
+      "Publishing or installing a module automatically when a chat turn completes",
+      "Importing TEDO product content, pricing, artifacts, actors or business rules"
+    ]
+  },
+  "actors": [
+    {
+      "id": "workspace-owner",
+      "label": "Authenticated owner of one exact ready AgentOS workspace",
+      "capabilities": [
+        "Browse workspace-owned custom module drafts and published modules",
+        "Start and resume an adaptive module interview",
+        "Answer, correct and extend module requirements",
+        "Attach supporting images and documents",
+        "Configure or remove named integration secrets without reading them back",
+        "Review completeness and explicitly publish or install a ready specification"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "create-and-complete-module",
+      "title": "Create a custom module through adaptive follow-up questions",
+      "trigger": "The workspace owner chooses Create module from the exact workspace module collection.",
+      "steps": [
+        {
+          "id": "open-module-create",
+          "actor": "workspace-owner",
+          "action": "Open the separate module-create route without creating a blank persisted module",
+          "result": "The owner sees the first assistant prompt and a composer scoped to the exact workspace",
+          "surfaceId": "module-create",
+          "stateId": "intake-resting"
+        },
+        {
+          "id": "submit-opening-answer",
+          "actor": "workspace-owner",
+          "action": "Submit the opening module goal",
+          "result": "The backend creates one idempotent custom-module draft and intake session, then returns the exact persistent studio identity",
+          "surfaceId": "module-create",
+          "stateId": "intake-submitting"
+        },
+        {
+          "id": "answer-adaptive-question",
+          "actor": "workspace-owner",
+          "action": "Answer the current backend-selected question or correct a prior answer",
+          "result": "The answer is persisted, the structured profile and missing fields are recomputed, and the next unresolved question is returned",
+          "surfaceId": "module-studio",
+          "stateId": "intake-awaiting-answer"
+        },
+        {
+          "id": "supply-module-resources",
+          "actor": "workspace-owner",
+          "action": "Attach relevant images or documents and configure required integration keys",
+          "result": "Only scan-ready attachments and masked configured-secret statuses contribute to module readiness",
+          "surfaceId": "module-studio",
+          "stateId": "intake-incomplete"
+        },
+        {
+          "id": "reach-module-completeness",
+          "actor": "workspace-owner",
+          "action": "Resolve every backend-declared missing field",
+          "result": "The backend marks the intake complete and generates a versioned reviewable module specification",
+          "surfaceId": "module-studio",
+          "stateId": "specification-ready"
+        }
+      ],
+      "outcomes": [
+        "One exact workspace-owned draft and intake session remain resumable",
+        "The owner reaches a reviewable specification only after backend-owned completion"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "resume-and-manage-module",
+      "title": "Resume or manage one exact custom module",
+      "trigger": "The workspace owner selects a draft or published custom module from the module collection.",
+      "steps": [
+        {
+          "id": "choose-owned-module",
+          "actor": "workspace-owner",
+          "action": "Choose one module belonging to the exact workspace",
+          "result": "The route preserves workspaceId and moduleId and refuses a foreign or absent module",
+          "surfaceId": "module-management",
+          "stateId": "module-collection-ready"
+        },
+        {
+          "id": "restore-module-studio",
+          "actor": "workspace-owner",
+          "action": "Open the module studio",
+          "result": "Conversation, structured profile, missing fields, attachments, masked secret statuses and current specification are restored",
+          "surfaceId": "module-studio",
+          "stateId": "intake-awaiting-answer"
+        },
+        {
+          "id": "continue-module-management",
+          "actor": "workspace-owner",
+          "action": "Continue the interview or update an allowed resource",
+          "result": "The backend recomputes readiness without losing previously accepted information",
+          "surfaceId": "module-studio",
+          "stateId": "intake-incomplete"
+        }
+      ],
+      "outcomes": [
+        "Interrupted intake resumes without creating a duplicate draft",
+        "The owner can distinguish incomplete, ready-for-review, publishing, active and refused modules"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "review-and-publish-module",
+      "title": "Review and explicitly publish one complete custom module",
+      "trigger": "The backend has generated a complete versioned module specification.",
+      "steps": [
+        {
+          "id": "review-module-specification",
+          "actor": "workspace-owner",
+          "action": "Review the generated specification, its source attachments and masked integration requirements",
+          "result": "The owner can return to the interview or proceed with the exact specification version",
+          "surfaceId": "module-studio",
+          "stateId": "specification-ready"
+        },
+        {
+          "id": "confirm-module-publish",
+          "actor": "workspace-owner",
+          "action": "Explicitly confirm Publish or Install with an idempotency identity",
+          "result": "The backend accepts one asynchronous publish operation and never treats chat completion as consent",
+          "surfaceId": "module-studio",
+          "stateId": "module-publishing"
+        },
+        {
+          "id": "observe-module-publish-result",
+          "actor": "workspace-owner",
+          "action": "Observe the publish result",
+          "result": "Success returns the existing installation identity; refusal preserves the reviewable specification and exposes a safe retry",
+          "surfaceId": "module-studio",
+          "stateId": "module-active"
+        }
+      ],
+      "outcomes": [
+        "A complete custom specification enters the existing installation lifecycle only through explicit owner confirmation",
+        "The existing owner-scoped installation-detail route remains the terminal runtime inspection surface"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-004",
+        "EV-006",
+        "EV-008"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Every custom module, intake session, attachment, configured-secret status and generated specification belongs to one exact authenticated owner and one exact ready AgentOS workspace.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "The backend owns required fields, the next follow-up question, structured profile, missing fields, progress and completion; the frontend renders those results and never invents readiness.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Each accepted answer or correction is persisted before the next question is selected, and a changed answer may change every later unresolved question.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "A custom-module draft is resumable after navigation, reload or a local operation failure without duplicating the draft or discarding previously accepted information.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-05",
+      "statement": "Integration key values are write-only, encrypted server-side and never returned, rendered, placed in conversation text or logged; clients receive only masked configuration status.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-06",
+      "statement": "An image or document attachment contributes to the module profile only after quarantine and successful scanning; uploading, scanning, ready, refused, retry and removal remain explicit states.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-07",
+      "statement": "Conversation completion generates a reviewable versioned specification but never publishes or installs a module without a separate explicit owner confirmation.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-08",
+      "statement": "Custom-module drafts and their studio do not replace or mutate the existing immutable solution-module catalogue, catalogue installation operation or installation-detail identity.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "BR-09",
+      "statement": "Interview, attachment, secret and publish failures are independent block-state axes; a refusal preserves every other previously accepted part of the module profile.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-10",
+      "statement": "The TEDO page contributes interaction shape only; none of its project content, prices, artifact promises, actors or business rules becomes Nivo product truth.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "module-collection-loading",
+      "label": "Custom module collection is loading",
+      "kind": "pending",
+      "transitions": [
+        "module-collection-empty",
+        "module-collection-ready",
+        "module-collection-refused"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "module-collection-empty",
+      "label": "No custom module exists in the exact workspace",
+      "kind": "empty",
+      "transitions": [
+        "intake-resting"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "module-collection-ready",
+      "label": "Owned custom modules are available",
+      "kind": "success",
+      "transitions": [
+        "intake-resting",
+        "intake-awaiting-answer",
+        "specification-ready",
+        "module-active"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "module-collection-refused",
+      "label": "Custom module collection could not be read",
+      "kind": "error",
+      "transitions": [
+        "module-collection-loading"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "intake-resting",
+      "label": "Opening module question is ready without a persisted draft",
+      "kind": "initial",
+      "transitions": [
+        "intake-submitting"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "intake-submitting",
+      "label": "An opening answer, follow-up answer or correction is being persisted",
+      "kind": "pending",
+      "transitions": [
+        "intake-awaiting-answer",
+        "intake-incomplete",
+        "intake-complete",
+        "intake-refused"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "intake-awaiting-answer",
+      "label": "The backend-selected current question awaits an answer",
+      "kind": "partial",
+      "transitions": [
+        "intake-submitting",
+        "attachment-uploading",
+        "secret-saving"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "intake-incomplete",
+      "label": "The structured profile remains incomplete",
+      "kind": "partial",
+      "transitions": [
+        "intake-awaiting-answer",
+        "attachment-uploading",
+        "secret-saving",
+        "intake-complete"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "intake-complete",
+      "label": "Every backend-required module field is resolved",
+      "kind": "success",
+      "transitions": [
+        "specification-ready"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "intake-refused",
+      "label": "The interview turn was refused without losing accepted profile data",
+      "kind": "error",
+      "transitions": [
+        "intake-submitting",
+        "intake-awaiting-answer"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "attachment-uploading",
+      "label": "A module attachment is uploading to quarantine",
+      "kind": "pending",
+      "transitions": [
+        "attachment-scanning",
+        "attachment-refused"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "attachment-scanning",
+      "label": "An uploaded module attachment is being scanned",
+      "kind": "pending",
+      "transitions": [
+        "attachment-ready",
+        "attachment-refused"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "attachment-ready",
+      "label": "A scanned module attachment is available to the profile",
+      "kind": "success",
+      "transitions": [
+        "intake-incomplete",
+        "intake-complete"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "attachment-refused",
+      "label": "An attachment was refused or could not be scanned",
+      "kind": "error",
+      "transitions": [
+        "attachment-uploading",
+        "intake-incomplete"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "secret-saving",
+      "label": "A named integration secret is being encrypted and stored",
+      "kind": "pending",
+      "transitions": [
+        "secret-configured",
+        "secret-refused"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "secret-configured",
+      "label": "A named integration secret is configured and masked",
+      "kind": "success",
+      "transitions": [
+        "intake-incomplete",
+        "intake-complete",
+        "secret-saving"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "secret-refused",
+      "label": "A named integration secret was refused without being stored",
+      "kind": "error",
+      "transitions": [
+        "secret-saving",
+        "intake-incomplete"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "specification-ready",
+      "label": "A complete versioned module specification is ready for review",
+      "kind": "success",
+      "transitions": [
+        "intake-awaiting-answer",
+        "module-publishing"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "module-publishing",
+      "label": "The explicitly confirmed module publish is running",
+      "kind": "pending",
+      "transitions": [
+        "module-active",
+        "module-publish-refused"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "module-active",
+      "label": "The custom module has an existing installation identity",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-006",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "module-publish-refused",
+      "label": "Publishing failed while the reviewable specification remains intact",
+      "kind": "error",
+      "transitions": [
+        "specification-ready",
+        "module-publishing"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "custom-module",
+      "label": "Workspace-owned custom module",
+      "fields": [
+        "moduleId",
+        "workspaceId",
+        "name",
+        "status",
+        "readinessPercent",
+        "specificationVersion",
+        "publishedInstallationId",
+        "createdAt",
+        "updatedAt"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "module-intake-session",
+      "label": "Adaptive module intake session",
+      "fields": [
+        "sessionId",
+        "moduleId",
+        "status",
+        "currentQuestion",
+        "missingFields",
+        "progress",
+        "updatedAt"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "module-intake-message",
+      "label": "Persisted module intake turn",
+      "fields": [
+        "messageId",
+        "sessionId",
+        "role",
+        "content",
+        "attachmentIds",
+        "createdAt"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "module-attachment",
+      "label": "Quarantined module attachment",
+      "fields": [
+        "attachmentId",
+        "moduleId",
+        "filename",
+        "mediaKind",
+        "mimeType",
+        "size",
+        "status",
+        "failureCode",
+        "createdAt"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "module-integration-status",
+      "label": "Masked module integration configuration",
+      "fields": [
+        "integrationId",
+        "moduleId",
+        "provider",
+        "label",
+        "configured",
+        "maskedHint",
+        "updatedAt"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "module-specification",
+      "label": "Versioned reviewable custom module specification",
+      "fields": [
+        "specificationId",
+        "moduleId",
+        "version",
+        "status",
+        "profileSnapshot",
+        "attachmentRefs",
+        "integrationRequirements",
+        "generatedAt"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "read-custom-modules",
+      "kind": "query",
+      "name": "myAgentosCustomModules",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId"
+      ],
+      "outputs": [
+        "owner-scoped custom module summaries"
+      ],
+      "failures": [
+        "workspace not found",
+        "workspace not ready",
+        "workspace not owned"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "start-module-intake",
+      "kind": "mutation",
+      "name": "startAgentosCustomModuleIntake",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "openingMessage",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "moduleId",
+        "sessionId",
+        "persisted opening answer",
+        "structured profile",
+        "progress",
+        "missing fields",
+        "next question"
+      ],
+      "failures": [
+        "workspace not ready",
+        "workspace not owned",
+        "opening message refused",
+        "duplicate identity mismatch"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "read-module-studio",
+      "kind": "query",
+      "name": "myAgentosCustomModuleStudio",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "moduleId"
+      ],
+      "outputs": [
+        "custom module",
+        "intake session",
+        "conversation",
+        "structured profile",
+        "attachments",
+        "masked integration statuses",
+        "current specification"
+      ],
+      "failures": [
+        "module not found",
+        "workspace or module not owned"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "answer-module-intake",
+      "kind": "mutation",
+      "name": "answerAgentosCustomModuleIntake",
+      "owner": "backend",
+      "inputs": [
+        "moduleId",
+        "sessionId",
+        "message",
+        "correction target when applicable",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "persisted turn",
+        "structured profile",
+        "progress",
+        "missing fields",
+        "next question or completion",
+        "module specification when complete"
+      ],
+      "failures": [
+        "session not found",
+        "module or session not owned",
+        "message refused",
+        "intake engine unavailable"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "prepare-module-attachment",
+      "kind": "mutation",
+      "name": "prepareAgentosModuleAttachmentUpload",
+      "owner": "backend",
+      "inputs": [
+        "moduleId",
+        "filename",
+        "mimeType",
+        "size",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "attachmentId",
+        "short-lived quarantine upload grant",
+        "expiresAt"
+      ],
+      "failures": [
+        "module not owned",
+        "unsupported file",
+        "file limit exceeded",
+        "upload grant unavailable"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "finalize-module-attachment",
+      "kind": "mutation",
+      "name": "finalizeAgentosModuleAttachment",
+      "owner": "backend",
+      "inputs": [
+        "attachmentId",
+        "checksum"
+      ],
+      "outputs": [
+        "attachment scanning status"
+      ],
+      "failures": [
+        "attachment not owned",
+        "upload absent or expired",
+        "checksum mismatch",
+        "scan refused or unavailable"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "remove-module-attachment",
+      "kind": "mutation",
+      "name": "removeAgentosModuleAttachment",
+      "owner": "backend",
+      "inputs": [
+        "attachmentId",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "attachment removed"
+      ],
+      "failures": [
+        "attachment not owned",
+        "attachment locked by publishing"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "save-module-secret",
+      "kind": "mutation",
+      "name": "saveAgentosModuleIntegrationSecret",
+      "owner": "backend",
+      "inputs": [
+        "moduleId",
+        "provider",
+        "label",
+        "secret value",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "masked configured integration status"
+      ],
+      "failures": [
+        "module not owned",
+        "provider unsupported",
+        "secret invalid",
+        "encryption or storage unavailable"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "remove-module-secret",
+      "kind": "mutation",
+      "name": "removeAgentosModuleIntegrationSecret",
+      "owner": "backend",
+      "inputs": [
+        "integrationId",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "integration no longer configured"
+      ],
+      "failures": [
+        "integration not owned",
+        "integration locked by publishing"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "publish-custom-module",
+      "kind": "mutation",
+      "name": "publishAgentosCustomModule",
+      "owner": "backend",
+      "inputs": [
+        "moduleId",
+        "specificationVersion",
+        "acknowledgedPublish = true",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "publish operation identity",
+        "accepted status",
+        "installationId when available"
+      ],
+      "failures": [
+        "module not owned",
+        "intake incomplete",
+        "specification version stale",
+        "attachment not scan-ready",
+        "required integration not configured",
+        "publish not acknowledged",
+        "installation refused"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "module-management",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]/modules",
+      "title": "Modules",
+      "eyebrow": "AgentOS workspace",
+      "purpose": "Manage custom module drafts and published module identities for one exact ready workspace.",
+      "navigation": [
+        {
+          "id": "back-to-workspace",
+          "label": "Back to workspace",
+          "group": "agentos-workspace",
+          "availability": "available"
+        },
+        {
+          "id": "custom-modules",
+          "label": "Modules",
+          "group": "workspace-modules",
+          "availability": "active"
+        },
+        {
+          "id": "catalog-modules",
+          "label": "Catalogue installations",
+          "group": "workspace-modules",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "module-collection-header",
+          "kind": "summary",
+          "title": "Workspace modules",
+          "summary": "Keep custom module creation and management inside the exact workspace context.",
+          "items": [
+            {
+              "id": "workspace-identity",
+              "role": "entity",
+              "label": "Workspace"
+            }
+          ],
+          "actions": [
+            {
+              "id": "create-module",
+              "label": "Create module",
+              "kind": "primary",
+              "target": "/[locale]/agentos/workspaces/[workspaceId]/modules/create"
+            }
+          ],
+          "states": [
+            "module-collection-loading",
+            "module-collection-empty",
+            "module-collection-ready",
+            "module-collection-refused"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        },
+        {
+          "id": "custom-module-collection",
+          "kind": "collection",
+          "title": "Your modules",
+          "summary": "Drafts expose progress and a Continue action; published modules expose their installation result.",
+          "items": [
+            {
+              "id": "module-name",
+              "role": "entity",
+              "label": "Module"
+            },
+            {
+              "id": "module-status",
+              "role": "status",
+              "label": "Status"
+            },
+            {
+              "id": "module-progress",
+              "role": "fact",
+              "label": "Profile progress"
+            },
+            {
+              "id": "module-updated-at",
+              "role": "fact",
+              "label": "Last updated"
+            }
+          ],
+          "actions": [
+            {
+              "id": "continue-module",
+              "label": "Continue",
+              "kind": "secondary",
+              "target": "/[locale]/agentos/workspaces/[workspaceId]/modules/studio/[moduleId]"
+            },
+            {
+              "id": "open-installation",
+              "label": "Open installation",
+              "kind": "link",
+              "target": "/[locale]/agentos/workspaces/[workspaceId]/modules/[installationId]"
+            }
+          ],
+          "states": [
+            "module-collection-loading",
+            "module-collection-empty",
+            "module-collection-ready",
+            "module-collection-refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "module-create",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]/modules/create",
+      "title": "Create module",
+      "eyebrow": "AgentOS module studio",
+      "purpose": "Capture the opening module goal before creating a persistent draft and intake session.",
+      "navigation": [
+        {
+          "id": "back-to-modules",
+          "label": "Back to modules",
+          "group": "workspace-modules",
+          "availability": "available"
+        },
+        {
+          "id": "create-module",
+          "label": "Create module",
+          "group": "workspace-modules",
+          "availability": "active"
+        }
+      ],
+      "regions": [
+        {
+          "id": "opening-module-interview",
+          "kind": "flow",
+          "title": "What should this module do?",
+          "summary": "The first answer creates the exact resumable draft; opening the route alone creates nothing.",
+          "items": [
+            {
+              "id": "opening-question",
+              "role": "text",
+              "label": "Opening question"
+            },
+            {
+              "id": "opening-composer",
+              "role": "field",
+              "label": "Describe the module goal"
+            }
+          ],
+          "actions": [
+            {
+              "id": "start-module",
+              "label": "Start module",
+              "kind": "primary",
+              "target": "/[locale]/agentos/workspaces/[workspaceId]/modules/studio/[moduleId]"
+            }
+          ],
+          "states": [
+            "intake-resting",
+            "intake-submitting",
+            "intake-refused"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "module-studio",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]/modules/studio/[moduleId]",
+      "title": "Module studio",
+      "eyebrow": "AgentOS custom module",
+      "purpose": "Complete and review one exact workspace-owned custom module through an adaptive conversation and live structured profile.",
+      "navigation": [
+        {
+          "id": "back-to-modules",
+          "label": "Back to modules",
+          "group": "workspace-modules",
+          "availability": "available"
+        },
+        {
+          "id": "module-studio",
+          "label": "Module studio",
+          "group": "workspace-modules",
+          "availability": "active"
+        }
+      ],
+      "regions": [
+        {
+          "id": "adaptive-module-interview",
+          "kind": "flow",
+          "title": "Build the module with Nivo",
+          "summary": "Conversation turns remain visible while the backend selects the next unresolved question.",
+          "items": [
+            {
+              "id": "conversation-history",
+              "role": "text",
+              "label": "Conversation"
+            },
+            {
+              "id": "current-question",
+              "role": "step",
+              "label": "Current question"
+            },
+            {
+              "id": "message-composer",
+              "role": "field",
+              "label": "Your answer"
+            },
+            {
+              "id": "image-attachment",
+              "role": "field",
+              "label": "Add image"
+            },
+            {
+              "id": "document-attachment",
+              "role": "field",
+              "label": "Attach document"
+            }
+          ],
+          "actions": [
+            {
+              "id": "send-answer",
+              "label": "Send",
+              "kind": "primary"
+            },
+            {
+              "id": "correct-answer",
+              "label": "Correct answer",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "intake-awaiting-answer",
+            "intake-submitting",
+            "intake-incomplete",
+            "intake-complete",
+            "intake-refused"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        },
+        {
+          "id": "live-module-profile",
+          "kind": "summary",
+          "title": "Module profile",
+          "summary": "The profile exposes backend-owned progress, accepted facts and unresolved fields without duplicating the conversation.",
+          "items": [
+            {
+              "id": "profile-progress",
+              "role": "status",
+              "label": "Progress"
+            },
+            {
+              "id": "profile-purpose",
+              "role": "fact",
+              "label": "Purpose"
+            },
+            {
+              "id": "profile-behaviors",
+              "role": "fact",
+              "label": "Behaviors"
+            },
+            {
+              "id": "profile-data-sources",
+              "role": "fact",
+              "label": "Data sources"
+            },
+            {
+              "id": "profile-integrations",
+              "role": "fact",
+              "label": "Integrations"
+            },
+            {
+              "id": "profile-missing-fields",
+              "role": "status",
+              "label": "Still needed"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "intake-awaiting-answer",
+            "intake-incomplete",
+            "intake-complete",
+            "intake-refused"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        },
+        {
+          "id": "module-resources",
+          "kind": "form",
+          "title": "Files and integrations",
+          "summary": "Only scan-ready files and masked integration statuses are visible outside their write operations.",
+          "items": [
+            {
+              "id": "attachment-status",
+              "role": "status",
+              "label": "Attachment status"
+            },
+            {
+              "id": "integration-provider",
+              "role": "field",
+              "label": "Provider"
+            },
+            {
+              "id": "integration-label",
+              "role": "field",
+              "label": "Key label"
+            },
+            {
+              "id": "integration-secret",
+              "role": "field",
+              "label": "Secret value"
+            },
+            {
+              "id": "integration-status",
+              "role": "status",
+              "label": "Configured status"
+            }
+          ],
+          "actions": [
+            {
+              "id": "retry-attachment",
+              "label": "Retry upload",
+              "kind": "secondary"
+            },
+            {
+              "id": "remove-attachment",
+              "label": "Remove file",
+              "kind": "secondary"
+            },
+            {
+              "id": "save-integration-key",
+              "label": "Save key",
+              "kind": "primary"
+            },
+            {
+              "id": "remove-integration-key",
+              "label": "Remove key",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "attachment-uploading",
+            "attachment-scanning",
+            "attachment-ready",
+            "attachment-refused",
+            "secret-saving",
+            "secret-configured",
+            "secret-refused"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        },
+        {
+          "id": "module-readiness",
+          "kind": "summary",
+          "title": "Review and publish",
+          "summary": "Publishing is available only for the exact complete specification version and always requires separate acknowledgement.",
+          "items": [
+            {
+              "id": "specification-version",
+              "role": "fact",
+              "label": "Specification version"
+            },
+            {
+              "id": "readiness-status",
+              "role": "status",
+              "label": "Readiness"
+            },
+            {
+              "id": "publish-status",
+              "role": "status",
+              "label": "Publish status"
+            }
+          ],
+          "actions": [
+            {
+              "id": "publish-module",
+              "label": "Publish module",
+              "kind": "primary"
+            },
+            {
+              "id": "open-installation",
+              "label": "Open installation",
+              "kind": "link",
+              "target": "/[locale]/agentos/workspaces/[workspaceId]/modules/[installationId]"
+            }
+          ],
+          "states": [
+            "intake-incomplete",
+            "specification-ready",
+            "module-publishing",
+            "module-active",
+            "module-publish-refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-004",
+            "EV-006",
+            "EV-008"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-004",
+        "EV-006",
+        "EV-008"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "The exact workspace module collection exposes loading, empty, ready and refused states plus a Create module action without replacing the existing catalogue-installation surface.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-004",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Opening the create route persists nothing; the first submitted answer idempotently creates the exact draft and session and continues on the persistent module-studio route.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Every accepted answer or correction updates the persisted conversation, profile, progress and missing fields before returning a backend-selected next question or completion result.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "An interrupted custom-module draft restores its exact conversation, live profile, unresolved fields, attachments, masked integrations and specification without duplication.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "Image and document attachments expose uploading, scanning, ready, refused, retry and removal outcomes and contribute to readiness only after successful scanning.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "statement": "A submitted integration key is never returned or rendered; success exposes only provider, label, masked hint and configured status, while refusal proves nothing was stored.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-07",
+      "statement": "The Publish module action is unavailable until backend-owned completeness produces a reviewable specification and requires explicit acknowledgement of the exact version.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-08",
+      "statement": "Successful publishing returns an existing installation identity and uses the current exact-workspace installation-detail route; refusal preserves the specification and provides a safe retry.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-004",
+        "EV-006",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "AC-09",
+      "statement": "Interview, attachment, secret and publishing failures preserve every unrelated accepted profile field and remain local block states inside the unchanged module-studio page architecture.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-10",
+      "statement": "No Nivo surface or operation adopts TEDO-specific content, pricing, deliverables or artifact promises; only the owner-approved adaptive-interview interaction shape is retained.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "attachment-policy-limits",
+      "question": "Which exact MIME types, per-file size, file count, retention period and scanner own production module attachments?",
+      "impact": "Implementation must not invent limits or retain unscanned uploads without an approved policy."
+    },
+    {
+      "id": "integration-provider-validation",
+      "question": "Which named integration providers are supported and which provider-owned verification proves a submitted key is usable?",
+      "impact": "The studio may render generic provider and key fields, but provider-specific validation and labels remain unavailable until resolved."
+    },
+    {
+      "id": "module-plan-entitlements",
+      "question": "Which AgentOS plans permit custom modules and what workspace module quota applies?",
+      "impact": "Create and publish entitlement or quota refusal cannot be implemented as a product fact until plan policy is decided."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "Create Nivo agentos-module-studio for an authenticated owner of one exact ready AgentOS workspace: create and manage workspace-owned custom module drafts; collect requirements through a backend-owned adaptive follow-up interview that persists answers, computes missing fields and exposes progress; accept image and document attachments through quarantined scanned uploads with retry and removal; store named integration keys as write-only encrypted server-side secrets and return only masked configuration status; generate a reviewable module specification only when complete; require an explicit publish/install action; preserve existing catalogue installation and installation-detail flows; use the TEDO page only as interaction-shape evidence and import none of its product facts.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "61d6f1623ea6e38071da694af5f70c638e394b00aec62b162567ec1064be447c"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/modules/[installationId]/page.tsx",
+      "startLine": 3,
+      "endLine": 11,
+      "claim": "The current frontend mounts one exact owner-scoped module installation detail under workspaceId and installationId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/agentos/AgentOSSolutionModuleCenter/index.tsx",
+      "startLine": 26,
+      "endLine": 45,
+      "claim": "The current connected module center owns the immutable catalogue and exact-workspace installation list reads.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/agentos/AgentOSSolutionModuleCenter/index.tsx",
+      "startLine": 62,
+      "endLine": 105,
+      "claim": "The current frontend installs a catalogue key idempotently and links installed rows to the existing exact-workspace installation-detail route.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "apps/app/src/modules/api/console.ts",
+      "startLine": 330,
+      "endLine": 372,
+      "claim": "The current frontend contract defines two immutable catalogue keys, installation summaries and an install input with workspace, catalogue key and idempotency identity.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "apps/app/src/modules/api/console.ts",
+      "startLine": 593,
+      "endLine": 639,
+      "claim": "The current frontend operations read the catalogue, exact-workspace installations and one installation detail and submit the existing install mutation.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/agent-workspace/install-agentos-solution-module/graphql-types/input.ts",
+      "startLine": 11,
+      "endLine": 28,
+      "claim": "The current backend install input accepts one exact workspace, one of two fixed catalogue keys and an idempotency identity.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/agentos-module-installation.entity.ts",
+      "startLine": 21,
+      "endLine": 101,
+      "claim": "The current backend installation is an immutable package lifecycle row owned by an exact workspace and unique by workspace plus module key.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-009",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-solution-modules/types/manifest.ts",
+      "startLine": 1,
+      "endLine": 42,
+      "claim": "The current solution-module manifest is an immutable Nivo-owned package contract with fixed keys, versions, agent templates, channel roles, tool bindings and knowledge locator.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/agent-workspace/my-agentos-module-installations/my-agentos-module-installations.handler.ts",
+      "startLine": 20,
+      "endLine": 27,
+      "claim": "The current backend installation collection is read through exact user and workspace ownership.",
+      "kind": "api"
+    }
+  ]
+}
