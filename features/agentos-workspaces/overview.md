@@ -2,7 +2,7 @@
 
 ## Purpose
 
-An authenticated owner requests AgentOS, settles the linked invoice through Wallet without losing the exact order context, observes provisioning, and arrives at the exact owned workspace; module detail and OpenClaw remain optional post-ready branches, while launch advances on an independent state axis.
+An authenticated owner reaches the exact ready AgentOS workspace, securely opens OpenClaw or n8n as independent post-ready app launches, runs auditable workspace operations with explicit safety boundaries, and observes or reindexes the internal MCP-Qdrant knowledge runtime without receiving infrastructure credentials.
 
 ## Included
 
@@ -10,16 +10,18 @@ An authenticated owner requests AgentOS, settles the linked invoice through Wall
 - Wallet as the linked-invoice payment waypoint
 - Workspace provisioning and the exact workspace as the primary terminal
 - Solution module detail as an optional post-ready workspace branch
-- Secure OpenClaw launch as an optional post-ready workspace branch
-- OpenClaw launch lifecycle as a state axis independent from workspace provisioning
+- Secure OpenClaw and n8n launch as optional app-bound post-ready branches
+- Public owner-scoped update, paid plan change, verified backup, non-destructive restart and confirmed rebuild operations
+- MCP-Qdrant runtime health, safe knowledge summary and asynchronous reindexing inside the exact workspace
+- Application launch, workspace operation and knowledge runtime as independent block state axes
 
 ## Excluded
 
 - Treating module detail or OpenClaw launch as required provisioning stages
 - Wallet top-up, provider settlement and invoice anatomy owned by nivo/wallet-billing
-- Runnable update, plan change, backup, reset or rebuild controls not published by Core GraphQL
-- Secure n8n launch before its adapter exists
-- Exposing reusable application credentials
+- Destructive data reset or wipe under the Restart action
+- Applying a plan change before its linked adjustment invoice is paid
+- Reusable application or Qdrant credentials, Qdrant admin routes, raw document text, point identifiers and control-plane semantic search
 
 ## Source heads
 

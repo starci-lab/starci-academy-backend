@@ -22,3 +22,14 @@
 | `launch-blocked` | error | Launch · blocked | launch-opening | `EV-008`, `EV-012`, `EV-013` |
 | `launch-expired` | error | Launch · expired | launch-opening | `EV-008`, `EV-013` |
 | `launch-disconnected` | partial | Launch · disconnected | launch-opening | `EV-008` |
+| `operation-idle` | initial | Operation · idle | operation-running | `EV-018`, `EV-025` |
+| `operation-running` | pending | Operation · running | operation-succeeded, operation-refused | `EV-025` |
+| `operation-succeeded` | success | Operation · succeeded | terminal | `EV-025` |
+| `operation-refused` | error | Operation · refused | operation-idle | `EV-025` |
+| `plan-awaiting-payment` | pending | Plan change · awaiting payment | plan-applying, operation-refused | `EV-001`, `EV-025` |
+| `plan-applying` | pending | Plan change · applying | operation-succeeded, operation-refused | `EV-025` |
+| `knowledge-loading` | pending | Knowledge runtime · loading | knowledge-ready, knowledge-degraded | `EV-022`, `EV-025` |
+| `knowledge-ready` | success | Knowledge runtime · ready | knowledge-reindexing | `EV-022`, `EV-025` |
+| `knowledge-degraded` | partial | Knowledge runtime · degraded | knowledge-loading, knowledge-reindexing | `EV-022`, `EV-025` |
+| `knowledge-reindexing` | pending | Knowledge runtime · reindexing | knowledge-ready, knowledge-refused | `EV-025` |
+| `knowledge-refused` | error | Knowledge runtime · refused | knowledge-reindexing | `EV-025` |

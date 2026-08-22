@@ -48,3 +48,52 @@ OpenClaw launch requires an active exact workspace, active instance and ready ru
 
 - Strength: `partial`
 - Evidence: `EV-001`, `EV-011`, `EV-012`
+
+## BR-08
+
+n8n uses the same short-lived app-bound issue, renew and revoke security boundary as OpenClaw and never exposes a reusable credential.
+
+- Strength: `partial`
+- Evidence: `EV-019`, `EV-020`, `EV-025`
+
+## BR-09
+
+Update, plan change, backup, restart and rebuild are exact-owner-scoped asynchronous operations with explicit accepted, running, succeeded and refused results.
+
+- Strength: `partial`
+- Evidence: `EV-018`, `EV-025`
+
+## BR-10
+
+Restart is the non-destructive recovery action and preserves persistent workspace data; no action labelled Restart may reset or wipe data.
+
+- Strength: `confirmed`
+- Evidence: `EV-021`, `EV-025`
+
+## BR-11
+
+A plan change creates an exact adjustment order and linked Wallet invoice and is applied only after that invoice is paid.
+
+- Strength: `confirmed`
+- Evidence: `EV-001`, `EV-025`
+
+## BR-12
+
+Backup reports success only after verification; rebuild requires explicit confirmation and a fresh verified backup before the release is replaced without deleting persistent volumes.
+
+- Strength: `confirmed`
+- Evidence: `EV-021`, `EV-025`
+
+## BR-13
+
+MCP and Qdrant remain internal runtime components; the owner may receive health, document counts by origin, last update and reindex state, but no credential, raw text, point id, admin route or control-plane semantic search.
+
+- Strength: `confirmed`
+- Evidence: `EV-022`, `EV-023`, `EV-024`, `EV-025`
+
+## BR-14
+
+Application launch, workspace operation and knowledge reindex transitions are independent block state axes and never redefine workspace lifecycle or page anatomy.
+
+- Strength: `confirmed`
+- Evidence: `EV-025`

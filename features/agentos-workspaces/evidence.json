@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "agentos-workspaces",
-  "head": "169c0cec0fb283d2505fe81b870552c1517cbd9583295ca3454d90852ebed452",
+  "head": "d35a2a75c636aacbcd3b5aad0177d390300f42a43ea7c4ca8572bbc69ff78e6b",
   "sources": [
     {
       "role": "fe",
@@ -155,6 +155,76 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "ac2edd83cbb0439eb877516085bb1fb40a861549b349bbebf5bf675200150313"
+    },
+    {
+      "id": "EV-018",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/operations/AgentOSWorkspaceOperations/index.tsx",
+      "startLine": 1,
+      "endLine": 31,
+      "claim": "The committed frontend names update, plan, backup, reset and rebuild but deliberately disables every action because no public operation is wired.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-019",
+      "role": "be",
+      "path": "src/modules/bussiness/workspace-app-launch/workspace-app-launch.types.ts",
+      "startLine": 1,
+      "endLine": 32,
+      "claim": "The current app-bound launch contract contains only OpenClaw, proving n8n launch requires an explicit backend capability expansion rather than credential reuse.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-020",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/agent-workspace/my-agent-workspace-control-center/my-agent-workspace-control-center.handler.ts",
+      "startLine": 118,
+      "endLine": 139,
+      "claim": "The current owner-scoped workspace aggregate marks n8n unavailable with SECURITY_UPGRADE_REQUIRED while exposing its observed version.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-021",
+      "role": "be",
+      "path": "src/modules/bussiness/instance-lifecycle/wipe-instance.service.ts",
+      "startLine": 268,
+      "endLine": 307,
+      "claim": "The internal rebuild capability requires acknowledgement, takes and verifies a fresh backup, refuses without verified backup, uninstalls only the release and dispatches reinstall.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-022",
+      "role": "be",
+      "path": "src/modules/bussiness/pod-knowledge/pod-knowledge.types.ts",
+      "startLine": 30,
+      "endLine": 70,
+      "claim": "The backend defines an owner-safe Qdrant knowledge summary of document count, origins and last update while explicitly excluding raw text, search and identifiers.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-023",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-provision/chart/build-agentos-chart-values.ts",
+      "startLine": 20,
+      "endLine": 75,
+      "claim": "AgentOS provisioning already declares n8n, MCP and Qdrant runtime components and bounded resources inside the workspace chart.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-024",
+      "role": "be",
+      "path": "src/modules/bussiness/openclaw-runtime-config/openclaw-module-config.service.ts",
+      "startLine": 12,
+      "endLine": 42,
+      "claim": "Installed agents already receive an internal MCP server binding with per-agent capability headers, proving MCP is runtime infrastructure rather than an owner credential.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-025",
+      "claim": "The owner accepts a pending AgentOS workspace expansion: secure app-bound n8n launch; public owner-scoped update, paid plan change, verified backup, non-destructive restart and confirmed rebuild operations; and owner-safe MCP-Qdrant health, knowledge summary and reindexing without reusable credentials, raw document access, point identifiers, admin routes or control-plane semantic search.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "a4cd1c08cb912bf2f09057c0b8f8eb77ca8e696b39bd036991f0a4bcf7227b5f"
     }
   ]
 }

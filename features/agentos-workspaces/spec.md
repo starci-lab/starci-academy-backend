@@ -1,27 +1,29 @@
 # AgentOS workspace lifecycle and control center
 
-> Business head: `169c0cec0fb283d2505fe81b870552c1517cbd9583295ca3454d90852ebed452`
+> Business head: `d35a2a75c636aacbcd3b5aad0177d390300f42a43ea7c4ca8572bbc69ff78e6b`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
 ## 1. Overview
 
-An authenticated owner requests AgentOS, settles the linked invoice through Wallet without losing the exact order context, observes provisioning, and arrives at the exact owned workspace; module detail and OpenClaw remain optional post-ready branches, while launch advances on an independent state axis.
+An authenticated owner reaches the exact ready AgentOS workspace, securely opens OpenClaw or n8n as independent post-ready app launches, runs auditable workspace operations with explicit safety boundaries, and observes or reindexes the internal MCP-Qdrant knowledge runtime without receiving infrastructure credentials.
 
 Included:
 - AgentOS catalogue request and exact-order resume
 - Wallet as the linked-invoice payment waypoint
 - Workspace provisioning and the exact workspace as the primary terminal
 - Solution module detail as an optional post-ready workspace branch
-- Secure OpenClaw launch as an optional post-ready workspace branch
-- OpenClaw launch lifecycle as a state axis independent from workspace provisioning
+- Secure OpenClaw and n8n launch as optional app-bound post-ready branches
+- Public owner-scoped update, paid plan change, verified backup, non-destructive restart and confirmed rebuild operations
+- MCP-Qdrant runtime health, safe knowledge summary and asynchronous reindexing inside the exact workspace
+- Application launch, workspace operation and knowledge runtime as independent block state axes
 
 Excluded:
 - Treating module detail or OpenClaw launch as required provisioning stages
 - Wallet top-up, provider settlement and invoice anatomy owned by nivo/wallet-billing
-- Runnable update, plan change, backup, reset or rebuild controls not published by Core GraphQL
-- Secure n8n launch before its adapter exists
-- Exposing reusable application credentials
+- Destructive data reset or wipe under the Restart action
+- Applying a plan change before its linked adjustment invoice is paid
+- Reusable application or Qdrant credentials, Qdrant admin routes, raw document text, point identifiers and control-plane semantic search
 
 ## 2. Source heads
 
@@ -36,9 +38,11 @@ Excluded:
 
 - Request and pay for one AgentOS order
 - Observe fulfillment and enter the exact owned workspace
-- Open optional module detail and secure OpenClaw launch branches after readiness
+- Open optional module detail, OpenClaw and n8n branches after readiness
+- Run safe owner-scoped workspace operations and follow their asynchronous results
+- Inspect MCP-Qdrant health and knowledge summary and request reindexing without infrastructure credentials
 
-Evidence: `EV-001`, `EV-002`, `EV-005`, `EV-009`
+Evidence: `EV-001`, `EV-002`, `EV-005`, `EV-009`, `EV-025`
 
 ## 4. Entry points and surfaces
 
@@ -68,9 +72,9 @@ Evidence: `EV-001`, `EV-003`, `EV-004`
 - Route: `/[locale]/agentos/workspaces/[workspaceId]`
 - Purpose: Serve as the primary terminal for managing one exact owned ready workspace.
 - Regions: `workspace-control-center`
-- Navigation: Workspace (active), Solution module (available), OpenClaw (available)
+- Navigation: Workspace (active), Solution module (available), OpenClaw (available), n8n (available)
 
-Evidence: `EV-001`, `EV-005`, `EV-009`, `EV-010`
+Evidence: `EV-001`, `EV-005`, `EV-009`, `EV-010`, `EV-018`, `EV-022`, `EV-023`, `EV-025`
 
 ### Solution module detail
 
@@ -91,6 +95,16 @@ Evidence: `EV-001`, `EV-006`, `EV-011`
 - Navigation: OpenClaw launch (active), Back to exact workspace (available)
 
 Evidence: `EV-001`, `EV-007`, `EV-008`, `EV-012`, `EV-013`
+
+### n8n secure launch
+
+- ID: `n8n-launch`
+- Route: `/[locale]/launch/agentos/[workspaceId]/n8n`
+- Purpose: Issue and relay a safe short-lived n8n launch for the exact ready workspace on an independent app-bound state axis.
+- Regions: `n8n-launch-bridge`
+- Navigation: n8n launch (active), Back to exact workspace (available)
+
+Evidence: `EV-019`, `EV-020`, `EV-025`
 
 ## 5. Business flows
 
@@ -133,6 +147,45 @@ Outcomes:
 - OpenClaw access is optional, exact-workspace scoped and independently stateful
 
 Evidence: `EV-001`, `EV-007`, `EV-008`, `EV-009`, `EV-012`, `EV-013`
+
+### Open a short-lived n8n launch after workspace readiness
+
+Trigger: The owner chooses n8n from the exact ready workspace
+
+1. **account-owner** — Issue an app-bound n8n launch for the exact workspace → The n8n launch axis advances from idle to opening
+2. **account-owner** — Connect, renew, expire or revoke the short-lived n8n launch → n8n launch state changes without changing workspace readiness
+
+Outcomes:
+- n8n access is optional, exact-workspace scoped, credential-free and independently stateful
+
+Evidence: `EV-019`, `EV-020`, `EV-025`
+
+### Operate one exact ready workspace safely
+
+Trigger: The owner chooses one action in the Operations tab
+
+1. **account-owner** — Choose update, plan change, backup, restart or rebuild → The action is evaluated against exact-workspace ownership and operation-specific preconditions
+2. **account-owner** — Confirm only actions whose consequences require confirmation → The backend accepts one auditable asynchronous operation or returns an explicit refusal
+3. **account-owner** — Observe completion or refusal without leaving the workspace → The operation settles independently from page anatomy and launch state
+
+Outcomes:
+- Every workspace action is real, owner-scoped, stateful and truthful about preconditions
+- Restart preserves persistent data; rebuild requires confirmation plus a fresh verified backup
+- Plan change applies only after its linked Wallet invoice is paid
+
+Evidence: `EV-018`, `EV-021`, `EV-025`
+
+### Inspect and reindex the workspace knowledge runtime
+
+Trigger: The owner opens Infrastructure for the exact ready workspace
+
+1. **account-owner** — Inspect MCP and Qdrant health, document counts by origin and last update time → Only owner-safe aggregate knowledge facts are returned
+2. **account-owner** — Request asynchronous reindexing for the exact workspace → Reindexing advances on its own state axis and exposes completion or refusal
+
+Outcomes:
+- The owner can verify that internal knowledge infrastructure works without obtaining admin access or document contents
+
+Evidence: `EV-022`, `EV-023`, `EV-024`, `EV-025`
 
 ## 6. Business rules
 
@@ -178,6 +231,48 @@ OpenClaw launch requires an active exact workspace, active instance and ready ru
 
 Strength: **partial** · Evidence: `EV-001`, `EV-011`, `EV-012`
 
+### BR-08
+
+n8n uses the same short-lived app-bound issue, renew and revoke security boundary as OpenClaw and never exposes a reusable credential.
+
+Strength: **partial** · Evidence: `EV-019`, `EV-020`, `EV-025`
+
+### BR-09
+
+Update, plan change, backup, restart and rebuild are exact-owner-scoped asynchronous operations with explicit accepted, running, succeeded and refused results.
+
+Strength: **partial** · Evidence: `EV-018`, `EV-025`
+
+### BR-10
+
+Restart is the non-destructive recovery action and preserves persistent workspace data; no action labelled Restart may reset or wipe data.
+
+Strength: **confirmed** · Evidence: `EV-021`, `EV-025`
+
+### BR-11
+
+A plan change creates an exact adjustment order and linked Wallet invoice and is applied only after that invoice is paid.
+
+Strength: **confirmed** · Evidence: `EV-001`, `EV-025`
+
+### BR-12
+
+Backup reports success only after verification; rebuild requires explicit confirmation and a fresh verified backup before the release is replaced without deleting persistent volumes.
+
+Strength: **confirmed** · Evidence: `EV-021`, `EV-025`
+
+### BR-13
+
+MCP and Qdrant remain internal runtime components; the owner may receive health, document counts by origin, last update and reindex state, but no credential, raw text, point id, admin route or control-plane semantic search.
+
+Strength: **confirmed** · Evidence: `EV-022`, `EV-023`, `EV-024`, `EV-025`
+
+### BR-14
+
+Application launch, workspace operation and knowledge reindex transitions are independent block state axes and never redefine workspace lifecycle or page anatomy.
+
+Strength: **confirmed** · Evidence: `EV-025`
+
 ## 7. State model
 
 - **Order · request** (`order-request`, initial) → order-submitting — `EV-002`
@@ -200,6 +295,17 @@ Strength: **partial** · Evidence: `EV-001`, `EV-011`, `EV-012`
 - **Launch · blocked** (`launch-blocked`, error) → launch-opening — `EV-008`, `EV-012`, `EV-013`
 - **Launch · expired** (`launch-expired`, error) → launch-opening — `EV-008`, `EV-013`
 - **Launch · disconnected** (`launch-disconnected`, partial) → launch-opening — `EV-008`
+- **Operation · idle** (`operation-idle`, initial) → operation-running — `EV-018`, `EV-025`
+- **Operation · running** (`operation-running`, pending) → operation-succeeded, operation-refused — `EV-025`
+- **Operation · succeeded** (`operation-succeeded`, success) → terminal — `EV-025`
+- **Operation · refused** (`operation-refused`, error) → operation-idle — `EV-025`
+- **Plan change · awaiting payment** (`plan-awaiting-payment`, pending) → plan-applying, operation-refused — `EV-001`, `EV-025`
+- **Plan change · applying** (`plan-applying`, pending) → operation-succeeded, operation-refused — `EV-025`
+- **Knowledge runtime · loading** (`knowledge-loading`, pending) → knowledge-ready, knowledge-degraded — `EV-022`, `EV-025`
+- **Knowledge runtime · ready** (`knowledge-ready`, success) → knowledge-reindexing — `EV-022`, `EV-025`
+- **Knowledge runtime · degraded** (`knowledge-degraded`, partial) → knowledge-loading, knowledge-reindexing — `EV-022`, `EV-025`
+- **Knowledge runtime · reindexing** (`knowledge-reindexing`, pending) → knowledge-ready, knowledge-refused — `EV-025`
+- **Knowledge runtime · refused** (`knowledge-refused`, error) → knowledge-reindexing — `EV-025`
 
 ## 8. Entities and data
 
@@ -208,6 +314,10 @@ Strength: **partial** · Evidence: `EV-001`, `EV-011`, `EV-012`
 - **AgentOS workspace**: id, name, status, hostname, plan, runtime, stack — `EV-002`, `EV-005`, `EV-010`
 - **Solution installation**: installationId, workspaceId, moduleKey, version, status, generated agents, knowledge bindings — `EV-006`, `EV-011`
 - **Short-lived OpenClaw launch**: workspaceId, launchUrl, expiresAt, state — `EV-007`, `EV-008`, `EV-012`, `EV-013`
+- **Short-lived n8n launch**: workspaceId, app = N8N, launchId, redirectUrl, expiresAt, state — `EV-019`, `EV-020`, `EV-025`
+- **Workspace operation**: operationId, workspaceId, kind, status, requestedAt, completedAt, failure — `EV-018`, `EV-021`, `EV-025`
+- **Verified workspace backup**: backupId, workspaceId, reason, status, checksum, verifiedAt — `EV-021`, `EV-025`
+- **MCP-Qdrant knowledge runtime**: mcpHealth, qdrantHealth, documentCount, origins, lastUpdatedAt, reindexStatus — `EV-022`, `EV-023`, `EV-024`, `EV-025`
 
 ## 9. Operations and APIs
 
@@ -216,9 +326,18 @@ Strength: **partial** · Evidence: `EV-001`, `EV-011`, `EV-012`
 - **payInvoice** (mutation, backend) — input: invoiceId; output: paid invoice; failures: insufficient balance or payment refusal — `EV-004`, `EV-015`
 - **myAgentWorkspaceControlCenter** (query, backend) — input: workspaceId; output: exact owner-scoped workspace aggregate; failures: not owned or not found — `EV-010`
 - **installAgentosSolutionModule** (mutation, backend) — input: workspaceId, moduleKey; output: installation in provisioning; failures: catalogue, duplicate installation or ownership refusal — `EV-011`
-- **issueAgentWorkspaceAppLaunch** (mutation, backend) — input: workspaceId; output: launchId, safe redirectUrl, expiresAt; failures: workspace inactive, application unavailable or not owned — `EV-012`
+- **issueAgentWorkspaceAppLaunch** (mutation, backend) — input: workspaceId, app = OPENCLAW | N8N; output: launchId, safe redirectUrl, expiresAt; failures: workspace inactive, application unavailable or not owned — `EV-012`, `EV-019`, `EV-020`, `EV-025`
 - **renewAgentWorkspaceAppLaunch** (mutation, backend) — input: launchId; output: launchId, expiresAt; failures: launch not renewable — `EV-008`, `EV-013`
 - **revokeAgentWorkspaceAppLaunch** (mutation, backend) — input: launchId; output: launchId, revoked; failures: launch not revocable — `EV-008`, `EV-013`
+- **updateAgentWorkspaceRuntime** (mutation, backend) — input: workspaceId, idempotencyKey; output: operationId, accepted status, target supported release; failures: not owned, workspace not ready, update already running, unsupported release — `EV-018`, `EV-025`
+- **requestAgentWorkspacePlanChange** (mutation, backend) — input: workspaceId, catalogTierId, idempotencyKey; output: adjustment orderId, linked invoiceId, awaiting-payment status; failures: not owned, same or invalid plan, catalogue refusal — `EV-001`, `EV-025`
+- **applyPaidAgentWorkspacePlanChange** (command, backend) — input: paid adjustment orderId, workspaceId; output: operationId, plan-applying status; failures: invoice not paid, capacity unavailable, workspace no longer eligible — `EV-001`, `EV-025`
+- **createAgentWorkspaceBackup** (mutation, backend) — input: workspaceId, idempotencyKey; output: operationId, backupId after verification; failures: not owned, workspace not ready, snapshot or verification failure — `EV-021`, `EV-025`
+- **restartAgentWorkspaceRuntime** (mutation, backend) — input: workspaceId, idempotencyKey; output: operationId, non-destructive restart accepted; failures: not owned, workspace not ready, restart already running — `EV-021`, `EV-025`
+- **rebuildAgentWorkspaceRuntime** (mutation, backend) — input: workspaceId, acknowledgedRebuild = true, idempotencyKey; output: operationId, fresh verified backupId, rebuild accepted; failures: not owned, confirmation missing, backup or verification failure, reinstall failure — `EV-021`, `EV-025`
+- **myAgentWorkspaceOperations** (query, backend) — input: workspaceId; output: owner-scoped operation history and current operation; failures: not owned or not found — `EV-025`
+- **myAgentWorkspaceKnowledgeRuntime** (query, backend) — input: workspaceId; output: MCP health, Qdrant health, documentCount, origins, lastUpdatedAt, reindexStatus; failures: not owned, runtime unavailable — `EV-022`, `EV-023`, `EV-024`, `EV-025`
+- **reindexAgentWorkspaceKnowledge** (mutation, backend) — input: workspaceId, idempotencyKey; output: operationId, knowledge-reindexing status; failures: not owned, runtime unavailable, reindex already running — `EV-022`, `EV-025`
 
 ## 10. Acceptance conditions
 
@@ -227,14 +346,17 @@ Strength: **partial** · Evidence: `EV-001`, `EV-011`, `EV-012`
 - **AC-03** When provisioning resolves a ready workspaceId, the primary action opens /[locale]/agentos/workspaces/[workspaceId], not the generic AgentOS index. — `EV-001`, `EV-003`, `EV-005`
 - **AC-04** Module detail and OpenClaw launch are reachable only as optional branches from a ready exact workspace and are absent from required primary progress. — `EV-001`, `EV-006`, `EV-007`, `EV-009`
 - **AC-05** Launch idle, opening, connected, blocked, expired and disconnected transitions remain independent from request, payment, provisioning and workspace readiness states. — `EV-001`, `EV-008`, `EV-012`, `EV-013`
-- **AC-06** The control center renders no runnable update, plan change, backup, reset or rebuild control until the corresponding public backend operation exists. — `EV-010`
+- **AC-06** Update, plan change, backup, restart and rebuild controls become runnable only through their corresponding public owner-scoped backend operations and expose real pending, success and refusal states. — `EV-018`, `EV-025`
+- **AC-07** A ready exact workspace can issue, renew and revoke n8n launch with the same app-bound short-lived security and independent launch state used by OpenClaw. — `EV-019`, `EV-020`, `EV-025`
+- **AC-08** Restart preserves persistent data; backup verifies its artifact; rebuild requires explicit confirmation plus a fresh verified backup and never masquerades as Restart. — `EV-021`, `EV-025`
+- **AC-09** Plan change returns an exact adjustment order and linked Wallet invoice and does not apply the new plan until payment succeeds. — `EV-001`, `EV-025`
+- **AC-10** Infrastructure exposes MCP and Qdrant health, knowledge document counts by origin, last update and reindex state without credentials, raw text, point ids, admin routes or control-plane search. — `EV-022`, `EV-023`, `EV-024`, `EV-025`
+- **AC-11** Launch, operation and knowledge reindex conditions render as block states inside the existing workspace page architecture; they do not become page states unless page anatomy changes. — `EV-025`
 
 ## 11. Explicit unknowns
 
 - **Which route or durable correlation contract carries orderId and invoiceId into Wallet and back to the exact AgentOS order?** — Current Wallet pays the first unpaid invoice, so AC-02 is not yet implemented.
 - **Which shared guard makes module detail and OpenClaw unavailable until the workspace status is ready?** — The branches exist under the workspace today, but the frontend does not enforce the requested readiness boundary.
-- **When will update, plan change, backup, reset and rebuild mutations become public?** — The control center must keep those operations descriptive rather than render fake runnable controls.
-- **When will a secure short-lived n8n launch adapter exist?** — No n8n credential or launch action may be inferred from OpenClaw.
 - **Which observable event moves an active OpenClaw launch into disconnected?** — The state is declared but its production transition is not yet proven.
 
 ## 12. Evidence index
@@ -257,3 +379,11 @@ Strength: **partial** · Evidence: `EV-001`, `EV-011`, `EV-012`
 | EV-014 | be | `src/features/core/api/core/graphql/mutations/catalog/order-catalog-item/order-catalog-item.resolver.ts:41` | api | The authenticated orderCatalogItem operation creates the catalogue order and linked invoice but does not itself provision AgentOS. |
 | EV-015 | be | `src/features/core/api/core/graphql/mutations/invoices/pay-invoice/pay-invoice.resolver.ts:42` | api | The authenticated payInvoice operation settles one exact invoice by invoiceId and returns its updated payment state. |
 | EV-016 | owner | `decision:ac2edd83cbb0439eb877516085bb1fb40a861549b349bbebf5bf675200150313` | owner-decision | Supersede the current in-progress AgentOS workspace scope so a later accepted intent can add secure n8n launch, public owner-scoped workspace operations, and owner-safe MCP-Qdrant knowledge runtime without reusable credentials. |
+| EV-018 | fe | `apps/app/src/components/blocks/operations/AgentOSWorkspaceOperations/index.tsx:1` | ui | The committed frontend names update, plan, backup, reset and rebuild but deliberately disables every action because no public operation is wired. |
+| EV-019 | be | `src/modules/bussiness/workspace-app-launch/workspace-app-launch.types.ts:1` | contract | The current app-bound launch contract contains only OpenClaw, proving n8n launch requires an explicit backend capability expansion rather than credential reuse. |
+| EV-020 | be | `src/features/core/api/core/graphql/queries/agent-workspace/my-agent-workspace-control-center/my-agent-workspace-control-center.handler.ts:118` | api | The current owner-scoped workspace aggregate marks n8n unavailable with SECURITY_UPGRADE_REQUIRED while exposing its observed version. |
+| EV-021 | be | `src/modules/bussiness/instance-lifecycle/wipe-instance.service.ts:268` | api | The internal rebuild capability requires acknowledgement, takes and verifies a fresh backup, refuses without verified backup, uninstalls only the release and dispatches reinstall. |
+| EV-022 | be | `src/modules/bussiness/pod-knowledge/pod-knowledge.types.ts:30` | contract | The backend defines an owner-safe Qdrant knowledge summary of document count, origins and last update while explicitly excluding raw text, search and identifiers. |
+| EV-023 | be | `src/modules/bussiness/agentos-provision/chart/build-agentos-chart-values.ts:20` | contract | AgentOS provisioning already declares n8n, MCP and Qdrant runtime components and bounded resources inside the workspace chart. |
+| EV-024 | be | `src/modules/bussiness/openclaw-runtime-config/openclaw-module-config.service.ts:12` | contract | Installed agents already receive an internal MCP server binding with per-agent capability headers, proving MCP is runtime infrastructure rather than an owner credential. |
+| EV-025 | owner | `decision:a4cd1c08cb912bf2f09057c0b8f8eb77ca8e696b39bd036991f0a4bcf7227b5f` | owner-decision | The owner accepts a pending AgentOS workspace expansion: secure app-bound n8n launch; public owner-scoped update, paid plan change, verified backup, non-destructive restart and confirmed rebuild operations; and owner-safe MCP-Qdrant health, knowledge summary and reindexing without reusable credentials, raw document access, point identifiers, admin routes or control-plane semantic search. |

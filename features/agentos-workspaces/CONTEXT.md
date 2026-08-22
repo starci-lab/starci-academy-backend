@@ -1,14 +1,14 @@
 # AgentOS workspace lifecycle and control center
 
-> Business identity: `nivo/agentos-workspaces@169c0cec0fb283d2505fe81b870552c1517cbd9583295ca3454d90852ebed452`
+> Business identity: `nivo/agentos-workspaces@d35a2a75c636aacbcd3b5aad0177d390300f42a43ea7c4ca8572bbc69ff78e6b`
 >
-> Source heads: authority `rejected` · base `bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca` · `fe@269c99b0cf97`, `be@947c6f4a117e`
+> Source heads: authority `pending` · base `bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca` · `fe@269c99b0cf97`, `be@947c6f4a117e`
 >
 > Load this file first. Load only the modules named by the current task.
 
 ## Decision capsule
 
-**Purpose.** An authenticated owner requests AgentOS, settles the linked invoice through Wallet without losing the exact order context, observes provisioning, and arrives at the exact owned workspace; module detail and OpenClaw remain optional post-ready branches, while launch advances on an independent state axis.
+**Purpose.** An authenticated owner reaches the exact ready AgentOS workspace, securely opens OpenClaw or n8n as independent post-ready app launches, runs auditable workspace operations with explicit safety boundaries, and observes or reindexes the internal MCP-Qdrant knowledge runtime without receiving infrastructure credentials.
 
 **Primary actor.** Authenticated AgentOS owner
 
@@ -39,6 +39,7 @@ order-submitting → wallet-awaiting-payment → wallet-paying → workspace-pre
 | `agentos-workspace` | `/[locale]/agentos/workspaces/[workspaceId]` | Serve as the primary terminal for managing one exact owned ready workspace. | [surface](surfaces/agentos-workspace.md) |
 | `agentos-module` | `/[locale]/agentos/workspaces/[workspaceId]/modules/[installationId]` | Inspect one installation that belongs to the exact ready workspace without extending the primary journey. | [surface](surfaces/agentos-module.md) |
 | `openclaw-launch` | `/[locale]/launch/agentos/[workspaceId]/openclaw` | Issue and relay a safe short-lived launch for the exact ready workspace on an independent state axis. | [surface](surfaces/openclaw-launch.md) |
+| `n8n-launch` | `/[locale]/launch/agentos/[workspaceId]/n8n` | Issue and relay a safe short-lived n8n launch for the exact ready workspace on an independent app-bound state axis. | [surface](surfaces/n8n-launch.md) |
 
 ## Data and operation map
 
@@ -49,7 +50,7 @@ order-submitting → wallet-awaiting-payment → wallet-paying → workspace-pre
 | `payInvoice` | backend | invoiceId | paid invoice |
 | `myAgentWorkspaceControlCenter` | backend | workspaceId | exact owner-scoped workspace aggregate |
 | `installAgentosSolutionModule` | backend | workspaceId, moduleKey | installation in provisioning |
-| `issueAgentWorkspaceAppLaunch` | backend | workspaceId | launchId, safe redirectUrl, expiresAt |
+| `issueAgentWorkspaceAppLaunch` | backend | workspaceId, app = OPENCLAW | N8N | launchId, safe redirectUrl, expiresAt |
 | `renewAgentWorkspaceAppLaunch` | backend | launchId | launchId, expiresAt |
 | `revokeAgentWorkspaceAppLaunch` | backend | launchId | launchId, revoked |
 
@@ -57,8 +58,6 @@ order-submitting → wallet-awaiting-payment → wallet-paying → workspace-pre
 
 - `wallet-order-correlation` — Which route or durable correlation contract carries orderId and invoiceId into Wallet and back to the exact AgentOS order? Impact: Current Wallet pays the first unpaid invoice, so AC-02 is not yet implemented.
 - `post-ready-guard` — Which shared guard makes module detail and OpenClaw unavailable until the workspace status is ready? Impact: The branches exist under the workspace today, but the frontend does not enforce the requested readiness boundary.
-- `workspace-operation-mutations` — When will update, plan change, backup, reset and rebuild mutations become public? Impact: The control center must keep those operations descriptive rather than render fake runnable controls.
-- `secure-n8n-launch` — When will a secure short-lived n8n launch adapter exist? Impact: No n8n credential or launch action may be inferred from OpenClaw.
 - `launch-disconnected-transition` — Which observable event moves an active OpenClaw launch into disconnected? Impact: The state is declared but its production transition is not yet proven.
 
 ## LOADS
