@@ -19,6 +19,17 @@
           "head": "acf8ea0ba96f3f7f531675b2e96678c37e7e4bb4"
         }
       ]
+    },
+    "public-information-page": {
+      "featureId": "public-information-page",
+      "head": "c2e6b5db6ca026baa3693627defcbde2a09749494e7a6cc127131dfc044a3ffa",
+      "authorityStatus": "pending",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "e89b39a3c6f8a9266e7a024ad2ce27e7406f926d"
+        }
+      ]
     }
   },
   "objects": {
@@ -31,6 +42,10 @@
       "dd2daf5a201472064ea9e19111607b6f7a48941ccd03cc8dc2a71371ab913b52": {
         "hash": "dd2daf5a201472064ea9e19111607b6f7a48941ccd03cc8dc2a71371ab913b52",
         "path": "objects/sha256/dd2daf5a201472064ea9e19111607b6f7a48941ccd03cc8dc2a71371ab913b52.json"
+      },
+      "c2e6b5db6ca026baa3693627defcbde2a09749494e7a6cc127131dfc044a3ffa": {
+        "hash": "c2e6b5db6ca026baa3693627defcbde2a09749494e7a6cc127131dfc044a3ffa",
+        "path": "objects/sha256/c2e6b5db6ca026baa3693627defcbde2a09749494e7a6cc127131dfc044a3ffa.json"
       }
     }
   }

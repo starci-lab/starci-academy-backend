@@ -1,0 +1,419 @@
+{
+  "schemaVersion": 2,
+  "authority": {
+    "status": "pending",
+    "basis": "owner-intent",
+    "requiredRoles": [
+      "fe"
+    ]
+  },
+  "project": "tayson",
+  "featureId": "public-information-page",
+  "title": "Trang thông tin cộng đồng Tây Sơn",
+  "summary": "Trang công khai tiếng Việt tại /gioi-thieu giúp khách truy cập đọc nội dung giới thiệu, điều lệ, ban chủ nhiệm và thông tin liên quan đã được xuất bản, với trải nghiệm responsive, SSR/SEO cơ bản và các trạng thái tải, sẵn sàng, lỗi, không khả dụng.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "local-only:D:/Repositories/tayson-fe",
+      "head": "e89b39a3c6f8a9266e7a024ad2ce27e7406f926d"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Route công khai /gioi-thieu trong frontend Tây Sơn",
+      "Nội dung giới thiệu, điều lệ, ban chủ nhiệm và nội dung liên quan đã xuất bản",
+      "Trạng thái loading, ready, error và unavailable của tài liệu thông tin",
+      "Hiển thị responsive trên desktop và thiết bị di động",
+      "SSR, metadata SEO cơ bản và nội dung tiếng Việt trong phiên bản đầu",
+      "Điều hướng tiếp tục tới các bề mặt công khai liên quan"
+    ],
+    "excludes": [
+      "Tự tạo tên ban chủ nhiệm, điều khoản điều lệ hoặc dữ kiện pháp lý chưa được owner cung cấp",
+      "CMS biên tập và xuất bản nội dung",
+      "API backend cho nội dung công khai",
+      "Trang danh sách hội viên, tin tức, đăng ký hội viên và liên hệ",
+      "Đa ngôn ngữ trong phiên bản đầu"
+    ]
+  },
+  "actors": [
+    {
+      "id": "visitor",
+      "label": "Khách truy cập",
+      "capabilities": [
+        "Mở trang thông tin cộng đồng",
+        "Đọc nội dung đã xuất bản",
+        "Theo dõi trạng thái tải hoặc lỗi",
+        "Tiếp tục tới bề mặt công khai liên quan"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "read-public-information",
+      "title": "Đọc thông tin cộng đồng",
+      "trigger": "Khách truy cập mở /gioi-thieu từ điều hướng công khai",
+      "steps": [
+        {
+          "id": "open-information-page",
+          "actor": "visitor",
+          "action": "Mở trang giới thiệu",
+          "result": "Thấy nhận diện trang, chỉ mục tài liệu và trạng thái tải nội dung",
+          "surfaceId": "public-information",
+          "stateId": "information-loading"
+        },
+        {
+          "id": "read-published-document",
+          "actor": "visitor",
+          "action": "Đọc các phần nội dung công khai",
+          "result": "Thấy tài liệu đã xuất bản theo thứ bậc rõ ràng",
+          "surfaceId": "public-information",
+          "stateId": "information-ready"
+        },
+        {
+          "id": "continue-public-journey",
+          "actor": "visitor",
+          "action": "Chọn một liên kết tiếp tục",
+          "result": "Đi tới bề mặt công khai liên quan nếu khả dụng",
+          "surfaceId": "public-information"
+        }
+      ],
+      "outcomes": [
+        "Khách hiểu mục đích, nguyên tắc và cơ cấu thông tin của cộng đồng",
+        "Khách nhận được phản hồi rõ ràng khi nội dung đang tải, lỗi hoặc không khả dụng",
+        "Khách có đường tiếp tục trong hành trình công khai"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Trang công khai chỉ trình bày nội dung được xác định là đã xuất bản.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Phiên bản đầu của trang sử dụng tiếng Việt và phải responsive.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Khối tài liệu sở hữu bốn trạng thái loading, ready, error và unavailable; chrome trang vẫn ổn định khi trạng thái khối thay đổi.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "Không hiển thị tên nhân sự, điều khoản điều lệ hoặc dữ kiện pháp lý chưa có nội dung owner cung cấp.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "information-loading",
+      "label": "Đang tải thông tin",
+      "kind": "initial",
+      "transitions": [
+        "information-ready",
+        "information-error",
+        "information-unavailable"
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "information-ready",
+      "label": "Thông tin đã sẵn sàng",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "information-error",
+      "label": "Không thể tải thông tin",
+      "kind": "error",
+      "transitions": [
+        "information-loading"
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "information-unavailable",
+      "label": "Thông tin chưa khả dụng",
+      "kind": "empty",
+      "transitions": [
+        "information-loading"
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "public-information-document",
+      "label": "Tài liệu thông tin công khai",
+      "fields": [
+        "Tiêu đề tài liệu",
+        "Các phần nội dung",
+        "Trạng thái xuất bản"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "read-public-information-document",
+      "kind": "query",
+      "name": "Đọc tài liệu thông tin công khai",
+      "owner": "frontend",
+      "inputs": [
+        "Định danh tài liệu công khai"
+      ],
+      "outputs": [
+        "Nội dung đã xuất bản",
+        "Trạng thái hiển thị"
+      ],
+      "failures": [
+        "Không thể tải dữ liệu",
+        "Nội dung chưa khả dụng"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "public-information",
+      "routePattern": "/gioi-thieu",
+      "title": "Thông tin cộng đồng Tây Sơn",
+      "eyebrow": "Về cộng đồng",
+      "purpose": "Công bố nội dung giới thiệu, điều lệ, ban chủ nhiệm và thông tin liên quan đã xuất bản.",
+      "navigation": [
+        {
+          "id": "nav-introduction",
+          "label": "Giới thiệu",
+          "group": "Thông tin cộng đồng",
+          "availability": "active"
+        },
+        {
+          "id": "nav-charter",
+          "label": "Điều lệ",
+          "group": "Thông tin cộng đồng",
+          "availability": "available"
+        },
+        {
+          "id": "nav-board",
+          "label": "Ban chủ nhiệm",
+          "group": "Thông tin cộng đồng",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "information-masthead",
+          "kind": "summary",
+          "title": "Mở đầu tài liệu",
+          "summary": "Định vị mục đích trang và phạm vi thông tin công khai.",
+          "items": [],
+          "actions": [],
+          "states": [
+            "default"
+          ],
+          "evidenceIds": [
+            "EV-002"
+          ]
+        },
+        {
+          "id": "document-index",
+          "kind": "navigation",
+          "title": "Chỉ mục tài liệu",
+          "summary": "Cho phép khách nhận biết các phần nội dung chính.",
+          "items": [
+            {
+              "id": "index-introduction",
+              "role": "navigation",
+              "label": "Giới thiệu"
+            },
+            {
+              "id": "index-charter",
+              "role": "navigation",
+              "label": "Điều lệ"
+            },
+            {
+              "id": "index-board",
+              "role": "navigation",
+              "label": "Ban chủ nhiệm"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "default"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        },
+        {
+          "id": "information-document",
+          "kind": "content",
+          "title": "Tài liệu thông tin",
+          "summary": "Hiển thị nội dung đã xuất bản hoặc phản hồi trạng thái tương ứng.",
+          "items": [],
+          "actions": [
+            {
+              "id": "reload-document",
+              "label": "Tải lại",
+              "kind": "secondary",
+              "target": "/gioi-thieu"
+            }
+          ],
+          "states": [
+            "information-loading",
+            "information-ready",
+            "information-error",
+            "information-unavailable"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        },
+        {
+          "id": "continuation-band",
+          "kind": "navigation",
+          "title": "Tiếp tục khám phá",
+          "summary": "Đưa khách sang các bề mặt công khai liên quan khi khả dụng.",
+          "items": [],
+          "actions": [
+            {
+              "id": "view-members",
+              "label": "Khám phá hội viên",
+              "kind": "link"
+            },
+            {
+              "id": "view-activities",
+              "label": "Theo dõi hoạt động",
+              "kind": "link"
+            }
+          ],
+          "states": [
+            "default"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Khách mở /gioi-thieu và thấy một trang thông tin hoàn chỉnh bằng tiếng Việt trên desktop và thiết bị di động.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Trang có metadata SEO cơ bản và được render bằng route Next.js hỗ trợ SSR.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Khối tài liệu hiển thị đúng loading, ready, error và unavailable mà không thay đổi chrome hay cấu trúc trang.",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "Ready chỉ hiển thị nội dung được đánh dấu đã xuất bản; lỗi có hành động tải lại rõ ràng.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "Không có tên nhân sự, điều khoản điều lệ hoặc dữ kiện pháp lý được tự tạo khi chưa có nội dung owner cung cấp.",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "official-board-content",
+      "question": "Danh sách và chức danh chính thức của ban chủ nhiệm là gì?",
+      "impact": "Chưa hiển thị tên cá nhân hoặc chức danh cụ thể trong nội dung công khai."
+    },
+    {
+      "id": "official-charter-content",
+      "question": "Toàn văn điều lệ đã được duyệt để công bố là phiên bản nào?",
+      "impact": "Chưa hiển thị điều khoản hoặc trích dẫn pháp lý cụ thể."
+    },
+    {
+      "id": "backend-content-contract",
+      "question": "API và CMS nào sẽ sở hữu nội dung công khai sau giai đoạn frontend hiện tại?",
+      "impact": "Giai đoạn này dùng seed phát triển/test có kiểm soát; tích hợp backend nằm ngoài source boundary đã duyệt."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "Owner đã chấp thuận scope website Tây Sơn gồm thông tin giới thiệu cộng đồng, điều lệ, ban chủ nhiệm, nội dung công khai responsive, SEO/SSR và tiếng Việt phiên bản đầu trong authority community-website-platform.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "385cfe6dd712eff610dbefaf8060661780d51183c7c9bfe18b5c148ca750bdf1"
+    },
+    {
+      "id": "EV-002",
+      "claim": "Owner đã duyệt page anatomy, bốn block states, route /gioi-thieu, exact source-and-seed boundary và render contract của trang thông tin công khai.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "8d7d66eecd37fea3e7e3c3c49b3474467deb7ec5e118d3aa7c4e6aa39a7c3f95"
+    }
+  ]
+}

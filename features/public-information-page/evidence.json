@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "project": "tayson",
+  "featureId": "public-information-page",
+  "head": "c2e6b5db6ca026baa3693627defcbde2a09749494e7a6cc127131dfc044a3ffa",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "local-only:D:/Repositories/tayson-fe",
+      "head": "e89b39a3c6f8a9266e7a024ad2ce27e7406f926d"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "Owner đã chấp thuận scope website Tây Sơn gồm thông tin giới thiệu cộng đồng, điều lệ, ban chủ nhiệm, nội dung công khai responsive, SEO/SSR và tiếng Việt phiên bản đầu trong authority community-website-platform.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "385cfe6dd712eff610dbefaf8060661780d51183c7c9bfe18b5c148ca750bdf1"
+    },
+    {
+      "id": "EV-002",
+      "claim": "Owner đã duyệt page anatomy, bốn block states, route /gioi-thieu, exact source-and-seed boundary và render contract của trang thông tin công khai.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "8d7d66eecd37fea3e7e3c3c49b3474467deb7ec5e118d3aa7c4e6aa39a7c3f95"
+    }
+  ]
+}
