@@ -19,5 +19,5 @@ Learners progress through course personal-project milestones, submit a GitHub re
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `d019b01d32e3fa124a63bcfa499f795a1d2ed2eb` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `50fb6aa814bac632edea972ade928046254f40a9` |
 | be | https://github.com/starci-lab/starci-academy-backend | `88a3959084772f9eaa0f5dcbc4e480d4356210f0` |

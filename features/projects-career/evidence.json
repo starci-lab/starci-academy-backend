@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "projects-career",
-  "head": "c205c1788990093e796c265a73f4c1ed1d3125dff4cb822f6d335245d3b58c15",
+  "head": "4ae25832ba1a8fe669605af6371e4e7c5c4aa07dee821671478dc8a654501ace",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "d019b01d32e3fa124a63bcfa499f795a1d2ed2eb"
+      "head": "50fb6aa814bac632edea972ade928046254f40a9"
     },
     {
       "role": "be",
@@ -87,6 +87,13 @@
       "endLine": 77,
       "claim": "The optionally authenticated headhuntingCompanies query lists all companies.",
       "kind": "api"
+    },
+    {
+      "id": "EV-009",
+      "claim": "The owner requires the personal-project task surface to use a semantic back link and to render recoverably instead of remaining in a non-recovering loading or failed state.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "fc6e8b32908010e9fb6b9959c5bf2e0d96cafffbc958404a478d7b9809f95075"
     }
   ]
 }

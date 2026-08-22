@@ -1,8 +1,8 @@
 # Projects and career
 
-> Business identity: `starci-academy/projects-career@c205c1788990093e796c265a73f4c1ed1d3125dff4cb822f6d335245d3b58c15`
+> Business identity: `starci-academy/projects-career@4ae25832ba1a8fe669605af6371e4e7c5c4aa07dee821671478dc8a654501ace`
 >
-> Source heads: authority `implemented` · base `7566d9ae48e5b03618b4fd9b3f11e0b8cb3cceb8703d6319240f5a36c88055e2` · `fe@d019b01d32e3`, `be@88a395908477`
+> Source heads: authority `pending` · base `c205c1788990093e796c265a73f4c1ed1d3125dff4cb822f6d335245d3b58c15` · `fe@50fb6aa814ba`, `be@88a395908477`
 >
 > Load this file first. Load only the modules named by the current task.
 
@@ -21,11 +21,13 @@
 - `BR-01` — The personal project roadmap exposes a deterministic next task, completion percentage/facts and milestone task navigation.
 - `BR-02` — Submitting a personal GitHub URL requires an authenticated user and an enrollment for the selected course, then persists the URL on that enrollment.
 - `BR-03` — The headhunting directory separates company and consultant results and can mark individual actions unavailable.
+- `BR-04` — The personal-project task surface provides a semantic return link to the personal-project roadmap.
+- `BR-05` — The authored task brief settles independently from ancillary repository and grading-model data; an ancillary failure does not replace a ready brief.
 
 ## Primary flow
 
 ```text
-project-ready → project-pending → project-ready
+project-ready → project-ready → project-pending → project-ready
 ```
 
 ## Surface map
@@ -33,7 +35,7 @@ project-ready → project-pending → project-ready
 | Surface | Route | Owns | Module |
 |---|---|---|---|
 | `personal-project-roadmap` | `/[lang]/courses/[displayId]/learn/personal-project` | Show the next task and milestone completion evidence. | [surface](surfaces/personal-project-roadmap.md) |
-| `personal-project-task` | `/[lang]/courses/[displayId]/learn/personal-project/tasks/[taskId]{/result}` | Complete a task, submit repository evidence and inspect feedback. | [surface](surfaces/personal-project-task.md) |
+| `personal-project-task` | `/[lang]/courses/[displayId]/learn/personal-project/tasks/[taskId]{/result}` | Read a task brief, return to the roadmap, submit repository evidence and recover or inspect feedback. | [surface](surfaces/personal-project-task.md) |
 | `headhunting-directory` | `/[lang]/courses/[displayId]/learn/headhuntings` | Find headhunting companies and consultants. | [surface](surfaces/headhunting-directory.md) |
 | `headhunting-company` | `/[lang]/courses/[displayId]/learn/headhunting-companies/[companyId]` | Inspect one company from the course career directory. | [surface](surfaces/headhunting-company.md) |
 
@@ -43,6 +45,7 @@ project-ready → project-pending → project-ready
 |---|---|---|---|
 | `submitPersonalGithubUrl` | backend | course id, GitHub URL | updated enrollment |
 | `headhuntingCompanies` | backend | none | headhunting companies |
+| `refetchTaskWorkspace` | frontend | course display id, task id | refetched task workspace |
 
 ## Explicit unknowns
 

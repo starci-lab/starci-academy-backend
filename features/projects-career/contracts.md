@@ -34,4 +34,12 @@ Evidence: `EV-005`
 - Failures: query failed
 - Evidence: `EV-008`
 
+## Operation · refetchTaskWorkspace
+
+- Kind/owner: `command` / `frontend`
+- Inputs: course display id, task id
+- Outputs: refetched task workspace
+- Failures: workspace remains unavailable
+- Evidence: `EV-009`
+
 No field, failure or operation may appear here without routed source evidence.

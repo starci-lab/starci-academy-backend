@@ -85,14 +85,14 @@
     },
     "projects-career": {
       "featureId": "projects-career",
-      "head": "c205c1788990093e796c265a73f4c1ed1d3125dff4cb822f6d335245d3b58c15",
-      "authorityStatus": "implemented",
-      "baseHead": "7566d9ae48e5b03618b4fd9b3f11e0b8cb3cceb8703d6319240f5a36c88055e2",
-      "previousHead": "7566d9ae48e5b03618b4fd9b3f11e0b8cb3cceb8703d6319240f5a36c88055e2",
+      "head": "4ae25832ba1a8fe669605af6371e4e7c5c4aa07dee821671478dc8a654501ace",
+      "authorityStatus": "pending",
+      "baseHead": "c205c1788990093e796c265a73f4c1ed1d3125dff4cb822f6d335245d3b58c15",
+      "previousHead": "c205c1788990093e796c265a73f4c1ed1d3125dff4cb822f6d335245d3b58c15",
       "sources": [
         {
           "role": "fe",
-          "head": "d019b01d32e3fa124a63bcfa499f795a1d2ed2eb"
+          "head": "50fb6aa814bac632edea972ade928046254f40a9"
         },
         {
           "role": "be",
@@ -320,6 +320,10 @@
       "83245d75882870bf2b2980af7325140a697a38228ed7db4d84bb56ac7f1e84a0": {
         "hash": "83245d75882870bf2b2980af7325140a697a38228ed7db4d84bb56ac7f1e84a0",
         "path": "objects/sha256/83245d75882870bf2b2980af7325140a697a38228ed7db4d84bb56ac7f1e84a0.json"
+      },
+      "4ae25832ba1a8fe669605af6371e4e7c5c4aa07dee821671478dc8a654501ace": {
+        "hash": "4ae25832ba1a8fe669605af6371e4e7c5c4aa07dee821671478dc8a654501ace",
+        "path": "objects/sha256/4ae25832ba1a8fe669605af6371e4e7c5c4aa07dee821671478dc8a654501ace.json"
       }
     }
   }
