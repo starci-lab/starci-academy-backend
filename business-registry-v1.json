@@ -162,12 +162,17 @@
     },
     "mmo-app-helm-chart": {
       "featureId": "mmo-app-helm-chart",
-      "head": "4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc",
-      "authorityStatus": "pending",
+      "head": "26bb61ae9faaa75b79f61bf47813cc5b3e8edb4e6812d7e9e651983003fe3167",
+      "authorityStatus": "in-progress",
+      "previousHead": "4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc",
       "sources": [
         {
           "role": "be",
           "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+        },
+        {
+          "role": "chart",
+          "head": "4a3aabb9d4db60f0f9e7332195b46276368b5295"
         }
       ]
     }
@@ -310,6 +315,10 @@
       "4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc": {
         "hash": "4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc",
         "path": "objects/sha256/4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc.json"
+      },
+      "26bb61ae9faaa75b79f61bf47813cc5b3e8edb4e6812d7e9e651983003fe3167": {
+        "hash": "26bb61ae9faaa75b79f61bf47813cc5b3e8edb4e6812d7e9e651983003fe3167",
+        "path": "objects/sha256/26bb61ae9faaa75b79f61bf47813cc5b3e8edb4e6812d7e9e651983003fe3167.json"
       }
     }
   }

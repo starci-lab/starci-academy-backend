@@ -58,7 +58,8 @@
       "588eb960eccb41541da08aa1bf3665385caa1c4f530fa3b2bf68c91edcc5495f"
     ],
     "mmo-app-helm-chart": [
-      "4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc"
+      "4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc",
+      "26bb61ae9faaa75b79f61bf47813cc5b3e8edb4e6812d7e9e651983003fe3167"
     ]
   }
 }

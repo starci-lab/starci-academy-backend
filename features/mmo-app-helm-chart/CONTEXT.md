@@ -1,14 +1,14 @@
 # MMO application Helm chart
 
-> Business identity: `nivo/mmo-app-helm-chart@4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc`
+> Business identity: `nivo/mmo-app-helm-chart@26bb61ae9faaa75b79f61bf47813cc5b3e8edb4e6812d7e9e651983003fe3167`
 >
-> Source heads: authority `pending` · `be@947c6f4a117e`
+> Source heads: authority `in-progress` · `be@947c6f4a117e`, `chart@4a3aabb9d4db`
 >
 > Load this file first. Load only the modules named by the current task.
 
 ## Decision capsule
 
-**Purpose.** Nivo gains one MMO-owned Helm chart artifact that the backend can resolve through its generic chart-source contract, while provisioning activation remains separately authorized.
+**Purpose.** Nivo gains one generic MMO Helm chart at charts/mmo in the dedicated nivo-charts repository, while backend provisioning activation remains separately authorized.
 
 **Primary actor.** Nivo control-plane maintainer
 
@@ -18,10 +18,10 @@
 
 ## Invariants
 
-- `BR-01` — MMO owns one distinct Helm chart artifact and the backend consumes it only through the registry chart-ref and optional chart-version contract.
+- `BR-01` — MMO owns one distinct Helm chart artifact at charts/mmo in starci-lab/nivo-charts and the backend consumes it only through the registry chart-ref and optional chart-version contract.
 - `BR-02` — A null, unsupported or missing MMO chart source is refused before Helm executes or provisioning secrets are minted.
 - `BR-03` — Adding the chart artifact does not by itself make MMO provisionable, define its pipeline or expose a frontend action.
-- `BR-04` — MMO-specific runtime values remain explicit unknowns until product evidence or an owner decision defines them; Academy values are not defaults for MMO.
+- `BR-04` — The generic chart requires image repository, image tag and service port, exposes configurable ingress, persistence and probes, and never borrows Academy runtime values as MMO defaults.
 - `BR-05` — The chart package must pass deterministic Helm lint and template validation before its reference can be treated as usable.
 
 ## Primary flow
@@ -34,23 +34,21 @@ chart-unresolved → chart-defined → chart-validated
 
 | Surface | Route | Owns | Module |
 |---|---|---|---|
-| `mmo-chart-package` | `backend-private MMO Helm artifact` | Define and validate the chart artifact the backend may resolve for MMO without activating provisioning. | [surface](surfaces/mmo-chart-package.md) |
+| `mmo-chart-package` | `charts/mmo` | Define and validate the generic charts/mmo artifact the backend may resolve without activating provisioning. | [surface](surfaces/mmo-chart-package.md) |
 
 ## Data and operation map
 
 | Operation | Owner | Input | Result |
 |---|---|---|---|
 | `resolveMmoChart` | backend | MMO application registry identity | resolved chart reference, optional chart version, MMO application key |
-| `validateMmoChart` | backend | MMO chart package, representative non-secret values | lint verdict, rendered Kubernetes manifests |
+| `validateMmoChart` | provider | MMO chart package, representative non-secret values | lint verdict, rendered Kubernetes manifests |
 
 ## Explicit unknowns
 
-- `chart-artifact-owner` — Will the MMO chart live in the Nivo monorepo, the separate nivo-charts repository or an OCI registry, and what exact reference/version will the backend store? Impact: The backend currently contains no chart tree and already uses two external chart ownership patterns, so implementation cannot name a legal file boundary until this is decided.
-- `mmo-workload-contract` — Which images, commands, ports, services, probes and rollout/readiness conditions define the MMO workload? Impact: Chart templates and validation fixtures cannot be authored without the actual workload contract.
-- `mmo-config-and-persistence` — Which configuration, secrets, persistent volumes and external dependencies does each MMO tenant require? Impact: Values, Secret and PVC templates would otherwise invent operational and security behavior.
+- `mmo-config-and-persistence` — Which concrete configuration, secret references, volume size and external dependencies will each MMO deployment provide? Impact: The generic chart can expose configuration points and optional persistence, but representative production values remain outside this artifact-only feature.
 - `mmo-tenant-policy` — What domain, TLS, identity, plan and resource-allocation policy belongs to MMO tenants? Impact: The current MMO registry row leaves all of these fields unset and cannot safely borrow Academy policy.
 - `mmo-pipeline-integration` — Which backend dispatcher, ordered steps, values builder and record-outcome/readiness contract will install MMO after the chart exists? Impact: The current generic fulfillment has no MMO driver and the stored pipeline step list is not yet executable authority.
-- `mmo-provisioning-activation` — Does the owner intend this change to add only the chart artifact, or later activate MMO purchasing, provisioning and management? Impact: Activation requires separate transitions for the multi-app registry and app lifecycle; this pending feature keeps MMO unavailable by default.
+- `mmo-provisioning-activation` — Does the owner intend this change to add only the chart artifact, or later activate MMO purchasing, provisioning and management? Impact: Activation requires separate transitions for the multi-app registry and app lifecycle; this artifact-only feature keeps MMO unavailable by default.
 
 ## LOADS
 

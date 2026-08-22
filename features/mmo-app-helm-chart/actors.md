@@ -4,6 +4,6 @@
 
 Can:
 
-- Define and validate the MMO chart package without activating customer provisioning.
+- Define and validate the generic charts/mmo package without activating customer provisioning.
 
 Evidence: `EV-001`, `EV-002`

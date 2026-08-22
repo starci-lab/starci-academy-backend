@@ -2,12 +2,17 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "mmo-app-helm-chart",
-  "head": "4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc",
+  "head": "26bb61ae9faaa75b79f61bf47813cc5b3e8edb4e6812d7e9e651983003fe3167",
   "sources": [
     {
       "role": "be",
       "repository": "https://github.com/starci-lab/nivo-backend.git",
       "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    },
+    {
+      "role": "chart",
+      "repository": "https://github.com/starci-lab/nivo-charts.git",
+      "head": "4a3aabb9d4db60f0f9e7332195b46276368b5295"
     }
   ],
   "evidence": [
@@ -52,6 +57,40 @@
       "startLine": 138,
       "endLine": 186,
       "claim": "The generic application registry stores exactly the chart argument and optional Helm version consumed by the installer.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-006",
+      "claim": "The owner approved starci-lab/nivo-charts/charts/mmo as a generic chart requiring image repository, image tag and service port, with configurable ingress, persistence and probes, while MMO provisioning remains disabled.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "165286ff3e5897a59c3fa8690f2ad936c69cbc3aca6c29d1f93118a55da64f48"
+    },
+    {
+      "id": "EV-007",
+      "role": "chart",
+      "path": "README.md",
+      "startLine": 3,
+      "endLine": 20,
+      "claim": "The dedicated nivo-charts repository owns Nivo Helm artifacts under charts/<chart>, with one product instance represented by one Helm release.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-008",
+      "role": "chart",
+      "path": "README.md",
+      "startLine": 72,
+      "endLine": 80,
+      "claim": "The chart repository validates packages with deterministic helm lint and helm template commands.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-009",
+      "role": "chart",
+      "path": "charts/expert-academy/Chart.yaml",
+      "startLine": 2,
+      "endLine": 29,
+      "claim": "An existing clean sibling chart establishes the repository's Helm v2 application metadata shape with explicit chart and app versions.",
       "kind": "schema"
     }
   ]
