@@ -159,6 +159,17 @@
           "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
         }
       ]
+    },
+    "mmo-app-helm-chart": {
+      "featureId": "mmo-app-helm-chart",
+      "head": "4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc",
+      "authorityStatus": "pending",
+      "sources": [
+        {
+          "role": "be",
+          "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+        }
+      ]
     }
   },
   "objects": {
@@ -295,6 +306,10 @@
       "778a16ba84d7570b0fed464a29bd634093c3d86dffe27112751ca5f20e04d29e": {
         "hash": "778a16ba84d7570b0fed464a29bd634093c3d86dffe27112751ca5f20e04d29e",
         "path": "objects/sha256/778a16ba84d7570b0fed464a29bd634093c3d86dffe27112751ca5f20e04d29e.json"
+      },
+      "4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc": {
+        "hash": "4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc",
+        "path": "objects/sha256/4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc.json"
       }
     }
   }
