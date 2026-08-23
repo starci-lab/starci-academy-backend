@@ -1,32 +1,34 @@
 ---
 version: 1
-project: miamia
+project: starci-academy
 role: fe
 approvedBy: Cuong (owner)
 approvedOn: 2026-08-20
 expiresOn: 2026-11-18
-reason: Temporary external Sonar authority debt; frontend project and patch coverage are mature.
+reason: Temporary external Sonar authority debt; frontend project and patch coverage are already mature.
 scopes: assurance:sonar, route:head
 ---
 
-# MiAmia frontend quality debt
+# StarCi Academy frontend quality debt
 
 ## Baseline
 
-- Revision `521c5444a119b179beafb3a8e3c581c00c53a2ad`.
-- Project coverage: statements 85.99%, lines 88.56%, functions 81.28%, branches 77.13%.
-- Patch coverage: statements 92.86%, lines 94.12%, functions 90.27%, branches 90.41%.
-- Unit, lint, typecheck and build pass; exact-SHA Sonar strict evidence is unavailable.
+- Revision `082c8ba5d803d654f7a4ccb6deddc7d0bfda82b7`.
+- Project coverage: statements 85.22%, lines 86.62%, functions 85.70%, branches 79.43%.
+- All four patch metrics are at least 90%; unit, lint, typecheck and operational E2E smoke pass.
+- Sonar host is `https://sonar.starci.org`; the current project token returned HTTP 401, so exact-SHA strict evidence is unavailable.
 
 ## Why this debt is accepted
 
-All local maturity thresholds are green. Only provider authority and current-revision proof remain.
+The remaining gap is external credential authority rather than untested frontend source. The quality profile
+stays installed and must be measured again after token rotation.
 
 ## Exit criteria
 
-- Rotate the project token and pass the complete exact-SHA strict Sonar profile.
+- Rotate the project-scoped token through hidden intake.
+- Scan this exact revision or its successor and pass the complete strict Sonar profile.
 - Refresh the routed workspace head to the accepted repair revision.
 
 ## Progress
 
-- 2026-08-20: debt opened after project and patch coverage cleared the mature thresholds.
+- 2026-08-20: debt opened after mature project/patch coverage and E2E smoke passed.
