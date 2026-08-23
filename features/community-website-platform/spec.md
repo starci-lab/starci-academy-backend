@@ -1,6 +1,6 @@
 # Nền tảng website Cộng đồng Doanh nghiệp Tây Sơn
 
-> Business head: `dd2daf5a201472064ea9e19111607b6f7a48941ccd03cc8dc2a71371ab913b52`
+> Business head: `3fb28ac7bf9d941f7110141c095ec3d0cc74dcea0658bf6abb9721bcfcba0e53`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -31,8 +31,8 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | local-only:D:/Repositories/tayson-fe | `78a62ea3c5251e1bae47d9cb25af69792cc72b7a` |
-| be | local-only:D:/Repositories/tayson-backend | `acf8ea0ba96f3f7f531675b2e96678c37e7e4bb4` |
+| fe | https://github.com/starci183/tayson.git | `6a954d40294c3dfaf7678d2eb4c34c1cd3c389d2` |
+| be | https://github.com/starci183/tayson-be.git | `4226f4404948d5e5a29a4a31c4fd8b1ed5951f8e` |
 
 ## 3. Actors and access
 

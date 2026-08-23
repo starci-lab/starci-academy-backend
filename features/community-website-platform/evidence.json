@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "project": "tayson",
   "featureId": "community-website-platform",
-  "head": "dd2daf5a201472064ea9e19111607b6f7a48941ccd03cc8dc2a71371ab913b52",
+  "head": "3fb28ac7bf9d941f7110141c095ec3d0cc74dcea0658bf6abb9721bcfcba0e53",
   "sources": [
     {
       "role": "fe",
-      "repository": "local-only:D:/Repositories/tayson-fe",
-      "head": "78a62ea3c5251e1bae47d9cb25af69792cc72b7a"
+      "repository": "https://github.com/starci183/tayson.git",
+      "head": "6a954d40294c3dfaf7678d2eb4c34c1cd3c389d2"
     },
     {
       "role": "be",
-      "repository": "local-only:D:/Repositories/tayson-backend",
-      "head": "acf8ea0ba96f3f7f531675b2e96678c37e7e4bb4"
+      "repository": "https://github.com/starci183/tayson-be.git",
+      "head": "4226f4404948d5e5a29a4a31c4fd8b1ed5951f8e"
     }
   ],
   "evidence": [

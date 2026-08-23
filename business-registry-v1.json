@@ -6,17 +6,17 @@
   "featureHeads": {
     "community-website-platform": {
       "featureId": "community-website-platform",
-      "head": "dd2daf5a201472064ea9e19111607b6f7a48941ccd03cc8dc2a71371ab913b52",
-      "authorityStatus": "in-progress",
-      "previousHead": "373b4866f03a66031c898dea9be270f4d2fe5e0e97b7f7eda9fc32a711d68295",
+      "head": "3fb28ac7bf9d941f7110141c095ec3d0cc74dcea0658bf6abb9721bcfcba0e53",
+      "authorityStatus": "rejected",
+      "previousHead": "dd2daf5a201472064ea9e19111607b6f7a48941ccd03cc8dc2a71371ab913b52",
       "sources": [
         {
           "role": "fe",
-          "head": "78a62ea3c5251e1bae47d9cb25af69792cc72b7a"
+          "head": "6a954d40294c3dfaf7678d2eb4c34c1cd3c389d2"
         },
         {
           "role": "be",
-          "head": "acf8ea0ba96f3f7f531675b2e96678c37e7e4bb4"
+          "head": "4226f4404948d5e5a29a4a31c4fd8b1ed5951f8e"
         }
       ]
     },
@@ -124,6 +124,10 @@
       "8b9e9d34039f91f39422ae6798b5d3256198f813d6d06bd925c36bb2c2be804c": {
         "hash": "8b9e9d34039f91f39422ae6798b5d3256198f813d6d06bd925c36bb2c2be804c",
         "path": "objects/sha256/8b9e9d34039f91f39422ae6798b5d3256198f813d6d06bd925c36bb2c2be804c.json"
+      },
+      "3fb28ac7bf9d941f7110141c095ec3d0cc74dcea0658bf6abb9721bcfcba0e53": {
+        "hash": "3fb28ac7bf9d941f7110141c095ec3d0cc74dcea0658bf6abb9721bcfcba0e53",
+        "path": "objects/sha256/3fb28ac7bf9d941f7110141c095ec3d0cc74dcea0658bf6abb9721bcfcba0e53.json"
       }
     }
   }

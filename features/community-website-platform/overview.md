@@ -29,5 +29,5 @@ Website công khai responsive cùng CMS quản trị, API và dữ liệu nghi�
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | local-only:D:/Repositories/tayson-fe | `78a62ea3c5251e1bae47d9cb25af69792cc72b7a` |
-| be | local-only:D:/Repositories/tayson-backend | `acf8ea0ba96f3f7f531675b2e96678c37e7e4bb4` |
+| fe | https://github.com/starci183/tayson.git | `6a954d40294c3dfaf7678d2eb4c34c1cd3c389d2` |
+| be | https://github.com/starci183/tayson-be.git | `4226f4404948d5e5a29a4a31c4fd8b1ed5951f8e` |
