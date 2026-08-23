@@ -6,9 +6,9 @@
   "featureHeads": {
     "community-website-platform": {
       "featureId": "community-website-platform",
-      "head": "63eb84036a986bd0e75e51b3b5088264b08e9d788876e5267c2ba1bf1b20b53f",
-      "authorityStatus": "pending",
-      "previousHead": "89821c48140dd6f511766ab1e0f818a62be1834795c0bb6f1a73e4e6e0df03c1",
+      "head": "a5b7be0d2c2c884b5c5d6b159430488cdab5105c61a337e993ccd1792fd5bcb7",
+      "authorityStatus": "in-progress",
+      "previousHead": "63eb84036a986bd0e75e51b3b5088264b08e9d788876e5267c2ba1bf1b20b53f",
       "sources": [
         {
           "role": "fe",
@@ -156,6 +156,10 @@
       "63eb84036a986bd0e75e51b3b5088264b08e9d788876e5267c2ba1bf1b20b53f": {
         "hash": "63eb84036a986bd0e75e51b3b5088264b08e9d788876e5267c2ba1bf1b20b53f",
         "path": "objects/sha256/63eb84036a986bd0e75e51b3b5088264b08e9d788876e5267c2ba1bf1b20b53f.json"
+      },
+      "a5b7be0d2c2c884b5c5d6b159430488cdab5105c61a337e993ccd1792fd5bcb7": {
+        "hash": "a5b7be0d2c2c884b5c5d6b159430488cdab5105c61a337e993ccd1792fd5bcb7",
+        "path": "objects/sha256/a5b7be0d2c2c884b5c5d6b159430488cdab5105c61a337e993ccd1792fd5bcb7.json"
       }
     }
   }
