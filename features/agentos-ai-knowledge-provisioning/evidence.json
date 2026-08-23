@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "agentos-ai-knowledge-provisioning",
-  "head": "ea6a4feed3f97e1a81ccee7e1b61ce68cb85d60294704be50fbe679aca4aeb40",
+  "head": "9dff5307ad1c43b9ac8750936988857ae3c4eb1b08c9359d2a58a6abf5e14b8c",
   "sources": [
     {
       "role": "fe",
@@ -160,10 +160,127 @@
     },
     {
       "id": "EV-017",
-      "claim": "Reject the current in-progress R1 authority because backend challenge proved that it crosses into agentos-module-studio intake ownership and leaves embedding geometry, non-destructive Qdrant import, production document handling, workspace-key lifecycle and readiness budgets unresolved; replace it through a new R2 lifecycle using owner decision 7494806cb79f7916fe7483450b64950ac607d82f888290112fada6569617fa59.",
+      "claim": "Approve R2 owner intent: exclude ask-until-complete module intake; pin nivo-qwen3-embedding-8b-4096-v1 at dimension 4096; copy immutable Nivo and installed-module artifacts from global Qdrant into a verified staging workspace generation before atomic alias switch; accept only PDF, DOCX, UTF-8 text and Markdown up to 20971520 bytes through fail-closed ClamAV and defined retention; own one plan-funded event-rotated OpenRouter key per workspace; and gate aiReady through one durable ai_readiness_test with a 30000 ms deadline, zero retries, 300000 ms cooldown, 2048 input/context tokens and 256 output tokens.",
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "7494806cb79f7916fe7483450b64950ac607d82f888290112fada6569617fa59"
+    },
+    {
+      "id": "EV-018",
+      "role": "be",
+      "path": "src/modules/platform/env/config.ts",
+      "startLine": 725,
+      "endLine": 833,
+      "claim": "Backend configuration already pins qwen3-embedding:8b and qwen/qwen3-embedding-8b to measured dimension 4096 and refuses incompatible cloud and self-hosted embedding geometry.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-019",
+      "role": "be",
+      "path": "apps/shared/knowledge/knowledge-reindex.service.ts",
+      "startLine": 44,
+      "endLine": 68,
+      "claim": "The current knowledge reindex authority requires customer uploads to survive, uses two collections rather than rebuilding in place, keeps the old collection and permits a failed generation to be abandoned safely.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-020",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/subscription-plan.entity.ts",
+      "startLine": 306,
+      "endLine": 320,
+      "claim": "The AgentOS subscription plan owns creditGrantUsd and defines renewal as a lifetime limit equal to current provider spend plus the grant.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-021",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/instance.entity.ts",
+      "startLine": 231,
+      "endLine": 255,
+      "claim": "The provisioned instance owns the subscription-plan relation from which the workspace key grant is resolved.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-022",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/instance-model-key.entity.ts",
+      "startLine": 83,
+      "endLine": 120,
+      "claim": "The instance model-key authority records lifetime limitUsd and supports provider usage reads, disablement and destruction without exposing the raw key.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-023",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/agent-workspace-operation.entity.ts",
+      "startLine": 11,
+      "endLine": 42,
+      "claim": "Agent workspace operations are durable idempotent audit rows, while the current operation-kind union does not yet contain ai_readiness_test.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-024",
+      "role": "be",
+      "path": "src/modules/bussiness/agent-workspace-operations/agent-workspace-operation-runner.service.ts",
+      "startLine": 69,
+      "endLine": 123,
+      "claim": "The current workspace operation runner loads the workspace instance plan and dispatches bounded operation kinds, providing the sibling lifecycle that ai_readiness_test must extend.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-025",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-provision/types/payload.ts",
+      "startLine": 1,
+      "endLine": 28,
+      "claim": "The current provisioning payload lacks AI profile, knowledge-recovery operation and readiness-operation identities, so R2 requires those outputs rather than treating them as already implemented.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-026",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-provision/provision-step-map.service.ts",
+      "startLine": 24,
+      "endLine": 53,
+      "claim": "The current AgentOS provisioning map has four infrastructure steps and no explicit AI-key, knowledge-recovery or readiness step.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-027",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-provision/steps/record-outcome.step.ts",
+      "startLine": 36,
+      "endLine": 72,
+      "claim": "The current outcome step activates the workspace directly, so R2 must persist aiReady=false until knowledge recovery and the durable readiness operation pass.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-028",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/agentos-module-attachment.entity.ts",
+      "startLine": 14,
+      "endLine": 74,
+      "claim": "The attachment authority currently stores media type, byte size, scanner lifecycle, storage key and safe failure code while external object bytes and scanner execution remain outside the row.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-029",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/agent-workspace/prepare-agentos-module-attachment-upload/graphql-types/input.ts",
+      "startLine": 1,
+      "endLine": 17,
+      "claim": "The current upload input accepts a generic media type and positive byte size but does not yet enforce the R2 MIME allowlist or 20971520-byte ceiling.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-030",
+      "role": "fe",
+      "path": "apps/app/src/modules/api/console.ts",
+      "startLine": 754,
+      "endLine": 780,
+      "claim": "The frontend exposes custom-module intake answers and attachment preparation, finalization and removal as separate operations, supporting R2's boundary that document knowledge provisioning must not own ask-until-complete intake.",
+      "kind": "api"
     }
   ]
 }

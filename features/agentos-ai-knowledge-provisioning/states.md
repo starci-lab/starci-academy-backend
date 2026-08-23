@@ -15,5 +15,7 @@
 | `document-scanning` | pending | The uploaded module document is being scanned | document-extracting, document-refused | `EV-001` |
 | `document-extracting` | pending | Text is being extracted and chunked from a scan-ready document | document-embedding, document-refused | `EV-001`, `EV-011` |
 | `document-embedding` | pending | Document chunks are being embedded and indexed into the scoped workspace collection | document-indexed, document-refused | `EV-001`, `EV-011` |
-| `document-indexed` | success | The uploaded document is available to its declared module knowledge scope | knowledge-refreshing | `EV-001` |
+| `document-indexed` | success | The uploaded document is available to its declared module knowledge scope | knowledge-refreshing, document-removing | `EV-001`, `EV-017` |
+| `document-removing` | pending | The document's retrieval points and access are being removed | document-removed, document-refused | `EV-017`, `EV-028` |
+| `document-removed` | success | Retrieval access is removed and retained-object deletion is complete or due within 24 hours | terminal | `EV-017`, `EV-028` |
 | `document-refused` | error | The document could not be scanned, extracted, embedded or indexed | document-uploading | `EV-001`, `EV-011` |

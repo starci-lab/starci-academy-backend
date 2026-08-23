@@ -211,9 +211,9 @@
     },
     "agentos-ai-knowledge-provisioning": {
       "featureId": "agentos-ai-knowledge-provisioning",
-      "head": "ea6a4feed3f97e1a81ccee7e1b61ce68cb85d60294704be50fbe679aca4aeb40",
-      "authorityStatus": "rejected",
-      "previousHead": "3871f5ee57d1497da7f6d243b241bf6052fce1b71fc17f0a52e8ff8b2f19a23a",
+      "head": "9dff5307ad1c43b9ac8750936988857ae3c4eb1b08c9359d2a58a6abf5e14b8c",
+      "authorityStatus": "pending",
+      "previousHead": "ea6a4feed3f97e1a81ccee7e1b61ce68cb85d60294704be50fbe679aca4aeb40",
       "sources": [
         {
           "role": "fe",
@@ -428,6 +428,10 @@
       "ea6a4feed3f97e1a81ccee7e1b61ce68cb85d60294704be50fbe679aca4aeb40": {
         "hash": "ea6a4feed3f97e1a81ccee7e1b61ce68cb85d60294704be50fbe679aca4aeb40",
         "path": "objects/sha256/ea6a4feed3f97e1a81ccee7e1b61ce68cb85d60294704be50fbe679aca4aeb40.json"
+      },
+      "9dff5307ad1c43b9ac8750936988857ae3c4eb1b08c9359d2a58a6abf5e14b8c": {
+        "hash": "9dff5307ad1c43b9ac8750936988857ae3c4eb1b08c9359d2a58a6abf5e14b8c",
+        "path": "objects/sha256/9dff5307ad1c43b9ac8750936988857ae3c4eb1b08c9359d2a58a6abf5e14b8c.json"
       }
     }
   }

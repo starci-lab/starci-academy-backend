@@ -1,14 +1,14 @@
 # AgentOS AI and knowledge provisioning
 
-> Business identity: `nivo/agentos-ai-knowledge-provisioning@ea6a4feed3f97e1a81ccee7e1b61ce68cb85d60294704be50fbe679aca4aeb40`
+> Business identity: `nivo/agentos-ai-knowledge-provisioning@9dff5307ad1c43b9ac8750936988857ae3c4eb1b08c9359d2a58a6abf5e14b8c`
 >
-> Source heads: authority `rejected` · `fe@6a43e8d11050`, `be@77ce9d7dda36`
+> Source heads: authority `pending` · `fe@6a43e8d11050`, `be@77ce9d7dda36`
 >
 > Load this file first. Load only the modules named by the current task.
 
 ## Decision capsule
 
-**Purpose.** An authenticated AgentOS workspace owner receives a workspace-scoped OpenRouter credential, a pinned DeepSeek chat model, immutable Nivo and module knowledge artifacts, non-destructive workspace Qdrant recovery, uploaded-document ingestion and an owner-safe AI readiness result before the AI runtime is treated as ready.
+**Purpose.** An authenticated AgentOS workspace owner receives one budgeted workspace-scoped OpenRouter credential, a pinned DeepSeek chat model, one pinned 4096-dimensional Qwen3 embedding profile, immutable Nivo and module knowledge artifacts, atomic non-destructive workspace Qdrant recovery, policy-bounded uploaded-document ingestion and a durable owner-safe AI readiness result before the AI runtime is treated as ready.
 
 **Primary actor.** Authenticated owner of one exact AgentOS workspace
 
@@ -18,11 +18,11 @@
 
 ## Invariants
 
-- `BR-01` — Every AgentOS workspace receives its own OpenRouter credential; minting and delivery are idempotent, the provider key is stored encrypted for delivery, and no owner-facing response contains the raw key or provider management handle.
+- `BR-01` — Every AgentOS workspace receives exactly one OpenRouter credential. Its initial lifetime limit equals workspace.instance.plan.creditGrantUsd; renewal or top-up raises the lifetime limit to current provider spend plus that plan grant. Rotation is event-driven only, suspension disables the key, deprovisioning reconciles usage then destroys it, the raw key remains in encrypted custody and no owner-facing response exposes it or its provider management handle.
 - `BR-02` — The workspace chat model is pinned to deepseek/deepseek-v4-flash through OpenRouter and must be provider-validated before the runtime can be considered AI-ready.
-- `BR-03` — Chat-model choice and knowledge embedding geometry are separate contracts; every common, module, upload and retrieval vector in one workspace must use one compatible pinned embedding profile and dimension.
-- `BR-04` — Nivo common knowledge and each immutable solution-module knowledge package are vectorized centrally into versioned digest-bound artifacts and imported into a workspace without giving that workspace direct access to central Qdrant.
-- `BR-05` — Recovering or refreshing a Nivo or module artifact never deletes, replaces or makes unreachable customer-uploaded knowledge; the last verified state remains recoverable when refresh fails.
+- `BR-03` — Chat-model choice and knowledge embedding geometry are separate contracts. Every common, module, upload and retrieval vector uses embedding profile nivo-qwen3-embedding-8b-4096-v1: qwen3-embedding:8b for the global builder, qwen/qwen3-embedding-8b through workspace OpenRouter, and dimension 4096. Any model or geometry change creates a new profile and requires a staged rebuild.
+- `BR-04` — Nivo common knowledge and each immutable solution-module knowledge package are vectorized in Nivo's global Qdrant into versioned digest-bound artifacts; installing a module copies its declared artifact into the workspace knowledge generation without giving that workspace direct access to global Qdrant.
+- `BR-05` — Knowledge recovery writes a staging collection behind a stable workspace alias, copies every existing customer and uploaded-document point, imports the declared common and module artifacts, verifies geometry, artifact digests, origin counts, customer point identities and scoped retrieval, then switches the alias atomically. Failure leaves the alias unchanged and retains the previous verified generation.
 
 ## Primary flow
 
@@ -43,22 +43,18 @@ ai-key-configuring → ai-knowledge-recovering → ai-readiness-testing
 
 | Operation | Owner | Input | Result |
 |---|---|---|---|
-| `provisionAgentosAiRuntime` | backend | workspaceId, planCode, commonKnowledgeVersion, moduleArtifactRefs, idempotencyKey | workspace AI profile, knowledge recovery operation, readiness run identity |
-| `publishAgentosKnowledgeArtifact` | backend | scope, source version, source digest, embedding profile | immutable artifact identity, vector digest, published status |
-| `recoverAgentosWorkspaceKnowledge` | backend | workspaceId, artifact identities, expected embedding profile, idempotencyKey | recovered versions, workspace knowledge status |
-| `ingestAgentosModuleDocument` | backend | workspaceId, moduleId, documentId, scan-ready object reference, idempotencyKey | ingestion status, indexed document identity, knowledge origin summary |
-| `myAgentosAiKnowledgeReadiness` | backend | workspaceId | provider and pinned model, masked credential status, knowledge artifact versions and origins, Qdrant status, latest readiness component verdicts, safe failure codes and timestamps |
-| `runAgentosAiReadinessTest` | backend | workspaceId, idempotencyKey | readiness run identity, accepted status |
-| `reportAgentosAiReadiness` | backend | workspace identity, run identity, component verdicts, safe failure code, completedAt | persisted owner-safe readiness summary |
-| `reindexAgentWorkspaceKnowledge` | backend | workspaceId, idempotencyKey | operationId, knowledge reindex status |
+| `provisionAgentosAiRuntime` | backend | workspaceId, planCode, embeddingProfileId, commonKnowledgeVersion, moduleArtifactRefs, idempotencyKey | workspace AI profile, knowledgeRecoveryOperationId, readinessOperationId, aiReady |
+| `reconcileAgentosWorkspaceKeyLifecycle` | backend | workspaceId, lifecycle event, current provider spend, plan creditGrantUsd, idempotencyKey | provider key status, lifetime limitUsd, usage reconciliation status |
+| `publishAgentosKnowledgeArtifact` | backend | scope, source version, source digest, embedding profile nivo-qwen3-embedding-8b-4096-v1, embedding dimension 4096 | immutable artifact identity, vector digest, published status |
+| `recoverAgentosWorkspaceKnowledge` | backend | workspaceId, artifact identities, expected embedding profile nivo-qwen3-embedding-8b-4096-v1, stable workspace alias, idempotencyKey | recovered versions, verified staging generation, atomic alias switch result, previous verified generation, workspace knowledge status |
+| `ingestAgentosModuleDocument` | backend | workspaceId, moduleId, documentId, quarantined object reference, allowed media type, sizeBytes no greater than 20971520, idempotencyKey | ingestion status, indexed document identity, knowledge origin summary, object retention or deletion status |
+| `removeAgentosModuleDocument` | backend | workspaceId, moduleId, documentId, idempotencyKey | retrieval removal timestamp, object deletion status, object deletion due timestamp |
+| `myAgentosAiKnowledgeReadiness` | backend | workspaceId | provider and pinned model, embedding profile and dimension, masked credential status, knowledge artifact versions and origins, Qdrant status, knowledge recovery operation identity, readiness operation identity, aiReady, latest readiness component verdicts, safe failure codes and timestamps |
+| `runAgentosAiReadinessTest` | backend | workspaceId, idempotencyKey | ai_readiness_test operationId, accepted status |
 
 ## Explicit unknowns
 
-- `embedding-profile-and-geometry` — Which exact embedding model, version and vector dimension are pinned across central artifact builds, uploaded-document ingestion and workspace retrieval? Impact: Implementation must not combine incompatible vector geometries; the model records compatibility as mandatory but leaves provider selection to backend planning.
-- `non-destructive-artifact-import` — Which collection, alias, import or merge protocol atomically refreshes common and module artifacts while preserving uploaded-document points and the last verified index? Impact: Full collection snapshot replacement cannot ship until this preservation proof exists.
-- `production-document-policy` — Which MIME types, file limits, scanner, extractors and retention policy own production module documents? Impact: The ingestion flow can be designed and planned, but exact field constraints and extractor coverage remain unavailable.
-- `workspace-key-budget-and-rotation` — Which AgentOS plan determines the OpenRouter spend ceiling, rotation cadence and revocation behavior for a workspace key? Impact: Provisioning must create an isolated key, but billing limits and lifecycle automation cannot be implemented as guessed constants.
-- `readiness-test-budget` — Which timeout, retry count, cooldown and cost ceiling apply to automatic and owner-triggered readiness tests? Impact: The test must be bounded and idempotent, but exact operational limits require an approved policy.
+- No unresolved question is recorded.
 
 ## LOADS
 

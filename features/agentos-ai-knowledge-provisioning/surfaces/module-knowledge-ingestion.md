@@ -15,7 +15,7 @@ Show whether each uploaded module document has progressed from a scan-ready obje
 
 | Region | Kind | Real representative content | States | Actions | Evidence |
 |---|---|---|---|---|---|
-| `uploaded-knowledge-documents` | collection | Document; Scan; Extraction; Index; Scope | document-uploading, document-scanning, document-extracting, document-embedding, document-indexed, document-refused | Upload document, Retry, Remove | `EV-001`, `EV-011` |
+| `uploaded-knowledge-documents` | collection | Document; Scan; Extraction; Index; Scope | document-uploading, document-scanning, document-extracting, document-embedding, document-indexed, document-removing, document-removed, document-refused | Upload document, Retry, Remove | `EV-001`, `EV-011`, `EV-017`, `EV-028`, `EV-029`, `EV-030` |
 
 ## Context rule
 
