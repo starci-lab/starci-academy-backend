@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "tayson",
   "featureId": "community-website-platform",
-  "head": "dffd8876f4f930734a617d31a3096f7663ada2928b341d4f691e7a6d0d75115a",
+  "head": "3b17b727316d2c3f74c01eb2caeab0ff60e5ea90397b805c43f65c58d739250e",
   "sources": [
     {
       "role": "fe",

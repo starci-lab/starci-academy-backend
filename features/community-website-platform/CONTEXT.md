@@ -1,8 +1,8 @@
 # Nền tảng website Cộng đồng Doanh nghiệp Tây Sơn
 
-> Business identity: `tayson/community-website-platform@dffd8876f4f930734a617d31a3096f7663ada2928b341d4f691e7a6d0d75115a`
+> Business identity: `tayson/community-website-platform@3b17b727316d2c3f74c01eb2caeab0ff60e5ea90397b805c43f65c58d739250e`
 >
-> Source heads: authority `in-progress` · `fe@6a954d40294c`, `be@4226f4404948`
+> Source heads: authority `rejected` · `fe@6a954d40294c`, `be@4226f4404948`
 >
 > Load this file first. Load only the modules named by the current task.
 
