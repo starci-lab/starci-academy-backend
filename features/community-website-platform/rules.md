@@ -90,3 +90,10 @@ Nội dung chi tiết V1 dùng Markdown được làm sạch; mỗi nội dung c
 
 - Strength: `confirmed`
 - Evidence: `EV-004`
+
+## BR-14
+
+Danh sách nội dung công khai V1 có giới hạn cứng tối đa 50 danh mục đang hoạt động và 500 nội dung published chưa xóa mềm. Nếu vượt một trong hai giới hạn, toàn bộ collection trả về load-error và không được cắt dữ liệu âm thầm.
+
+- Strength: `confirmed`
+- Evidence: `EV-005`

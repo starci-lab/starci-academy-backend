@@ -59,8 +59,8 @@ Evidence: `EV-001`
 - Kind/owner: `query` / `backend`
 - Inputs: Không có
 - Outputs: Các danh mục đang hoạt động cùng nội dung published, chưa xóa mềm, theo thứ tự danh mục và publishedAt giảm dần
-- Failures: Không thể tải danh sách
-- Evidence: `EV-001`, `EV-004`
+- Failures: Không thể tải danh sách, Vượt quá 50 danh mục đang hoạt động hoặc 500 nội dung published chưa xóa mềm
+- Evidence: `EV-001`, `EV-004`, `EV-005`
 
 ## Operation · Đọc chi tiết nội dung công khai
 

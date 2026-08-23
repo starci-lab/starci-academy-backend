@@ -1,6 +1,6 @@
 # Nền tảng website Cộng đồng Doanh nghiệp Tây Sơn
 
-> Business head: `89821c48140dd6f511766ab1e0f818a62be1834795c0bb6f1a73e4e6e0df03c1`
+> Business head: `63eb84036a986bd0e75e51b3b5088264b08e9d788876e5267c2ba1bf1b20b53f`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -354,6 +354,12 @@ Nội dung chi tiết V1 dùng Markdown được làm sạch; mỗi nội dung c
 
 Strength: **confirmed** · Evidence: `EV-004`
 
+### BR-14
+
+Danh sách nội dung công khai V1 có giới hạn cứng tối đa 50 danh mục đang hoạt động và 500 nội dung published chưa xóa mềm. Nếu vượt một trong hai giới hạn, toàn bộ collection trả về load-error và không được cắt dữ liệu âm thầm.
+
+Strength: **confirmed** · Evidence: `EV-005`
+
 ## 7. State model
 
 - **Đăng ký mới** (`membership-new`, initial) → membership-reviewing — `EV-001`
@@ -381,7 +387,7 @@ Strength: **confirmed** · Evidence: `EV-004`
 
 ## 9. Operations and APIs
 
-- **Đọc danh sách nội dung công khai** (query, backend) — input: Không có; output: Các danh mục đang hoạt động cùng nội dung published, chưa xóa mềm, theo thứ tự danh mục và publishedAt giảm dần; failures: Không thể tải danh sách — `EV-001`, `EV-004`
+- **Đọc danh sách nội dung công khai** (query, backend) — input: Không có; output: Các danh mục đang hoạt động cùng nội dung published, chưa xóa mềm, theo thứ tự danh mục và publishedAt giảm dần; failures: Không thể tải danh sách, Vượt quá 50 danh mục đang hoạt động hoặc 500 nội dung published chưa xóa mềm — `EV-001`, `EV-004`, `EV-005`
 - **Đọc chi tiết nội dung công khai** (query, backend) — input: Slug nội dung; output: Một nội dung published và chưa xóa mềm; failures: Không tìm thấy, Nội dung draft, archived hoặc đã xóa mềm — `EV-001`, `EV-004`
 - **Đọc hội viên công khai** (query, backend) — input: Phân trang hoặc định danh; output: Hồ sơ hội viên đã duyệt và công khai; failures: Không tìm thấy — `EV-001`
 - **Gửi đăng ký hội viên** (mutation, backend) — input: Dữ liệu biểu mẫu đăng ký; output: Đăng ký trạng thái new, Xác nhận tiếp nhận; failures: Dữ liệu không hợp lệ, Không thể lưu — `EV-001`
@@ -409,6 +415,7 @@ Strength: **confirmed** · Evidence: `EV-004`
 - **AC-10** Bên A nhận quyền quản trị để chủ động đăng nhập và chỉnh sửa thông tin trong phạm vi CMS. — `EV-001`
 - **AC-11** Phiên bản đầu vận hành bằng tiếng Việt và không cung cấp cổng đăng nhập riêng cho hội viên. — `EV-001`
 - **AC-12** List/detail Tin tức & Hoạt động chỉ đọc nội dung published chưa xóa mềm; danh sách nhóm theo chuyên mục không có filter, search hoặc pagination V1, và draft, archived, deleted hoặc unknown slug không xuất hiện công khai. — `EV-004`
+- **AC-13** Collection công khai tải đầy đủ khi có tối đa 50 danh mục đang hoạt động và 500 nội dung published chưa xóa mềm; 51 danh mục hoặc 501 nội dung làm toàn collection trả về load-error mà không trả tập dữ liệu bị cắt. — `EV-005`
 
 ## 11. Explicit unknowns
 
@@ -433,3 +440,4 @@ Strength: **confirmed** · Evidence: `EV-004`
 | EV-002 | fe | `apps/web/src/components/blocks/PublicSiteHeader/index.tsx:16` | route | Frontend header hiện hành định danh Tin tức & Hoạt động tại route /tin-tuc-hoat-dong. |
 | EV-003 | owner | `decision:ae9b8dd30c1641399da5fb426e7b28fcc302cbf66bcfbea818324b660071604e` | owner-decision | Owner bật mode=auto cho phần BRD còn lại; recommendation hẹp được chọn là giữ route danh sách hiện hành /tin-tuc-hoat-dong và dùng route con /tin-tuc-hoat-dong/:slug cho hành động Đọc chi tiết đã có trong authority. |
 | EV-004 | owner | `decision:ad10d6fee01e09d0e4e7ece8f5bcb5a977776da32b2ca9a4bc5c8174a41c604c` | owner-decision | Owner phê duyệt bộ mặc định public-content V1 đã hiển thị bằng phản hồi `OK CONTENT DEFAUL`: nhóm theo danh mục, không filter/search/pagination, thứ tự xác định, slug duy nhất, Markdown được làm sạch, hero media MinIO tùy chọn với alt text bắt buộc, chỉ published và chưa xóa mềm được công khai, draft/archived/deleted/unknown trả về not-found; quản trị nội dung CMS là flow riêng. |
+| EV-005 | owner | `decision:bc5c50366ba7002337798ec3fe07d8f9cf70f96aa353163191860e5c6bd44a4c` | owner-decision | Owner phê duyệt bằng phản hồi `OK LIMIT 50/500`: collection công khai V1 có giới hạn cứng 50 danh mục đang hoạt động và 500 nội dung published chưa xóa mềm; vượt giới hạn phải fail toàn collection bằng load-error và không được cắt dữ liệu âm thầm. |

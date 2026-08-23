@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "tayson",
   "featureId": "community-website-platform",
-  "head": "89821c48140dd6f511766ab1e0f818a62be1834795c0bb6f1a73e4e6e0df03c1",
+  "head": "63eb84036a986bd0e75e51b3b5088264b08e9d788876e5267c2ba1bf1b20b53f",
   "sources": [
     {
       "role": "fe",
@@ -45,6 +45,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "ad10d6fee01e09d0e4e7ece8f5bcb5a977776da32b2ca9a4bc5c8174a41c604c"
+    },
+    {
+      "id": "EV-005",
+      "claim": "Owner phê duyệt bằng phản hồi `OK LIMIT 50/500`: collection công khai V1 có giới hạn cứng 50 danh mục đang hoạt động và 500 nội dung published chưa xóa mềm; vượt giới hạn phải fail toàn collection bằng load-error và không được cắt dữ liệu âm thầm.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "bc5c50366ba7002337798ec3fe07d8f9cf70f96aa353163191860e5c6bd44a4c"
     }
   ]
 }

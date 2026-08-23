@@ -14,6 +14,7 @@
 | `AC-10` | Bên A nhận quyền quản trị để chủ động đăng nhập và chỉnh sửa thông tin trong phạm vi CMS. | `EV-001` |
 | `AC-11` | Phiên bản đầu vận hành bằng tiếng Việt và không cung cấp cổng đăng nhập riêng cho hội viên. | `EV-001` |
 | `AC-12` | List/detail Tin tức & Hoạt động chỉ đọc nội dung published chưa xóa mềm; danh sách nhóm theo chuyên mục không có filter, search hoặc pagination V1, và draft, archived, deleted hoặc unknown slug không xuất hiện công khai. | `EV-004` |
+| `AC-13` | Collection công khai tải đầy đủ khi có tối đa 50 danh mục đang hoạt động và 500 nội dung published chưa xóa mềm; 51 danh mục hoặc 501 nội dung làm toàn collection trả về load-error mà không trả tập dữ liệu bị cắt. | `EV-005` |
 
 ## Completion
 
