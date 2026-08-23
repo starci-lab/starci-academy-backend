@@ -161,8 +161,9 @@ export class ContentHandler
         this.stubOutcomesIfEmpty(content,
             locale)
 
-        // Source the premium flag and owning course from the live DB row, not the
-        // (possibly stale) S3 snapshot, so toggling `is_premium` takes effect at once.
+        // Source entitlement and repository identity from the live DB row, not the
+        // possibly stale S3 snapshot. Mount metadata changes must expose readonly
+        // source immediately without relabelling backend code as a runnable sandbox.
         const row = await this.entityManager.findOne(
             ContentEntity,
             {
@@ -177,6 +178,9 @@ export class ContentHandler
                 select: {
                     id: true,
                     isPremium: true,
+                    isSandbox: true,
+                    githubBaseUrl: true,
+                    githubDir: true,
                     module: {
                         id: true,
                         course: {
@@ -187,6 +191,9 @@ export class ContentHandler
             },
         )
         const isPremium = row?.isPremium ?? content.isPremium
+        content.isSandbox = row?.isSandbox ?? content.isSandbox
+        content.githubBaseUrl = row?.githubBaseUrl ?? content.githubBaseUrl
+        content.githubDir = row?.githubDir ?? content.githubDir
         const courseId = row?.module?.course?.id
 
         // Gate premium content for trial read: a logged-in but

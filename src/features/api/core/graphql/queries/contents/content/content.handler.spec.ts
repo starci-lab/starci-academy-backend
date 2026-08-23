@@ -251,13 +251,20 @@ describe("ContentHandler",
                 entityManager.findOne.mockResolvedValueOnce({
                     id: "c1",
                     isPremium: false,
+                    isSandbox: false,
+                    githubBaseUrl: "https://github.com/StarCi-Academy/backend-source",
+                    githubDir: "backend/0-typescript",
                     module: {
                         course: {
                             id: "course-1",
                         },
                     },
                 })
-                s3ReadService.json.mockResolvedValueOnce(buildS3Content())
+                s3ReadService.json.mockResolvedValueOnce(buildS3Content({
+                    isSandbox: true,
+                    githubBaseUrl: null,
+                    githubDir: null,
+                }))
 
                 const result = await handler.execute(
                     new ContentQuery({
@@ -268,6 +275,11 @@ describe("ContentHandler",
                 )
 
                 expect(result.isPremium).toBe(false)
+                expect(result).toMatchObject({
+                    isSandbox: false,
+                    githubBaseUrl: "https://github.com/StarCi-Academy/backend-source",
+                    githubDir: "backend/0-typescript",
+                })
                 // full body and code assets are intact
                 expect(result.body).toContain("secret answer")
                 expect(result.codeExplainings).toHaveLength(1)

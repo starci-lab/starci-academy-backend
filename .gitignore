@@ -109,6 +109,11 @@ claude-legacy/
 # Disposable invocation artifacts. A session is never durable authority.
 /.sessions/
 
+# Generated deployment inspection, document renders, and malformed Windows-path leakage.
+/.infra/
+/tmp/
+/%SystemDrive%/
+
 # cloudflare tunnel token (never commit)
 .secrets/
 

@@ -117,8 +117,8 @@ const TEXT_EXTENSIONS = new Set([
 
 @Injectable()
 /**
- * Repo synchronizer -- reads `.repo/` code directories for sandbox lessons and
- * uploads per-lesson Sandpack file trees to CDN, replacing direct GitHub API calls.
+ * Repo synchronizer -- reads `.repo/` code directories for source-backed lessons and
+ * uploads per-lesson file trees to CDN for readonly readers or runnable sandboxes.
  */
 export class RepoSynchronizerService {
 
@@ -133,10 +133,10 @@ export class RepoSynchronizerService {
     ) { }
 
     /**
-     * Sync sandbox lesson code trees to CDN within the given scope.
+     * Sync lesson source trees to CDN for readonly readers and runnable sandboxes.
      *
-     * Queries every `ContentEntity` with `isSandbox=true` + non-null `githubBaseUrl`
-     * and `githubDir`, applies module-scope filtering, then walks the matching local
+     * Queries every `ContentEntity` with non-null `githubBaseUrl` and `githubDir`,
+     * applies module-scope filtering, then walks the matching local
      * `.repo/` subtree and uploads the Sandpack file map as plain JSON to
      * `repo/{repoName}/{githubDir}.json` (read by the FE with a raw JSON.parse).
      */
@@ -156,7 +156,6 @@ export class RepoSynchronizerService {
             const content = await this.entityManager.findOne(ContentEntity,
                 {
                     where: {
-                        isSandbox: true,
                         githubBaseUrl: Not(IsNull()),
                         githubDir: Not(IsNull()),
                         ...(resumeEntityId ? {
