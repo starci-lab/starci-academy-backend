@@ -1,37 +1,36 @@
 ---
 version: 1
-project: starci-academy
+project: nivo
 role: be
 approvedBy: Cuong (owner)
 approvedOn: 2026-08-20
 expiresOn: 2026-11-18
-reason: Temporary maturity debt for backend project coverage and unavailable exact-SHA Sonar authority.
-scopes: source:project-coverage, assurance:sonar, route:head
+reason: Temporary backend project/patch coverage and Sonar authority debt; lint and E2E remain blocking.
+scopes: source:project-coverage, source:patch-coverage, assurance:sonar, route:head
 ---
 
-# StarCi Academy backend quality debt
+# Nivo backend quality debt
 
 ## Baseline
 
-- Project coverage measured at `7132af0e`: statements 44.10%, lines 45.01%, functions 28.26%, branches 46.97%.
-- Patch coverage is green: statements/lines/functions 100%, branches 91%.
-- Current debt-record revision: `56978b00c4e04585a8c594fdbcbae4eb240f9278`.
-- Sonar host is `https://sonar.starci.org`; authenticated exact-SHA proof is unavailable because the current project token returned HTTP 401.
-- Lint is 0/0 and backend E2E is 77 suites / 303 tests passing.
+- Revision `1c7c2515f6844064f55b492dafe7b96f2cecb08d`.
+- Project coverage: statements 46.17%, lines 47.57%, functions 37.13%, branches 39.71%.
+- No current four-metric patch artifact was retained for the backend coverage batches.
+- Sonar exact-SHA strict evidence is unavailable at `https://sonar.starci.org`.
+- Lint is 0/0; full E2E is 56 suites / 358 tests, zero skip/todo, exit 0.
 
 ## Why this debt is accepted
 
-The backend source surface contains tens of thousands of uncovered statements and functions. The repair
-raised coverage and made patch coverage strict, but completing project maturity is a multi-batch backlog.
-This debt does not lower repository thresholds or relabel the measured figures as green.
+Coverage improved across many high-yield owner families, but the remaining source surface is still large.
+The debt keeps the exact measured gap visible and does not weaken lint or E2E.
 
 ## Exit criteria
 
-- Statements, lines and functions reach at least 80%; branches reach at least 75%.
-- Exact-current-SHA Sonar strict profile returns quality gate OK with the required zero issues, A ratings,
-  hotspot review, duplication and native coverage conditions.
+- Project statements, lines and functions reach 80%; branches reach 75%.
+- Patch statements, lines, functions and branches reach 90%.
+- Exact-SHA strict Sonar profile passes.
 - Refresh the routed workspace head to the accepted repair revision.
 
 ## Progress
 
-- 2026-08-20: debt opened by owner after zero-lint, patch coverage and full E2E repair.
+- 2026-08-20: debt opened after broad coverage repair and repository-wide E2E isolation reached green.
