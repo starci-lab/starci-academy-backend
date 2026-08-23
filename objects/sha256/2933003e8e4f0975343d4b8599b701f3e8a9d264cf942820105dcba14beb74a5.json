@@ -1,0 +1,761 @@
+{
+  "schemaVersion": 2,
+  "authority": {
+    "status": "in-progress",
+    "basis": "owner-intent",
+    "requiredRoles": [
+      "fe",
+      "be"
+    ],
+    "baseHead": "8e135726133a9292d4d5518d334a3f35b0e67a5d39293eb80990fabcf6a689cd",
+    "previousHead": "1e969a6b13d82fc95fecac538cb2a8f39be50c855996ba48b2af7ff40cfdbf9b"
+  },
+  "project": "starci-academy",
+  "featureId": "practice-assessment",
+  "title": "Practice and assessment",
+  "summary": "Learners choose coding domains and problems, submit code for asynchronous judging, launch guided playgrounds, and complete server-drawn mock interview sessions with results.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "b78f77ec44905abd1619ac95ac50bfad744c7e96"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Coding practice hub, domain and problem routes",
+      "Asynchronous coding submissions",
+      "Course playground catalog, setup and session",
+      "Mock interview setup, session and result"
+    ],
+    "excludes": [
+      "Embedded lesson challenge submissions",
+      "Personal project milestone review"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Learner",
+      "capabilities": [
+        "Choose a coding domain",
+        "Solve and submit coding problems",
+        "Run course playground sessions",
+        "Start and complete mock interviews"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "platform",
+      "label": "StarCi Academy platform",
+      "capabilities": [
+        "Queue coding solutions for judging",
+        "Draw and persist mock interview sessions"
+      ],
+      "evidenceIds": [
+        "EV-009",
+        "EV-010"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "practice-assessment-journey",
+      "title": "Practice and assessment",
+      "trigger": "A learner opens practice or a course assessment route.",
+      "steps": [
+        {
+          "id": "choose-practice",
+          "actor": "learner",
+          "action": "Choose a coding domain, playground or mock interview",
+          "result": "The selected setup surface opens",
+          "surfaceId": "practice-hub",
+          "stateId": "assessment-ready"
+        },
+        {
+          "id": "submit-solution",
+          "actor": "learner",
+          "action": "Submit source code for a problem",
+          "result": "A submission and judging job are returned",
+          "surfaceId": "coding-problem",
+          "stateId": "assessment-pending"
+        },
+        {
+          "id": "start-interview",
+          "actor": "learner",
+          "action": "Choose course, level and interview kind",
+          "result": "The server draws and persists an interview session",
+          "surfaceId": "mock-interview-setup",
+          "stateId": "assessment-pending"
+        }
+      ],
+      "outcomes": [
+        "The learner receives a judging job or a persisted mock interview session and result path"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009",
+        "EV-010"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "The coding hub distinguishes guest and signed-in access, independently settling domain mastery, resume work and ranking.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Coding submissions require authentication and return both submission and asynchronous job identities.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-009"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Mock interview session selection is performed on the server from course, level and kind and the session is persisted.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-010"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "assessment-ready",
+      "label": "Assessment ready",
+      "kind": "initial",
+      "transitions": [
+        "assessment-pending",
+        "assessment-error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "assessment-pending",
+      "label": "Assessment pending",
+      "kind": "pending",
+      "transitions": [
+        "assessment-complete",
+        "assessment-error"
+      ],
+      "evidenceIds": [
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "assessment-complete",
+      "label": "Assessment complete",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-008",
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "assessment-error",
+      "label": "Assessment failed",
+      "kind": "error",
+      "transitions": [
+        "assessment-ready"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-009",
+        "EV-010"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "coding-problem",
+      "label": "Coding problem",
+      "fields": [
+        "slug",
+        "domain",
+        "statement",
+        "language",
+        "source code",
+        "test cases"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "coding-submission",
+      "label": "Coding submission",
+      "fields": [
+        "submission id",
+        "job id",
+        "verdict"
+      ],
+      "evidenceIds": [
+        "EV-009"
+      ]
+    },
+    {
+      "id": "mock-interview-session",
+      "label": "Mock interview session",
+      "fields": [
+        "course",
+        "level",
+        "kind",
+        "session id",
+        "turns",
+        "result"
+      ],
+      "evidenceIds": [
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-010"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "submit-coding-solution",
+      "kind": "mutation",
+      "name": "submitCodingSolution",
+      "owner": "backend",
+      "inputs": [
+        "problem slug",
+        "language",
+        "source code"
+      ],
+      "outputs": [
+        "submission id",
+        "job id"
+      ],
+      "failures": [
+        "authentication rejected",
+        "problem or language rejected",
+        "judge queue failed"
+      ],
+      "evidenceIds": [
+        "EV-009"
+      ]
+    },
+    {
+      "id": "start-mock-interview",
+      "kind": "mutation",
+      "name": "startMockInterviewSession",
+      "owner": "backend",
+      "inputs": [
+        "course",
+        "level",
+        "kind"
+      ],
+      "outputs": [
+        "persisted interview session"
+      ],
+      "failures": [
+        "authentication rejected",
+        "selection unavailable",
+        "session creation failed"
+      ],
+      "evidenceIds": [
+        "EV-010"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "practice-hub",
+      "routePattern": "/[lang]/practice{/[domain]}",
+      "title": "Coding practice",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Choose a coding topic, resume work and inspect standing.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "practice-choice",
+          "kind": "collection",
+          "title": "Practice topics",
+          "summary": "Domain mastery, optional resume item and ranked standing.",
+          "items": [
+            {
+              "id": "domain-grid",
+              "role": "entity",
+              "label": "Domains"
+            },
+            {
+              "id": "resume-problem",
+              "role": "status",
+              "label": "In-progress problem"
+            },
+            {
+              "id": "practice-standing",
+              "role": "fact",
+              "label": "Standing"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-domain",
+              "label": "Open domain",
+              "kind": "primary",
+              "target": "coding-domain"
+            },
+            {
+              "id": "resume-problem",
+              "label": "Resume",
+              "kind": "secondary",
+              "target": "coding-problem"
+            }
+          ],
+          "states": [
+            "guest",
+            "pending",
+            "ready",
+            "empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "coding-problem",
+      "routePattern": "/[lang]/practice/problem/[slug]",
+      "title": "Coding problem",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Read a problem, edit code and submit it for judging.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "problem-workspace",
+          "kind": "form",
+          "title": "Solve problem",
+          "summary": "Problem statement beside editor, judge status and console.",
+          "items": [
+            {
+              "id": "problem-statement",
+              "role": "text",
+              "label": "Problem statement"
+            },
+            {
+              "id": "language-choice",
+              "role": "choice",
+              "label": "Language"
+            },
+            {
+              "id": "source-editor",
+              "role": "field",
+              "label": "Source code"
+            },
+            {
+              "id": "judge-verdict",
+              "role": "status",
+              "label": "Judge verdict"
+            }
+          ],
+          "actions": [
+            {
+              "id": "run-code",
+              "label": "Run",
+              "kind": "secondary",
+              "target": "local-run"
+            },
+            {
+              "id": "submit-code",
+              "label": "Submit",
+              "kind": "primary",
+              "target": "submitCodingSolution"
+            }
+          ],
+          "states": [
+            "ready",
+            "pending",
+            "success",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-003",
+            "EV-009"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-003"
+      ]
+    },
+    {
+      "id": "playground-catalog",
+      "routePattern": "/[lang]/courses/[displayId]/learn/playground",
+      "title": "Course playgrounds",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Choose a guided live playground.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "playground-list",
+          "kind": "collection",
+          "title": "Playgrounds",
+          "summary": "Available guided playgrounds for the course.",
+          "items": [
+            {
+              "id": "playground-items",
+              "role": "entity",
+              "label": "Playgrounds"
+            }
+          ],
+          "actions": [
+            {
+              "id": "prepare-playground",
+              "label": "Open playground",
+              "kind": "primary",
+              "target": "playground-session"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "playground-session",
+      "routePattern": "/[lang]/courses/[displayId]/learn/playground/[slug]{/session}",
+      "title": "Playground session",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Prepare and run a guided live playground.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "playground-workspace",
+          "kind": "flow",
+          "title": "Live playground",
+          "summary": "Setup instructions and active session workspace.",
+          "items": [
+            {
+              "id": "playground-identity",
+              "role": "entity",
+              "label": "Playground"
+            },
+            {
+              "id": "playground-status",
+              "role": "status",
+              "label": "Session status"
+            }
+          ],
+          "actions": [
+            {
+              "id": "start-playground",
+              "label": "Start session",
+              "kind": "primary",
+              "target": "playground-session"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "success",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-005"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-005"
+      ]
+    },
+    {
+      "id": "mock-interview-setup",
+      "routePattern": "/[lang]/courses/[displayId]/learn/mock-interview",
+      "title": "Mock interview",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Choose interview parameters and start a session.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "interview-setup",
+          "kind": "form",
+          "title": "Prepare interview",
+          "summary": "Course interview level and kind selection.",
+          "items": [
+            {
+              "id": "interview-level",
+              "role": "choice",
+              "label": "Level"
+            },
+            {
+              "id": "interview-kind",
+              "role": "choice",
+              "label": "Interview kind"
+            }
+          ],
+          "actions": [
+            {
+              "id": "start-interview",
+              "label": "Start interview",
+              "kind": "primary",
+              "target": "startMockInterviewSession"
+            }
+          ],
+          "states": [
+            "ready",
+            "pending",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-006",
+            "EV-010"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "mock-interview-session",
+      "routePattern": "/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]{/result}",
+      "title": "Interview session and result",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Complete interview turns and inspect the assessed result.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "interview-run",
+          "kind": "flow",
+          "title": "Interview",
+          "summary": "Persisted prompts, learner turns and result.",
+          "items": [
+            {
+              "id": "interview-turns",
+              "role": "entity",
+              "label": "Interview turns"
+            },
+            {
+              "id": "interview-result",
+              "role": "status",
+              "label": "Assessment result"
+            }
+          ],
+          "actions": [
+            {
+              "id": "answer-interview",
+              "label": "Submit answer",
+              "kind": "primary",
+              "target": "interview-turn"
+            },
+            {
+              "id": "view-result",
+              "label": "View result",
+              "kind": "link",
+              "target": "interview-result"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "success",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-007",
+            "EV-008",
+            "EV-010"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Practice, coding problem, playground and mock interview route families mount their declared surfaces.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Submitting code returns submission and job identities for asynchronous judging.",
+      "evidenceIds": [
+        "EV-009"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Starting a mock interview server-draws and persists a session for the chosen course, level and kind.",
+      "evidenceIds": [
+        "EV-010"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "playground-persistence",
+      "question": "Which playground session state is durable across devices?",
+      "impact": "The routed surfaces prove setup and session entry, but the cited backend operations in this feature do not establish cross-device persistence semantics."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/practice/page.tsx",
+      "startLine": 1,
+      "endLine": 6,
+      "claim": "The practice route mounts CodingPracticeHubPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/pages/CodingPracticeHubPage/component.tsx",
+      "startLine": 40,
+      "endLine": 97,
+      "claim": "The coding hub exposes guest/signed-in access, domain mastery, resume work and ranked standing.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/app/[lang]/practice/problem/[slug]/page.tsx",
+      "startLine": 1,
+      "endLine": 15,
+      "claim": "The problem route mounts CodingProblemPage for a slug.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/playground/page.tsx",
+      "startLine": 1,
+      "endLine": 11,
+      "claim": "The course playground route mounts the playground catalog.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/playground/[slug]/session/page.tsx",
+      "startLine": 1,
+      "endLine": 11,
+      "claim": "The playground session route mounts the live session page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/mock-interview/page.tsx",
+      "startLine": 1,
+      "endLine": 11,
+      "claim": "The mock interview route mounts the setup page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-007",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The interview session route mounts the active session page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-008",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]/result/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The interview result route mounts the result page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-009",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/coding/submit-coding-solution/submit-coding-solution.resolver.ts",
+      "startLine": 70,
+      "endLine": 100,
+      "claim": "The authenticated submitCodingSolution mutation accepts problem slug, language and source and returns submission plus job ids.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/interview/start-mock-interview-session/start-mock-interview-session.resolver.ts",
+      "startLine": 70,
+      "endLine": 98,
+      "claim": "The guarded startMockInterviewSession mutation server-draws and persists a course, level and kind session.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-011",
+      "claim": "The owner authorized refreshing study-library and practice-assessment to current routed source heads before continuing the four-layout design set.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "2e6794d9a35c5acc029dee9eafc2978fa91dd9589da5f8ce3f6111cbfb465275"
+    }
+  ]
+}

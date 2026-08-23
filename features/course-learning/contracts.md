@@ -1,31 +1,31 @@
-# Contracts · Học nội dung và làm thử thách khóa học
+# Contracts · Course learning and discussion
 
-## Entity · Nội dung khóa học (`course-content`)
+## Entity · Lesson content (`lesson-content`)
 
-Fields: `id`, `displayId`, `title`, `description`, `body`, `isPremium`, `minutesRead`, `module`, `challenges`
+Fields: `course`, `module`, `content`, `body`, `faces`, `source`, `outline`, `next steps`
 
-Evidence: `EV-001`, `EV-002`, `EV-003`
+Evidence: `EV-002`, `EV-003`
 
-## Entity · Bài nộp thử thách (`challenge-submission`)
+## Entity · Lesson comment (`lesson-comment`)
 
-Fields: `challengeSubmissionId`, `githubUrl`, `selectedModel`, `lang`, `jobId`
+Fields: `content id`, `parent id`, `body`
 
-Evidence: `EV-001`, `EV-002`, `EV-003`
+Evidence: `EV-008`
 
-## Operation · content
+## Operation · markContentAsReaded
 
-- Kind/owner: `query` / `frontend`
-- Inputs: content request, bearer token
-- Outputs: localized content, module position, challenges
-- Failures: Not entitled, Not found, GraphQL error
-- Evidence: `EV-002`, `EV-003`
+- Kind/owner: `mutation` / `backend`
+- Inputs: content id, read flag
+- Outputs: updated learner content state
+- Failures: authentication rejected, course access rejected, content missing
+- Evidence: `EV-007`
 
-## Operation · submitChallengeSubmission
+## Operation · createComment
 
-- Kind/owner: `mutation` / `frontend`
-- Inputs: challengeSubmissionId, optional GitHub URL/model/lang
-- Outputs: jobId
-- Failures: Submission rejected, Grading job not queued
-- Evidence: `EV-002`, `EV-003`
+- Kind/owner: `mutation` / `backend`
+- Inputs: content id, optional parent comment, body
+- Outputs: created comment
+- Failures: authentication rejected, course access rejected, invalid parent or content
+- Evidence: `EV-008`
 
 No field, failure or operation may appear here without routed source evidence.

@@ -1,0 +1,697 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "progress-profile",
+  "title": "Progress, profile and league",
+  "summary": "Authenticated learners review their learning dashboard, quests, streak, goals, job readiness and community tabs; inspect public profile evidence; update profile settings; and compare weekly or global league standing.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Authenticated dashboard overview, explore, courses and community tabs",
+      "Daily quest and progress evidence",
+      "Public profile overview and related profile routes",
+      "Profile updates",
+      "Weekly/global league surface"
+    ],
+    "excludes": [
+      "Course-specific learning execution",
+      "Private administrative user management"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Learner",
+      "capabilities": [
+        "Review personal learning progress",
+        "Claim completed daily quest rewards",
+        "Inspect public profile evidence",
+        "Update editable profile fields",
+        "Compare league standing"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "platform",
+      "label": "StarCi Academy platform",
+      "capabilities": [
+        "Persist partial profile updates",
+        "Grant one completed daily quest reward",
+        "Return weekly league standing"
+      ],
+      "evidenceIds": [
+        "EV-007",
+        "EV-008",
+        "EV-009"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "progress-profile-journey",
+      "title": "Progress, profile and league",
+      "trigger": "An authenticated learner opens the dashboard or a profile/league route.",
+      "steps": [
+        {
+          "id": "review-dashboard",
+          "actor": "learner",
+          "action": "Open dashboard overview or another dashboard tab",
+          "result": "Identity, learning, quest, streak, goals and community regions settle independently",
+          "surfaceId": "learning-dashboard",
+          "stateId": "progress-ready"
+        },
+        {
+          "id": "claim-quest",
+          "actor": "learner",
+          "action": "Claim a completed daily quest",
+          "result": "Points are granted once for the day",
+          "surfaceId": "learning-dashboard",
+          "stateId": "progress-pending"
+        },
+        {
+          "id": "inspect-profile",
+          "actor": "learner",
+          "action": "Open a public profile or evidence subroute",
+          "result": "Public learning, project, challenge and skill evidence is displayed",
+          "surfaceId": "public-profile",
+          "stateId": "progress-ready"
+        },
+        {
+          "id": "view-league",
+          "actor": "learner",
+          "action": "Choose weekly or global standing",
+          "result": "Podium, viewer standing and ranked rows are displayed",
+          "surfaceId": "league-standing",
+          "stateId": "progress-ready"
+        }
+      ],
+      "outcomes": [
+        "The learner can understand current progress, public evidence and comparative standing"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "The dashboard is authenticated and keeps overview blocks independently settling rather than treating the whole page as one request.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Profile updates are partial: omitted keys remain unchanged, explicit null clears nullable fields, strings are trimmed where declared, and the refreshed row is returned.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-007"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "A daily quest reward can be claimed only after completion and only once per day in one atomic grant.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-008"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "The league surface supports weekly and global scopes and preserves the viewer's own standing alongside ranked identities.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-005",
+        "EV-006",
+        "EV-009"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "progress-ready",
+      "label": "Progress surface ready",
+      "kind": "initial",
+      "transitions": [
+        "progress-pending",
+        "progress-empty",
+        "progress-error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "progress-pending",
+      "label": "Progress action pending",
+      "kind": "pending",
+      "transitions": [
+        "progress-ready",
+        "progress-error"
+      ],
+      "evidenceIds": [
+        "EV-007",
+        "EV-008",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "progress-empty",
+      "label": "No public or league evidence",
+      "kind": "empty",
+      "transitions": [
+        "progress-ready"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "progress-error",
+      "label": "Progress request failed",
+      "kind": "error",
+      "transitions": [
+        "progress-ready"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-006"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "learner-profile",
+      "label": "Learner profile",
+      "fields": [
+        "display name",
+        "bio",
+        "avatar",
+        "role title",
+        "location",
+        "visibility",
+        "work preferences",
+        "links",
+        "branding"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "dashboard-progress",
+      "label": "Dashboard progress",
+      "fields": [
+        "courses",
+        "daily quest",
+        "streak",
+        "weekly goals",
+        "job readiness",
+        "weekly challenge",
+        "contributions"
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "league-standing",
+      "label": "League standing",
+      "fields": [
+        "scope",
+        "tier",
+        "rank",
+        "cohort",
+        "points",
+        "podium"
+      ],
+      "evidenceIds": [
+        "EV-005",
+        "EV-006",
+        "EV-009"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "update-profile",
+      "kind": "mutation",
+      "name": "updateProfile",
+      "owner": "backend",
+      "inputs": [
+        "partial identity, preference and branding patch"
+      ],
+      "outputs": [
+        "refreshed user"
+      ],
+      "failures": [
+        "authentication rejected",
+        "field validation rejected",
+        "persistence failed"
+      ],
+      "evidenceIds": [
+        "EV-007"
+      ]
+    },
+    {
+      "id": "claim-daily-quest",
+      "kind": "mutation",
+      "name": "claimDailyQuestReward",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "granted points and completion"
+      ],
+      "failures": [
+        "authentication rejected",
+        "quest incomplete",
+        "already claimed today"
+      ],
+      "evidenceIds": [
+        "EV-008"
+      ]
+    },
+    {
+      "id": "my-league",
+      "kind": "query",
+      "name": "myLeague",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "weekly tier and ranked cohort"
+      ],
+      "failures": [
+        "authentication rejected",
+        "league unavailable"
+      ],
+      "evidenceIds": [
+        "EV-009"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "learning-dashboard",
+      "routePattern": "/[lang]/dashboard{?tab=overview|explore|courses|community}",
+      "title": "Learning dashboard",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Summarize identity, learning momentum and available destinations.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "dashboard-rail",
+          "kind": "summary",
+          "title": "Learner identity and shortcuts",
+          "summary": "Standing identity above quick actions.",
+          "items": [
+            {
+              "id": "identity-stats",
+              "role": "fact",
+              "label": "Identity statistics"
+            },
+            {
+              "id": "quick-actions",
+              "role": "shortcut",
+              "label": "Quick actions"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "ready"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        },
+        {
+          "id": "dashboard-main",
+          "kind": "content",
+          "title": "Progress overview",
+          "summary": "Continue learning, daily quest, streak, weekly goals, job readiness, weekly challenge, contributions and changelog; or explore/courses/community tab content.",
+          "items": [
+            {
+              "id": "continue-learning",
+              "role": "status",
+              "label": "Continue learning"
+            },
+            {
+              "id": "daily-quest",
+              "role": "status",
+              "label": "Daily quest"
+            },
+            {
+              "id": "streak",
+              "role": "fact",
+              "label": "Streak"
+            },
+            {
+              "id": "weekly-goals",
+              "role": "status",
+              "label": "Weekly goals"
+            },
+            {
+              "id": "job-readiness",
+              "role": "status",
+              "label": "Job readiness"
+            },
+            {
+              "id": "community-tab",
+              "role": "navigation",
+              "label": "Community"
+            }
+          ],
+          "actions": [
+            {
+              "id": "claim-quest",
+              "label": "Claim reward",
+              "kind": "primary",
+              "target": "claimDailyQuestReward"
+            },
+            {
+              "id": "change-tab",
+              "label": "Change tab",
+              "kind": "secondary",
+              "target": "dashboard-tab"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-002",
+            "EV-008"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "public-profile",
+      "routePattern": "/[lang]/profile/[username]{/activity|/cv|/projects|/challenges|/skills}",
+      "title": "Public learner profile",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Present job readiness, courses, contributions, project, challenge and skill evidence.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "profile-evidence",
+          "kind": "content",
+          "title": "Profile evidence",
+          "summary": "Five overview owners plus dedicated activity, CV, project, challenge and skill routes.",
+          "items": [
+            {
+              "id": "profile-identity",
+              "role": "entity",
+              "label": "Learner identity"
+            },
+            {
+              "id": "job-readiness",
+              "role": "status",
+              "label": "Job readiness"
+            },
+            {
+              "id": "course-evidence",
+              "role": "entity",
+              "label": "Courses"
+            },
+            {
+              "id": "project-evidence",
+              "role": "entity",
+              "label": "Projects"
+            },
+            {
+              "id": "skill-evidence",
+              "role": "entity",
+              "label": "Skills"
+            }
+          ],
+          "actions": [
+            {
+              "id": "edit-profile",
+              "label": "Edit profile",
+              "kind": "secondary",
+              "target": "updateProfile"
+            },
+            {
+              "id": "open-evidence",
+              "label": "Open evidence",
+              "kind": "link",
+              "target": "profile-subroute"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-003",
+            "EV-004",
+            "EV-007"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "league-standing",
+      "routePattern": "/[lang]/league",
+      "title": "League",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Compare weekly or global standing and identify the viewer's position.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "ranked-cohort",
+          "kind": "collection",
+          "title": "League standing",
+          "summary": "Scope tabs, standing hero, podium and ranked user list with the viewer row preserved.",
+          "items": [
+            {
+              "id": "league-scope",
+              "role": "choice",
+              "label": "Weekly or global"
+            },
+            {
+              "id": "viewer-standing",
+              "role": "status",
+              "label": "Your standing"
+            },
+            {
+              "id": "podium",
+              "role": "entity",
+              "label": "Podium"
+            },
+            {
+              "id": "ranked-users",
+              "role": "entity",
+              "label": "Ranked learners"
+            }
+          ],
+          "actions": [
+            {
+              "id": "select-scope",
+              "label": "Change scope",
+              "kind": "secondary",
+              "target": "league-scope"
+            },
+            {
+              "id": "climb-league",
+              "label": "Keep learning",
+              "kind": "primary",
+              "target": "learning-dashboard"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-005",
+            "EV-006",
+            "EV-009"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Dashboard, public profile and league routes mount their declared progress surfaces.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Profile updates persist only submitted fields and return a refreshed user row.",
+      "evidenceIds": [
+        "EV-007"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Daily quest claim grants the completed reward once per day or returns the typed incomplete/already-claimed failure.",
+      "evidenceIds": [
+        "EV-008"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "myLeague returns the authenticated viewer's weekly tier and ranked cohort.",
+      "evidenceIds": [
+        "EV-009"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "global-league-contract",
+      "question": "Does the global league tab use the same myLeague response or a separate query?",
+      "impact": "The UI proves a global selection, while the cited backend query explicitly guarantees the viewer's weekly league only."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/dashboard/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The dashboard route mounts DashboardPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/pages/DashboardPage/component.tsx",
+      "startLine": 19,
+      "endLine": 100,
+      "claim": "The authenticated dashboard composes identity/quick actions and overview, explore, courses or community main content with independently settling blocks.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/app/[lang]/profile/[username]/page.tsx",
+      "startLine": 1,
+      "endLine": 5,
+      "claim": "The dynamic username route mounts the public profile overview.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/pages/ProfileOverviewPage/component.tsx",
+      "startLine": 9,
+      "endLine": 29,
+      "claim": "The public overview composes job readiness, courses, contributions, challenge skills and coding skills.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/[lang]/league/page.tsx",
+      "startLine": 1,
+      "endLine": 6,
+      "claim": "The league route mounts the full leaderboard.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/components/pages/LeaguePage/component.tsx",
+      "startLine": 21,
+      "endLine": 63,
+      "claim": "The league surface defines weekly/global scope, viewer standing, podium, ranked rows and empty/error recovery.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/profile/update-profile/update-profile.resolver.ts",
+      "startLine": 48,
+      "endLine": 123,
+      "claim": "The authenticated updateProfile mutation performs partial updates and returns the refreshed user.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/profile/claim-daily-quest-reward/claim-daily-quest-reward.resolver.ts",
+      "startLine": 39,
+      "endLine": 70,
+      "claim": "The authenticated claimDailyQuestReward mutation delegates atomic completion, duplicate-claim and reward granting rules.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-009",
+      "role": "be",
+      "path": "src/features/api/core/graphql/queries/league/my-league/my-league.resolver.ts",
+      "startLine": 55,
+      "endLine": 85,
+      "claim": "The authenticated myLeague query returns the viewer's weekly tier and ranked cohort.",
+      "kind": "api"
+    }
+  ]
+}

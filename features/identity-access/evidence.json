@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "identity-access",
+  "head": "e3918841ef3923a36bd3b155691689032bd27b1d9645b56c617584d97f42e887",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "6db677598290cd69c3db6bfc4e731c37ba972b63"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/authentication/page.tsx",
+      "startLine": 1,
+      "endLine": 8,
+      "claim": "The localized authentication route mounts AuthenticationPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/pages/AuthenticationPage/component.tsx",
+      "startLine": 6,
+      "endLine": 39,
+      "claim": "The authentication page renders one centred form-card panel and reports successful session establishment through signedIn.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/keycloak/sign-in/init/sign-in-init.resolver.ts",
+      "startLine": 53,
+      "endLine": 115,
+      "claim": "signInInit is captcha-guarded and strictly throttled, returns a challenge when required, or attaches cookies and starts the server session for a direct-session result.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/keycloak/sign-in/init/sign-in-init.handler.spec.ts",
+      "startLine": 168,
+      "endLine": 253,
+      "claim": "The handler verifies credentials, creates and mails an OTP challenge with expiry, while the explicitly enabled local test account can return a direct session.",
+      "kind": "test"
+    }
+  ]
+}

@@ -1,0 +1,409 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "identity-access",
+  "title": "Identity and access",
+  "summary": "Learners enter the localized authentication route, submit credentials, complete the server-selected verification path, and receive an application session before protected learning surfaces become available.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "6db677598290cd69c3db6bfc4e731c37ba972b63"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Authentication route and centred authentication panel",
+      "Credential sign-in initiation",
+      "OTP challenge or explicitly enabled local-test direct session",
+      "Session cookie, CSRF cookie and server session establishment"
+    ],
+    "excludes": [
+      "Provider account linking and two-factor settings outside the mounted authentication journey",
+      "Any identity behavior not exercised by the current route or cited mutation"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Learner",
+      "capabilities": [
+        "Open the authentication route",
+        "Submit username and password",
+        "Complete the verification path returned by the server"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "identity-service",
+      "label": "Identity service",
+      "capabilities": [
+        "Verify credentials",
+        "Issue an OTP challenge",
+        "Establish the authenticated session after successful verification"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "sign-in",
+      "title": "Sign in",
+      "trigger": "A learner opens the authentication route and submits credentials.",
+      "steps": [
+        {
+          "id": "open-authentication",
+          "actor": "learner",
+          "action": "Open the localized authentication route",
+          "result": "The centred authentication panel is displayed",
+          "surfaceId": "authentication-center",
+          "stateId": "credentials-ready"
+        },
+        {
+          "id": "submit-credentials",
+          "actor": "learner",
+          "action": "Submit username and password",
+          "result": "The server verifies credentials under captcha and strict throttling",
+          "surfaceId": "authentication-center",
+          "stateId": "verification-pending"
+        },
+        {
+          "id": "select-verification",
+          "actor": "identity-service",
+          "action": "Return an OTP challenge or the explicitly enabled local-test session path",
+          "result": "The learner receives a challenge handle or an established session",
+          "surfaceId": "authentication-center",
+          "stateId": "session-established"
+        }
+      ],
+      "outcomes": [
+        "A valid learner receives an authenticated application session",
+        "An ordinary production sign-in continues through an OTP challenge"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Credential sign-in initiation is protected by captcha and strict throttling before the mutation executes.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "The ordinary sign-in path verifies the password, creates an OTP challenge, queues the OTP email and returns the challenge id plus expiry.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "A direct local-test session is permitted only for the explicitly configured test account outside production; successful direct completion attaches refresh and CSRF cookies and starts the server session.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "credentials-ready",
+      "label": "Credentials ready",
+      "kind": "initial",
+      "transitions": [
+        "verification-pending"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "verification-pending",
+      "label": "Verification pending",
+      "kind": "pending",
+      "transitions": [
+        "otp-required",
+        "session-established",
+        "authentication-error"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "otp-required",
+      "label": "OTP required",
+      "kind": "partial",
+      "transitions": [
+        "session-established",
+        "authentication-error"
+      ],
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "session-established",
+      "label": "Session established",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "authentication-error",
+      "label": "Authentication failed",
+      "kind": "error",
+      "transitions": [
+        "credentials-ready"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "sign-in-request",
+      "label": "Sign-in request",
+      "fields": [
+        "email",
+        "password"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "otp-challenge",
+      "label": "OTP challenge",
+      "fields": [
+        "challengeId",
+        "expiresInSeconds"
+      ],
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "application-session",
+      "label": "Application session",
+      "fields": [
+        "accessToken",
+        "refreshToken cookie",
+        "CSRF cookie"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "sign-in-init",
+      "kind": "mutation",
+      "name": "signInInit",
+      "owner": "backend",
+      "inputs": [
+        "email",
+        "password"
+      ],
+      "outputs": [
+        "challengeId and expiresInSeconds",
+        "or accessToken-backed application session"
+      ],
+      "failures": [
+        "captcha rejected",
+        "strict throttle rejected",
+        "credentials rejected",
+        "OTP or mail hand-off failed"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "authentication-center",
+      "routePattern": "/[lang]/authentication",
+      "title": "Authentication",
+      "eyebrow": "Account access",
+      "purpose": "Collect sign-in credentials and guide the learner through the server-selected verification step until a session is established.",
+      "navigation": [
+        {
+          "id": "authentication-nav",
+          "label": "Authentication",
+          "group": "Account",
+          "availability": "active"
+        },
+        {
+          "id": "dashboard-nav",
+          "label": "Dashboard after sign-in",
+          "group": "Learning",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "credential-panel",
+          "kind": "form",
+          "title": "Sign in",
+          "summary": "A single centred form card owns credential entry and completion feedback.",
+          "items": [
+            {
+              "id": "email-field",
+              "role": "field",
+              "label": "Email"
+            },
+            {
+              "id": "password-field",
+              "role": "field",
+              "label": "Password"
+            },
+            {
+              "id": "verification-status",
+              "role": "status",
+              "label": "Verification status",
+              "status": "credentials ready, pending, OTP required, established or failed"
+            }
+          ],
+          "actions": [
+            {
+              "id": "submit-sign-in",
+              "label": "Continue",
+              "kind": "primary",
+              "target": "signInInit"
+            },
+            {
+              "id": "retry-sign-in",
+              "label": "Try again",
+              "kind": "secondary",
+              "target": "credential-panel"
+            }
+          ],
+          "states": [
+            "credentials-ready",
+            "verification-pending",
+            "otp-required",
+            "session-established",
+            "authentication-error"
+          ],
+          "evidenceIds": [
+            "EV-002",
+            "EV-003",
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Opening /[lang]/authentication mounts exactly the AuthenticationPage and its centred authentication panel.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Valid ordinary credentials produce an OTP challenge whose id and expiry are returned after the email is queued.",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "When the mutation returns the direct-session result, refresh and CSRF cookies are issued and the application session starts before the response returns.",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "post-sign-in-destination",
+      "question": "Which exact route should each authentication entry context open after session establishment?",
+      "impact": "The page exposes a signed-in callback, but the cited route and mutation do not establish one universal redirect target, so prototypes must show completion without inventing a destination."
+    },
+    {
+      "id": "shared-auth-panel-modes",
+      "question": "Which sign-up, forgot-password and provider-link modes are simultaneously available in this mounted panel?",
+      "impact": "Those operations exist elsewhere in source, but their complete composition is not proven by the evidence for this stable feature surface."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/authentication/page.tsx",
+      "startLine": 1,
+      "endLine": 8,
+      "claim": "The localized authentication route mounts AuthenticationPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/pages/AuthenticationPage/component.tsx",
+      "startLine": 6,
+      "endLine": 39,
+      "claim": "The authentication page renders one centred form-card panel and reports successful session establishment through signedIn.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/keycloak/sign-in/init/sign-in-init.resolver.ts",
+      "startLine": 53,
+      "endLine": 115,
+      "claim": "signInInit is captcha-guarded and strictly throttled, returns a challenge when required, or attaches cookies and starts the server session for a direct-session result.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/keycloak/sign-in/init/sign-in-init.handler.spec.ts",
+      "startLine": 168,
+      "endLine": 253,
+      "claim": "The handler verifies credentials, creates and mails an OTP challenge with expiry, while the explicitly enabled local test account can return a direct session.",
+      "kind": "test"
+    }
+  ]
+}

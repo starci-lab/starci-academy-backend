@@ -1,11 +1,11 @@
-# Acceptance · Học nội dung và làm thử thách khóa học
+# Acceptance · Course learning and discussion
 
 | ID | Observable result | Evidence/test |
 |---|---|---|
-| `AC-01` | Route Today phải nhận displayId và có pending/ready/empty/failed. | `EV-001` |
-| `AC-02` | Reader phải phân biệt content thật với body bị giới hạn premium. | `EV-001`, `EV-002` |
-| `AC-03` | Nộp thành công phải trả jobId, không giả lập kết quả đồng bộ. | `EV-001`, `EV-003` |
-| `AC-04` | Q&A phải có trạng thái empty và failed trung thực. | `EV-001` |
+| `AC-01` | Course home, content map, lesson, embedded challenge/result and course Q&A routes mount the declared learning surfaces. | `EV-001`, `EV-002`, `EV-004`, `EV-005`, `EV-006`, `EV-009`, `EV-010` |
+| `AC-02` | Authenticated learners can persist lesson read state and create top-level comments or replies on content. | `EV-007`, `EV-008` |
+| `AC-03` | The lesson workspace reuses existing nested layouts and presents the course map, centered reader, optional outline and current overlays as one composed full viewport without redesigning existing shell regions. | `EV-011` |
+| `AC-04` | SCHEMA V2 lessons render every authored programming-language tab, resolve the routed locale with default-body fallback, and rebuild the on-page outline from the selected article. | `EV-012`, `EV-013` |
 
 ## Completion
 

@@ -1,15 +1,22 @@
-# Business rules · Khám phá và mua khóa học
+# Business rules · Course marketplace and checkout
 
 ## BR-01
 
-Danh mục tách khóa đã sở hữu khỏi danh sách khám phá và hỗ trợ tìm kiếm, phân trang cùng chế độ grid/line.
+The catalog distinguishes pending, empty, filtered-empty, failed and populated states, and supports search, view and pagination controls.
 
 - Strength: `confirmed`
-- Evidence: `EV-002`
+- Evidence: `EV-004`
 
 ## BR-02
 
-Checkout không tự ghi danh; người mua chỉ được chuyển tới checkoutUrl và phải chờ webhook xác nhận.
+The cart is viewer-owned, hides totals and checkout actions when empty or unreadable, and requires confirmation before clearing all lines.
 
-- Strength: `partial`
-- Evidence: `EV-003`
+- Strength: `confirmed`
+- Evidence: `EV-003`, `EV-006`
+
+## BR-03
+
+Checkout requires authentication and creates one order with one line per submitted course.
+
+- Strength: `confirmed`
+- Evidence: `EV-007`

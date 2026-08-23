@@ -1,0 +1,541 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "course-marketplace",
+  "title": "Course marketplace and checkout",
+  "summary": "Visitors discover localized courses, inspect curriculum and pricing evidence, collect courses in a personal cart, and start one authenticated checkout for the selected course set.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Course catalog search, view and pagination",
+      "Course detail overview, curriculum, reviews, FAQ and pricing rail",
+      "Personal cart lines, totals, empty/error handling and checkout"
+    ],
+    "excludes": [
+      "Payment-provider webhook settlement after checkout leaves the application",
+      "Administrative course authoring"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Learner",
+      "capabilities": [
+        "Browse and search courses",
+        "Inspect a course",
+        "Manage a personal cart",
+        "Start checkout"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "platform",
+      "label": "StarCi Academy platform",
+      "capabilities": [
+        "Return catalog and detail data",
+        "Price a cart",
+        "Create an order with one line per course"
+      ],
+      "evidenceIds": [
+        "EV-007"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "course-marketplace-journey",
+      "title": "Course marketplace and checkout",
+      "trigger": "A visitor opens the course catalog.",
+      "steps": [
+        {
+          "id": "browse-courses",
+          "actor": "learner",
+          "action": "Search, page or change the catalog view",
+          "result": "A course set is displayed",
+          "surfaceId": "course-catalog",
+          "stateId": "marketplace-ready"
+        },
+        {
+          "id": "inspect-course",
+          "actor": "learner",
+          "action": "Open a course and review its curriculum, prerequisites, reviews, FAQ and offer",
+          "result": "The course decision surface is displayed",
+          "surfaceId": "course-detail",
+          "stateId": "marketplace-ready"
+        },
+        {
+          "id": "checkout-cart",
+          "actor": "learner",
+          "action": "Proceed with the selected cart lines",
+          "result": "The backend starts one checkout order for the selected courses",
+          "surfaceId": "shopping-cart",
+          "stateId": "checkout-pending"
+        }
+      ],
+      "outcomes": [
+        "The learner receives a checkout result for the selected course set"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "The catalog distinguishes pending, empty, filtered-empty, failed and populated states, and supports search, view and pagination controls.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "The cart is viewer-owned, hides totals and checkout actions when empty or unreadable, and requires confirmation before clearing all lines.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-003",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Checkout requires authentication and creates one order with one line per submitted course.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-007"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "marketplace-ready",
+      "label": "Marketplace ready",
+      "kind": "initial",
+      "transitions": [
+        "checkout-pending"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "checkout-pending",
+      "label": "Checkout pending",
+      "kind": "pending",
+      "transitions": [
+        "checkout-started",
+        "marketplace-error"
+      ],
+      "evidenceIds": [
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "checkout-started",
+      "label": "Checkout started",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-007"
+      ]
+    },
+    {
+      "id": "marketplace-error",
+      "label": "Marketplace or checkout failed",
+      "kind": "error",
+      "transitions": [
+        "marketplace-ready"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "course",
+      "label": "Course",
+      "fields": [
+        "displayId",
+        "title",
+        "tagline",
+        "modules",
+        "prerequisites",
+        "reviews",
+        "offer"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "cart",
+      "label": "Cart",
+      "fields": [
+        "course lines",
+        "subtotal",
+        "savings",
+        "total"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "checkout-request",
+      "label": "Checkout request",
+      "fields": [
+        "course ids",
+        "payment type",
+        "redirect URLs"
+      ],
+      "evidenceIds": [
+        "EV-007"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "courses-checkout",
+      "kind": "mutation",
+      "name": "coursesCheckout",
+      "owner": "backend",
+      "inputs": [
+        "course ids",
+        "payment type",
+        "redirect URLs"
+      ],
+      "outputs": [
+        "order and provider checkout data"
+      ],
+      "failures": [
+        "authentication rejected",
+        "pricing rejected",
+        "checkout provider failed"
+      ],
+      "evidenceIds": [
+        "EV-007"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "course-catalog",
+      "routePattern": "/[lang]/courses",
+      "title": "Course catalog",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Find and compare courses.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "catalog-results",
+          "kind": "collection",
+          "title": "Discover courses",
+          "summary": "Searchable and pageable course cards with grid or line view.",
+          "items": [
+            {
+              "id": "catalog-search",
+              "role": "field",
+              "label": "Search courses"
+            },
+            {
+              "id": "catalog-count",
+              "role": "fact",
+              "label": "Result count"
+            },
+            {
+              "id": "catalog-view",
+              "role": "choice",
+              "label": "Grid or list view"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-course",
+              "label": "Open course",
+              "kind": "primary",
+              "target": "course-detail"
+            },
+            {
+              "id": "retry-catalog",
+              "label": "Try again",
+              "kind": "secondary",
+              "target": "course-catalog"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "filtered-empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "course-detail",
+      "routePattern": "/[lang]/courses/[displayId]",
+      "title": "Course detail",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Evaluate a course before enrollment.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-decision",
+          "kind": "content",
+          "title": "Course overview",
+          "summary": "Course identity, stats, value propositions, curriculum, prerequisites, reviews, FAQ and pricing rail.",
+          "items": [
+            {
+              "id": "course-title",
+              "role": "entity",
+              "label": "Course title"
+            },
+            {
+              "id": "course-tabs",
+              "role": "navigation",
+              "label": "Overview, curriculum, reviews and FAQ"
+            },
+            {
+              "id": "course-price",
+              "role": "fact",
+              "label": "Current offer"
+            }
+          ],
+          "actions": [
+            {
+              "id": "start-trial",
+              "label": "Start trial",
+              "kind": "secondary",
+              "target": "trial"
+            },
+            {
+              "id": "add-course",
+              "label": "Add to cart",
+              "kind": "primary",
+              "target": "shopping-cart"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "not-found",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-002",
+            "EV-005"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "shopping-cart",
+      "routePattern": "/[lang]/cart",
+      "title": "Shopping cart",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Review selected courses and totals before checkout.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "cart-lines-and-summary",
+          "kind": "collection",
+          "title": "Your cart",
+          "summary": "Course lines and independently settling pricing summary.",
+          "items": [
+            {
+              "id": "cart-lines",
+              "role": "entity",
+              "label": "Selected courses"
+            },
+            {
+              "id": "cart-subtotal",
+              "role": "fact",
+              "label": "Subtotal"
+            },
+            {
+              "id": "cart-savings",
+              "role": "fact",
+              "label": "Savings"
+            },
+            {
+              "id": "cart-total",
+              "role": "fact",
+              "label": "Total"
+            }
+          ],
+          "actions": [
+            {
+              "id": "begin-checkout",
+              "label": "Checkout",
+              "kind": "primary",
+              "target": "coursesCheckout"
+            },
+            {
+              "id": "clear-cart",
+              "label": "Clear all",
+              "kind": "destructive",
+              "target": "confirm-clear"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed",
+            "pricing-failed"
+          ],
+          "evidenceIds": [
+            "EV-003",
+            "EV-006",
+            "EV-007"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-006"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Catalog, course detail and cart routes mount their corresponding page surfaces with the declared settled states.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Authenticated checkout accepts course ids, payment type and redirect URLs and starts one order containing a line for each course.",
+      "evidenceIds": [
+        "EV-007"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "provider-return-shape",
+      "question": "Which payment-provider result fields should a prototype expose after coursesCheckout?",
+      "impact": "The resolver confirms checkout ownership and inputs, but provider-specific return UI is not established by the cited marketplace surfaces."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/page.tsx",
+      "startLine": 24,
+      "endLine": 52,
+      "claim": "The localized public catalog publishes metadata and mounts CoursesCatalogPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/page.tsx",
+      "startLine": 24,
+      "endLine": 69,
+      "claim": "The dynamic course route mounts CourseDetailPage for displayId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/app/[lang]/cart/page.tsx",
+      "startLine": 1,
+      "endLine": 13,
+      "claim": "The force-dynamic viewer-owned cart route mounts CartPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/pages/CoursesCatalogPage/component.tsx",
+      "startLine": 44,
+      "endLine": 119,
+      "claim": "The catalog owns search, view, pagination, owned/discover groups and settled notice states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/components/pages/CourseDetailPage/component.tsx",
+      "startLine": 101,
+      "endLine": 202,
+      "claim": "The detail page exposes overview/curriculum/reviews/FAQ data, pricing rail actions and pending/not-found/failed states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/components/pages/CartPage/component.tsx",
+      "startLine": 39,
+      "endLine": 102,
+      "claim": "The cart defines lines, totals, checkout and confirm-clear actions plus pending/ready/empty/failed states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout.resolver.ts",
+      "startLine": 65,
+      "endLine": 95,
+      "claim": "The authenticated coursesCheckout mutation starts one checkout for course ids, payment type and redirect URLs.",
+      "kind": "api"
+    }
+  ]
+}

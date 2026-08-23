@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "study-library",
+  "head": "b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "e06ee0cb1a19e47ab3d66dd4b37de141e19f1343"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/flashcards/review/page.tsx",
+      "startLine": 1,
+      "endLine": 13,
+      "claim": "The flashcard review route mounts the review catalog for a course.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/blocks/learn/CourseFlashcardsReviewBlock/index.tsx",
+      "startLine": 128,
+      "endLine": 274,
+      "claim": "The review page exposes due/deck counts, statistics, start/resume actions and settled states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/foundations/page.tsx",
+      "startLine": 1,
+      "endLine": 11,
+      "claim": "The foundations route mounts the course foundation library.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/blocks/learn/CourseFoundationsBlock/index.tsx",
+      "startLine": 11,
+      "endLine": 21,
+      "claim": "The foundation library defines search, pagination, categories, enrollment recovery and pending/ready/empty/failed/partial states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/mind-map/page.tsx",
+      "startLine": 1,
+      "endLine": 11,
+      "claim": "The course mind-map route mounts CourseMindMapPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/flashcard/start-flashcard-review-session/start-flashcard-review-session.resolver.ts",
+      "startLine": 68,
+      "endLine": 93,
+      "claim": "The guarded mutation persists a resumable flashcard review session for a deck and card order.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/core/graphql/queries/foundations/foundations/foundations.resolver.ts",
+      "startLine": 45,
+      "endLine": 67,
+      "claim": "The foundations query lists paginated foundations for a category.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-008",
+      "claim": "The owner authorized refreshing study-library and practice-assessment to current routed source heads before continuing the four-layout design set.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "2e6794d9a35c5acc029dee9eafc2978fa91dd9589da5f8ce3f6111cbfb465275"
+    }
+  ]
+}

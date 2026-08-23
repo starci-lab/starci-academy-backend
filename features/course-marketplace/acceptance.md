@@ -1,10 +1,9 @@
-# Acceptance · Khám phá và mua khóa học
+# Acceptance · Course marketplace and checkout
 
 | ID | Observable result | Evidence/test |
 |---|---|---|
-| `AC-01` | Danh mục phải tách owned khỏi discover và phân biệt pending, empty, filtered-empty, failed. | `EV-001`, `EV-002` |
-| `AC-02` | Route chi tiết phải dùng displayId để resolve khóa học. | `EV-001` |
-| `AC-03` | Giỏ không được coi người chưa đăng nhập là giỏ trống và không được báo thành công trước webhook. | `EV-001`, `EV-003` |
+| `AC-01` | Catalog, course detail and cart routes mount their corresponding page surfaces with the declared settled states. | `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006` |
+| `AC-02` | Authenticated checkout accepts course ids, payment type and redirect URLs and starts one order containing a line for each course. | `EV-007` |
 
 ## Completion
 

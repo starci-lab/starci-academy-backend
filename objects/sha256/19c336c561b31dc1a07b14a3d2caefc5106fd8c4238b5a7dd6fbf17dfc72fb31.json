@@ -1,0 +1,606 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "study-library",
+  "title": "Study library",
+  "summary": "Learners use course flashcard review and quiz sessions, browse foundational reference materials, and inspect the course mind map as complementary study modes.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "84bf3be6565a20b1fee9c83cab8b9ba810d13e11"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "0066625ed94b10bf5b6892af775e45bdd6823558"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Flashcard review and quiz route families",
+      "Resumable review sessions and results",
+      "Foundation categories and resources",
+      "Course mind map"
+    ],
+    "excludes": [
+      "Standalone coding problems",
+      "Mock interview assessment"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Learner",
+      "capabilities": [
+        "Review due flashcards",
+        "Start or resume a deck session",
+        "Take a flashcard quiz",
+        "Browse foundation resources",
+        "Open the course mind map"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "platform",
+      "label": "StarCi Academy platform",
+      "capabilities": [
+        "Persist resumable flashcard sessions",
+        "List foundation resources"
+      ],
+      "evidenceIds": [
+        "EV-006",
+        "EV-007"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "study-library-journey",
+      "title": "Study library",
+      "trigger": "A learner opens a course study-tool route.",
+      "steps": [
+        {
+          "id": "choose-study-mode",
+          "actor": "learner",
+          "action": "Choose flashcards, foundations or mind map",
+          "result": "The selected study surface opens",
+          "surfaceId": "flashcard-library",
+          "stateId": "study-ready"
+        },
+        {
+          "id": "start-review",
+          "actor": "learner",
+          "action": "Start or resume a due/deck flashcard session",
+          "result": "A persisted ordered review session is returned",
+          "surfaceId": "flashcard-library",
+          "stateId": "study-pending"
+        },
+        {
+          "id": "browse-foundations",
+          "actor": "learner",
+          "action": "Search or page foundation categories and open a resource",
+          "result": "The selected reference content opens",
+          "surfaceId": "foundation-library",
+          "stateId": "study-ready"
+        }
+      ],
+      "outcomes": [
+        "The learner receives a resumable study session or reaches the selected reference material"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Flashcard review distinguishes due work, deck statistics, resume state and pending/ready/empty/failed outcomes.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Starting a flashcard review persists the chosen deck and card order as a resumable session.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Foundation browsing supports pagination and can settle as pending, ready, empty, failed or partial.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004",
+        "EV-007"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "study-ready",
+      "label": "Study mode ready",
+      "kind": "initial",
+      "transitions": [
+        "study-pending",
+        "study-empty",
+        "study-error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "study-pending",
+      "label": "Study session pending",
+      "kind": "pending",
+      "transitions": [
+        "study-ready",
+        "study-error"
+      ],
+      "evidenceIds": [
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "study-empty",
+      "label": "No study material",
+      "kind": "empty",
+      "transitions": [
+        "study-ready"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "study-error",
+      "label": "Study tool failed",
+      "kind": "error",
+      "transitions": [
+        "study-ready"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-004"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "flashcard-deck",
+      "label": "Flashcard deck",
+      "fields": [
+        "id",
+        "title",
+        "description",
+        "difficulty",
+        "card count",
+        "due count",
+        "mastered count"
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "flashcard-session",
+      "label": "Flashcard session",
+      "fields": [
+        "session id",
+        "deck id",
+        "ordered cards",
+        "progress",
+        "result"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "foundation-category",
+      "label": "Foundation category",
+      "fields": [
+        "id",
+        "title",
+        "description",
+        "thumbnail",
+        "resources"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004",
+        "EV-007"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "start-flashcard-review",
+      "kind": "mutation",
+      "name": "startFlashcardReviewSession",
+      "owner": "backend",
+      "inputs": [
+        "deck id",
+        "card order"
+      ],
+      "outputs": [
+        "resumable review session"
+      ],
+      "failures": [
+        "authentication rejected",
+        "deck unavailable",
+        "session creation failed"
+      ],
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "list-foundations",
+      "kind": "query",
+      "name": "foundations",
+      "owner": "backend",
+      "inputs": [
+        "category id",
+        "pagination"
+      ],
+      "outputs": [
+        "foundation page"
+      ],
+      "failures": [
+        "category missing",
+        "query failed"
+      ],
+      "evidenceIds": [
+        "EV-007"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "flashcard-library",
+      "routePattern": "/[lang]/courses/[displayId]/learn/flashcards/{review|quiz}",
+      "title": "Flashcards",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Choose review or quiz work and start or resume a session.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "flashcard-decks",
+          "kind": "collection",
+          "title": "Flashcard decks",
+          "summary": "Due work, study statistics and deck choices.",
+          "items": [
+            {
+              "id": "due-cards",
+              "role": "status",
+              "label": "Cards due"
+            },
+            {
+              "id": "retention",
+              "role": "fact",
+              "label": "Retention"
+            },
+            {
+              "id": "deck-list",
+              "role": "entity",
+              "label": "Decks"
+            }
+          ],
+          "actions": [
+            {
+              "id": "start-due",
+              "label": "Start review",
+              "kind": "primary",
+              "target": "startFlashcardReviewSession"
+            },
+            {
+              "id": "resume-review",
+              "label": "Resume",
+              "kind": "secondary",
+              "target": "flashcard-session"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-006"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "flashcard-session",
+      "routePattern": "/[lang]/courses/[displayId]/learn/flashcards/{review|quiz}/sessions/[sessionId]{/result}",
+      "title": "Flashcard session",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Work through an ordered review or quiz and inspect the result.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "flashcard-run",
+          "kind": "flow",
+          "title": "Study session",
+          "summary": "Current card, progress controls and completion result.",
+          "items": [
+            {
+              "id": "current-card",
+              "role": "entity",
+              "label": "Flashcard"
+            },
+            {
+              "id": "session-progress",
+              "role": "status",
+              "label": "Progress"
+            },
+            {
+              "id": "session-result",
+              "role": "fact",
+              "label": "Result"
+            }
+          ],
+          "actions": [
+            {
+              "id": "answer-card",
+              "label": "Answer",
+              "kind": "primary",
+              "target": "session-progress"
+            },
+            {
+              "id": "finish-session",
+              "label": "Finish",
+              "kind": "secondary",
+              "target": "session-result"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "success",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-006"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "foundation-library",
+      "routePattern": "/[lang]/courses/[displayId]/learn/foundations{/[categoryId]/[foundationId]}",
+      "title": "Foundations",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Find and open reference foundations by category.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "foundation-catalog",
+          "kind": "collection",
+          "title": "Foundation categories",
+          "summary": "Searchable, pageable categories and their resources.",
+          "items": [
+            {
+              "id": "foundation-search",
+              "role": "field",
+              "label": "Search"
+            },
+            {
+              "id": "category-list",
+              "role": "entity",
+              "label": "Categories"
+            },
+            {
+              "id": "resource-count",
+              "role": "fact",
+              "label": "Result count"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-category",
+              "label": "Open category",
+              "kind": "primary",
+              "target": "foundation-category"
+            },
+            {
+              "id": "open-foundation",
+              "label": "Open foundation",
+              "kind": "link",
+              "target": "foundation-resource"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed",
+            "partial"
+          ],
+          "evidenceIds": [
+            "EV-003",
+            "EV-004",
+            "EV-007"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "course-mind-map",
+      "routePattern": "/[lang]/courses/[displayId]/learn/mind-map",
+      "title": "Course mind map",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Inspect the course knowledge structure as a mind map.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "mind-map",
+          "kind": "content",
+          "title": "Mind map",
+          "summary": "Course concepts and their relationships.",
+          "items": [
+            {
+              "id": "concept-map",
+              "role": "entity",
+              "label": "Course concept map"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-005"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-005"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Flashcard, foundation and mind-map routes mount their declared study surfaces.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Starting a review persists a resumable session for the selected deck and card order.",
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Foundation queries return a paginated list for the selected category.",
+      "evidenceIds": [
+        "EV-007"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "mind-map-editability",
+      "question": "Is the learner ever allowed to edit the course mind map?",
+      "impact": "The current route proves a viewing surface only, so prototypes must not invent authoring controls."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/flashcards/review/page.tsx",
+      "startLine": 1,
+      "endLine": 13,
+      "claim": "The flashcard review route mounts the review catalog for a course.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/pages/CourseFlashcardsReviewPage/component.tsx",
+      "startLine": 14,
+      "endLine": 55,
+      "claim": "The review page exposes due/deck counts, statistics, start/resume actions and settled states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/foundations/page.tsx",
+      "startLine": 1,
+      "endLine": 11,
+      "claim": "The foundations route mounts the course foundation library.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/pages/CourseFoundationsPage/component.tsx",
+      "startLine": 15,
+      "endLine": 36,
+      "claim": "The foundation library defines search, pagination, categories, enrollment recovery and pending/ready/empty/failed/partial states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/mind-map/page.tsx",
+      "startLine": 1,
+      "endLine": 11,
+      "claim": "The course mind-map route mounts CourseMindMapPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/flashcard/start-flashcard-review-session/start-flashcard-review-session.resolver.ts",
+      "startLine": 68,
+      "endLine": 94,
+      "claim": "The guarded mutation persists a resumable flashcard review session for a deck and card order.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/core/graphql/queries/foundations/foundations/foundations.resolver.ts",
+      "startLine": 45,
+      "endLine": 68,
+      "claim": "The foundations query lists paginated foundations for a category.",
+      "kind": "api"
+    }
+  ]
+}

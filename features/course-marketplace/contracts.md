@@ -1,31 +1,29 @@
-# Contracts · Khám phá và mua khóa học
+# Contracts · Course marketplace and checkout
 
-## Entity · Ưu đãi khóa học (`course-offer`)
+## Entity · Course (`course`)
 
-Fields: `id`, `displayId`, `title`, `coverImageUrl`, `originalPrice`, `currentPhase`, `enrollmentCount`, `isEnrolled`
+Fields: `displayId`, `title`, `tagline`, `modules`, `prerequisites`, `reviews`, `offer`
 
-Evidence: `EV-001`, `EV-002`, `EV-003`
+Evidence: `EV-002`, `EV-005`
 
-## Entity · Đơn khóa học (`course-order`)
+## Entity · Cart (`cart`)
 
-Fields: `courseIds`, `paymentType`, `checkoutUrl`, `referenceId`, `transactionId`
+Fields: `course lines`, `subtotal`, `savings`, `total`
 
-Evidence: `EV-001`, `EV-002`, `EV-003`
+Evidence: `EV-003`, `EV-006`
 
-## Operation · courses
+## Entity · Checkout request (`checkout-request`)
 
-- Kind/owner: `query` / `frontend`
-- Inputs: filters, optional token
-- Outputs: count, course rows
-- Failures: GraphQL error envelope
-- Evidence: `EV-002`, `EV-003`
+Fields: `course ids`, `payment type`, `redirect URLs`
+
+Evidence: `EV-007`
 
 ## Operation · coursesCheckout
 
-- Kind/owner: `mutation` / `frontend`
-- Inputs: courseIds, paymentType, returnUrl, cancelUrl
-- Outputs: checkoutUrl, referenceId, transactionId
-- Failures: No checkout URL, Provider initiation failure
-- Evidence: `EV-002`, `EV-003`
+- Kind/owner: `mutation` / `backend`
+- Inputs: course ids, payment type, redirect URLs
+- Outputs: order and provider checkout data
+- Failures: authentication rejected, pricing rejected, checkout provider failed
+- Evidence: `EV-007`
 
 No field, failure or operation may appear here without routed source evidence.

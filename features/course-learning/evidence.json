@@ -1,47 +1,135 @@
 {
   "schemaVersion": 1,
-  "project": "miamia",
+  "project": "starci-academy",
   "featureId": "course-learning",
-  "head": "fca29fd742e7f48d54a7021439ff4c98d2d234b990d5e9aa8d74ed3003497554",
+  "head": "a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc",
   "sources": [
     {
       "role": "fe",
-      "repository": "https://github.com/starci-lab/miamia-fe2.git",
-      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "d019b01d32e3fa124a63bcfa499f795a1d2ed2eb"
     },
     {
       "role": "be",
-      "repository": "https://github.com/starci-lab/miamia-be.git",
-      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
     }
   ],
   "evidence": [
     {
       "id": "EV-001",
       "role": "fe",
-      "path": "src/app/routes.spec.tsx",
-      "startLine": 15,
-      "endLine": 19,
-      "claim": "Frontend khai báo challenge, result, content, module và content-home routes.",
+      "path": "src/app/[lang]/courses/[displayId]/learn/content/page.tsx",
+      "startLine": 1,
+      "endLine": 7,
+      "claim": "The course content home route mounts the content-map page for displayId.",
       "kind": "route"
     },
     {
       "id": "EV-002",
       "role": "fe",
-      "path": "src/modules/api/graphql/queries/query-content.ts",
-      "startLine": 6,
-      "endLine": 61,
-      "claim": "Content query yêu cầu auth, đọc body, premium flag, vị trí module và challenge data.",
-      "kind": "api"
+      "path": "src/app/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/page.tsx",
+      "startLine": 1,
+      "endLine": 38,
+      "claim": "The dynamic module/content route mounts CourseLearnContentPage.",
+      "kind": "route"
     },
     {
       "id": "EV-003",
       "role": "fe",
-      "path": "src/modules/api/graphql/mutations/mutation-submit-content-challenge.ts",
-      "startLine": 27,
-      "endLine": 58,
-      "claim": "Frontend gửi challenge submission và nhận jobId chấm bất đồng bộ.",
+      "path": "src/components/pages/CourseLearnContentPage/component.tsx",
+      "startLine": 80,
+      "endLine": 216,
+      "claim": "The lesson page defines pending/ready/locked/failed states, reading/source/challenge faces, reactions, discussion, progress and outline data/actions.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]/page.tsx",
+      "startLine": 1,
+      "endLine": 26,
+      "claim": "The embedded challenge route mounts the challenge page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]/result/page.tsx",
+      "startLine": 1,
+      "endLine": 26,
+      "claim": "The embedded challenge result route mounts the result page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/qa/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The course Q&A route mounts CourseQaPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/contents/mark-as-readed/mark-as-readed.resolver.ts",
+      "startLine": 60,
+      "endLine": 90,
+      "claim": "The guarded markContentAsReaded mutation changes a learner's read state for content.",
       "kind": "api"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/discussion/create-comment/create-comment.resolver.ts",
+      "startLine": 55,
+      "endLine": 82,
+      "claim": "The guarded createComment mutation creates a top-level comment or reply on content.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-009",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The bare course learn route mounts CourseLearnTodayPage for the course display id.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-010",
+      "role": "fe",
+      "path": "src/components/pages/CourseLearnTodayPage/index.tsx",
+      "startLine": 91,
+      "endLine": 300,
+      "claim": "The connected course home composes progress, ranked next actions and learning signals with independently settling states and course destinations.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-011",
+      "claim": "The owner accepted composed reader revision 340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece, then explicitly authorized the seven-file SCHEMA V2 language-body corrective boundary.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece"
+    },
+    {
+      "id": "EV-012",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-content.ts",
+      "startLine": 23,
+      "endLine": 55,
+      "claim": "The authenticated lesson query selects the legacy scalar body and every SCHEMA V2 programming-language body with locale translations.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-013",
+      "role": "fe",
+      "path": "src/components/pages/CourseLearnContentPage/index.tsx",
+      "startLine": 98,
+      "endLine": 230,
+      "claim": "The connected lesson reader orders language bodies, preserves a valid language choice, resolves the routed locale with authored fallback, and derives the page outline from the selected markdown.",
+      "kind": "ui"
     }
   ]
 }

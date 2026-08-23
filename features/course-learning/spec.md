@@ -1,149 +1,178 @@
-# Học nội dung và làm thử thách khóa học
+# Course learning and discussion
 
-> Business head: `fca29fd742e7f48d54a7021439ff4c98d2d234b990d5e9aa8d74ed3003497554`
+> Business head: `a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
 ## 1. Overview
 
-Học viên đã ghi danh mở Today, module và bài đọc, xem trạng thái premium, thảo luận Q&A, gửi deliverable thử thách và đọc kết quả chấm bất đồng bộ.
+Enrolled learners navigate course modules and lesson content, read or edit source snapshots, mark progress, react, discuss lessons, and complete embedded content challenges.
 
 Included:
-- Today và spine nội dung
-- Module và bài đọc
-- Challenge và kết quả
-- Q&A khóa học
+- Course content map and lesson reader
+- Reading/source/challenge faces
+- Read state, reactions and lesson discussion
+- Embedded challenge and result route family
+- Course Q&A entry surface
+- Course learning home with progress, next actions and learning signals
 
 Excluded:
-- Flashcard
-- Mock interview
-- Personal project
-- Playground
+- Standalone coding-practice catalog
+- Course purchase and enrollment decisions
 
 ## 2. Source heads
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/miamia-fe2.git | `775bc711bafd48675d6dc44beab81fad712a31da` |
-| be | https://github.com/starci-lab/miamia-be.git | `9dc84d7278abb34030e8c8e6957e925abe4bef70` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `d019b01d32e3fa124a63bcfa499f795a1d2ed2eb` |
+| be | https://github.com/starci-lab/starci-academy-backend | `88a3959084772f9eaa0f5dcbc4e480d4356210f0` |
 
 ## 3. Actors and access
 
-### Học viên đã xác thực
+### Learner
 
-- Tiếp tục bài học
-- Đọc nội dung theo module
-- Gửi thử thách
-- Xem kết quả
-- Đọc và gửi thảo luận
+- Navigate course content
+- Read lesson material
+- Use source workspace
+- React and discuss
+- Attempt embedded challenges
+- Review course progress and choose the next action
 
-Evidence: `EV-001`, `EV-002`, `EV-003`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`
+
+### StarCi Academy platform
+
+- Return lesson content
+- Persist read state
+- Create lesson comments
+
+Evidence: `EV-007`, `EV-008`
 
 ## 4. Entry points and surfaces
 
-### Hôm nay
+### Course learning home
 
-- ID: `course-today`
+- ID: `course-home`
 - Route: `/[lang]/courses/[displayId]/learn`
-- Purpose: Đề xuất bước học kế tiếp.
-- Regions: `course-today-content`
+- Purpose: Review course progress and continue with the most relevant learning action.
+- Regions: `course-home-summary`
+- Navigation: none
+
+Evidence: `EV-009`, `EV-010`
+
+### Course content map
+
+- ID: `content-map`
+- Route: `/[lang]/courses/[displayId]/learn/content`
+- Purpose: Choose the next module or lesson.
+- Regions: `module-navigation`
 - Navigation: none
 
 Evidence: `EV-001`
 
-### Bài học
+### Lesson workspace
 
-- ID: `course-content-reader`
+- ID: `lesson-workspace`
 - Route: `/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]`
-- Purpose: Đọc nội dung và hiểu vị trí trong module.
-- Regions: `course-content-reader-content`
+- Purpose: Read lesson content and use its engagement tools.
+- Regions: `lesson-reader`, `lesson-discussion`
 - Navigation: none
 
-Evidence: `EV-001`, `EV-002`
+Evidence: `EV-002`, `EV-003`, `EV-011`, `EV-012`, `EV-013`
 
-### Thử thách
+### Content challenge
 
-- ID: `course-challenge`
-- Route: `/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]`
-- Purpose: Chọn deliverable và gửi bài để chấm.
-- Regions: `course-challenge-content`
+- ID: `content-challenge`
+- Route: `/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]{/result}`
+- Purpose: Attempt a challenge attached to a lesson and inspect its result.
+- Regions: `challenge-attempt`
 - Navigation: none
 
-Evidence: `EV-001`, `EV-003`
+Evidence: `EV-004`, `EV-005`
 
-### Hỏi đáp khóa học
+### Course questions and answers
 
 - ID: `course-qa`
 - Route: `/[lang]/courses/[displayId]/learn/qa`
-- Purpose: Tìm và trao đổi câu hỏi trong phạm vi khóa học.
-- Regions: `course-qa-content`
+- Purpose: Open the course-level Q&A surface.
+- Regions: `qa-thread-list`
 - Navigation: none
 
-Evidence: `EV-001`
+Evidence: `EV-006`
 
 ## 5. Business flows
 
-### Học và nộp thử thách
+### Course learning and discussion
 
-Trigger: Học viên mở một khóa đã ghi danh.
+Trigger: An enrolled learner opens a course content route.
 
-1. **learner** — Mở bước học hôm nay. → Học viên đi tới module hoặc nội dung tiếp theo.
-2. **learner** — Đọc nội dung theo module. → Tiến tới nội dung hoặc challenge tiếp theo.
-3. **learner** — Chọn deliverable và gửi bài. → Job chấm được tạo và route kết quả có thể theo dõi.
-4. **learner** — Mở Q&A và tìm hoặc đặt câu hỏi. → Câu hỏi liên quan được hiển thị hoặc gửi.
+1. **learner** — Review course progress, next actions and learning signals → The learner can continue into the relevant course destination
+2. **learner** — Choose a module and lesson from the course map → The lesson reader opens
+3. **learner** — Read, use source, react or discuss → Progress and discussion operations are submitted
+4. **learner** — Open an embedded challenge and submit an attempt → A challenge result surface becomes available
 
 Outcomes:
-- Nội dung premium có thể bị rút gọn thành paywall
-- Nộp challenge trả jobId để theo dõi chấm
+- The learner advances through course content with persisted engagement evidence
 
-Evidence: `EV-001`, `EV-002`, `EV-003`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`, `EV-012`, `EV-013`
 
 ## 6. Business rules
 
 ### BR-01
 
-Content query yêu cầu bearer token và có thể trả body khác nhau theo quyền premium của viewer.
+A lesson can settle as pending, ready, locked or failed and exposes independently settling source, reaction and discussion regions.
 
-Strength: **partial** · Evidence: `EV-002`
+Strength: **confirmed** · Evidence: `EV-003`
 
 ### BR-02
 
-Nộp challenge tạo một job chấm bất đồng bộ và trả jobId.
+Read state and comments require authenticated course access guards.
 
-Strength: **partial** · Evidence: `EV-003`
+Strength: **confirmed** · Evidence: `EV-007`, `EV-008`
 
 ## 7. State model
 
-- **Đang tải hoặc đang xử lý** (`pending`, pending) → ready, empty, error — `EV-001`, `EV-002`, `EV-003`
-- **Dữ liệu sẵn sàng** (`ready`, success) → Thực hiện hành động tiếp theo — `EV-001`, `EV-002`, `EV-003`
-- **Không có dữ liệu phù hợp** (`empty`, empty) → Đổi bộ lọc, Quay lại — `EV-001`
-- **Không thể hoàn tất yêu cầu** (`error`, error) → Thử lại — `EV-001`, `EV-002`, `EV-003`
+- **Course home ready** (`course-home-ready`, initial) → lesson-ready — `EV-009`, `EV-010`
+- **Lesson ready** (`lesson-ready`, initial) → lesson-pending, lesson-error — `EV-001`, `EV-002`, `EV-003`
+- **Engagement pending** (`lesson-pending`, pending) → lesson-ready, lesson-error — `EV-007`, `EV-008`
+- **Lesson locked** (`lesson-locked`, partial) → terminal — `EV-003`
+- **Lesson failed** (`lesson-error`, error) → lesson-ready — `EV-003`
 
 ## 8. Entities and data
 
-- **Nội dung khóa học**: id, displayId, title, description, body, isPremium, minutesRead, module, challenges — `EV-001`, `EV-002`, `EV-003`
-- **Bài nộp thử thách**: challengeSubmissionId, githubUrl, selectedModel, lang, jobId — `EV-001`, `EV-002`, `EV-003`
+- **Lesson content**: course, module, content, body, faces, source, outline, next steps — `EV-002`, `EV-003`
+- **Lesson comment**: content id, parent id, body — `EV-008`
 
 ## 9. Operations and APIs
 
-- **content** (query, frontend) — input: content request, bearer token; output: localized content, module position, challenges; failures: Not entitled, Not found, GraphQL error — `EV-002`, `EV-003`
-- **submitChallengeSubmission** (mutation, frontend) — input: challengeSubmissionId, optional GitHub URL/model/lang; output: jobId; failures: Submission rejected, Grading job not queued — `EV-002`, `EV-003`
+- **markContentAsReaded** (mutation, backend) — input: content id, read flag; output: updated learner content state; failures: authentication rejected, course access rejected, content missing — `EV-007`
+- **createComment** (mutation, backend) — input: content id, optional parent comment, body; output: created comment; failures: authentication rejected, course access rejected, invalid parent or content — `EV-008`
 
 ## 10. Acceptance conditions
 
-- **AC-01** Route Today phải nhận displayId và có pending/ready/empty/failed. — `EV-001`
-- **AC-02** Reader phải phân biệt content thật với body bị giới hạn premium. — `EV-001`, `EV-002`
-- **AC-03** Nộp thành công phải trả jobId, không giả lập kết quả đồng bộ. — `EV-001`, `EV-003`
-- **AC-04** Q&A phải có trạng thái empty và failed trung thực. — `EV-001`
+- **AC-01** Course home, content map, lesson, embedded challenge/result and course Q&A routes mount the declared learning surfaces. — `EV-001`, `EV-002`, `EV-004`, `EV-005`, `EV-006`, `EV-009`, `EV-010`
+- **AC-02** Authenticated learners can persist lesson read state and create top-level comments or replies on content. — `EV-007`, `EV-008`
+- **AC-03** The lesson workspace reuses existing nested layouts and presents the course map, centered reader, optional outline and current overlays as one composed full viewport without redesigning existing shell regions. — `EV-011`
+- **AC-04** SCHEMA V2 lessons render every authored programming-language tab, resolve the routed locale with default-body fallback, and rebuild the on-page outline from the selected article. — `EV-012`, `EV-013`
 
 ## 11. Explicit unknowns
 
-- **Resolver current-head nào triển khai content, challenge submission và course Q&A?** — Business model chỉ xác nhận bề mặt và GraphQL document phía FE; backend behavior chưa được coi là confirmed.
+- **Which exact purchase or enrollment action should every locked lesson show?** — The lesson surface confirms a locked state but does not establish one universal recovery action across all entry contexts.
 
 ## 12. Evidence index
 
 | ID | Role | Source | Kind | Claim |
 |---|---|---|---|---|
-| EV-001 | fe | `src/app/routes.spec.tsx:15` | route | Frontend khai báo challenge, result, content, module và content-home routes. |
-| EV-002 | fe | `src/modules/api/graphql/queries/query-content.ts:6` | api | Content query yêu cầu auth, đọc body, premium flag, vị trí module và challenge data. |
-| EV-003 | fe | `src/modules/api/graphql/mutations/mutation-submit-content-challenge.ts:27` | api | Frontend gửi challenge submission và nhận jobId chấm bất đồng bộ. |
+| EV-001 | fe | `src/app/[lang]/courses/[displayId]/learn/content/page.tsx:1` | route | The course content home route mounts the content-map page for displayId. |
+| EV-002 | fe | `src/app/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/page.tsx:1` | route | The dynamic module/content route mounts CourseLearnContentPage. |
+| EV-003 | fe | `src/components/pages/CourseLearnContentPage/component.tsx:80` | ui | The lesson page defines pending/ready/locked/failed states, reading/source/challenge faces, reactions, discussion, progress and outline data/actions. |
+| EV-004 | fe | `src/app/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]/page.tsx:1` | route | The embedded challenge route mounts the challenge page. |
+| EV-005 | fe | `src/app/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]/result/page.tsx:1` | route | The embedded challenge result route mounts the result page. |
+| EV-006 | fe | `src/app/[lang]/courses/[displayId]/learn/qa/page.tsx:1` | route | The course Q&A route mounts CourseQaPage. |
+| EV-007 | be | `src/features/api/core/graphql/mutations/contents/mark-as-readed/mark-as-readed.resolver.ts:60` | api | The guarded markContentAsReaded mutation changes a learner's read state for content. |
+| EV-008 | be | `src/features/api/core/graphql/mutations/discussion/create-comment/create-comment.resolver.ts:55` | api | The guarded createComment mutation creates a top-level comment or reply on content. |
+| EV-009 | fe | `src/app/[lang]/courses/[displayId]/learn/page.tsx:1` | route | The bare course learn route mounts CourseLearnTodayPage for the course display id. |
+| EV-010 | fe | `src/components/pages/CourseLearnTodayPage/index.tsx:91` | ui | The connected course home composes progress, ranked next actions and learning signals with independently settling states and course destinations. |
+| EV-011 | owner | `decision:340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece` | owner-decision | The owner accepted composed reader revision 340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece, then explicitly authorized the seven-file SCHEMA V2 language-body corrective boundary. |
+| EV-012 | fe | `src/modules/api/graphql/queries/query-content.ts:23` | api | The authenticated lesson query selects the legacy scalar body and every SCHEMA V2 programming-language body with locale translations. |
+| EV-013 | fe | `src/components/pages/CourseLearnContentPage/index.tsx:98` | ui | The connected lesson reader orders language bodies, preserves a valid language choice, resolves the routed locale with authored fallback, and derives the page outline from the selected markdown. |

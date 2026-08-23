@@ -1,10 +1,10 @@
-# Surface · Chi tiết khóa học
+# Surface · Course detail
 
 > ID: `course-detail` · Route: `/[lang]/courses/[displayId]`
 
 ## Job
 
-Giải thích khóa học, chương trình, giá và quyết định mua.
+Evaluate a course before enrollment.
 
 ## Navigation
 
@@ -14,7 +14,7 @@ Giải thích khóa học, chương trình, giá và quyết định mua.
 
 | Region | Kind | Real representative content | States | Actions | Evidence |
 |---|---|---|---|---|---|
-| `course-detail-content` | content | Mã hiển thị khóa học; Chương trình | pending, ready, empty, error | Thêm vào giỏ | `EV-001` |
+| `course-decision` | content | Course title; Overview, curriculum, reviews and FAQ; Current offer | pending, ready, not-found, failed | Start trial, Add to cart | `EV-002`, `EV-005` |
 
 ## Context rule
 

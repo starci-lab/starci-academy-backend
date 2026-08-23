@@ -1,51 +1,50 @@
-# Khám phá và mua khóa học
+# Course marketplace and checkout
 
-> Business identity: `miamia/course-marketplace@806dbd5d25423c2339cace8b53bac2b9f0c598ca5ef84347bfeae644eb739d8b`
+> Business identity: `starci-academy/course-marketplace@fbc8d013858790dc883e1f9fa57bd4524a6b285f0879d5c34e60b264261c1b3a`
 >
-> Source heads: `fe@775bc711bafd`, `be@9dc84d7278ab`
+> Source heads: `fe@6db677598290`, `be@0ed7b7bc8e1b`
 >
 > Load this file first. Load only the modules named by the current task.
 
 ## Decision capsule
 
-**Purpose.** Khách và thành viên duyệt danh mục, mở chi tiết, phân biệt khóa đã sở hữu với khóa để khám phá, đưa khóa vào giỏ và chuyển tới nhà cung cấp thanh toán cho đơn đang chờ xác nhận.
+**Purpose.** Visitors discover localized courses, inspect curriculum and pricing evidence, collect courses in a personal cart, and start one authenticated checkout for the selected course set.
 
-**Primary actor.** Khách hoặc người mua đã đăng nhập
+**Primary actor.** Learner
 
-**Primary outcome.** Khóa đã sở hữu không xuất hiện như món cần mua
+**Primary outcome.** The learner receives a checkout result for the selected course set
 
-**Never does.** Xác nhận thanh toán trước webhook
+**Never does.** Payment-provider webhook settlement after checkout leaves the application
 
 ## Invariants
 
-- `BR-01` — Danh mục tách khóa đã sở hữu khỏi danh sách khám phá và hỗ trợ tìm kiếm, phân trang cùng chế độ grid/line.
-- `BR-02` — Checkout không tự ghi danh; người mua chỉ được chuyển tới checkoutUrl và phải chờ webhook xác nhận.
+- `BR-01` — The catalog distinguishes pending, empty, filtered-empty, failed and populated states, and supports search, view and pagination controls.
+- `BR-02` — The cart is viewer-owned, hides totals and checkout actions when empty or unreadable, and requires confirmation before clearing all lines.
+- `BR-03` — Checkout requires authentication and creates one order with one line per submitted course.
 
 ## Primary flow
 
 ```text
-pending → pending → ready
+marketplace-ready → marketplace-ready → checkout-pending
 ```
 
 ## Surface map
 
 | Surface | Route | Owns | Module |
 |---|---|---|---|
-| `course-catalog` | `/[lang]/courses` | Tìm khóa học và phân biệt nội dung đã sở hữu với nội dung có thể mua. | [surface](surfaces/course-catalog.md) |
-| `course-detail` | `/[lang]/courses/[displayId]` | Giải thích khóa học, chương trình, giá và quyết định mua. | [surface](surfaces/course-detail.md) |
-| `course-cart` | `/[lang]/cart` | Xem các dòng khóa, tổng giá server trả về và bắt đầu checkout. | [surface](surfaces/course-cart.md) |
+| `course-catalog` | `/[lang]/courses` | Find and compare courses. | [surface](surfaces/course-catalog.md) |
+| `course-detail` | `/[lang]/courses/[displayId]` | Evaluate a course before enrollment. | [surface](surfaces/course-detail.md) |
+| `shopping-cart` | `/[lang]/cart` | Review selected courses and totals before checkout. | [surface](surfaces/shopping-cart.md) |
 
 ## Data and operation map
 
 | Operation | Owner | Input | Result |
 |---|---|---|---|
-| `courses` | frontend | filters, optional token | count, course rows |
-| `coursesCheckout` | frontend | courseIds, paymentType, returnUrl, cancelUrl | checkoutUrl, referenceId, transactionId |
+| `coursesCheckout` | backend | course ids, payment type, redirect URLs | order and provider checkout data |
 
 ## Explicit unknowns
 
-- `course-backend-contract` — Resolver current-head nào triển khai courses và coursesCheckout mà FE đang gọi? Impact: Các operation này chỉ được xác nhận ở FE và phải giữ strength partial cho tới khi BE route hiện tại chứng minh contract.
-- `installment-provider` — Khi nào backend hỗ trợ lịch trả góp được surface mô tả? Impact: Không gửi installmentMonths hoặc hiển thị lịch thanh toán như khả năng đã hoạt động.
+- `provider-return-shape` — Which payment-provider result fields should a prototype expose after coursesCheckout? Impact: The resolver confirms checkout ownership and inputs, but provider-specific return UI is not established by the cited marketplace surfaces.
 
 ## LOADS
 

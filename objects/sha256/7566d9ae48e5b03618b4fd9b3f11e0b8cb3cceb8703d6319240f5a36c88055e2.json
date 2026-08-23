@@ -1,0 +1,611 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "projects-career",
+  "title": "Projects and career",
+  "summary": "Learners progress through course personal-project milestones, submit a GitHub repository for an enrollment, inspect task feedback, and browse headhunting companies and consultants connected to the course.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "6db677598290cd69c3db6bfc4e731c37ba972b63"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Personal project roadmap, task and task-result route families",
+      "Personal GitHub repository submission",
+      "Headhunting directory and company detail"
+    ],
+    "excludes": [
+      "Public profile presentation of completed projects",
+      "Job-posting administration and provider CRM behavior"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Learner",
+      "capabilities": [
+        "Follow a milestone roadmap",
+        "Open the next task",
+        "Submit a project GitHub URL",
+        "Review task results",
+        "Browse career companies and consultants"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "platform",
+      "label": "StarCi Academy platform",
+      "capabilities": [
+        "Persist the personal project GitHub URL on enrollment",
+        "List headhunting companies"
+      ],
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "projects-career-journey",
+      "title": "Projects and career",
+      "trigger": "An enrolled learner opens the personal project or career route.",
+      "steps": [
+        {
+          "id": "open-roadmap",
+          "actor": "learner",
+          "action": "Open the personal project roadmap and current milestone",
+          "result": "The next task and completion evidence are displayed",
+          "surfaceId": "personal-project-roadmap",
+          "stateId": "project-ready"
+        },
+        {
+          "id": "submit-repository",
+          "actor": "learner",
+          "action": "Submit the project GitHub URL for the course",
+          "result": "The enrollment stores the repository URL",
+          "surfaceId": "personal-project-task",
+          "stateId": "project-pending"
+        },
+        {
+          "id": "browse-career",
+          "actor": "learner",
+          "action": "Search companies and consultants and open a company",
+          "result": "The selected career detail surface opens",
+          "surfaceId": "headhunting-directory",
+          "stateId": "project-ready"
+        }
+      ],
+      "outcomes": [
+        "The learner's enrollment retains the project repository and career destinations remain discoverable"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "The personal project roadmap exposes a deterministic next task, completion percentage/facts and milestone task navigation.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Submitting a personal GitHub URL requires an authenticated user and an enrollment for the selected course, then persists the URL on that enrollment.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-007"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "The headhunting directory separates company and consultant results and can mark individual actions unavailable.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-005",
+        "EV-008"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "project-ready",
+      "label": "Project or career surface ready",
+      "kind": "initial",
+      "transitions": [
+        "project-pending",
+        "project-complete",
+        "project-error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "project-pending",
+      "label": "Project submission pending",
+      "kind": "pending",
+      "transitions": [
+        "project-ready",
+        "project-complete",
+        "project-error"
+      ],
+      "evidenceIds": [
+        "EV-007"
+      ]
+    },
+    {
+      "id": "project-complete",
+      "label": "Project milestone complete",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "project-error",
+      "label": "Project or career request failed",
+      "kind": "error",
+      "transitions": [
+        "project-ready"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "personal-project",
+      "label": "Personal project",
+      "fields": [
+        "course",
+        "milestones",
+        "tasks",
+        "completion percentage",
+        "GitHub URL"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "headhunting-company",
+      "label": "Headhunting company",
+      "fields": [
+        "company id",
+        "label",
+        "metadata",
+        "availability"
+      ],
+      "evidenceIds": [
+        "EV-005",
+        "EV-006",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "consultant",
+      "label": "Consultant",
+      "fields": [
+        "consultant id",
+        "label",
+        "metadata",
+        "contact availability"
+      ],
+      "evidenceIds": [
+        "EV-005"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "submit-project-url",
+      "kind": "mutation",
+      "name": "submitPersonalGithubUrl",
+      "owner": "backend",
+      "inputs": [
+        "course id",
+        "GitHub URL"
+      ],
+      "outputs": [
+        "updated enrollment"
+      ],
+      "failures": [
+        "authentication rejected",
+        "enrollment missing",
+        "URL rejected"
+      ],
+      "evidenceIds": [
+        "EV-007"
+      ]
+    },
+    {
+      "id": "list-headhunting-companies",
+      "kind": "query",
+      "name": "headhuntingCompanies",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "headhunting companies"
+      ],
+      "failures": [
+        "query failed"
+      ],
+      "evidenceIds": [
+        "EV-008"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "personal-project-roadmap",
+      "routePattern": "/[lang]/courses/[displayId]/learn/personal-project",
+      "title": "Personal project roadmap",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Show the next task and milestone completion evidence.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "project-roadmap",
+          "kind": "flow",
+          "title": "Project roadmap",
+          "summary": "Next task, completion facts, progress and milestone task list.",
+          "items": [
+            {
+              "id": "next-project-task",
+              "role": "status",
+              "label": "Next task"
+            },
+            {
+              "id": "project-progress",
+              "role": "fact",
+              "label": "Completion"
+            },
+            {
+              "id": "milestone-tasks",
+              "role": "navigation",
+              "label": "Milestone tasks"
+            }
+          ],
+          "actions": [
+            {
+              "id": "continue-project",
+              "label": "Continue",
+              "kind": "primary",
+              "target": "personal-project-task"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "personal-project-task",
+      "routePattern": "/[lang]/courses/[displayId]/learn/personal-project/tasks/[taskId]{/result}",
+      "title": "Personal project task",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Complete a task, submit repository evidence and inspect feedback.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "project-task-work",
+          "kind": "form",
+          "title": "Milestone task",
+          "summary": "Task brief, GitHub evidence, attempt status and result feedback.",
+          "items": [
+            {
+              "id": "task-brief",
+              "role": "text",
+              "label": "Task brief"
+            },
+            {
+              "id": "github-url",
+              "role": "field",
+              "label": "GitHub repository URL"
+            },
+            {
+              "id": "task-feedback",
+              "role": "status",
+              "label": "Review feedback"
+            }
+          ],
+          "actions": [
+            {
+              "id": "submit-github",
+              "label": "Submit repository",
+              "kind": "primary",
+              "target": "submitPersonalGithubUrl"
+            },
+            {
+              "id": "view-task-result",
+              "label": "View result",
+              "kind": "link",
+              "target": "task-result"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "success",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-002",
+            "EV-003",
+            "EV-007"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "headhunting-directory",
+      "routePattern": "/[lang]/courses/[displayId]/learn/headhuntings",
+      "title": "Career directory",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Find headhunting companies and consultants.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "career-results",
+          "kind": "collection",
+          "title": "Companies and consultants",
+          "summary": "Searchable company and consultant result lists.",
+          "items": [
+            {
+              "id": "career-search",
+              "role": "field",
+              "label": "Search"
+            },
+            {
+              "id": "company-list",
+              "role": "entity",
+              "label": "Companies"
+            },
+            {
+              "id": "consultant-list",
+              "role": "entity",
+              "label": "Consultants"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-company",
+              "label": "Open company",
+              "kind": "primary",
+              "target": "headhunting-company"
+            },
+            {
+              "id": "contact-consultant",
+              "label": "Contact consultant",
+              "kind": "secondary",
+              "target": "consultant-contact"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-005",
+            "EV-008"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-005"
+      ]
+    },
+    {
+      "id": "headhunting-company",
+      "routePattern": "/[lang]/courses/[displayId]/learn/headhunting-companies/[companyId]",
+      "title": "Headhunting company",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Inspect one company from the course career directory.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "company-profile",
+          "kind": "content",
+          "title": "Company",
+          "summary": "Company identity and available course-career action.",
+          "items": [
+            {
+              "id": "company-identity",
+              "role": "entity",
+              "label": "Company"
+            },
+            {
+              "id": "company-availability",
+              "role": "status",
+              "label": "Availability"
+            }
+          ],
+          "actions": [
+            {
+              "id": "return-career",
+              "label": "Back to directory",
+              "kind": "link",
+              "target": "headhunting-directory"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "not-found",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-006",
+            "EV-008"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-006"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Personal project roadmap/task/result and career directory/company routes mount the declared surfaces.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "An authenticated learner with a course enrollment can persist a personal project GitHub URL on that enrollment.",
+      "evidenceIds": [
+        "EV-007"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "The backend exposes the headhunting company list used by the career directory.",
+      "evidenceIds": [
+        "EV-008"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "consultant-contact-outcome",
+      "question": "What exact channel and response follows an available consultant contact action?",
+      "impact": "The directory proves conditional contact availability but the cited surface and company query do not establish the downstream communication contract."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/personal-project/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The personal project route mounts the roadmap page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/personal-project/tasks/[taskId]/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The personal project task route mounts the task page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/personal-project/tasks/[taskId]/result/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The task result route mounts the project result page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/pages/CoursePersonalProjectPage/component.tsx",
+      "startLine": 30,
+      "endLine": 50,
+      "claim": "The roadmap defines next task, completion evidence, milestone tasks and pending/ready/empty/failed states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/headhuntings/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The course career route mounts the headhunting directory.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/headhunting-companies/[companyId]/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The dynamic company route mounts one headhunting company page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/personal-project/submit-personal-github-url/submit-personal-github-url.handler.spec.ts",
+      "startLine": 75,
+      "endLine": 145,
+      "claim": "The handler rejects missing users, stores the GitHub URL on the user's course enrollment and propagates missing-enrollment failure.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/features/api/core/graphql/queries/headhuntings/headhunting-companies/headhunting-companies.resolver.ts",
+      "startLine": 55,
+      "endLine": 78,
+      "claim": "The optionally authenticated headhuntingCompanies query lists all companies.",
+      "kind": "api"
+    }
+  ]
+}

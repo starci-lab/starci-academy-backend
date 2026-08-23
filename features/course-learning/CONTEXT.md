@@ -1,51 +1,52 @@
-# Học nội dung và làm thử thách khóa học
+# Course learning and discussion
 
-> Business identity: `miamia/course-learning@fca29fd742e7f48d54a7021439ff4c98d2d234b990d5e9aa8d74ed3003497554`
+> Business identity: `starci-academy/course-learning@a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc`
 >
-> Source heads: `fe@775bc711bafd`, `be@9dc84d7278ab`
+> Source heads: authority `implemented` · base `19177d94209d6ab3b45c54f1981fa3152e39da0ad656de509076a3d089a60006` · `fe@d019b01d32e3`, `be@88a395908477`
 >
 > Load this file first. Load only the modules named by the current task.
 
 ## Decision capsule
 
-**Purpose.** Học viên đã ghi danh mở Today, module và bài đọc, xem trạng thái premium, thảo luận Q&A, gửi deliverable thử thách và đọc kết quả chấm bất đồng bộ.
+**Purpose.** Enrolled learners navigate course modules and lesson content, read or edit source snapshots, mark progress, react, discuss lessons, and complete embedded content challenges.
 
-**Primary actor.** Học viên đã xác thực
+**Primary actor.** Learner
 
-**Primary outcome.** Nội dung premium có thể bị rút gọn thành paywall
+**Primary outcome.** The learner advances through course content with persisted engagement evidence
 
-**Never does.** Flashcard
+**Never does.** Standalone coding-practice catalog
 
 ## Invariants
 
-- `BR-01` — Content query yêu cầu bearer token và có thể trả body khác nhau theo quyền premium của viewer.
-- `BR-02` — Nộp challenge tạo một job chấm bất đồng bộ và trả jobId.
+- `BR-01` — A lesson can settle as pending, ready, locked or failed and exposes independently settling source, reaction and discussion regions.
+- `BR-02` — Read state and comments require authenticated course access guards.
 
 ## Primary flow
 
 ```text
-pending → pending → pending → ready
+course-home-ready → lesson-ready → lesson-pending → lesson-ready
 ```
 
 ## Surface map
 
 | Surface | Route | Owns | Module |
 |---|---|---|---|
-| `course-today` | `/[lang]/courses/[displayId]/learn` | Đề xuất bước học kế tiếp. | [surface](surfaces/course-today.md) |
-| `course-content-reader` | `/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]` | Đọc nội dung và hiểu vị trí trong module. | [surface](surfaces/course-content-reader.md) |
-| `course-challenge` | `/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]` | Chọn deliverable và gửi bài để chấm. | [surface](surfaces/course-challenge.md) |
-| `course-qa` | `/[lang]/courses/[displayId]/learn/qa` | Tìm và trao đổi câu hỏi trong phạm vi khóa học. | [surface](surfaces/course-qa.md) |
+| `course-home` | `/[lang]/courses/[displayId]/learn` | Review course progress and continue with the most relevant learning action. | [surface](surfaces/course-home.md) |
+| `content-map` | `/[lang]/courses/[displayId]/learn/content` | Choose the next module or lesson. | [surface](surfaces/content-map.md) |
+| `lesson-workspace` | `/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]` | Read lesson content and use its engagement tools. | [surface](surfaces/lesson-workspace.md) |
+| `content-challenge` | `/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]{/result}` | Attempt a challenge attached to a lesson and inspect its result. | [surface](surfaces/content-challenge.md) |
+| `course-qa` | `/[lang]/courses/[displayId]/learn/qa` | Open the course-level Q&A surface. | [surface](surfaces/course-qa.md) |
 
 ## Data and operation map
 
 | Operation | Owner | Input | Result |
 |---|---|---|---|
-| `content` | frontend | content request, bearer token | localized content, module position, challenges |
-| `submitChallengeSubmission` | frontend | challengeSubmissionId, optional GitHub URL/model/lang | jobId |
+| `markContentAsReaded` | backend | content id, read flag | updated learner content state |
+| `createComment` | backend | content id, optional parent comment, body | created comment |
 
 ## Explicit unknowns
 
-- `course-learning-backend-contract` — Resolver current-head nào triển khai content, challenge submission và course Q&A? Impact: Business model chỉ xác nhận bề mặt và GraphQL document phía FE; backend behavior chưa được coi là confirmed.
+- `locked-recovery-policy` — Which exact purchase or enrollment action should every locked lesson show? Impact: The lesson surface confirms a locked state but does not establish one universal recovery action across all entry contexts.
 
 ## LOADS
 

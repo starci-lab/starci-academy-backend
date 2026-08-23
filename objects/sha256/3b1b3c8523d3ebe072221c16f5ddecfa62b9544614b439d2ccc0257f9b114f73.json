@@ -1,0 +1,741 @@
+{
+  "schemaVersion": 2,
+  "authority": {
+    "status": "in-progress",
+    "basis": "owner-intent",
+    "requiredRoles": [
+      "fe"
+    ],
+    "baseHead": "f7fd00fa7e78edac55ebcd9a30f1704a6400ded50adce01094e72ba06cf26db3",
+    "previousHead": "c506754064474070ef4cefc2a40e8b1ce8a364cbd8ebb92fb5843052c7fb491a"
+  },
+  "project": "starci-academy",
+  "featureId": "course-learning",
+  "title": "Course learning and discussion",
+  "summary": "Enrolled learners navigate course modules and lesson content, read or edit source snapshots, mark progress, react, discuss lessons, and complete embedded content challenges.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "8c546d8b5ad1fb5b54de8f1d1d41deea50eb6c57"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Course content map and lesson reader",
+      "Reading/source/challenge faces",
+      "Read state, reactions and lesson discussion",
+      "Embedded challenge and result route family",
+      "Course Q&A entry surface",
+      "Course learning home with progress, next actions and learning signals"
+    ],
+    "excludes": [
+      "Standalone coding-practice catalog",
+      "Course purchase and enrollment decisions"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Learner",
+      "capabilities": [
+        "Navigate course content",
+        "Read lesson material",
+        "Use source workspace",
+        "React and discuss",
+        "Attempt embedded challenges",
+        "Review course progress and choose the next action"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "platform",
+      "label": "StarCi Academy platform",
+      "capabilities": [
+        "Return lesson content",
+        "Persist read state",
+        "Create lesson comments"
+      ],
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "course-learning-journey",
+      "title": "Course learning and discussion",
+      "trigger": "An enrolled learner opens a course content route.",
+      "steps": [
+        {
+          "id": "review-course-home",
+          "actor": "learner",
+          "action": "Review course progress, next actions and learning signals",
+          "result": "The learner can continue into the relevant course destination",
+          "surfaceId": "course-home",
+          "stateId": "course-home-ready"
+        },
+        {
+          "id": "choose-content",
+          "actor": "learner",
+          "action": "Choose a module and lesson from the course map",
+          "result": "The lesson reader opens",
+          "surfaceId": "lesson-workspace",
+          "stateId": "lesson-ready"
+        },
+        {
+          "id": "engage-content",
+          "actor": "learner",
+          "action": "Read, use source, react or discuss",
+          "result": "Progress and discussion operations are submitted",
+          "surfaceId": "lesson-workspace",
+          "stateId": "lesson-pending"
+        },
+        {
+          "id": "attempt-challenge",
+          "actor": "learner",
+          "action": "Open an embedded challenge and submit an attempt",
+          "result": "A challenge result surface becomes available",
+          "surfaceId": "content-challenge",
+          "stateId": "lesson-ready"
+        }
+      ],
+      "outcomes": [
+        "The learner advances through course content with persisted engagement evidence"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009",
+        "EV-010"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "A lesson can settle as pending, ready, locked or failed and exposes independently settling source, reaction and discussion regions.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Read state and comments require authenticated course access guards.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "course-home-ready",
+      "label": "Course home ready",
+      "kind": "initial",
+      "transitions": [
+        "lesson-ready"
+      ],
+      "evidenceIds": [
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "lesson-ready",
+      "label": "Lesson ready",
+      "kind": "initial",
+      "transitions": [
+        "lesson-pending",
+        "lesson-error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "lesson-pending",
+      "label": "Engagement pending",
+      "kind": "pending",
+      "transitions": [
+        "lesson-ready",
+        "lesson-error"
+      ],
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "lesson-locked",
+      "label": "Lesson locked",
+      "kind": "partial",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-003"
+      ]
+    },
+    {
+      "id": "lesson-error",
+      "label": "Lesson failed",
+      "kind": "error",
+      "transitions": [
+        "lesson-ready"
+      ],
+      "evidenceIds": [
+        "EV-003"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "lesson-content",
+      "label": "Lesson content",
+      "fields": [
+        "course",
+        "module",
+        "content",
+        "body",
+        "faces",
+        "source",
+        "outline",
+        "next steps"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "lesson-comment",
+      "label": "Lesson comment",
+      "fields": [
+        "content id",
+        "parent id",
+        "body"
+      ],
+      "evidenceIds": [
+        "EV-008"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "mark-content-read",
+      "kind": "mutation",
+      "name": "markContentAsReaded",
+      "owner": "backend",
+      "inputs": [
+        "content id",
+        "read flag"
+      ],
+      "outputs": [
+        "updated learner content state"
+      ],
+      "failures": [
+        "authentication rejected",
+        "course access rejected",
+        "content missing"
+      ],
+      "evidenceIds": [
+        "EV-007"
+      ]
+    },
+    {
+      "id": "create-comment",
+      "kind": "mutation",
+      "name": "createComment",
+      "owner": "backend",
+      "inputs": [
+        "content id",
+        "optional parent comment",
+        "body"
+      ],
+      "outputs": [
+        "created comment"
+      ],
+      "failures": [
+        "authentication rejected",
+        "course access rejected",
+        "invalid parent or content"
+      ],
+      "evidenceIds": [
+        "EV-008"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "course-home",
+      "routePattern": "/[lang]/courses/[displayId]/learn",
+      "title": "Course learning home",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Review course progress and continue with the most relevant learning action.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-home-summary",
+          "kind": "summary",
+          "title": "Course overview",
+          "summary": "Course identity, progress, ranked next actions and learning signals.",
+          "items": [
+            {
+              "id": "course-progress",
+              "role": "status",
+              "label": "Course progress"
+            },
+            {
+              "id": "next-actions",
+              "role": "choice",
+              "label": "Next actions"
+            },
+            {
+              "id": "learning-signals",
+              "role": "status",
+              "label": "Learning signals"
+            }
+          ],
+          "actions": [
+            {
+              "id": "continue-learning",
+              "label": "Continue learning",
+              "kind": "primary",
+              "target": "content-map"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "partial",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-009",
+            "EV-010"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "content-map",
+      "routePattern": "/[lang]/courses/[displayId]/learn/content",
+      "title": "Course content map",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Choose the next module or lesson.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "module-navigation",
+          "kind": "navigation",
+          "title": "Course contents",
+          "summary": "Ordered modules and lesson destinations.",
+          "items": [
+            {
+              "id": "module-list",
+              "role": "navigation",
+              "label": "Modules"
+            },
+            {
+              "id": "lesson-list",
+              "role": "navigation",
+              "label": "Lessons"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-lesson",
+              "label": "Open lesson",
+              "kind": "primary",
+              "target": "lesson-workspace"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "lesson-workspace",
+      "routePattern": "/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]",
+      "title": "Lesson workspace",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Read lesson content and use its engagement tools.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "lesson-reader",
+          "kind": "content",
+          "title": "Lesson",
+          "summary": "The existing learning shell, full course map, centered lesson reader and optional page outline compose one full-viewport workspace with reading, source and challenge faces.",
+          "items": [
+            {
+              "id": "lesson-title",
+              "role": "entity",
+              "label": "Lesson title"
+            },
+            {
+              "id": "lesson-faces",
+              "role": "choice",
+              "label": "Reading, source or challenge"
+            },
+            {
+              "id": "course-progress",
+              "role": "status",
+              "label": "Course progress"
+            }
+          ],
+          "actions": [
+            {
+              "id": "mark-read",
+              "label": "Mark read",
+              "kind": "primary",
+              "target": "markContentAsReaded"
+            },
+            {
+              "id": "select-reaction",
+              "label": "React",
+              "kind": "secondary",
+              "target": "reaction"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "locked",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-002",
+            "EV-003",
+            "EV-007",
+            "EV-011"
+          ]
+        },
+        {
+          "id": "lesson-discussion",
+          "kind": "flow",
+          "title": "Discussion",
+          "summary": "Top-level comments and replies attached to the lesson.",
+          "items": [
+            {
+              "id": "discussion-thread",
+              "role": "entity",
+              "label": "Comments"
+            },
+            {
+              "id": "discussion-draft",
+              "role": "field",
+              "label": "Write a comment"
+            }
+          ],
+          "actions": [
+            {
+              "id": "submit-comment",
+              "label": "Post comment",
+              "kind": "primary",
+              "target": "createComment"
+            },
+            {
+              "id": "retry-discussion",
+              "label": "Try again",
+              "kind": "secondary",
+              "target": "discussion"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-003",
+            "EV-008"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "content-challenge",
+      "routePattern": "/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]{/result}",
+      "title": "Content challenge",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Attempt a challenge attached to a lesson and inspect its result.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "challenge-attempt",
+          "kind": "form",
+          "title": "Challenge",
+          "summary": "Challenge prompt, attempt controls and result state.",
+          "items": [
+            {
+              "id": "challenge-prompt",
+              "role": "text",
+              "label": "Challenge prompt"
+            },
+            {
+              "id": "challenge-result",
+              "role": "status",
+              "label": "Attempt result"
+            }
+          ],
+          "actions": [
+            {
+              "id": "submit-challenge",
+              "label": "Submit",
+              "kind": "primary",
+              "target": "challenge-attempt"
+            },
+            {
+              "id": "return-lesson",
+              "label": "Back to lesson",
+              "kind": "link",
+              "target": "lesson-workspace"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "success",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-004",
+            "EV-005"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "course-qa",
+      "routePattern": "/[lang]/courses/[displayId]/learn/qa",
+      "title": "Course questions and answers",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Open the course-level Q&A surface.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "qa-thread-list",
+          "kind": "collection",
+          "title": "Questions and answers",
+          "summary": "Course questions and their discussion entries.",
+          "items": [
+            {
+              "id": "question-list",
+              "role": "entity",
+              "label": "Questions"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-question",
+              "label": "Open question",
+              "kind": "link",
+              "target": "question"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-006"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-006"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Course home, content map, lesson, embedded challenge/result and course Q&A routes mount the declared learning surfaces.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Authenticated learners can persist lesson read state and create top-level comments or replies on content.",
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "The lesson workspace reuses existing nested layouts and presents the course map, centered reader, optional outline and current overlays as one composed full viewport without redesigning existing shell regions.",
+      "evidenceIds": [
+        "EV-011"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "locked-recovery-policy",
+      "question": "Which exact purchase or enrollment action should every locked lesson show?",
+      "impact": "The lesson surface confirms a locked state but does not establish one universal recovery action across all entry contexts."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/content/page.tsx",
+      "startLine": 1,
+      "endLine": 7,
+      "claim": "The course content home route mounts the content-map page for displayId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/page.tsx",
+      "startLine": 1,
+      "endLine": 38,
+      "claim": "The dynamic module/content route mounts CourseLearnContentPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/components/pages/CourseLearnContentPage/component.tsx",
+      "startLine": 80,
+      "endLine": 216,
+      "claim": "The lesson page defines pending/ready/locked/failed states, reading/source/challenge faces, reactions, discussion, progress and outline data/actions.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]/page.tsx",
+      "startLine": 1,
+      "endLine": 26,
+      "claim": "The embedded challenge route mounts the challenge page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]/result/page.tsx",
+      "startLine": 1,
+      "endLine": 26,
+      "claim": "The embedded challenge result route mounts the result page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/qa/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The course Q&A route mounts CourseQaPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/contents/mark-as-readed/mark-as-readed.resolver.ts",
+      "startLine": 60,
+      "endLine": 90,
+      "claim": "The guarded markContentAsReaded mutation changes a learner's read state for content.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/discussion/create-comment/create-comment.resolver.ts",
+      "startLine": 55,
+      "endLine": 82,
+      "claim": "The guarded createComment mutation creates a top-level comment or reply on content.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-009",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The bare course learn route mounts CourseLearnTodayPage for the course display id.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-010",
+      "role": "fe",
+      "path": "src/components/pages/CourseLearnTodayPage/index.tsx",
+      "startLine": 91,
+      "endLine": 300,
+      "claim": "The connected course home composes progress, ranked next actions and learning signals with independently settling states and course destinations.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-011",
+      "claim": "The owner accepted composed reader revision 340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece, then explicitly authorized the seven-file SCHEMA V2 language-body corrective boundary.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece"
+    }
+  ]
+}

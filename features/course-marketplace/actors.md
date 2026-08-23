@@ -1,12 +1,22 @@
-# Actors · Khám phá và mua khóa học
+# Actors · Course marketplace and checkout
 
-## Khách hoặc người mua đã đăng nhập (`buyer`)
+## Learner (`learner`)
 
 Can:
 
-- Tìm và phân trang khóa học
-- Xem giá
-- Quản lý giỏ
-- Bắt đầu checkout
+- Browse and search courses
+- Inspect a course
+- Manage a personal cart
+- Start checkout
 
-Evidence: `EV-001`, `EV-002`, `EV-003`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`
+
+## StarCi Academy platform (`platform`)
+
+Can:
+
+- Return catalog and detail data
+- Price a cart
+- Create an order with one line per course
+
+Evidence: `EV-007`

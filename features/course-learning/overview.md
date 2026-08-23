@@ -1,26 +1,26 @@
-# Overview · Học nội dung và làm thử thách khóa học
+# Overview · Course learning and discussion
 
 ## Purpose
 
-Học viên đã ghi danh mở Today, module và bài đọc, xem trạng thái premium, thảo luận Q&A, gửi deliverable thử thách và đọc kết quả chấm bất đồng bộ.
+Enrolled learners navigate course modules and lesson content, read or edit source snapshots, mark progress, react, discuss lessons, and complete embedded content challenges.
 
 ## Included
 
-- Today và spine nội dung
-- Module và bài đọc
-- Challenge và kết quả
-- Q&A khóa học
+- Course content map and lesson reader
+- Reading/source/challenge faces
+- Read state, reactions and lesson discussion
+- Embedded challenge and result route family
+- Course Q&A entry surface
+- Course learning home with progress, next actions and learning signals
 
 ## Excluded
 
-- Flashcard
-- Mock interview
-- Personal project
-- Playground
+- Standalone coding-practice catalog
+- Course purchase and enrollment decisions
 
 ## Source heads
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/miamia-fe2.git | `775bc711bafd48675d6dc44beab81fad712a31da` |
-| be | https://github.com/starci-lab/miamia-be.git | `9dc84d7278abb34030e8c8e6957e925abe4bef70` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `d019b01d32e3fa124a63bcfa499f795a1d2ed2eb` |
+| be | https://github.com/starci-lab/starci-academy-backend | `88a3959084772f9eaa0f5dcbc4e480d4356210f0` |

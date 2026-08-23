@@ -1,136 +1,149 @@
-# Khám phá và mua khóa học
+# Course marketplace and checkout
 
-> Business head: `806dbd5d25423c2339cace8b53bac2b9f0c598ca5ef84347bfeae644eb739d8b`
+> Business head: `fbc8d013858790dc883e1f9fa57bd4524a6b285f0879d5c34e60b264261c1b3a`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
 ## 1. Overview
 
-Khách và thành viên duyệt danh mục, mở chi tiết, phân biệt khóa đã sở hữu với khóa để khám phá, đưa khóa vào giỏ và chuyển tới nhà cung cấp thanh toán cho đơn đang chờ xác nhận.
+Visitors discover localized courses, inspect curriculum and pricing evidence, collect courses in a personal cart, and start one authenticated checkout for the selected course set.
 
 Included:
-- Danh mục khóa học
-- Chi tiết khóa học
-- Giỏ khóa học
-- Checkout theo URL nhà cung cấp
+- Course catalog search, view and pagination
+- Course detail overview, curriculum, reviews, FAQ and pricing rail
+- Personal cart lines, totals, empty/error handling and checkout
 
 Excluded:
-- Xác nhận thanh toán trước webhook
-- Lịch trả góp chưa được backend hỗ trợ
-- Nội dung học sau mua
+- Payment-provider webhook settlement after checkout leaves the application
+- Administrative course authoring
 
 ## 2. Source heads
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/miamia-fe2.git | `775bc711bafd48675d6dc44beab81fad712a31da` |
-| be | https://github.com/starci-lab/miamia-be.git | `9dc84d7278abb34030e8c8e6957e925abe4bef70` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `6db677598290cd69c3db6bfc4e731c37ba972b63` |
+| be | https://github.com/starci-lab/starci-academy-backend | `0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b` |
 
 ## 3. Actors and access
 
-### Khách hoặc người mua đã đăng nhập
+### Learner
 
-- Tìm và phân trang khóa học
-- Xem giá
-- Quản lý giỏ
-- Bắt đầu checkout
+- Browse and search courses
+- Inspect a course
+- Manage a personal cart
+- Start checkout
 
-Evidence: `EV-001`, `EV-002`, `EV-003`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`
+
+### StarCi Academy platform
+
+- Return catalog and detail data
+- Price a cart
+- Create an order with one line per course
+
+Evidence: `EV-007`
 
 ## 4. Entry points and surfaces
 
-### Danh mục khóa học
+### Course catalog
 
 - ID: `course-catalog`
 - Route: `/[lang]/courses`
-- Purpose: Tìm khóa học và phân biệt nội dung đã sở hữu với nội dung có thể mua.
-- Regions: `course-catalog-content`
+- Purpose: Find and compare courses.
+- Regions: `catalog-results`
 - Navigation: none
 
-Evidence: `EV-001`, `EV-002`
+Evidence: `EV-001`, `EV-004`
 
-### Chi tiết khóa học
+### Course detail
 
 - ID: `course-detail`
 - Route: `/[lang]/courses/[displayId]`
-- Purpose: Giải thích khóa học, chương trình, giá và quyết định mua.
-- Regions: `course-detail-content`
+- Purpose: Evaluate a course before enrollment.
+- Regions: `course-decision`
 - Navigation: none
 
-Evidence: `EV-001`
+Evidence: `EV-002`, `EV-005`
 
-### Giỏ khóa học
+### Shopping cart
 
-- ID: `course-cart`
+- ID: `shopping-cart`
 - Route: `/[lang]/cart`
-- Purpose: Xem các dòng khóa, tổng giá server trả về và bắt đầu checkout.
-- Regions: `course-cart-content`
+- Purpose: Review selected courses and totals before checkout.
+- Regions: `cart-lines-and-summary`
 - Navigation: none
 
-Evidence: `EV-001`, `EV-003`
+Evidence: `EV-003`, `EV-006`
 
 ## 5. Business flows
 
-### Khám phá và thanh toán khóa học
+### Course marketplace and checkout
 
-Trigger: Người mua mở danh mục hoặc giỏ.
+Trigger: A visitor opens the course catalog.
 
-1. **buyer** — Tìm, lọc và mở một khóa học. → Chi tiết khóa được mở hoặc danh mục được phân trang.
-2. **buyer** — Đọc chi tiết và chọn mua. → Khóa học được thêm vào giỏ hoặc chuyển sang học nếu đã sở hữu.
-3. **buyer** — Xác nhận các dòng và bắt đầu thanh toán. → Người mua được chuyển tới checkoutUrl của provider.
+1. **learner** — Search, page or change the catalog view → A course set is displayed
+2. **learner** — Open a course and review its curriculum, prerequisites, reviews, FAQ and offer → The course decision surface is displayed
+3. **learner** — Proceed with the selected cart lines → The backend starts one checkout order for the selected courses
 
 Outcomes:
-- Khóa đã sở hữu không xuất hiện như món cần mua
-- Checkout chỉ trả URL và giao dịch pending
+- The learner receives a checkout result for the selected course set
 
-Evidence: `EV-001`, `EV-002`, `EV-003`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`
 
 ## 6. Business rules
 
 ### BR-01
 
-Danh mục tách khóa đã sở hữu khỏi danh sách khám phá và hỗ trợ tìm kiếm, phân trang cùng chế độ grid/line.
+The catalog distinguishes pending, empty, filtered-empty, failed and populated states, and supports search, view and pagination controls.
 
-Strength: **confirmed** · Evidence: `EV-002`
+Strength: **confirmed** · Evidence: `EV-004`
 
 ### BR-02
 
-Checkout không tự ghi danh; người mua chỉ được chuyển tới checkoutUrl và phải chờ webhook xác nhận.
+The cart is viewer-owned, hides totals and checkout actions when empty or unreadable, and requires confirmation before clearing all lines.
 
-Strength: **partial** · Evidence: `EV-003`
+Strength: **confirmed** · Evidence: `EV-003`, `EV-006`
+
+### BR-03
+
+Checkout requires authentication and creates one order with one line per submitted course.
+
+Strength: **confirmed** · Evidence: `EV-007`
 
 ## 7. State model
 
-- **Đang tải hoặc đang xử lý** (`pending`, pending) → ready, empty, error — `EV-001`, `EV-002`, `EV-003`
-- **Dữ liệu sẵn sàng** (`ready`, success) → Thực hiện hành động tiếp theo — `EV-001`, `EV-002`, `EV-003`
-- **Không có dữ liệu phù hợp** (`empty`, empty) → Đổi bộ lọc, Quay lại — `EV-001`
-- **Không thể hoàn tất yêu cầu** (`error`, error) → Thử lại — `EV-001`, `EV-002`, `EV-003`
+- **Marketplace ready** (`marketplace-ready`, initial) → checkout-pending — `EV-001`, `EV-002`, `EV-004`, `EV-005`
+- **Checkout pending** (`checkout-pending`, pending) → checkout-started, marketplace-error — `EV-006`, `EV-007`
+- **Checkout started** (`checkout-started`, success) → terminal — `EV-007`
+- **Marketplace or checkout failed** (`marketplace-error`, error) → marketplace-ready — `EV-004`, `EV-005`, `EV-006`
 
 ## 8. Entities and data
 
-- **Ưu đãi khóa học**: id, displayId, title, coverImageUrl, originalPrice, currentPhase, enrollmentCount, isEnrolled — `EV-001`, `EV-002`, `EV-003`
-- **Đơn khóa học**: courseIds, paymentType, checkoutUrl, referenceId, transactionId — `EV-001`, `EV-002`, `EV-003`
+- **Course**: displayId, title, tagline, modules, prerequisites, reviews, offer — `EV-002`, `EV-005`
+- **Cart**: course lines, subtotal, savings, total — `EV-003`, `EV-006`
+- **Checkout request**: course ids, payment type, redirect URLs — `EV-007`
 
 ## 9. Operations and APIs
 
-- **courses** (query, frontend) — input: filters, optional token; output: count, course rows; failures: GraphQL error envelope — `EV-002`, `EV-003`
-- **coursesCheckout** (mutation, frontend) — input: courseIds, paymentType, returnUrl, cancelUrl; output: checkoutUrl, referenceId, transactionId; failures: No checkout URL, Provider initiation failure — `EV-002`, `EV-003`
+- **coursesCheckout** (mutation, backend) — input: course ids, payment type, redirect URLs; output: order and provider checkout data; failures: authentication rejected, pricing rejected, checkout provider failed — `EV-007`
 
 ## 10. Acceptance conditions
 
-- **AC-01** Danh mục phải tách owned khỏi discover và phân biệt pending, empty, filtered-empty, failed. — `EV-001`, `EV-002`
-- **AC-02** Route chi tiết phải dùng displayId để resolve khóa học. — `EV-001`
-- **AC-03** Giỏ không được coi người chưa đăng nhập là giỏ trống và không được báo thành công trước webhook. — `EV-001`, `EV-003`
+- **AC-01** Catalog, course detail and cart routes mount their corresponding page surfaces with the declared settled states. — `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`
+- **AC-02** Authenticated checkout accepts course ids, payment type and redirect URLs and starts one order containing a line for each course. — `EV-007`
 
 ## 11. Explicit unknowns
 
-- **Resolver current-head nào triển khai courses và coursesCheckout mà FE đang gọi?** — Các operation này chỉ được xác nhận ở FE và phải giữ strength partial cho tới khi BE route hiện tại chứng minh contract.
-- **Khi nào backend hỗ trợ lịch trả góp được surface mô tả?** — Không gửi installmentMonths hoặc hiển thị lịch thanh toán như khả năng đã hoạt động.
+- **Which payment-provider result fields should a prototype expose after coursesCheckout?** — The resolver confirms checkout ownership and inputs, but provider-specific return UI is not established by the cited marketplace surfaces.
 
 ## 12. Evidence index
 
 | ID | Role | Source | Kind | Claim |
 |---|---|---|---|---|
-| EV-001 | fe | `src/app/routes.spec.tsx:45` | route | Frontend khai báo route chi tiết và danh mục khóa học. |
-| EV-002 | fe | `src/modules/api/graphql/queries/query-courses.ts:8` | api | Danh mục đọc course identity, nội dung, giá, lượt đăng ký và trạng thái sở hữu với optional auth. |
-| EV-003 | fe | `src/modules/api/graphql/mutations/mutation-courses-checkout.ts:11` | api | Checkout khóa học trả URL/giao dịch pending, không tự ghi danh và chưa gửi lịch trả góp. |
+| EV-001 | fe | `src/app/[lang]/courses/page.tsx:24` | route | The localized public catalog publishes metadata and mounts CoursesCatalogPage. |
+| EV-002 | fe | `src/app/[lang]/courses/[displayId]/page.tsx:24` | route | The dynamic course route mounts CourseDetailPage for displayId. |
+| EV-003 | fe | `src/app/[lang]/cart/page.tsx:1` | route | The force-dynamic viewer-owned cart route mounts CartPage. |
+| EV-004 | fe | `src/components/pages/CoursesCatalogPage/component.tsx:44` | ui | The catalog owns search, view, pagination, owned/discover groups and settled notice states. |
+| EV-005 | fe | `src/components/pages/CourseDetailPage/component.tsx:101` | ui | The detail page exposes overview/curriculum/reviews/FAQ data, pricing rail actions and pending/not-found/failed states. |
+| EV-006 | fe | `src/components/pages/CartPage/component.tsx:39` | ui | The cart defines lines, totals, checkout and confirm-clear actions plus pending/ready/empty/failed states. |
+| EV-007 | be | `src/features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout.resolver.ts:65` | api | The authenticated coursesCheckout mutation starts one checkout for course ids, payment type and redirect URLs. |

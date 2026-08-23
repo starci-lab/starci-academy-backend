@@ -1,15 +1,15 @@
-# Business rules · Học nội dung và làm thử thách khóa học
+# Business rules · Course learning and discussion
 
 ## BR-01
 
-Content query yêu cầu bearer token và có thể trả body khác nhau theo quyền premium của viewer.
+A lesson can settle as pending, ready, locked or failed and exposes independently settling source, reaction and discussion regions.
 
-- Strength: `partial`
-- Evidence: `EV-002`
+- Strength: `confirmed`
+- Evidence: `EV-003`
 
 ## BR-02
 
-Nộp challenge tạo một job chấm bất đồng bộ và trả jobId.
+Read state and comments require authenticated course access guards.
 
-- Strength: `partial`
-- Evidence: `EV-003`
+- Strength: `confirmed`
+- Evidence: `EV-007`, `EV-008`

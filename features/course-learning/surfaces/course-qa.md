@@ -1,10 +1,10 @@
-# Surface · Hỏi đáp khóa học
+# Surface · Course questions and answers
 
 > ID: `course-qa` · Route: `/[lang]/courses/[displayId]/learn/qa`
 
 ## Job
 
-Tìm và trao đổi câu hỏi trong phạm vi khóa học.
+Open the course-level Q&A surface.
 
 ## Navigation
 
@@ -14,7 +14,7 @@ Tìm và trao đổi câu hỏi trong phạm vi khóa học.
 
 | Region | Kind | Real representative content | States | Actions | Evidence |
 |---|---|---|---|---|---|
-| `course-qa-content` | collection | Tìm câu hỏi; Câu hỏi khóa học | pending, ready, empty, error | Đặt câu hỏi | `EV-001` |
+| `qa-thread-list` | collection | Questions | pending, ready, empty, failed | Open question | `EV-006` |
 
 ## Context rule
 

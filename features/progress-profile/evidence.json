@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "progress-profile",
+  "head": "83245d75882870bf2b2980af7325140a697a38228ed7db4d84bb56ac7f1e84a0",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "d019b01d32e3fa124a63bcfa499f795a1d2ed2eb"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/dashboard/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The dashboard route mounts DashboardPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/pages/DashboardPage/component.tsx",
+      "startLine": 19,
+      "endLine": 100,
+      "claim": "The authenticated dashboard composes identity/quick actions and overview, explore, courses or community main content with independently settling blocks.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/app/[lang]/profile/[username]/page.tsx",
+      "startLine": 1,
+      "endLine": 5,
+      "claim": "The dynamic username route mounts the public profile overview.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/pages/ProfileOverviewPage/component.tsx",
+      "startLine": 9,
+      "endLine": 29,
+      "claim": "The public overview composes job readiness, courses, contributions, challenge skills and coding skills.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/[lang]/league/page.tsx",
+      "startLine": 1,
+      "endLine": 6,
+      "claim": "The league route mounts the full leaderboard.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/components/pages/LeaguePage/component.tsx",
+      "startLine": 21,
+      "endLine": 63,
+      "claim": "The league surface defines weekly/global scope, viewer standing, podium, ranked rows and empty/error recovery.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/profile/update-profile/update-profile.resolver.ts",
+      "startLine": 48,
+      "endLine": 123,
+      "claim": "The authenticated updateProfile mutation performs partial updates and returns the refreshed user.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/profile/claim-daily-quest-reward/claim-daily-quest-reward.resolver.ts",
+      "startLine": 39,
+      "endLine": 70,
+      "claim": "The authenticated claimDailyQuestReward mutation delegates atomic completion, duplicate-claim and reward granting rules.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-009",
+      "role": "be",
+      "path": "src/features/api/core/graphql/queries/league/my-league/my-league.resolver.ts",
+      "startLine": 55,
+      "endLine": 85,
+      "claim": "The authenticated myLeague query returns the viewer's weekly tier and ranked cohort.",
+      "kind": "api"
+    }
+  ]
+}

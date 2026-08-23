@@ -1,10 +1,10 @@
-# Surface · Danh mục khóa học
+# Surface · Course catalog
 
 > ID: `course-catalog` · Route: `/[lang]/courses`
 
 ## Job
 
-Tìm khóa học và phân biệt nội dung đã sở hữu với nội dung có thể mua.
+Find and compare courses.
 
 ## Navigation
 
@@ -14,7 +14,7 @@ Tìm khóa học và phân biệt nội dung đã sở hữu với nội dung c�
 
 | Region | Kind | Real representative content | States | Actions | Evidence |
 |---|---|---|---|---|---|
-| `course-catalog-content` | collection | Tìm khóa học; Khóa học; Giá hiện tại | pending, ready, empty, error | Xem khóa học, Chi tiết giá | `EV-001`, `EV-002` |
+| `catalog-results` | collection | Search courses; Result count; Grid or list view | pending, ready, empty, filtered-empty, failed | Open course, Try again | `EV-001`, `EV-004` |
 
 ## Context rule
 

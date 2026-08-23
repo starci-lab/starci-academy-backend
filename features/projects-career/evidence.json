@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "projects-career",
+  "head": "05229e6d47d376406d216ad7386fa2b4ef68be0fa0fd990473d696046f53fd85",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "50fb6aa814bac632edea972ade928046254f40a9"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/personal-project/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The personal project route mounts the roadmap page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/personal-project/tasks/[taskId]/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The personal project task route mounts the task page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/personal-project/tasks/[taskId]/result/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The task result route mounts the project result page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/pages/CoursePersonalProjectPage/component.tsx",
+      "startLine": 30,
+      "endLine": 50,
+      "claim": "The roadmap defines next task, completion evidence, milestone tasks and pending/ready/empty/failed states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/headhuntings/page.tsx",
+      "startLine": 1,
+      "endLine": 10,
+      "claim": "The course career route mounts the headhunting directory.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/app/[lang]/courses/[displayId]/learn/headhunting-companies/[companyId]/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The dynamic company route mounts one headhunting company page.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/personal-project/submit-personal-github-url/submit-personal-github-url.handler.spec.ts",
+      "startLine": 75,
+      "endLine": 145,
+      "claim": "The handler rejects missing users, stores the GitHub URL on the user's course enrollment and propagates missing-enrollment failure.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/features/api/core/graphql/queries/headhuntings/headhunting-companies/headhunting-companies.resolver.ts",
+      "startLine": 55,
+      "endLine": 77,
+      "claim": "The optionally authenticated headhuntingCompanies query lists all companies.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-009",
+      "claim": "The owner requires the personal-project task surface to use a semantic back link and to render recoverably instead of remaining in a non-recovering loading or failed state.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "fc6e8b32908010e9fb6b9959c5bf2e0d96cafffbc958404a478d7b9809f95075"
+    }
+  ]
+}

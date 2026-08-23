@@ -1,46 +1,82 @@
 {
   "schemaVersion": 1,
-  "project": "miamia",
+  "project": "starci-academy",
   "featureId": "course-marketplace",
-  "head": "806dbd5d25423c2339cace8b53bac2b9f0c598ca5ef84347bfeae644eb739d8b",
+  "head": "fbc8d013858790dc883e1f9fa57bd4524a6b285f0879d5c34e60b264261c1b3a",
   "sources": [
     {
       "role": "fe",
-      "repository": "https://github.com/starci-lab/miamia-fe2.git",
-      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "6db677598290cd69c3db6bfc4e731c37ba972b63"
     },
     {
       "role": "be",
-      "repository": "https://github.com/starci-lab/miamia-be.git",
-      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "0ed7b7bc8e1bcd8c7dc684856f2a15ed798ad57b"
     }
   ],
   "evidence": [
     {
       "id": "EV-001",
       "role": "fe",
-      "path": "src/app/routes.spec.tsx",
-      "startLine": 45,
-      "endLine": 46,
-      "claim": "Frontend khai báo route chi tiết và danh mục khóa học.",
+      "path": "src/app/[lang]/courses/page.tsx",
+      "startLine": 24,
+      "endLine": 52,
+      "claim": "The localized public catalog publishes metadata and mounts CoursesCatalogPage.",
       "kind": "route"
     },
     {
       "id": "EV-002",
       "role": "fe",
-      "path": "src/modules/api/graphql/queries/query-courses.ts",
-      "startLine": 8,
-      "endLine": 38,
-      "claim": "Danh mục đọc course identity, nội dung, giá, lượt đăng ký và trạng thái sở hữu với optional auth.",
-      "kind": "api"
+      "path": "src/app/[lang]/courses/[displayId]/page.tsx",
+      "startLine": 24,
+      "endLine": 69,
+      "claim": "The dynamic course route mounts CourseDetailPage for displayId.",
+      "kind": "route"
     },
     {
       "id": "EV-003",
       "role": "fe",
-      "path": "src/modules/api/graphql/mutations/mutation-courses-checkout.ts",
-      "startLine": 11,
-      "endLine": 40,
-      "claim": "Checkout khóa học trả URL/giao dịch pending, không tự ghi danh và chưa gửi lịch trả góp.",
+      "path": "src/app/[lang]/cart/page.tsx",
+      "startLine": 1,
+      "endLine": 13,
+      "claim": "The force-dynamic viewer-owned cart route mounts CartPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "src/components/pages/CoursesCatalogPage/component.tsx",
+      "startLine": 44,
+      "endLine": 119,
+      "claim": "The catalog owns search, view, pagination, owned/discover groups and settled notice states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/components/pages/CourseDetailPage/component.tsx",
+      "startLine": 101,
+      "endLine": 202,
+      "claim": "The detail page exposes overview/curriculum/reviews/FAQ data, pricing rail actions and pending/not-found/failed states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "src/components/pages/CartPage/component.tsx",
+      "startLine": 39,
+      "endLine": 102,
+      "claim": "The cart defines lines, totals, checkout and confirm-clear actions plus pending/ready/empty/failed states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout.resolver.ts",
+      "startLine": 65,
+      "endLine": 95,
+      "claim": "The authenticated coursesCheckout mutation starts one checkout for course ids, payment type and redirect URLs.",
       "kind": "api"
     }
   ]
