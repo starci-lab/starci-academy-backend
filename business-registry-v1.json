@@ -51,9 +51,9 @@
     },
     "crm-membership-management": {
       "featureId": "crm-membership-management",
-      "head": "f549627375282deec14babdf604ca521422834e9a836f0bca66cee245bbe1bba",
-      "authorityStatus": "pending",
-      "previousHead": "0bd46fe67e96f95d2ceb6860a965e2988b5511c1620596a81b5bd0f00d9c09d9",
+      "head": "8b9e9d34039f91f39422ae6798b5d3256198f813d6d06bd925c36bb2c2be804c",
+      "authorityStatus": "in-progress",
+      "previousHead": "f549627375282deec14babdf604ca521422834e9a836f0bca66cee245bbe1bba",
       "sources": [
         {
           "role": "fe",
@@ -120,6 +120,10 @@
       "f549627375282deec14babdf604ca521422834e9a836f0bca66cee245bbe1bba": {
         "hash": "f549627375282deec14babdf604ca521422834e9a836f0bca66cee245bbe1bba",
         "path": "objects/sha256/f549627375282deec14babdf604ca521422834e9a836f0bca66cee245bbe1bba.json"
+      },
+      "8b9e9d34039f91f39422ae6798b5d3256198f813d6d06bd925c36bb2c2be804c": {
+        "hash": "8b9e9d34039f91f39422ae6798b5d3256198f813d6d06bd925c36bb2c2be804c",
+        "path": "objects/sha256/8b9e9d34039f91f39422ae6798b5d3256198f813d6d06bd925c36bb2c2be804c.json"
       }
     }
   }

@@ -1,6 +1,6 @@
 # CRM quản lý hồ sơ hội viên Tây Sơn
 
-> Business head: `f549627375282deec14babdf604ca521422834e9a836f0bca66cee245bbe1bba`
+> Business head: `8b9e9d34039f91f39422ae6798b5d3256198f813d6d06bd925c36bb2c2be804c`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 

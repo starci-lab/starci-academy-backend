@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "tayson",
   "featureId": "crm-membership-management",
-  "head": "f549627375282deec14babdf604ca521422834e9a836f0bca66cee245bbe1bba",
+  "head": "8b9e9d34039f91f39422ae6798b5d3256198f813d6d06bd925c36bb2c2be804c",
   "sources": [
     {
       "role": "fe",

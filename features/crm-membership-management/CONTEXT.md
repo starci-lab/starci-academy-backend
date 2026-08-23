@@ -1,8 +1,8 @@
 # CRM quản lý hồ sơ hội viên Tây Sơn
 
-> Business identity: `tayson/crm-membership-management@f549627375282deec14babdf604ca521422834e9a836f0bca66cee245bbe1bba`
+> Business identity: `tayson/crm-membership-management@8b9e9d34039f91f39422ae6798b5d3256198f813d6d06bd925c36bb2c2be804c`
 >
-> Source heads: authority `pending` · `fe@6a954d40294c`, `be@661c37a1c6bb`
+> Source heads: authority `in-progress` · `fe@6a954d40294c`, `be@661c37a1c6bb`
 >
 > Load this file first. Load only the modules named by the current task.
 
