@@ -6,9 +6,9 @@
   "featureHeads": {
     "community-website-platform": {
       "featureId": "community-website-platform",
-      "head": "dfb7063d13303dc1f2bb4931e8660d481ce428d0a71d6fbc68493c1726ffaf1f",
-      "authorityStatus": "in-progress",
-      "previousHead": "cf86576fc68eb59bd8ecbffa2df9278bc8921cd3db078b02071fbee9b418b207",
+      "head": "89821c48140dd6f511766ab1e0f818a62be1834795c0bb6f1a73e4e6e0df03c1",
+      "authorityStatus": "rejected",
+      "previousHead": "dfb7063d13303dc1f2bb4931e8660d481ce428d0a71d6fbc68493c1726ffaf1f",
       "sources": [
         {
           "role": "fe",
@@ -148,6 +148,10 @@
       "dfb7063d13303dc1f2bb4931e8660d481ce428d0a71d6fbc68493c1726ffaf1f": {
         "hash": "dfb7063d13303dc1f2bb4931e8660d481ce428d0a71d6fbc68493c1726ffaf1f",
         "path": "objects/sha256/dfb7063d13303dc1f2bb4931e8660d481ce428d0a71d6fbc68493c1726ffaf1f.json"
+      },
+      "89821c48140dd6f511766ab1e0f818a62be1834795c0bb6f1a73e4e6e0df03c1": {
+        "hash": "89821c48140dd6f511766ab1e0f818a62be1834795c0bb6f1a73e4e6e0df03c1",
+        "path": "objects/sha256/89821c48140dd6f511766ab1e0f818a62be1834795c0bb6f1a73e4e6e0df03c1.json"
       }
     }
   }
