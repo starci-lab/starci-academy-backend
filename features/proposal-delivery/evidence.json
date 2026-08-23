@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "project": "tedo",
+  "featureId": "proposal-delivery",
+  "head": "51b9699c36c3a355048a3d1a7286e56711c7565e6b0e59500365605455603e62",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/tedo-landingpage.git",
+      "head": "8c9f46e075dd18c99bd749237818ab4e2ebd4152"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/tedo-backend.git",
+      "head": "24b3dc4b0eda44638cff0b70888b8304af7814de"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/components/consultation/proposal-actions.tsx",
+      "startLine": 13,
+      "endLine": 101,
+      "claim": "The proposal panel confirms requirements, generates documents, distinguishes idle/generating/ready/error and exposes immutable download links.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/app/api/projects/[projectId]/confirm/route.ts",
+      "startLine": 3,
+      "endLine": 14,
+      "claim": "The frontend project boundary validates project id and confirms the complete current requirements revision.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/app/api/projects/[projectId]/proposals/route.ts",
+      "startLine": 3,
+      "endLine": 14,
+      "claim": "The frontend project boundary validates project id and requests immutable requirements and proposal documents.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/api/graphql/projects/generate-project-proposal/generate-project-proposal.resolver.ts",
+      "startLine": 1,
+      "endLine": 20,
+      "claim": "The GraphQL mutation generates a project proposal for a project id.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/api/projects/[projectId]/documents/[documentId]/route.ts",
+      "startLine": 3,
+      "endLine": 23,
+      "claim": "The frontend document route validates ids and streams the private backend response with content headers.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/api/http/projects/download-project-document/download-project-document.controller.ts",
+      "startLine": 5,
+      "endLine": 20,
+      "claim": "The backend project document boundary streams a project-owned immutable document with recorded MIME type and filename.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/modules/pricing/commercial-price-engine.service.ts",
+      "startLine": 25,
+      "endLine": 136,
+      "claim": "The commercial engine evaluates completeness, comparable pricing, component lines, ranges and manual-review reasons.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/modules/proposal/proposal-generator.service.ts",
+      "startLine": 88,
+      "endLine": 160,
+      "claim": "Proposal generation requires confirmed complete priced scope, persists versioned draft and three immutable documents, and enforces project ownership on download.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-009",
+      "role": "fe",
+      "path": "src/app/[locale]/admin/bao-gia/preview/page.tsx",
+      "startLine": 12,
+      "endLine": 97,
+      "claim": "The no-index preview uses checked-in sample data, states it is not an editor or live-data route, and renders print guidance plus the proposal document.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "src/features/api/graphql/quote/estimate-quote/estimate-quote.resolver.ts",
+      "startLine": 9,
+      "endLine": 27,
+      "claim": "The estimateQuote GraphQL query exposes deterministic project discovery and price matching with scope validation.",
+      "kind": "api"
+    }
+  ]
+}

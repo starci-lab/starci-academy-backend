@@ -1,0 +1,679 @@
+{
+  "schemaVersion": 1,
+  "project": "tedo",
+  "featureId": "proposal-delivery",
+  "title": "Proposal and document delivery",
+  "summary": "TEDO confirms a complete project requirements revision, deterministically prices the scope or routes it to manual review, generates immutable brief/specification/proposal documents, and exposes those documents for download and internal visual preview.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/tedo-landingpage.git",
+      "head": "8c9f46e075dd18c99bd749237818ab4e2ebd4152"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/tedo-backend.git",
+      "head": "24b3dc4b0eda44638cff0b70888b8304af7814de"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Requirements patch and confirmation",
+      "Deterministic commercial estimate",
+      "Manual-review and insufficient-scope outcomes",
+      "Proposal generation from a confirmed revision",
+      "Immutable document download",
+      "Internal sample quote preview"
+    ],
+    "excludes": [
+      "Electronic signature and contract acceptance",
+      "Editing live customer data from the preview route",
+      "Payment collection"
+    ]
+  },
+  "actors": [
+    {
+      "id": "buyer",
+      "label": "Prospective buyer",
+      "capabilities": [
+        "Complete and confirm project scope",
+        "Request proposal generation",
+        "Download generated documents",
+        "Preview the proposal template with representative sample data"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "platform",
+      "label": "TEDO platform",
+      "capabilities": [
+        "Persist requirements revisions",
+        "Price a confirmed scope",
+        "Generate immutable brief, specification and proposal documents",
+        "Stream a project-owned document"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-010"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "proposal-delivery-journey",
+      "title": "Proposal and document delivery",
+      "trigger": "A consultation reaches complete project requirements and the buyer requests proposal documents.",
+      "steps": [
+        {
+          "id": "complete-requirements",
+          "actor": "buyer",
+          "action": "Provide or amend required project scope fields",
+          "result": "A new requirements revision is recorded",
+          "surfaceId": "proposal-panel",
+          "stateId": "requirements-partial"
+        },
+        {
+          "id": "confirm-requirements",
+          "actor": "buyer",
+          "action": "Confirm the current complete revision",
+          "result": "The immutable scope snapshot becomes eligible for pricing",
+          "surfaceId": "proposal-panel",
+          "stateId": "proposal-pending"
+        },
+        {
+          "id": "generate-proposal",
+          "actor": "platform",
+          "action": "Price the confirmed scope and generate the document set",
+          "result": "Brief, requirements specification and commercial proposal links are returned",
+          "surfaceId": "proposal-panel",
+          "stateId": "proposal-ready"
+        },
+        {
+          "id": "download-document",
+          "actor": "buyer",
+          "action": "Open one generated document link",
+          "result": "The immutable project-owned document is streamed",
+          "surfaceId": "proposal-panel",
+          "stateId": "proposal-ready"
+        }
+      ],
+      "outcomes": [
+        "The buyer receives versioned downloadable project documents derived from one confirmed scope"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009",
+        "EV-010"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Proposal generation requires a confirmed requirements revision and rejects incomplete scope.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-008"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Pricing first returns insufficient-scope when discovery is incomplete, otherwise uses an exact comparable match or a component estimate with a 15 percent reference ceiling; review reasons force manual-review.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-007"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Manual-review pricing cannot generate a proposal automatically.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "Each generation persists a versioned draft proposal and immutable brief, requirements specification and proposal documents.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-008"
+      ]
+    },
+    {
+      "id": "BR-05",
+      "statement": "A document download succeeds only when the document id belongs to the requested project.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-006",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "BR-06",
+      "statement": "The quote preview is no-index, uses checked-in sample data and is not an editor or a live-customer-data surface.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-009"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "requirements-partial",
+      "label": "Requirements incomplete",
+      "kind": "partial",
+      "transitions": [
+        "proposal-pending"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "proposal-pending",
+      "label": "Proposal generating",
+      "kind": "pending",
+      "transitions": [
+        "proposal-ready",
+        "proposal-manual-review",
+        "proposal-error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-004",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "proposal-ready",
+      "label": "Proposal documents ready",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "proposal-manual-review",
+      "label": "Commercial review required",
+      "kind": "partial",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "proposal-error",
+      "label": "Proposal generation failed",
+      "kind": "error",
+      "transitions": [
+        "proposal-pending"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "requirements-revision",
+      "label": "Requirements revision",
+      "fields": [
+        "project id",
+        "version",
+        "requirements",
+        "confirmedAt"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "commercial-estimate",
+      "label": "Commercial estimate",
+      "fields": [
+        "status",
+        "currency",
+        "lines",
+        "subtotal",
+        "discount",
+        "total",
+        "range min/max",
+        "timeline min/max",
+        "missing fields",
+        "review reasons"
+      ],
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "project-proposal",
+      "label": "Project proposal",
+      "fields": [
+        "id",
+        "project id",
+        "version",
+        "draft status",
+        "estimate",
+        "lines",
+        "summary"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "generated-document",
+      "label": "Generated project document",
+      "fields": [
+        "id",
+        "project id",
+        "kind",
+        "file name",
+        "MIME type",
+        "content",
+        "download URL"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-005",
+        "EV-006",
+        "EV-008"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "patch-requirements",
+      "kind": "mutation",
+      "name": "patchProjectRequirements",
+      "owner": "backend",
+      "inputs": [
+        "project id",
+        "requirements patch"
+      ],
+      "outputs": [
+        "recorded requirements revision"
+      ],
+      "failures": [
+        "project missing",
+        "scope invalid"
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "confirm-requirements",
+      "kind": "mutation",
+      "name": "confirmProjectRequirements",
+      "owner": "backend",
+      "inputs": [
+        "project id"
+      ],
+      "outputs": [
+        "confirmed project requirements snapshot"
+      ],
+      "failures": [
+        "project missing",
+        "requirements incomplete"
+      ],
+      "evidenceIds": [
+        "EV-003"
+      ]
+    },
+    {
+      "id": "estimate-quote",
+      "kind": "query",
+      "name": "estimateQuote",
+      "owner": "backend",
+      "inputs": [
+        "project scope fingerprint"
+      ],
+      "outputs": [
+        "estimate status and pricing evidence"
+      ],
+      "failures": [
+        "scope invalid",
+        "insufficient scope",
+        "manual review"
+      ],
+      "evidenceIds": [
+        "EV-007",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "generate-proposal",
+      "kind": "mutation",
+      "name": "generateProjectProposal",
+      "owner": "backend",
+      "inputs": [
+        "project id"
+      ],
+      "outputs": [
+        "proposal and generated document summaries"
+      ],
+      "failures": [
+        "requirements unconfirmed",
+        "requirements incomplete",
+        "commercial review required"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "download-document",
+      "kind": "query",
+      "name": "GET /v1/projects/:projectId/documents/:documentId/download",
+      "owner": "backend",
+      "inputs": [
+        "project id",
+        "document id"
+      ],
+      "outputs": [
+        "document content, file name and MIME type"
+      ],
+      "failures": [
+        "document missing or belongs to another project"
+      ],
+      "evidenceIds": [
+        "EV-006",
+        "EV-008"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "proposal-panel",
+      "routePattern": "/[locale]/chat/[conversationId]#proposal",
+      "title": "Proposal documents",
+      "eyebrow": "TEDO",
+      "purpose": "Confirm complete scope, generate the document set and download immutable files.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "proposal-generation",
+          "kind": "flow",
+          "title": "Generate proposal",
+          "summary": "Idle/generating/ready/error panel that confirms scope before generation and lists returned documents.",
+          "items": [
+            {
+              "id": "proposal-status",
+              "role": "status",
+              "label": "Generation status"
+            },
+            {
+              "id": "document-list",
+              "role": "entity",
+              "label": "Brief, specification and proposal documents"
+            }
+          ],
+          "actions": [
+            {
+              "id": "generate-documents",
+              "label": "Generate proposal",
+              "kind": "primary",
+              "target": "confirmProjectRequirements then generateProjectProposal"
+            },
+            {
+              "id": "download-document",
+              "label": "Download document",
+              "kind": "link",
+              "target": "document URL"
+            }
+          ],
+          "states": [
+            "idle",
+            "generating",
+            "ready",
+            "error",
+            "manual-review"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006",
+            "EV-007",
+            "EV-008"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "quote-preview",
+      "routePattern": "/[locale]/admin/bao-gia/preview",
+      "title": "Quote template preview",
+      "eyebrow": "TEDO",
+      "purpose": "Visually verify the real proposal template against long representative sample copy before PDF export.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "preview-document",
+          "kind": "content",
+          "title": "Preview mẫu báo giá",
+          "summary": "No-index sample proposal with print/PDF hint and no live client data.",
+          "items": [
+            {
+              "id": "sample-client",
+              "role": "fact",
+              "label": "Sample client and reference"
+            },
+            {
+              "id": "print-hint",
+              "role": "text",
+              "label": "Ctrl/Cmd + P, A4, browser header/footer off"
+            },
+            {
+              "id": "proposal-document",
+              "role": "entity",
+              "label": "Sample proposal"
+            }
+          ],
+          "actions": [
+            {
+              "id": "print-preview",
+              "label": "Export PDF",
+              "kind": "secondary",
+              "target": "browser print"
+            }
+          ],
+          "states": [
+            "ready"
+          ],
+          "evidenceIds": [
+            "EV-009"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-009"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "The proposal panel confirms requirements before generation and exposes returned immutable document links only after a valid generated response.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Unconfirmed, incomplete or manual-review scopes cannot produce automatic proposal documents.",
+      "evidenceIds": [
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Generated documents are versioned, project-owned and downloadable with their recorded filename and MIME type.",
+      "evidenceIds": [
+        "EV-006",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "The internal preview renders checked-in sample content, is no-index and does not read live client data.",
+      "evidenceIds": [
+        "EV-009"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "proposal-acceptance",
+      "question": "How does a buyer formally accept or reject a generated proposal?",
+      "impact": "The implemented flow generates and downloads draft documents but defines no electronic acceptance operation."
+    },
+    {
+      "id": "preview-access-future",
+      "question": "What authorization must protect the quote preview if it begins reading live quotes?",
+      "impact": "The current sample-only route explicitly has no auth yet and requires an admin password boundary if live data is introduced."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/components/consultation/proposal-actions.tsx",
+      "startLine": 13,
+      "endLine": 101,
+      "claim": "The proposal panel confirms requirements, generates documents, distinguishes idle/generating/ready/error and exposes immutable download links.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/app/api/projects/[projectId]/confirm/route.ts",
+      "startLine": 3,
+      "endLine": 14,
+      "claim": "The frontend project boundary validates project id and confirms the complete current requirements revision.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/app/api/projects/[projectId]/proposals/route.ts",
+      "startLine": 3,
+      "endLine": 14,
+      "claim": "The frontend project boundary validates project id and requests immutable requirements and proposal documents.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/api/graphql/projects/generate-project-proposal/generate-project-proposal.resolver.ts",
+      "startLine": 1,
+      "endLine": 20,
+      "claim": "The GraphQL mutation generates a project proposal for a project id.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/app/api/projects/[projectId]/documents/[documentId]/route.ts",
+      "startLine": 3,
+      "endLine": 23,
+      "claim": "The frontend document route validates ids and streams the private backend response with content headers.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/api/http/projects/download-project-document/download-project-document.controller.ts",
+      "startLine": 5,
+      "endLine": 20,
+      "claim": "The backend project document boundary streams a project-owned immutable document with recorded MIME type and filename.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/modules/pricing/commercial-price-engine.service.ts",
+      "startLine": 25,
+      "endLine": 136,
+      "claim": "The commercial engine evaluates completeness, comparable pricing, component lines, ranges and manual-review reasons.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/modules/proposal/proposal-generator.service.ts",
+      "startLine": 88,
+      "endLine": 160,
+      "claim": "Proposal generation requires confirmed complete priced scope, persists versioned draft and three immutable documents, and enforces project ownership on download.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-009",
+      "role": "fe",
+      "path": "src/app/[locale]/admin/bao-gia/preview/page.tsx",
+      "startLine": 12,
+      "endLine": 97,
+      "claim": "The no-index preview uses checked-in sample data, states it is not an editor or live-data route, and renders print guidance plus the proposal document.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "src/features/api/graphql/quote/estimate-quote/estimate-quote.resolver.ts",
+      "startLine": 9,
+      "endLine": 27,
+      "claim": "The estimateQuote GraphQL query exposes deterministic project discovery and price matching with scope validation.",
+      "kind": "api"
+    }
+  ]
+}
