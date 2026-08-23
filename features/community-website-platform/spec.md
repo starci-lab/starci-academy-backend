@@ -1,6 +1,6 @@
 # Nền tảng website Cộng đồng Doanh nghiệp Tây Sơn
 
-> Business head: `49fb5874ed4a4a4d3a5161b4648322e92f9875cc3e92081f10426df2ee98d5f3`
+> Business head: `dffd8876f4f930734a617d31a3096f7663ada2928b341d4f691e7a6d0d75115a`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 

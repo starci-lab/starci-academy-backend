@@ -6,9 +6,9 @@
   "featureHeads": {
     "community-website-platform": {
       "featureId": "community-website-platform",
-      "head": "49fb5874ed4a4a4d3a5161b4648322e92f9875cc3e92081f10426df2ee98d5f3",
-      "authorityStatus": "pending",
-      "previousHead": "3fb28ac7bf9d941f7110141c095ec3d0cc74dcea0658bf6abb9721bcfcba0e53",
+      "head": "dffd8876f4f930734a617d31a3096f7663ada2928b341d4f691e7a6d0d75115a",
+      "authorityStatus": "in-progress",
+      "previousHead": "49fb5874ed4a4a4d3a5161b4648322e92f9875cc3e92081f10426df2ee98d5f3",
       "sources": [
         {
           "role": "fe",
@@ -132,6 +132,10 @@
       "49fb5874ed4a4a4d3a5161b4648322e92f9875cc3e92081f10426df2ee98d5f3": {
         "hash": "49fb5874ed4a4a4d3a5161b4648322e92f9875cc3e92081f10426df2ee98d5f3",
         "path": "objects/sha256/49fb5874ed4a4a4d3a5161b4648322e92f9875cc3e92081f10426df2ee98d5f3.json"
+      },
+      "dffd8876f4f930734a617d31a3096f7663ada2928b341d4f691e7a6d0d75115a": {
+        "hash": "dffd8876f4f930734a617d31a3096f7663ada2928b341d4f691e7a6d0d75115a",
+        "path": "objects/sha256/dffd8876f4f930734a617d31a3096f7663ada2928b341d4f691e7a6d0d75115a.json"
       }
     }
   }
