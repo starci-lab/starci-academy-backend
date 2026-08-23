@@ -1,0 +1,505 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "course-applied-learning",
+  "title": "Phỏng vấn, dự án cá nhân và playground",
+  "summary": "Học viên luyện phỏng vấn theo session, hoàn thành milestone/task dự án cá nhân và khởi tạo playground guided/free có pairing code và các bước thực hành.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Mock interview setup/session/result",
+      "Personal project/tasks/results",
+      "Playground catalog/setup/session"
+    ],
+    "excludes": [
+      "Content reader",
+      "Flashcards",
+      "Coding interview problem catalog"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Học viên đã xác thực",
+      "capabilities": [
+        "Bắt đầu và tiếp tục mock interview",
+        "Nộp task dự án",
+        "Xem feedback",
+        "Chạy playground guided hoặc free"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "complete-applied-learning",
+      "title": "Hoàn thành hoạt động ứng dụng",
+      "trigger": "Học viên chọn mock interview, personal project hoặc playground.",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "learner",
+          "action": "Chọn cấu hình và chạy phiên phỏng vấn.",
+          "result": "Session và result được lưu theo sessionId.",
+          "surfaceId": "mock-interview",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-2",
+          "actor": "learner",
+          "action": "Chọn task, nộp và mở result.",
+          "result": "Feedback của attempt được hiển thị.",
+          "surfaceId": "personal-project",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-3",
+          "actor": "learner",
+          "action": "Chọn playground và khởi tạo session.",
+          "result": "Live session nhận pairing code và ordered steps.",
+          "surfaceId": "course-playground",
+          "stateId": "ready"
+        }
+      ],
+      "outcomes": [
+        "Mỗi hoạt động có identity session/task riêng",
+        "Kết quả được xem ở route riêng"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Mock interview session trả sessionId, prompt, seed topics và deadline; không phải dữ liệu tạm chỉ có ở client.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Playground session yêu cầu auth và entitlement, trả pairingCode cùng các bước ordered.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "pending",
+      "label": "Đang tải hoặc đang xử lý",
+      "kind": "pending",
+      "transitions": [
+        "ready",
+        "empty",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "ready",
+      "label": "Dữ liệu sẵn sàng",
+      "kind": "success",
+      "transitions": [
+        "Thực hiện hành động tiếp theo"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "Không có dữ liệu phù hợp",
+      "kind": "empty",
+      "transitions": [
+        "Đổi bộ lọc",
+        "Quay lại"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "error",
+      "label": "Không thể hoàn tất yêu cầu",
+      "kind": "error",
+      "transitions": [
+        "Thử lại"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "mock-interview-session",
+      "label": "Phiên phỏng vấn",
+      "fields": [
+        "sessionId",
+        "promptId",
+        "difficulty",
+        "level",
+        "mode",
+        "seedTopics",
+        "deadlineAt"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "personal-project-task",
+      "label": "Task dự án cá nhân",
+      "fields": [
+        "taskId",
+        "title",
+        "status",
+        "completionPercent",
+        "attempt",
+        "feedback"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "playground-session",
+      "label": "Phiên playground",
+      "fields": [
+        "id",
+        "pairingCode",
+        "mode",
+        "steps"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "start-mock-interview",
+      "kind": "mutation",
+      "name": "startMockInterviewSession",
+      "owner": "frontend",
+      "inputs": [
+        "courseId",
+        "level",
+        "mode",
+        "language/question settings"
+      ],
+      "outputs": [
+        "sessionId",
+        "seedTopics",
+        "deadlineAt"
+      ],
+      "failures": [
+        "Not entitled",
+        "No question bank",
+        "GraphQL error"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "start-playground",
+      "kind": "mutation",
+      "name": "createPlaygroundSession",
+      "owner": "frontend",
+      "inputs": [
+        "playgroundId",
+        "guided/free mode"
+      ],
+      "outputs": [
+        "session id",
+        "pairingCode",
+        "ordered steps"
+      ],
+      "failures": [
+        "Not enrolled",
+        "Not entitled",
+        "GraphQL error"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "mock-interview",
+      "routePattern": "/[lang]/courses/[displayId]/learn/mock-interview/...",
+      "title": "Mock interview",
+      "eyebrow": "Luyện phỏng vấn",
+      "purpose": "Cấu hình, thực hiện và xem kết quả phỏng vấn.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "mock-interview-content",
+          "kind": "flow",
+          "title": "Phiên phỏng vấn",
+          "summary": "Setup chọn level/mode, session dùng sessionId, result theo cùng identity.",
+          "items": [
+            {
+              "id": "level",
+              "role": "choice",
+              "label": "Cấp độ"
+            },
+            {
+              "id": "mode",
+              "role": "choice",
+              "label": "Chế độ"
+            },
+            {
+              "id": "seed-topic",
+              "role": "step",
+              "label": "Câu hỏi phỏng vấn"
+            }
+          ],
+          "actions": [
+            {
+              "id": "start-interview",
+              "label": "Bắt đầu phỏng vấn",
+              "kind": "primary"
+            },
+            {
+              "id": "resume-interview",
+              "label": "Tiếp tục phiên",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "personal-project",
+      "routePattern": "/[lang]/courses/[displayId]/learn/personal-project/tasks/[taskId]",
+      "title": "Personal project",
+      "eyebrow": "Dự án cá nhân",
+      "purpose": "Theo dõi tiến độ, mở task, nộp và đọc feedback.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "personal-project-content",
+          "kind": "flow",
+          "title": "Milestone và task",
+          "summary": "Hub dự án dẫn tới task và result riêng.",
+          "items": [
+            {
+              "id": "milestone",
+              "role": "step",
+              "label": "Milestone"
+            },
+            {
+              "id": "task",
+              "role": "entity",
+              "label": "Task"
+            },
+            {
+              "id": "feedback",
+              "role": "status",
+              "label": "Feedback"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-task",
+              "label": "Mở task",
+              "kind": "primary"
+            },
+            {
+              "id": "submit-task",
+              "label": "Nộp task",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "course-playground",
+      "routePattern": "/[lang]/courses/[displayId]/learn/playground/[slug]/session",
+      "title": "Playground",
+      "eyebrow": "Thực hành trực tiếp",
+      "purpose": "Chọn playground, ghép cặp và chạy các bước guided/free.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-playground-content",
+          "kind": "flow",
+          "title": "Phiên playground",
+          "summary": "Catalog dẫn tới setup theo slug rồi live session.",
+          "items": [
+            {
+              "id": "playground",
+              "role": "entity",
+              "label": "Playground"
+            },
+            {
+              "id": "pairing-code",
+              "role": "fact",
+              "label": "Mã ghép cặp"
+            },
+            {
+              "id": "mode",
+              "role": "choice",
+              "label": "Guided hoặc free"
+            },
+            {
+              "id": "step",
+              "role": "step",
+              "label": "Bước thực hành"
+            }
+          ],
+          "actions": [
+            {
+              "id": "start-session",
+              "label": "Bắt đầu phiên",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-003"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Setup phải phân biệt phiên đang có với tạo phiên mới và không tự dựng seed topics.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Task và result phải giữ taskId và displayId trong route.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Session chỉ bắt đầu khi backend trả id, pairingCode và steps.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "applied-learning-backend-contract",
+      "question": "Resolver current-head nào triển khai mock interview, personal project và playground operations?",
+      "impact": "Không coi các mutation FE là backend-confirmed cho tới khi route current BE được tìm thấy."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 34,
+      "endLine": 43,
+      "claim": "Frontend khai báo setup/session/result cho mock interview, personal project và playground.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-start-mock-interview-session.ts",
+      "startLine": 6,
+      "endLine": 67,
+      "claim": "Frontend khởi tạo durable mock interview session với prompt, seed topics và deadline.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-start-playground-session.ts",
+      "startLine": 6,
+      "endLine": 58,
+      "claim": "Frontend khởi tạo playground session authenticated có guided/free mode, pairing code và ordered steps.",
+      "kind": "api"
+    }
+  ]
+}

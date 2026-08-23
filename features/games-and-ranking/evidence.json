@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "games-and-ranking",
+  "head": "f7e3f0e86a9da6dd42a03b860cd99bae2b3f29ec20e62ce017f7543e6ec0c379",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 7,
+      "endLine": 8,
+      "claim": "Frontend khai báo Game và Pricing routes.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/games/catalog.ts",
+      "startLine": 3,
+      "endLine": 13,
+      "claim": "Frontend khai báo bốn game và các mode được hỗ trợ với nội dung Vietnamese hiện tại.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "be",
+      "path": "test/e2e/colyseus-friends-room.e2e-spec.ts",
+      "startLine": 248,
+      "endLine": 320,
+      "claim": "Hai friend có quyền vào cùng room, hoàn tất và lưu hai result; inactive membership bị từ chối.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "test/e2e/streak.e2e-spec.ts",
+      "startLine": 112,
+      "endLine": 171,
+      "claim": "Mua streak freeze debit Coin và credit inventory; cap/insufficient Coin không tạo thay đổi một phần.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-global-leaderboard.ts",
+      "startLine": 6,
+      "endLine": 9,
+      "claim": "Frontend đọc standing của viewer và các entries global với rank, points và follow state.",
+      "kind": "api"
+    }
+  ]
+}

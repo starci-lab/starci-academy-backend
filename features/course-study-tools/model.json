@@ -1,0 +1,538 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "course-study-tools",
+  "title": "Công cụ ôn tập trong khóa học",
+  "summary": "Học viên dùng flashcard review/quiz có session lưu bền, đọc nền tảng theo danh mục, duyệt mind map và xem thông tin công ty tuyển dụng gắn với khóa học.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Flashcard review và quiz",
+      "Foundation catalog và reader",
+      "Mind map",
+      "Headhunting companies",
+      "Course leaderboard"
+    ],
+    "excludes": [
+      "Nội dung bài học chính",
+      "Mock interview",
+      "Coding practice ngoài khóa"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Học viên đã xác thực",
+      "capabilities": [
+        "Ôn flashcard",
+        "Làm quiz flashcard",
+        "Đọc foundation",
+        "Tìm node mind map",
+        "Xem công ty và leaderboard khóa"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "use-course-study-tools",
+      "title": "Dùng công cụ ôn tập",
+      "trigger": "Học viên chọn một công cụ từ learn shell.",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "learner",
+          "action": "Chọn review hoặc quiz và mở session.",
+          "result": "Session lưu bền được tạo hoặc tiếp tục.",
+          "surfaceId": "course-flashcards",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-2",
+          "actor": "learner",
+          "action": "Mở category rồi chọn resource.",
+          "result": "Tài nguyên nền tảng được hiển thị.",
+          "surfaceId": "course-foundations",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-3",
+          "actor": "learner",
+          "action": "Tìm và chọn node.",
+          "result": "Chi tiết node hoặc liên kết liên quan được mở.",
+          "surfaceId": "course-mind-map",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-4",
+          "actor": "learner",
+          "action": "Chọn một công ty.",
+          "result": "Chi tiết và gợi ý công ty được hiển thị.",
+          "surfaceId": "course-headhunting",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-5",
+          "actor": "learner",
+          "action": "Mở bảng xếp hạng khóa.",
+          "result": "Standing được hiển thị.",
+          "surfaceId": "course-leaderboard",
+          "stateId": "ready"
+        }
+      ],
+      "outcomes": [
+        "Flashcard session có thể tiếp tục và có result riêng",
+        "Catalog công cụ phân biệt empty và failed"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Flashcard review có deck inventory, due queue và session lưu bền; quiz và review dùng URL session/result riêng.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "pending",
+      "label": "Đang tải hoặc đang xử lý",
+      "kind": "pending",
+      "transitions": [
+        "ready",
+        "empty",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "ready",
+      "label": "Dữ liệu sẵn sàng",
+      "kind": "success",
+      "transitions": [
+        "Thực hiện hành động tiếp theo"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "Không có dữ liệu phù hợp",
+      "kind": "empty",
+      "transitions": [
+        "Đổi bộ lọc",
+        "Quay lại"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "error",
+      "label": "Không thể hoàn tất yêu cầu",
+      "kind": "error",
+      "transitions": [
+        "Thử lại"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "flashcard-deck",
+      "label": "Bộ flashcard",
+      "fields": [
+        "id",
+        "displayId",
+        "title",
+        "difficulty",
+        "dueCount",
+        "masteredCount",
+        "cards"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "foundation-resource",
+      "label": "Tài nguyên nền tảng",
+      "fields": [
+        "categoryId",
+        "foundationId",
+        "title",
+        "body"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "course-tool-item",
+      "label": "Mục công cụ khóa học",
+      "fields": [
+        "id",
+        "title",
+        "description",
+        "status"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-flashcards",
+      "kind": "query",
+      "name": "flashcardDecksByCourse / myDueFlashcards",
+      "owner": "frontend",
+      "inputs": [
+        "courseId",
+        "limit"
+      ],
+      "outputs": [
+        "decks",
+        "due cards"
+      ],
+      "failures": [
+        "GraphQL error",
+        "Empty deck inventory"
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "course-flashcards",
+      "routePattern": "/[lang]/courses/[displayId]/learn/flashcards/{review|quiz}/...",
+      "title": "Flashcards",
+      "eyebrow": "Ôn tập",
+      "purpose": "Chọn deck hoặc due queue, chạy session và xem result.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-flashcards-content",
+          "kind": "collection",
+          "title": "Bộ thẻ và phiên",
+          "summary": "Review và quiz có overview, session và result route riêng.",
+          "items": [
+            {
+              "id": "deck",
+              "role": "entity",
+              "label": "Bộ flashcard"
+            },
+            {
+              "id": "due-count",
+              "role": "fact",
+              "label": "Thẻ đến hạn"
+            },
+            {
+              "id": "mastered-count",
+              "role": "fact",
+              "label": "Thẻ đã thành thạo"
+            }
+          ],
+          "actions": [
+            {
+              "id": "start-review",
+              "label": "Bắt đầu ôn",
+              "kind": "primary"
+            },
+            {
+              "id": "start-quiz",
+              "label": "Làm quiz",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "course-foundations",
+      "routePattern": "/[lang]/courses/[displayId]/learn/foundations/[categoryId]/[foundationId]",
+      "title": "Foundations",
+      "eyebrow": "Kiến thức nền",
+      "purpose": "Duyệt category và đọc tài nguyên nền tảng.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-foundations-content",
+          "kind": "collection",
+          "title": "Danh mục nền tảng",
+          "summary": "Hub, category và resource reader có route phân cấp.",
+          "items": [
+            {
+              "id": "category",
+              "role": "entity",
+              "label": "Danh mục"
+            },
+            {
+              "id": "resource",
+              "role": "entity",
+              "label": "Tài nguyên"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-resource",
+              "label": "Đọc tài nguyên",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "course-mind-map",
+      "routePattern": "/[lang]/courses/[displayId]/learn/mind-map",
+      "title": "Mind map",
+      "eyebrow": "Liên kết kiến thức",
+      "purpose": "Duyệt và tìm các node kiến thức của khóa.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-mind-map-content",
+          "kind": "content",
+          "title": "Bản đồ kiến thức",
+          "summary": "Bản đồ backend-computed hỗ trợ tìm kiếm và empty state.",
+          "items": [
+            {
+              "id": "node-search",
+              "role": "field",
+              "label": "Tìm node"
+            },
+            {
+              "id": "mind-node",
+              "role": "entity",
+              "label": "Node kiến thức"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-node",
+              "label": "Mở node",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "course-headhunting",
+      "routePattern": "/[lang]/courses/[displayId]/learn/headhuntings",
+      "title": "Cơ hội tuyển dụng",
+      "eyebrow": "Nghề nghiệp",
+      "purpose": "Xem công ty tuyển dụng và gợi ý liên quan tới khóa.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-headhunting-content",
+          "kind": "collection",
+          "title": "Công ty",
+          "summary": "Danh sách và chi tiết company có route riêng.",
+          "items": [
+            {
+              "id": "company",
+              "role": "entity",
+              "label": "Công ty tuyển dụng"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-company",
+              "label": "Xem công ty",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "course-leaderboard",
+      "routePattern": "/[lang]/courses/[displayId]/learn/leaderboard",
+      "title": "Bảng xếp hạng khóa",
+      "eyebrow": "Thành tích",
+      "purpose": "So sánh thứ hạng trong phạm vi khóa học.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-leaderboard-content",
+          "kind": "collection",
+          "title": "Thứ hạng",
+          "summary": "Hiển thị standing của viewer và các learner khác.",
+          "items": [
+            {
+              "id": "standing",
+              "role": "entity",
+              "label": "Thứ hạng học viên"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Review/quiz phải dùng sessionId ổn định và result route tương ứng.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Mỗi category/resource phải giữ identity route riêng.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Mind map phải phân biệt không có graph với không có kết quả tìm kiếm.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "List và detail phải có empty/not-found/failed trung thực.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "Bảng xếp hạng phải có pending/ready/empty/failed.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "study-tools-backend-contract",
+      "question": "Các resolver flashcard, foundation, mind-map, headhunting và course leaderboard nằm ở đâu trong BE current head?",
+      "impact": "Không coi các GraphQL documents và route FE là bằng chứng backend đã triển khai."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 20,
+      "endLine": 33,
+      "claim": "Frontend khai báo đầy đủ route flashcard, foundation, headhunting, course leaderboard và mind-map.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-flashcard-decks-by-course.ts",
+      "startLine": 47,
+      "endLine": 95,
+      "claim": "Frontend đọc deck inventory, mastery counters và due queue được xác thực cho course.",
+      "kind": "api"
+    }
+  ]
+}

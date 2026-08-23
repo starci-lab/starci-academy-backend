@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "coding-practice",
+  "head": "647e8e19e35baf9ac1c354c7d702583a4fbf40a93f808dddde7eca1ce110518b",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 50,
+      "endLine": 52,
+      "claim": "Frontend khai báo practice hub, domain và problem routes.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-coding-problems.ts",
+      "startLine": 8,
+      "endLine": 62,
+      "claim": "Frontend đọc coding problems theo domain/difficulty/tag/page/limit và giữ domain khác tag.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-submit-coding-solution.ts",
+      "startLine": 6,
+      "endLine": 57,
+      "claim": "Frontend gửi source và telemetry, nhận submissionId/jobId, rồi chờ verdict bất đồng bộ.",
+      "kind": "api"
+    }
+  ]
+}

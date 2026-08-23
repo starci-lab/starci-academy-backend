@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "course-study-tools",
+  "head": "d77b54a12f55a97a7860bbe5b47129de67c16a2e299bcc008619c26177ab6698",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 20,
+      "endLine": 33,
+      "claim": "Frontend khai báo đầy đủ route flashcard, foundation, headhunting, course leaderboard và mind-map.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-flashcard-decks-by-course.ts",
+      "startLine": 47,
+      "endLine": 95,
+      "claim": "Frontend đọc deck inventory, mastery counters và due queue được xác thực cho course.",
+      "kind": "api"
+    }
+  ]
+}

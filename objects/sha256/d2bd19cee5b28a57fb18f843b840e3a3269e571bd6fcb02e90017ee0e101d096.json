@@ -1,0 +1,586 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "exam-preparation",
+  "title": "Ôn tập ngôn ngữ và làm đề thi",
+  "summary": "Học viên khám phá topic, luyện phrase, mở catalog đề, làm bài không lộ đáp án, nhận điểm/giải thích, ghi study session và theo dõi progress/wrapped.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Study home/explore/topic/practice",
+      "Exam catalog/session",
+      "Grade paper",
+      "Progress and wrapped",
+      "Exam download entitlement"
+    ],
+    "excludes": [
+      "Course flashcards",
+      "Coding judge",
+      "Multiplayer games"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Học viên đã xác thực",
+      "capabilities": [
+        "Khám phá topic",
+        "Luyện phrase",
+        "Làm đề",
+        "Xem kết quả",
+        "Theo dõi tiến độ"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "study-and-grade-paper",
+      "title": "Ôn tập và làm đề",
+      "trigger": "Học viên mở Study hoặc Exam.",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "learner",
+          "action": "Chọn điểm tiếp tục hoặc khám phá.",
+          "result": "Topic, practice hoặc exam được mở.",
+          "surfaceId": "study-home",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-2",
+          "actor": "learner",
+          "action": "Mở topic và bắt đầu practice.",
+          "result": "Phrase practice được mở theo slug.",
+          "surfaceId": "study-topic",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-3",
+          "actor": "learner",
+          "action": "Chọn đề trong catalog.",
+          "result": "Exam session được mở theo slug.",
+          "surfaceId": "exam-catalog",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-4",
+          "actor": "learner",
+          "action": "Chọn đáp án và nộp đề.",
+          "result": "Attempt, score và giải thích được trả về.",
+          "surfaceId": "exam-session",
+          "stateId": "ready"
+        }
+      ],
+      "outcomes": [
+        "Attempt và answer rows được lưu",
+        "Study session phản ánh thời gian làm bài",
+        "Đáp án không lộ trước khi chấm"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Paper detail đưa các lựa chọn cho thí sinh nhưng không chứa answer hay isCorrect trước khi nộp.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Grade paper lưu attempt, answer và study session trong giao dịch; retake được tính attempt nhưng không farm thêm XP cho cùng paper.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "pending",
+      "label": "Đang tải hoặc đang xử lý",
+      "kind": "pending",
+      "transitions": [
+        "ready",
+        "empty",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "ready",
+      "label": "Dữ liệu sẵn sàng",
+      "kind": "success",
+      "transitions": [
+        "Thực hiện hành động tiếp theo"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "Không có dữ liệu phù hợp",
+      "kind": "empty",
+      "transitions": [
+        "Đổi bộ lọc",
+        "Quay lại"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "error",
+      "label": "Không thể hoàn tất yêu cầu",
+      "kind": "error",
+      "transitions": [
+        "Thử lại"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "exam-paper",
+      "label": "Đề thi",
+      "fields": [
+        "id",
+        "slug",
+        "kind",
+        "level",
+        "durationMinutes",
+        "questionCount",
+        "title",
+        "isDemo",
+        "isLocked"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "exam-attempt",
+      "label": "Lượt làm đề",
+      "fields": [
+        "attemptId",
+        "paper",
+        "answers",
+        "score",
+        "maxScore",
+        "submittedAt",
+        "secondsSpent"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "study-topic",
+      "label": "Chủ đề học",
+      "fields": [
+        "id",
+        "slug",
+        "phrases",
+        "progress"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-papers",
+      "kind": "query",
+      "name": "papers",
+      "owner": "backend",
+      "inputs": [
+        "authenticated learner"
+      ],
+      "outputs": [
+        "visible paper catalog"
+      ],
+      "failures": [
+        "Unauthenticated",
+        "GraphQL error"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "grade-paper",
+      "kind": "mutation",
+      "name": "gradePaper",
+      "owner": "backend",
+      "inputs": [
+        "paper slug",
+        "selected answers",
+        "seconds spent"
+      ],
+      "outputs": [
+        "attemptId",
+        "score",
+        "maxScore",
+        "graded answers"
+      ],
+      "failures": [
+        "Paper not found",
+        "Invalid answer payload"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "study-home",
+      "routePattern": "/[lang]/study",
+      "title": "Study",
+      "eyebrow": "Ôn ngôn ngữ",
+      "purpose": "Tiếp tục topic/paper/phrase và nhìn tiến độ.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "study-home-content",
+          "kind": "content",
+          "title": "Tiếp tục học",
+          "summary": "Landing kết nối continue-learning và progress.",
+          "items": [
+            {
+              "id": "topic-pointer",
+              "role": "link",
+              "label": "Topic tiếp theo"
+            },
+            {
+              "id": "paper-pointer",
+              "role": "link",
+              "label": "Đề tiếp theo"
+            },
+            {
+              "id": "phrase-pointer",
+              "role": "link",
+              "label": "Phrase cần ôn"
+            }
+          ],
+          "actions": [
+            {
+              "id": "continue-study",
+              "label": "Tiếp tục",
+              "kind": "primary"
+            },
+            {
+              "id": "explore",
+              "label": "Khám phá topic",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "study-topic",
+      "routePattern": "/[lang]/study/topics/[slug]",
+      "title": "Chủ đề học",
+      "eyebrow": "Topic",
+      "purpose": "Đọc tổng quan topic và bắt đầu luyện phrase.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "study-topic-content",
+          "kind": "content",
+          "title": "Nội dung topic",
+          "summary": "Topic có identity slug và practice route riêng.",
+          "items": [
+            {
+              "id": "topic",
+              "role": "entity",
+              "label": "Chủ đề"
+            },
+            {
+              "id": "phrase",
+              "role": "entity",
+              "label": "Phrase"
+            }
+          ],
+          "actions": [
+            {
+              "id": "start-practice",
+              "label": "Luyện tập",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "exam-catalog",
+      "routePattern": "/[lang]/exam",
+      "title": "Kho đề",
+      "eyebrow": "Kỳ thi",
+      "purpose": "Duyệt đề visible cho learner và phân biệt demo/locked.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "exam-catalog-content",
+          "kind": "collection",
+          "title": "Đề thi",
+          "summary": "Paper card có level, duration, questionCount, title và trạng thái quyền.",
+          "items": [
+            {
+              "id": "paper",
+              "role": "entity",
+              "label": "Đề thi"
+            },
+            {
+              "id": "level",
+              "role": "fact",
+              "label": "Cấp độ"
+            },
+            {
+              "id": "duration",
+              "role": "fact",
+              "label": "Thời lượng"
+            },
+            {
+              "id": "lock",
+              "role": "status",
+              "label": "Quyền truy cập"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-paper",
+              "label": "Làm đề",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "exam-session",
+      "routePattern": "/[lang]/exam/[slug]",
+      "title": "Phiên làm đề",
+      "eyebrow": "Bài thi",
+      "purpose": "Trả lời câu hỏi và nhận kết quả chấm.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "exam-session-content",
+          "kind": "form",
+          "title": "Câu hỏi và bài nộp",
+          "summary": "Câu hỏi chỉ có lựa chọn candidate-facing trước submit.",
+          "items": [
+            {
+              "id": "question",
+              "role": "entity",
+              "label": "Câu hỏi"
+            },
+            {
+              "id": "answer-choice",
+              "role": "choice",
+              "label": "Lựa chọn trả lời"
+            },
+            {
+              "id": "timer",
+              "role": "status",
+              "label": "Thời gian"
+            }
+          ],
+          "actions": [
+            {
+              "id": "submit-paper",
+              "label": "Nộp bài",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-003",
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Study route phải mount landing và có lối sang explore.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Topic và practice phải dùng cùng slug ổn định.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Catalog phải dùng paper visibility server trả về.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "Payload trước nộp không được chứa answer/isCorrect; submit phải lưu attempt và study session.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "exam-download-ui",
+      "question": "Bề mặt FE chuyên dụng nào hiển thị exam download entitlement và URL tải?",
+      "impact": "Không thêm package/download panel ngoài pricing khi route hiện tại không chứng minh placement."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 5,
+      "endLine": 12,
+      "claim": "Frontend khai báo exam catalog/session và study home/explore/topic/practice routes.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-papers.ts",
+      "startLine": 5,
+      "endLine": 8,
+      "claim": "Frontend đọc paper catalog được xác thực với metadata và demo/locked states.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-grade-paper.ts",
+      "startLine": 5,
+      "endLine": 8,
+      "claim": "Frontend nộp answer request và đọc attemptId, score cùng graded answers.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "test/e2e/exam-progress.e2e-spec.ts",
+      "startLine": 333,
+      "endLine": 471,
+      "claim": "Backend lưu attempt/answers/study session, chống farm XP khi retake và không lộ đáp án trước submit.",
+      "kind": "test"
+    }
+  ]
+}

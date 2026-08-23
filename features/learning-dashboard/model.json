@@ -1,0 +1,300 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "learning-dashboard",
+  "title": "Trung tâm học tập cá nhân",
+  "summary": "Dashboard chỉ mở khi có phiên và tổ chức tổng quan, khám phá, khóa học và cộng đồng thành các tab; các khối đọc tiến độ, mục tiêu, hoạt động và gợi ý độc lập.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Dashboard có kiểm soát phiên",
+      "Bốn tab overview/explore/courses/community",
+      "Điểm tiếp tục học"
+    ],
+    "excludes": [
+      "Định nghĩa lại dữ liệu của từng widget",
+      "Chat cộng đồng chuyên dụng",
+      "Quản trị nội dung dashboard"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Học viên đã xác thực",
+      "capabilities": [
+        "Xem tổng quan học tập",
+        "Chuyển giữa các tab dashboard",
+        "Tiếp tục nội dung gần nhất"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "open-learning-dashboard",
+      "title": "Mở trung tâm học tập",
+      "trigger": "Thành viên mở /[lang]/dashboard.",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "learner",
+          "action": "Khôi phục phiên và chọn tab yêu cầu.",
+          "result": "Dashboard hợp lệ được mount hoặc người đọc được chuyển sang xác thực.",
+          "surfaceId": "dashboard",
+          "stateId": "ready"
+        }
+      ],
+      "outcomes": [
+        "Người chưa có token được đưa tới /authentication",
+        "Thành viên thấy tab hợp lệ hoặc overview mặc định"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Dashboard không mount nội dung khi chưa có session token và chuyển người đọc sang /authentication.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Chỉ overview, explore, courses và community là tab hợp lệ; giá trị khác trở về overview.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "ContinueLearning trả con trỏ topic, paper và reviewPhrase cho người dùng đã xác thực.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "pending",
+      "label": "Đang tải hoặc đang xử lý",
+      "kind": "pending",
+      "transitions": [
+        "ready",
+        "empty",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "ready",
+      "label": "Dữ liệu sẵn sàng",
+      "kind": "success",
+      "transitions": [
+        "Thực hiện hành động tiếp theo"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "Không có dữ liệu phù hợp",
+      "kind": "empty",
+      "transitions": [
+        "Đổi bộ lọc",
+        "Quay lại"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "error",
+      "label": "Không thể hoàn tất yêu cầu",
+      "kind": "error",
+      "transitions": [
+        "Thử lại"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "resume-pointer",
+      "label": "Con trỏ tiếp tục học",
+      "fields": [
+        "topic",
+        "paper",
+        "reviewPhrase"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "continue-learning",
+      "kind": "query",
+      "name": "continueLearning",
+      "owner": "backend",
+      "inputs": [
+        "authenticated viewer"
+      ],
+      "outputs": [
+        "topic",
+        "paper",
+        "reviewPhrase"
+      ],
+      "failures": [
+        "GraphQL error envelope"
+      ],
+      "evidenceIds": [
+        "EV-003"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "dashboard",
+      "routePattern": "/[lang]/dashboard",
+      "title": "Dashboard",
+      "eyebrow": "Học tập",
+      "purpose": "Đưa người học tới tổng quan và các nhóm nội dung chính.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "dashboard-content",
+          "kind": "content",
+          "title": "Điều hướng dashboard",
+          "summary": "Bốn tab overview, explore, courses và community dùng một route và một tham số tab.",
+          "items": [
+            {
+              "id": "overview",
+              "role": "navigation",
+              "label": "Overview"
+            },
+            {
+              "id": "explore",
+              "role": "navigation",
+              "label": "Explore"
+            },
+            {
+              "id": "courses",
+              "role": "navigation",
+              "label": "Courses"
+            },
+            {
+              "id": "community",
+              "role": "navigation",
+              "label": "Community"
+            }
+          ],
+          "actions": [
+            {
+              "id": "select-tab",
+              "label": "Chọn tab",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Dashboard chỉ hiển thị sau khi có token và tab không hợp lệ phải trở về overview.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "dashboard-backend-parity",
+      "question": "Những query dashboard ngoài continueLearning hiện được resolver nào trong BE current head phục vụ?",
+      "impact": "Các widget không có resolver tương ứng không được xem là contract backend đã xác nhận."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 47,
+      "endLine": 49,
+      "claim": "Frontend khai báo route dashboard, league và root redirect.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/pages/DashboardPage/index.tsx",
+      "startLine": 18,
+      "endLine": 42,
+      "claim": "Dashboard giới hạn bốn tab, yêu cầu token và chuyển người chưa xác thực sang /authentication.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-continue-learning.ts",
+      "startLine": 5,
+      "endLine": 8,
+      "claim": "ContinueLearning đọc topic, paper và reviewPhrase cho người dùng đã xác thực.",
+      "kind": "api"
+    }
+  ]
+}

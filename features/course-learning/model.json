@@ -1,0 +1,531 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "course-learning",
+  "title": "Học nội dung và làm thử thách khóa học",
+  "summary": "Học viên đã ghi danh mở Today, module và bài đọc, xem trạng thái premium, thảo luận Q&A, gửi deliverable thử thách và đọc kết quả chấm bất đồng bộ.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Today và spine nội dung",
+      "Module và bài đọc",
+      "Challenge và kết quả",
+      "Q&A khóa học"
+    ],
+    "excludes": [
+      "Flashcard",
+      "Mock interview",
+      "Personal project",
+      "Playground"
+    ]
+  },
+  "actors": [
+    {
+      "id": "learner",
+      "label": "Học viên đã xác thực",
+      "capabilities": [
+        "Tiếp tục bài học",
+        "Đọc nội dung theo module",
+        "Gửi thử thách",
+        "Xem kết quả",
+        "Đọc và gửi thảo luận"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "learn-and-submit-challenge",
+      "title": "Học và nộp thử thách",
+      "trigger": "Học viên mở một khóa đã ghi danh.",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "learner",
+          "action": "Mở bước học hôm nay.",
+          "result": "Học viên đi tới module hoặc nội dung tiếp theo.",
+          "surfaceId": "course-today",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-2",
+          "actor": "learner",
+          "action": "Đọc nội dung theo module.",
+          "result": "Tiến tới nội dung hoặc challenge tiếp theo.",
+          "surfaceId": "course-content-reader",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-3",
+          "actor": "learner",
+          "action": "Chọn deliverable và gửi bài.",
+          "result": "Job chấm được tạo và route kết quả có thể theo dõi.",
+          "surfaceId": "course-challenge",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-4",
+          "actor": "learner",
+          "action": "Mở Q&A và tìm hoặc đặt câu hỏi.",
+          "result": "Câu hỏi liên quan được hiển thị hoặc gửi.",
+          "surfaceId": "course-qa",
+          "stateId": "ready"
+        }
+      ],
+      "outcomes": [
+        "Nội dung premium có thể bị rút gọn thành paywall",
+        "Nộp challenge trả jobId để theo dõi chấm"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Content query yêu cầu bearer token và có thể trả body khác nhau theo quyền premium của viewer.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Nộp challenge tạo một job chấm bất đồng bộ và trả jobId.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "pending",
+      "label": "Đang tải hoặc đang xử lý",
+      "kind": "pending",
+      "transitions": [
+        "ready",
+        "empty",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "ready",
+      "label": "Dữ liệu sẵn sàng",
+      "kind": "success",
+      "transitions": [
+        "Thực hiện hành động tiếp theo"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "Không có dữ liệu phù hợp",
+      "kind": "empty",
+      "transitions": [
+        "Đổi bộ lọc",
+        "Quay lại"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "error",
+      "label": "Không thể hoàn tất yêu cầu",
+      "kind": "error",
+      "transitions": [
+        "Thử lại"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "course-content",
+      "label": "Nội dung khóa học",
+      "fields": [
+        "id",
+        "displayId",
+        "title",
+        "description",
+        "body",
+        "isPremium",
+        "minutesRead",
+        "module",
+        "challenges"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "challenge-submission",
+      "label": "Bài nộp thử thách",
+      "fields": [
+        "challengeSubmissionId",
+        "githubUrl",
+        "selectedModel",
+        "lang",
+        "jobId"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "read-content",
+      "kind": "query",
+      "name": "content",
+      "owner": "frontend",
+      "inputs": [
+        "content request",
+        "bearer token"
+      ],
+      "outputs": [
+        "localized content",
+        "module position",
+        "challenges"
+      ],
+      "failures": [
+        "Not entitled",
+        "Not found",
+        "GraphQL error"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "submit-challenge",
+      "kind": "mutation",
+      "name": "submitChallengeSubmission",
+      "owner": "frontend",
+      "inputs": [
+        "challengeSubmissionId",
+        "optional GitHub URL/model/lang"
+      ],
+      "outputs": [
+        "jobId"
+      ],
+      "failures": [
+        "Submission rejected",
+        "Grading job not queued"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "course-today",
+      "routePattern": "/[lang]/courses/[displayId]/learn",
+      "title": "Hôm nay",
+      "eyebrow": "Khóa học",
+      "purpose": "Đề xuất bước học kế tiếp.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-today-content",
+          "kind": "content",
+          "title": "Bước tiếp theo",
+          "summary": "Điểm vào của khóa học đã ghi danh.",
+          "items": [
+            {
+              "id": "next-step",
+              "role": "step",
+              "label": "Bài tiếp theo"
+            }
+          ],
+          "actions": [
+            {
+              "id": "continue",
+              "label": "Tiếp tục học",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "course-content-reader",
+      "routePattern": "/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]",
+      "title": "Bài học",
+      "eyebrow": "Nội dung",
+      "purpose": "Đọc nội dung và hiểu vị trí trong module.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-content-reader-content",
+          "kind": "content",
+          "title": "Bài đọc",
+          "summary": "Hiển thị title, body, thời gian đọc, module và premium state.",
+          "items": [
+            {
+              "id": "lesson-body",
+              "role": "text",
+              "label": "Nội dung bài học"
+            },
+            {
+              "id": "module-position",
+              "role": "status",
+              "label": "Vị trí trong module"
+            },
+            {
+              "id": "premium",
+              "role": "status",
+              "label": "Quyền premium"
+            }
+          ],
+          "actions": [
+            {
+              "id": "previous",
+              "label": "Bài trước",
+              "kind": "secondary"
+            },
+            {
+              "id": "next",
+              "label": "Bài tiếp",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "course-challenge",
+      "routePattern": "/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]/challenges/[challengeId]",
+      "title": "Thử thách",
+      "eyebrow": "Thực hành",
+      "purpose": "Chọn deliverable và gửi bài để chấm.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-challenge-content",
+          "kind": "content",
+          "title": "Bài nộp",
+          "summary": "Challenge có mô tả, độ khó, hint và các lựa chọn submission.",
+          "items": [
+            {
+              "id": "challenge",
+              "role": "entity",
+              "label": "Thử thách"
+            },
+            {
+              "id": "deliverable",
+              "role": "choice",
+              "label": "Deliverable"
+            },
+            {
+              "id": "github-url",
+              "role": "field",
+              "label": "GitHub URL"
+            }
+          ],
+          "actions": [
+            {
+              "id": "submit",
+              "label": "Nộp bài",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-003"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "course-qa",
+      "routePattern": "/[lang]/courses/[displayId]/learn/qa",
+      "title": "Hỏi đáp khóa học",
+      "eyebrow": "Cộng đồng học",
+      "purpose": "Tìm và trao đổi câu hỏi trong phạm vi khóa học.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-qa-content",
+          "kind": "collection",
+          "title": "Câu hỏi",
+          "summary": "Danh sách câu hỏi có pending, empty, failed và tìm kiếm.",
+          "items": [
+            {
+              "id": "question-search",
+              "role": "field",
+              "label": "Tìm câu hỏi"
+            },
+            {
+              "id": "question",
+              "role": "entity",
+              "label": "Câu hỏi khóa học"
+            }
+          ],
+          "actions": [
+            {
+              "id": "ask-question",
+              "label": "Đặt câu hỏi",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Route Today phải nhận displayId và có pending/ready/empty/failed.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Reader phải phân biệt content thật với body bị giới hạn premium.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Nộp thành công phải trả jobId, không giả lập kết quả đồng bộ.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "Q&A phải có trạng thái empty và failed trung thực.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "course-learning-backend-contract",
+      "question": "Resolver current-head nào triển khai content, challenge submission và course Q&A?",
+      "impact": "Business model chỉ xác nhận bề mặt và GraphQL document phía FE; backend behavior chưa được coi là confirmed."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 15,
+      "endLine": 19,
+      "claim": "Frontend khai báo challenge, result, content, module và content-home routes.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-content.ts",
+      "startLine": 6,
+      "endLine": 61,
+      "claim": "Content query yêu cầu auth, đọc body, premium flag, vị trí module và challenge data.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-submit-content-challenge.ts",
+      "startLine": 27,
+      "endLine": 58,
+      "claim": "Frontend gửi challenge submission và nhận jobId chấm bất đồng bộ.",
+      "kind": "api"
+    }
+  ]
+}

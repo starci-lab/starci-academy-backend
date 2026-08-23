@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "exam-preparation",
+  "head": "d2bd19cee5b28a57fb18f843b840e3a3269e571bd6fcb02e90017ee0e101d096",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 5,
+      "endLine": 12,
+      "claim": "Frontend khai báo exam catalog/session và study home/explore/topic/practice routes.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-papers.ts",
+      "startLine": 5,
+      "endLine": 8,
+      "claim": "Frontend đọc paper catalog được xác thực với metadata và demo/locked states.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-grade-paper.ts",
+      "startLine": 5,
+      "endLine": 8,
+      "claim": "Frontend nộp answer request và đọc attemptId, score cùng graded answers.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "test/e2e/exam-progress.e2e-spec.ts",
+      "startLine": 333,
+      "endLine": 471,
+      "claim": "Backend lưu attempt/answers/study session, chống farm XP khi retake và không lộ đáp án trước submit.",
+      "kind": "test"
+    }
+  ]
+}

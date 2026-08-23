@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "membership-payments",
+  "head": "f1a2dcfee6c5e0b2cbbdc5a7855362040b4954c9cdbedfb58f3759d31d910966",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 8,
+      "endLine": 14,
+      "claim": "Frontend khai báo Pricing và Cart nhưng không có payment-return page chuyên biệt.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-miamia-pricing-catalog.ts",
+      "startLine": 5,
+      "endLine": 8,
+      "claim": "Public pricing query đọc membership prices/entitlements và exam-download package properties.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-purchase-membership.ts",
+      "startLine": 7,
+      "endLine": 10,
+      "claim": "Membership purchase trả checkout URL, references, transaction, amount và checkout fields.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "test/e2e/reconcile-transaction.e2e-spec.ts",
+      "startLine": 475,
+      "endLine": 583,
+      "claim": "Paid transaction cấp membership hoặc exam-download entitlement đúng một lần; unpaid không cấp quyền.",
+      "kind": "test"
+    }
+  ]
+}

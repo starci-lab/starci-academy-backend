@@ -1,0 +1,477 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "course-marketplace",
+  "title": "Khám phá và mua khóa học",
+  "summary": "Khách và thành viên duyệt danh mục, mở chi tiết, phân biệt khóa đã sở hữu với khóa để khám phá, đưa khóa vào giỏ và chuyển tới nhà cung cấp thanh toán cho đơn đang chờ xác nhận.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Danh mục khóa học",
+      "Chi tiết khóa học",
+      "Giỏ khóa học",
+      "Checkout theo URL nhà cung cấp"
+    ],
+    "excludes": [
+      "Xác nhận thanh toán trước webhook",
+      "Lịch trả góp chưa được backend hỗ trợ",
+      "Nội dung học sau mua"
+    ]
+  },
+  "actors": [
+    {
+      "id": "buyer",
+      "label": "Khách hoặc người mua đã đăng nhập",
+      "capabilities": [
+        "Tìm và phân trang khóa học",
+        "Xem giá",
+        "Quản lý giỏ",
+        "Bắt đầu checkout"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "discover-and-checkout-course",
+      "title": "Khám phá và thanh toán khóa học",
+      "trigger": "Người mua mở danh mục hoặc giỏ.",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "buyer",
+          "action": "Tìm, lọc và mở một khóa học.",
+          "result": "Chi tiết khóa được mở hoặc danh mục được phân trang.",
+          "surfaceId": "course-catalog",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-2",
+          "actor": "buyer",
+          "action": "Đọc chi tiết và chọn mua.",
+          "result": "Khóa học được thêm vào giỏ hoặc chuyển sang học nếu đã sở hữu.",
+          "surfaceId": "course-detail",
+          "stateId": "pending"
+        },
+        {
+          "id": "step-3",
+          "actor": "buyer",
+          "action": "Xác nhận các dòng và bắt đầu thanh toán.",
+          "result": "Người mua được chuyển tới checkoutUrl của provider.",
+          "surfaceId": "course-cart",
+          "stateId": "ready"
+        }
+      ],
+      "outcomes": [
+        "Khóa đã sở hữu không xuất hiện như món cần mua",
+        "Checkout chỉ trả URL và giao dịch pending"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Danh mục tách khóa đã sở hữu khỏi danh sách khám phá và hỗ trợ tìm kiếm, phân trang cùng chế độ grid/line.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Checkout không tự ghi danh; người mua chỉ được chuyển tới checkoutUrl và phải chờ webhook xác nhận.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "pending",
+      "label": "Đang tải hoặc đang xử lý",
+      "kind": "pending",
+      "transitions": [
+        "ready",
+        "empty",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "ready",
+      "label": "Dữ liệu sẵn sàng",
+      "kind": "success",
+      "transitions": [
+        "Thực hiện hành động tiếp theo"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "Không có dữ liệu phù hợp",
+      "kind": "empty",
+      "transitions": [
+        "Đổi bộ lọc",
+        "Quay lại"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "error",
+      "label": "Không thể hoàn tất yêu cầu",
+      "kind": "error",
+      "transitions": [
+        "Thử lại"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "course-offer",
+      "label": "Ưu đãi khóa học",
+      "fields": [
+        "id",
+        "displayId",
+        "title",
+        "coverImageUrl",
+        "originalPrice",
+        "currentPhase",
+        "enrollmentCount",
+        "isEnrolled"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "course-order",
+      "label": "Đơn khóa học",
+      "fields": [
+        "courseIds",
+        "paymentType",
+        "checkoutUrl",
+        "referenceId",
+        "transactionId"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-courses",
+      "kind": "query",
+      "name": "courses",
+      "owner": "frontend",
+      "inputs": [
+        "filters",
+        "optional token"
+      ],
+      "outputs": [
+        "count",
+        "course rows"
+      ],
+      "failures": [
+        "GraphQL error envelope"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "checkout-courses",
+      "kind": "mutation",
+      "name": "coursesCheckout",
+      "owner": "frontend",
+      "inputs": [
+        "courseIds",
+        "paymentType",
+        "returnUrl",
+        "cancelUrl"
+      ],
+      "outputs": [
+        "checkoutUrl",
+        "referenceId",
+        "transactionId"
+      ],
+      "failures": [
+        "No checkout URL",
+        "Provider initiation failure"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "course-catalog",
+      "routePattern": "/[lang]/courses",
+      "title": "Danh mục khóa học",
+      "eyebrow": "Khám phá",
+      "purpose": "Tìm khóa học và phân biệt nội dung đã sở hữu với nội dung có thể mua.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-catalog-content",
+          "kind": "collection",
+          "title": "Khóa học",
+          "summary": "Danh sách hỗ trợ search, page và grid/line, hiển thị title, ảnh, lượt đăng ký và giá hiện tại.",
+          "items": [
+            {
+              "id": "search",
+              "role": "field",
+              "label": "Tìm khóa học"
+            },
+            {
+              "id": "course",
+              "role": "entity",
+              "label": "Khóa học"
+            },
+            {
+              "id": "price",
+              "role": "fact",
+              "label": "Giá hiện tại"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-course",
+              "label": "Xem khóa học",
+              "kind": "primary"
+            },
+            {
+              "id": "open-price",
+              "label": "Chi tiết giá",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "course-detail",
+      "routePattern": "/[lang]/courses/[displayId]",
+      "title": "Chi tiết khóa học",
+      "eyebrow": "Khóa học",
+      "purpose": "Giải thích khóa học, chương trình, giá và quyết định mua.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-detail-content",
+          "kind": "content",
+          "title": "Thông tin khóa học",
+          "summary": "Surface nhận displayId ổn định từ route.",
+          "items": [
+            {
+              "id": "display-id",
+              "role": "fact",
+              "label": "Mã hiển thị khóa học"
+            },
+            {
+              "id": "curriculum",
+              "role": "text",
+              "label": "Chương trình"
+            }
+          ],
+          "actions": [
+            {
+              "id": "add-to-cart",
+              "label": "Thêm vào giỏ",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "course-cart",
+      "routePattern": "/[lang]/cart",
+      "title": "Giỏ khóa học",
+      "eyebrow": "Thanh toán",
+      "purpose": "Xem các dòng khóa, tổng giá server trả về và bắt đầu checkout.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "course-cart-content",
+          "kind": "collection",
+          "title": "Các khóa trong giỏ",
+          "summary": "Giỏ riêng theo viewer; giá được join theo courseId và checkout dùng PayOS hiện tại.",
+          "items": [
+            {
+              "id": "cart-line",
+              "role": "entity",
+              "label": "Khóa học trong giỏ"
+            },
+            {
+              "id": "total",
+              "role": "fact",
+              "label": "Tổng thanh toán"
+            }
+          ],
+          "actions": [
+            {
+              "id": "checkout",
+              "label": "Thanh toán",
+              "kind": "primary"
+            },
+            {
+              "id": "clear-cart",
+              "label": "Xóa tất cả",
+              "kind": "destructive"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-003"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Danh mục phải tách owned khỏi discover và phân biệt pending, empty, filtered-empty, failed.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Route chi tiết phải dùng displayId để resolve khóa học.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Giỏ không được coi người chưa đăng nhập là giỏ trống và không được báo thành công trước webhook.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "course-backend-contract",
+      "question": "Resolver current-head nào triển khai courses và coursesCheckout mà FE đang gọi?",
+      "impact": "Các operation này chỉ được xác nhận ở FE và phải giữ strength partial cho tới khi BE route hiện tại chứng minh contract."
+    },
+    {
+      "id": "installment-provider",
+      "question": "Khi nào backend hỗ trợ lịch trả góp được surface mô tả?",
+      "impact": "Không gửi installmentMonths hoặc hiển thị lịch thanh toán như khả năng đã hoạt động."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/app/routes.spec.tsx",
+      "startLine": 45,
+      "endLine": 46,
+      "claim": "Frontend khai báo route chi tiết và danh mục khóa học.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/query-courses.ts",
+      "startLine": 8,
+      "endLine": 38,
+      "claim": "Danh mục đọc course identity, nội dung, giá, lượt đăng ký và trạng thái sở hữu với optional auth.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-courses-checkout.ts",
+      "startLine": 11,
+      "endLine": 40,
+      "claim": "Checkout khóa học trả URL/giao dịch pending, không tự ghi danh và chưa gửi lịch trả góp.",
+      "kind": "api"
+    }
+  ]
+}

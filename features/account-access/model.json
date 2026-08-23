@@ -1,0 +1,656 @@
+{
+  "schemaVersion": 1,
+  "project": "miamia",
+  "featureId": "account-access",
+  "title": "Truy cập và bảo vệ tài khoản",
+  "summary": "Người dùng đăng nhập, đăng ký hoặc khôi phục mật khẩu bằng email/mật khẩu và OTP; hệ thống chỉ điều hướng về đường dẫn nội bộ sau khi có phiên và hỗ trợ TOTP như lớp bảo vệ bổ sung.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/miamia-fe2.git",
+      "head": "775bc711bafd48675d6dc44beab81fad712a31da"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/miamia-be.git",
+      "head": "9dc84d7278abb34030e8c8e6957e925abe4bef70"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Màn hình xác thực",
+      "Đăng nhập, đăng ký và khôi phục bằng OTP",
+      "Điều hướng sau xác thực",
+      "Đăng ký tài khoản cục bộ",
+      "Thiết lập, xác nhận và tắt TOTP"
+    ],
+    "excludes": [
+      "Thiết kế nhà cung cấp danh tính",
+      "Quản trị người dùng",
+      "Bề mặt quản lý phiên chưa có trong frontend"
+    ]
+  },
+  "actors": [
+    {
+      "id": "visitor",
+      "label": "Khách chưa xác thực",
+      "capabilities": [
+        "Đăng nhập",
+        "Đăng ký",
+        "Khôi phục mật khẩu",
+        "Dùng Google hoặc GitHub"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "member",
+      "label": "Thành viên",
+      "capabilities": [
+        "Nhận phiên sau OTP",
+        "Thiết lập và quản lý TOTP"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "authenticate-with-otp",
+      "title": "Xác thực bằng OTP",
+      "trigger": "Khách mở /[lang]/authentication và gửi thông tin đăng nhập, đăng ký hoặc khôi phục.",
+      "steps": [
+        {
+          "id": "enter-details",
+          "actor": "visitor",
+          "action": "Nhập email, mật khẩu và các lựa chọn cần thiết hoặc chọn Google/GitHub.",
+          "result": "Frontend gửi yêu cầu khởi tạo challenge.",
+          "surfaceId": "authentication",
+          "stateId": "details"
+        },
+        {
+          "id": "verify-code",
+          "actor": "visitor",
+          "action": "Nhập OTP đã nhận hoặc yêu cầu gửi lại.",
+          "result": "Challenge được xác minh và phiên có thể được lưu.",
+          "surfaceId": "authentication",
+          "stateId": "code"
+        },
+        {
+          "id": "return-inside-app",
+          "actor": "member",
+          "action": "Hoàn tất xác thực.",
+          "result": "Ứng dụng thay route tới returnTo nội bộ hợp lệ, mặc định là /exam.",
+          "surfaceId": "authentication",
+          "stateId": "done"
+        }
+      ],
+      "outcomes": [
+        "Phiên được tạo sau bước OTP thành công",
+        "Từ chối của server hoặc lỗi vận chuyển được hiển thị như trạng thái lỗi",
+        "Không điều hướng tới URL protocol-relative"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "manage-two-factor",
+      "title": "Quản lý TOTP",
+      "trigger": "Thành viên yêu cầu thiết lập, xác nhận hoặc tắt xác thực hai yếu tố.",
+      "steps": [
+        {
+          "id": "setup-secret",
+          "actor": "member",
+          "action": "Yêu cầu secret và URI TOTP.",
+          "result": "Secret được lưu mã hóa nhưng chưa bật 2FA.",
+          "stateId": "pending-two-factor"
+        },
+        {
+          "id": "confirm-secret",
+          "actor": "member",
+          "action": "Gửi mã TOTP hợp lệ.",
+          "result": "2FA được bật.",
+          "stateId": "two-factor-enabled"
+        },
+        {
+          "id": "disable-secret",
+          "actor": "member",
+          "action": "Xác minh lại bằng mã hợp lệ để tắt.",
+          "result": "Cờ 2FA và secret lưu trữ được xóa.",
+          "stateId": "two-factor-disabled"
+        }
+      ],
+      "outcomes": [
+        "Mã sai không bật hoặc tắt 2FA",
+        "Secret thô chỉ được trả khi thiết lập"
+      ],
+      "evidenceIds": [
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "returnTo chỉ được dùng khi bắt đầu bằng một dấu gạch chéo và không bắt đầu bằng hai dấu gạch chéo; nếu không, đích mặc định là /exam.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Đăng nhập bằng mật khẩu chỉ khởi tạo challenge OTP; token chỉ được trả sau khi OTP được xác minh.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Đăng ký lại cùng Keycloak subject phải tái sử dụng user hiện có thay vì tạo bản ghi trùng.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-005"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "TOTP chỉ được bật sau khi xác nhận mã hợp lệ; secret lưu trữ được mã hóa và phải bị xóa khi tắt thành công.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-006"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "details",
+      "label": "Nhập thông tin",
+      "kind": "initial",
+      "transitions": [
+        "code",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "code",
+      "label": "Nhập OTP",
+      "kind": "pending",
+      "transitions": [
+        "done",
+        "details",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "done",
+      "label": "Đã xác thực",
+      "kind": "success",
+      "transitions": [
+        "Điều hướng về returnTo"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "error",
+      "label": "Yêu cầu bị từ chối hoặc không nhận được kết quả",
+      "kind": "error",
+      "transitions": [
+        "Thử lại",
+        "Gửi lại OTP",
+        "Đổi email"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "pending-two-factor",
+      "label": "TOTP đã thiết lập nhưng chưa xác nhận",
+      "kind": "pending",
+      "transitions": [
+        "two-factor-enabled",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "two-factor-enabled",
+      "label": "2FA đang bật",
+      "kind": "success",
+      "transitions": [
+        "two-factor-disabled",
+        "error"
+      ],
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "two-factor-disabled",
+      "label": "2FA đã tắt",
+      "kind": "success",
+      "transitions": [
+        "pending-two-factor"
+      ],
+      "evidenceIds": [
+        "EV-006"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "auth-challenge",
+      "label": "Challenge xác thực",
+      "fields": [
+        "challengeId",
+        "expiresInSeconds",
+        "email",
+        "otp"
+      ],
+      "evidenceIds": [
+        "EV-003"
+      ]
+    },
+    {
+      "id": "user-account",
+      "label": "Tài khoản người dùng",
+      "fields": [
+        "id",
+        "keycloakId",
+        "email",
+        "username",
+        "authenticationType",
+        "twoFactorEnabled",
+        "twoFactorSecret"
+      ],
+      "evidenceIds": [
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "sign-in-init",
+      "kind": "mutation",
+      "name": "signInInit",
+      "owner": "backend",
+      "inputs": [
+        "username/password request",
+        "captcha"
+      ],
+      "outputs": [
+        "challengeId",
+        "expiresInSeconds"
+      ],
+      "failures": [
+        "Thông tin bị từ chối",
+        "Captcha hoặc throttle từ chối",
+        "Lỗi vận chuyển"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "register-account",
+      "kind": "command",
+      "name": "POST /v1/keycloak/auth/register",
+      "owner": "backend",
+      "inputs": [
+        "email",
+        "password",
+        "firstName",
+        "lastName"
+      ],
+      "outputs": [
+        "user id",
+        "access token"
+      ],
+      "failures": [
+        "Đăng ký không hợp lệ",
+        "Keycloak từ chối"
+      ],
+      "evidenceIds": [
+        "EV-005"
+      ]
+    },
+    {
+      "id": "manage-totp",
+      "kind": "mutation",
+      "name": "setupTwoFactor / confirmTwoFactor / disableTwoFactor",
+      "owner": "backend",
+      "inputs": [
+        "authenticated member",
+        "TOTP code when confirming or disabling"
+      ],
+      "outputs": [
+        "secret and otpauthUrl on setup",
+        "success envelope"
+      ],
+      "failures": [
+        "TWO_FACTOR_INVALID_CODE_EXCEPTION"
+      ],
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "post-auth-redirect",
+      "kind": "redirect",
+      "name": "replace(returnTo)",
+      "owner": "frontend",
+      "inputs": [
+        "returnTo query parameter"
+      ],
+      "outputs": [
+        "internal application route"
+      ],
+      "failures": [
+        "Không có; giá trị không an toàn được thay bằng /exam"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "authentication",
+      "routePattern": "/[lang]/authentication",
+      "title": "Đăng nhập, đăng ký hoặc khôi phục tài khoản",
+      "eyebrow": "Tài khoản MiaMia",
+      "purpose": "Thu thập thông tin tài khoản, xác minh OTP và đưa thành viên vào ứng dụng.",
+      "navigation": [
+        {
+          "id": "sign-in",
+          "label": "Đăng nhập",
+          "group": "journey",
+          "availability": "active"
+        },
+        {
+          "id": "sign-up",
+          "label": "Đăng ký",
+          "group": "journey",
+          "availability": "available"
+        },
+        {
+          "id": "forgot-password",
+          "label": "Quên mật khẩu",
+          "group": "journey",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "identity-shortcuts",
+          "kind": "navigation",
+          "title": "Tiếp tục nhanh",
+          "summary": "Các lựa chọn Google và GitHub đứng trước biểu mẫu thông tin.",
+          "items": [
+            {
+              "id": "google",
+              "role": "shortcut",
+              "label": "Google"
+            },
+            {
+              "id": "github",
+              "role": "shortcut",
+              "label": "GitHub"
+            }
+          ],
+          "actions": [
+            {
+              "id": "use-google",
+              "label": "Tiếp tục với Google",
+              "kind": "secondary"
+            },
+            {
+              "id": "use-github",
+              "label": "Tiếp tục với GitHub",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "details"
+          ],
+          "evidenceIds": [
+            "EV-002"
+          ]
+        },
+        {
+          "id": "credentials-form",
+          "kind": "form",
+          "title": "Thông tin tài khoản",
+          "summary": "Email, mật khẩu, tùy chọn ghi nhớ, điều khoản khi đăng ký và lối sang khôi phục mật khẩu.",
+          "items": [
+            {
+              "id": "email",
+              "role": "field",
+              "label": "Email"
+            },
+            {
+              "id": "password",
+              "role": "field",
+              "label": "Mật khẩu"
+            },
+            {
+              "id": "remember-me",
+              "role": "choice",
+              "label": "Ghi nhớ đăng nhập"
+            },
+            {
+              "id": "terms",
+              "role": "choice",
+              "label": "Đồng ý điều khoản và quyền riêng tư"
+            }
+          ],
+          "actions": [
+            {
+              "id": "submit-details",
+              "label": "Tiếp tục",
+              "kind": "primary"
+            },
+            {
+              "id": "open-recovery",
+              "label": "Quên mật khẩu",
+              "kind": "link"
+            }
+          ],
+          "states": [
+            "details",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-002",
+            "EV-003"
+          ]
+        },
+        {
+          "id": "otp-form",
+          "kind": "form",
+          "title": "Xác minh mã",
+          "summary": "Nhập mã một lần, gửi lại hoặc đổi email; trạng thái gửi và xác minh được công bố riêng.",
+          "items": [
+            {
+              "id": "otp",
+              "role": "field",
+              "label": "Mã OTP"
+            },
+            {
+              "id": "otp-status",
+              "role": "status",
+              "label": "Trạng thái gửi hoặc xác minh"
+            }
+          ],
+          "actions": [
+            {
+              "id": "submit-code",
+              "label": "Xác minh",
+              "kind": "primary"
+            },
+            {
+              "id": "resend-code",
+              "label": "Gửi lại mã",
+              "kind": "link"
+            },
+            {
+              "id": "change-email",
+              "label": "Dùng email khác",
+              "kind": "link"
+            }
+          ],
+          "states": [
+            "code",
+            "error",
+            "done"
+          ],
+          "evidenceIds": [
+            "EV-002",
+            "EV-003"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Route xác thực mount đúng một màn hình xác thực và sau khi thành công chỉ thay route tới returnTo nội bộ hợp lệ hoặc /exam.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Màn hình hỗ trợ các cây details, code và done, với trạng thái lỗi và pending không bị nhầm thành bước mới.",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "signInInit trả challengeId và expiresInSeconds thay vì token trước OTP.",
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "Đăng ký cùng subject không tạo user thứ hai.",
+      "evidenceIds": [
+        "EV-005"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "TOTP sai không đổi trạng thái; TOTP đúng bật 2FA và khi tắt thành công secret được xóa.",
+      "evidenceIds": [
+        "EV-006"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "session-management-surface",
+      "question": "Frontend sẽ đặt bề mặt xem và thu hồi các phiên đăng nhập ở route nào?",
+      "impact": "Backend có năng lực phiên nhưng source FE hiện tại không có route chuyên biệt để tạo nội dung prototype trung thực."
+    },
+    {
+      "id": "two-factor-surface",
+      "question": "Frontend sẽ đặt thao tác thiết lập, xác nhận và tắt TOTP ở bề mặt nào?",
+      "impact": "Không được thêm vùng 2FA vào prototype xác thực khi chưa có route hoặc component FE chứng minh vị trí đó."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "src/components/pages/AuthenticationPage/index.tsx",
+      "startLine": 7,
+      "endLine": 16,
+      "claim": "Sau xác thực, frontend chỉ chấp nhận returnTo nội bộ và mặc định về /exam.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "src/components/blocks/auth/AuthenticationPanel/component.tsx",
+      "startLine": 13,
+      "endLine": 25,
+      "claim": "Màn hình xác thực có ba cây details, code, done; pending và lỗi là trạng thái hiển thị trên cùng cây, với shortcut đứng trước form.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "src/modules/api/graphql/mutations/mutation-sign-in-init.ts",
+      "startLine": 11,
+      "endLine": 35,
+      "claim": "Frontend khởi tạo sign-in challenge ẩn danh và đọc toàn bộ envelope cùng challengeId và thời hạn.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "apps/api/src/features/api/core/graphql/mutations/keycloak/sign-in/init/sign-in-init.resolver.ts",
+      "startLine": 49,
+      "endLine": 76,
+      "claim": "Backend bảo vệ signInInit bằng captcha và throttle, xác minh mật khẩu rồi gửi OTP; token chỉ đến sau OTP.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "test/e2e/auth-register.e2e-spec.ts",
+      "startLine": 131,
+      "endLine": 190,
+      "claim": "Đăng ký tạo một user theo Keycloak subject, gửi email xác minh và tái sử dụng row khi subject đã tồn tại.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "test/e2e/two-factor.e2e-spec.ts",
+      "startLine": 277,
+      "endLine": 394,
+      "claim": "TOTP secret được lưu mã hóa; mã hợp lệ bật 2FA, mã sai giữ nguyên trạng thái, và tắt hợp lệ xóa cờ cùng secret.",
+      "kind": "test"
+    }
+  ]
+}
