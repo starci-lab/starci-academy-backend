@@ -211,9 +211,9 @@
     },
     "agentos-ai-knowledge-provisioning": {
       "featureId": "agentos-ai-knowledge-provisioning",
-      "head": "2306037d42f69148ddd2ec9654a32d4ca8923233cab10cd1849044ff421d915b",
-      "authorityStatus": "pending",
-      "previousHead": "fc3aa3a27c96ad672b9713fdaa7a6a7cf0cf00c272f22c0d8ca49e58cad3e689",
+      "head": "b0a17b3c4cbe058298f82851b4c5bae3c14bbd8b06e9960c311bd898c0afb9c4",
+      "authorityStatus": "in-progress",
+      "previousHead": "2306037d42f69148ddd2ec9654a32d4ca8923233cab10cd1849044ff421d915b",
       "sources": [
         {
           "role": "fe",
@@ -444,6 +444,10 @@
       "2306037d42f69148ddd2ec9654a32d4ca8923233cab10cd1849044ff421d915b": {
         "hash": "2306037d42f69148ddd2ec9654a32d4ca8923233cab10cd1849044ff421d915b",
         "path": "objects/sha256/2306037d42f69148ddd2ec9654a32d4ca8923233cab10cd1849044ff421d915b.json"
+      },
+      "b0a17b3c4cbe058298f82851b4c5bae3c14bbd8b06e9960c311bd898c0afb9c4": {
+        "hash": "b0a17b3c4cbe058298f82851b4c5bae3c14bbd8b06e9960c311bd898c0afb9c4",
+        "path": "objects/sha256/b0a17b3c4cbe058298f82851b4c5bae3c14bbd8b06e9960c311bd898c0afb9c4.json"
       }
     }
   }
