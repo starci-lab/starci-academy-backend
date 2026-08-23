@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "tayson",
   "featureId": "community-website-platform",
-  "head": "3fb28ac7bf9d941f7110141c095ec3d0cc74dcea0658bf6abb9721bcfcba0e53",
+  "head": "49fb5874ed4a4a4d3a5161b4648322e92f9875cc3e92081f10426df2ee98d5f3",
   "sources": [
     {
       "role": "fe",
@@ -22,6 +22,22 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "385cfe6dd712eff610dbefaf8060661780d51183c7c9bfe18b5c148ca750bdf1"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/web/src/components/blocks/PublicSiteHeader/index.tsx",
+      "startLine": 16,
+      "endLine": 41,
+      "claim": "Frontend header hiện hành định danh Tin tức & Hoạt động tại route /tin-tuc-hoat-dong.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "claim": "Owner bật mode=auto cho phần BRD còn lại; recommendation hẹp được chọn là giữ route danh sách hiện hành /tin-tuc-hoat-dong và dùng route con /tin-tuc-hoat-dong/:slug cho hành động Đọc chi tiết đã có trong authority.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "ae9b8dd30c1641399da5fb426e7b28fcc302cbf66bcfbea818324b660071604e"
     }
   ]
 }

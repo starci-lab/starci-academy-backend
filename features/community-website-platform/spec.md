@@ -1,6 +1,6 @@
 # Nền tảng website Cộng đồng Doanh nghiệp Tây Sơn
 
-> Business head: `3fb28ac7bf9d941f7110141c095ec3d0cc74dcea0658bf6abb9721bcfcba0e53`
+> Business head: `49fb5874ed4a4a4d3a5161b4648322e92f9875cc3e92081f10426df2ee98d5f3`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -121,12 +121,22 @@ Evidence: `EV-001`
 ### Tin tức và hoạt động
 
 - ID: `public-content`
-- Route: `unresolved://public-content`
+- Route: `/tin-tuc-hoat-dong`
 - Purpose: Hiển thị tin tức, hoạt động, sự kiện, từ thiện, đối ngoại và các nội dung truyền thông đã xuất bản.
 - Regions: `content-collection`
 - Navigation: none
 
-Evidence: `EV-001`
+Evidence: `EV-001`, `EV-002`, `EV-003`
+
+### Chi tiết tin tức và hoạt động
+
+- ID: `public-content-detail`
+- Route: `/tin-tuc-hoat-dong/:slug`
+- Purpose: Hiển thị một nội dung truyền thông đã xuất bản từ danh sách tin tức và hoạt động.
+- Regions: `content-detail`
+- Navigation: none
+
+Evidence: `EV-001`, `EV-003`
 
 ### Liên hệ
 
@@ -226,13 +236,14 @@ Trigger: Nhân sự cần cập nhật tin tức, hoạt động, sự kiện ho
 1. **staff** — Đăng nhập CMS → Truy cập đúng chức năng theo vai trò
 2. **staff** — Tạo hoặc chỉnh sửa bản nháp → Nội dung được lưu nhưng chưa công khai
 3. **manager** — Xuất bản nội dung → Nội dung chuyển sang công khai
-4. **visitor** — Mở nội dung đã xuất bản → Đọc nội dung trên website công khai
+4. **visitor** — Mở danh sách nội dung đã xuất bản → Xem nội dung công khai theo chuyên mục
+5. **visitor** — Chọn Đọc chi tiết → Đọc một nội dung đã xuất bản trên website công khai
 
 Outcomes:
 - Nội dung công khai chỉ xuất hiện sau khi được xuất bản
 - Nội dung cũ có thể được lưu trữ thay vì xóa cứng
 
-Evidence: `EV-001`
+Evidence: `EV-001`, `EV-002`, `EV-003`
 
 ### Quản trị website
 
@@ -382,7 +393,7 @@ Strength: **confirmed** · Evidence: `EV-001`
 ## 11. Explicit unknowns
 
 - **Logo, màu thương hiệu, font, hình ảnh và nội dung khởi tạo chính thức là gì?** — Chặn khóa visual identity và dữ liệu production của website công khai.
-- **Route URL chính xác cho từng trang công khai và module CMS là gì?** — Chặn page map cuối cùng của giai đoạn thiết kế; business surfaces hiện dùng unresolved route identities.
+- **Route URL chính xác cho các trang công khai và module CMS còn lại ngoài family /tin-tuc-hoat-dong là gì?** — Chặn page map cuối cùng của các surface còn dùng unresolved route identities; không chặn list/detail Tin tức & Hoạt động đã được chốt.
 - **Biểu mẫu đăng ký và hồ sơ doanh nghiệp gồm những trường nào, trường nào được công khai?** — Chặn schema cuối cùng, validation, privacy và giao diện form/detail.
 - **Mỗi loại nội dung yêu cầu trường, media, taxonomy và bố cục chi tiết nào?** — Chặn schema nội dung và editor cuối cùng.
 - **Cơ chế đặt lại mật khẩu, mời tài khoản, 2FA và thời hạn phiên được yêu cầu ra sao?** — Chặn hoàn thiện security flow của CMS.
@@ -399,3 +410,5 @@ Strength: **confirmed** · Evidence: `EV-001`
 | ID | Role | Source | Kind | Claim |
 |---|---|---|---|---|
 | EV-001 | owner | `decision:385cfe6dd712eff610dbefaf8060661780d51183c7c9bfe18b5c148ca750bdf1` | owner-decision | Owner cung cấp hợp đồng/phụ lục Tây Sơn có SHA-256 b7c71e5034ee8f2d2a79fb0ba42be16a93c91f27ded43fb18e75b8caf92ab973 và chấp thuận scope cùng các mặc định business được hiển thị trước khi publish pending. |
+| EV-002 | fe | `apps/web/src/components/blocks/PublicSiteHeader/index.tsx:16` | route | Frontend header hiện hành định danh Tin tức & Hoạt động tại route /tin-tuc-hoat-dong. |
+| EV-003 | owner | `decision:ae9b8dd30c1641399da5fb426e7b28fcc302cbf66bcfbea818324b660071604e` | owner-decision | Owner bật mode=auto cho phần BRD còn lại; recommendation hẹp được chọn là giữ route danh sách hiện hành /tin-tuc-hoat-dong và dùng route con /tin-tuc-hoat-dong/:slug cho hành động Đọc chi tiết đã có trong authority. |

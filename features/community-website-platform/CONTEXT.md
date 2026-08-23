@@ -1,8 +1,8 @@
 # Nền tảng website Cộng đồng Doanh nghiệp Tây Sơn
 
-> Business identity: `tayson/community-website-platform@3fb28ac7bf9d941f7110141c095ec3d0cc74dcea0658bf6abb9721bcfcba0e53`
+> Business identity: `tayson/community-website-platform@49fb5874ed4a4a4d3a5161b4648322e92f9875cc3e92081f10426df2ee98d5f3`
 >
-> Source heads: authority `rejected` · `fe@6a954d40294c`, `be@4226f4404948`
+> Source heads: authority `pending` · `fe@6a954d40294c`, `be@4226f4404948`
 >
 > Load this file first. Load only the modules named by the current task.
 
@@ -38,7 +38,8 @@ Mở trang đầu của website → content-published → membership-approved
 | `public-information` | `unresolved://public-information` | Công bố giới thiệu, điều lệ, ban chủ nhiệm và các nội dung liên quan. | [surface](surfaces/public-information.md) |
 | `member-directory` | `unresolved://member-directory` | Hiển thị danh sách và thông tin doanh nghiệp của hội viên đã được duyệt công khai. | [surface](surfaces/member-directory.md) |
 | `membership-registration` | `unresolved://membership-registration` | Thu thập và gửi thông tin đăng ký hội viên trực tuyến. | [surface](surfaces/membership-registration.md) |
-| `public-content` | `unresolved://public-content` | Hiển thị tin tức, hoạt động, sự kiện, từ thiện, đối ngoại và các nội dung truyền thông đã xuất bản. | [surface](surfaces/public-content.md) |
+| `public-content` | `/tin-tuc-hoat-dong` | Hiển thị tin tức, hoạt động, sự kiện, từ thiện, đối ngoại và các nội dung truyền thông đã xuất bản. | [surface](surfaces/public-content.md) |
+| `public-content-detail` | `/tin-tuc-hoat-dong/:slug` | Hiển thị một nội dung truyền thông đã xuất bản từ danh sách tin tức và hoạt động. | [surface](surfaces/public-content-detail.md) |
 | `public-contact` | `unresolved://public-contact` | Công bố thông tin liên hệ và tiếp nhận biểu mẫu liên hệ hoặc yêu cầu. | [surface](surfaces/public-contact.md) |
 | `admin-auth` | `unresolved://admin-auth` | Xác thực người dùng quản trị và mở đúng quyền theo vai trò. | [surface](surfaces/admin-auth.md) |
 | `admin-content` | `unresolved://admin-content` | Tạo, chỉnh sửa, xuất bản, lưu trữ nội dung và quản lý danh mục liên quan. | [surface](surfaces/admin-content.md) |
@@ -62,7 +63,7 @@ Mở trang đầu của website → content-published → membership-approved
 ## Explicit unknowns
 
 - `unknown-brand-assets` — Logo, màu thương hiệu, font, hình ảnh và nội dung khởi tạo chính thức là gì? Impact: Chặn khóa visual identity và dữ liệu production của website công khai.
-- `unknown-route-map` — Route URL chính xác cho từng trang công khai và module CMS là gì? Impact: Chặn page map cuối cùng của giai đoạn thiết kế; business surfaces hiện dùng unresolved route identities.
+- `unknown-route-map` — Route URL chính xác cho các trang công khai và module CMS còn lại ngoài family /tin-tuc-hoat-dong là gì? Impact: Chặn page map cuối cùng của các surface còn dùng unresolved route identities; không chặn list/detail Tin tức & Hoạt động đã được chốt.
 - `unknown-member-fields` — Biểu mẫu đăng ký và hồ sơ doanh nghiệp gồm những trường nào, trường nào được công khai? Impact: Chặn schema cuối cùng, validation, privacy và giao diện form/detail.
 - `unknown-content-model` — Mỗi loại nội dung yêu cầu trường, media, taxonomy và bố cục chi tiết nào? Impact: Chặn schema nội dung và editor cuối cùng.
 - `unknown-auth-recovery` — Cơ chế đặt lại mật khẩu, mời tài khoản, 2FA và thời hạn phiên được yêu cầu ra sao? Impact: Chặn hoàn thiện security flow của CMS.
