@@ -1,0 +1,1493 @@
+{
+  "schemaVersion": 2,
+  "authority": {
+    "status": "rejected",
+    "basis": "owner-intent",
+    "requiredRoles": [
+      "fe",
+      "be"
+    ],
+    "previousHead": "3871f5ee57d1497da7f6d243b241bf6052fce1b71fc17f0a52e8ff8b2f19a23a"
+  },
+  "project": "nivo",
+  "featureId": "agentos-ai-knowledge-provisioning",
+  "title": "AgentOS AI and knowledge provisioning",
+  "summary": "An authenticated AgentOS workspace owner receives a workspace-scoped OpenRouter credential, a pinned DeepSeek chat model, immutable Nivo and module knowledge artifacts, non-destructive workspace Qdrant recovery, uploaded-document ingestion and an owner-safe AI readiness result before the AI runtime is treated as ready.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "6a43e8d11050efb84d95f73e4103044f6dcfb15a"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "77ce9d7dda36dae185be9983d4ff0771c769381c"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Idempotent per-workspace OpenRouter credential minting and secret delivery during AgentOS provisioning",
+      "Pinned DeepSeek chat-model identity validated against the configured OpenRouter provider",
+      "Centrally built immutable Nivo common-knowledge and solution-module vector artifacts with version and digest provenance",
+      "Workspace-local Qdrant recovery or import that preserves customer-uploaded knowledge",
+      "Scanned uploaded-document extraction, chunking, embedding, indexing, retry and refusal states",
+      "Owner-safe AI and knowledge readiness visibility and a bounded readiness test for one exact workspace",
+      "Provisioning, module-studio and module-installation status projections owned by their existing routes"
+    ],
+    "excludes": [
+      "Returning or rendering raw OpenRouter credentials or provider management handles",
+      "Allowing a workspace pod to query or mount Nivo's central Qdrant directly",
+      "Returning raw document text, vector values, point identifiers, raw prompts or raw provider responses through the console",
+      "An owner-selectable provider or arbitrary chat-model picker",
+      "Changing immutable solution-module catalogue identities, versions or installation ownership",
+      "Treating a successful Helm release alone as proof that the AI runtime can answer"
+    ]
+  },
+  "actors": [
+    {
+      "id": "workspace-owner",
+      "label": "Authenticated owner of one exact AgentOS workspace",
+      "capabilities": [
+        "Observe AI provisioning and knowledge readiness without receiving infrastructure credentials",
+        "Inspect the pinned provider and chat model, knowledge origins, artifact versions and safe failure status",
+        "Upload module documents and observe their scan, extraction and indexing progression",
+        "Run or retry one bounded AI readiness test for the exact workspace",
+        "Request an existing workspace knowledge reindex without accessing raw documents or Qdrant administration"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-012",
+        "EV-013"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "provision-ai-runtime",
+      "title": "Provision a usable workspace AI runtime",
+      "trigger": "A paid AgentOS order begins provisioning one exact workspace",
+      "steps": [
+        {
+          "id": "observe-ai-configuration",
+          "actor": "workspace-owner",
+          "action": "Observe the exact order while Nivo idempotently mints and delivers the workspace credential and pins the DeepSeek model",
+          "result": "Credential and model configuration progress without exposing the raw key",
+          "surfaceId": "agentos-ai-provisioning",
+          "stateId": "ai-key-configuring"
+        },
+        {
+          "id": "observe-knowledge-recovery",
+          "actor": "workspace-owner",
+          "action": "Observe immutable Nivo and installed-module knowledge artifacts being recovered or imported into workspace Qdrant",
+          "result": "Artifact versions and Qdrant recovery status are bound to the exact workspace",
+          "surfaceId": "agentos-ai-provisioning",
+          "stateId": "ai-knowledge-recovering"
+        },
+        {
+          "id": "observe-provision-readiness",
+          "actor": "workspace-owner",
+          "action": "Observe the bounded model, embedding, Qdrant and scoped-retrieval verification",
+          "result": "The workspace becomes AI-ready only after every required check passes",
+          "surfaceId": "agentos-ai-provisioning",
+          "stateId": "ai-readiness-testing"
+        }
+      ],
+      "outcomes": [
+        "The owner reaches an exact workspace whose AI runtime is proven usable rather than merely installed",
+        "A failure remains attributable to credential, model, embedding, Qdrant, knowledge recovery or scoped retrieval"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-015"
+      ]
+    },
+    {
+      "id": "refresh-runtime-knowledge",
+      "title": "Bring common and module knowledge to the exact declared versions",
+      "trigger": "A workspace is provisioned, its common knowledge changes or an immutable solution module is installed or upgraded",
+      "steps": [
+        {
+          "id": "inspect-artifact-targets",
+          "actor": "workspace-owner",
+          "action": "Inspect common and installed-module knowledge versions and their current workspace status",
+          "result": "The owner sees version and digest provenance without receiving the artifact URL or vector contents",
+          "surfaceId": "workspace-ai-knowledge",
+          "stateId": "knowledge-refreshing"
+        },
+        {
+          "id": "observe-safe-import",
+          "actor": "workspace-owner",
+          "action": "Observe recovery or import for the exact version set",
+          "result": "Common and private module knowledge become searchable without deleting uploaded knowledge",
+          "surfaceId": "workspace-ai-knowledge",
+          "stateId": "knowledge-current"
+        }
+      ],
+      "outcomes": [
+        "Knowledge refreshes are idempotent by artifact version and digest",
+        "A failed refresh leaves the last verified knowledge and every customer upload recoverable"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-008",
+        "EV-009",
+        "EV-010",
+        "EV-013"
+      ]
+    },
+    {
+      "id": "ingest-module-document",
+      "title": "Turn an uploaded module document into scoped workspace knowledge",
+      "trigger": "The workspace owner attaches a document to one exact custom module",
+      "steps": [
+        {
+          "id": "upload-and-scan-document",
+          "actor": "workspace-owner",
+          "action": "Upload the document to quarantine and observe its scan result",
+          "result": "Only a scan-ready document advances to content processing",
+          "surfaceId": "module-knowledge-ingestion",
+          "stateId": "document-scanning"
+        },
+        {
+          "id": "observe-document-processing",
+          "actor": "workspace-owner",
+          "action": "Observe extraction, chunking, embedding and scoped indexing",
+          "result": "The document becomes indexed for the exact workspace and module or exposes a local retryable refusal",
+          "surfaceId": "module-knowledge-ingestion",
+          "stateId": "document-embedding"
+        },
+        {
+          "id": "inspect-module-binding",
+          "actor": "workspace-owner",
+          "action": "Inspect the module's knowledge version, uploaded sources and current binding status",
+          "result": "The owner can distinguish Nivo, module-package and uploaded knowledge origins",
+          "surfaceId": "module-knowledge-status",
+          "stateId": "document-indexed"
+        }
+      ],
+      "outcomes": [
+        "Successful uploaded content becomes scoped retrieval material instead of only stored attachment metadata",
+        "One failed document does not discard another document or the existing module profile"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-010",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "verify-ai-readiness",
+      "title": "Verify that the exact workspace can answer with its own AI and knowledge",
+      "trigger": "Automatic provisioning reaches verification or the owner runs the test from AI and Knowledge",
+      "steps": [
+        {
+          "id": "start-readiness-test",
+          "actor": "workspace-owner",
+          "action": "Run a bounded readiness test for the exact workspace",
+          "result": "The backend asks the workspace runtime to verify its credential, model, embedding, Qdrant and scoped retrieval",
+          "surfaceId": "workspace-ai-knowledge",
+          "stateId": "ai-readiness-testing"
+        },
+        {
+          "id": "read-safe-verdict",
+          "actor": "workspace-owner",
+          "action": "Read the component verdicts, timestamp and safe failure code",
+          "result": "The owner receives an actionable pass or refusal without raw provider output, secrets or document contents",
+          "surfaceId": "workspace-ai-knowledge",
+          "stateId": "ai-ready"
+        }
+      ],
+      "outcomes": [
+        "A passing result proves the call used the workspace credential and the declared knowledge scope",
+        "A refusal preserves the existing workspace and exposes which readiness component requires recovery"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-014",
+        "EV-015",
+        "EV-016"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Every AgentOS workspace receives its own OpenRouter credential; minting and delivery are idempotent, the provider key is stored encrypted for delivery, and no owner-facing response contains the raw key or provider management handle.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "The workspace chat model is pinned to deepseek/deepseek-v4-flash through OpenRouter and must be provider-validated before the runtime can be considered AI-ready.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Chat-model choice and knowledge embedding geometry are separate contracts; every common, module, upload and retrieval vector in one workspace must use one compatible pinned embedding profile and dimension.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-010",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "Nivo common knowledge and each immutable solution-module knowledge package are vectorized centrally into versioned digest-bound artifacts and imported into a workspace without giving that workspace direct access to central Qdrant.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-008",
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "BR-05",
+      "statement": "Recovering or refreshing a Nivo or module artifact never deletes, replaces or makes unreachable customer-uploaded knowledge; the last verified state remains recoverable when refresh fails.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "BR-06",
+      "statement": "An uploaded module document becomes retrieval knowledge only after successful quarantine scan, content extraction, deterministic chunking, embedding and scoped Qdrant indexing; filename-only indexing never satisfies readiness.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "BR-07",
+      "statement": "A module agent may search the common version, explicitly shared workspace sources and the private knowledge matching its exact installationId, moduleKey and knowledgeVersion; it may not search another installation's private layer.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "BR-08",
+      "statement": "AI readiness verifies the actual workspace credential, pinned model, embedding lane, workspace Qdrant and scoped retrieval; Helm success or service health without that bounded call is insufficient.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-014",
+        "EV-015"
+      ]
+    },
+    {
+      "id": "BR-09",
+      "statement": "Workspace readiness surfaces return only provider and model identity, masked credential status, artifact provenance, document counts by origin, component verdicts, timestamps and safe failure codes; they never return raw keys, document text, vectors, point identifiers, raw prompts or raw provider responses.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-012"
+      ]
+    },
+    {
+      "id": "BR-10",
+      "statement": "Automatic provisioning and owner-triggered retries share one idempotent readiness state machine; a refusal does not destroy an already-created workspace, accepted module specification or successfully indexed document.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-008",
+        "EV-011"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "ai-provision-pending",
+      "label": "AI runtime provisioning has not started",
+      "kind": "initial",
+      "transitions": [
+        "ai-key-configuring"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "ai-key-configuring",
+      "label": "The workspace credential and pinned model are being configured",
+      "kind": "pending",
+      "transitions": [
+        "ai-knowledge-recovering",
+        "ai-readiness-refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "ai-knowledge-recovering",
+      "label": "Versioned Nivo and module knowledge is being recovered or imported",
+      "kind": "pending",
+      "transitions": [
+        "ai-readiness-testing",
+        "ai-readiness-refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-008",
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "ai-readiness-testing",
+      "label": "The exact workspace AI and scoped knowledge path is being tested",
+      "kind": "pending",
+      "transitions": [
+        "ai-ready",
+        "ai-readiness-refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-014",
+        "EV-015"
+      ]
+    },
+    {
+      "id": "ai-ready",
+      "label": "The workspace AI runtime and scoped knowledge path passed",
+      "kind": "success",
+      "transitions": [
+        "ai-readiness-testing",
+        "knowledge-refreshing",
+        "document-uploading"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "ai-readiness-refused",
+      "label": "One required AI readiness component failed or is unavailable",
+      "kind": "error",
+      "transitions": [
+        "ai-key-configuring",
+        "ai-knowledge-recovering",
+        "ai-readiness-testing"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "knowledge-refreshing",
+      "label": "Common or module knowledge is refreshing",
+      "kind": "pending",
+      "transitions": [
+        "knowledge-current",
+        "knowledge-refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-008",
+        "EV-010",
+        "EV-013"
+      ]
+    },
+    {
+      "id": "knowledge-current",
+      "label": "All declared common and module knowledge versions are current",
+      "kind": "success",
+      "transitions": [
+        "knowledge-refreshing",
+        "document-uploading"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "knowledge-refused",
+      "label": "Knowledge refresh was refused while the last verified state remains available",
+      "kind": "error",
+      "transitions": [
+        "knowledge-refreshing"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "document-uploading",
+      "label": "A module document is uploading to quarantine",
+      "kind": "pending",
+      "transitions": [
+        "document-scanning",
+        "document-refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "document-scanning",
+      "label": "The uploaded module document is being scanned",
+      "kind": "pending",
+      "transitions": [
+        "document-extracting",
+        "document-refused"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "document-extracting",
+      "label": "Text is being extracted and chunked from a scan-ready document",
+      "kind": "pending",
+      "transitions": [
+        "document-embedding",
+        "document-refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "document-embedding",
+      "label": "Document chunks are being embedded and indexed into the scoped workspace collection",
+      "kind": "pending",
+      "transitions": [
+        "document-indexed",
+        "document-refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "document-indexed",
+      "label": "The uploaded document is available to its declared module knowledge scope",
+      "kind": "success",
+      "transitions": [
+        "knowledge-refreshing"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "document-refused",
+      "label": "The document could not be scanned, extracted, embedded or indexed",
+      "kind": "error",
+      "transitions": [
+        "document-uploading"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-011"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "workspace-ai-profile",
+      "label": "Workspace AI runtime profile",
+      "fields": [
+        "workspaceId",
+        "provider",
+        "chatModel",
+        "credentialStatus",
+        "providerKeyReference",
+        "provisionStatus",
+        "lastReadinessRunId"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "knowledge-artifact",
+      "label": "Immutable vector knowledge artifact",
+      "fields": [
+        "artifactId",
+        "scope",
+        "version",
+        "digest",
+        "embeddingProfile",
+        "objectReference",
+        "status",
+        "publishedAt"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-008",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "workspace-knowledge-binding",
+      "label": "Workspace knowledge binding",
+      "fields": [
+        "workspaceId",
+        "commonArtifactId",
+        "moduleArtifactIds",
+        "recoveredVersions",
+        "qdrantStatus",
+        "origins",
+        "lastUpdatedAt"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-010",
+        "EV-012"
+      ]
+    },
+    {
+      "id": "module-document-ingestion",
+      "label": "Uploaded module document ingestion",
+      "fields": [
+        "documentId",
+        "workspaceId",
+        "moduleId",
+        "filename",
+        "checksum",
+        "scanStatus",
+        "extractionStatus",
+        "embeddingStatus",
+        "indexStatus",
+        "failureCode",
+        "updatedAt"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "ai-readiness-run",
+      "label": "Workspace AI readiness run",
+      "fields": [
+        "runId",
+        "workspaceId",
+        "modelStatus",
+        "embeddingStatus",
+        "qdrantStatus",
+        "retrievalStatus",
+        "startedAt",
+        "completedAt",
+        "failureCode"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-014",
+        "EV-015"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "provision-agentos-ai-runtime",
+      "kind": "command",
+      "name": "provisionAgentosAiRuntime",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "planCode",
+        "commonKnowledgeVersion",
+        "moduleArtifactRefs",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "workspace AI profile",
+        "knowledge recovery operation",
+        "readiness run identity"
+      ],
+      "failures": [
+        "workspace not owned or not provisionable",
+        "OpenRouter management credential unavailable",
+        "workspace key mint or secret delivery failed",
+        "DeepSeek model unavailable",
+        "knowledge artifact unavailable",
+        "Qdrant recovery failed",
+        "readiness test refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "publish-agentos-knowledge-artifact",
+      "kind": "command",
+      "name": "publishAgentosKnowledgeArtifact",
+      "owner": "backend",
+      "inputs": [
+        "scope",
+        "source version",
+        "source digest",
+        "embedding profile"
+      ],
+      "outputs": [
+        "immutable artifact identity",
+        "vector digest",
+        "published status"
+      ],
+      "failures": [
+        "source package invalid",
+        "embedding profile unavailable",
+        "vectorization failed",
+        "artifact publication failed"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-008",
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "recover-agentos-workspace-knowledge",
+      "kind": "command",
+      "name": "recoverAgentosWorkspaceKnowledge",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "artifact identities",
+        "expected embedding profile",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "recovered versions",
+        "workspace knowledge status"
+      ],
+      "failures": [
+        "workspace unavailable",
+        "artifact digest mismatch",
+        "embedding geometry mismatch",
+        "Qdrant recovery failed",
+        "uploaded-knowledge preservation could not be proven"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "ingest-agentos-module-document",
+      "kind": "command",
+      "name": "ingestAgentosModuleDocument",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "moduleId",
+        "documentId",
+        "scan-ready object reference",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "ingestion status",
+        "indexed document identity",
+        "knowledge origin summary"
+      ],
+      "failures": [
+        "workspace or module not owned",
+        "document not scan-ready",
+        "content extraction failed",
+        "embedding failed",
+        "Qdrant indexing failed"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "my-agentos-ai-knowledge-readiness",
+      "kind": "query",
+      "name": "myAgentosAiKnowledgeReadiness",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId"
+      ],
+      "outputs": [
+        "provider and pinned model",
+        "masked credential status",
+        "knowledge artifact versions and origins",
+        "Qdrant status",
+        "latest readiness component verdicts",
+        "safe failure codes and timestamps"
+      ],
+      "failures": [
+        "workspace not owned",
+        "runtime not provisioned",
+        "readiness report unavailable"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-012"
+      ]
+    },
+    {
+      "id": "run-agentos-ai-readiness-test",
+      "kind": "mutation",
+      "name": "runAgentosAiReadinessTest",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "readiness run identity",
+        "accepted status"
+      ],
+      "failures": [
+        "workspace not owned or not ready for testing",
+        "test already running",
+        "test budget or rate limit exceeded",
+        "workspace runtime unreachable"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-014",
+        "EV-015",
+        "EV-016"
+      ]
+    },
+    {
+      "id": "report-agentos-ai-readiness",
+      "kind": "event",
+      "name": "reportAgentosAiReadiness",
+      "owner": "backend",
+      "inputs": [
+        "workspace identity",
+        "run identity",
+        "component verdicts",
+        "safe failure code",
+        "completedAt"
+      ],
+      "outputs": [
+        "persisted owner-safe readiness summary"
+      ],
+      "failures": [
+        "workspace assertion invalid",
+        "run identity stale",
+        "report shape invalid"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-012"
+      ]
+    },
+    {
+      "id": "reindex-agent-workspace-knowledge",
+      "kind": "mutation",
+      "name": "reindexAgentWorkspaceKnowledge",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "operationId",
+        "knowledge reindex status"
+      ],
+      "failures": [
+        "workspace not owned",
+        "runtime unavailable",
+        "reindex already running"
+      ],
+      "evidenceIds": [
+        "EV-013"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "agentos-ai-provisioning",
+      "routePattern": "/[locale]/agentos/orders/[orderId]",
+      "title": "AI runtime provisioning",
+      "eyebrow": "AgentOS · Provisioning",
+      "purpose": "Show the credential, model, knowledge recovery and readiness milestones that must pass before the exact workspace AI runtime is ready.",
+      "navigation": [
+        {
+          "id": "agentos-order-active",
+          "label": "AgentOS order",
+          "group": "agentos",
+          "availability": "active"
+        },
+        {
+          "id": "workspace-after-ready",
+          "label": "Exact workspace",
+          "group": "agentos",
+          "availability": "unavailable"
+        }
+      ],
+      "regions": [
+        {
+          "id": "ai-provision-progress",
+          "kind": "flow",
+          "title": "AI readiness",
+          "summary": "Credential, model, Nivo and module knowledge, workspace Qdrant and a real bounded test advance as one connected provisioning sequence.",
+          "items": [
+            {
+              "id": "credential-step",
+              "role": "step",
+              "label": "Workspace key"
+            },
+            {
+              "id": "model-step",
+              "role": "step",
+              "label": "DeepSeek model"
+            },
+            {
+              "id": "knowledge-step",
+              "role": "step",
+              "label": "Knowledge artifacts"
+            },
+            {
+              "id": "qdrant-step",
+              "role": "step",
+              "label": "Workspace Qdrant"
+            },
+            {
+              "id": "readiness-step",
+              "role": "step",
+              "label": "AI test"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "ai-provision-pending",
+            "ai-key-configuring",
+            "ai-knowledge-recovering",
+            "ai-readiness-testing",
+            "ai-ready",
+            "ai-readiness-refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-005",
+            "EV-006",
+            "EV-007",
+            "EV-008"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "workspace-ai-knowledge",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]",
+      "title": "AI and Knowledge",
+      "eyebrow": "AgentOS · Exact workspace",
+      "purpose": "Let the exact workspace owner understand whether its AI can answer, what knowledge origins are current and which safe recovery action is available.",
+      "navigation": [
+        {
+          "id": "workspace-active",
+          "label": "Workspace",
+          "group": "agentos",
+          "availability": "available"
+        },
+        {
+          "id": "ai-knowledge-active",
+          "label": "AI and Knowledge",
+          "group": "workspace",
+          "availability": "active"
+        }
+      ],
+      "regions": [
+        {
+          "id": "ai-runtime-readiness",
+          "kind": "summary",
+          "title": "Runtime readiness",
+          "summary": "One owner-safe verdict across credential, pinned model, embedding, Qdrant and scoped retrieval.",
+          "items": [
+            {
+              "id": "provider-status",
+              "role": "status",
+              "label": "OpenRouter key"
+            },
+            {
+              "id": "chat-model",
+              "role": "fact",
+              "label": "Chat model"
+            },
+            {
+              "id": "embedding-status",
+              "role": "status",
+              "label": "Embedding"
+            },
+            {
+              "id": "qdrant-status",
+              "role": "status",
+              "label": "Qdrant"
+            },
+            {
+              "id": "retrieval-status",
+              "role": "status",
+              "label": "Scoped retrieval"
+            },
+            {
+              "id": "last-tested-at",
+              "role": "fact",
+              "label": "Last tested"
+            }
+          ],
+          "actions": [
+            {
+              "id": "run-readiness-test",
+              "label": "Run AI test",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "ai-readiness-testing",
+            "ai-ready",
+            "ai-readiness-refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-012",
+            "EV-014",
+            "EV-015"
+          ]
+        },
+        {
+          "id": "knowledge-origins",
+          "kind": "collection",
+          "title": "Knowledge origins",
+          "summary": "Common Nivo, installed module and uploaded-document knowledge remain separately attributable by version and status.",
+          "items": [
+            {
+              "id": "nivo-common-origin",
+              "role": "entity",
+              "label": "Nivo common"
+            },
+            {
+              "id": "module-private-origins",
+              "role": "entity",
+              "label": "Installed modules"
+            },
+            {
+              "id": "uploaded-origins",
+              "role": "entity",
+              "label": "Uploaded documents"
+            },
+            {
+              "id": "artifact-version",
+              "role": "fact",
+              "label": "Version and digest"
+            },
+            {
+              "id": "document-count",
+              "role": "fact",
+              "label": "Documents"
+            }
+          ],
+          "actions": [
+            {
+              "id": "reindex-knowledge",
+              "label": "Reindex knowledge",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "knowledge-refreshing",
+            "knowledge-current",
+            "knowledge-refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-009",
+            "EV-010",
+            "EV-012",
+            "EV-013"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-012",
+        "EV-013",
+        "EV-014",
+        "EV-015"
+      ]
+    },
+    {
+      "id": "module-knowledge-ingestion",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]/modules/studio/[moduleId]",
+      "title": "Module knowledge ingestion",
+      "eyebrow": "AgentOS · Module studio",
+      "purpose": "Show whether each uploaded module document has progressed from a scan-ready object into scoped retrievable knowledge.",
+      "navigation": [
+        {
+          "id": "module-studio-active",
+          "label": "Module studio",
+          "group": "workspace-modules",
+          "availability": "active"
+        },
+        {
+          "id": "workspace-ai-knowledge-link",
+          "label": "AI and Knowledge",
+          "group": "workspace",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "uploaded-knowledge-documents",
+          "kind": "collection",
+          "title": "Uploaded knowledge",
+          "summary": "Each document owns its scan, extraction, embedding and indexing outcome without blocking its peers.",
+          "items": [
+            {
+              "id": "document-name",
+              "role": "entity",
+              "label": "Document"
+            },
+            {
+              "id": "scan-result",
+              "role": "status",
+              "label": "Scan"
+            },
+            {
+              "id": "extraction-result",
+              "role": "status",
+              "label": "Extraction"
+            },
+            {
+              "id": "index-result",
+              "role": "status",
+              "label": "Index"
+            },
+            {
+              "id": "knowledge-scope",
+              "role": "fact",
+              "label": "Scope"
+            }
+          ],
+          "actions": [
+            {
+              "id": "upload-document",
+              "label": "Upload document",
+              "kind": "primary"
+            },
+            {
+              "id": "retry-document",
+              "label": "Retry",
+              "kind": "secondary"
+            },
+            {
+              "id": "remove-document",
+              "label": "Remove",
+              "kind": "destructive"
+            }
+          ],
+          "states": [
+            "document-uploading",
+            "document-scanning",
+            "document-extracting",
+            "document-embedding",
+            "document-indexed",
+            "document-refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-011"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "module-knowledge-status",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]/modules/[installationId]",
+      "title": "Module knowledge status",
+      "eyebrow": "AgentOS · Installed module",
+      "purpose": "Bind one immutable installed module to its exact package, vector artifact, workspace import and retrieval scope.",
+      "navigation": [
+        {
+          "id": "module-installation-active",
+          "label": "Installed module",
+          "group": "workspace-modules",
+          "availability": "active"
+        },
+        {
+          "id": "workspace-ai-knowledge-nav",
+          "label": "AI and Knowledge",
+          "group": "workspace",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "module-artifact-binding",
+          "kind": "summary",
+          "title": "Knowledge binding",
+          "summary": "Package identity, knowledge version, digest and exact installation scope remain visible without document or vector access.",
+          "items": [
+            {
+              "id": "module-package",
+              "role": "fact",
+              "label": "Module package"
+            },
+            {
+              "id": "module-knowledge-version",
+              "role": "fact",
+              "label": "Knowledge version"
+            },
+            {
+              "id": "module-artifact-digest",
+              "role": "fact",
+              "label": "Artifact digest"
+            },
+            {
+              "id": "module-index-status",
+              "role": "status",
+              "label": "Workspace index"
+            },
+            {
+              "id": "module-retrieval-scope",
+              "role": "fact",
+              "label": "Retrieval scope"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-ai-knowledge",
+              "label": "Open AI and Knowledge",
+              "kind": "link",
+              "target": "/[locale]/agentos/workspaces/[workspaceId]"
+            }
+          ],
+          "states": [
+            "ai-knowledge-recovering",
+            "knowledge-current",
+            "knowledge-refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-003",
+            "EV-009",
+            "EV-010"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-009",
+        "EV-010"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Provisioning one AgentOS workspace idempotently mints or reuses exactly one workspace-scoped OpenRouter credential, stores its raw value only in encrypted secret custody, delivers it to that workspace and never returns it to the owner.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "The workspace uses the provider-validated deepseek/deepseek-v4-flash chat model and exposes that identity without offering an arbitrary model or provider picker.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Nivo common knowledge and every installed module knowledge package are represented by immutable versioned digest-bound vector artifacts and imported into the exact workspace without direct central-Qdrant access.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-008",
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "Knowledge recovery or refresh proves that all pre-existing uploaded-document knowledge remains reachable before replacing the last verified workspace state.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "A scan-ready uploaded module document is downloaded from object storage, extracted, deterministically chunked, embedded with the workspace-compatible profile and indexed with workspace and module scope; filename-only vectors fail acceptance.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "statement": "One upload failure exposes its scan, extraction, embedding or index failure code and retry without discarding another document, accepted interview answer or module specification.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "AC-07",
+      "statement": "Automatic provisioning runs a bounded test through the exact workspace credential, pinned chat model, compatible embedding lane, workspace Qdrant and scoped retrieval before reporting AI-ready.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-014",
+        "EV-015",
+        "EV-016"
+      ]
+    },
+    {
+      "id": "AC-08",
+      "statement": "The owner can rerun readiness from the exact workspace and receives component verdicts, timestamp and safe failure code without raw keys, provider response, prompt, document text, vectors or point identifiers.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-012",
+        "EV-014"
+      ]
+    },
+    {
+      "id": "AC-09",
+      "statement": "Module retrieval is constrained to the declared common version, explicitly shared workspace sources and the private knowledge matching the exact installationId, moduleKey and knowledgeVersion.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-009",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "AC-10",
+      "statement": "The workspace control center, provisioning flow, module studio and installation detail expose only the states and actions owned by their existing routes while sharing one backend-owned readiness truth.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-012",
+        "EV-013"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "embedding-profile-and-geometry",
+      "question": "Which exact embedding model, version and vector dimension are pinned across central artifact builds, uploaded-document ingestion and workspace retrieval?",
+      "impact": "Implementation must not combine incompatible vector geometries; the model records compatibility as mandatory but leaves provider selection to backend planning."
+    },
+    {
+      "id": "non-destructive-artifact-import",
+      "question": "Which collection, alias, import or merge protocol atomically refreshes common and module artifacts while preserving uploaded-document points and the last verified index?",
+      "impact": "Full collection snapshot replacement cannot ship until this preservation proof exists."
+    },
+    {
+      "id": "production-document-policy",
+      "question": "Which MIME types, file limits, scanner, extractors and retention policy own production module documents?",
+      "impact": "The ingestion flow can be designed and planned, but exact field constraints and extractor coverage remain unavailable."
+    },
+    {
+      "id": "workspace-key-budget-and-rotation",
+      "question": "Which AgentOS plan determines the OpenRouter spend ceiling, rotation cadence and revocation behavior for a workspace key?",
+      "impact": "Provisioning must create an isolated key, but billing limits and lifecycle automation cannot be implemented as guessed constants."
+    },
+    {
+      "id": "readiness-test-budget",
+      "question": "Which timeout, retry count, cooldown and cost ceiling apply to automatic and owner-triggered readiness tests?",
+      "impact": "The test must be bounded and idempotent, but exact operational limits require an approved policy."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "Create Nivo agentos-ai-knowledge-provisioning as pending owner intent with per-workspace OpenRouter credentials, DeepSeek deepseek/deepseek-v4-flash, immutable Nivo common and module knowledge snapshots, scanned uploaded-document extraction and vector ingestion, non-destructive workspace Qdrant recovery, and an owner-safe AI readiness test that gates workspace readiness without exposing secrets, raw documents, point identifiers, or raw provider responses.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "2d5c21ecafe90bb00091ac3021bcbcd37dcf4f4080593685afb7df4dadca0ecd"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The frontend mounts one exact locale-aware owner workspace control-center route by workspaceId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/modules/[installationId]/page.tsx",
+      "startLine": 1,
+      "endLine": 11,
+      "claim": "The frontend mounts one solution-module installation detail beneath the exact workspace and binds workspaceId plus installationId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "apps/agentos-cli/src/config.ts",
+      "startLine": 112,
+      "endLine": 126,
+      "claim": "The AgentOS CLI resolves a workspace-local Qdrant endpoint and named collection rather than a central control-plane search path.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "apps/agentos-cli/src/config.ts",
+      "startLine": 176,
+      "endLine": 200,
+      "claim": "The AgentOS CLI defaults the OpenRouter model to deepseek/deepseek-v4-flash and requires OPENROUTER_INSTANCE_KEY as the instance-owned credential.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/modules/bussiness/expert-provision/secrets/instance-model-key.service.ts",
+      "startLine": 108,
+      "endLine": 175,
+      "claim": "The backend can idempotently mint a bounded OpenRouter key per instance, persist the provider key id and store the raw value through encrypted provision-secret custody.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/modules/bussiness/pod-registration/pod-access-token.service.ts",
+      "startLine": 42,
+      "endLine": 52,
+      "claim": "The committed AgentOS pod credential path explicitly says per-instance OpenRouter mint delivery remains a separate unwired change.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "apps/agentos-cli/src/knowledge/knowledge-snapshot.service.ts",
+      "startLine": 18,
+      "endLine": 105,
+      "claim": "The AgentOS CLI recovers a versioned Qdrant snapshot by presigned URL, while its committed contract explicitly names backend snapshot publication and version-mismatch fallback as unbuilt follow-up work.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-009",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-solution-modules/types/manifest.ts",
+      "startLine": 1,
+      "endLine": 43,
+      "claim": "Solution-module manifests expose immutable module versions, common and private knowledge versions and an operational-data knowledge-package locator rather than embedding mutable document bodies in new manifests.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "apps/agentos-controlplane/src/module-runtime/module-knowledge-reconciler.service.ts",
+      "startLine": 14,
+      "endLine": 36,
+      "claim": "The control plane currently writes module package documents into workspace knowledge with installationId, moduleKey and knowledgeVersion metadata.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-011",
+      "role": "be",
+      "path": "apps/agentos-cli/src/documents/queue-drain.service.ts",
+      "startLine": 72,
+      "endLine": 160,
+      "claim": "The upload queue owns per-document indexing and failure states but currently embeds only the filename; MinIO download, extraction and chunking are explicitly unbuilt.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-012",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/agent-workspace/my-agent-workspace-knowledge-runtime/my-agent-workspace-knowledge-runtime.handler.ts",
+      "startLine": 20,
+      "endLine": 36,
+      "claim": "The owner-scoped backend query returns MCP/Qdrant health, document counts and origins, timestamps and reindex status for one exact workspace.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-013",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/agent-workspace/reindex-agent-workspace-knowledge/reindex-agent-workspace-knowledge.handler.ts",
+      "startLine": 20,
+      "endLine": 41,
+      "claim": "The backend exposes an owner-scoped idempotent workspace knowledge-reindex operation and returns its operation status.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-014",
+      "role": "be",
+      "path": "src/tests/harness/draft-lead-reply.harness-spec.ts",
+      "startLine": 20,
+      "endLine": 83,
+      "claim": "The AI harness calls the OpenRouter-compatible production prompt lane, grades nondeterministic output and loudly skips rather than faking success when its provider credential is absent.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-015",
+      "role": "be",
+      "path": "src/tests/e2e/controlplane/instance-key-attribution.live-spec.ts",
+      "startLine": 222,
+      "endLine": 275,
+      "claim": "A live test mints a bounded per-instance OpenRouter key, sends a real DeepSeek call and distinguishes spend on that key from spend on Nivo's platform key.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-016",
+      "role": "be",
+      "path": "package.json",
+      "startLine": 15,
+      "endLine": 44,
+      "claim": "The repository declares separate AI harness and AgentOS live-test commands rather than making paid-provider tests part of the ordinary deterministic lane.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-017",
+      "claim": "Reject the current in-progress R1 authority because backend challenge proved that it crosses into agentos-module-studio intake ownership and leaves embedding geometry, non-destructive Qdrant import, production document handling, workspace-key lifecycle and readiness budgets unresolved; replace it through a new R2 lifecycle using owner decision 7494806cb79f7916fe7483450b64950ac607d82f888290112fada6569617fa59.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "7494806cb79f7916fe7483450b64950ac607d82f888290112fada6569617fa59"
+    }
+  ]
+}

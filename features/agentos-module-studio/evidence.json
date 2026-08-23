@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "agentos-module-studio",
+  "head": "2bf93759d04613ebeaf06f4ed3282dc9b28883c75fef7ba38904d37bebbe2201",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "894e608bba73d791e5d2767cdc420da770c8c42b"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "ac05d90e7b6b59eb9dc4128872f3c02ba254e59a"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "Create Nivo agentos-module-studio for an authenticated owner of one exact ready AgentOS workspace: create and manage workspace-owned custom module drafts; collect requirements through a backend-owned adaptive follow-up interview that persists answers, computes missing fields and exposes progress; accept image and document attachments through quarantined scanned uploads with retry and removal; store named integration keys as write-only encrypted server-side secrets and return only masked configuration status; generate a reviewable module specification only when complete; require an explicit publish/install action; preserve existing catalogue installation and installation-detail flows; use the TEDO page only as interaction-shape evidence and import none of its product facts.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "61d6f1623ea6e38071da694af5f70c638e394b00aec62b162567ec1064be447c"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/modules/[installationId]/page.tsx",
+      "startLine": 3,
+      "endLine": 11,
+      "claim": "The current frontend mounts one exact owner-scoped module installation detail under workspaceId and installationId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/agentos/AgentOSSolutionModuleCenter/index.tsx",
+      "startLine": 26,
+      "endLine": 45,
+      "claim": "The current connected module center owns the immutable catalogue and exact-workspace installation list reads.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/agentos/AgentOSSolutionModuleCenter/index.tsx",
+      "startLine": 62,
+      "endLine": 105,
+      "claim": "The current frontend installs a catalogue key idempotently and links installed rows to the existing exact-workspace installation-detail route.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "apps/app/src/modules/api/console.ts",
+      "startLine": 330,
+      "endLine": 372,
+      "claim": "The current frontend contract defines two immutable catalogue keys, installation summaries and an install input with workspace, catalogue key and idempotency identity.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "apps/app/src/modules/api/console.ts",
+      "startLine": 593,
+      "endLine": 639,
+      "claim": "The current frontend operations read the catalogue, exact-workspace installations and one installation detail and submit the existing install mutation.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/agent-workspace/install-agentos-solution-module/graphql-types/input.ts",
+      "startLine": 11,
+      "endLine": 28,
+      "claim": "The current backend install input accepts one exact workspace, one of two fixed catalogue keys and an idempotency identity.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/agentos-module-installation.entity.ts",
+      "startLine": 21,
+      "endLine": 101,
+      "claim": "The current backend installation is an immutable package lifecycle row owned by an exact workspace and unique by workspace plus module key.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-009",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-solution-modules/types/manifest.ts",
+      "startLine": 1,
+      "endLine": 42,
+      "claim": "The current solution-module manifest is an immutable Nivo-owned package contract with fixed keys, versions, agent templates, channel roles, tool bindings and knowledge locator.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/agent-workspace/my-agentos-module-installations/my-agentos-module-installations.handler.ts",
+      "startLine": 20,
+      "endLine": 27,
+      "claim": "The current backend installation collection is read through exact user and workspace ownership.",
+      "kind": "api"
+    }
+  ]
+}

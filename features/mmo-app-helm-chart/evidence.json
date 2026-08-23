@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "mmo-app-helm-chart",
+  "head": "4eafdcbc8c72d9eca144dd93e86a41b83988c42e26f7ca647bcdac68f028cd21",
+  "sources": [
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    },
+    {
+      "role": "chart",
+      "repository": "https://github.com/starci-lab/nivo-charts.git",
+      "head": "c1f88fc9e21bfbc61ae120e8b0d8cbf74a957446"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "The owner requires one backend-consumable Helm chart for the MMO application.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "793f044e95ba391da2558a5c4d3665ae0633f4087e2d455e96f790feb1135606"
+    },
+    {
+      "id": "EV-002",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/provisionable-app-seeder.service.ts",
+      "startLine": 163,
+      "endLine": 230,
+      "claim": "The current MMO registry row deliberately has no chart, runtime policy or pipeline and remains non-provisionable until those product decisions exist.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-003",
+      "role": "be",
+      "path": "src/modules/platform/env/config.ts",
+      "startLine": 1108,
+      "endLine": 1122,
+      "claim": "The current Academy chart and its installer tool are owned together by an external Nivo repository root rather than the backend checkout.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/modules/bussiness/expert-provision/chart/chart-source.service.ts",
+      "startLine": 64,
+      "endLine": 123,
+      "claim": "ChartSourceService resolves registry chart references and optional versions while refusing null, unsupported or missing filesystem chart sources before Helm runs.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/provisionable-app.entity.ts",
+      "startLine": 138,
+      "endLine": 186,
+      "claim": "The generic application registry stores exactly the chart argument and optional Helm version consumed by the installer.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-006",
+      "claim": "The owner approved starci-lab/nivo-charts/charts/mmo as a generic chart requiring image repository, image tag and service port, with configurable ingress, persistence and probes, while MMO provisioning remains disabled.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "165286ff3e5897a59c3fa8690f2ad936c69cbc3aca6c29d1f93118a55da64f48"
+    },
+    {
+      "id": "EV-007",
+      "role": "chart",
+      "path": "README.md",
+      "startLine": 3,
+      "endLine": 20,
+      "claim": "The dedicated nivo-charts repository owns Nivo Helm artifacts under charts/<chart>, with one product instance represented by one Helm release.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-008",
+      "role": "chart",
+      "path": "README.md",
+      "startLine": 72,
+      "endLine": 80,
+      "claim": "The chart repository validates packages with deterministic helm lint and helm template commands.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-009",
+      "role": "chart",
+      "path": "charts/expert-academy/Chart.yaml",
+      "startLine": 2,
+      "endLine": 29,
+      "claim": "An existing clean sibling chart establishes the repository's Helm v2 application metadata shape with explicit chart and app versions.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-010",
+      "role": "chart",
+      "path": "charts/mmo/Chart.yaml",
+      "startLine": 1,
+      "endLine": 16,
+      "claim": "The implemented charts/mmo artifact is a distinct Helm v2 application chart with explicit chart and app versions.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-011",
+      "role": "chart",
+      "path": "charts/mmo/values.schema.json",
+      "startLine": 1,
+      "endLine": 70,
+      "claim": "The MMO values schema requires a non-empty image repository, non-empty image tag and service port in the valid Kubernetes port range.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-012",
+      "role": "chart",
+      "path": "charts/mmo/templates/deployment.yaml",
+      "startLine": 1,
+      "endLine": 105,
+      "claim": "The MMO Deployment renders the required image and port while exposing configurable probes, environment, resources, persistence and additional volumes.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-013",
+      "role": "chart",
+      "path": "charts/mmo/templates/ingress.yaml",
+      "startLine": 1,
+      "endLine": 31,
+      "claim": "The MMO Ingress is opt-in and requires an explicit host when enabled.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-014",
+      "role": "chart",
+      "path": "charts/mmo/templates/pvc.yaml",
+      "startLine": 1,
+      "endLine": 25,
+      "claim": "The MMO PVC is opt-in and exposes explicit access mode, storage class and requested size configuration.",
+      "kind": "policy"
+    }
+  ]
+}

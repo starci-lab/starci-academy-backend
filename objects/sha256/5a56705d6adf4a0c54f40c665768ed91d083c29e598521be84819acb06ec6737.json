@@ -1,0 +1,354 @@
+{
+  "schemaVersion": 2,
+  "project": "nivo",
+  "featureId": "console-shell-navigation",
+  "title": "Shared console shell navigation",
+  "summary": "Every authenticated console route shares one fixed expanded desktop destination rail, while narrow screens use one right-edge drawer with the same destination identities.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "3102d35bfa73e51c52d087352c68ee106b4a5a46"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Shared console chrome for Overview, Apps, AgentOS and Wallet routes",
+      "Fixed expanded desktop navigation rail",
+      "Single-selection keyboard-operable destination collection",
+      "Right-edge mobile navigation drawer with the complete destination set"
+    ],
+    "excludes": [
+      "Continuously resizable navigation width",
+      "Standalone routes for unavailable Servers, Domains or Support destinations",
+      "Backend API or data ownership changes"
+    ]
+  },
+  "actors": [
+    {
+      "id": "account-owner",
+      "label": "Authenticated account owner",
+      "capabilities": [
+        "Navigate every available console destination from the shared desktop rail or mobile drawer"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "console-navigation-journey",
+      "title": "Navigate the shared console shell",
+      "trigger": "Open any authenticated console route",
+      "steps": [
+        {
+          "id": "step-expanded",
+          "actor": "account-owner",
+          "action": "Read the fixed expanded destination rail and choose an available route",
+          "result": "The routed body changes while the shared rail remains mounted",
+          "surfaceId": "console-shell",
+          "stateId": "expanded"
+        },
+        {
+          "id": "step-mobile",
+          "actor": "account-owner",
+          "action": "Open and close the right-edge drawer on a narrow viewport",
+          "result": "The complete destination set remains reachable without a bottom tab bar",
+          "surfaceId": "console-shell",
+          "stateId": "mobile-open"
+        }
+      ],
+      "outcomes": [
+        "The account owner keeps one stable way to navigate across every current console route and viewport"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "The destination collection preserves one selected key, keyboard traversal, focus-visible feedback and the same destination order on every console route.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "BR-05",
+      "statement": "Below the desktop breakpoint the standing rail and bottom tab bar are absent; one right-edge drawer exposes the complete destination set.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "expanded",
+      "label": "Expanded desktop rail",
+      "kind": "initial",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "mobile-closed",
+      "label": "Mobile drawer closed",
+      "kind": "initial",
+      "transitions": [
+        "mobile-open"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "mobile-open",
+      "label": "Mobile drawer open",
+      "kind": "success",
+      "transitions": [
+        "mobile-closed"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "navigation-preference",
+      "label": "Console navigation preference",
+      "fields": [
+        "selected destination",
+        "viewport presentation"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "operations": [],
+  "surfaces": [
+    {
+      "id": "console-shell",
+      "routePattern": "/:locale/(overview|apps|agentos|wallet)",
+      "title": "Console navigation",
+      "eyebrow": "Shared shell",
+      "purpose": "Keep navigation identity, state and interaction stable while routed console content changes.",
+      "navigation": [
+        {
+          "id": "overview-destination",
+          "label": "Overview",
+          "group": "home",
+          "availability": "available"
+        },
+        {
+          "id": "apps-destination",
+          "label": "Apps",
+          "group": "services",
+          "availability": "available"
+        },
+        {
+          "id": "agentos-destination",
+          "label": "AgentOS",
+          "group": "services",
+          "availability": "available"
+        },
+        {
+          "id": "servers-destination",
+          "label": "Servers",
+          "group": "services",
+          "availability": "unavailable"
+        },
+        {
+          "id": "domains-destination",
+          "label": "Domains",
+          "group": "services",
+          "availability": "unavailable"
+        },
+        {
+          "id": "wallet-destination",
+          "label": "Wallet",
+          "group": "account",
+          "availability": "available"
+        },
+        {
+          "id": "support-destination",
+          "label": "Support",
+          "group": "account",
+          "availability": "unavailable"
+        }
+      ],
+      "regions": [
+        {
+          "id": "desktop-console-navigation",
+          "kind": "navigation",
+          "title": "Desktop console rail",
+          "summary": "One fixed desktop rail presents the complete grouped destination set.",
+          "items": [
+            {
+              "id": "selected-destination",
+              "role": "status",
+              "label": "Current destination"
+            },
+            {
+              "id": "destination-groups",
+              "role": "navigation",
+              "label": "Home, Services and Account destinations"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "expanded"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003"
+          ]
+        },
+        {
+          "id": "mobile-console-navigation",
+          "kind": "navigation",
+          "title": "Mobile console drawer",
+          "summary": "A visible menu control opens the complete destination set from the right edge.",
+          "items": [
+            {
+              "id": "mobile-destinations",
+              "role": "navigation",
+              "label": "Complete console destinations"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-navigation",
+              "label": "Open navigation",
+              "kind": "secondary"
+            },
+            {
+              "id": "close-navigation",
+              "label": "Close navigation",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "mobile-closed",
+            "mobile-open"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-004",
+            "EV-005"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Every authenticated console route renders the same fixed desktop rail without remounting its host.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "A narrow viewport exposes all destinations in a right-edge drawer and renders neither desktop rail nor bottom tab bar.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "unknowns": [],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/layout.tsx",
+      "startLine": 73,
+      "endLine": 95,
+      "claim": "The authenticated route-group layout mounts one shared mobile navigation owner, one desktop sidebar owner and one routed main body.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/layouts/ConsoleNav/index.tsx",
+      "startLine": 77,
+      "endLine": 209,
+      "claim": "Console navigation owns the complete grouped destination set, selected route, desktop ListBox and mobile right-edge drawer composition.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "packages/ui/src/leaves/SelectionList/index.tsx",
+      "startLine": 21,
+      "endLine": 75,
+      "claim": "The shared SelectionList delegates single-selection and keyboard mechanics to HeroUI ListBox.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "packages/ui/src/branches/DrawerBranch/index.tsx",
+      "startLine": 6,
+      "endLine": 33,
+      "claim": "The shared DrawerBranch owns right-edge placement, backdrop, focus, dismissal and the single drawer body.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "apps/app/src/components/layouts/ConsoleNav/index.spec.tsx",
+      "startLine": 27,
+      "endLine": 60,
+      "claim": "Interaction tests prove seven desktop destinations, the complete mobile drawer set, disabled routes and locale-aware activation.",
+      "kind": "test"
+    }
+  ],
+  "authority": {
+    "status": "implemented",
+    "basis": "reconciled",
+    "requiredRoles": [
+      "fe"
+    ],
+    "previousHead": "c4427d3ef7eb089efbd1f65733f42d53d8b9e7237ec529f14bbcf129569bb5f0"
+  }
+}

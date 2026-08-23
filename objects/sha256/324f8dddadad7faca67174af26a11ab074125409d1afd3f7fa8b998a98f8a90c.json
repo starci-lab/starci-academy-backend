@@ -1,0 +1,463 @@
+{
+  "schemaVersion": 2,
+  "project": "nivo",
+  "featureId": "console-shell-navigation",
+  "title": "Shared console shell navigation",
+  "summary": "Every authenticated console route shares one desktop navigation rail with expanded and compact presentations, while narrow screens use one right-edge drawer with the same destination identities.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "894e608bba73d791e5d2767cdc420da770c8c42b"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Shared console chrome for Overview, Apps, AgentOS and Wallet routes",
+      "Desktop rail expanded and compact presentations",
+      "Visible keyboard-operable collapse and expand control",
+      "Persisted collapse preference and adjacent body reflow",
+      "Circular icon-only compact destinations with accessible labels",
+      "Pinned controls with destination-group internal scrolling",
+      "Right-edge mobile navigation drawer with the complete destination set"
+    ],
+    "excludes": [
+      "Continuously resizable navigation width",
+      "Standalone routes for unavailable Servers, Domains or Support destinations",
+      "Backend API or data ownership changes"
+    ]
+  },
+  "actors": [
+    {
+      "id": "account-owner",
+      "label": "Authenticated account owner",
+      "capabilities": [
+        "Navigate every available console destination and choose a persistent compact or expanded desktop rail"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "console-navigation-journey",
+      "title": "Navigate the shared console shell",
+      "trigger": "Open any authenticated console route",
+      "steps": [
+        {
+          "id": "step-expanded",
+          "actor": "account-owner",
+          "action": "Read the expanded destination rail and activate the visible collapse control",
+          "result": "The same rail host becomes compact and the routed body reflows",
+          "surfaceId": "console-shell",
+          "stateId": "expanded"
+        },
+        {
+          "id": "step-compact",
+          "actor": "account-owner",
+          "action": "Traverse circular icon destinations or activate the expand control",
+          "result": "Navigation remains operable and the expanded rail is restored",
+          "surfaceId": "console-shell",
+          "stateId": "collapsed"
+        },
+        {
+          "id": "step-mobile",
+          "actor": "account-owner",
+          "action": "Open and close the right-edge drawer on a narrow viewport",
+          "result": "The complete destination set remains reachable without a bottom tab bar",
+          "surfaceId": "console-shell",
+          "stateId": "mobile-open"
+        }
+      ],
+      "outcomes": [
+        "The account owner keeps one stable way to navigate across every console route and viewport"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "The destination collection preserves one selected key, keyboard traversal, focus-visible feedback and the same destination order on every console route.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "The desktop rail has exactly two persisted presentations: expanded at 256px and collapsed at 64px, toggled by one visible keyboard-operable control while the adjacent body reflows.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Collapsed destinations keep stable circular glyphs, accessible labels and target size; visible copy may disappear but destination meaning may not.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "Collapse control and Overview remain pinned while only long destination groups own internal scrolling.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "BR-05",
+      "statement": "Below the desktop breakpoint the standing rail and bottom tab bar are absent; one right-edge drawer exposes the complete destination set.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "expanded",
+      "label": "Expanded desktop rail",
+      "kind": "initial",
+      "transitions": [
+        "collapsed"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "collapsed",
+      "label": "Compact desktop rail",
+      "kind": "success",
+      "transitions": [
+        "expanded"
+      ],
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "mobile-closed",
+      "label": "Mobile drawer closed",
+      "kind": "initial",
+      "transitions": [
+        "mobile-open"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "mobile-open",
+      "label": "Mobile drawer open",
+      "kind": "success",
+      "transitions": [
+        "mobile-closed"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "navigation-preference",
+      "label": "Console navigation preference",
+      "fields": [
+        "collapsed state",
+        "selected destination",
+        "viewport presentation"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-006"
+      ]
+    }
+  ],
+  "operations": [],
+  "surfaces": [
+    {
+      "id": "console-shell",
+      "routePattern": "/:locale/(overview|apps|agentos|wallet)",
+      "title": "Console navigation",
+      "eyebrow": "Shared shell",
+      "purpose": "Keep navigation identity, state and interaction stable while routed console content changes.",
+      "navigation": [
+        {
+          "id": "overview-destination",
+          "label": "Overview",
+          "group": "home",
+          "availability": "available"
+        },
+        {
+          "id": "apps-destination",
+          "label": "Apps",
+          "group": "services",
+          "availability": "available"
+        },
+        {
+          "id": "agentos-destination",
+          "label": "AgentOS",
+          "group": "services",
+          "availability": "available"
+        },
+        {
+          "id": "servers-destination",
+          "label": "Servers",
+          "group": "services",
+          "availability": "unavailable"
+        },
+        {
+          "id": "domains-destination",
+          "label": "Domains",
+          "group": "services",
+          "availability": "unavailable"
+        },
+        {
+          "id": "wallet-destination",
+          "label": "Wallet",
+          "group": "account",
+          "availability": "available"
+        },
+        {
+          "id": "support-destination",
+          "label": "Support",
+          "group": "account",
+          "availability": "unavailable"
+        }
+      ],
+      "regions": [
+        {
+          "id": "desktop-console-navigation",
+          "kind": "navigation",
+          "title": "Desktop console rail",
+          "summary": "One stable rail toggles between expanded labels and compact circular glyphs.",
+          "items": [
+            {
+              "id": "collapse-toggle",
+              "role": "navigation",
+              "label": "Collapse or expand navigation"
+            },
+            {
+              "id": "selected-destination",
+              "role": "status",
+              "label": "Current destination"
+            },
+            {
+              "id": "destination-groups",
+              "role": "navigation",
+              "label": "Home, Services and Account destinations"
+            }
+          ],
+          "actions": [
+            {
+              "id": "collapse-navigation",
+              "label": "Collapse navigation",
+              "kind": "secondary"
+            },
+            {
+              "id": "expand-navigation",
+              "label": "Expand navigation",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "expanded",
+            "collapsed"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-006"
+          ]
+        },
+        {
+          "id": "mobile-console-navigation",
+          "kind": "navigation",
+          "title": "Mobile console drawer",
+          "summary": "A visible menu control opens the complete destination set from the right edge.",
+          "items": [
+            {
+              "id": "mobile-destinations",
+              "role": "navigation",
+              "label": "Complete console destinations"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-navigation",
+              "label": "Open navigation",
+              "kind": "secondary"
+            },
+            {
+              "id": "close-navigation",
+              "label": "Close navigation",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "mobile-closed",
+            "mobile-open"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-004",
+            "EV-005",
+            "EV-006"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Every authenticated console route renders the same expanded or collapsed desktop rail state without remounting its host.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "A visible keyboard-operable toggle changes the desktop rail between 256px and 64px, persists the choice and reflows the routed body.",
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Compact mode retains circular icon targets, accessible labels, selected state and destination order.",
+      "evidenceIds": [
+        "EV-003",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "Only destination groups scroll; toggle and Overview remain pinned.",
+      "evidenceIds": [
+        "EV-006"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "A narrow viewport exposes all destinations in a right-edge drawer and renders neither desktop rail nor bottom tab bar.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "unknowns": [],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/layout.tsx",
+      "startLine": 53,
+      "endLine": 95,
+      "claim": "The authenticated route-group layout mounts one strict StarCi theme boundary, desktop topbar, collapsible desktop rail, mobile navigation owner and routed main body.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/layouts/ConsoleNav/index.tsx",
+      "startLine": 82,
+      "endLine": 228,
+      "claim": "Console navigation owns the complete grouped destination set, selected route, expanded and compact ListBox presentations, persisted collapsible rail and mobile right-edge drawer.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "packages/ui/src/leaves/SelectionList/index.tsx",
+      "startLine": 43,
+      "endLine": 113,
+      "claim": "SelectionList preserves one HeroUI ListBox owner while expanded labels and compact circular icon targets share selected, focus and keyboard behavior; the first destination group stays pinned.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "packages/ui/src/branches/DrawerBranch/index.tsx",
+      "startLine": 6,
+      "endLine": 33,
+      "claim": "DrawerBranch owns right-edge placement, backdrop, focus, dismissal and the single drawer body.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "apps/app/src/components/layouts/ConsoleNav/index.spec.tsx",
+      "startLine": 19,
+      "endLine": 90,
+      "claim": "Interaction tests prove seven destinations, disabled routes, compact icon presentation, collapse control, the complete mobile drawer and locale-aware activation.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "packages/ui/src/branches/CollapsibleRail/index.tsx",
+      "startLine": 7,
+      "endLine": 172,
+      "claim": "CollapsibleRail owns one stable desktop motion host, persisted 256px and 64px states, reduced-motion behavior, invariant inset, accessible toggle and safe storage fallback.",
+      "kind": "ui"
+    }
+  ],
+  "authority": {
+    "status": "implemented",
+    "basis": "reconciled",
+    "requiredRoles": [
+      "fe"
+    ],
+    "baseHead": "fa00110a15a1c5fe40ae5131fec40f0e6010a9b927753a12367beadf599271be",
+    "previousHead": "fa00110a15a1c5fe40ae5131fec40f0e6010a9b927753a12367beadf599271be"
+  }
+}

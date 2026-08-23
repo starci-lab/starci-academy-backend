@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "public-landing",
+  "title": "Public nivo landing",
+  "summary": "The root landing route presents the nivo brand and a concise product description without requesting session or backend data.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Public root route",
+      "Brand mark, title and description"
+    ],
+    "excludes": [
+      "Authentication or console actions",
+      "Backend operations"
+    ]
+  },
+  "actors": [
+    {
+      "id": "account-actor",
+      "label": "Public visitor",
+      "capabilities": [
+        "Recognize the nivo product at the root address"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "public-landing-journey",
+      "title": "Public nivo landing",
+      "trigger": "Open the root route",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "account-actor",
+          "action": "Open the root route",
+          "result": "Read the nivo identity and product description",
+          "surfaceId": "public-landing",
+          "stateId": "ready"
+        },
+        {
+          "id": "step-2",
+          "actor": "account-actor",
+          "action": "Read the nivo identity and product description",
+          "result": "The visitor receives a stable public brand landing surface",
+          "surfaceId": "public-landing",
+          "stateId": "ready"
+        }
+      ],
+      "outcomes": [
+        "The visitor receives a stable public brand landing surface"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "The landing page makes no request and contains no authenticated behavior.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "ready",
+      "label": "ready",
+      "kind": "initial",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "entity-1",
+      "label": "Brand message",
+      "fields": [
+        "brand name",
+        "description"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "operations": [],
+  "surfaces": [
+    {
+      "id": "public-landing",
+      "routePattern": "/",
+      "title": "nivo",
+      "eyebrow": "Public",
+      "purpose": "Introduce the product before any account or service journey begins.",
+      "navigation": [
+        {
+          "id": "public-landing-nav",
+          "label": "nivo",
+          "group": "public-landing",
+          "availability": "active"
+        }
+      ],
+      "regions": [
+        {
+          "id": "brand-introduction",
+          "kind": "content",
+          "title": "nivo",
+          "summary": "nivo presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "brand-introduction-item-1",
+              "role": "fact",
+              "label": "Brand mark"
+            },
+            {
+              "id": "brand-introduction-item-2",
+              "role": "fact",
+              "label": "nivo"
+            },
+            {
+              "id": "brand-introduction-item-3",
+              "role": "fact",
+              "label": "Product description"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "ready"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "The visitor receives a stable public brand landing surface",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "The Public nivo landing surface renders only the states, identities and actions proven by current routed source.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "landing-next-action",
+      "question": "What public next action should the landing page offer?",
+      "impact": "The implemented screen contains identity and description only, so no authentication or product CTA can be claimed."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/landing/src/app/page.tsx",
+      "startLine": 4,
+      "endLine": 10,
+      "claim": "The root route mounts the public LandingPage.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/landing/src/components/pages/LandingPage/index.tsx",
+      "startLine": 4,
+      "endLine": 38,
+      "claim": "The landing surface renders the brand mark, nivo heading and shared description and explicitly makes no request.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/landing/src/resources/copy.ts",
+      "startLine": 1,
+      "endLine": 3,
+      "claim": "The landing description is shipped as product copy.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "apps/landing/src/resources/copy.spec.ts",
+      "startLine": 1,
+      "endLine": 8,
+      "claim": "The copy test protects the shipped public description.",
+      "kind": "test"
+    }
+  ]
+}

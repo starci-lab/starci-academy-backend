@@ -1,0 +1,1062 @@
+{
+  "schemaVersion": 2,
+  "project": "nivo",
+  "featureId": "wallet-billing",
+  "title": "Wallet, SePay top-up and billing management",
+  "summary": "An authenticated account owner reviews the wallet, starts a real SePay top-up, returns to reconcile the credited balance and transaction ledger, and manages wallet transactions and service invoices from one coherent payment flow.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "3102d35bfa73e51c52d087352c68ee106b4a5a46"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Wallet balance with correct independent surface states",
+      "SePay wallet top-up amount entry and signed external checkout handoff",
+      "Return, cancellation and reconciliation states after checkout",
+      "Wallet transaction history with direction, amount, note and date",
+      "Invoice history, invoice detail and settlement from wallet balance",
+      "Desktop and mobile payment flow under the strict StarCi visual grammar"
+    ],
+    "excludes": [
+      "Frontend or backend source implementation in this business-analysis run",
+      "An in-app SePay QR payload that the current API does not return",
+      "Fabricated payment status, expiry or ledger totals absent from the current contract",
+      "Changing or removing the backend's existing PayOS capability"
+    ]
+  },
+  "actors": [
+    {
+      "id": "account-owner",
+      "label": "Authenticated account owner",
+      "capabilities": [
+        "Review available wallet funds",
+        "Start a SePay top-up and return for reconciliation",
+        "Inspect wallet transactions and invoices",
+        "Pay an owned unpaid invoice from wallet balance"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-004",
+        "EV-006",
+        "EV-010",
+        "EV-011"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "wallet-payment-journey",
+      "title": "Top up and manage account payments",
+      "trigger": "Open Wallet",
+      "steps": [
+        {
+          "id": "open-wallet",
+          "actor": "account-owner",
+          "action": "Open Wallet and review balance, recent transactions and invoices",
+          "result": "The account owner can top up, inspect money movement or settle an invoice",
+          "surfaceId": "wallet-payment",
+          "stateId": "wallet-ready"
+        },
+        {
+          "id": "enter-top-up",
+          "actor": "account-owner",
+          "action": "Choose Top up and enter a positive VND amount with SePay selected",
+          "result": "The amount is ready for pay-link creation",
+          "surfaceId": "wallet-payment",
+          "stateId": "top-up-entry"
+        },
+        {
+          "id": "create-checkout",
+          "actor": "account-owner",
+          "action": "Create the SePay top-up checkout",
+          "result": "A pending payment, reference, external checkout URL and signed form fields are returned",
+          "surfaceId": "wallet-payment",
+          "stateId": "checkout-creating"
+        },
+        {
+          "id": "handoff-sepay",
+          "actor": "account-owner",
+          "action": "Continue to the signed SePay checkout",
+          "result": "SePay owns payment collection and redirects to the supplied success or cancellation URL",
+          "surfaceId": "wallet-payment",
+          "stateId": "checkout-handoff"
+        },
+        {
+          "id": "reconcile-return",
+          "actor": "account-owner",
+          "action": "Return to Wallet after provider success or cancellation",
+          "result": "The wallet and transaction ledger refresh without inventing a settlement result",
+          "surfaceId": "wallet-payment",
+          "stateId": "reconciling"
+        },
+        {
+          "id": "manage-ledgers",
+          "actor": "account-owner",
+          "action": "Inspect a transaction or invoice and pay an owned unpaid invoice when funds are sufficient",
+          "result": "Money movement, invoice state and the resulting provisioning consequence remain traceable",
+          "surfaceId": "wallet-payment",
+          "stateId": "history-ready"
+        }
+      ],
+      "outcomes": [
+        "A confirmed SePay top-up credits the wallet exactly once and appears in the transaction ledger",
+        "A cancelled or unresolved checkout does not claim that funds arrived",
+        "An owned unpaid invoice can be settled from wallet balance and starts linked provisioning"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009",
+        "EV-010",
+        "EV-011"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "A first wallet read creates a real zero-balance wallet; zero is an answered value, not an absent wallet.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "A SePay top-up accepts a positive VND amount, records a pending wallet-top-up payment and returns a reference, checkout endpoint and signed checkout fields before any wallet credit is claimed.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Wallet credit occurs only after the authenticated SePay webhook retrieves a paid provider order and routes the matching wallet-top-up settlement.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-007",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "Wallet transactions are viewer-scoped and returned newest first with deposit or spend direction, amount, optional note and creation time.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-003",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "BR-05",
+      "statement": "Invoice settlement is restricted to an owned unpaid invoice and starts provisioning for its linked service after payment.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "BR-06",
+      "statement": "Wallet, top-up, transaction and invoice states form one StarCi-themed payment journey on desktop and mobile; a project-local visual theme is not permitted.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-011"
+      ]
+    },
+    {
+      "id": "BR-07",
+      "statement": "After checkout return, the frontend refreshes wallet and transaction facts and must not label the payment successful, failed or expired without an authoritative contract result.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-011"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "wallet-loading",
+      "label": "Wallet sections loading independently",
+      "kind": "pending",
+      "transitions": [
+        "wallet-ready",
+        "wallet-empty",
+        "wallet-refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "wallet-empty",
+      "label": "Zero balance with no transactions or invoices",
+      "kind": "empty",
+      "transitions": [
+        "top-up-entry"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "wallet-ready",
+      "label": "Balance and ledgers available",
+      "kind": "initial",
+      "transitions": [
+        "top-up-entry",
+        "history-ready",
+        "invoice-paying"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "wallet-refused",
+      "label": "One or more wallet sections refused",
+      "kind": "partial",
+      "transitions": [
+        "wallet-loading"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "top-up-entry",
+      "label": "Enter a positive VND top-up amount",
+      "kind": "initial",
+      "transitions": [
+        "checkout-creating",
+        "wallet-ready"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "checkout-creating",
+      "label": "Creating the SePay checkout",
+      "kind": "pending",
+      "transitions": [
+        "checkout-handoff",
+        "checkout-failed"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "checkout-handoff",
+      "label": "External SePay checkout owns payment collection",
+      "kind": "pending",
+      "transitions": [
+        "reconciling",
+        "checkout-cancelled"
+      ],
+      "evidenceIds": [
+        "EV-005",
+        "EV-006",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "reconciling",
+      "label": "Refreshing wallet facts after provider return",
+      "kind": "pending",
+      "transitions": [
+        "top-up-succeeded",
+        "checkout-unresolved"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-010",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "top-up-succeeded",
+      "label": "Wallet credit confirmed by refreshed facts",
+      "kind": "success",
+      "transitions": [
+        "history-ready"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-007",
+        "EV-008",
+        "EV-010",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "checkout-cancelled",
+      "label": "Checkout cancelled without claiming wallet credit",
+      "kind": "error",
+      "transitions": [
+        "top-up-entry",
+        "wallet-ready"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-006",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "checkout-failed",
+      "label": "Checkout creation refused",
+      "kind": "error",
+      "transitions": [
+        "top-up-entry",
+        "wallet-ready"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-006",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "checkout-unresolved",
+      "label": "Payment result cannot yet be proven",
+      "kind": "partial",
+      "transitions": [
+        "reconciling",
+        "top-up-entry",
+        "wallet-ready"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "history-ready",
+      "label": "Transactions and invoices available for inspection",
+      "kind": "success",
+      "transitions": [
+        "invoice-paying",
+        "top-up-entry"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "invoice-paying",
+      "label": "Paying an owned unpaid invoice",
+      "kind": "pending",
+      "transitions": [
+        "invoice-paid",
+        "invoice-refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "invoice-paid",
+      "label": "Invoice paid and linked provisioning started",
+      "kind": "success",
+      "transitions": [
+        "history-ready"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "invoice-refused",
+      "label": "Invoice settlement refused",
+      "kind": "error",
+      "transitions": [
+        "history-ready",
+        "top-up-entry"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-009"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "wallet",
+      "label": "Wallet",
+      "fields": [
+        "id",
+        "balanceVnd"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "wallet-transaction",
+      "label": "Wallet transaction",
+      "fields": [
+        "id",
+        "type",
+        "amountVnd",
+        "note",
+        "createdAt"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "invoice",
+      "label": "Invoice",
+      "fields": [
+        "id",
+        "amountVnd",
+        "status",
+        "dueAt",
+        "paidAt",
+        "catalog item",
+        "catalog tier"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "wallet-top-up-pay-link",
+      "label": "Wallet top-up pay link",
+      "fields": [
+        "paymentId",
+        "gateway",
+        "referenceId",
+        "checkoutUrl",
+        "checkoutFields",
+        "amountVnd",
+        "chargedAmountVnd"
+      ],
+      "evidenceIds": [
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "read-wallet",
+      "kind": "query",
+      "name": "myWallet",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "viewer-owned auto-provisioned wallet"
+      ],
+      "failures": [
+        "read refusal"
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "read-transactions",
+      "kind": "query",
+      "name": "myWalletTransactions",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "viewer-owned wallet transactions newest first"
+      ],
+      "failures": [
+        "read refusal"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-008"
+      ]
+    },
+    {
+      "id": "read-invoices",
+      "kind": "query",
+      "name": "myInvoices",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "viewer-owned invoice ledger with product labels"
+      ],
+      "failures": [
+        "read refusal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "create-top-up",
+      "kind": "mutation",
+      "name": "createWalletTopUpPayLink",
+      "owner": "backend",
+      "inputs": [
+        "amountVnd",
+        "gateway",
+        "returnUrl",
+        "cancelUrl"
+      ],
+      "outputs": [
+        "pending payment id",
+        "gateway reference",
+        "checkout URL",
+        "signed SePay checkout fields",
+        "credit and charged amounts"
+      ],
+      "failures": [
+        "invalid amount",
+        "unsupported gateway",
+        "payment gateway not configured",
+        "gateway refusal"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "post-sepay-checkout",
+      "kind": "redirect",
+      "name": "SePay signed checkout handoff",
+      "owner": "provider",
+      "inputs": [
+        "checkoutUrl",
+        "checkoutFields"
+      ],
+      "outputs": [
+        "provider payment collection",
+        "success or cancellation redirect"
+      ],
+      "failures": [
+        "provider cancellation",
+        "provider error"
+      ],
+      "evidenceIds": [
+        "EV-005",
+        "EV-006",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "settle-sepay",
+      "kind": "event",
+      "name": "SePay payment webhook settlement",
+      "owner": "backend",
+      "inputs": [
+        "provider order reference"
+      ],
+      "outputs": [
+        "authenticated paid order routed to wallet-top-up settlement"
+      ],
+      "failures": [
+        "gateway unavailable",
+        "order not paid",
+        "reference unrecognised",
+        "settlement refusal"
+      ],
+      "evidenceIds": [
+        "EV-007",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "pay-owned-invoice",
+      "kind": "mutation",
+      "name": "payInvoice",
+      "owner": "backend",
+      "inputs": [
+        "invoiceId"
+      ],
+      "outputs": [
+        "paid invoice",
+        "linked provisioning start"
+      ],
+      "failures": [
+        "invoice missing",
+        "invoice not owned",
+        "invoice not unpaid",
+        "insufficient wallet balance"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-009"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "wallet-payment",
+      "routePattern": "/:locale/wallet",
+      "title": "Wallet and payments",
+      "eyebrow": "Account",
+      "purpose": "Top up account funds, trace every wallet movement and settle service invoices without losing the payment consequence.",
+      "navigation": [
+        {
+          "id": "wallet-destination",
+          "label": "Wallet",
+          "group": "account",
+          "availability": "active"
+        }
+      ],
+      "regions": [
+        {
+          "id": "balance-summary",
+          "kind": "summary",
+          "title": "Available balance",
+          "summary": "The account's current VND balance and nearest unpaid obligation retain their own complete surface in every state.",
+          "items": [
+            {
+              "id": "available-balance",
+              "role": "fact",
+              "label": "Available balance"
+            },
+            {
+              "id": "unpaid-obligation",
+              "role": "fact",
+              "label": "Nearest unpaid invoice"
+            }
+          ],
+          "actions": [
+            {
+              "id": "start-top-up",
+              "label": "Top up",
+              "kind": "primary",
+              "target": "top-up"
+            }
+          ],
+          "states": [
+            "wallet-loading",
+            "wallet-empty",
+            "wallet-ready",
+            "wallet-refused",
+            "reconciling",
+            "top-up-succeeded"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-011"
+          ]
+        },
+        {
+          "id": "top-up",
+          "kind": "form",
+          "title": "Top up with SePay",
+          "summary": "Collect a positive VND amount, create a signed external SePay checkout and return for honest reconciliation.",
+          "items": [
+            {
+              "id": "top-up-amount",
+              "role": "field",
+              "label": "Top-up amount in VND"
+            },
+            {
+              "id": "top-up-gateway",
+              "role": "choice",
+              "label": "SePay"
+            },
+            {
+              "id": "top-up-reference",
+              "role": "fact",
+              "label": "Payment reference"
+            },
+            {
+              "id": "top-up-consequence",
+              "role": "text",
+              "label": "Wallet is credited only after provider confirmation"
+            }
+          ],
+          "actions": [
+            {
+              "id": "continue-sepay",
+              "label": "Continue to SePay",
+              "kind": "primary",
+              "target": "sepay-checkout"
+            },
+            {
+              "id": "cancel-top-up",
+              "label": "Cancel",
+              "kind": "secondary",
+              "target": "wallet"
+            },
+            {
+              "id": "retry-top-up",
+              "label": "Try again",
+              "kind": "secondary",
+              "target": "top-up"
+            }
+          ],
+          "states": [
+            "top-up-entry",
+            "checkout-creating",
+            "checkout-handoff",
+            "reconciling",
+            "top-up-succeeded",
+            "checkout-cancelled",
+            "checkout-failed",
+            "checkout-unresolved"
+          ],
+          "evidenceIds": [
+            "EV-004",
+            "EV-005",
+            "EV-006",
+            "EV-007",
+            "EV-010",
+            "EV-011"
+          ]
+        },
+        {
+          "id": "transactions",
+          "kind": "collection",
+          "title": "Transactions",
+          "summary": "Newest-first wallet movements expose direction, amount, note and date and can be inspected without inventing a total.",
+          "items": [
+            {
+              "id": "transaction-direction",
+              "role": "status",
+              "label": "Deposit or spend"
+            },
+            {
+              "id": "transaction-amount",
+              "role": "fact",
+              "label": "Amount"
+            },
+            {
+              "id": "transaction-note",
+              "role": "text",
+              "label": "Note"
+            },
+            {
+              "id": "transaction-date",
+              "role": "fact",
+              "label": "Created date"
+            }
+          ],
+          "actions": [
+            {
+              "id": "inspect-transaction",
+              "label": "View transaction",
+              "kind": "link",
+              "target": "transaction-detail"
+            }
+          ],
+          "states": [
+            "wallet-loading",
+            "wallet-empty",
+            "history-ready",
+            "wallet-refused",
+            "top-up-succeeded"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-008",
+            "EV-011"
+          ]
+        },
+        {
+          "id": "invoices",
+          "kind": "collection",
+          "title": "Invoices",
+          "summary": "Owned invoices expose product, tier, amount, due or paid date and settlement state with the provisioning consequence kept visible.",
+          "items": [
+            {
+              "id": "invoice-product",
+              "role": "entity",
+              "label": "Product and tier"
+            },
+            {
+              "id": "invoice-amount",
+              "role": "fact",
+              "label": "Amount"
+            },
+            {
+              "id": "invoice-status",
+              "role": "status",
+              "label": "Paid, unpaid or cancelled"
+            },
+            {
+              "id": "invoice-date",
+              "role": "fact",
+              "label": "Due or paid date"
+            }
+          ],
+          "actions": [
+            {
+              "id": "inspect-invoice",
+              "label": "View invoice",
+              "kind": "link",
+              "target": "invoice-detail"
+            },
+            {
+              "id": "pay-invoice",
+              "label": "Pay invoice",
+              "kind": "primary",
+              "target": "invoice-payment"
+            },
+            {
+              "id": "top-up-for-invoice",
+              "label": "Top up wallet",
+              "kind": "secondary",
+              "target": "top-up"
+            }
+          ],
+          "states": [
+            "wallet-loading",
+            "wallet-empty",
+            "history-ready",
+            "invoice-paying",
+            "invoice-paid",
+            "invoice-refused",
+            "wallet-refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-009",
+            "EV-011"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009",
+        "EV-010",
+        "EV-011"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Wallet balance, transactions and invoices render as complete independent surfaces whose loading, empty, answered and refused states retain the same anatomy and recovery ownership.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "A positive VND amount can create a SePay wallet-top-up pay link and submit its signed fields to the returned external checkout endpoint.",
+      "evidenceIds": [
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "The UI claims top-up success only after refreshed wallet or transaction evidence confirms the provider-settled credit; cancellation or an unresolved return never claims success.",
+      "evidenceIds": [
+        "EV-003",
+        "EV-007",
+        "EV-008",
+        "EV-010",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "Transaction and invoice management preserves real identities, statuses, dates, notes, amounts and actions at production-like density without fabricated totals.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-008",
+        "EV-009",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "An owned unpaid invoice can be paid from wallet balance, after which every ledger refreshes and linked provisioning starts.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "statement": "Every desktop, collapsed-navigation, mobile and overlay state uses the one grammar-locked StarCi visual theme.",
+      "evidenceIds": [
+        "EV-011"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "payment-status-read",
+      "question": "Which authenticated operation returns the payment ledger status and expiry after the browser returns from SePay?",
+      "impact": "The current contract can prove wallet credit by refreshing balance and transactions, but it cannot distinguish authoritative pending, failed and expired payment states in the UI."
+    },
+    {
+      "id": "provider-error-disposition",
+      "question": "How should the frontend distinguish a buyer cancellation from a SePay provider error when both currently return through the cancellation URL?",
+      "impact": "The design can render honest cancelled-or-unresolved recovery, but separate final error copy needs a stronger redirect or payment-status contract."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/WalletPage/component.tsx",
+      "startLine": 11,
+      "endLine": 230,
+      "claim": "The Wallet drawing defines independent balance, transaction and invoice sections, top-up and invoice actions, and resting, empty, answered and refused states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/WalletPage/index.tsx",
+      "startLine": 24,
+      "endLine": 261,
+      "claim": "The connected Wallet loads balance, invoices and transactions independently, pays an unpaid invoice and refreshes all three ledgers, while currently omitting the top-up callback.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/modules/api/console.ts",
+      "startLine": 115,
+      "endLine": 506,
+      "claim": "The frontend console contract exposes wallet, transaction and invoice identities and reads, but no wallet-top-up pay-link or payment-status operation yet.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/wallet/create-wallet-top-up-pay-link/graphql-types/input.ts",
+      "startLine": 17,
+      "endLine": 73,
+      "claim": "The wallet top-up mutation accepts a positive integer VND amount, gateway, success URL and cancellation URL.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/wallet/create-wallet-top-up-pay-link/graphql-types/wallet-top-up-pay-link.ts",
+      "startLine": 19,
+      "endLine": 79,
+      "claim": "The top-up result returns payment and gateway references, checkout URL, optional PayOS QR, optional SePay signed fields, and credited and charged amounts.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/wallet/create-wallet-top-up-pay-link/create-wallet-top-up-pay-link.service.ts",
+      "startLine": 52,
+      "endLine": 183,
+      "claim": "The service creates a pending wallet-top-up payment and implements distinct PayOS and signed SePay checkout branches without crediting the wallet early.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/core/api/core/http/payment-gateway/sepay-webhook.controller.ts",
+      "startLine": 60,
+      "endLine": 147,
+      "claim": "The SePay webhook authenticates payment by retrieving the provider order, acknowledges unpaid or unrecognised references without settlement, and routes paid references to settlement.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/wallet/my-wallet-transactions/my-wallet-transactions.service.ts",
+      "startLine": 1,
+      "endLine": 26,
+      "claim": "Wallet transactions are loaded for the viewer's wallet newest first.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-009",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/invoices/pay-invoice/pay-invoice.resolver.ts",
+      "startLine": 42,
+      "endLine": 88,
+      "claim": "The payInvoice mutation settles one viewer-owned unpaid invoice and returns the resulting invoice after service logic starts the linked consequence.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "src/tests/helpers/flow-money.ts",
+      "startLine": 147,
+      "endLine": 225,
+      "claim": "The shared money-flow helper creates a real SePay wallet-top-up pay link, simulates provider-paid retrieval, delivers the webhook and proves the wallet-credit path rather than a direct deposit shortcut.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-011",
+      "claim": "The owner requires the Nivo payment flow to correct Wallet surface patterns and cover SePay wallet top-up, return or cancellation reconciliation, transaction management and invoice management under the one strict StarCi visual grammar, across the full desktop and mobile journey.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "70291b8b8e607f84c809331f613b4e1ff3b48d961e9522c6ed3c7e0320b2d809"
+    }
+  ],
+  "authority": {
+    "status": "pending",
+    "basis": "owner-intent",
+    "requiredRoles": [
+      "fe",
+      "be"
+    ],
+    "baseHead": "241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042",
+    "previousHead": "241107b6d73a43cf24ecef222036bfb5d25aa3a816d38b04d5917fc62177e042"
+  }
+}

@@ -1,0 +1,362 @@
+{
+  "schemaVersion": 2,
+  "authority": {
+    "status": "rejected",
+    "basis": "owner-intent",
+    "requiredRoles": [
+      "be"
+    ],
+    "previousHead": "fc9ab6a9e709076658a82d630cfc60c3e3199538ea5a92bf37f2fe2424ff079c"
+  },
+  "project": "nivo",
+  "featureId": "seeded-owned-apps",
+  "title": "Seeded owned apps",
+  "summary": "The Nivo backend idempotently seeds an Expert Academy app and an MMO app for the fixed demo account so the existing generic owned-instance query can expose both without provisioning MMO infrastructure or inventing MMO product features.",
+  "sources": [
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Idempotent demo-owned instance seed for tester@nivo.local",
+      "One seeded ai_academy instance labelled Học viện Chuyên gia",
+      "One seeded mmo instance labelled MMO",
+      "Generic myInstances projection for both seeded rows"
+    ],
+    "excludes": [
+      "MMO provisioning, chart installation, DNS publication or deployment",
+      "MMO catalogue purchase or pricing tiers",
+      "MMO-specific product detail tables, operations or control-center behavior",
+      "Production users other than the fixed demo account"
+    ]
+  },
+  "actors": [
+    {
+      "id": "demo-owner",
+      "label": "Fixed Nivo demo account owner",
+      "capabilities": [
+        "See the seeded Expert Academy and MMO instances through the existing owned-app query"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "seeded-owned-apps-journey",
+      "title": "Seed demo-owned apps",
+      "trigger": "The Nivo backend completes application bootstrap",
+      "steps": [
+        {
+          "id": "resolve-demo-owner",
+          "actor": "demo-owner",
+          "action": "The backend resolves the fixed demo account",
+          "result": "Seeding skips safely when the account does not exist",
+          "surfaceId": "owned-apps-feed",
+          "stateId": "owner-missing"
+        },
+        {
+          "id": "upsert-demo-apps",
+          "actor": "demo-owner",
+          "action": "The backend upserts the two declared owned instances",
+          "result": "Exactly one Expert Academy row and one MMO row are owned by the demo account",
+          "surfaceId": "owned-apps-feed",
+          "stateId": "seeded"
+        },
+        {
+          "id": "read-demo-apps",
+          "actor": "demo-owner",
+          "action": "The authenticated demo owner requests myInstances",
+          "result": "Both seeded app identities are returned through the generic instance projection",
+          "surfaceId": "owned-apps-feed",
+          "stateId": "available"
+        }
+      ],
+      "outcomes": [
+        "The frontend can render Học viện Chuyên gia and MMO as two current owned apps without provisioning MMO infrastructure"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "The demo seed is idempotent and scoped only to tester@nivo.local; a missing demo account is a safe skip.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "The MMO seed binds the existing mmo provisionable-app registry identity but remains non-provisionable and has no product-detail row.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Owned apps are exposed through the generic instance spine; adding MMO does not add an MMO branch to myInstances.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "owner-missing",
+      "label": "Demo owner missing",
+      "kind": "empty",
+      "transitions": [
+        "seeded"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "seeded",
+      "label": "Demo apps seeded",
+      "kind": "success",
+      "transitions": [
+        "available"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "available",
+      "label": "Owned apps available",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "owned-instance",
+      "label": "Owned application instance",
+      "fields": [
+        "owner",
+        "app registry identity",
+        "customer-facing name",
+        "hostname",
+        "resource allocation",
+        "status",
+        "chart and image version snapshot"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-005"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "seed-demo-owned-apps",
+      "kind": "command",
+      "name": "seedDemoOwnedApps",
+      "owner": "backend",
+      "inputs": [
+        "fixed demo account",
+        "ai_academy registry row",
+        "mmo registry row"
+      ],
+      "outputs": [
+        "idempotently persisted academy and MMO instances"
+      ],
+      "failures": [
+        "demo account absent",
+        "required registry identity absent",
+        "database write refusal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "read-owned-apps",
+      "kind": "query",
+      "name": "myInstances",
+      "owner": "backend",
+      "inputs": [
+        "authenticated viewer"
+      ],
+      "outputs": [
+        "owned app key, instance identity, name, plan, resources and status"
+      ],
+      "failures": [
+        "authentication rejected",
+        "instance registry identity missing"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "owned-apps-feed",
+      "routePattern": "GraphQL myInstances",
+      "title": "Owned apps feed",
+      "eyebrow": "Backend",
+      "purpose": "Supply the authenticated owner's current app instances to the console Apps flow.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "owned-apps",
+          "kind": "collection",
+          "title": "Current apps",
+          "summary": "The generic owned-instance projection contains the two declared demo-owned app identities.",
+          "items": [
+            {
+              "id": "expert-academy-app",
+              "role": "entity",
+              "label": "Học viện Chuyên gia",
+              "meta": "ai_academy"
+            },
+            {
+              "id": "mmo-app",
+              "role": "entity",
+              "label": "MMO",
+              "meta": "mmo · seed-only · no provisioning"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "owner-missing",
+            "seeded",
+            "available"
+          ],
+          "evidenceIds": [
+            "EV-003",
+            "EV-004",
+            "EV-005"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Repeated backend boot does not duplicate either seeded owned app for tester@nivo.local.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "myInstances returns one ai_academy row labelled Học viện Chuyên gia and one mmo row labelled MMO for the demo owner.",
+      "evidenceIds": [
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "The MMO seed creates no provisioning request, deployment, chart install, catalogue order or MMO-specific detail row.",
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-005"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "mmo-control-center",
+      "question": "Which product-specific regions and operations will an MMO control center eventually own?",
+      "impact": "The backend may expose the seeded MMO instance through myInstances, but design and implementation must not invent MMO-specific management behavior."
+    },
+    {
+      "id": "demo-instance-technical-values",
+      "question": "Which deterministic local hostname, resource allocation, plan and version snapshot should the seed use for each instance?",
+      "impact": "Backend planning must choose values compatible with the existing InstanceEntity without treating them as product pricing or provisioning claims."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/domain-seeder.service.ts",
+      "startLine": 26,
+      "endLine": 164,
+      "claim": "The existing primary-database demo seeder resolves tester@nivo.local, skips safely when absent and idempotently updates or inserts demo-owned rows.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-002",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/provisionable-app-seeder.service.ts",
+      "startLine": 103,
+      "endLine": 230,
+      "claim": "The provisionable-app registry already defines ai_academy and a deliberately non-provisionable mmo identity with no chart, host, pipeline or product-specific detail contract.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-003",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/instances/my-instances/my-instances.handler.ts",
+      "startLine": 90,
+      "endLine": 260,
+      "claim": "myInstances reads instances as the generic spine, joins the app registry and maps any app key, name, plan, resources and status without an app-specific branch.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/instances/my-instances/my-instances.handler.spec.ts",
+      "startLine": 131,
+      "endLine": 229,
+      "claim": "The query test proves an MMO instance with no product enum or detail table is returned as appKey mmo through the generic owned-instance response.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-005",
+      "claim": "The owner requested that Nivo backend assume an MMO app exists and provide seed data for two current apps, Học viện Chuyên gia and MMO, without provisioning.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "d9776286e15da17c2e5b5669dc6c22f93e310722a5e1d5db3ea329507fb3c5e2"
+    }
+  ]
+}

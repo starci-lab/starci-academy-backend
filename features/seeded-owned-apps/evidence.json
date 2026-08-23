@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "seeded-owned-apps",
+  "head": "7536d86f1222e9e9af68ab35411d8f81e88e588499e89e2bdebc20a721df38a0",
+  "sources": [
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/domain-seeder.service.ts",
+      "startLine": 26,
+      "endLine": 164,
+      "claim": "The existing primary-database demo seeder resolves tester@nivo.local, skips safely when absent and idempotently updates or inserts demo-owned rows.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-002",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/provisionable-app-seeder.service.ts",
+      "startLine": 103,
+      "endLine": 230,
+      "claim": "The provisionable-app registry already defines ai_academy and a deliberately non-provisionable mmo identity with no chart, host, pipeline or product-specific detail contract.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-003",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/instances/my-instances/my-instances.handler.ts",
+      "startLine": 90,
+      "endLine": 260,
+      "claim": "myInstances reads instances as the generic spine, joins the app registry and maps any app key, name, plan, resources and status without an app-specific branch.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/instances/my-instances/my-instances.handler.spec.ts",
+      "startLine": 131,
+      "endLine": 229,
+      "claim": "The query test proves an MMO instance with no product enum or detail table is returned as appKey mmo through the generic owned-instance response.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-005",
+      "claim": "The owner requested that Nivo backend assume an MMO app exists and provide seed data for two current apps, Học viện Chuyên gia and MMO, without provisioning.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "d9776286e15da17c2e5b5669dc6c22f93e310722a5e1d5db3ea329507fb3c5e2"
+    }
+  ]
+}

@@ -1,0 +1,453 @@
+{
+  "schemaVersion": 2,
+  "authority": {
+    "status": "implemented",
+    "basis": "reconciled",
+    "requiredRoles": [
+      "be"
+    ]
+  },
+  "project": "nivo",
+  "featureId": "multi-app-registry",
+  "title": "Multi-app provisioning registry",
+  "summary": "The Nivo control plane models each installable application as a registry row with its own Helm chart reference, identity policy, ordered child pipeline, step configuration, secret specification, config-builder strategy, default plan and provisioning availability.",
+  "sources": [
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Stable data-backed application identities",
+      "Per-app Helm chart reference and optional chart version",
+      "Per-app identity, host, pipeline, step config, secret, config builder and default plan policies",
+      "Generic instance creation and chart resolution from the registry",
+      "Per-row provisioning availability"
+    ],
+    "excludes": [
+      "Helm chart contents",
+      "Marketing copy, catalogue pricing and tenant-specific values",
+      "Public GraphQL enumeration of infrastructure registry data",
+      "Assuming every registered app is provisionable"
+    ]
+  },
+  "actors": [
+    {
+      "id": "control-plane",
+      "label": "Nivo control plane",
+      "capabilities": [
+        "Resolve one registered app and apply its app-specific installation policy without adding an application enum branch"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "multi-app-provisioning-journey",
+      "title": "Resolve and provision one registered application",
+      "trigger": "An instance-shaped catalogue fulfillment names an application key",
+      "steps": [
+        {
+          "id": "resolve-app",
+          "actor": "control-plane",
+          "action": "Resolve the provisionable_apps row by stable key",
+          "result": "The app-specific policy is available",
+          "surfaceId": "app-registry",
+          "stateId": "registered"
+        },
+        {
+          "id": "check-availability",
+          "actor": "control-plane",
+          "action": "Check whether the row is provisionable",
+          "result": "Unavailable apps are refused before instance creation",
+          "surfaceId": "app-registry",
+          "stateId": "unavailable"
+        },
+        {
+          "id": "resolve-chart",
+          "actor": "control-plane",
+          "action": "Resolve the row's Helm chart argument and optional version",
+          "result": "The installer receives the app-owned chart source",
+          "surfaceId": "app-registry",
+          "stateId": "ready"
+        },
+        {
+          "id": "run-child-policy",
+          "actor": "control-plane",
+          "action": "Run the row's ordered pipeline and app-specific child configuration",
+          "result": "Different applications share the registry lifecycle while retaining distinct child policies",
+          "surfaceId": "app-registry",
+          "stateId": "provisioning"
+        }
+      ],
+      "outcomes": [
+        "A new application can be represented by data and policy keys without extending a product enum or adding a chart-selection branch"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Each app owns one stable registry key and its own Helm chart argument; filesystem paths and OCI references are supported, while unresolved chart sources are refused before Helm runs.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-004",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "App-specific child behavior is selected through identity mode, ordered pipeline step keys, per-step config, secret specs and config-builder key rather than class inheritance or application conditionals.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "A registered app is not necessarily provisionable; isProvisionable refuses new fulfillment before instance or secret creation while retaining registry truth for existing instances.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "Chart contents, prices, marketing copy and per-tenant values remain owned outside the app registry.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "registered",
+      "label": "Registered",
+      "kind": "initial",
+      "transitions": [
+        "unavailable",
+        "ready"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "unavailable",
+      "label": "Not provisionable",
+      "kind": "partial",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "ready",
+      "label": "Ready to provision",
+      "kind": "success",
+      "transitions": [
+        "provisioning"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "provisioning",
+      "label": "Running app policy",
+      "kind": "pending",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "provisionable-app",
+      "label": "Provisionable application",
+      "fields": [
+        "key",
+        "name",
+        "instance label",
+        "chart ref",
+        "chart version",
+        "host base domain",
+        "identity mode",
+        "auth host prefix",
+        "pipeline steps",
+        "step config",
+        "secret specs",
+        "config builder key",
+        "default plan code",
+        "is provisionable"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "app-child-policy",
+      "label": "Application child policy",
+      "fields": [
+        "ordered step keys",
+        "per-step parameters",
+        "secret requirements",
+        "config builder strategy",
+        "identity strategy"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "resolve-registered-app",
+      "kind": "query",
+      "name": "resolveApp",
+      "owner": "backend",
+      "inputs": [
+        "application key"
+      ],
+      "outputs": [
+        "provisionable app registry row"
+      ],
+      "failures": [
+        "application key absent or unregistered"
+      ],
+      "evidenceIds": [
+        "EV-003"
+      ]
+    },
+    {
+      "id": "resolve-app-chart",
+      "kind": "query",
+      "name": "resolveForExpertSite",
+      "owner": "backend",
+      "inputs": [
+        "instance-linked site identity"
+      ],
+      "outputs": [
+        "Helm chart ref, optional version and app key"
+      ],
+      "failures": [
+        "registry row absent",
+        "chart ref absent",
+        "local chart directory absent"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "create-generic-instance",
+      "kind": "command",
+      "name": "createInstance",
+      "owner": "backend",
+      "inputs": [
+        "catalogue order",
+        "resolved app row",
+        "resolved plan"
+      ],
+      "outputs": [
+        "instance bound to the app registry row"
+      ],
+      "failures": [
+        "app not provisionable",
+        "instance label absent",
+        "host base domain absent"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-005"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "app-registry",
+      "routePattern": "internal provisionable_apps registry",
+      "title": "Application registry",
+      "eyebrow": "Control plane",
+      "purpose": "Resolve application-owned installation policy without exposing infrastructure configuration publicly.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "app-definition",
+          "kind": "summary",
+          "title": "Application definition",
+          "summary": "One registry row composes shared app identity with a distinct chart and child policy.",
+          "items": [
+            {
+              "id": "app-chart",
+              "role": "fact",
+              "label": "Helm chart address and version"
+            },
+            {
+              "id": "app-identity",
+              "role": "fact",
+              "label": "Identity and host policy"
+            },
+            {
+              "id": "app-pipeline",
+              "role": "fact",
+              "label": "Ordered child pipeline and step configuration"
+            },
+            {
+              "id": "app-secrets",
+              "role": "fact",
+              "label": "Secret and config-builder policy"
+            },
+            {
+              "id": "app-availability",
+              "role": "status",
+              "label": "Provisioning availability"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "registered",
+            "unavailable",
+            "ready",
+            "provisioning"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "A provisionable app row stores a stable key, one Helm chart reference and the app-specific identity, pipeline, step, secret, config-builder, plan and availability policies.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Generic fulfillment resolves an app row, refuses unavailable apps before durable instance creation and binds created instances to the registry row.",
+      "evidenceIds": [
+        "EV-003",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Chart resolution returns the selected app's filesystem or OCI Helm chart argument and rejects absent or unresolved sources before invoking Helm.",
+      "evidenceIds": [
+        "EV-004",
+        "EV-006"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "child-policy-authoring",
+      "question": "Should future app child policies remain seed-reviewed configuration or become operator-authored records with schema validation and versioning?",
+      "impact": "Current source treats child policies as reviewed seed data and validates behavior in code; an operator-editable model would require new validation, authorization and compatibility rules."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/provisionable-app.entity.ts",
+      "startLine": 45,
+      "endLine": 350,
+      "claim": "ProvisionableAppEntity is the generic application registry and stores chart, identity, child pipeline, step config, secret, config-builder, default-plan and availability policies while excluding chart contents, catalogue and tenant data.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-002",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/provisionable-app-seeder.service.ts",
+      "startLine": 29,
+      "endLine": 350,
+      "claim": "The reviewed registry seed defines multiple applications with distinct chart, identity and pipeline values, including a deliberately non-provisionable MMO row.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-003",
+      "role": "be",
+      "path": "src/modules/bussiness/catalog-fulfillment/catalog-fulfillment.dispatcher.ts",
+      "startLine": 588,
+      "endLine": 810,
+      "claim": "Generic fulfillment resolves and gates a registry row, creates an app-bound instance and derives identity from the row without adding a new product enum branch.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/modules/bussiness/expert-provision/chart/chart-source.service.ts",
+      "startLine": 46,
+      "endLine": 162,
+      "claim": "ChartSourceService resolves the instance app's chart ref and version from the registry and refuses missing or unresolved local chart sources before Helm runs.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/modules/bussiness/catalog-fulfillment/catalog-fulfillment.dispatcher.spec.ts",
+      "startLine": 132,
+      "endLine": 808,
+      "claim": "Fulfillment tests cover generic registered apps, the non-provisionable MMO shape, app-key resolution and refusal before fulfillment effects.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/modules/bussiness/expert-provision/chart/chart-source.service.spec.ts",
+      "startLine": 44,
+      "endLine": 220,
+      "claim": "Chart source tests prove different app keys resolve their own chart references and missing chart sources are refused.",
+      "kind": "test"
+    }
+  ]
+}

@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "agentos-ai-knowledge-provisioning",
+  "head": "2d349c6b368b1943ddb384adef0780384a0fa7e6c284a4f9aeec21e3a864adec",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "6a43e8d11050efb84d95f73e4103044f6dcfb15a"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "77ce9d7dda36dae185be9983d4ff0771c769381c"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "Create Nivo agentos-ai-knowledge-provisioning as pending owner intent with per-workspace OpenRouter credentials, DeepSeek deepseek/deepseek-v4-flash, immutable Nivo common and module knowledge snapshots, scanned uploaded-document extraction and vector ingestion, non-destructive workspace Qdrant recovery, and an owner-safe AI readiness test that gates workspace readiness without exposing secrets, raw documents, point identifiers, or raw provider responses.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "2d5c21ecafe90bb00091ac3021bcbcd37dcf4f4080593685afb7df4dadca0ecd"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/page.tsx",
+      "startLine": 1,
+      "endLine": 12,
+      "claim": "The frontend mounts one exact locale-aware owner workspace control-center route by workspaceId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/modules/[installationId]/page.tsx",
+      "startLine": 1,
+      "endLine": 11,
+      "claim": "The frontend mounts one solution-module installation detail beneath the exact workspace and binds workspaceId plus installationId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "apps/agentos-cli/src/config.ts",
+      "startLine": 112,
+      "endLine": 126,
+      "claim": "The AgentOS CLI resolves a workspace-local Qdrant endpoint and named collection rather than a central control-plane search path.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "apps/agentos-cli/src/config.ts",
+      "startLine": 176,
+      "endLine": 200,
+      "claim": "The AgentOS CLI defaults the OpenRouter model to deepseek/deepseek-v4-flash and requires OPENROUTER_INSTANCE_KEY as the instance-owned credential.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/modules/bussiness/expert-provision/secrets/instance-model-key.service.ts",
+      "startLine": 108,
+      "endLine": 175,
+      "claim": "The backend can idempotently mint a bounded OpenRouter key per instance, persist the provider key id and store the raw value through encrypted provision-secret custody.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/modules/bussiness/pod-registration/pod-access-token.service.ts",
+      "startLine": 42,
+      "endLine": 52,
+      "claim": "The committed AgentOS pod credential path explicitly says per-instance OpenRouter mint delivery remains a separate unwired change.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "apps/agentos-cli/src/knowledge/knowledge-snapshot.service.ts",
+      "startLine": 18,
+      "endLine": 105,
+      "claim": "The AgentOS CLI recovers a versioned Qdrant snapshot by presigned URL, while its committed contract explicitly names backend snapshot publication and version-mismatch fallback as unbuilt follow-up work.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-009",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-solution-modules/types/manifest.ts",
+      "startLine": 1,
+      "endLine": 43,
+      "claim": "Solution-module manifests expose immutable module versions, common and private knowledge versions and an operational-data knowledge-package locator rather than embedding mutable document bodies in new manifests.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "apps/agentos-controlplane/src/module-runtime/module-knowledge-reconciler.service.ts",
+      "startLine": 14,
+      "endLine": 36,
+      "claim": "The control plane currently writes module package documents into workspace knowledge with installationId, moduleKey and knowledgeVersion metadata.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-011",
+      "role": "be",
+      "path": "apps/agentos-cli/src/documents/queue-drain.service.ts",
+      "startLine": 72,
+      "endLine": 160,
+      "claim": "The upload queue owns per-document indexing and failure states but currently embeds only the filename; MinIO download, extraction and chunking are explicitly unbuilt.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-012",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/agent-workspace/my-agent-workspace-knowledge-runtime/my-agent-workspace-knowledge-runtime.handler.ts",
+      "startLine": 20,
+      "endLine": 36,
+      "claim": "The owner-scoped backend query returns MCP/Qdrant health, document counts and origins, timestamps and reindex status for one exact workspace.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-013",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/agent-workspace/reindex-agent-workspace-knowledge/reindex-agent-workspace-knowledge.handler.ts",
+      "startLine": 20,
+      "endLine": 41,
+      "claim": "The backend exposes an owner-scoped idempotent workspace knowledge-reindex operation and returns its operation status.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-014",
+      "role": "be",
+      "path": "src/tests/harness/draft-lead-reply.harness-spec.ts",
+      "startLine": 20,
+      "endLine": 83,
+      "claim": "The AI harness calls the OpenRouter-compatible production prompt lane, grades nondeterministic output and loudly skips rather than faking success when its provider credential is absent.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-015",
+      "role": "be",
+      "path": "src/tests/e2e/controlplane/instance-key-attribution.live-spec.ts",
+      "startLine": 222,
+      "endLine": 275,
+      "claim": "A live test mints a bounded per-instance OpenRouter key, sends a real DeepSeek call and distinguishes spend on that key from spend on Nivo's platform key.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-016",
+      "role": "be",
+      "path": "package.json",
+      "startLine": 15,
+      "endLine": 44,
+      "claim": "The repository declares separate AI harness and AgentOS live-test commands rather than making paid-provider tests part of the ordinary deterministic lane.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-017",
+      "claim": "Approve R2 owner intent: exclude ask-until-complete module intake; pin nivo-qwen3-embedding-8b-4096-v1 at dimension 4096; copy immutable Nivo and installed-module artifacts from global Qdrant into a verified staging workspace generation before atomic alias switch; accept only PDF, DOCX, UTF-8 text and Markdown up to 20971520 bytes through fail-closed ClamAV and defined retention; own one plan-funded event-rotated OpenRouter key per workspace; and gate aiReady through one durable ai_readiness_test with a 30000 ms deadline, zero retries, 300000 ms cooldown, 2048 input/context tokens and 256 output tokens.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "7494806cb79f7916fe7483450b64950ac607d82f888290112fada6569617fa59"
+    },
+    {
+      "id": "EV-018",
+      "role": "be",
+      "path": "src/modules/platform/env/config.ts",
+      "startLine": 725,
+      "endLine": 833,
+      "claim": "Backend configuration already pins qwen3-embedding:8b and qwen/qwen3-embedding-8b to measured dimension 4096 and refuses incompatible cloud and self-hosted embedding geometry.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-019",
+      "role": "be",
+      "path": "apps/shared/knowledge/knowledge-reindex.service.ts",
+      "startLine": 44,
+      "endLine": 68,
+      "claim": "The current knowledge reindex authority requires customer uploads to survive, uses two collections rather than rebuilding in place, keeps the old collection and permits a failed generation to be abandoned safely.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-020",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/subscription-plan.entity.ts",
+      "startLine": 306,
+      "endLine": 320,
+      "claim": "The AgentOS subscription plan owns creditGrantUsd and defines renewal as a lifetime limit equal to current provider spend plus the grant.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-021",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/instance.entity.ts",
+      "startLine": 231,
+      "endLine": 255,
+      "claim": "The provisioned instance owns the subscription-plan relation from which the workspace key grant is resolved.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-022",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/instance-model-key.entity.ts",
+      "startLine": 83,
+      "endLine": 120,
+      "claim": "The instance model-key authority records lifetime limitUsd and supports provider usage reads, disablement and destruction without exposing the raw key.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-023",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/agent-workspace-operation.entity.ts",
+      "startLine": 11,
+      "endLine": 42,
+      "claim": "Agent workspace operations are durable idempotent audit rows, while the current operation-kind union does not yet contain ai_readiness_test.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-024",
+      "role": "be",
+      "path": "src/modules/bussiness/agent-workspace-operations/agent-workspace-operation-runner.service.ts",
+      "startLine": 69,
+      "endLine": 123,
+      "claim": "The current workspace operation runner loads the workspace instance plan and dispatches bounded operation kinds, providing the sibling lifecycle that ai_readiness_test must extend.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-025",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-provision/types/payload.ts",
+      "startLine": 1,
+      "endLine": 28,
+      "claim": "The current provisioning payload lacks AI profile, knowledge-recovery operation and readiness-operation identities, so R2 requires those outputs rather than treating them as already implemented.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-026",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-provision/provision-step-map.service.ts",
+      "startLine": 24,
+      "endLine": 53,
+      "claim": "The current AgentOS provisioning map has four infrastructure steps and no explicit AI-key, knowledge-recovery or readiness step.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-027",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-provision/steps/record-outcome.step.ts",
+      "startLine": 36,
+      "endLine": 72,
+      "claim": "The current outcome step activates the workspace directly, so R2 must persist aiReady=false until knowledge recovery and the durable readiness operation pass.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-028",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/agentos-module-attachment.entity.ts",
+      "startLine": 14,
+      "endLine": 74,
+      "claim": "The attachment authority currently stores media type, byte size, scanner lifecycle, storage key and safe failure code while external object bytes and scanner execution remain outside the row.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-029",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/agent-workspace/prepare-agentos-module-attachment-upload/graphql-types/input.ts",
+      "startLine": 1,
+      "endLine": 17,
+      "claim": "The current upload input accepts a generic media type and positive byte size but does not yet enforce the R2 MIME allowlist or 20971520-byte ceiling.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-030",
+      "role": "fe",
+      "path": "apps/app/src/modules/api/console.ts",
+      "startLine": 754,
+      "endLine": 780,
+      "claim": "The frontend exposes custom-module intake answers and attachment preparation, finalization and removal as separate operations, supporting R2's boundary that document knowledge provisioning must not own ask-until-complete intake.",
+      "kind": "api"
+    }
+  ]
+}

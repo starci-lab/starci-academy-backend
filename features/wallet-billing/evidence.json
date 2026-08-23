@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "wallet-billing",
+  "head": "3fc6e87beddba3c1b082cfa34979747bdc4d36297744ef11a52bd5ea933ab551",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "385a4568195e59287d0555a1f473a80d85123411"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/WalletPage/component.tsx",
+      "startLine": 11,
+      "endLine": 173,
+      "claim": "The Wallet drawing implements the grammar-locked padded balance surface, joined transaction and invoice ledgers, top-up and result modals, and transaction or invoice detail drawers across loading, empty, answered and refused states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/WalletPage/index.tsx",
+      "startLine": 39,
+      "endLine": 197,
+      "claim": "The connected Wallet loads balance, invoices and transactions, creates a real signed SePay checkout, persists reconciliation evidence, submits provider fields, reports gateway refusal locally, reconciles return or cancellation without fabricating status, and retains invoice settlement.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/modules/api/console.ts",
+      "startLine": 115,
+      "endLine": 523,
+      "claim": "The frontend console contract exposes wallet, transaction and invoice identities and reads plus the createWalletTopUpPayLink SePay mutation; it still exposes no authoritative payment-status read operation.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/wallet/create-wallet-top-up-pay-link/graphql-types/input.ts",
+      "startLine": 17,
+      "endLine": 73,
+      "claim": "The wallet top-up mutation accepts a positive integer VND amount, gateway, success URL and cancellation URL.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/wallet/create-wallet-top-up-pay-link/graphql-types/wallet-top-up-pay-link.ts",
+      "startLine": 19,
+      "endLine": 79,
+      "claim": "The top-up result returns payment and gateway references, checkout URL, optional PayOS QR, optional SePay signed fields, and credited and charged amounts.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/wallet/create-wallet-top-up-pay-link/create-wallet-top-up-pay-link.service.ts",
+      "startLine": 52,
+      "endLine": 183,
+      "claim": "The service creates a pending wallet-top-up payment and implements distinct PayOS and signed SePay checkout branches without crediting the wallet early.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/core/api/core/http/payment-gateway/sepay-webhook.controller.ts",
+      "startLine": 60,
+      "endLine": 147,
+      "claim": "The SePay webhook authenticates payment by retrieving the provider order, acknowledges unpaid or unrecognised references without settlement, and routes paid references to settlement.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-008",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/wallet/my-wallet-transactions/my-wallet-transactions.service.ts",
+      "startLine": 1,
+      "endLine": 26,
+      "claim": "Wallet transactions are loaded for the viewer's wallet newest first.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-009",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/invoices/pay-invoice/pay-invoice.resolver.ts",
+      "startLine": 42,
+      "endLine": 88,
+      "claim": "The payInvoice mutation settles one viewer-owned unpaid invoice and returns the resulting invoice after service logic starts the linked consequence.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "src/tests/helpers/flow-money.ts",
+      "startLine": 147,
+      "endLine": 225,
+      "claim": "The shared money-flow helper creates a real SePay wallet-top-up pay link, simulates provider-paid retrieval, delivers the webhook and proves the wallet-credit path rather than a direct deposit shortcut.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-011",
+      "claim": "The owner requires the Nivo payment flow to correct Wallet surface patterns and cover SePay wallet top-up, return or cancellation reconciliation, transaction management and invoice management under the one strict StarCi visual grammar, across the full desktop and mobile journey.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "70291b8b8e607f84c809331f613b4e1ff3b48d961e9522c6ed3c7e0320b2d809"
+    }
+  ]
+}

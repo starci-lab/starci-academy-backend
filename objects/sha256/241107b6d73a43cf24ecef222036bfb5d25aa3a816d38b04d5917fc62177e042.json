@@ -1,0 +1,612 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "wallet-billing",
+  "title": "Wallet and invoice settlement",
+  "summary": "An authenticated account owner reads a real auto-provisioned wallet balance, transaction ledger and invoice ledger, then pays the newest unpaid invoice and refreshes all three views.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "9ae3cefc78e000c3a2c59f9992435fac38275d5b"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Wallet balance",
+      "Wallet transaction ledger",
+      "Invoice ledger",
+      "Paying an unpaid invoice and starting linked provisioning"
+    ],
+    "excludes": [
+      "A wired wallet top-up flow",
+      "Invented ledger totals"
+    ]
+  },
+  "actors": [
+    {
+      "id": "account-actor",
+      "label": "Authenticated account owner",
+      "capabilities": [
+        "Review account money and settle an unpaid service invoice"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "wallet-billing-journey",
+      "title": "Wallet and invoice settlement",
+      "trigger": "Open Wallet",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "account-actor",
+          "action": "Open Wallet",
+          "result": "Review balance, transactions and invoices",
+          "surfaceId": "wallet",
+          "stateId": "resting"
+        },
+        {
+          "id": "step-2",
+          "actor": "account-actor",
+          "action": "Review balance, transactions and invoices",
+          "result": "Pay the newest unpaid invoice",
+          "surfaceId": "wallet",
+          "stateId": "empty"
+        },
+        {
+          "id": "step-3",
+          "actor": "account-actor",
+          "action": "Pay the newest unpaid invoice",
+          "result": "Refresh money and service-fulfillment facts",
+          "surfaceId": "wallet",
+          "stateId": "answered"
+        },
+        {
+          "id": "step-4",
+          "actor": "account-actor",
+          "action": "Refresh money and service-fulfillment facts",
+          "result": "The invoice becomes paid and linked provisioning starts",
+          "surfaceId": "wallet",
+          "stateId": "refused"
+        }
+      ],
+      "outcomes": [
+        "The invoice becomes paid and linked provisioning starts",
+        "Each ledger retains its own resting, empty, answered or refused state"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "A first wallet read creates a real wallet row, so zero balance is an answer rather than an absent state.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Invoice payment is restricted to an unpaid invoice owned by the viewer and starts provisioning for the linked service.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "resting",
+      "label": "resting",
+      "kind": "initial",
+      "transitions": [
+        "empty"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "empty",
+      "kind": "empty",
+      "transitions": [
+        "answered"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "answered",
+      "label": "answered",
+      "kind": "success",
+      "transitions": [
+        "refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "refused",
+      "label": "refused",
+      "kind": "error",
+      "transitions": [
+        "paying"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "paying",
+      "label": "paying",
+      "kind": "pending",
+      "transitions": [
+        "paid"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "paid",
+      "label": "paid",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "entity-1",
+      "label": "Wallet",
+      "fields": [
+        "id",
+        "balanceVnd"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "entity-2",
+      "label": "Invoice",
+      "fields": [
+        "id",
+        "amountVnd",
+        "status",
+        "dueAt",
+        "catalog item",
+        "catalog tier"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "entity-3",
+      "label": "Wallet transaction",
+      "fields": [
+        "id",
+        "type",
+        "amountVnd",
+        "createdAt"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "operation-1",
+      "kind": "query",
+      "name": "myWallet",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "auto-provisioned wallet"
+      ],
+      "failures": [
+        "read refusal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "operation-2",
+      "kind": "query",
+      "name": "myWalletTransactions",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "complete transaction ledger"
+      ],
+      "failures": [
+        "read refusal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "operation-3",
+      "kind": "query",
+      "name": "myInvoices",
+      "owner": "backend",
+      "inputs": [],
+      "outputs": [
+        "invoice ledger with product labels"
+      ],
+      "failures": [
+        "read refusal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "operation-4",
+      "kind": "mutation",
+      "name": "payInvoice",
+      "owner": "backend",
+      "inputs": [
+        "invoiceId"
+      ],
+      "outputs": [
+        "paid invoice and provisioning start"
+      ],
+      "failures": [
+        "invoice missing, not owned or not unpaid"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "wallet",
+      "routePattern": "/[locale]/wallet",
+      "title": "Wallet",
+      "eyebrow": "Account",
+      "purpose": "Understand the account's available funds and settle service invoices.",
+      "navigation": [
+        {
+          "id": "wallet-nav",
+          "label": "Wallet",
+          "group": "wallet-billing",
+          "availability": "active"
+        }
+      ],
+      "regions": [
+        {
+          "id": "balance",
+          "kind": "summary",
+          "title": "Balance",
+          "summary": "Balance presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "balance-item-1",
+              "role": "fact",
+              "label": "Balance"
+            },
+            {
+              "id": "balance-item-2",
+              "role": "fact",
+              "label": "Unpaid invoice"
+            }
+          ],
+          "actions": [
+            {
+              "id": "balance-action-1",
+              "label": "Top up",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "resting",
+            "empty",
+            "answered",
+            "refused",
+            "paying",
+            "paid"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006"
+          ]
+        },
+        {
+          "id": "transactions",
+          "kind": "collection",
+          "title": "Transactions",
+          "summary": "Transactions presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "transactions-item-1",
+              "role": "entity",
+              "label": "Top-up or charge"
+            },
+            {
+              "id": "transactions-item-2",
+              "role": "entity",
+              "label": "Amount"
+            },
+            {
+              "id": "transactions-item-3",
+              "role": "entity",
+              "label": "Date"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "resting",
+            "empty",
+            "answered",
+            "refused",
+            "paying",
+            "paid"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006"
+          ]
+        },
+        {
+          "id": "invoices",
+          "kind": "collection",
+          "title": "Invoices",
+          "summary": "Invoices presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "invoices-item-1",
+              "role": "entity",
+              "label": "Product and tier"
+            },
+            {
+              "id": "invoices-item-2",
+              "role": "entity",
+              "label": "Amount"
+            },
+            {
+              "id": "invoices-item-3",
+              "role": "entity",
+              "label": "Paid / Unpaid / Cancelled"
+            }
+          ],
+          "actions": [
+            {
+              "id": "invoices-action-1",
+              "label": "Pay",
+              "kind": "primary"
+            }
+          ],
+          "states": [
+            "resting",
+            "empty",
+            "answered",
+            "refused",
+            "paying",
+            "paid"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "The invoice becomes paid and linked provisioning starts",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "The Wallet and invoice settlement surface renders only the states, identities and actions proven by current routed source.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "wallet-top-up-entry",
+      "question": "What flow should the visible Top up action open?",
+      "impact": "The surface labels the action, but the current connected page supplies no top-up callback."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/WalletPage/component.tsx",
+      "startLine": 11,
+      "endLine": 101,
+      "claim": "The wallet surface defines balance, transaction and invoice sections with independent states and pay/top-up action slots.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/WalletPage/index.tsx",
+      "startLine": 24,
+      "endLine": 255,
+      "claim": "The connected wallet reads wallet, invoices and transactions, pays the newest unpaid invoice and refreshes every ledger.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/wallet/my-wallet/my-wallet.resolver.ts",
+      "startLine": 38,
+      "endLine": 75,
+      "claim": "myWallet returns a viewer-owned wallet and auto-provisions it on first read.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/invoices/my-invoices/my-invoices.resolver.ts",
+      "startLine": 38,
+      "endLine": 74,
+      "claim": "myInvoices returns the authenticated user's invoices with linked product information.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/invoices/pay-invoice/pay-invoice.resolver.ts",
+      "startLine": 42,
+      "endLine": 86,
+      "claim": "payInvoice pays one viewer-owned unpaid invoice and starts linked service provisioning.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/invoices/pay-invoice/pay-invoice.service.spec.ts",
+      "startLine": 147,
+      "endLine": 220,
+      "claim": "Service tests cover payment behavior and refusal when the viewer has no matching invoice.",
+      "kind": "test"
+    }
+  ]
+}

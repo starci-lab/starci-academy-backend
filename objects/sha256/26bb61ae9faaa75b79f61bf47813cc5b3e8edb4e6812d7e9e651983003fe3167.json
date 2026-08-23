@@ -1,0 +1,497 @@
+{
+  "schemaVersion": 2,
+  "authority": {
+    "status": "in-progress",
+    "basis": "owner-intent",
+    "requiredRoles": [
+      "chart"
+    ],
+    "previousHead": "4fa19804a0aa753a456c597b952bff858ed4592c9f8bbfeba653edeed0b2a8bc"
+  },
+  "project": "nivo",
+  "featureId": "mmo-app-helm-chart",
+  "title": "MMO application Helm chart",
+  "summary": "Nivo gains one generic MMO Helm chart at charts/mmo in the dedicated nivo-charts repository, while backend provisioning activation remains separately authorized.",
+  "sources": [
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    },
+    {
+      "role": "chart",
+      "repository": "https://github.com/starci-lab/nivo-charts.git",
+      "head": "4a3aabb9d4db60f0f9e7332195b46276368b5295"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "One MMO-specific Helm chart at charts/mmo in starci-lab/nivo-charts, consumable through the backend chart-ref and optional chart-version contract.",
+      "A generic values contract requiring image repository, image tag and service port while allowing ingress, persistence and probes to be configured.",
+      "A Helm v2 application package with workload, service and optional ingress and persistence templates sufficient for deterministic lint and template validation.",
+      "Backend chart-source resolution that continues to refuse null, unsupported or missing chart sources before Helm executes.",
+      "Preservation of MMO as non-provisionable until a separate authority approves its runtime pipeline and customer flow."
+    ],
+    "excludes": [
+      "Changing the current multi-app-registry authority or its child-pipeline behavior.",
+      "Setting the MMO registry row isProvisionable flag to true.",
+      "Creating catalogue offers, prices, plans, demo-owned instances or frontend availability for MMO.",
+      "Running a deployment, publishing DNS, selecting an MMO management destination or exposing infrastructure fields publicly.",
+      "Supplying concrete MMO images, commands, credentials, tenant domains or resource policy that the owner has not declared."
+    ]
+  },
+  "actors": [
+    {
+      "id": "control-plane-maintainer",
+      "label": "Nivo control-plane maintainer",
+      "capabilities": [
+        "Define and validate the generic charts/mmo package without activating customer provisioning."
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "mmo-chart-definition",
+      "title": "Define and validate the MMO chart package",
+      "trigger": "The owner requires one backend-consumable Helm chart for the MMO application.",
+      "steps": [
+        {
+          "id": "record-chart-intent",
+          "actor": "control-plane-maintainer",
+          "action": "Open implementation for the approved charts/mmo artifact while preserving every unresolved activation decision.",
+          "result": "The exact generic chart contract is in progress and cannot be mistaken for implemented provisioning.",
+          "surfaceId": "mmo-chart-package",
+          "stateId": "chart-unresolved"
+        },
+        {
+          "id": "define-chart-contract",
+          "actor": "control-plane-maintainer",
+          "action": "Define charts/mmo with required image repository, image tag and service port plus configurable ingress, persistence and probes.",
+          "result": "The generic chart package can be authored without borrowing Academy runtime behavior or inventing concrete deployment values.",
+          "surfaceId": "mmo-chart-package",
+          "stateId": "chart-defined"
+        },
+        {
+          "id": "validate-chart-package",
+          "actor": "control-plane-maintainer",
+          "action": "Run deterministic Helm lint and template validation with representative non-secret values.",
+          "result": "The chart is either validated for backend resolution or refused with an explicit chart error.",
+          "surfaceId": "mmo-chart-package",
+          "stateId": "chart-validated"
+        }
+      ],
+      "outcomes": [
+        "One MMO chart artifact can be resolved and validated without enabling MMO provisioning or inventing its customer flow."
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "MMO owns one distinct Helm chart artifact at charts/mmo in starci-lab/nivo-charts and the backend consumes it only through the registry chart-ref and optional chart-version contract.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "A null, unsupported or missing MMO chart source is refused before Helm executes or provisioning secrets are minted.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Adding the chart artifact does not by itself make MMO provisionable, define its pipeline or expose a frontend action.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "The generic chart requires image repository, image tag and service port, exposes configurable ingress, persistence and probes, and never borrows Academy runtime values as MMO defaults.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "BR-05",
+      "statement": "The chart package must pass deterministic Helm lint and template validation before its reference can be treated as usable.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-008"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "chart-unresolved",
+      "label": "MMO generic chart implementation opened",
+      "kind": "initial",
+      "transitions": [
+        "chart-defined"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-006"
+      ]
+    },
+    {
+      "id": "chart-defined",
+      "label": "charts/mmo package and generic values contract defined",
+      "kind": "pending",
+      "transitions": [
+        "chart-validated",
+        "chart-refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-006",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "chart-validated",
+      "label": "MMO chart passes deterministic Helm validation",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "chart-refused",
+      "label": "MMO chart source or rendered package is invalid",
+      "kind": "error",
+      "transitions": [
+        "chart-defined"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "mmo-chart-package",
+      "label": "MMO Helm chart package",
+      "fields": [
+        "starci-lab/nivo-charts ownership and charts/mmo path",
+        "Helm v2 application metadata and optional version",
+        "required image repository, image tag and service port values",
+        "configurable ingress, persistence and probes",
+        "generic workload and service templates",
+        "validation fixtures"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "mmo-registry-link",
+      "label": "MMO registry chart link",
+      "fields": [
+        "application key",
+        "chart reference",
+        "optional chart version",
+        "provisioning availability"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-005"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "resolve-mmo-chart",
+      "kind": "query",
+      "name": "resolveMmoChart",
+      "owner": "backend",
+      "inputs": [
+        "MMO application registry identity"
+      ],
+      "outputs": [
+        "resolved chart reference",
+        "optional chart version",
+        "MMO application key"
+      ],
+      "failures": [
+        "missing registry row",
+        "null chart reference",
+        "unsupported Helm repository reference",
+        "missing filesystem chart"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "validate-mmo-chart",
+      "kind": "command",
+      "name": "validateMmoChart",
+      "owner": "provider",
+      "inputs": [
+        "MMO chart package",
+        "representative non-secret values"
+      ],
+      "outputs": [
+        "lint verdict",
+        "rendered Kubernetes manifests"
+      ],
+      "failures": [
+        "invalid chart metadata",
+        "missing required value",
+        "invalid rendered manifest"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-006",
+        "EV-008"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "mmo-chart-package",
+      "routePattern": "charts/mmo",
+      "title": "MMO Helm chart",
+      "eyebrow": "Nivo deployment package",
+      "purpose": "Define and validate the generic charts/mmo artifact the backend may resolve without activating provisioning.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "chart-contract",
+          "kind": "summary",
+          "title": "Chart contract",
+          "summary": "The artifact owner, reference form, values schema and validation proof required before MMO can be integrated.",
+          "items": [
+            {
+              "id": "application-key",
+              "role": "fact",
+              "label": "Application key",
+              "value": "mmo"
+            },
+            {
+              "id": "chart-path",
+              "role": "fact",
+              "label": "Chart path",
+              "value": "charts/mmo"
+            },
+            {
+              "id": "required-values",
+              "role": "fact",
+              "label": "Required values",
+              "value": "image.repository, image.tag, service.port"
+            },
+            {
+              "id": "activation-status",
+              "role": "status",
+              "label": "Provisioning",
+              "value": "Not activated",
+              "status": "unavailable"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "chart-unresolved",
+            "chart-defined",
+            "chart-validated",
+            "chart-refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-006",
+            "EV-007",
+            "EV-009"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-006",
+        "EV-007",
+        "EV-009"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "One distinct Helm v2 MMO chart exists at starci-lab/nivo-charts/charts/mmo and passes deterministic Helm lint and template validation.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "The backend can resolve the approved MMO chart reference and optional version through the generic chart-source contract without an MMO chart-selection branch.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "MMO remains non-provisionable and gains no catalogue, frontend or management behavior under this feature.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "A null, unsupported or missing MMO chart source is refused before Helm executes.",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "mmo-config-and-persistence",
+      "question": "Which concrete configuration, secret references, volume size and external dependencies will each MMO deployment provide?",
+      "impact": "The generic chart can expose configuration points and optional persistence, but representative production values remain outside this artifact-only feature."
+    },
+    {
+      "id": "mmo-tenant-policy",
+      "question": "What domain, TLS, identity, plan and resource-allocation policy belongs to MMO tenants?",
+      "impact": "The current MMO registry row leaves all of these fields unset and cannot safely borrow Academy policy."
+    },
+    {
+      "id": "mmo-pipeline-integration",
+      "question": "Which backend dispatcher, ordered steps, values builder and record-outcome/readiness contract will install MMO after the chart exists?",
+      "impact": "The current generic fulfillment has no MMO driver and the stored pipeline step list is not yet executable authority."
+    },
+    {
+      "id": "mmo-provisioning-activation",
+      "question": "Does the owner intend this change to add only the chart artifact, or later activate MMO purchasing, provisioning and management?",
+      "impact": "Activation requires separate transitions for the multi-app registry and app lifecycle; this artifact-only feature keeps MMO unavailable by default."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "The owner requires one backend-consumable Helm chart for the MMO application.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "793f044e95ba391da2558a5c4d3665ae0633f4087e2d455e96f790feb1135606"
+    },
+    {
+      "id": "EV-002",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/provisionable-app-seeder.service.ts",
+      "startLine": 163,
+      "endLine": 230,
+      "claim": "The current MMO registry row deliberately has no chart, runtime policy or pipeline and remains non-provisionable until those product decisions exist.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-003",
+      "role": "be",
+      "path": "src/modules/platform/env/config.ts",
+      "startLine": 1108,
+      "endLine": 1122,
+      "claim": "The current Academy chart and its installer tool are owned together by an external Nivo repository root rather than the backend checkout.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/modules/bussiness/expert-provision/chart/chart-source.service.ts",
+      "startLine": 64,
+      "endLine": 123,
+      "claim": "ChartSourceService resolves registry chart references and optional versions while refusing null, unsupported or missing filesystem chart sources before Helm runs.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/modules/platform/databases/postgresql/primary/entities/provisionable-app.entity.ts",
+      "startLine": 138,
+      "endLine": 186,
+      "claim": "The generic application registry stores exactly the chart argument and optional Helm version consumed by the installer.",
+      "kind": "schema"
+    },
+    {
+      "id": "EV-006",
+      "claim": "The owner approved starci-lab/nivo-charts/charts/mmo as a generic chart requiring image repository, image tag and service port, with configurable ingress, persistence and probes, while MMO provisioning remains disabled.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "165286ff3e5897a59c3fa8690f2ad936c69cbc3aca6c29d1f93118a55da64f48"
+    },
+    {
+      "id": "EV-007",
+      "role": "chart",
+      "path": "README.md",
+      "startLine": 3,
+      "endLine": 20,
+      "claim": "The dedicated nivo-charts repository owns Nivo Helm artifacts under charts/<chart>, with one product instance represented by one Helm release.",
+      "kind": "policy"
+    },
+    {
+      "id": "EV-008",
+      "role": "chart",
+      "path": "README.md",
+      "startLine": 72,
+      "endLine": 80,
+      "claim": "The chart repository validates packages with deterministic helm lint and helm template commands.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-009",
+      "role": "chart",
+      "path": "charts/expert-academy/Chart.yaml",
+      "startLine": 2,
+      "endLine": 29,
+      "claim": "An existing clean sibling chart establishes the repository's Helm v2 application metadata shape with explicit chart and app versions.",
+      "kind": "schema"
+    }
+  ]
+}

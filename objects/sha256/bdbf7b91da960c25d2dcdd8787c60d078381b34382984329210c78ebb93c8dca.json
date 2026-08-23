@@ -1,0 +1,914 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "agentos-workspaces",
+  "title": "AgentOS workspace lifecycle and control center",
+  "summary": "An authenticated owner orders an AgentOS workspace through billing, observes fulfillment, and manages the exact owned workspace across overview, solutions, applications, infrastructure, operations and access surfaces.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "9ae3cefc78e000c3a2c59f9992435fac38275d5b"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "AgentOS catalogue order and payment wait",
+      "Workspace provisioning",
+      "Exact workspace control center",
+      "Solution module discovery and installation",
+      "Secure OpenClaw launch lifecycle"
+    ],
+    "excludes": [
+      "Runnable update, backup, reset or rebuild controls not published by Core GraphQL",
+      "Secure n8n launch before its adapter exists"
+    ]
+  },
+  "actors": [
+    {
+      "id": "account-actor",
+      "label": "Authenticated AgentOS owner",
+      "capabilities": [
+        "Order, monitor and manage an owned AgentOS workspace and its installable solution modules"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "agentos-workspaces-journey",
+      "title": "AgentOS workspace lifecycle and control center",
+      "trigger": "Request an AgentOS plan",
+      "steps": [
+        {
+          "id": "step-1",
+          "actor": "account-actor",
+          "action": "Request an AgentOS plan",
+          "result": "Settle the linked invoice",
+          "surfaceId": "agentos-order",
+          "stateId": "request"
+        },
+        {
+          "id": "step-2",
+          "actor": "account-actor",
+          "action": "Settle the linked invoice",
+          "result": "Wait for workspace fulfillment",
+          "surfaceId": "agentos-workspace",
+          "stateId": "submitting"
+        },
+        {
+          "id": "step-3",
+          "actor": "account-actor",
+          "action": "Wait for workspace fulfillment",
+          "result": "Open the workspace and manage a solution or application",
+          "surfaceId": "agentos-solution-detail",
+          "stateId": "awaiting-payment"
+        },
+        {
+          "id": "step-4",
+          "actor": "account-actor",
+          "action": "Open the workspace and manage a solution or application",
+          "result": "The ready workspace appears in AgentOS management",
+          "surfaceId": "agentos-solution-detail",
+          "stateId": "accepted"
+        }
+      ],
+      "outcomes": [
+        "The ready workspace appears in AgentOS management",
+        "Unsupported operations remain descriptive rather than fake controls"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Workspace state is settled from the latest owner-scoped order, invoice and workspace facts, with the later workspace fact taking precedence.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Secure OpenClaw access is issued, renewed and revoked as a short-lived launch rather than exposing reusable credentials.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "request",
+      "label": "request",
+      "kind": "initial",
+      "transitions": [
+        "submitting"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "submitting",
+      "label": "submitting",
+      "kind": "pending",
+      "transitions": [
+        "awaiting-payment"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "awaiting-payment",
+      "label": "awaiting-payment",
+      "kind": "pending",
+      "transitions": [
+        "accepted"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "accepted",
+      "label": "accepted",
+      "kind": "pending",
+      "transitions": [
+        "preparing"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "preparing",
+      "label": "preparing",
+      "kind": "pending",
+      "transitions": [
+        "ready"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "ready",
+      "label": "ready",
+      "kind": "success",
+      "transitions": [
+        "failed"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "failed",
+      "label": "failed",
+      "kind": "error",
+      "transitions": [
+        "launch-opening"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "launch-opening",
+      "label": "launch-opening",
+      "kind": "pending",
+      "transitions": [
+        "launch-connected"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "launch-connected",
+      "label": "launch-connected",
+      "kind": "pending",
+      "transitions": [
+        "launch-expired"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "launch-expired",
+      "label": "launch-expired",
+      "kind": "error",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "entity-1",
+      "label": "AgentOS workspace",
+      "fields": [
+        "id",
+        "name",
+        "status",
+        "hostname",
+        "plan",
+        "runtime",
+        "stack"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "entity-2",
+      "label": "Solution installation",
+      "fields": [
+        "installationId",
+        "moduleKey",
+        "version",
+        "status",
+        "generated agents",
+        "knowledge bindings"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "operation-1",
+      "kind": "mutation",
+      "name": "orderAgentOs",
+      "owner": "backend",
+      "inputs": [
+        "catalogItemSlug",
+        "catalogTierId"
+      ],
+      "outputs": [
+        "catalog order"
+      ],
+      "failures": [
+        "order refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "operation-2",
+      "kind": "query",
+      "name": "myAgentWorkspaceControlCenter",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId"
+      ],
+      "outputs": [
+        "workspace aggregate snapshot"
+      ],
+      "failures": [
+        "not owned or not found"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "operation-3",
+      "kind": "mutation",
+      "name": "installAgentosSolutionModule",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "moduleKey"
+      ],
+      "outputs": [
+        "installation in provisioning"
+      ],
+      "failures": [
+        "catalog or ownership refusal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "operation-4",
+      "kind": "mutation",
+      "name": "issueAgentWorkspaceAppLaunch",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId"
+      ],
+      "outputs": [
+        "short-lived secure launch"
+      ],
+      "failures": [
+        "workspace inactive or not owned"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "agentos-order",
+      "routePattern": "/[locale]/agentos | /[locale]/agentos/orders/[orderId]",
+      "title": "AgentOS",
+      "eyebrow": "Console",
+      "purpose": "Request or resume one AgentOS order until a workspace is ready.",
+      "navigation": [
+        {
+          "id": "agentos-order-nav",
+          "label": "AgentOS",
+          "group": "agentos-workspaces",
+          "availability": "active"
+        },
+        {
+          "id": "agentos-workspace-nav",
+          "label": "AgentOS workspace",
+          "group": "agentos-workspaces",
+          "availability": "available"
+        },
+        {
+          "id": "agentos-solution-detail-nav",
+          "label": "Solution module",
+          "group": "agentos-workspaces",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "agentos-progress",
+          "kind": "flow",
+          "title": "Request an AgentOS workspace",
+          "summary": "Request an AgentOS workspace presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "agentos-progress-item-1",
+              "role": "step",
+              "label": "Request"
+            },
+            {
+              "id": "agentos-progress-item-2",
+              "role": "step",
+              "label": "Payment"
+            },
+            {
+              "id": "agentos-progress-item-3",
+              "role": "step",
+              "label": "Create workspace"
+            },
+            {
+              "id": "agentos-progress-item-4",
+              "role": "step",
+              "label": "Manage"
+            }
+          ],
+          "actions": [
+            {
+              "id": "agentos-progress-action-1",
+              "label": "Request AgentOS",
+              "kind": "primary"
+            },
+            {
+              "id": "agentos-progress-action-2",
+              "label": "Open Wallet",
+              "kind": "secondary"
+            },
+            {
+              "id": "agentos-progress-action-3",
+              "label": "Manage AgentOS",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "request",
+            "submitting",
+            "awaiting-payment",
+            "accepted",
+            "preparing",
+            "ready",
+            "failed",
+            "launch-opening",
+            "launch-connected",
+            "launch-expired"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006",
+            "EV-007"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "agentos-workspace",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]",
+      "title": "AgentOS workspace",
+      "eyebrow": "AgentOS",
+      "purpose": "Manage one exact owned workspace across its product and runtime areas.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "workspace-tabs",
+          "kind": "navigation",
+          "title": "Workspace management area",
+          "summary": "Workspace management area presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "workspace-tabs-item-1",
+              "role": "navigation",
+              "label": "Overview"
+            },
+            {
+              "id": "workspace-tabs-item-2",
+              "role": "navigation",
+              "label": "Solutions"
+            },
+            {
+              "id": "workspace-tabs-item-3",
+              "role": "navigation",
+              "label": "Applications"
+            },
+            {
+              "id": "workspace-tabs-item-4",
+              "role": "navigation",
+              "label": "Infrastructure"
+            },
+            {
+              "id": "workspace-tabs-item-5",
+              "role": "navigation",
+              "label": "Operations"
+            },
+            {
+              "id": "workspace-tabs-item-6",
+              "role": "navigation",
+              "label": "Access"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "request",
+            "submitting",
+            "awaiting-payment",
+            "accepted",
+            "preparing",
+            "ready",
+            "failed",
+            "launch-opening",
+            "launch-connected",
+            "launch-expired"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006",
+            "EV-007"
+          ]
+        },
+        {
+          "id": "workspace-body",
+          "kind": "content",
+          "title": "Workspace details",
+          "summary": "Workspace details presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "workspace-body-item-1",
+              "role": "fact",
+              "label": "Status"
+            },
+            {
+              "id": "workspace-body-item-2",
+              "role": "fact",
+              "label": "Plan"
+            },
+            {
+              "id": "workspace-body-item-3",
+              "role": "fact",
+              "label": "Hostname"
+            },
+            {
+              "id": "workspace-body-item-4",
+              "role": "fact",
+              "label": "Runtime snapshot"
+            },
+            {
+              "id": "workspace-body-item-5",
+              "role": "fact",
+              "label": "Installed solutions"
+            }
+          ],
+          "actions": [
+            {
+              "id": "workspace-body-action-1",
+              "label": "Install solution",
+              "kind": "primary"
+            },
+            {
+              "id": "workspace-body-action-2",
+              "label": "Open OpenClaw",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "request",
+            "submitting",
+            "awaiting-payment",
+            "accepted",
+            "preparing",
+            "ready",
+            "failed",
+            "launch-opening",
+            "launch-connected",
+            "launch-expired"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006",
+            "EV-007"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "agentos-solution-detail",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]/modules/[installationId]",
+      "title": "Solution module",
+      "eyebrow": "AgentOS",
+      "purpose": "Inspect one owned immutable module installation and its generated bindings.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "module-summary",
+          "kind": "summary",
+          "title": "Package and lifecycle",
+          "summary": "Package and lifecycle presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "module-summary-item-1",
+              "role": "fact",
+              "label": "Module"
+            },
+            {
+              "id": "module-summary-item-2",
+              "role": "fact",
+              "label": "Version"
+            },
+            {
+              "id": "module-summary-item-3",
+              "role": "fact",
+              "label": "Status"
+            },
+            {
+              "id": "module-summary-item-4",
+              "role": "fact",
+              "label": "Failure code"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "request",
+            "submitting",
+            "awaiting-payment",
+            "accepted",
+            "preparing",
+            "ready",
+            "failed",
+            "launch-opening",
+            "launch-connected",
+            "launch-expired"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006",
+            "EV-007"
+          ]
+        },
+        {
+          "id": "module-bindings",
+          "kind": "collection",
+          "title": "Agents and knowledge",
+          "summary": "Agents and knowledge presents implemented account data and actions.",
+          "items": [
+            {
+              "id": "module-bindings-item-1",
+              "role": "entity",
+              "label": "Generated agents"
+            },
+            {
+              "id": "module-bindings-item-2",
+              "role": "entity",
+              "label": "Channel accounts"
+            },
+            {
+              "id": "module-bindings-item-3",
+              "role": "entity",
+              "label": "Shared knowledge sources"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "request",
+            "submitting",
+            "awaiting-payment",
+            "accepted",
+            "preparing",
+            "ready",
+            "failed",
+            "launch-opening",
+            "launch-connected",
+            "launch-expired"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004",
+            "EV-005",
+            "EV-006",
+            "EV-007"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "The ready workspace appears in AgentOS management",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "The AgentOS workspace lifecycle and control center surface renders only the states, identities and actions proven by current routed source.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "workspace-operation-mutations",
+      "question": "When will update, plan change, backup, reset and rebuild mutations become public?",
+      "impact": "The control center can read runtime state but intentionally does not render fake runnable controls."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/provisioning/AgentOSProvisioning/index.tsx",
+      "startLine": 9,
+      "endLine": 81,
+      "claim": "The order flow settles catalogue, order, invoice and workspace facts into payment, provisioning, ready or failed states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AgentOSWorkspacePage/index.tsx",
+      "startLine": 18,
+      "endLine": 149,
+      "claim": "The connected workspace page queries an exact workspace, reacts to runtime invalidation and manages secure launch state.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AgentOSWorkspacePage/component.tsx",
+      "startLine": 18,
+      "endLine": 100,
+      "claim": "The workspace surface exposes overview, solutions, applications, infrastructure, operations and access sections with loading/refused/ready states.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/agent-workspace/my-agent-workspace-control-center/my-agent-workspace-control-center.resolver.ts",
+      "startLine": 50,
+      "endLine": 70,
+      "claim": "The backend exposes one exact viewer-owned AgentOS control-center snapshot.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/agent-workspace/my-agent-workspace-control-center/my-agent-workspace-control-center.handler.spec.ts",
+      "startLine": 100,
+      "endLine": 164,
+      "claim": "The aggregate handler test proves owned workspace lookup and fail-closed application capabilities.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/agent-workspace/install-agentos-solution-module/install-agentos-solution-module.resolver.ts",
+      "startLine": 31,
+      "endLine": 47,
+      "claim": "The install mutation binds the authenticated user to the requested solution installation.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-007",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/agent-workspace/issue-agent-workspace-app-launch/issue-agent-workspace-app-launch.handler.spec.ts",
+      "startLine": 17,
+      "endLine": 118,
+      "claim": "Secure launch handler tests cover active workspace issuance and refusal cases.",
+      "kind": "test"
+    }
+  ]
+}

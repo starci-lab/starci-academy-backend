@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "operations-dashboard",
+  "head": "3a9e04235aa047ce0d24a51770a2bb11e4a0c3f241bc2381f8723c3ce404fc78",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "894e608bba73d791e5d2767cdc420da770c8c42b"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "ac05d90e7b6b59eb9dc4128872f3c02ba254e59a"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/OverviewPage/component.tsx",
+      "startLine": 144,
+      "endLine": 185,
+      "claim": "The overview draws four independently settled summary blocks for Apps, AgentOS, combined infrastructure/domain evidence and Wallet.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/OverviewPage/index.tsx",
+      "startLine": 70,
+      "endLine": 272,
+      "claim": "The connected overview independently queries apps, AgentOS, domains and wallet/invoice data, maps pending, empty, populated, partial and failed states, and routes to available destinations.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/components/layouts/ConsoleNav/index.tsx",
+      "startLine": 82,
+      "endLine": 227,
+      "claim": "Console navigation exposes the complete grouped destination set through one controlled HeroUI ListBox on desktop and the same set inside a right-edge mobile drawer.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/expert-sites/my-expert-sites/my-expert-sites.resolver.ts",
+      "startLine": 38,
+      "endLine": 71,
+      "claim": "myExpertSites is an authenticated viewer-owned query ordered newest first.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/wallet/my-wallet/my-wallet.handler.spec.ts",
+      "startLine": 8,
+      "endLine": 29,
+      "claim": "The wallet handler test proves an owner-scoped wallet is created/read for the requesting user.",
+      "kind": "test"
+    },
+    {
+      "id": "EV-006",
+      "claim": "The owner requested a production-quality Nivo dashboard using the current product visual language and explicitly selected a mobile navigation drawer that opens from the right edge.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "5c3005db18db6b470c0b84a97865aa8bd99eeb92c225d40e64fd3436faaa6e4e"
+    }
+  ]
+}

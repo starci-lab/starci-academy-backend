@@ -1,0 +1,2218 @@
+{
+  "schemaVersion": 2,
+  "authority": {
+    "status": "pending",
+    "basis": "owner-intent",
+    "requiredRoles": [
+      "fe",
+      "be"
+    ],
+    "baseHead": "bdbf7b91da960c25d2dcdd8787c60d078381b34382984329210c78ebb93c8dca",
+    "previousHead": "169c0cec0fb283d2505fe81b870552c1517cbd9583295ca3454d90852ebed452",
+    "supersedes": "778a16ba84d7570b0fed464a29bd634093c3d86dffe27112751ca5f20e04d29e"
+  },
+  "project": "nivo",
+  "featureId": "agentos-workspaces",
+  "title": "AgentOS workspace lifecycle and control center",
+  "summary": "An authenticated owner reaches the exact ready AgentOS workspace, securely opens OpenClaw or n8n as independent post-ready app launches, runs auditable workspace operations with explicit safety boundaries, and observes or reindexes the internal MCP-Qdrant knowledge runtime without receiving infrastructure credentials.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "269c99b0cf974ee476bda48f916c3a5ad3cdd3bf"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "AgentOS catalogue request and exact-order resume",
+      "Wallet as the linked-invoice payment waypoint",
+      "Workspace provisioning and the exact workspace as the primary terminal",
+      "Solution module detail as an optional post-ready workspace branch",
+      "Secure OpenClaw and n8n launch as optional app-bound post-ready branches",
+      "Public owner-scoped update, paid plan change, verified backup, non-destructive restart and confirmed rebuild operations",
+      "MCP-Qdrant runtime health, safe knowledge summary and asynchronous reindexing inside the exact workspace",
+      "Application launch, workspace operation and knowledge runtime as independent block state axes"
+    ],
+    "excludes": [
+      "Treating module detail or OpenClaw launch as required provisioning stages",
+      "Wallet top-up, provider settlement and invoice anatomy owned by nivo/wallet-billing",
+      "Destructive data reset or wipe under the Restart action",
+      "Applying a plan change before its linked adjustment invoice is paid",
+      "Reusable application or Qdrant credentials, Qdrant admin routes, raw document text, point identifiers and control-plane semantic search"
+    ]
+  },
+  "actors": [
+    {
+      "id": "account-owner",
+      "label": "Authenticated AgentOS owner",
+      "capabilities": [
+        "Request and pay for one AgentOS order",
+        "Observe fulfillment and enter the exact owned workspace",
+        "Open optional module detail, OpenClaw and n8n branches after readiness",
+        "Run safe owner-scoped workspace operations and follow their asynchronous results",
+        "Inspect MCP-Qdrant health and knowledge summary and request reindexing without infrastructure credentials"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-005",
+        "EV-009",
+        "EV-025"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "agentos-primary-journey",
+      "title": "Request, pay, provision and enter the exact workspace",
+      "trigger": "The authenticated owner requests an AgentOS plan",
+      "steps": [
+        {
+          "id": "request-plan",
+          "actor": "account-owner",
+          "action": "Choose an AgentOS plan and create the order",
+          "result": "The owner continues on the exact order route",
+          "surfaceId": "agentos-order",
+          "stateId": "order-submitting"
+        },
+        {
+          "id": "open-wallet",
+          "actor": "account-owner",
+          "action": "Open Wallet for the invoice linked to that exact order",
+          "result": "Wallet becomes a waypoint without replacing the AgentOS journey",
+          "surfaceId": "wallet-waypoint",
+          "stateId": "wallet-awaiting-payment"
+        },
+        {
+          "id": "settle-invoice",
+          "actor": "account-owner",
+          "action": "Settle the linked invoice from wallet balance",
+          "result": "The owner resumes the same exact order and fulfillment can advance",
+          "surfaceId": "wallet-waypoint",
+          "stateId": "wallet-paying"
+        },
+        {
+          "id": "observe-provisioning",
+          "actor": "account-owner",
+          "action": "Observe accepted and preparing states on the exact order",
+          "result": "The ready workspace identity is resolved",
+          "surfaceId": "agentos-order",
+          "stateId": "workspace-preparing"
+        },
+        {
+          "id": "enter-workspace",
+          "actor": "account-owner",
+          "action": "Open the exact ready workspace",
+          "result": "The exact workspace control center is the primary terminal",
+          "surfaceId": "agentos-workspace",
+          "stateId": "workspace-ready"
+        }
+      ],
+      "outcomes": [
+        "The owner lands in the exact owned workspace that fulfilled the paid order",
+        "Wallet is a correlated payment waypoint rather than the journey terminal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-010",
+        "EV-014",
+        "EV-015"
+      ]
+    },
+    {
+      "id": "module-post-ready-branch",
+      "title": "Inspect an installed solution module after workspace readiness",
+      "trigger": "The owner chooses a solution installation from the exact ready workspace",
+      "steps": [
+        {
+          "id": "choose-module",
+          "actor": "account-owner",
+          "action": "Choose one installation belonging to the exact workspace",
+          "result": "The nested module route preserves both workspace and installation identity",
+          "surfaceId": "agentos-module",
+          "stateId": "module-loading"
+        },
+        {
+          "id": "inspect-module",
+          "actor": "account-owner",
+          "action": "Inspect package lifecycle and generated bindings",
+          "result": "Module detail remains an optional branch from the ready workspace",
+          "surfaceId": "agentos-module",
+          "stateId": "module-ready"
+        }
+      ],
+      "outcomes": [
+        "The owner can inspect one installation without extending the primary provisioning journey"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-006",
+        "EV-009",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "openclaw-post-ready-branch",
+      "title": "Open a short-lived OpenClaw launch after workspace readiness",
+      "trigger": "The owner chooses OpenClaw from the exact ready workspace",
+      "steps": [
+        {
+          "id": "issue-launch",
+          "actor": "account-owner",
+          "action": "Issue a secure launch for the exact workspace",
+          "result": "The launch axis advances from idle to opening",
+          "surfaceId": "openclaw-launch",
+          "stateId": "launch-opening"
+        },
+        {
+          "id": "use-launch",
+          "actor": "account-owner",
+          "action": "Connect, renew, expire or revoke the short-lived launch",
+          "result": "Launch state changes without changing workspace readiness",
+          "surfaceId": "openclaw-launch",
+          "stateId": "launch-connected"
+        }
+      ],
+      "outcomes": [
+        "OpenClaw access is optional, exact-workspace scoped and independently stateful"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-007",
+        "EV-008",
+        "EV-009",
+        "EV-012",
+        "EV-013"
+      ]
+    },
+    {
+      "id": "n8n-post-ready-branch",
+      "title": "Open a short-lived n8n launch after workspace readiness",
+      "trigger": "The owner chooses n8n from the exact ready workspace",
+      "steps": [
+        {
+          "id": "issue-n8n-launch",
+          "actor": "account-owner",
+          "action": "Issue an app-bound n8n launch for the exact workspace",
+          "result": "The n8n launch axis advances from idle to opening",
+          "surfaceId": "n8n-launch",
+          "stateId": "launch-opening"
+        },
+        {
+          "id": "use-n8n-launch",
+          "actor": "account-owner",
+          "action": "Connect, renew, expire or revoke the short-lived n8n launch",
+          "result": "n8n launch state changes without changing workspace readiness",
+          "surfaceId": "n8n-launch",
+          "stateId": "launch-connected"
+        }
+      ],
+      "outcomes": [
+        "n8n access is optional, exact-workspace scoped, credential-free and independently stateful"
+      ],
+      "evidenceIds": [
+        "EV-019",
+        "EV-020",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "workspace-operations-branch",
+      "title": "Operate one exact ready workspace safely",
+      "trigger": "The owner chooses one action in the Operations tab",
+      "steps": [
+        {
+          "id": "choose-workspace-operation",
+          "actor": "account-owner",
+          "action": "Choose update, plan change, backup, restart or rebuild",
+          "result": "The action is evaluated against exact-workspace ownership and operation-specific preconditions",
+          "surfaceId": "agentos-workspace",
+          "stateId": "operation-idle"
+        },
+        {
+          "id": "confirm-workspace-operation",
+          "actor": "account-owner",
+          "action": "Confirm only actions whose consequences require confirmation",
+          "result": "The backend accepts one auditable asynchronous operation or returns an explicit refusal",
+          "surfaceId": "agentos-workspace",
+          "stateId": "operation-running"
+        },
+        {
+          "id": "observe-workspace-operation",
+          "actor": "account-owner",
+          "action": "Observe completion or refusal without leaving the workspace",
+          "result": "The operation settles independently from page anatomy and launch state",
+          "surfaceId": "agentos-workspace",
+          "stateId": "operation-succeeded"
+        }
+      ],
+      "outcomes": [
+        "Every workspace action is real, owner-scoped, stateful and truthful about preconditions",
+        "Restart preserves persistent data; rebuild requires confirmation plus a fresh verified backup",
+        "Plan change applies only after its linked Wallet invoice is paid"
+      ],
+      "evidenceIds": [
+        "EV-018",
+        "EV-021",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "knowledge-runtime-branch",
+      "title": "Inspect and reindex the workspace knowledge runtime",
+      "trigger": "The owner opens Infrastructure for the exact ready workspace",
+      "steps": [
+        {
+          "id": "inspect-knowledge-runtime",
+          "actor": "account-owner",
+          "action": "Inspect MCP and Qdrant health, document counts by origin and last update time",
+          "result": "Only owner-safe aggregate knowledge facts are returned",
+          "surfaceId": "agentos-workspace",
+          "stateId": "knowledge-ready"
+        },
+        {
+          "id": "request-knowledge-reindex",
+          "actor": "account-owner",
+          "action": "Request asynchronous reindexing for the exact workspace",
+          "result": "Reindexing advances on its own state axis and exposes completion or refusal",
+          "surfaceId": "agentos-workspace",
+          "stateId": "knowledge-reindexing"
+        }
+      ],
+      "outcomes": [
+        "The owner can verify that internal knowledge infrastructure works without obtaining admin access or document contents"
+      ],
+      "evidenceIds": [
+        "EV-022",
+        "EV-023",
+        "EV-024",
+        "EV-025"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Wallet is the payment waypoint for the invoice linked to the exact AgentOS order, and completion returns the owner to that same order context.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "The primary journey terminates at /[locale]/agentos/workspaces/[workspaceId] for the exact workspace that fulfilled the order.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-005",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Module detail and OpenClaw launch are optional branches available only after the exact workspace is ready; neither is a required provisioning stage.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-001",
+        "EV-006",
+        "EV-007",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "Workspace provisioning and OpenClaw launch are independent state axes; a launch transition never changes the workspace lifecycle state.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-008",
+        "EV-009",
+        "EV-012"
+      ]
+    },
+    {
+      "id": "BR-05",
+      "statement": "Workspace lifecycle is reconciled from owner-scoped order, invoice and workspace facts, with the later workspace fact taking precedence.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-06",
+      "statement": "OpenClaw access uses short-lived issue, renew and revoke operations and never exposes reusable credentials.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-008",
+        "EV-012",
+        "EV-013"
+      ]
+    },
+    {
+      "id": "BR-07",
+      "statement": "OpenClaw launch requires an active exact workspace, active instance and ready runtime; module post-ready sequencing remains owner intent until an equivalent guard exists.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-001",
+        "EV-011",
+        "EV-012"
+      ]
+    },
+    {
+      "id": "BR-08",
+      "statement": "n8n uses the same short-lived app-bound issue, renew and revoke security boundary as OpenClaw and never exposes a reusable credential.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-019",
+        "EV-020",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "BR-09",
+      "statement": "Update, plan change, backup, restart and rebuild are exact-owner-scoped asynchronous operations with explicit accepted, running, succeeded and refused results.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-018",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "BR-10",
+      "statement": "Restart is the non-destructive recovery action and preserves persistent workspace data; no action labelled Restart may reset or wipe data.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-021",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "BR-11",
+      "statement": "A plan change creates an exact adjustment order and linked Wallet invoice and is applied only after that invoice is paid.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "BR-12",
+      "statement": "Backup reports success only after verification; rebuild requires explicit confirmation and a fresh verified backup before the release is replaced without deleting persistent volumes.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-021",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "BR-13",
+      "statement": "MCP and Qdrant remain internal runtime components; the owner may receive health, document counts by origin, last update and reindex state, but no credential, raw text, point id, admin route or control-plane semantic search.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-022",
+        "EV-023",
+        "EV-024",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "BR-14",
+      "statement": "Application launch, workspace operation and knowledge reindex transitions are independent block state axes and never redefine workspace lifecycle or page anatomy.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-025"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "order-request",
+      "label": "Order · request",
+      "kind": "initial",
+      "transitions": [
+        "order-submitting"
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "order-submitting",
+      "label": "Order · submitting",
+      "kind": "pending",
+      "transitions": [
+        "order-awaiting-payment",
+        "workspace-failed"
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "order-awaiting-payment",
+      "label": "Order · awaiting payment",
+      "kind": "pending",
+      "transitions": [
+        "order-accepted",
+        "workspace-failed"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "order-accepted",
+      "label": "Order · accepted",
+      "kind": "pending",
+      "transitions": [
+        "workspace-preparing",
+        "workspace-failed"
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "wallet-awaiting-payment",
+      "label": "Wallet · awaiting payment",
+      "kind": "initial",
+      "transitions": [
+        "wallet-paying"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "wallet-paying",
+      "label": "Wallet · paying",
+      "kind": "pending",
+      "transitions": [
+        "wallet-paid",
+        "wallet-refused"
+      ],
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "wallet-paid",
+      "label": "Wallet · paid",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "wallet-refused",
+      "label": "Wallet · refused",
+      "kind": "error",
+      "transitions": [
+        "wallet-paying"
+      ],
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "workspace-preparing",
+      "label": "Workspace · preparing",
+      "kind": "pending",
+      "transitions": [
+        "workspace-ready",
+        "workspace-failed"
+      ],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "workspace-ready",
+      "label": "Workspace · ready",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-005",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "workspace-failed",
+      "label": "Workspace · failed",
+      "kind": "error",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-002"
+      ]
+    },
+    {
+      "id": "module-loading",
+      "label": "Module · loading",
+      "kind": "pending",
+      "transitions": [
+        "module-ready",
+        "module-refused"
+      ],
+      "evidenceIds": [
+        "EV-006",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "module-ready",
+      "label": "Module · ready",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-006",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "module-refused",
+      "label": "Module · refused",
+      "kind": "error",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-006",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "launch-idle",
+      "label": "Launch · idle",
+      "kind": "initial",
+      "transitions": [
+        "launch-opening"
+      ],
+      "evidenceIds": [
+        "EV-008"
+      ]
+    },
+    {
+      "id": "launch-opening",
+      "label": "Launch · opening",
+      "kind": "pending",
+      "transitions": [
+        "launch-connected",
+        "launch-blocked",
+        "launch-expired"
+      ],
+      "evidenceIds": [
+        "EV-008",
+        "EV-012",
+        "EV-013"
+      ]
+    },
+    {
+      "id": "launch-connected",
+      "label": "Launch · connected",
+      "kind": "success",
+      "transitions": [
+        "launch-expired",
+        "launch-disconnected"
+      ],
+      "evidenceIds": [
+        "EV-008",
+        "EV-013"
+      ]
+    },
+    {
+      "id": "launch-blocked",
+      "label": "Launch · blocked",
+      "kind": "error",
+      "transitions": [
+        "launch-opening"
+      ],
+      "evidenceIds": [
+        "EV-008",
+        "EV-012",
+        "EV-013"
+      ]
+    },
+    {
+      "id": "launch-expired",
+      "label": "Launch · expired",
+      "kind": "error",
+      "transitions": [
+        "launch-opening"
+      ],
+      "evidenceIds": [
+        "EV-008",
+        "EV-013"
+      ]
+    },
+    {
+      "id": "launch-disconnected",
+      "label": "Launch · disconnected",
+      "kind": "partial",
+      "transitions": [
+        "launch-opening"
+      ],
+      "evidenceIds": [
+        "EV-008"
+      ]
+    },
+    {
+      "id": "operation-idle",
+      "label": "Operation · idle",
+      "kind": "initial",
+      "transitions": [
+        "operation-running"
+      ],
+      "evidenceIds": [
+        "EV-018",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "operation-running",
+      "label": "Operation · running",
+      "kind": "pending",
+      "transitions": [
+        "operation-succeeded",
+        "operation-refused"
+      ],
+      "evidenceIds": [
+        "EV-025"
+      ]
+    },
+    {
+      "id": "operation-succeeded",
+      "label": "Operation · succeeded",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-025"
+      ]
+    },
+    {
+      "id": "operation-refused",
+      "label": "Operation · refused",
+      "kind": "error",
+      "transitions": [
+        "operation-idle"
+      ],
+      "evidenceIds": [
+        "EV-025"
+      ]
+    },
+    {
+      "id": "plan-awaiting-payment",
+      "label": "Plan change · awaiting payment",
+      "kind": "pending",
+      "transitions": [
+        "plan-applying",
+        "operation-refused"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "plan-applying",
+      "label": "Plan change · applying",
+      "kind": "pending",
+      "transitions": [
+        "operation-succeeded",
+        "operation-refused"
+      ],
+      "evidenceIds": [
+        "EV-025"
+      ]
+    },
+    {
+      "id": "knowledge-loading",
+      "label": "Knowledge runtime · loading",
+      "kind": "pending",
+      "transitions": [
+        "knowledge-ready",
+        "knowledge-degraded"
+      ],
+      "evidenceIds": [
+        "EV-022",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "knowledge-ready",
+      "label": "Knowledge runtime · ready",
+      "kind": "success",
+      "transitions": [
+        "knowledge-reindexing"
+      ],
+      "evidenceIds": [
+        "EV-022",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "knowledge-degraded",
+      "label": "Knowledge runtime · degraded",
+      "kind": "partial",
+      "transitions": [
+        "knowledge-loading",
+        "knowledge-reindexing"
+      ],
+      "evidenceIds": [
+        "EV-022",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "knowledge-reindexing",
+      "label": "Knowledge runtime · reindexing",
+      "kind": "pending",
+      "transitions": [
+        "knowledge-ready",
+        "knowledge-refused"
+      ],
+      "evidenceIds": [
+        "EV-025"
+      ]
+    },
+    {
+      "id": "knowledge-refused",
+      "label": "Knowledge runtime · refused",
+      "kind": "error",
+      "transitions": [
+        "knowledge-reindexing"
+      ],
+      "evidenceIds": [
+        "EV-025"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "catalog-order",
+      "label": "AgentOS catalogue order",
+      "fields": [
+        "id",
+        "status",
+        "catalogItemSlug",
+        "catalogTierId",
+        "invoiceId",
+        "workspaceId"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-003",
+        "EV-014"
+      ]
+    },
+    {
+      "id": "wallet-invoice",
+      "label": "Wallet invoice",
+      "fields": [
+        "id",
+        "status",
+        "amount",
+        "currency",
+        "orderId"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004",
+        "EV-014",
+        "EV-015"
+      ]
+    },
+    {
+      "id": "agentos-workspace",
+      "label": "AgentOS workspace",
+      "fields": [
+        "id",
+        "name",
+        "status",
+        "hostname",
+        "plan",
+        "runtime",
+        "stack"
+      ],
+      "evidenceIds": [
+        "EV-002",
+        "EV-005",
+        "EV-010"
+      ]
+    },
+    {
+      "id": "solution-installation",
+      "label": "Solution installation",
+      "fields": [
+        "installationId",
+        "workspaceId",
+        "moduleKey",
+        "version",
+        "status",
+        "generated agents",
+        "knowledge bindings"
+      ],
+      "evidenceIds": [
+        "EV-006",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "openclaw-launch",
+      "label": "Short-lived OpenClaw launch",
+      "fields": [
+        "workspaceId",
+        "launchUrl",
+        "expiresAt",
+        "state"
+      ],
+      "evidenceIds": [
+        "EV-007",
+        "EV-008",
+        "EV-012",
+        "EV-013"
+      ]
+    },
+    {
+      "id": "n8n-launch",
+      "label": "Short-lived n8n launch",
+      "fields": [
+        "workspaceId",
+        "app = N8N",
+        "launchId",
+        "redirectUrl",
+        "expiresAt",
+        "state"
+      ],
+      "evidenceIds": [
+        "EV-019",
+        "EV-020",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "workspace-operation",
+      "label": "Workspace operation",
+      "fields": [
+        "operationId",
+        "workspaceId",
+        "kind",
+        "status",
+        "requestedAt",
+        "completedAt",
+        "failure"
+      ],
+      "evidenceIds": [
+        "EV-018",
+        "EV-021",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "workspace-backup",
+      "label": "Verified workspace backup",
+      "fields": [
+        "backupId",
+        "workspaceId",
+        "reason",
+        "status",
+        "checksum",
+        "verifiedAt"
+      ],
+      "evidenceIds": [
+        "EV-021",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "knowledge-runtime",
+      "label": "MCP-Qdrant knowledge runtime",
+      "fields": [
+        "mcpHealth",
+        "qdrantHealth",
+        "documentCount",
+        "origins",
+        "lastUpdatedAt",
+        "reindexStatus"
+      ],
+      "evidenceIds": [
+        "EV-022",
+        "EV-023",
+        "EV-024",
+        "EV-025"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "order-catalog-item",
+      "kind": "mutation",
+      "name": "orderCatalogItem",
+      "owner": "backend",
+      "inputs": [
+        "catalogItemSlug = nivo-ai-agent",
+        "catalogTierId"
+      ],
+      "outputs": [
+        "PendingPayment catalogue order",
+        "linked Unpaid invoice"
+      ],
+      "failures": [
+        "catalogue or order refusal"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-014"
+      ]
+    },
+    {
+      "id": "open-payment-waypoint",
+      "kind": "redirect",
+      "name": "openAgentosPaymentWaypoint",
+      "owner": "frontend",
+      "inputs": [
+        "orderId",
+        "linked invoiceId",
+        "safe internal returnTo"
+      ],
+      "outputs": [
+        "Wallet route preserving exact AgentOS continuation"
+      ],
+      "failures": [
+        "missing order correlation or unsafe return target"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "pay-invoice",
+      "kind": "mutation",
+      "name": "payInvoice",
+      "owner": "backend",
+      "inputs": [
+        "invoiceId"
+      ],
+      "outputs": [
+        "paid invoice"
+      ],
+      "failures": [
+        "insufficient balance or payment refusal"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-015"
+      ]
+    },
+    {
+      "id": "read-workspace",
+      "kind": "query",
+      "name": "myAgentWorkspaceControlCenter",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId"
+      ],
+      "outputs": [
+        "exact owner-scoped workspace aggregate"
+      ],
+      "failures": [
+        "not owned or not found"
+      ],
+      "evidenceIds": [
+        "EV-010"
+      ]
+    },
+    {
+      "id": "install-module",
+      "kind": "mutation",
+      "name": "installAgentosSolutionModule",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "moduleKey"
+      ],
+      "outputs": [
+        "installation in provisioning"
+      ],
+      "failures": [
+        "catalogue, duplicate installation or ownership refusal"
+      ],
+      "evidenceIds": [
+        "EV-011"
+      ]
+    },
+    {
+      "id": "issue-launch",
+      "kind": "mutation",
+      "name": "issueAgentWorkspaceAppLaunch",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "app = OPENCLAW | N8N"
+      ],
+      "outputs": [
+        "launchId",
+        "safe redirectUrl",
+        "expiresAt"
+      ],
+      "failures": [
+        "workspace inactive, application unavailable or not owned"
+      ],
+      "evidenceIds": [
+        "EV-012",
+        "EV-019",
+        "EV-020",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "renew-launch",
+      "kind": "mutation",
+      "name": "renewAgentWorkspaceAppLaunch",
+      "owner": "backend",
+      "inputs": [
+        "launchId"
+      ],
+      "outputs": [
+        "launchId",
+        "expiresAt"
+      ],
+      "failures": [
+        "launch not renewable"
+      ],
+      "evidenceIds": [
+        "EV-008",
+        "EV-013"
+      ]
+    },
+    {
+      "id": "revoke-launch",
+      "kind": "mutation",
+      "name": "revokeAgentWorkspaceAppLaunch",
+      "owner": "backend",
+      "inputs": [
+        "launchId"
+      ],
+      "outputs": [
+        "launchId",
+        "revoked"
+      ],
+      "failures": [
+        "launch not revocable"
+      ],
+      "evidenceIds": [
+        "EV-008",
+        "EV-013"
+      ]
+    },
+    {
+      "id": "update-workspace-runtime",
+      "kind": "mutation",
+      "name": "updateAgentWorkspaceRuntime",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "operationId",
+        "accepted status",
+        "target supported release"
+      ],
+      "failures": [
+        "not owned",
+        "workspace not ready",
+        "update already running",
+        "unsupported release"
+      ],
+      "evidenceIds": [
+        "EV-018",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "request-workspace-plan-change",
+      "kind": "mutation",
+      "name": "requestAgentWorkspacePlanChange",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "catalogTierId",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "adjustment orderId",
+        "linked invoiceId",
+        "awaiting-payment status"
+      ],
+      "failures": [
+        "not owned",
+        "same or invalid plan",
+        "catalogue refusal"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "apply-paid-workspace-plan",
+      "kind": "command",
+      "name": "applyPaidAgentWorkspacePlanChange",
+      "owner": "backend",
+      "inputs": [
+        "paid adjustment orderId",
+        "workspaceId"
+      ],
+      "outputs": [
+        "operationId",
+        "plan-applying status"
+      ],
+      "failures": [
+        "invoice not paid",
+        "capacity unavailable",
+        "workspace no longer eligible"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "create-workspace-backup",
+      "kind": "mutation",
+      "name": "createAgentWorkspaceBackup",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "operationId",
+        "backupId after verification"
+      ],
+      "failures": [
+        "not owned",
+        "workspace not ready",
+        "snapshot or verification failure"
+      ],
+      "evidenceIds": [
+        "EV-021",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "restart-workspace-runtime",
+      "kind": "mutation",
+      "name": "restartAgentWorkspaceRuntime",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "operationId",
+        "non-destructive restart accepted"
+      ],
+      "failures": [
+        "not owned",
+        "workspace not ready",
+        "restart already running"
+      ],
+      "evidenceIds": [
+        "EV-021",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "rebuild-workspace-runtime",
+      "kind": "mutation",
+      "name": "rebuildAgentWorkspaceRuntime",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "acknowledgedRebuild = true",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "operationId",
+        "fresh verified backupId",
+        "rebuild accepted"
+      ],
+      "failures": [
+        "not owned",
+        "confirmation missing",
+        "backup or verification failure",
+        "reinstall failure"
+      ],
+      "evidenceIds": [
+        "EV-021",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "read-workspace-operations",
+      "kind": "query",
+      "name": "myAgentWorkspaceOperations",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId"
+      ],
+      "outputs": [
+        "owner-scoped operation history and current operation"
+      ],
+      "failures": [
+        "not owned or not found"
+      ],
+      "evidenceIds": [
+        "EV-025"
+      ]
+    },
+    {
+      "id": "read-knowledge-runtime",
+      "kind": "query",
+      "name": "myAgentWorkspaceKnowledgeRuntime",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId"
+      ],
+      "outputs": [
+        "MCP health",
+        "Qdrant health",
+        "documentCount",
+        "origins",
+        "lastUpdatedAt",
+        "reindexStatus"
+      ],
+      "failures": [
+        "not owned",
+        "runtime unavailable"
+      ],
+      "evidenceIds": [
+        "EV-022",
+        "EV-023",
+        "EV-024",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "reindex-workspace-knowledge",
+      "kind": "mutation",
+      "name": "reindexAgentWorkspaceKnowledge",
+      "owner": "backend",
+      "inputs": [
+        "workspaceId",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "operationId",
+        "knowledge-reindexing status"
+      ],
+      "failures": [
+        "not owned",
+        "runtime unavailable",
+        "reindex already running"
+      ],
+      "evidenceIds": [
+        "EV-022",
+        "EV-025"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "agentos-order",
+      "routePattern": "/[locale]/agentos | /[locale]/agentos/orders/[orderId]",
+      "title": "AgentOS order",
+      "eyebrow": "AgentOS",
+      "purpose": "Create an AgentOS order or resume one exact order through payment and provisioning.",
+      "navigation": [
+        {
+          "id": "order-nav",
+          "label": "AgentOS",
+          "group": "agentos-workspaces",
+          "availability": "active"
+        },
+        {
+          "id": "wallet-nav",
+          "label": "Wallet",
+          "group": "billing",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "order-progress",
+          "kind": "flow",
+          "title": "Request, payment, create workspace, manage",
+          "summary": "The primary progress keeps the exact order identity until the exact workspace is ready.",
+          "items": [
+            {
+              "id": "request-item",
+              "role": "step",
+              "label": "Request"
+            },
+            {
+              "id": "payment-item",
+              "role": "step",
+              "label": "Payment"
+            },
+            {
+              "id": "create-item",
+              "role": "step",
+              "label": "Create workspace"
+            },
+            {
+              "id": "manage-item",
+              "role": "step",
+              "label": "Manage exact workspace"
+            }
+          ],
+          "actions": [
+            {
+              "id": "request-action",
+              "label": "Request AgentOS",
+              "kind": "primary"
+            },
+            {
+              "id": "wallet-action",
+              "label": "Open Wallet",
+              "kind": "secondary",
+              "target": "/[locale]/wallet"
+            },
+            {
+              "id": "workspace-action",
+              "label": "Open exact workspace",
+              "kind": "primary",
+              "target": "/[locale]/agentos/workspaces/[workspaceId]"
+            }
+          ],
+          "states": [
+            "order-request",
+            "order-submitting",
+            "order-awaiting-payment",
+            "order-accepted",
+            "workspace-preparing",
+            "workspace-ready",
+            "workspace-failed"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-005"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "wallet-waypoint",
+      "routePattern": "/[locale]/wallet",
+      "title": "Wallet payment waypoint",
+      "eyebrow": "Billing",
+      "purpose": "Settle the invoice linked to the exact AgentOS order, then resume that order context.",
+      "navigation": [
+        {
+          "id": "wallet-active-nav",
+          "label": "Wallet",
+          "group": "billing",
+          "availability": "active"
+        },
+        {
+          "id": "order-return-nav",
+          "label": "Return to AgentOS order",
+          "group": "agentos-workspaces",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "linked-invoice",
+          "kind": "summary",
+          "title": "Linked AgentOS invoice",
+          "summary": "The waypoint identifies and settles the invoice for the exact AgentOS order.",
+          "items": [
+            {
+              "id": "invoice-identity",
+              "role": "fact",
+              "label": "Invoice"
+            },
+            {
+              "id": "order-identity",
+              "role": "fact",
+              "label": "AgentOS order"
+            },
+            {
+              "id": "invoice-status",
+              "role": "status",
+              "label": "Payment status"
+            }
+          ],
+          "actions": [
+            {
+              "id": "pay-action",
+              "label": "Pay linked invoice",
+              "kind": "primary"
+            },
+            {
+              "id": "resume-action",
+              "label": "Resume exact order",
+              "kind": "secondary",
+              "target": "/[locale]/agentos/orders/[orderId]"
+            }
+          ],
+          "states": [
+            "wallet-awaiting-payment",
+            "wallet-paying",
+            "wallet-paid",
+            "wallet-refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "agentos-workspace",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]",
+      "title": "Exact AgentOS workspace",
+      "eyebrow": "AgentOS",
+      "purpose": "Serve as the primary terminal for managing one exact owned ready workspace.",
+      "navigation": [
+        {
+          "id": "workspace-active-nav",
+          "label": "Workspace",
+          "group": "agentos-workspaces",
+          "availability": "active"
+        },
+        {
+          "id": "module-branch-nav",
+          "label": "Solution module",
+          "group": "post-ready",
+          "availability": "available"
+        },
+        {
+          "id": "openclaw-branch-nav",
+          "label": "OpenClaw",
+          "group": "post-ready",
+          "availability": "available"
+        },
+        {
+          "id": "n8n-branch-nav",
+          "label": "n8n",
+          "group": "post-ready",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "workspace-control-center",
+          "kind": "navigation",
+          "title": "Workspace control center",
+          "summary": "The exact owner-scoped aggregate exposes overview, solutions, applications, infrastructure, operations and access; n8n launch, lifecycle operations and MCP-Qdrant knowledge facts remain owned by their blocks.",
+          "items": [
+            {
+              "id": "overview-tab",
+              "role": "navigation",
+              "label": "Overview"
+            },
+            {
+              "id": "solutions-tab",
+              "role": "navigation",
+              "label": "Solutions"
+            },
+            {
+              "id": "applications-tab",
+              "role": "navigation",
+              "label": "Applications"
+            },
+            {
+              "id": "infrastructure-tab",
+              "role": "navigation",
+              "label": "Infrastructure"
+            },
+            {
+              "id": "operations-tab",
+              "role": "navigation",
+              "label": "Operations"
+            },
+            {
+              "id": "access-tab",
+              "role": "navigation",
+              "label": "Access"
+            }
+          ],
+          "actions": [
+            {
+              "id": "open-module-action",
+              "label": "Open module detail",
+              "kind": "secondary"
+            },
+            {
+              "id": "open-openclaw-action",
+              "label": "Open OpenClaw",
+              "kind": "secondary"
+            },
+            {
+              "id": "open-n8n-action",
+              "label": "Open n8n",
+              "kind": "secondary"
+            },
+            {
+              "id": "update-runtime-action",
+              "label": "Update runtime",
+              "kind": "secondary"
+            },
+            {
+              "id": "change-plan-action",
+              "label": "Change plan",
+              "kind": "secondary"
+            },
+            {
+              "id": "create-backup-action",
+              "label": "Create backup",
+              "kind": "secondary"
+            },
+            {
+              "id": "restart-runtime-action",
+              "label": "Restart runtime",
+              "kind": "secondary"
+            },
+            {
+              "id": "rebuild-runtime-action",
+              "label": "Rebuild runtime",
+              "kind": "destructive"
+            },
+            {
+              "id": "reindex-knowledge-action",
+              "label": "Reindex knowledge",
+              "kind": "secondary"
+            }
+          ],
+          "states": [
+            "workspace-preparing",
+            "workspace-ready",
+            "workspace-failed",
+            "operation-idle",
+            "operation-running",
+            "operation-succeeded",
+            "operation-refused",
+            "plan-awaiting-payment",
+            "plan-applying",
+            "knowledge-loading",
+            "knowledge-ready",
+            "knowledge-degraded",
+            "knowledge-reindexing",
+            "knowledge-refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-005",
+            "EV-009",
+            "EV-010",
+            "EV-018",
+            "EV-022",
+            "EV-023",
+            "EV-025"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-005",
+        "EV-009",
+        "EV-010",
+        "EV-018",
+        "EV-022",
+        "EV-023",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "agentos-module",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]/modules/[installationId]",
+      "title": "Solution module detail",
+      "eyebrow": "AgentOS · Post-ready branch",
+      "purpose": "Inspect one installation that belongs to the exact ready workspace without extending the primary journey.",
+      "navigation": [
+        {
+          "id": "module-active-nav",
+          "label": "Module detail",
+          "group": "post-ready",
+          "availability": "active"
+        },
+        {
+          "id": "module-workspace-nav",
+          "label": "Back to exact workspace",
+          "group": "agentos-workspaces",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "module-detail",
+          "kind": "content",
+          "title": "Package lifecycle and generated bindings",
+          "summary": "The nested identity must match the exact workspace before package and binding facts are shown.",
+          "items": [
+            {
+              "id": "module-package",
+              "role": "fact",
+              "label": "Package"
+            },
+            {
+              "id": "module-lifecycle",
+              "role": "status",
+              "label": "Lifecycle"
+            },
+            {
+              "id": "module-bindings",
+              "role": "entity",
+              "label": "Generated bindings"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "module-loading",
+            "module-ready",
+            "module-refused"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-006",
+            "EV-011"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-006",
+        "EV-011"
+      ]
+    },
+    {
+      "id": "openclaw-launch",
+      "routePattern": "/[locale]/launch/agentos/[workspaceId]/openclaw",
+      "title": "OpenClaw secure launch",
+      "eyebrow": "AgentOS · Post-ready branch",
+      "purpose": "Issue and relay a safe short-lived launch for the exact ready workspace on an independent state axis.",
+      "navigation": [
+        {
+          "id": "launch-active-nav",
+          "label": "OpenClaw launch",
+          "group": "post-ready",
+          "availability": "active"
+        },
+        {
+          "id": "launch-workspace-nav",
+          "label": "Back to exact workspace",
+          "group": "agentos-workspaces",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "launch-bridge",
+          "kind": "flow",
+          "title": "Short-lived secure bridge",
+          "summary": "Issue, connect, renew, expire or revoke without changing workspace readiness.",
+          "items": [
+            {
+              "id": "launch-workspace",
+              "role": "fact",
+              "label": "Exact workspace"
+            },
+            {
+              "id": "launch-status",
+              "role": "status",
+              "label": "Launch status"
+            },
+            {
+              "id": "launch-expiry",
+              "role": "fact",
+              "label": "Expiry"
+            }
+          ],
+          "actions": [
+            {
+              "id": "launch-open-action",
+              "label": "Open OpenClaw",
+              "kind": "primary"
+            },
+            {
+              "id": "launch-renew-action",
+              "label": "Renew launch",
+              "kind": "secondary"
+            },
+            {
+              "id": "launch-revoke-action",
+              "label": "Revoke launch",
+              "kind": "destructive"
+            }
+          ],
+          "states": [
+            "launch-idle",
+            "launch-opening",
+            "launch-connected",
+            "launch-blocked",
+            "launch-expired",
+            "launch-disconnected"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-007",
+            "EV-008",
+            "EV-012",
+            "EV-013"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-007",
+        "EV-008",
+        "EV-012",
+        "EV-013"
+      ]
+    },
+    {
+      "id": "n8n-launch",
+      "routePattern": "/[locale]/launch/agentos/[workspaceId]/n8n",
+      "title": "n8n secure launch",
+      "eyebrow": "AgentOS · Post-ready branch",
+      "purpose": "Issue and relay a safe short-lived n8n launch for the exact ready workspace on an independent app-bound state axis.",
+      "navigation": [
+        {
+          "id": "n8n-launch-active-nav",
+          "label": "n8n launch",
+          "group": "post-ready",
+          "availability": "active"
+        },
+        {
+          "id": "launch-workspace-nav",
+          "label": "Back to exact workspace",
+          "group": "agentos-workspaces",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "n8n-launch-bridge",
+          "kind": "flow",
+          "title": "Short-lived secure bridge",
+          "summary": "Issue, connect, renew, expire or revoke without changing workspace readiness.",
+          "items": [
+            {
+              "id": "launch-workspace",
+              "role": "fact",
+              "label": "Exact workspace"
+            },
+            {
+              "id": "launch-status",
+              "role": "status",
+              "label": "Launch status"
+            },
+            {
+              "id": "launch-expiry",
+              "role": "fact",
+              "label": "Expiry"
+            }
+          ],
+          "actions": [
+            {
+              "id": "n8n-launch-open-action",
+              "label": "Open n8n",
+              "kind": "primary"
+            },
+            {
+              "id": "launch-renew-action",
+              "label": "Renew launch",
+              "kind": "secondary"
+            },
+            {
+              "id": "launch-revoke-action",
+              "label": "Revoke launch",
+              "kind": "destructive"
+            }
+          ],
+          "states": [
+            "launch-idle",
+            "launch-opening",
+            "launch-connected",
+            "launch-blocked",
+            "launch-expired",
+            "launch-disconnected"
+          ],
+          "evidenceIds": [
+            "EV-019",
+            "EV-020",
+            "EV-025"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-019",
+        "EV-020",
+        "EV-025"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Creating an AgentOS order establishes /[locale]/agentos/orders/[orderId] as the exact resumable journey context.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "The Wallet waypoint identifies and pays the invoice linked to that exact order and exposes a return to the same order rather than choosing an unrelated unpaid invoice.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "When provisioning resolves a ready workspaceId, the primary action opens /[locale]/agentos/workspaces/[workspaceId], not the generic AgentOS index.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "Module detail and OpenClaw launch are reachable only as optional branches from a ready exact workspace and are absent from required primary progress.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-006",
+        "EV-007",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "Launch idle, opening, connected, blocked, expired and disconnected transitions remain independent from request, payment, provisioning and workspace readiness states.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-008",
+        "EV-012",
+        "EV-013"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "statement": "Update, plan change, backup, restart and rebuild controls become runnable only through their corresponding public owner-scoped backend operations and expose real pending, success and refusal states.",
+      "evidenceIds": [
+        "EV-018",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "AC-07",
+      "statement": "A ready exact workspace can issue, renew and revoke n8n launch with the same app-bound short-lived security and independent launch state used by OpenClaw.",
+      "evidenceIds": [
+        "EV-019",
+        "EV-020",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "AC-08",
+      "statement": "Restart preserves persistent data; backup verifies its artifact; rebuild requires explicit confirmation plus a fresh verified backup and never masquerades as Restart.",
+      "evidenceIds": [
+        "EV-021",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "AC-09",
+      "statement": "Plan change returns an exact adjustment order and linked Wallet invoice and does not apply the new plan until payment succeeds.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "AC-10",
+      "statement": "Infrastructure exposes MCP and Qdrant health, knowledge document counts by origin, last update and reindex state without credentials, raw text, point ids, admin routes or control-plane search.",
+      "evidenceIds": [
+        "EV-022",
+        "EV-023",
+        "EV-024",
+        "EV-025"
+      ]
+    },
+    {
+      "id": "AC-11",
+      "statement": "Launch, operation and knowledge reindex conditions render as block states inside the existing workspace page architecture; they do not become page states unless page anatomy changes.",
+      "evidenceIds": [
+        "EV-025"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "wallet-order-correlation",
+      "question": "Which route or durable correlation contract carries orderId and invoiceId into Wallet and back to the exact AgentOS order?",
+      "impact": "Current Wallet pays the first unpaid invoice, so AC-02 is not yet implemented."
+    },
+    {
+      "id": "post-ready-guard",
+      "question": "Which shared guard makes module detail and OpenClaw unavailable until the workspace status is ready?",
+      "impact": "The branches exist under the workspace today, but the frontend does not enforce the requested readiness boundary."
+    },
+    {
+      "id": "launch-disconnected-transition",
+      "question": "Which observable event moves an active OpenClaw launch into disconnected?",
+      "impact": "The state is declared but its production transition is not yet proven."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "The owner standardizes Wallet as the payment waypoint, the exact workspace as the primary terminal, module detail and OpenClaw as post-ready branches, and launch as an independent state axis.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "cf85c26b10c02a67a9b79ffe2b4a80bdd4f6afa71310638c9e1e784d96fda02e"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/provisioning/AgentOSProvisioning/index.tsx",
+      "startLine": 30,
+      "endLine": 101,
+      "claim": "The frontend reconciles exact owner order, invoice and workspace facts into separate order and workspace lifecycle phases, with the later workspace fact taking precedence.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/provisioning/AgentOSProvisioning/index.tsx",
+      "startLine": 201,
+      "endLine": 235,
+      "claim": "Ordering establishes the exact resume URL and awaiting-payment opens Wallet, while the current ready action still targets the generic AgentOS index.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/WalletPage/index.tsx",
+      "startLine": 106,
+      "endLine": 138,
+      "claim": "Wallet renders owner invoices and currently pays the first unpaid invoice without receiving exact AgentOS order or invoice identity.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/page.tsx",
+      "startLine": 3,
+      "endLine": 9,
+      "claim": "The frontend publishes a control-center route bound to one exact workspaceId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/modules/[installationId]/page.tsx",
+      "startLine": 3,
+      "endLine": 11,
+      "claim": "Solution module detail is nested beneath the exact workspace and binds both workspaceId and installationId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-007",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/launch/agentos/[workspaceId]/openclaw/page.tsx",
+      "startLine": 3,
+      "endLine": 9,
+      "claim": "OpenClaw launch is an exact-workspace launch bridge route outside the required provisioning surface.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-008",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AgentOSWorkspacePage/index.tsx",
+      "startLine": 29,
+      "endLine": 99,
+      "claim": "The workspace snapshot and OpenClaw issue, renew, revoke and broadcast lifecycle are held as separate frontend state owners.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-009",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AgentOSWorkspacePage/component.tsx",
+      "startLine": 48,
+      "endLine": 88,
+      "claim": "Solutions and OpenClaw applications are peer branches within the answered exact workspace control center rather than provisioning stages.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/agent-workspace/my-agent-workspace-control-center/my-agent-workspace-control-center.resolver.ts",
+      "startLine": 50,
+      "endLine": 70,
+      "claim": "The backend exposes one exact viewer-owned AgentOS control-center aggregate.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-011",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/agent-workspace/install-agentos-solution-module/install-agentos-solution-module.resolver.ts",
+      "startLine": 31,
+      "endLine": 47,
+      "claim": "The install mutation binds the authenticated owner and exact workspace to the requested solution installation.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-012",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/agent-workspace/issue-agent-workspace-app-launch/issue-agent-workspace-app-launch.handler.ts",
+      "startLine": 44,
+      "endLine": 108,
+      "claim": "Issue launch is exact-owner scoped and refuses non-AgentOS, inactive workspace or instance, missing hostname, unavailable capability and unready runtime before returning a credential-free launch.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-013",
+      "role": "be",
+      "path": "src/modules/bussiness/workspace-app-launch/workspace-app-launch.service.ts",
+      "startLine": 35,
+      "endLine": 125,
+      "claim": "OpenClaw access uses a hashed one-use grant and owner-scoped short-lived Redis lease with independent redeem, renew, revoke and validate behavior.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-014",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/catalog/order-catalog-item/order-catalog-item.resolver.ts",
+      "startLine": 41,
+      "endLine": 84,
+      "claim": "The authenticated orderCatalogItem operation creates the catalogue order and linked invoice but does not itself provision AgentOS.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-015",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/invoices/pay-invoice/pay-invoice.resolver.ts",
+      "startLine": 42,
+      "endLine": 82,
+      "claim": "The authenticated payInvoice operation settles one exact invoice by invoiceId and returns its updated payment state.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-016",
+      "claim": "Supersede the current in-progress AgentOS workspace scope so a later accepted intent can add secure n8n launch, public owner-scoped workspace operations, and owner-safe MCP-Qdrant knowledge runtime without reusable credentials.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "ac2edd83cbb0439eb877516085bb1fb40a861549b349bbebf5bf675200150313"
+    },
+    {
+      "id": "EV-018",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/operations/AgentOSWorkspaceOperations/index.tsx",
+      "startLine": 1,
+      "endLine": 31,
+      "claim": "The committed frontend names update, plan, backup, reset and rebuild but deliberately disables every action because no public operation is wired.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-019",
+      "role": "be",
+      "path": "src/modules/bussiness/workspace-app-launch/workspace-app-launch.types.ts",
+      "startLine": 1,
+      "endLine": 32,
+      "claim": "The current app-bound launch contract contains only OpenClaw, proving n8n launch requires an explicit backend capability expansion rather than credential reuse.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-020",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/agent-workspace/my-agent-workspace-control-center/my-agent-workspace-control-center.handler.ts",
+      "startLine": 118,
+      "endLine": 139,
+      "claim": "The current owner-scoped workspace aggregate marks n8n unavailable with SECURITY_UPGRADE_REQUIRED while exposing its observed version.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-021",
+      "role": "be",
+      "path": "src/modules/bussiness/instance-lifecycle/wipe-instance.service.ts",
+      "startLine": 268,
+      "endLine": 307,
+      "claim": "The internal rebuild capability requires acknowledgement, takes and verifies a fresh backup, refuses without verified backup, uninstalls only the release and dispatches reinstall.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-022",
+      "role": "be",
+      "path": "src/modules/bussiness/pod-knowledge/pod-knowledge.types.ts",
+      "startLine": 30,
+      "endLine": 70,
+      "claim": "The backend defines an owner-safe Qdrant knowledge summary of document count, origins and last update while explicitly excluding raw text, search and identifiers.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-023",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-provision/chart/build-agentos-chart-values.ts",
+      "startLine": 20,
+      "endLine": 75,
+      "claim": "AgentOS provisioning already declares n8n, MCP and Qdrant runtime components and bounded resources inside the workspace chart.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-024",
+      "role": "be",
+      "path": "src/modules/bussiness/openclaw-runtime-config/openclaw-module-config.service.ts",
+      "startLine": 12,
+      "endLine": 42,
+      "claim": "Installed agents already receive an internal MCP server binding with per-agent capability headers, proving MCP is runtime infrastructure rather than an owner credential.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-025",
+      "claim": "The owner accepts a pending AgentOS workspace expansion: secure app-bound n8n launch; public owner-scoped update, paid plan change, verified backup, non-destructive restart and confirmed rebuild operations; and owner-safe MCP-Qdrant health, knowledge summary and reindexing without reusable credentials, raw document access, point identifiers, admin routes or control-plane semantic search.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "a4cd1c08cb912bf2f09057c0b8f8eb77ca8e696b39bd036991f0a4bcf7227b5f"
+    }
+  ]
+}

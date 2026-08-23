@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "agentos-workspaces",
+  "head": "f5321acfa014b3daaa340f86d72da7ada0f5703e6ba1f138d0a1f983f0d0652d",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "269c99b0cf974ee476bda48f916c3a5ad3cdd3bf"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "The owner standardizes Wallet as the payment waypoint, the exact workspace as the primary terminal, module detail and OpenClaw as post-ready branches, and launch as an independent state axis.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "cf85c26b10c02a67a9b79ffe2b4a80bdd4f6afa71310638c9e1e784d96fda02e"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/provisioning/AgentOSProvisioning/index.tsx",
+      "startLine": 30,
+      "endLine": 101,
+      "claim": "The frontend reconciles exact owner order, invoice and workspace facts into separate order and workspace lifecycle phases, with the later workspace fact taking precedence.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/provisioning/AgentOSProvisioning/index.tsx",
+      "startLine": 201,
+      "endLine": 235,
+      "claim": "Ordering establishes the exact resume URL and awaiting-payment opens Wallet, while the current ready action still targets the generic AgentOS index.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/WalletPage/index.tsx",
+      "startLine": 106,
+      "endLine": 138,
+      "claim": "Wallet renders owner invoices and currently pays the first unpaid invoice without receiving exact AgentOS order or invoice identity.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-005",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/page.tsx",
+      "startLine": 3,
+      "endLine": 9,
+      "claim": "The frontend publishes a control-center route bound to one exact workspaceId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-006",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/modules/[installationId]/page.tsx",
+      "startLine": 3,
+      "endLine": 11,
+      "claim": "Solution module detail is nested beneath the exact workspace and binds both workspaceId and installationId.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-007",
+      "role": "fe",
+      "path": "apps/app/src/app/[locale]/launch/agentos/[workspaceId]/openclaw/page.tsx",
+      "startLine": 3,
+      "endLine": 9,
+      "claim": "OpenClaw launch is an exact-workspace launch bridge route outside the required provisioning surface.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-008",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AgentOSWorkspacePage/index.tsx",
+      "startLine": 29,
+      "endLine": 99,
+      "claim": "The workspace snapshot and OpenClaw issue, renew, revoke and broadcast lifecycle are held as separate frontend state owners.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-009",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AgentOSWorkspacePage/component.tsx",
+      "startLine": 48,
+      "endLine": 88,
+      "claim": "Solutions and OpenClaw applications are peer branches within the answered exact workspace control center rather than provisioning stages.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-010",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/agent-workspace/my-agent-workspace-control-center/my-agent-workspace-control-center.resolver.ts",
+      "startLine": 50,
+      "endLine": 70,
+      "claim": "The backend exposes one exact viewer-owned AgentOS control-center aggregate.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-011",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/agent-workspace/install-agentos-solution-module/install-agentos-solution-module.resolver.ts",
+      "startLine": 31,
+      "endLine": 47,
+      "claim": "The install mutation binds the authenticated owner and exact workspace to the requested solution installation.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-012",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/agent-workspace/issue-agent-workspace-app-launch/issue-agent-workspace-app-launch.handler.ts",
+      "startLine": 44,
+      "endLine": 108,
+      "claim": "Issue launch is exact-owner scoped and refuses non-AgentOS, inactive workspace or instance, missing hostname, unavailable capability and unready runtime before returning a credential-free launch.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-013",
+      "role": "be",
+      "path": "src/modules/bussiness/workspace-app-launch/workspace-app-launch.service.ts",
+      "startLine": 35,
+      "endLine": 125,
+      "claim": "OpenClaw access uses a hashed one-use grant and owner-scoped short-lived Redis lease with independent redeem, renew, revoke and validate behavior.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-014",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/catalog/order-catalog-item/order-catalog-item.resolver.ts",
+      "startLine": 41,
+      "endLine": 84,
+      "claim": "The authenticated orderCatalogItem operation creates the catalogue order and linked invoice but does not itself provision AgentOS.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-015",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/invoices/pay-invoice/pay-invoice.resolver.ts",
+      "startLine": 42,
+      "endLine": 82,
+      "claim": "The authenticated payInvoice operation settles one exact invoice by invoiceId and returns its updated payment state.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-016",
+      "claim": "Supersede the current in-progress AgentOS workspace scope so a later accepted intent can add secure n8n launch, public owner-scoped workspace operations, and owner-safe MCP-Qdrant knowledge runtime without reusable credentials.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "ac2edd83cbb0439eb877516085bb1fb40a861549b349bbebf5bf675200150313"
+    },
+    {
+      "id": "EV-018",
+      "role": "fe",
+      "path": "apps/app/src/components/blocks/operations/AgentOSWorkspaceOperations/index.tsx",
+      "startLine": 1,
+      "endLine": 31,
+      "claim": "The committed frontend names update, plan, backup, reset and rebuild but deliberately disables every action because no public operation is wired.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-019",
+      "role": "be",
+      "path": "src/modules/bussiness/workspace-app-launch/workspace-app-launch.types.ts",
+      "startLine": 1,
+      "endLine": 32,
+      "claim": "The current app-bound launch contract contains only OpenClaw, proving n8n launch requires an explicit backend capability expansion rather than credential reuse.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-020",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/agent-workspace/my-agent-workspace-control-center/my-agent-workspace-control-center.handler.ts",
+      "startLine": 118,
+      "endLine": 139,
+      "claim": "The current owner-scoped workspace aggregate marks n8n unavailable with SECURITY_UPGRADE_REQUIRED while exposing its observed version.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-021",
+      "role": "be",
+      "path": "src/modules/bussiness/instance-lifecycle/wipe-instance.service.ts",
+      "startLine": 268,
+      "endLine": 307,
+      "claim": "The internal rebuild capability requires acknowledgement, takes and verifies a fresh backup, refuses without verified backup, uninstalls only the release and dispatches reinstall.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-022",
+      "role": "be",
+      "path": "src/modules/bussiness/pod-knowledge/pod-knowledge.types.ts",
+      "startLine": 30,
+      "endLine": 70,
+      "claim": "The backend defines an owner-safe Qdrant knowledge summary of document count, origins and last update while explicitly excluding raw text, search and identifiers.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-023",
+      "role": "be",
+      "path": "src/modules/bussiness/agentos-provision/chart/build-agentos-chart-values.ts",
+      "startLine": 20,
+      "endLine": 75,
+      "claim": "AgentOS provisioning already declares n8n, MCP and Qdrant runtime components and bounded resources inside the workspace chart.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-024",
+      "role": "be",
+      "path": "src/modules/bussiness/openclaw-runtime-config/openclaw-module-config.service.ts",
+      "startLine": 12,
+      "endLine": 42,
+      "claim": "Installed agents already receive an internal MCP server binding with per-agent capability headers, proving MCP is runtime infrastructure rather than an owner credential.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-025",
+      "claim": "The owner accepts a pending AgentOS workspace expansion: secure app-bound n8n launch; public owner-scoped update, paid plan change, verified backup, non-destructive restart and confirmed rebuild operations; and owner-safe MCP-Qdrant health, knowledge summary and reindexing without reusable credentials, raw document access, point identifiers, admin routes or control-plane semantic search.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "a4cd1c08cb912bf2f09057c0b8f8eb77ca8e696b39bd036991f0a4bcf7227b5f"
+    }
+  ]
+}

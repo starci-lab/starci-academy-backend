@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "project": "nivo",
+  "featureId": "academy-control-center",
+  "head": "1ee853b5fb1f388d076cdb02ae830116fae72fa2ce0fe14518d530f920a0866d",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "97eec8c5bb4c8f4b9e4bb7c59ea771ed829841d9"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "947c6f4a117e1677e37ad98ba03f3dac0bca148e"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AcademyControlCenterPage/index.tsx",
+      "startLine": 10,
+      "endLine": 58,
+      "claim": "The connected page resolves the exact owned site and selects growth or system mode.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/app/src/components/pages/AcademyControlCenterPage/component.tsx",
+      "startLine": 17,
+      "endLine": 69,
+      "claim": "The surface defines restoring/refused/ready states and composes growth, students, leads and integration domain blocks.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-003",
+      "role": "fe",
+      "path": "apps/app/src/messages/en.json",
+      "startLine": 214,
+      "endLine": 331,
+      "claim": "Shipped copy names growth metrics, student and lead actions, integration providers, statuses and secret-handling outcomes.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-004",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/academy-control-center/my-academy-growth-snapshot/my-academy-growth-snapshot.resolver.ts",
+      "startLine": 31,
+      "endLine": 36,
+      "claim": "The growth query binds an authenticated user and exact site ID.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-005",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/queries/academy-control-center/my-academy-students/my-academy-students.resolver.ts",
+      "startLine": 34,
+      "endLine": 39,
+      "claim": "The students query binds authenticated ownership to paging/filter input.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-006",
+      "role": "be",
+      "path": "src/features/core/api/core/graphql/mutations/academy-control-center/create-academy-student/create-academy-student.resolver.ts",
+      "startLine": 34,
+      "endLine": 47,
+      "claim": "The create-student mutation delegates the authenticated user and student input to the service.",
+      "kind": "api"
+    }
+  ]
+}
