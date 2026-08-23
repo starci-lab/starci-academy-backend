@@ -28,5 +28,5 @@ An authenticated AgentOS workspace owner receives one budgeted workspace-scoped 
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `6a43e8d11050efb84d95f73e4103044f6dcfb15a` |
-| be | https://github.com/starci-lab/nivo-backend.git | `77ce9d7dda36dae185be9983d4ff0771c769381c` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `ca8109dc2c5ca4f6e631c41528b7af2eac598ca0` |
+| be | https://github.com/starci-lab/nivo-backend.git | `b56ca6b1d19bd9b511830c398381f6eb4a902e1c` |

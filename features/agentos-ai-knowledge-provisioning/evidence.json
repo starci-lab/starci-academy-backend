@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "agentos-ai-knowledge-provisioning",
-  "head": "fc3aa3a27c96ad672b9713fdaa7a6a7cf0cf00c272f22c0d8ca49e58cad3e689",
+  "head": "2306037d42f69148ddd2ec9654a32d4ca8923233cab10cd1849044ff421d915b",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/nivo-fe.git",
-      "head": "6a43e8d11050efb84d95f73e4103044f6dcfb15a"
+      "head": "ca8109dc2c5ca4f6e631c41528b7af2eac598ca0"
     },
     {
       "role": "be",
       "repository": "https://github.com/starci-lab/nivo-backend.git",
-      "head": "77ce9d7dda36dae185be9983d4ff0771c769381c"
+      "head": "b56ca6b1d19bd9b511830c398381f6eb4a902e1c"
     }
   ],
   "evidence": [
@@ -54,8 +54,8 @@
       "id": "EV-005",
       "role": "be",
       "path": "apps/agentos-cli/src/config.ts",
-      "startLine": 176,
-      "endLine": 200,
+      "startLine": 218,
+      "endLine": 235,
       "claim": "The AgentOS CLI defaults the OpenRouter model to deepseek/deepseek-v4-flash and requires OPENROUTER_INSTANCE_KEY as the instance-owned credential.",
       "kind": "contract"
     },
@@ -74,7 +74,7 @@
       "path": "src/modules/bussiness/pod-registration/pod-access-token.service.ts",
       "startLine": 42,
       "endLine": 52,
-      "claim": "The committed AgentOS pod credential path explicitly says per-instance OpenRouter mint delivery remains a separate unwired change.",
+      "claim": "The AgentOS pod-registration credential path owns only the gateway token and explicitly keeps the per-instance OpenRouter key outside pod_credentials.",
       "kind": "contract"
     },
     {
@@ -83,7 +83,7 @@
       "path": "apps/agentos-cli/src/knowledge/knowledge-snapshot.service.ts",
       "startLine": 18,
       "endLine": 105,
-      "claim": "The AgentOS CLI recovers a versioned Qdrant snapshot by presigned URL, while its committed contract explicitly names backend snapshot publication and version-mismatch fallback as unbuilt follow-up work.",
+      "claim": "The AgentOS CLI retains a versioned Qdrant snapshot-recovery path by presigned URL and refuses unnamed workspace collections while keeping central-Qdrant fallback outside the pod.",
       "kind": "contract"
     },
     {
@@ -99,18 +99,18 @@
       "id": "EV-010",
       "role": "be",
       "path": "apps/agentos-controlplane/src/module-runtime/module-knowledge-reconciler.service.ts",
-      "startLine": 14,
-      "endLine": 36,
-      "claim": "The control plane currently writes module package documents into workspace knowledge with installationId, moduleKey and knowledgeVersion metadata.",
+      "startLine": 48,
+      "endLine": 145,
+      "claim": "The control plane validates immutable module-artifact geometry and point count, copies common and existing workspace points into a staging generation, recovers the module snapshot and atomically switches the stable workspace alias.",
       "kind": "api"
     },
     {
       "id": "EV-011",
       "role": "be",
       "path": "apps/agentos-cli/src/documents/queue-drain.service.ts",
-      "startLine": 72,
-      "endLine": 160,
-      "claim": "The upload queue owns per-document indexing and failure states but currently embeds only the filename; MinIO download, extraction and chunking are explicitly unbuilt.",
+      "startLine": 116,
+      "endLine": 224,
+      "claim": "The workspace upload queue drains each document independently through object download, fail-closed ingestion, extraction, deterministic chunking, embedding and Qdrant upsert while persisting indexed or failed outcomes.",
       "kind": "api"
     },
     {
@@ -216,16 +216,16 @@
       "path": "src/modules/platform/databases/postgresql/primary/entities/agent-workspace-operation.entity.ts",
       "startLine": 11,
       "endLine": 42,
-      "claim": "Agent workspace operations are durable idempotent audit rows, while the current operation-kind union does not yet contain ai_readiness_test.",
+      "claim": "Agent workspace operations are durable idempotent audit rows whose closed operation-kind union includes both knowledge_recovery and ai_readiness_test.",
       "kind": "contract"
     },
     {
       "id": "EV-024",
       "role": "be",
       "path": "src/modules/bussiness/agent-workspace-operations/agent-workspace-operation-runner.service.ts",
-      "startLine": 69,
-      "endLine": 123,
-      "claim": "The current workspace operation runner loads the workspace instance plan and dispatches bounded operation kinds, providing the sibling lifecycle that ai_readiness_test must extend.",
+      "startLine": 141,
+      "endLine": 160,
+      "claim": "The workspace operation runner dispatches bounded knowledge_reindex, ai_readiness_test and knowledge_recovery operations for the exact workspace.",
       "kind": "api"
     },
     {
@@ -234,34 +234,34 @@
       "path": "src/modules/bussiness/agentos-provision/types/payload.ts",
       "startLine": 1,
       "endLine": 28,
-      "claim": "The current provisioning payload lacks AI profile, knowledge-recovery operation and readiness-operation identities, so R2 requires those outputs rather than treating them as already implemented.",
+      "claim": "The provisioning payload binds the exact workspace, instance, owner, order and selected AgentOS profile; recovery and readiness operation identities are produced by the AI-runtime step rather than accepted as caller input.",
       "kind": "contract"
     },
     {
       "id": "EV-026",
       "role": "be",
       "path": "src/modules/bussiness/agentos-provision/provision-step-map.service.ts",
-      "startLine": 24,
-      "endLine": 53,
-      "claim": "The current AgentOS provisioning map has four infrastructure steps and no explicit AI-key, knowledge-recovery or readiness step.",
+      "startLine": 33,
+      "endLine": 55,
+      "claim": "The AgentOS provisioning map now runs six ordered steps including per-workspace model-key minting and AI-runtime recovery/readiness before recording the outcome.",
       "kind": "contract"
     },
     {
       "id": "EV-027",
       "role": "be",
       "path": "src/modules/bussiness/agentos-provision/steps/record-outcome.step.ts",
-      "startLine": 36,
-      "endLine": 72,
-      "claim": "The current outcome step activates the workspace directly, so R2 must persist aiReady=false until knowledge recovery and the durable readiness operation pass.",
+      "startLine": 57,
+      "endLine": 92,
+      "claim": "The outcome step refuses activation unless the AI-runtime step produced both knowledge-recovery and readiness operation identities, then activates the instance, order and workspace atomically.",
       "kind": "contract"
     },
     {
       "id": "EV-028",
       "role": "be",
       "path": "src/modules/platform/databases/postgresql/primary/entities/agentos-module-attachment.entity.ts",
-      "startLine": 14,
-      "endLine": 74,
-      "claim": "The attachment authority currently stores media type, byte size, scanner lifecycle, storage key and safe failure code while external object bytes and scanner execution remain outside the row.",
+      "startLine": 55,
+      "endLine": 137,
+      "claim": "The attachment authority stores quarantine status, storage identity, digest, detected media type, ingestion stage, chunk count, index/removal timestamps, object-retention deletion status and safe failure code while object bytes remain external.",
       "kind": "contract"
     },
     {
@@ -269,18 +269,25 @@
       "role": "be",
       "path": "src/features/core/api/core/graphql/mutations/agent-workspace/prepare-agentos-module-attachment-upload/graphql-types/input.ts",
       "startLine": 1,
-      "endLine": 17,
-      "claim": "The current upload input accepts a generic media type and positive byte size but does not yet enforce the R2 MIME allowlist or 20971520-byte ceiling.",
+      "endLine": 20,
+      "claim": "The upload input enforces the R2 PDF, DOCX, UTF-8 text and Markdown media-type allowlist and the 20971520-byte ceiling before issuing a transfer capability.",
       "kind": "api"
     },
     {
       "id": "EV-030",
       "role": "fe",
       "path": "apps/app/src/modules/api/console.ts",
-      "startLine": 754,
-      "endLine": 780,
-      "claim": "The frontend exposes custom-module intake answers and attachment preparation, finalization and removal as separate operations, supporting R2's boundary that document knowledge provisioning must not own ask-until-complete intake.",
+      "startLine": 841,
+      "endLine": 903,
+      "claim": "The frontend exposes attachment preparation, finalization and removal separately from workspace AI-readiness inspection, readiness testing and knowledge recovery, preserving the boundary between module intake and knowledge provisioning.",
       "kind": "api"
+    },
+    {
+      "id": "EV-031",
+      "claim": "Correctively rebase Nivo agentos-ai-knowledge-provisioning to the current verified FE and BE heads through rejected, pending and in-progress revisions while preserving the approved R2 product intent and final in-progress status.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "d71cae69510f6b0a6407602baf708fcf341e6e056370dc9a8de0d553ea8c3055"
     }
   ]
 }

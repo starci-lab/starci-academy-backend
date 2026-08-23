@@ -1,6 +1,6 @@
 # AgentOS AI and knowledge provisioning
 
-> Business head: `fc3aa3a27c96ad672b9713fdaa7a6a7cf0cf00c272f22c0d8ca49e58cad3e689`
+> Business head: `2306037d42f69148ddd2ec9654a32d4ca8923233cab10cd1849044ff421d915b`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -30,8 +30,8 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `6a43e8d11050efb84d95f73e4103044f6dcfb15a` |
-| be | https://github.com/starci-lab/nivo-backend.git | `77ce9d7dda36dae185be9983d4ff0771c769381c` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `ca8109dc2c5ca4f6e631c41528b7af2eac598ca0` |
+| be | https://github.com/starci-lab/nivo-backend.git | `b56ca6b1d19bd9b511830c398381f6eb4a902e1c` |
 
 ## 3. Actors and access
 
@@ -299,13 +299,13 @@ No unresolved question is recorded.
 | EV-002 | fe | `apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/page.tsx:1` | route | The frontend mounts one exact locale-aware owner workspace control-center route by workspaceId. |
 | EV-003 | fe | `apps/app/src/app/[locale]/(console)/agentos/workspaces/[workspaceId]/modules/[installationId]/page.tsx:1` | route | The frontend mounts one solution-module installation detail beneath the exact workspace and binds workspaceId plus installationId. |
 | EV-004 | be | `apps/agentos-cli/src/config.ts:112` | contract | The AgentOS CLI resolves a workspace-local Qdrant endpoint and named collection rather than a central control-plane search path. |
-| EV-005 | be | `apps/agentos-cli/src/config.ts:176` | contract | The AgentOS CLI defaults the OpenRouter model to deepseek/deepseek-v4-flash and requires OPENROUTER_INSTANCE_KEY as the instance-owned credential. |
+| EV-005 | be | `apps/agentos-cli/src/config.ts:218` | contract | The AgentOS CLI defaults the OpenRouter model to deepseek/deepseek-v4-flash and requires OPENROUTER_INSTANCE_KEY as the instance-owned credential. |
 | EV-006 | be | `src/modules/bussiness/expert-provision/secrets/instance-model-key.service.ts:108` | api | The backend can idempotently mint a bounded OpenRouter key per instance, persist the provider key id and store the raw value through encrypted provision-secret custody. |
-| EV-007 | be | `src/modules/bussiness/pod-registration/pod-access-token.service.ts:42` | contract | The committed AgentOS pod credential path explicitly says per-instance OpenRouter mint delivery remains a separate unwired change. |
-| EV-008 | be | `apps/agentos-cli/src/knowledge/knowledge-snapshot.service.ts:18` | contract | The AgentOS CLI recovers a versioned Qdrant snapshot by presigned URL, while its committed contract explicitly names backend snapshot publication and version-mismatch fallback as unbuilt follow-up work. |
+| EV-007 | be | `src/modules/bussiness/pod-registration/pod-access-token.service.ts:42` | contract | The AgentOS pod-registration credential path owns only the gateway token and explicitly keeps the per-instance OpenRouter key outside pod_credentials. |
+| EV-008 | be | `apps/agentos-cli/src/knowledge/knowledge-snapshot.service.ts:18` | contract | The AgentOS CLI retains a versioned Qdrant snapshot-recovery path by presigned URL and refuses unnamed workspace collections while keeping central-Qdrant fallback outside the pod. |
 | EV-009 | be | `src/modules/bussiness/agentos-solution-modules/types/manifest.ts:1` | contract | Solution-module manifests expose immutable module versions, common and private knowledge versions and an operational-data knowledge-package locator rather than embedding mutable document bodies in new manifests. |
-| EV-010 | be | `apps/agentos-controlplane/src/module-runtime/module-knowledge-reconciler.service.ts:14` | api | The control plane currently writes module package documents into workspace knowledge with installationId, moduleKey and knowledgeVersion metadata. |
-| EV-011 | be | `apps/agentos-cli/src/documents/queue-drain.service.ts:72` | api | The upload queue owns per-document indexing and failure states but currently embeds only the filename; MinIO download, extraction and chunking are explicitly unbuilt. |
+| EV-010 | be | `apps/agentos-controlplane/src/module-runtime/module-knowledge-reconciler.service.ts:48` | api | The control plane validates immutable module-artifact geometry and point count, copies common and existing workspace points into a staging generation, recovers the module snapshot and atomically switches the stable workspace alias. |
+| EV-011 | be | `apps/agentos-cli/src/documents/queue-drain.service.ts:116` | api | The workspace upload queue drains each document independently through object download, fail-closed ingestion, extraction, deterministic chunking, embedding and Qdrant upsert while persisting indexed or failed outcomes. |
 | EV-012 | be | `src/features/core/api/core/graphql/queries/agent-workspace/my-agent-workspace-knowledge-runtime/my-agent-workspace-knowledge-runtime.handler.ts:20` | api | The owner-scoped backend query returns MCP/Qdrant health, document counts and origins, timestamps and reindex status for one exact workspace. |
 | EV-013 | be | `src/features/core/api/core/graphql/mutations/agent-workspace/reindex-agent-workspace-knowledge/reindex-agent-workspace-knowledge.handler.ts:20` | api | The backend exposes an owner-scoped idempotent workspace knowledge-reindex operation and returns its operation status. |
 | EV-014 | be | `src/tests/harness/draft-lead-reply.harness-spec.ts:20` | test | The AI harness calls the OpenRouter-compatible production prompt lane, grades nondeterministic output and loudly skips rather than faking success when its provider credential is absent. |
@@ -317,11 +317,12 @@ No unresolved question is recorded.
 | EV-020 | be | `src/modules/platform/databases/postgresql/primary/entities/subscription-plan.entity.ts:306` | contract | The AgentOS subscription plan owns creditGrantUsd and defines renewal as a lifetime limit equal to current provider spend plus the grant. |
 | EV-021 | be | `src/modules/platform/databases/postgresql/primary/entities/instance.entity.ts:231` | contract | The provisioned instance owns the subscription-plan relation from which the workspace key grant is resolved. |
 | EV-022 | be | `src/modules/platform/databases/postgresql/primary/entities/instance-model-key.entity.ts:83` | contract | The instance model-key authority records lifetime limitUsd and supports provider usage reads, disablement and destruction without exposing the raw key. |
-| EV-023 | be | `src/modules/platform/databases/postgresql/primary/entities/agent-workspace-operation.entity.ts:11` | contract | Agent workspace operations are durable idempotent audit rows, while the current operation-kind union does not yet contain ai_readiness_test. |
-| EV-024 | be | `src/modules/bussiness/agent-workspace-operations/agent-workspace-operation-runner.service.ts:69` | api | The current workspace operation runner loads the workspace instance plan and dispatches bounded operation kinds, providing the sibling lifecycle that ai_readiness_test must extend. |
-| EV-025 | be | `src/modules/bussiness/agentos-provision/types/payload.ts:1` | contract | The current provisioning payload lacks AI profile, knowledge-recovery operation and readiness-operation identities, so R2 requires those outputs rather than treating them as already implemented. |
-| EV-026 | be | `src/modules/bussiness/agentos-provision/provision-step-map.service.ts:24` | contract | The current AgentOS provisioning map has four infrastructure steps and no explicit AI-key, knowledge-recovery or readiness step. |
-| EV-027 | be | `src/modules/bussiness/agentos-provision/steps/record-outcome.step.ts:36` | contract | The current outcome step activates the workspace directly, so R2 must persist aiReady=false until knowledge recovery and the durable readiness operation pass. |
-| EV-028 | be | `src/modules/platform/databases/postgresql/primary/entities/agentos-module-attachment.entity.ts:14` | contract | The attachment authority currently stores media type, byte size, scanner lifecycle, storage key and safe failure code while external object bytes and scanner execution remain outside the row. |
-| EV-029 | be | `src/features/core/api/core/graphql/mutations/agent-workspace/prepare-agentos-module-attachment-upload/graphql-types/input.ts:1` | api | The current upload input accepts a generic media type and positive byte size but does not yet enforce the R2 MIME allowlist or 20971520-byte ceiling. |
-| EV-030 | fe | `apps/app/src/modules/api/console.ts:754` | api | The frontend exposes custom-module intake answers and attachment preparation, finalization and removal as separate operations, supporting R2's boundary that document knowledge provisioning must not own ask-until-complete intake. |
+| EV-023 | be | `src/modules/platform/databases/postgresql/primary/entities/agent-workspace-operation.entity.ts:11` | contract | Agent workspace operations are durable idempotent audit rows whose closed operation-kind union includes both knowledge_recovery and ai_readiness_test. |
+| EV-024 | be | `src/modules/bussiness/agent-workspace-operations/agent-workspace-operation-runner.service.ts:141` | api | The workspace operation runner dispatches bounded knowledge_reindex, ai_readiness_test and knowledge_recovery operations for the exact workspace. |
+| EV-025 | be | `src/modules/bussiness/agentos-provision/types/payload.ts:1` | contract | The provisioning payload binds the exact workspace, instance, owner, order and selected AgentOS profile; recovery and readiness operation identities are produced by the AI-runtime step rather than accepted as caller input. |
+| EV-026 | be | `src/modules/bussiness/agentos-provision/provision-step-map.service.ts:33` | contract | The AgentOS provisioning map now runs six ordered steps including per-workspace model-key minting and AI-runtime recovery/readiness before recording the outcome. |
+| EV-027 | be | `src/modules/bussiness/agentos-provision/steps/record-outcome.step.ts:57` | contract | The outcome step refuses activation unless the AI-runtime step produced both knowledge-recovery and readiness operation identities, then activates the instance, order and workspace atomically. |
+| EV-028 | be | `src/modules/platform/databases/postgresql/primary/entities/agentos-module-attachment.entity.ts:55` | contract | The attachment authority stores quarantine status, storage identity, digest, detected media type, ingestion stage, chunk count, index/removal timestamps, object-retention deletion status and safe failure code while object bytes remain external. |
+| EV-029 | be | `src/features/core/api/core/graphql/mutations/agent-workspace/prepare-agentos-module-attachment-upload/graphql-types/input.ts:1` | api | The upload input enforces the R2 PDF, DOCX, UTF-8 text and Markdown media-type allowlist and the 20971520-byte ceiling before issuing a transfer capability. |
+| EV-030 | fe | `apps/app/src/modules/api/console.ts:841` | api | The frontend exposes attachment preparation, finalization and removal separately from workspace AI-readiness inspection, readiness testing and knowledge recovery, preserving the boundary between module intake and knowledge provisioning. |
+| EV-031 | owner | `decision:d71cae69510f6b0a6407602baf708fcf341e6e056370dc9a8de0d553ea8c3055` | owner-decision | Correctively rebase Nivo agentos-ai-knowledge-provisioning to the current verified FE and BE heads through rejected, pending and in-progress revisions while preserving the approved R2 product intent and final in-progress status. |

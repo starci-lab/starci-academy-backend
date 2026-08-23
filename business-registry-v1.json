@@ -211,17 +211,17 @@
     },
     "agentos-ai-knowledge-provisioning": {
       "featureId": "agentos-ai-knowledge-provisioning",
-      "head": "fc3aa3a27c96ad672b9713fdaa7a6a7cf0cf00c272f22c0d8ca49e58cad3e689",
-      "authorityStatus": "rejected",
-      "previousHead": "2d349c6b368b1943ddb384adef0780384a0fa7e6c284a4f9aeec21e3a864adec",
+      "head": "2306037d42f69148ddd2ec9654a32d4ca8923233cab10cd1849044ff421d915b",
+      "authorityStatus": "pending",
+      "previousHead": "fc3aa3a27c96ad672b9713fdaa7a6a7cf0cf00c272f22c0d8ca49e58cad3e689",
       "sources": [
         {
           "role": "fe",
-          "head": "6a43e8d11050efb84d95f73e4103044f6dcfb15a"
+          "head": "ca8109dc2c5ca4f6e631c41528b7af2eac598ca0"
         },
         {
           "role": "be",
-          "head": "77ce9d7dda36dae185be9983d4ff0771c769381c"
+          "head": "b56ca6b1d19bd9b511830c398381f6eb4a902e1c"
         }
       ]
     }
@@ -440,6 +440,10 @@
       "fc3aa3a27c96ad672b9713fdaa7a6a7cf0cf00c272f22c0d8ca49e58cad3e689": {
         "hash": "fc3aa3a27c96ad672b9713fdaa7a6a7cf0cf00c272f22c0d8ca49e58cad3e689",
         "path": "objects/sha256/fc3aa3a27c96ad672b9713fdaa7a6a7cf0cf00c272f22c0d8ca49e58cad3e689.json"
+      },
+      "2306037d42f69148ddd2ec9654a32d4ca8923233cab10cd1849044ff421d915b": {
+        "hash": "2306037d42f69148ddd2ec9654a32d4ca8923233cab10cd1849044ff421d915b",
+        "path": "objects/sha256/2306037d42f69148ddd2ec9654a32d4ca8923233cab10cd1849044ff421d915b.json"
       }
     }
   }
