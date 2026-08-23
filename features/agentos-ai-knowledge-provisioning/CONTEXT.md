@@ -1,8 +1,8 @@
 # AgentOS AI and knowledge provisioning
 
-> Business identity: `nivo/agentos-ai-knowledge-provisioning@4abf705ead029f7d282b75a5b40948a4ddd3c2def530c65c400ef12a8ad29c7e`
+> Business identity: `nivo/agentos-ai-knowledge-provisioning@3871f5ee57d1497da7f6d243b241bf6052fce1b71fc17f0a52e8ff8b2f19a23a`
 >
-> Source heads: authority `in-progress` · `fe@894e608bba73`, `be@ac05d90e7b6b`
+> Source heads: authority `in-progress` · `fe@6a43e8d11050`, `be@77ce9d7dda36`
 >
 > Load this file first. Load only the modules named by the current task.
 

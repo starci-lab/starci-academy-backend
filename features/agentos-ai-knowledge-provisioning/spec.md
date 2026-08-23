@@ -1,6 +1,6 @@
 # AgentOS AI and knowledge provisioning
 
-> Business head: `4abf705ead029f7d282b75a5b40948a4ddd3c2def530c65c400ef12a8ad29c7e`
+> Business head: `3871f5ee57d1497da7f6d243b241bf6052fce1b71fc17f0a52e8ff8b2f19a23a`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -29,8 +29,8 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `894e608bba73d791e5d2767cdc420da770c8c42b` |
-| be | https://github.com/starci-lab/nivo-backend.git | `ac05d90e7b6b59eb9dc4128872f3c02ba254e59a` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `6a43e8d11050efb84d95f73e4103044f6dcfb15a` |
+| be | https://github.com/starci-lab/nivo-backend.git | `77ce9d7dda36dae185be9983d4ff0771c769381c` |
 
 ## 3. Actors and access
 

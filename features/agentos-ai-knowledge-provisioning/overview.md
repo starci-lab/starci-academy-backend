@@ -27,5 +27,5 @@ An authenticated AgentOS workspace owner receives a workspace-scoped OpenRouter 
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/nivo-fe.git | `894e608bba73d791e5d2767cdc420da770c8c42b` |
-| be | https://github.com/starci-lab/nivo-backend.git | `ac05d90e7b6b59eb9dc4128872f3c02ba254e59a` |
+| fe | https://github.com/starci-lab/nivo-fe.git | `6a43e8d11050efb84d95f73e4103044f6dcfb15a` |
+| be | https://github.com/starci-lab/nivo-backend.git | `77ce9d7dda36dae185be9983d4ff0771c769381c` |
