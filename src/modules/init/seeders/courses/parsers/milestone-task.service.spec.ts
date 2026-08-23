@@ -13,6 +13,9 @@ import {
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
 import {
+    COURSE_PARSER_FIXTURE_ROOT,
+} from "@tests/fixtures/course-parser/root"
+import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
@@ -70,16 +73,9 @@ import {
     MilestoneTaskParserService,
 } from "./milestone-task.service"
 
-const COURSES_MOUNT_ROOT = path.join(
-    process.cwd(),
-    ".gitmounts/data/courses",
-)
-
 /**
  * Relative path under the `courses` context root for the SCHEMA V2
- * `0-clean-architecture-and-health` task -- the real mount fixture this spec grounds against
- * (the previously-referenced `3-postgresql-database-integration/.../health-db-readiness-probe`
- * task never existed on the mount; this points at an actual SCHEMA V2 task instead).
+ * `0-clean-architecture-and-health` task in the repository-owned unit fixture.
  */
 const CLEAN_ARCHITECTURE_HEALTH_RELATIVE_PATH =
     "0-fullstack-mastery/milestones/0-project-foundation/tasks/0-clean-architecture-and-health"
@@ -97,7 +93,7 @@ describe("MilestoneTaskParserService",
                         relativePath: string,
                     ): Promise<string> => fs.readFile(
                         path.join(
-                            COURSES_MOUNT_ROOT,
+                            COURSE_PARSER_FIXTURE_ROOT,
                             relativePath,
                         ),
                         "utf8",
@@ -175,7 +171,7 @@ describe("MilestoneTaskParserService",
 
                         // root scalars -- En is the canonical default locale
                         expect(parsed.defaultLocale).toBe(Locale.En)
-                        // displayId = the task mount folder slug (index prefix stripped)
+                        // displayId = the task fixture folder slug (index prefix stripped)
                         expect(parsed.displayId).toBe("clean-architecture-and-health")
                         expect(parsed.title).toBe("Scaffold StarCi Shop Backend + Health Endpoint")
                         expect(parsed.type).toBe(PersonalProjectTaskType.TechIntegrate)

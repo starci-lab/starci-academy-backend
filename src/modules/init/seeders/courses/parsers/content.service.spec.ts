@@ -9,6 +9,9 @@ import {
 import {
     Test,
 } from "@nestjs/testing"
+import {
+    COURSE_PARSER_FIXTURE_ROOT,
+} from "@tests/fixtures/course-parser/root"
 import type {
     TestingModule,
 } from "@nestjs/testing"
@@ -64,14 +67,9 @@ import {
     ContentParserService,
 } from "./content.service"
 
-const COURSES_MOUNT_ROOT = path.join(
-    process.cwd(),
-    ".gitmounts/data/courses",
-)
-
-/** Mount folder for the NestJS "frameworks in backend" lesson (SCHEMA V2 sample). */
-const FRAMEWORKS_IN_BACKEND_MOUNT_DIR = path.join(
-    COURSES_MOUNT_ROOT,
+/** Fixture folder for the NestJS "frameworks in backend" lesson (SCHEMA V2 sample). */
+const FRAMEWORKS_IN_BACKEND_FIXTURE_DIR = path.join(
+    COURSE_PARSER_FIXTURE_ROOT,
     "0-fullstack-mastery/modules/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend",
 )
 
@@ -80,16 +78,16 @@ const FRAMEWORKS_IN_BACKEND_RELATIVE_PATH =
     "0-fullstack-mastery/modules/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend"
 
 /**
- * Lists indexed mount folders (`{orderIndex}-{slug}`) under a courses-relative directory.
+ * Lists indexed fixture folders (`{orderIndex}-{slug}`) under a courses-relative directory.
  *
- * @param relativeDir - Path under `.gitmounts/data/courses/`.
+ * @param relativeDir - Path under the repository-owned parser fixture.
  * @returns Resolved paths sorted by `orderIndex`.
  */
-async function listIndexedMountDirs(
+async function listIndexedFixtureDirs(
     relativeDir: string,
 ): Promise<Array<ResolvedFilePath>> {
     const absoluteDir = path.join(
-        COURSES_MOUNT_ROOT,
+        COURSE_PARSER_FIXTURE_ROOT,
         relativeDir,
     )
     let entries: Array<Dirent>
@@ -131,14 +129,14 @@ describe("ContentParserService",
         beforeAll(async () => {
             viMarkdown = await fs.readFile(
                 path.join(
-                    FRAMEWORKS_IN_BACKEND_MOUNT_DIR,
+                    FRAMEWORKS_IN_BACKEND_FIXTURE_DIR,
                     "vi.md",
                 ),
                 "utf8",
             )
             enMarkdown = await fs.readFile(
                 path.join(
-                    FRAMEWORKS_IN_BACKEND_MOUNT_DIR,
+                    FRAMEWORKS_IN_BACKEND_FIXTURE_DIR,
                     "en.md",
                 ),
                 "utf8",
@@ -153,7 +151,7 @@ describe("ContentParserService",
                         relativePath: string,
                     ): Promise<string> => fs.readFile(
                         path.join(
-                            COURSES_MOUNT_ROOT,
+                            COURSE_PARSER_FIXTURE_ROOT,
                             relativePath,
                         ),
                         "utf8",
@@ -165,7 +163,7 @@ describe("ContentParserService",
                     async (
                         _baseDir: string,
                         relativePath: string,
-                    ): Promise<Array<ResolvedFilePath>> => listIndexedMountDirs(relativePath),
+                    ): Promise<Array<ResolvedFilePath>> => listIndexedFixtureDirs(relativePath),
                 ),
                 // real service reads `.e2e/<lang>/flow-*.md`; the fixture lesson has no `.e2e/`
                 // folder, so mirror the real "absent directory" contract (`[]`) rather than stub blind.
@@ -177,7 +175,7 @@ describe("ContentParserService",
                         try {
                             return await fs.readdir(
                                 path.join(
-                                    COURSES_MOUNT_ROOT,
+                                    COURSE_PARSER_FIXTURE_ROOT,
                                     relativePath,
                                 ),
                             )

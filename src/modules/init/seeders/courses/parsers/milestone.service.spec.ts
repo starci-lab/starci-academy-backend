@@ -13,6 +13,9 @@ import {
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
 import {
+    COURSE_PARSER_FIXTURE_ROOT,
+} from "@tests/fixtures/course-parser/root"
+import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
@@ -43,12 +46,7 @@ import {
     MilestoneParserService,
 } from "./milestone.service"
 
-const COURSES_MOUNT_ROOT = path.join(
-    process.cwd(),
-    ".gitmounts/data/courses",
-)
-
-/** Relative path to the M0 `project-foundation` milestone mount folder. */
+/** Relative path to the M0 `project-foundation` milestone fixture folder. */
 const PROJECT_INIT_RELATIVE_PATH =
     "0-fullstack-mastery/milestones/0-project-foundation"
 
@@ -65,7 +63,7 @@ describe("MilestoneParserService",
                         relativePath: string,
                     ): Promise<string> => fs.readFile(
                         path.join(
-                            COURSES_MOUNT_ROOT,
+                            COURSE_PARSER_FIXTURE_ROOT,
                             relativePath,
                         ),
                         "utf8",

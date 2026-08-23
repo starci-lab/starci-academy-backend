@@ -9,6 +9,9 @@ import {
 import {
     Test,
 } from "@nestjs/testing"
+import {
+    COURSE_PARSER_FIXTURE_ROOT,
+} from "@tests/fixtures/course-parser/root"
 import type {
     TestingModule,
 } from "@nestjs/testing"
@@ -79,26 +82,21 @@ import {
     ChallengeParserService,
 } from "./challenge.service"
 
-const COURSES_MOUNT_ROOT = path.join(
-    process.cwd(),
-    ".gitmounts/data/courses",
-)
-
 /** Relative path to both SCHEMA V2 challenges under frameworks-in-backend. */
 const FRAMEWORKS_CHALLENGES_RELATIVE_PATH =
     "0-fullstack-mastery/modules/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend/challenges"
 
 /**
- * Lists indexed mount folders (`{orderIndex}-{slug}`) under a courses-relative directory.
+ * Lists indexed fixture folders (`{orderIndex}-{slug}`) under a courses-relative directory.
  *
- * @param relativeDir - Path under `.gitmounts/data/courses/`.
+ * @param relativeDir - Path under the repository-owned parser fixture.
  * @returns Resolved paths sorted by `orderIndex`.
  */
-async function listIndexedMountDirs(
+async function listIndexedFixtureDirs(
     relativeDir: string,
 ): Promise<Array<ResolvedFilePath>> {
     const absoluteDir = path.join(
-        COURSES_MOUNT_ROOT,
+        COURSE_PARSER_FIXTURE_ROOT,
         relativeDir,
     )
     let entries: Array<Dirent>
@@ -142,7 +140,7 @@ describe("ChallengeParserService",
         let challengePaths: Array<ResolvedFilePath>
 
         beforeAll(async () => {
-            challengePaths = await listIndexedMountDirs(FRAMEWORKS_CHALLENGES_RELATIVE_PATH)
+            challengePaths = await listIndexedFixtureDirs(FRAMEWORKS_CHALLENGES_RELATIVE_PATH)
         })
 
         beforeEach(async () => {
@@ -153,7 +151,7 @@ describe("ChallengeParserService",
                         relativePath: string,
                     ): Promise<string> => fs.readFile(
                         path.join(
-                            COURSES_MOUNT_ROOT,
+                            COURSE_PARSER_FIXTURE_ROOT,
                             relativePath,
                         ),
                         "utf8",
@@ -184,14 +182,14 @@ describe("ChallengeParserService",
                     },
                     {
                         // submission folders live under `<challenge>/submissions/<N>/`; the spec
-                        // discovers them on the real mount so the resolver lists from disk too
+                        // discovers them from the tracked fixture so the resolver lists from disk too
                         provide: PathResolverService,
                         useValue: {
                             filePaths: jest.fn(
                                 async (
                                     _baseDir: string,
                                     relativePath: string,
-                                ): Promise<Array<ResolvedFilePath>> => listIndexedMountDirs(relativePath),
+                                ): Promise<Array<ResolvedFilePath>> => listIndexedFixtureDirs(relativePath),
                             ),
                         },
                     },

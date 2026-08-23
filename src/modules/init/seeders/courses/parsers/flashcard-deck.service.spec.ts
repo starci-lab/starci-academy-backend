@@ -10,6 +10,9 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
+    COURSE_PARSER_FIXTURE_ROOT,
+} from "@tests/fixtures/course-parser/root"
+import {
     ChallengeDifficulty,
 } from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
 import {
@@ -49,11 +52,6 @@ import {
     FlashcardDeckParserService,
 } from "./flashcard-deck.service"
 
-const COURSES_MOUNT_ROOT = path.join(
-    process.cwd(),
-    ".gitmounts/data/courses",
-)
-
 /** Relative path to the Module 1 (backend foundations) flashcard deck (themed deck 0). */
 const NESTJS_WARMUP_DECK_RELATIVE_PATH =
     "0-fullstack-mastery/flashcard-decks/0-module-1"
@@ -71,7 +69,7 @@ describe("FlashcardDeckParserService",
                         relativePath: string,
                     ): Promise<string> => fs.readFile(
                         path.join(
-                            COURSES_MOUNT_ROOT,
+                            COURSE_PARSER_FIXTURE_ROOT,
                             relativePath,
                         ),
                         "utf8",
@@ -99,7 +97,7 @@ describe("FlashcardDeckParserService",
                             paths: jest.fn(),
                             // list the real per-card folders for the deck under test
                             cardPaths: jest.fn(async (deckRelativePath: string) => {
-                                const cardsDir = path.join(COURSES_MOUNT_ROOT,
+                                const cardsDir = path.join(COURSE_PARSER_FIXTURE_ROOT,
                                     deckRelativePath,
                                     "cards")
                                 const entries = await fs.readdir(cardsDir,

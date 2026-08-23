@@ -13,6 +13,9 @@ import {
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
 import {
+    COURSE_PARSER_FIXTURE_ROOT,
+} from "@tests/fixtures/course-parser/root"
+import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
@@ -52,11 +55,6 @@ import {
     ModuleParserService,
 } from "./module.service"
 
-const COURSES_MOUNT_ROOT = path.join(
-    process.cwd(),
-    ".gitmounts/data/courses",
-)
-
 /** Relative path under the `courses` context root for the M0 module readme. */
 const NESTJS_CORE_RELATIVE_PATH =
     "0-fullstack-mastery/modules/0-nestjs-core-and-request-lifecycle"
@@ -74,7 +72,7 @@ describe("ModuleParserService",
                         relativePath: string,
                     ): Promise<string> => fs.readFile(
                         path.join(
-                            COURSES_MOUNT_ROOT,
+                            COURSE_PARSER_FIXTURE_ROOT,
                             relativePath,
                         ),
                         "utf8",
