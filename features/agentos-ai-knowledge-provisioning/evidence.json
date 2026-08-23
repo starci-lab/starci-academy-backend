@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "agentos-ai-knowledge-provisioning",
-  "head": "3871f5ee57d1497da7f6d243b241bf6052fce1b71fc17f0a52e8ff8b2f19a23a",
+  "head": "ea6a4feed3f97e1a81ccee7e1b61ce68cb85d60294704be50fbe679aca4aeb40",
   "sources": [
     {
       "role": "fe",
@@ -157,6 +157,13 @@
       "endLine": 44,
       "claim": "The repository declares separate AI harness and AgentOS live-test commands rather than making paid-provider tests part of the ordinary deterministic lane.",
       "kind": "test"
+    },
+    {
+      "id": "EV-017",
+      "claim": "Reject the current in-progress R1 authority because backend challenge proved that it crosses into agentos-module-studio intake ownership and leaves embedding geometry, non-destructive Qdrant import, production document handling, workspace-key lifecycle and readiness budgets unresolved; replace it through a new R2 lifecycle using owner decision 7494806cb79f7916fe7483450b64950ac607d82f888290112fada6569617fa59.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "7494806cb79f7916fe7483450b64950ac607d82f888290112fada6569617fa59"
     }
   ]
 }

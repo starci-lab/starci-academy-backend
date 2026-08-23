@@ -211,9 +211,9 @@
     },
     "agentos-ai-knowledge-provisioning": {
       "featureId": "agentos-ai-knowledge-provisioning",
-      "head": "3871f5ee57d1497da7f6d243b241bf6052fce1b71fc17f0a52e8ff8b2f19a23a",
-      "authorityStatus": "in-progress",
-      "previousHead": "4abf705ead029f7d282b75a5b40948a4ddd3c2def530c65c400ef12a8ad29c7e",
+      "head": "ea6a4feed3f97e1a81ccee7e1b61ce68cb85d60294704be50fbe679aca4aeb40",
+      "authorityStatus": "rejected",
+      "previousHead": "3871f5ee57d1497da7f6d243b241bf6052fce1b71fc17f0a52e8ff8b2f19a23a",
       "sources": [
         {
           "role": "fe",
@@ -424,6 +424,10 @@
       "3871f5ee57d1497da7f6d243b241bf6052fce1b71fc17f0a52e8ff8b2f19a23a": {
         "hash": "3871f5ee57d1497da7f6d243b241bf6052fce1b71fc17f0a52e8ff8b2f19a23a",
         "path": "objects/sha256/3871f5ee57d1497da7f6d243b241bf6052fce1b71fc17f0a52e8ff8b2f19a23a.json"
+      },
+      "ea6a4feed3f97e1a81ccee7e1b61ce68cb85d60294704be50fbe679aca4aeb40": {
+        "hash": "ea6a4feed3f97e1a81ccee7e1b61ce68cb85d60294704be50fbe679aca4aeb40",
+        "path": "objects/sha256/ea6a4feed3f97e1a81ccee7e1b61ce68cb85d60294704be50fbe679aca4aeb40.json"
       }
     }
   }

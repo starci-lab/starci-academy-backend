@@ -1,6 +1,6 @@
 # AgentOS AI and knowledge provisioning
 
-> Business head: `3871f5ee57d1497da7f6d243b241bf6052fce1b71fc17f0a52e8ff8b2f19a23a`
+> Business head: `ea6a4feed3f97e1a81ccee7e1b61ce68cb85d60294704be50fbe679aca4aeb40`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -282,3 +282,4 @@ Strength: **confirmed** · Evidence: `EV-001`, `EV-008`, `EV-011`
 | EV-014 | be | `src/tests/harness/draft-lead-reply.harness-spec.ts:20` | test | The AI harness calls the OpenRouter-compatible production prompt lane, grades nondeterministic output and loudly skips rather than faking success when its provider credential is absent. |
 | EV-015 | be | `src/tests/e2e/controlplane/instance-key-attribution.live-spec.ts:222` | test | A live test mints a bounded per-instance OpenRouter key, sends a real DeepSeek call and distinguishes spend on that key from spend on Nivo's platform key. |
 | EV-016 | be | `package.json:15` | test | The repository declares separate AI harness and AgentOS live-test commands rather than making paid-provider tests part of the ordinary deterministic lane. |
+| EV-017 | owner | `decision:7494806cb79f7916fe7483450b64950ac607d82f888290112fada6569617fa59` | owner-decision | Reject the current in-progress R1 authority because backend challenge proved that it crosses into agentos-module-studio intake ownership and leaves embedding geometry, non-destructive Qdrant import, production document handling, workspace-key lifecycle and readiness budgets unresolved; replace it through a new R2 lifecycle using owner decision 7494806cb79f7916fe7483450b64950ac607d82f888290112fada6569617fa59. |
