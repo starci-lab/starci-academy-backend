@@ -62,3 +62,24 @@ Từ chối bắt buộc có lý do, duyệt cho phép ghi chú nội bộ tùy 
 
 - Strength: `confirmed`
 - Evidence: `EV-003`
+
+## BR-10
+
+CRM V1 sử dụng phiên HTTP-only an toàn; quyền nghiệp vụ được kiểm tra theo staff, manager hoặc admin ở backend, không chỉ ẩn hành động trên giao diện.
+
+- Strength: `confirmed`
+- Evidence: `EV-004`
+
+## BR-11
+
+Mọi lệnh chuyển trạng thái hồ sơ phải gửi expectedVersion; backend từ chối lệnh cũ khi phiên bản không còn khớp và không tạo quyết định hoặc audit trùng.
+
+- Strength: `confirmed`
+- Evidence: `EV-004`
+
+## BR-12
+
+Backend CRM V1 dùng GraphQL code-first, NestJS CQRS và TypeORM/PostgreSQL; notification, mời tài khoản, đặt lại mật khẩu và 2FA không thuộc phạm vi V1.
+
+- Strength: `confirmed`
+- Evidence: `EV-004`

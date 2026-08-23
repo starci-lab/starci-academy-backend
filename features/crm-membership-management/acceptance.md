@@ -10,6 +10,9 @@
 | `AC-06` | CRM hiển thị đầy đủ trường hồ sơ V1 nhưng chỉ tên doanh nghiệp, lĩnh vực và phần giới thiệu đủ điều kiện công khai sau khi hồ sơ approved; thông tin đại diện, chức vụ, địa chỉ, email, điện thoại và mã số thuế không được công khai. | `EV-003` |
 | `AC-07` | Hàng đợi tìm được theo mã hồ sơ, tên doanh nghiệp hoặc mã số thuế, lọc theo trạng thái, sắp xếp mới nhất trước và trả đúng 20 hồ sơ mỗi trang cùng thông tin phân trang. | `EV-003` |
 | `AC-08` | Từ chối không hoàn tất khi thiếu lý do; duyệt cho phép bỏ trống ghi chú nội bộ; cả hai quyết định yêu cầu xác nhận và tạo audit entry chứa người thao tác, thời điểm cùng chi tiết quyết định. | `EV-003` |
+| `AC-09` | Backend chỉ trả và thực thi capability CRM phù hợp với phiên HTTP-only cùng role staff, manager hoặc admin; người không có phiên hoặc quyền nhận permission denied. | `EV-004` |
+| `AC-10` | Hai lệnh dùng cùng expectedVersion không thể cùng hoàn tất: lệnh thắng cập nhật phiên bản và ghi audit, lệnh cũ bị từ chối như concurrency conflict mà không ghi side effect. | `EV-004` |
+| `AC-11` | CRM V1 không phát email hoặc notification khi hồ sơ chuyển trạng thái và không triển khai invite, reset password hoặc 2FA. | `EV-004` |
 
 ## Completion
 

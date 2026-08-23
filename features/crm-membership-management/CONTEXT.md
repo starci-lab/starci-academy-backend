@@ -1,8 +1,8 @@
 # CRM quản lý hồ sơ hội viên Tây Sơn
 
-> Business identity: `tayson/crm-membership-management@0bd46fe67e96f95d2ceb6860a965e2988b5511c1620596a81b5bd0f00d9c09d9`
+> Business identity: `tayson/crm-membership-management@f549627375282deec14babdf604ca521422834e9a836f0bca66cee245bbe1bba`
 >
-> Source heads: authority `rejected` · `fe@6a954d40294c`, `be@661c37a1c6bb`
+> Source heads: authority `pending` · `fe@6a954d40294c`, `be@661c37a1c6bb`
 >
 > Load this file first. Load only the modules named by the current task.
 
@@ -40,16 +40,14 @@ collection-ready → membership-new → membership-reviewing → Xác nhận duy
 
 | Operation | Owner | Input | Result |
 |---|---|---|---|
-| `Đọc hàng đợi hồ sơ hội viên` | backend | Từ khóa tìm theo mã hồ sơ, tên doanh nghiệp hoặc mã số thuế, Bộ lọc trạng thái, Trang hiện tại với 20 hồ sơ mỗi trang, Sắp xếp thời điểm gửi mới nhất trước | Các hồ sơ được phép xem, Trạng thái xử lý hiện tại, Thông tin phân trang |
-| `Đọc một hồ sơ đăng ký hội viên` | backend | Định danh hồ sơ | Các trường hồ sơ CRM V1, Phân loại trường nội bộ và trường được phép công khai, Trạng thái xử lý, Thời điểm gửi |
-| `Xử lý hồ sơ đăng ký hội viên` | backend | Định danh hồ sơ, Quyết định xử lý, Lý do bắt buộc khi từ chối, Ghi chú nội bộ tùy chọn khi duyệt, Xác nhận quyết định | Trạng thái hồ sơ đã cập nhật, Hồ sơ công khai nếu approved, Audit entry |
+| `Đọc hàng đợi hồ sơ hội viên` | backend | Từ khóa tìm theo mã hồ sơ, tên doanh nghiệp hoặc mã số thuế, Bộ lọc trạng thái, Trang hiện tại với 20 hồ sơ mỗi trang, Sắp xếp thời điểm gửi mới nhất trước | Các hồ sơ được phép xem, Trạng thái xử lý hiện tại, Thông tin phân trang, Phiên bản hồ sơ dùng cho lệnh chuyển trạng thái |
+| `Đọc một hồ sơ đăng ký hội viên` | backend | Định danh hồ sơ | Các trường hồ sơ CRM V1, Phân loại trường nội bộ và trường được phép công khai, Trạng thái xử lý, Thời điểm gửi, Phiên bản hồ sơ dùng cho lệnh chuyển trạng thái |
+| `Bắt đầu xem xét hồ sơ hội viên` | backend | Định danh hồ sơ, expectedVersion của hồ sơ | Hồ sơ ở trạng thái reviewing, Phiên bản hồ sơ mới, Audit entry bắt đầu xem xét |
+| `Quyết định hồ sơ đăng ký hội viên` | backend | Định danh hồ sơ, Quyết định xử lý, Lý do bắt buộc khi từ chối, Ghi chú nội bộ tùy chọn khi duyệt, Xác nhận quyết định, expectedVersion của hồ sơ | Trạng thái hồ sơ đã cập nhật, Hồ sơ công khai nếu approved, Audit entry |
 
 ## Explicit unknowns
 
-- `auth-session-contract` — Cơ chế phiên, mời tài khoản, đặt lại mật khẩu, 2FA và thời hạn phiên của CRM là gì? Impact: Chặn auth implementation nhưng không thay đổi quyền nghiệp vụ của route /hoi-vien.
-- `membership-api-shape` — Backend sẽ công bố query và command hội viên bằng GraphQL shape nào cùng persistence schema nào? Impact: Chặn backend file plan và kết nối FE thật; business model không khóa transport hoặc database shape.
-- `membership-notifications` — Có cần gửi email hoặc thông báo khi hồ sơ chuyển reviewing, approved hoặc rejected không? Impact: Quyết định provider và event flow; hiện nằm ngoài operation đã chốt.
-- `concurrent-review-policy` — Hệ thống xử lý thế nào khi hai người cùng xem xét hoặc quyết định một hồ sơ? Impact: Chặn concurrency contract và failure chi tiết.
+- No unresolved question is recorded.
 
 ## LOADS
 

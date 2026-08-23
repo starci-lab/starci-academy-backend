@@ -12,6 +12,8 @@ CRM nội bộ tại /hoi-vien cho phép nhân sự được phân quyền tiế
 - Chuyển hồ sơ new sang reviewing rồi approved hoặc rejected theo quyền
 - Tạo dấu vết audit cho quyết định xử lý hồ sơ
 - Chỉ cho phép hồ sơ approved đủ điều kiện xuất hiện công khai
+- Xác thực CRM bằng phiên HTTP-only an toàn và phân quyền staff, manager, admin
+- Từ chối quyết định ghi đè khi expectedVersion không khớp phiên bản hồ sơ hiện tại
 
 ## Excluded
 
@@ -23,6 +25,8 @@ CRM nội bộ tại /hoi-vien cho phép nhân sự được phân quyền tiế
 - Quản lý tài khoản quản trị và cơ chế khôi phục đăng nhập
 - Upload hoặc lưu trữ file
 - Công khai tên người đại diện, chức vụ, địa chỉ, email, điện thoại hoặc mã số thuế của hồ sơ hội viên
+- Mời tài khoản, đặt lại mật khẩu hoặc xác thực hai lớp trong CRM V1
+- Gửi email hoặc thông báo khi hồ sơ đổi trạng thái trong CRM V1
 
 ## Source heads
 

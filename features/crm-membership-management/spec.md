@@ -1,6 +1,6 @@
 # CRM quản lý hồ sơ hội viên Tây Sơn
 
-> Business head: `0bd46fe67e96f95d2ceb6860a965e2988b5511c1620596a81b5bd0f00d9c09d9`
+> Business head: `f549627375282deec14babdf604ca521422834e9a836f0bca66cee245bbe1bba`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -15,6 +15,8 @@ Included:
 - Chuyển hồ sơ new sang reviewing rồi approved hoặc rejected theo quyền
 - Tạo dấu vết audit cho quyết định xử lý hồ sơ
 - Chỉ cho phép hồ sơ approved đủ điều kiện xuất hiện công khai
+- Xác thực CRM bằng phiên HTTP-only an toàn và phân quyền staff, manager, admin
+- Từ chối quyết định ghi đè khi expectedVersion không khớp phiên bản hồ sơ hiện tại
 
 Excluded:
 - Biểu mẫu đăng ký hội viên công khai
@@ -25,6 +27,8 @@ Excluded:
 - Quản lý tài khoản quản trị và cơ chế khôi phục đăng nhập
 - Upload hoặc lưu trữ file
 - Công khai tên người đại diện, chức vụ, địa chỉ, email, điện thoại hoặc mã số thuế của hồ sơ hội viên
+- Mời tài khoản, đặt lại mật khẩu hoặc xác thực hai lớp trong CRM V1
+- Gửi email hoặc thông báo khi hồ sơ đổi trạng thái trong CRM V1
 
 ## 2. Source heads
 
@@ -143,6 +147,24 @@ Từ chối bắt buộc có lý do, duyệt cho phép ghi chú nội bộ tùy 
 
 Strength: **confirmed** · Evidence: `EV-003`
 
+### BR-10
+
+CRM V1 sử dụng phiên HTTP-only an toàn; quyền nghiệp vụ được kiểm tra theo staff, manager hoặc admin ở backend, không chỉ ẩn hành động trên giao diện.
+
+Strength: **confirmed** · Evidence: `EV-004`
+
+### BR-11
+
+Mọi lệnh chuyển trạng thái hồ sơ phải gửi expectedVersion; backend từ chối lệnh cũ khi phiên bản không còn khớp và không tạo quyết định hoặc audit trùng.
+
+Strength: **confirmed** · Evidence: `EV-004`
+
+### BR-12
+
+Backend CRM V1 dùng GraphQL code-first, NestJS CQRS và TypeORM/PostgreSQL; notification, mời tài khoản, đặt lại mật khẩu và 2FA không thuộc phạm vi V1.
+
+Strength: **confirmed** · Evidence: `EV-004`
+
 ## 7. State model
 
 - **Đang tải hàng đợi hồ sơ** (`collection-loading`, initial) → collection-ready, collection-empty, collection-error, permission-denied — `EV-001`, `EV-002`
@@ -157,15 +179,16 @@ Strength: **confirmed** · Evidence: `EV-003`
 
 ## 8. Entities and data
 
-- **Hồ sơ đăng ký hội viên**: Mã hồ sơ, Tên doanh nghiệp, Mã số thuế, Tên người đại diện, Chức vụ người đại diện, Địa chỉ doanh nghiệp, Email liên hệ, Điện thoại liên hệ, Lĩnh vực hoạt động, Phần giới thiệu doanh nghiệp, Trạng thái xử lý, Thời điểm gửi, Dấu thời gian xóa mềm — `EV-001`, `EV-002`, `EV-003`
+- **Hồ sơ đăng ký hội viên**: Mã hồ sơ, Tên doanh nghiệp, Mã số thuế, Tên người đại diện, Chức vụ người đại diện, Địa chỉ doanh nghiệp, Email liên hệ, Điện thoại liên hệ, Lĩnh vực hoạt động, Phần giới thiệu doanh nghiệp, Trạng thái xử lý, Thời điểm gửi, Dấu thời gian xóa mềm, Phiên bản optimistic concurrency — `EV-001`, `EV-002`, `EV-003`
 - **Hồ sơ hội viên và doanh nghiệp**: Tên doanh nghiệp được phép công khai, Lĩnh vực hoạt động được phép công khai, Phần giới thiệu doanh nghiệp được phép công khai, Trạng thái duyệt, Trạng thái công khai, Dấu thời gian xóa mềm — `EV-001`, `EV-003`
 - **Nhật ký quản trị**: Người thao tác, Hành động, Đối tượng, Thời điểm, Quyết định xử lý, Lý do từ chối hoặc ghi chú duyệt — `EV-001`, `EV-003`
 
 ## 9. Operations and APIs
 
-- **Đọc hàng đợi hồ sơ hội viên** (query, backend) — input: Từ khóa tìm theo mã hồ sơ, tên doanh nghiệp hoặc mã số thuế, Bộ lọc trạng thái, Trang hiện tại với 20 hồ sơ mỗi trang, Sắp xếp thời điểm gửi mới nhất trước; output: Các hồ sơ được phép xem, Trạng thái xử lý hiện tại, Thông tin phân trang; failures: Không đủ quyền, Không thể tải dữ liệu — `EV-001`, `EV-002`, `EV-003`
-- **Đọc một hồ sơ đăng ký hội viên** (query, backend) — input: Định danh hồ sơ; output: Các trường hồ sơ CRM V1, Phân loại trường nội bộ và trường được phép công khai, Trạng thái xử lý, Thời điểm gửi; failures: Không đủ quyền, Không tìm thấy — `EV-001`, `EV-002`, `EV-003`
-- **Xử lý hồ sơ đăng ký hội viên** (command, backend) — input: Định danh hồ sơ, Quyết định xử lý, Lý do bắt buộc khi từ chối, Ghi chú nội bộ tùy chọn khi duyệt, Xác nhận quyết định; output: Trạng thái hồ sơ đã cập nhật, Hồ sơ công khai nếu approved, Audit entry; failures: Không đủ quyền, Chuyển trạng thái không hợp lệ, Không tìm thấy — `EV-001`, `EV-002`, `EV-003`
+- **Đọc hàng đợi hồ sơ hội viên** (query, backend) — input: Từ khóa tìm theo mã hồ sơ, tên doanh nghiệp hoặc mã số thuế, Bộ lọc trạng thái, Trang hiện tại với 20 hồ sơ mỗi trang, Sắp xếp thời điểm gửi mới nhất trước; output: Các hồ sơ được phép xem, Trạng thái xử lý hiện tại, Thông tin phân trang, Phiên bản hồ sơ dùng cho lệnh chuyển trạng thái; failures: Không đủ quyền, Không thể tải dữ liệu — `EV-001`, `EV-002`, `EV-003`
+- **Đọc một hồ sơ đăng ký hội viên** (query, backend) — input: Định danh hồ sơ; output: Các trường hồ sơ CRM V1, Phân loại trường nội bộ và trường được phép công khai, Trạng thái xử lý, Thời điểm gửi, Phiên bản hồ sơ dùng cho lệnh chuyển trạng thái; failures: Không đủ quyền, Không tìm thấy — `EV-001`, `EV-002`, `EV-003`
+- **Bắt đầu xem xét hồ sơ hội viên** (command, backend) — input: Định danh hồ sơ, expectedVersion của hồ sơ; output: Hồ sơ ở trạng thái reviewing, Phiên bản hồ sơ mới, Audit entry bắt đầu xem xét; failures: Không đủ quyền, Chuyển trạng thái không hợp lệ, Không tìm thấy, Xung đột phiên bản do hồ sơ đã được người khác xử lý — `EV-001`, `EV-002`, `EV-004`
+- **Quyết định hồ sơ đăng ký hội viên** (command, backend) — input: Định danh hồ sơ, Quyết định xử lý, Lý do bắt buộc khi từ chối, Ghi chú nội bộ tùy chọn khi duyệt, Xác nhận quyết định, expectedVersion của hồ sơ; output: Trạng thái hồ sơ đã cập nhật, Hồ sơ công khai nếu approved, Audit entry; failures: Không đủ quyền, Chuyển trạng thái không hợp lệ, Không tìm thấy, Xung đột phiên bản do hồ sơ đã được người khác xử lý — `EV-001`, `EV-002`, `EV-003`, `EV-004`
 
 ## 10. Acceptance conditions
 
@@ -177,13 +200,13 @@ Strength: **confirmed** · Evidence: `EV-003`
 - **AC-06** CRM hiển thị đầy đủ trường hồ sơ V1 nhưng chỉ tên doanh nghiệp, lĩnh vực và phần giới thiệu đủ điều kiện công khai sau khi hồ sơ approved; thông tin đại diện, chức vụ, địa chỉ, email, điện thoại và mã số thuế không được công khai. — `EV-003`
 - **AC-07** Hàng đợi tìm được theo mã hồ sơ, tên doanh nghiệp hoặc mã số thuế, lọc theo trạng thái, sắp xếp mới nhất trước và trả đúng 20 hồ sơ mỗi trang cùng thông tin phân trang. — `EV-003`
 - **AC-08** Từ chối không hoàn tất khi thiếu lý do; duyệt cho phép bỏ trống ghi chú nội bộ; cả hai quyết định yêu cầu xác nhận và tạo audit entry chứa người thao tác, thời điểm cùng chi tiết quyết định. — `EV-003`
+- **AC-09** Backend chỉ trả và thực thi capability CRM phù hợp với phiên HTTP-only cùng role staff, manager hoặc admin; người không có phiên hoặc quyền nhận permission denied. — `EV-004`
+- **AC-10** Hai lệnh dùng cùng expectedVersion không thể cùng hoàn tất: lệnh thắng cập nhật phiên bản và ghi audit, lệnh cũ bị từ chối như concurrency conflict mà không ghi side effect. — `EV-004`
+- **AC-11** CRM V1 không phát email hoặc notification khi hồ sơ chuyển trạng thái và không triển khai invite, reset password hoặc 2FA. — `EV-004`
 
 ## 11. Explicit unknowns
 
-- **Cơ chế phiên, mời tài khoản, đặt lại mật khẩu, 2FA và thời hạn phiên của CRM là gì?** — Chặn auth implementation nhưng không thay đổi quyền nghiệp vụ của route /hoi-vien.
-- **Backend sẽ công bố query và command hội viên bằng GraphQL shape nào cùng persistence schema nào?** — Chặn backend file plan và kết nối FE thật; business model không khóa transport hoặc database shape.
-- **Có cần gửi email hoặc thông báo khi hồ sơ chuyển reviewing, approved hoặc rejected không?** — Quyết định provider và event flow; hiện nằm ngoài operation đã chốt.
-- **Hệ thống xử lý thế nào khi hai người cùng xem xét hoặc quyết định một hồ sơ?** — Chặn concurrency contract và failure chi tiết.
+No unresolved question is recorded.
 
 ## 12. Evidence index
 
@@ -192,3 +215,4 @@ Strength: **confirmed** · Evidence: `EV-003`
 | EV-001 | owner | `decision:385cfe6dd712eff610dbefaf8060661780d51183c7c9bfe18b5c148ca750bdf1` | owner-decision | Owner đã chấp thuận nền tảng Tây Sơn có CRM Admin, Manager và Staff, vòng đời hồ sơ new → reviewing → approved hoặc rejected, chỉ approved được công khai, audit và xóa mềm. |
 | EV-002 | owner | `decision:9058a36a3e8162332ac8a76f3c461fff8851f053f39f9e5e743e291f368d5daf` | owner-decision | Owner yêu cầu tạo business authority cho CRM hội viên Tây Sơn và chốt route quản trị /hoi-vien. |
 | EV-003 | owner | `decision:dafdcd4fe4242c476570bf977f1126570465d1b300faf29f2e47e1d9d52b5a26` | owner-decision | Owner chốt mặc định CRM V1: schema hồ sơ và trường công khai an toàn, queue tìm-lọc-sắp xếp-phân trang 20 hồ sơ, cùng quy tắc xác nhận, lý do từ chối, ghi chú duyệt và audit quyết định. |
+| EV-004 | owner | `decision:71c1d7621f28b2ae54fef4d14c58e584ad902b4b45a633addcbec71b36c3a6f7` | owner-decision | Owner chốt backend contract mặc định cho CRM V1: GraphQL code-first với NestJS CQRS và TypeORM/PostgreSQL; phiên HTTP-only cho staff, manager, admin; optimistic concurrency bằng expectedVersion; không notification, invite, reset password hoặc 2FA. |

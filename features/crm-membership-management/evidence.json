@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "tayson",
   "featureId": "crm-membership-management",
-  "head": "0bd46fe67e96f95d2ceb6860a965e2988b5511c1620596a81b5bd0f00d9c09d9",
+  "head": "f549627375282deec14babdf604ca521422834e9a836f0bca66cee245bbe1bba",
   "sources": [
     {
       "role": "fe",
@@ -36,6 +36,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "dafdcd4fe4242c476570bf977f1126570465d1b300faf29f2e47e1d9d52b5a26"
+    },
+    {
+      "id": "EV-004",
+      "claim": "Owner chốt backend contract mặc định cho CRM V1: GraphQL code-first với NestJS CQRS và TypeORM/PostgreSQL; phiên HTTP-only cho staff, manager, admin; optimistic concurrency bằng expectedVersion; không notification, invite, reset password hoặc 2FA.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "71c1d7621f28b2ae54fef4d14c58e584ad902b4b45a633addcbec71b36c3a6f7"
     }
   ]
 }
