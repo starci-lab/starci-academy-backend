@@ -1,0 +1,25 @@
+{
+  "$schema": "../../../.claude/readiness/initialization/workspaces/portable-route.schema.json",
+  "version": 1,
+  "project": "starci-academy",
+  "role": "be",
+  "repository": {
+    "kind": "source",
+    "directory": null,
+    "gitRepository": "https://github.com/starci-lab/starci-academy-backend",
+    "branch": "mtp"
+  },
+  "context": {
+    "instructions": [
+      "AGENTS.md",
+      "CLAUDE.md"
+    ],
+    "contract": null,
+    "contractSource": null,
+    "manifests": [
+      "package.json"
+    ],
+    "grammar": null,
+    "grammarProfile": null
+  }
+}

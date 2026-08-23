@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../.claude/readiness/initialization/workspaces/portable-route.schema.json",
+  "version": 1,
+  "project": "miamia",
+  "role": "be",
+  "repository": {
+    "kind": "sibling",
+    "directory": "mia-mia-backend",
+    "gitRepository": "https://github.com/starci-lab/miamia-be.git",
+    "branch": "main"
+  },
+  "context": {
+    "instructions": [],
+    "contract": null,
+    "contractSource": null,
+    "manifests": [
+      "package.json"
+    ],
+    "grammar": null,
+    "grammarProfile": null
+  }
+}

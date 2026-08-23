@@ -1,0 +1,20 @@
+{
+  "$schema": "../../../.claude/readiness/initialization/workspaces/portable-route.schema.json",
+  "version": 1,
+  "project": "tayson",
+  "role": "be",
+  "repository": {
+    "kind": "sibling",
+    "directory": "tayson-backend",
+    "gitRepository": "https://github.com/starci183/tayson-be.git",
+    "branch": "main"
+  },
+  "context": {
+    "instructions": [],
+    "contract": null,
+    "contractSource": null,
+    "manifests": [],
+    "grammar": null,
+    "grammarProfile": null
+  }
+}

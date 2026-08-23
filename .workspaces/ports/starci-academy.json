@@ -1,0 +1,9 @@
+{
+  "$schema": "../../.claude/readiness/staleness/port-offset/schema.json",
+  "version": 1,
+  "project": "starci-academy",
+  "offset": 0,
+  "applications": {
+    "main": 0
+  }
+}

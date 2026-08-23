@@ -1,0 +1,24 @@
+{
+  "$schema": "../../../.claude/readiness/initialization/workspaces/portable-route.schema.json",
+  "version": 1,
+  "project": "nivo",
+  "role": "chart",
+  "repository": {
+    "kind": "sibling",
+    "directory": "nivo-charts",
+    "gitRepository": "https://github.com/starci-lab/nivo-charts.git",
+    "branch": "main"
+  },
+  "context": {
+    "instructions": [],
+    "contract": null,
+    "contractSource": null,
+    "manifests": [
+      "charts/agentos/Chart.yaml",
+      "charts/expert-academy/Chart.yaml",
+      "charts/mmo/Chart.yaml"
+    ],
+    "grammar": null,
+    "grammarProfile": null
+  }
+}

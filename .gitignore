@@ -98,11 +98,16 @@ claude-legacy/
 # 2026-08-18: cutover — v3 thành .claude, cây v2 lùi về .claude_legacy. Cả hai là repo riêng của
 # chúng (starci-skills và starci-claude-skills), backend không giữ version của cây nào.
 .claude_legacy/
+# Legacy workspace state; portable declarations now live in tracked `.workspaces`.
 .workspace/
+# Generated machine-local routes, credentials, references and execution state.
+/.workspaces/local/
 
-# Source-local project worktrees. Each project owns separate versioned `registries` and `businesses`
-# linked worktrees plus ignored rebuildable `cache`; no session directory is part of the contract.
+# Source-local mounts of durable project branches (`businesses`, `debts`).
+# They are Git worktrees, not reusable cache or session storage.
 /.worktrees/
+# Disposable invocation artifacts. A session is never durable authority.
+/.sessions/
 
 # cloudflare tunnel token (never commit)
 .secrets/

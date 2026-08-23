@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../.claude/readiness/initialization/workspaces/portable-route.schema.json",
+  "version": 1,
+  "project": "starci-academy",
+  "role": "fe",
+  "repository": {
+    "kind": "sibling",
+    "directory": "starci-academy-fe",
+    "gitRepository": "https://github.com/starci-lab/starci-academy-fe.git",
+    "branch": "main"
+  },
+  "context": {
+    "instructions": [],
+    "contract": "src/components/contracts/index.ts",
+    "contractSource": "discovered:src/components/contracts/index.ts",
+    "manifests": [
+      "package.json"
+    ],
+    "grammar": "starci",
+    "grammarProfile": "starci-academy"
+  }
+}

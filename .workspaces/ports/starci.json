@@ -1,0 +1,7 @@
+{
+  "$schema": "../../.claude/readiness/staleness/port-offset/schema.json",
+  "version": 1,
+  "project": "starci",
+  "offset": 0,
+  "applications": {}
+}

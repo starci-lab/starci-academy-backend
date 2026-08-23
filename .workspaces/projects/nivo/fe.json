@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../.claude/readiness/initialization/workspaces/portable-route.schema.json",
+  "version": 1,
+  "project": "nivo",
+  "role": "fe",
+  "repository": {
+    "kind": "sibling",
+    "directory": "nivo-fe",
+    "gitRepository": "https://github.com/starci-lab/nivo-fe.git",
+    "branch": "main"
+  },
+  "context": {
+    "instructions": [],
+    "contract": "packages/ui/src/contracts/index.ts",
+    "contractSource": "discovered:packages/ui/src/contracts/index.ts",
+    "manifests": [
+      "package.json"
+    ],
+    "grammar": "starci",
+    "grammarProfile": "nivo-console"
+  }
+}

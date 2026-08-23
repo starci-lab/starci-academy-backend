@@ -1,0 +1,9 @@
+{
+  "$schema": "../../.claude/readiness/staleness/port-offset/schema.json",
+  "version": 1,
+  "project": "tayson",
+  "offset": 73,
+  "applications": {
+    "main": 0
+  }
+}
