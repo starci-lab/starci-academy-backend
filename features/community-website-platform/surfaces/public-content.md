@@ -14,7 +14,7 @@ Hiển thị tin tức, hoạt động, sự kiện, từ thiện, đối ngoạ
 
 | Region | Kind | Real representative content | States | Actions | Evidence |
 |---|---|---|---|---|---|
-| `content-collection` | collection | Danh sách nội dung theo chuyên mục. | loading, empty, ready, error | Đọc chi tiết | `EV-001`, `EV-002`, `EV-003` |
+| `content-collection` | collection | Danh sách chỉ đọc gồm các chuyên mục đang hoạt động theo thứ tự hiển thị; mỗi nhóm chứa nội dung published, chưa xóa mềm theo thời điểm xuất bản giảm dần, không có filter, search hoặc pagination trong V1. | loading, empty, ready, error | Đọc chi tiết | `EV-001`, `EV-002`, `EV-003`, `EV-004` |
 
 ## Context rule
 

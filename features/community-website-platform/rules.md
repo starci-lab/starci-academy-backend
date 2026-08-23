@@ -69,3 +69,24 @@ Website công khai phải responsive, SEO cơ bản, SSR và tối ưu hiệu n�
 
 - Strength: `confirmed`
 - Evidence: `EV-001`
+
+## BR-11
+
+Danh sách nội dung công khai được nhóm theo danh mục đang hoạt động; danh mục theo thứ tự hiển thị và nội dung trong mỗi nhóm theo thời điểm xuất bản mới nhất trước. Phiên bản đầu không có filter, search hoặc pagination.
+
+- Strength: `confirmed`
+- Evidence: `EV-004`
+
+## BR-12
+
+Slug nội dung là duy nhất; chỉ nội dung published và chưa xóa mềm được trả về công khai. Draft, archived, deleted hoặc slug không tồn tại đều không được công khai và trang chi tiết trả về not-found.
+
+- Strength: `confirmed`
+- Evidence: `EV-001`, `EV-004`
+
+## BR-13
+
+Nội dung chi tiết V1 dùng Markdown được làm sạch; mỗi nội dung có tối đa một hero media MinIO tùy chọn và bắt buộc alt text khi media tồn tại.
+
+- Strength: `confirmed`
+- Evidence: `EV-004`

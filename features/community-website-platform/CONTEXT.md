@@ -1,8 +1,8 @@
 # Nền tảng website Cộng đồng Doanh nghiệp Tây Sơn
 
-> Business identity: `tayson/community-website-platform@3b17b727316d2c3f74c01eb2caeab0ff60e5ea90397b805c43f65c58d739250e`
+> Business identity: `tayson/community-website-platform@cf86576fc68eb59bd8ecbffa2df9278bc8921cd3db078b02071fbee9b418b207`
 >
-> Source heads: authority `rejected` · `fe@6a954d40294c`, `be@4226f4404948`
+> Source heads: authority `pending` · `fe@6a954d40294c`, `be@4226f4404948`
 >
 > Load this file first. Load only the modules named by the current task.
 
@@ -51,24 +51,24 @@ Mở trang đầu của website → content-published → membership-approved
 
 | Operation | Owner | Input | Result |
 |---|---|---|---|
-| `Đọc nội dung công khai` | backend | Loại nội dung, Định danh nội dung | Nội dung đã xuất bản |
+| `Đọc danh sách nội dung công khai` | backend | Không có | Các danh mục đang hoạt động cùng nội dung published, chưa xóa mềm, theo thứ tự danh mục và publishedAt giảm dần |
+| `Đọc chi tiết nội dung công khai` | backend | Slug nội dung | Một nội dung published và chưa xóa mềm |
 | `Đọc hội viên công khai` | backend | Phân trang hoặc định danh | Hồ sơ hội viên đã duyệt và công khai |
 | `Gửi đăng ký hội viên` | backend | Dữ liệu biểu mẫu đăng ký | Đăng ký trạng thái new, Xác nhận tiếp nhận |
 | `Gửi biểu mẫu liên hệ` | backend | Dữ liệu liên hệ hoặc yêu cầu | Biểu mẫu trạng thái new, Xác nhận tiếp nhận |
 | `Đăng nhập quản trị` | backend | Thông tin đăng nhập | Phiên xác thực và quyền |
 | `Đăng xuất quản trị` | backend | Phiên hiện tại | Phiên bị kết thúc |
 | `Quản lý tài khoản và phân quyền` | backend | Thông tin tài khoản, Vai trò, Trạng thái khóa | Tài khoản đã cập nhật, Audit entry |
-| `Quản lý và xuất bản nội dung` | backend | Nội dung, Danh mục, Trạng thái | Nội dung đã cập nhật, Audit entry |
 
 ## Explicit unknowns
 
 - `unknown-brand-assets` — Logo, màu thương hiệu, font, hình ảnh và nội dung khởi tạo chính thức là gì? Impact: Chặn khóa visual identity và dữ liệu production của website công khai.
 - `unknown-route-map` — Route URL chính xác cho các trang công khai và module CMS còn lại ngoài family /tin-tuc-hoat-dong là gì? Impact: Chặn page map cuối cùng của các surface còn dùng unresolved route identities; không chặn list/detail Tin tức & Hoạt động đã được chốt.
 - `unknown-member-fields` — Biểu mẫu đăng ký và hồ sơ doanh nghiệp gồm những trường nào, trường nào được công khai? Impact: Chặn schema cuối cùng, validation, privacy và giao diện form/detail.
-- `unknown-content-model` — Mỗi loại nội dung yêu cầu trường, media, taxonomy và bố cục chi tiết nào? Impact: Chặn schema nội dung và editor cuối cùng.
+- `unknown-production-content-values` — Nhãn chuyên mục, nội dung, hình ảnh và media production chính thức là gì? Impact: Không chặn schema, seed development hoặc list/detail V1; chỉ chặn dữ liệu production cuối cùng.
 - `unknown-auth-recovery` — Cơ chế đặt lại mật khẩu, mời tài khoản, 2FA và thời hạn phiên được yêu cầu ra sao? Impact: Chặn hoàn thiện security flow của CMS.
 - `unknown-notifications` — Có cần gửi email hoặc thông báo khi tiếp nhận, duyệt hoặc từ chối đăng ký/liên hệ không? Impact: Quyết định provider, template và event flow.
-- `unknown-media-policy` — Giới hạn loại tệp, dung lượng, lưu trữ và xử lý ảnh/media là gì? Impact: Chặn upload contract và storage implementation.
+- `unknown-media-policy` — Giới hạn loại tệp, dung lượng, lưu trữ và xử lý ảnh/media là gì? Impact: Chặn validation và xử lý upload của CMS; không chặn public read rendering từ hero media key tùy chọn.
 - `unknown-audit-policy` — Những thao tác nào bắt buộc audit và thời gian lưu audit bao lâu? Impact: Chặn tập sự kiện và retention chính xác.
 - `unknown-backup-policy` — Tần suất backup, retention, vị trí lưu, RPO và RTO là gì? Impact: Chặn cấu hình vận hành và acceptance test restore.
 - `unknown-domain-hosting` — Tên miền, hosting/VPS, DNS, SSL và credential authority do ai cung cấp? Impact: Chặn deploy/go-live nhưng không chặn code local.

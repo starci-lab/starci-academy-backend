@@ -20,15 +20,15 @@ Evidence: `EV-001`
 
 ## Entity · Nội dung website (`content-entry`)
 
-Fields: `Loại nội dung`, `Tiêu đề`, `Nội dung`, `Trạng thái`, `Banner hoặc media liên quan`, `Dấu thời gian xuất bản`, `Dấu thời gian xóa mềm`
+Fields: `Loại nội dung`, `Danh mục`, `Slug duy nhất`, `Tiêu đề`, `Nội dung Markdown`, `Hero media key MinIO tùy chọn`, `Alt text bắt buộc khi có hero media`, `Trạng thái draft, published hoặc archived`, `Dấu thời gian xuất bản`, `Dấu thời gian xóa mềm`
 
-Evidence: `EV-001`
+Evidence: `EV-001`, `EV-004`
 
 ## Entity · Danh mục (`category`)
 
-Fields: `Nhóm ngành nghề hoặc lĩnh vực`, `Loại nội dung`, `Thứ tự hiển thị`, `Trạng thái`
+Fields: `Slug duy nhất`, `Nhãn chuyên mục`, `Thứ tự hiển thị`, `Trạng thái hoạt động`
 
-Evidence: `EV-001`
+Evidence: `EV-001`, `EV-004`
 
 ## Entity · Dữ liệu biểu mẫu (`form-submission`)
 
@@ -54,13 +54,21 @@ Fields: `Thời điểm tạo`, `Trạng thái`, `Vị trí lưu trữ`, `Kết 
 
 Evidence: `EV-001`
 
-## Operation · Đọc nội dung công khai
+## Operation · Đọc danh sách nội dung công khai
 
 - Kind/owner: `query` / `backend`
-- Inputs: Loại nội dung, Định danh nội dung
-- Outputs: Nội dung đã xuất bản
-- Failures: Không tìm thấy, Nội dung chưa công khai
-- Evidence: `EV-001`
+- Inputs: Không có
+- Outputs: Các danh mục đang hoạt động cùng nội dung published, chưa xóa mềm, theo thứ tự danh mục và publishedAt giảm dần
+- Failures: Không thể tải danh sách
+- Evidence: `EV-001`, `EV-004`
+
+## Operation · Đọc chi tiết nội dung công khai
+
+- Kind/owner: `query` / `backend`
+- Inputs: Slug nội dung
+- Outputs: Một nội dung published và chưa xóa mềm
+- Failures: Không tìm thấy, Nội dung draft, archived hoặc đã xóa mềm
+- Evidence: `EV-001`, `EV-004`
 
 ## Operation · Đọc hội viên công khai
 

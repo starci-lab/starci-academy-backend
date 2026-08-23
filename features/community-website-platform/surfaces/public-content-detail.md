@@ -14,7 +14,7 @@ Hiển thị một nội dung truyền thông đã xuất bản từ danh sách 
 
 | Region | Kind | Real representative content | States | Actions | Evidence |
 |---|---|---|---|---|---|
-| `content-detail` | content | Tiêu đề, nội dung, loại nội dung, media liên quan và thời điểm xuất bản của một content entry công khai. | loading, ready, not-found, error | Quay lại Tin tức & Hoạt động | `EV-001`, `EV-003` |
+| `content-detail` | content | Tiêu đề, loại nội dung, chuyên mục, thời điểm xuất bản, Markdown đã làm sạch và hero media MinIO tùy chọn của một content entry published, chưa xóa mềm. | loading, ready, not-found, error | Quay lại Tin tức & Hoạt động | `EV-001`, `EV-003`, `EV-004` |
 
 ## Context rule
 

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "tayson",
   "featureId": "community-website-platform",
-  "head": "3b17b727316d2c3f74c01eb2caeab0ff60e5ea90397b805c43f65c58d739250e",
+  "head": "cf86576fc68eb59bd8ecbffa2df9278bc8921cd3db078b02071fbee9b418b207",
   "sources": [
     {
       "role": "fe",
@@ -38,6 +38,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "ae9b8dd30c1641399da5fb426e7b28fcc302cbf66bcfbea818324b660071604e"
+    },
+    {
+      "id": "EV-004",
+      "claim": "Owner phê duyệt bộ mặc định public-content V1 đã hiển thị bằng phản hồi `OK CONTENT DEFAUL`: nhóm theo danh mục, không filter/search/pagination, thứ tự xác định, slug duy nhất, Markdown được làm sạch, hero media MinIO tùy chọn với alt text bắt buộc, chỉ published và chưa xóa mềm được công khai, draft/archived/deleted/unknown trả về not-found; quản trị nội dung CMS là flow riêng.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "ad10d6fee01e09d0e4e7ece8f5bcb5a977776da32b2ca9a4bc5c8174a41c604c"
     }
   ]
 }

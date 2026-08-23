@@ -1,6 +1,6 @@
 # Nền tảng website Cộng đồng Doanh nghiệp Tây Sơn
 
-> Business head: `3b17b727316d2c3f74c01eb2caeab0ff60e5ea90397b805c43f65c58d739250e`
+> Business head: `cf86576fc68eb59bd8ecbffa2df9278bc8921cd3db078b02071fbee9b418b207`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -126,7 +126,7 @@ Evidence: `EV-001`
 - Regions: `content-collection`
 - Navigation: none
 
-Evidence: `EV-001`, `EV-002`, `EV-003`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`
 
 ### Chi tiết tin tức và hoạt động
 
@@ -136,7 +136,7 @@ Evidence: `EV-001`, `EV-002`, `EV-003`
 - Regions: `content-detail`
 - Navigation: none
 
-Evidence: `EV-001`, `EV-003`
+Evidence: `EV-001`, `EV-003`, `EV-004`
 
 ### Liên hệ
 
@@ -336,6 +336,24 @@ Website công khai phải responsive, SEO cơ bản, SSR và tối ưu hiệu n�
 
 Strength: **confirmed** · Evidence: `EV-001`
 
+### BR-11
+
+Danh sách nội dung công khai được nhóm theo danh mục đang hoạt động; danh mục theo thứ tự hiển thị và nội dung trong mỗi nhóm theo thời điểm xuất bản mới nhất trước. Phiên bản đầu không có filter, search hoặc pagination.
+
+Strength: **confirmed** · Evidence: `EV-004`
+
+### BR-12
+
+Slug nội dung là duy nhất; chỉ nội dung published và chưa xóa mềm được trả về công khai. Draft, archived, deleted hoặc slug không tồn tại đều không được công khai và trang chi tiết trả về not-found.
+
+Strength: **confirmed** · Evidence: `EV-001`, `EV-004`
+
+### BR-13
+
+Nội dung chi tiết V1 dùng Markdown được làm sạch; mỗi nội dung có tối đa một hero media MinIO tùy chọn và bắt buộc alt text khi media tồn tại.
+
+Strength: **confirmed** · Evidence: `EV-004`
+
 ## 7. State model
 
 - **Đăng ký mới** (`membership-new`, initial) → membership-reviewing — `EV-001`
@@ -354,8 +372,8 @@ Strength: **confirmed** · Evidence: `EV-001`
 - **Tài khoản quản trị**: Thông tin tài khoản, Trạng thái hoạt động hoặc bị khóa, Vai trò Admin, Manager hoặc Staff, Dấu thời gian xóa mềm — `EV-001`
 - **Đăng ký hội viên**: Dữ liệu biểu mẫu do người đăng ký cung cấp, Trạng thái xử lý, Thời điểm gửi, Dấu thời gian xóa mềm — `EV-001`
 - **Hồ sơ hội viên và doanh nghiệp**: Thông tin doanh nghiệp, Trạng thái duyệt, Trạng thái công khai, Dấu thời gian xóa mềm — `EV-001`
-- **Nội dung website**: Loại nội dung, Tiêu đề, Nội dung, Trạng thái, Banner hoặc media liên quan, Dấu thời gian xuất bản, Dấu thời gian xóa mềm — `EV-001`
-- **Danh mục**: Nhóm ngành nghề hoặc lĩnh vực, Loại nội dung, Thứ tự hiển thị, Trạng thái — `EV-001`
+- **Nội dung website**: Loại nội dung, Danh mục, Slug duy nhất, Tiêu đề, Nội dung Markdown, Hero media key MinIO tùy chọn, Alt text bắt buộc khi có hero media, Trạng thái draft, published hoặc archived, Dấu thời gian xuất bản, Dấu thời gian xóa mềm — `EV-001`, `EV-004`
+- **Danh mục**: Slug duy nhất, Nhãn chuyên mục, Thứ tự hiển thị, Trạng thái hoạt động — `EV-001`, `EV-004`
 - **Dữ liệu biểu mẫu**: Loại biểu mẫu, Payload người dùng gửi, Trạng thái xử lý, Thời điểm gửi, Dấu thời gian xóa mềm — `EV-001`
 - **Cấu hình website**: Thông tin website, Banner, Menu, Thông tin liên hệ, Cấu hình cơ bản — `EV-001`
 - **Nhật ký quản trị**: Người thao tác, Hành động, Đối tượng, Thời điểm, Chi tiết cần thiết — `EV-001`
@@ -363,7 +381,8 @@ Strength: **confirmed** · Evidence: `EV-001`
 
 ## 9. Operations and APIs
 
-- **Đọc nội dung công khai** (query, backend) — input: Loại nội dung, Định danh nội dung; output: Nội dung đã xuất bản; failures: Không tìm thấy, Nội dung chưa công khai — `EV-001`
+- **Đọc danh sách nội dung công khai** (query, backend) — input: Không có; output: Các danh mục đang hoạt động cùng nội dung published, chưa xóa mềm, theo thứ tự danh mục và publishedAt giảm dần; failures: Không thể tải danh sách — `EV-001`, `EV-004`
+- **Đọc chi tiết nội dung công khai** (query, backend) — input: Slug nội dung; output: Một nội dung published và chưa xóa mềm; failures: Không tìm thấy, Nội dung draft, archived hoặc đã xóa mềm — `EV-001`, `EV-004`
 - **Đọc hội viên công khai** (query, backend) — input: Phân trang hoặc định danh; output: Hồ sơ hội viên đã duyệt và công khai; failures: Không tìm thấy — `EV-001`
 - **Gửi đăng ký hội viên** (mutation, backend) — input: Dữ liệu biểu mẫu đăng ký; output: Đăng ký trạng thái new, Xác nhận tiếp nhận; failures: Dữ liệu không hợp lệ, Không thể lưu — `EV-001`
 - **Gửi biểu mẫu liên hệ** (mutation, backend) — input: Dữ liệu liên hệ hoặc yêu cầu; output: Biểu mẫu trạng thái new, Xác nhận tiếp nhận; failures: Dữ liệu không hợp lệ, Không thể lưu — `EV-001`
@@ -389,16 +408,17 @@ Strength: **confirmed** · Evidence: `EV-001`
 - **AC-09** Hệ thống có thể tạo backup định kỳ và thực hiện restore khi có sự cố. — `EV-001`
 - **AC-10** Bên A nhận quyền quản trị để chủ động đăng nhập và chỉnh sửa thông tin trong phạm vi CMS. — `EV-001`
 - **AC-11** Phiên bản đầu vận hành bằng tiếng Việt và không cung cấp cổng đăng nhập riêng cho hội viên. — `EV-001`
+- **AC-12** List/detail Tin tức & Hoạt động chỉ đọc nội dung published chưa xóa mềm; danh sách nhóm theo chuyên mục không có filter, search hoặc pagination V1, và draft, archived, deleted hoặc unknown slug không xuất hiện công khai. — `EV-004`
 
 ## 11. Explicit unknowns
 
 - **Logo, màu thương hiệu, font, hình ảnh và nội dung khởi tạo chính thức là gì?** — Chặn khóa visual identity và dữ liệu production của website công khai.
 - **Route URL chính xác cho các trang công khai và module CMS còn lại ngoài family /tin-tuc-hoat-dong là gì?** — Chặn page map cuối cùng của các surface còn dùng unresolved route identities; không chặn list/detail Tin tức & Hoạt động đã được chốt.
 - **Biểu mẫu đăng ký và hồ sơ doanh nghiệp gồm những trường nào, trường nào được công khai?** — Chặn schema cuối cùng, validation, privacy và giao diện form/detail.
-- **Mỗi loại nội dung yêu cầu trường, media, taxonomy và bố cục chi tiết nào?** — Chặn schema nội dung và editor cuối cùng.
+- **Nhãn chuyên mục, nội dung, hình ảnh và media production chính thức là gì?** — Không chặn schema, seed development hoặc list/detail V1; chỉ chặn dữ liệu production cuối cùng.
 - **Cơ chế đặt lại mật khẩu, mời tài khoản, 2FA và thời hạn phiên được yêu cầu ra sao?** — Chặn hoàn thiện security flow của CMS.
 - **Có cần gửi email hoặc thông báo khi tiếp nhận, duyệt hoặc từ chối đăng ký/liên hệ không?** — Quyết định provider, template và event flow.
-- **Giới hạn loại tệp, dung lượng, lưu trữ và xử lý ảnh/media là gì?** — Chặn upload contract và storage implementation.
+- **Giới hạn loại tệp, dung lượng, lưu trữ và xử lý ảnh/media là gì?** — Chặn validation và xử lý upload của CMS; không chặn public read rendering từ hero media key tùy chọn.
 - **Những thao tác nào bắt buộc audit và thời gian lưu audit bao lâu?** — Chặn tập sự kiện và retention chính xác.
 - **Tần suất backup, retention, vị trí lưu, RPO và RTO là gì?** — Chặn cấu hình vận hành và acceptance test restore.
 - **Tên miền, hosting/VPS, DNS, SSL và credential authority do ai cung cấp?** — Chặn deploy/go-live nhưng không chặn code local.
@@ -412,3 +432,4 @@ Strength: **confirmed** · Evidence: `EV-001`
 | EV-001 | owner | `decision:385cfe6dd712eff610dbefaf8060661780d51183c7c9bfe18b5c148ca750bdf1` | owner-decision | Owner cung cấp hợp đồng/phụ lục Tây Sơn có SHA-256 b7c71e5034ee8f2d2a79fb0ba42be16a93c91f27ded43fb18e75b8caf92ab973 và chấp thuận scope cùng các mặc định business được hiển thị trước khi publish pending. |
 | EV-002 | fe | `apps/web/src/components/blocks/PublicSiteHeader/index.tsx:16` | route | Frontend header hiện hành định danh Tin tức & Hoạt động tại route /tin-tuc-hoat-dong. |
 | EV-003 | owner | `decision:ae9b8dd30c1641399da5fb426e7b28fcc302cbf66bcfbea818324b660071604e` | owner-decision | Owner bật mode=auto cho phần BRD còn lại; recommendation hẹp được chọn là giữ route danh sách hiện hành /tin-tuc-hoat-dong và dùng route con /tin-tuc-hoat-dong/:slug cho hành động Đọc chi tiết đã có trong authority. |
+| EV-004 | owner | `decision:ad10d6fee01e09d0e4e7ece8f5bcb5a977776da32b2ca9a4bc5c8174a41c604c` | owner-decision | Owner phê duyệt bộ mặc định public-content V1 đã hiển thị bằng phản hồi `OK CONTENT DEFAUL`: nhóm theo danh mục, không filter/search/pagination, thứ tự xác định, slug duy nhất, Markdown được làm sạch, hero media MinIO tùy chọn với alt text bắt buộc, chỉ published và chưa xóa mềm được công khai, draft/archived/deleted/unknown trả về not-found; quản trị nội dung CMS là flow riêng. |
