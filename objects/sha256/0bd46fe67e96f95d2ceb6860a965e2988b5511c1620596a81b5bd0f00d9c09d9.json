@@ -1,0 +1,725 @@
+{
+  "schemaVersion": 2,
+  "authority": {
+    "status": "rejected",
+    "basis": "owner-intent",
+    "requiredRoles": [
+      "fe",
+      "be"
+    ],
+    "previousHead": "4466633f2fb0909d8454f38bc1130ddde2664ba260b4584e5bfd79ac42f104bb"
+  },
+  "project": "tayson",
+  "featureId": "crm-membership-management",
+  "title": "CRM quản lý hồ sơ hội viên Tây Sơn",
+  "summary": "CRM nội bộ tại /hoi-vien cho phép nhân sự được phân quyền tiếp nhận, xem xét và quyết định hồ sơ đăng ký hội viên theo vòng đời đã duyệt, đồng thời chỉ cho phép hồ sơ được phê duyệt trở thành hồ sơ công khai.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "local-only:D:/Repositories/tayson-fe",
+      "head": "6a954d40294c3dfaf7678d2eb4c34c1cd3c389d2"
+    },
+    {
+      "role": "be",
+      "repository": "local-only:D:/Repositories/tayson-backend",
+      "head": "661c37a1c6bb29540f0c644680e295abcf5267c7"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Bề mặt CRM nội bộ quản lý hồ sơ hội viên tại route /hoi-vien",
+      "Đọc hàng đợi hồ sơ đăng ký hội viên theo quyền của người dùng quản trị",
+      "Xem một hồ sơ cùng dữ liệu do người đăng ký cung cấp và trạng thái xử lý",
+      "Chuyển hồ sơ new sang reviewing rồi approved hoặc rejected theo quyền",
+      "Tạo dấu vết audit cho quyết định xử lý hồ sơ",
+      "Chỉ cho phép hồ sơ approved đủ điều kiện xuất hiện công khai"
+    ],
+    "excludes": [
+      "Biểu mẫu đăng ký hội viên công khai",
+      "Danh bạ hội viên công khai",
+      "Cổng đăng nhập hoặc dashboard riêng cho hội viên",
+      "CRM bán hàng, thanh toán, ticket hoặc chăm sóc khách hàng",
+      "Quản trị nội dung website, biểu mẫu liên hệ hoặc cấu hình hệ thống",
+      "Quản lý tài khoản quản trị và cơ chế khôi phục đăng nhập",
+      "Upload hoặc lưu trữ file",
+      "Công khai tên người đại diện, chức vụ, địa chỉ, email, điện thoại hoặc mã số thuế của hồ sơ hội viên"
+    ]
+  },
+  "actors": [
+    {
+      "id": "staff",
+      "label": "Nhân viên vận hành",
+      "capabilities": [
+        "Xem hàng đợi hồ sơ hội viên trong phạm vi được phân quyền",
+        "Mở hồ sơ và chuyển hồ sơ mới sang đang xem xét",
+        "Không quản lý tài khoản quản trị"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "manager",
+      "label": "Quản lý",
+      "capabilities": [
+        "Xem và xử lý hồ sơ hội viên",
+        "Duyệt hoặc từ chối hồ sơ đang xem xét"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "admin",
+      "label": "Quản trị viên",
+      "capabilities": [
+        "Thực hiện mọi thao tác quản lý hồ sơ hội viên đã được duyệt trong scope",
+        "Nhận trạng thái và hành động tương ứng với quyền quản trị"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "review-membership-application",
+      "title": "Tiếp nhận và quyết định hồ sơ hội viên",
+      "trigger": "Người dùng quản trị được phân quyền mở CRM hội viên tại /hoi-vien",
+      "steps": [
+        {
+          "id": "open-membership-queue",
+          "actor": "staff",
+          "action": "Mở hàng đợi hồ sơ hội viên",
+          "result": "Thấy các hồ sơ được phép xem cùng trạng thái xử lý hiện tại",
+          "surfaceId": "crm-membership-management",
+          "stateId": "collection-ready"
+        },
+        {
+          "id": "inspect-new-application",
+          "actor": "staff",
+          "action": "Mở một hồ sơ mới",
+          "result": "Thấy đầy đủ trường hồ sơ CRM V1, trạng thái new và phân loại rõ trường nội bộ với trường được phép công khai",
+          "surfaceId": "crm-membership-management",
+          "stateId": "membership-new"
+        },
+        {
+          "id": "start-membership-review",
+          "actor": "staff",
+          "action": "Bắt đầu xem xét hồ sơ",
+          "result": "Hồ sơ chuyển từ new sang reviewing",
+          "surfaceId": "crm-membership-management",
+          "stateId": "membership-reviewing"
+        },
+        {
+          "id": "decide-membership-application",
+          "actor": "manager",
+          "action": "Xác nhận duyệt hoặc từ chối hồ sơ đang xem xét",
+          "result": "Hồ sơ chuyển sang approved hoặc rejected; từ chối có lý do bắt buộc, duyệt có ghi chú nội bộ tùy chọn và toàn bộ quyết định được ghi audit",
+          "surfaceId": "crm-membership-management"
+        }
+      ],
+      "outcomes": [
+        "Hồ sơ có một trạng thái xử lý hợp lệ và quyết định có dấu vết audit",
+        "Hồ sơ approved đủ điều kiện tạo hồ sơ công khai",
+        "Hồ sơ rejected không được công khai"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "Hồ sơ đăng ký hội viên chỉ chuyển theo new → reviewing → approved hoặc rejected.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Chỉ hồ sơ approved mới đủ điều kiện trở thành hồ sơ hội viên công khai; hồ sơ new, reviewing hoặc rejected không được công khai.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Admin có toàn quyền trong scope, Manager được quản lý và quyết định hồ sơ, Staff được biên tập và xử lý biểu mẫu nhưng không quản lý tài khoản.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "Hành động không được vai trò cho phép phải bị từ chối và không xuất hiện như một thao tác khả dụng trong CRM.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "BR-05",
+      "statement": "Quyết định xử lý hồ sơ tạo audit entry và dữ liệu nghiệp vụ sử dụng xóa mềm để giữ khả năng audit và phục hồi.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-06",
+      "statement": "Phiên bản đầu của CRM hội viên sử dụng tiếng Việt và không cung cấp cổng đăng nhập riêng cho hội viên.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-07",
+      "statement": "Hồ sơ CRM V1 gồm mã hồ sơ, tên doanh nghiệp, mã số thuế, người đại diện và chức vụ, địa chỉ doanh nghiệp, email, điện thoại, lĩnh vực và phần giới thiệu; sau khi approved chỉ tên doanh nghiệp, lĩnh vực và phần giới thiệu được phép công khai.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    },
+    {
+      "id": "BR-08",
+      "statement": "Hàng đợi cho phép tìm theo mã hồ sơ, tên doanh nghiệp hoặc mã số thuế, lọc theo trạng thái, sắp xếp hồ sơ mới nhất trước và phân trang 20 hồ sơ mỗi trang.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    },
+    {
+      "id": "BR-09",
+      "statement": "Từ chối bắt buộc có lý do, duyệt cho phép ghi chú nội bộ tùy chọn, cả hai quyết định đều cần xác nhận và audit ghi người thao tác, thời điểm, quyết định cùng lý do hoặc ghi chú tương ứng.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "collection-loading",
+      "label": "Đang tải hàng đợi hồ sơ",
+      "kind": "initial",
+      "transitions": [
+        "collection-ready",
+        "collection-empty",
+        "collection-error",
+        "permission-denied"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "collection-ready",
+      "label": "Hàng đợi hồ sơ sẵn sàng",
+      "kind": "success",
+      "transitions": [
+        "membership-new",
+        "membership-reviewing",
+        "membership-approved",
+        "membership-rejected"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "collection-empty",
+      "label": "Không có hồ sơ phù hợp",
+      "kind": "empty",
+      "transitions": [
+        "collection-loading"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "collection-error",
+      "label": "Không thể tải hàng đợi hồ sơ",
+      "kind": "error",
+      "transitions": [
+        "collection-loading"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "permission-denied",
+      "label": "Không có quyền truy cập CRM hội viên",
+      "kind": "error",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "membership-new",
+      "label": "Hồ sơ mới",
+      "kind": "initial",
+      "transitions": [
+        "membership-reviewing"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "membership-reviewing",
+      "label": "Hồ sơ đang xem xét",
+      "kind": "pending",
+      "transitions": [
+        "membership-approved",
+        "membership-rejected"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "membership-approved",
+      "label": "Hồ sơ đã duyệt",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "membership-rejected",
+      "label": "Hồ sơ đã từ chối",
+      "kind": "error",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "member-application",
+      "label": "Hồ sơ đăng ký hội viên",
+      "fields": [
+        "Mã hồ sơ",
+        "Tên doanh nghiệp",
+        "Mã số thuế",
+        "Tên người đại diện",
+        "Chức vụ người đại diện",
+        "Địa chỉ doanh nghiệp",
+        "Email liên hệ",
+        "Điện thoại liên hệ",
+        "Lĩnh vực hoạt động",
+        "Phần giới thiệu doanh nghiệp",
+        "Trạng thái xử lý",
+        "Thời điểm gửi",
+        "Dấu thời gian xóa mềm"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "member-profile",
+      "label": "Hồ sơ hội viên và doanh nghiệp",
+      "fields": [
+        "Tên doanh nghiệp được phép công khai",
+        "Lĩnh vực hoạt động được phép công khai",
+        "Phần giới thiệu doanh nghiệp được phép công khai",
+        "Trạng thái duyệt",
+        "Trạng thái công khai",
+        "Dấu thời gian xóa mềm"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "audit-entry",
+      "label": "Nhật ký quản trị",
+      "fields": [
+        "Người thao tác",
+        "Hành động",
+        "Đối tượng",
+        "Thời điểm",
+        "Quyết định xử lý",
+        "Lý do từ chối hoặc ghi chú duyệt"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "read-membership-queue",
+      "kind": "query",
+      "name": "Đọc hàng đợi hồ sơ hội viên",
+      "owner": "backend",
+      "inputs": [
+        "Từ khóa tìm theo mã hồ sơ, tên doanh nghiệp hoặc mã số thuế",
+        "Bộ lọc trạng thái",
+        "Trang hiện tại với 20 hồ sơ mỗi trang",
+        "Sắp xếp thời điểm gửi mới nhất trước"
+      ],
+      "outputs": [
+        "Các hồ sơ được phép xem",
+        "Trạng thái xử lý hiện tại",
+        "Thông tin phân trang"
+      ],
+      "failures": [
+        "Không đủ quyền",
+        "Không thể tải dữ liệu"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "read-membership-application",
+      "kind": "query",
+      "name": "Đọc một hồ sơ đăng ký hội viên",
+      "owner": "backend",
+      "inputs": [
+        "Định danh hồ sơ"
+      ],
+      "outputs": [
+        "Các trường hồ sơ CRM V1",
+        "Phân loại trường nội bộ và trường được phép công khai",
+        "Trạng thái xử lý",
+        "Thời điểm gửi"
+      ],
+      "failures": [
+        "Không đủ quyền",
+        "Không tìm thấy"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "process-membership-application",
+      "kind": "command",
+      "name": "Xử lý hồ sơ đăng ký hội viên",
+      "owner": "backend",
+      "inputs": [
+        "Định danh hồ sơ",
+        "Quyết định xử lý",
+        "Lý do bắt buộc khi từ chối",
+        "Ghi chú nội bộ tùy chọn khi duyệt",
+        "Xác nhận quyết định"
+      ],
+      "outputs": [
+        "Trạng thái hồ sơ đã cập nhật",
+        "Hồ sơ công khai nếu approved",
+        "Audit entry"
+      ],
+      "failures": [
+        "Không đủ quyền",
+        "Chuyển trạng thái không hợp lệ",
+        "Không tìm thấy"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "crm-membership-management",
+      "routePattern": "/hoi-vien",
+      "title": "Quản lý hội viên",
+      "eyebrow": "CRM Tây Sơn",
+      "purpose": "Tiếp nhận, xem xét, duyệt hoặc từ chối hồ sơ đăng ký hội viên theo quyền của người dùng quản trị.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "membership-queue",
+          "kind": "collection",
+          "title": "Hồ sơ đăng ký hội viên",
+          "summary": "Hiển thị các hồ sơ được phép xem cùng trạng thái new, reviewing, approved hoặc rejected.",
+          "items": [
+            {
+              "id": "application-identity",
+              "role": "entity",
+              "label": "Định danh hồ sơ"
+            },
+            {
+              "id": "application-business-name",
+              "role": "entity",
+              "label": "Tên doanh nghiệp"
+            },
+            {
+              "id": "application-tax-code",
+              "role": "fact",
+              "label": "Mã số thuế"
+            },
+            {
+              "id": "application-status",
+              "role": "status",
+              "label": "Trạng thái xử lý"
+            },
+            {
+              "id": "application-submitted-at",
+              "role": "fact",
+              "label": "Thời điểm gửi"
+            },
+            {
+              "id": "queue-search",
+              "role": "field",
+              "label": "Tìm theo mã hồ sơ, tên doanh nghiệp hoặc mã số thuế"
+            },
+            {
+              "id": "queue-status-filter",
+              "role": "choice",
+              "label": "Lọc theo trạng thái new, reviewing, approved hoặc rejected"
+            },
+            {
+              "id": "queue-pagination",
+              "role": "navigation",
+              "label": "20 hồ sơ mỗi trang, mới nhất trước"
+            }
+          ],
+          "actions": [
+            {
+              "id": "view-application",
+              "label": "Xem hồ sơ",
+              "kind": "link",
+              "target": "membership-review"
+            }
+          ],
+          "states": [
+            "collection-loading",
+            "collection-empty",
+            "collection-ready",
+            "collection-error",
+            "permission-denied"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003"
+          ]
+        },
+        {
+          "id": "membership-review",
+          "kind": "flow",
+          "title": "Xem xét hồ sơ",
+          "summary": "Hiển thị dữ liệu nguồn của một hồ sơ và chỉ cung cấp hành động phù hợp với trạng thái cùng vai trò hiện tại.",
+          "items": [
+            {
+              "id": "submitted-application-data",
+              "role": "entity",
+              "label": "Mã hồ sơ, tên doanh nghiệp, mã số thuế, người đại diện và chức vụ, địa chỉ, email, điện thoại, lĩnh vực và phần giới thiệu"
+            },
+            {
+              "id": "public-profile-data",
+              "role": "fact",
+              "label": "Tên doanh nghiệp, lĩnh vực và phần giới thiệu là các trường được phép công khai sau khi duyệt"
+            },
+            {
+              "id": "current-membership-status",
+              "role": "status",
+              "label": "Trạng thái hiện tại"
+            },
+            {
+              "id": "rejection-reason",
+              "role": "field",
+              "label": "Lý do bắt buộc khi từ chối"
+            },
+            {
+              "id": "approval-note",
+              "role": "field",
+              "label": "Ghi chú nội bộ tùy chọn khi duyệt"
+            },
+            {
+              "id": "decision-confirmation",
+              "role": "choice",
+              "label": "Xác nhận trước khi duyệt hoặc từ chối"
+            }
+          ],
+          "actions": [
+            {
+              "id": "start-review",
+              "label": "Bắt đầu xem xét",
+              "kind": "secondary",
+              "target": "membership-reviewing"
+            },
+            {
+              "id": "approve-application",
+              "label": "Duyệt hồ sơ",
+              "kind": "primary",
+              "target": "membership-approved"
+            },
+            {
+              "id": "reject-application",
+              "label": "Từ chối hồ sơ",
+              "kind": "destructive",
+              "target": "membership-rejected"
+            }
+          ],
+          "states": [
+            "membership-new",
+            "membership-reviewing",
+            "membership-approved",
+            "membership-rejected",
+            "permission-denied"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Người dùng quản trị được phân quyền mở /hoi-vien và thấy hàng đợi hồ sơ hoặc một trạng thái loading, empty, error hay permission-denied rõ ràng.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Staff được phép mở hồ sơ mới và chuyển hồ sơ từ new sang reviewing nhưng không nhận hành động ngoài quyền.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Manager hoặc Admin được phép chuyển hồ sơ reviewing sang approved hoặc rejected và quyết định tạo audit entry.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "Chỉ hồ sơ approved đủ điều kiện tạo hồ sơ công khai; mọi trạng thái khác không được công khai.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "Người dùng không có quyền không đọc được hàng đợi, dữ liệu hồ sơ hoặc hành động xử lý bị cấm.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "statement": "CRM hiển thị đầy đủ trường hồ sơ V1 nhưng chỉ tên doanh nghiệp, lĩnh vực và phần giới thiệu đủ điều kiện công khai sau khi hồ sơ approved; thông tin đại diện, chức vụ, địa chỉ, email, điện thoại và mã số thuế không được công khai.",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    },
+    {
+      "id": "AC-07",
+      "statement": "Hàng đợi tìm được theo mã hồ sơ, tên doanh nghiệp hoặc mã số thuế, lọc theo trạng thái, sắp xếp mới nhất trước và trả đúng 20 hồ sơ mỗi trang cùng thông tin phân trang.",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    },
+    {
+      "id": "AC-08",
+      "statement": "Từ chối không hoàn tất khi thiếu lý do; duyệt cho phép bỏ trống ghi chú nội bộ; cả hai quyết định yêu cầu xác nhận và tạo audit entry chứa người thao tác, thời điểm cùng chi tiết quyết định.",
+      "evidenceIds": [
+        "EV-003"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "auth-session-contract",
+      "question": "Cơ chế phiên, mời tài khoản, đặt lại mật khẩu, 2FA và thời hạn phiên của CRM là gì?",
+      "impact": "Chặn auth implementation nhưng không thay đổi quyền nghiệp vụ của route /hoi-vien."
+    },
+    {
+      "id": "membership-api-shape",
+      "question": "Backend sẽ công bố query và command hội viên bằng GraphQL shape nào cùng persistence schema nào?",
+      "impact": "Chặn backend file plan và kết nối FE thật; business model không khóa transport hoặc database shape."
+    },
+    {
+      "id": "membership-notifications",
+      "question": "Có cần gửi email hoặc thông báo khi hồ sơ chuyển reviewing, approved hoặc rejected không?",
+      "impact": "Quyết định provider và event flow; hiện nằm ngoài operation đã chốt."
+    },
+    {
+      "id": "concurrent-review-policy",
+      "question": "Hệ thống xử lý thế nào khi hai người cùng xem xét hoặc quyết định một hồ sơ?",
+      "impact": "Chặn concurrency contract và failure chi tiết."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "Owner đã chấp thuận nền tảng Tây Sơn có CRM Admin, Manager và Staff, vòng đời hồ sơ new → reviewing → approved hoặc rejected, chỉ approved được công khai, audit và xóa mềm.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "385cfe6dd712eff610dbefaf8060661780d51183c7c9bfe18b5c148ca750bdf1"
+    },
+    {
+      "id": "EV-002",
+      "claim": "Owner yêu cầu tạo business authority cho CRM hội viên Tây Sơn và chốt route quản trị /hoi-vien.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "9058a36a3e8162332ac8a76f3c461fff8851f053f39f9e5e743e291f368d5daf"
+    },
+    {
+      "id": "EV-003",
+      "claim": "Owner chốt mặc định CRM V1: schema hồ sơ và trường công khai an toàn, queue tìm-lọc-sắp xếp-phân trang 20 hồ sơ, cùng quy tắc xác nhận, lý do từ chối, ghi chú duyệt và audit quyết định.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "dafdcd4fe4242c476570bf977f1126570465d1b300faf29f2e47e1d9d52b5a26"
+    }
+  ]
+}

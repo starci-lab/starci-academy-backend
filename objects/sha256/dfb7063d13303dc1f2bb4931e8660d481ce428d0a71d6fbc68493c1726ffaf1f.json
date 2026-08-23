@@ -1,0 +1,1730 @@
+{
+  "schemaVersion": 2,
+  "authority": {
+    "status": "in-progress",
+    "basis": "owner-intent",
+    "requiredRoles": [
+      "fe",
+      "be"
+    ],
+    "previousHead": "cf86576fc68eb59bd8ecbffa2df9278bc8921cd3db078b02071fbee9b418b207"
+  },
+  "project": "tayson",
+  "featureId": "community-website-platform",
+  "title": "Nền tảng website Cộng đồng Doanh nghiệp Tây Sơn",
+  "summary": "Website công khai responsive cùng CMS quản trị, API và dữ liệu nghiệp vụ cho thông tin cộng đồng, hội viên, nội dung truyền thông, biểu mẫu, người dùng, phân quyền, audit và backup/restore.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci183/tayson.git",
+      "head": "6a954d40294c3dfaf7678d2eb4c34c1cd3c389d2"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci183/tayson-be.git",
+      "head": "4226f4404948d5e5a29a4a31c4fd8b1ed5951f8e"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Website công khai responsive bằng Next.js cho desktop, laptop và thiết bị di động",
+      "Thông tin giới thiệu cộng đồng, điều lệ, ban chủ nhiệm và nội dung liên quan",
+      "Danh sách hội viên, thông tin doanh nghiệp và đăng ký hội viên trực tuyến",
+      "Tin tức, hoạt động, sự kiện, từ thiện, đối ngoại, liên hệ và các trang nội dung CMS",
+      "CMS quản trị nội dung, bài viết, hội viên, banner, menu, danh mục, biểu mẫu và cấu hình website",
+      "Đăng nhập quản trị, quản lý tài khoản, khóa tài khoản và phân quyền Admin, Manager, Staff",
+      "API giao tiếp frontend-backend, audit thao tác quản trị thiết yếu và bảo mật cơ bản",
+      "SEO cơ bản, SSR, hiệu năng tải trang và tương thích trình duyệt phổ biến",
+      "Backup định kỳ và khôi phục dữ liệu khi có sự cố"
+    ],
+    "excludes": [
+      "Cổng đăng nhập hoặc dashboard riêng cho hội viên",
+      "Thanh toán trực tuyến hoặc quản lý nghĩa vụ thanh toán hợp đồng",
+      "Hệ thống ticket hỗ trợ và bảo hành nội bộ",
+      "Đa ngôn ngữ trong phiên bản đầu tiên",
+      "Lịch xuất bản nội dung hoặc quy trình duyệt nhiều cấp",
+      "Các chức năng ngoài phụ lục hợp đồng nếu chưa có quyết định owner mới"
+    ]
+  },
+  "actors": [
+    {
+      "id": "visitor",
+      "label": "Khách truy cập",
+      "capabilities": [
+        "Xem thông tin cộng đồng",
+        "Xem hội viên và doanh nghiệp đã công khai",
+        "Đọc nội dung truyền thông",
+        "Gửi biểu mẫu liên hệ"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "applicant",
+      "label": "Người đăng ký hội viên",
+      "capabilities": [
+        "Điền và gửi biểu mẫu đăng ký hội viên trực tuyến"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "staff",
+      "label": "Nhân viên nội dung",
+      "capabilities": [
+        "Soạn và chỉnh sửa nội dung",
+        "Xử lý biểu mẫu",
+        "Cập nhật hồ sơ hội viên trong phạm vi được giao"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "manager",
+      "label": "Quản lý",
+      "capabilities": [
+        "Xuất bản nội dung",
+        "Duyệt hoặc từ chối đăng ký hội viên",
+        "Quản lý nội dung, hội viên, biểu mẫu và cấu hình website"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "administrator",
+      "label": "Quản trị viên",
+      "capabilities": [
+        "Toàn quyền CMS",
+        "Quản lý tài khoản và phân quyền",
+        "Khóa tài khoản",
+        "Vận hành backup và restore"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "browse-community",
+      "title": "Khám phá cộng đồng Tây Sơn",
+      "trigger": "Khách truy cập mở website công khai",
+      "steps": [
+        {
+          "id": "browse-open-home",
+          "actor": "visitor",
+          "action": "Mở trang đầu của website",
+          "result": "Thấy nhận diện cộng đồng, điều hướng và nội dung nổi bật",
+          "surfaceId": "public-home"
+        },
+        {
+          "id": "browse-read-information",
+          "actor": "visitor",
+          "action": "Mở nội dung giới thiệu hoặc hoạt động",
+          "result": "Đọc nội dung đã được xuất bản",
+          "surfaceId": "public-information",
+          "stateId": "content-published"
+        },
+        {
+          "id": "browse-view-members",
+          "actor": "visitor",
+          "action": "Mở danh sách hội viên",
+          "result": "Thấy các hồ sơ doanh nghiệp đã được duyệt công khai",
+          "surfaceId": "member-directory",
+          "stateId": "membership-approved"
+        }
+      ],
+      "outcomes": [
+        "Khách hiểu cộng đồng, hoạt động và các doanh nghiệp thành viên",
+        "Khách có thể tiếp tục sang đăng ký hội viên hoặc liên hệ"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "apply-membership",
+      "title": "Đăng ký và duyệt hội viên",
+      "trigger": "Người quan tâm muốn tham gia cộng đồng",
+      "steps": [
+        {
+          "id": "apply-open-form",
+          "actor": "applicant",
+          "action": "Mở biểu mẫu đăng ký hội viên",
+          "result": "Thấy các trường dữ liệu và điều kiện gửi",
+          "surfaceId": "membership-registration"
+        },
+        {
+          "id": "apply-submit-form",
+          "actor": "applicant",
+          "action": "Gửi thông tin hợp lệ",
+          "result": "Hệ thống lưu hồ sơ mới và xác nhận đã tiếp nhận",
+          "surfaceId": "membership-registration",
+          "stateId": "membership-new"
+        },
+        {
+          "id": "apply-review",
+          "actor": "staff",
+          "action": "Kiểm tra hồ sơ mới",
+          "result": "Hồ sơ chuyển sang đang xem xét",
+          "surfaceId": "admin-members",
+          "stateId": "membership-reviewing"
+        },
+        {
+          "id": "apply-decide",
+          "actor": "manager",
+          "action": "Duyệt hoặc từ chối hồ sơ",
+          "result": "Hồ sơ có quyết định cuối; hồ sơ được duyệt có thể công khai",
+          "surfaceId": "admin-members"
+        }
+      ],
+      "outcomes": [
+        "Đăng ký được lưu và có trạng thái xử lý",
+        "Chỉ hồ sơ được duyệt mới xuất hiện trong danh sách công khai"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "publish-content",
+      "title": "Biên tập và xuất bản nội dung",
+      "trigger": "Nhân sự cần cập nhật tin tức, hoạt động, sự kiện hoặc trang nội dung",
+      "steps": [
+        {
+          "id": "publish-authenticate",
+          "actor": "staff",
+          "action": "Đăng nhập CMS",
+          "result": "Truy cập đúng chức năng theo vai trò",
+          "surfaceId": "admin-auth"
+        },
+        {
+          "id": "publish-create-draft",
+          "actor": "staff",
+          "action": "Tạo hoặc chỉnh sửa bản nháp",
+          "result": "Nội dung được lưu nhưng chưa công khai",
+          "surfaceId": "admin-content",
+          "stateId": "content-draft"
+        },
+        {
+          "id": "publish-release",
+          "actor": "manager",
+          "action": "Xuất bản nội dung",
+          "result": "Nội dung chuyển sang công khai",
+          "surfaceId": "admin-content",
+          "stateId": "content-published"
+        },
+        {
+          "id": "publish-read",
+          "actor": "visitor",
+          "action": "Mở danh sách nội dung đã xuất bản",
+          "result": "Xem nội dung công khai theo chuyên mục",
+          "surfaceId": "public-content",
+          "stateId": "content-published"
+        },
+        {
+          "id": "publish-read-detail",
+          "actor": "visitor",
+          "action": "Chọn Đọc chi tiết",
+          "result": "Đọc một nội dung đã xuất bản trên website công khai",
+          "surfaceId": "public-content-detail",
+          "stateId": "content-published"
+        }
+      ],
+      "outcomes": [
+        "Nội dung công khai chỉ xuất hiện sau khi được xuất bản",
+        "Nội dung cũ có thể được lưu trữ thay vì xóa cứng"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003"
+      ]
+    },
+    {
+      "id": "manage-system",
+      "title": "Quản trị website",
+      "trigger": "Quản trị viên cần quản lý người dùng hoặc cấu hình hệ thống",
+      "steps": [
+        {
+          "id": "manage-login",
+          "actor": "administrator",
+          "action": "Đăng nhập CMS",
+          "result": "Phiên quản trị được xác thực",
+          "surfaceId": "admin-auth"
+        },
+        {
+          "id": "manage-users",
+          "actor": "administrator",
+          "action": "Thêm, sửa, khóa hoặc phân quyền tài khoản",
+          "result": "Tài khoản và quyền truy cập được cập nhật",
+          "surfaceId": "admin-system"
+        },
+        {
+          "id": "manage-configuration",
+          "actor": "administrator",
+          "action": "Cập nhật banner, menu, thông tin liên hệ hoặc cấu hình website",
+          "result": "Cấu hình mới được lưu và phản ánh trên website",
+          "surfaceId": "admin-system"
+        },
+        {
+          "id": "manage-audit",
+          "actor": "administrator",
+          "action": "Kiểm tra thao tác quản trị thiết yếu",
+          "result": "Thấy lịch sử thao tác được ghi nhận",
+          "surfaceId": "admin-system"
+        }
+      ],
+      "outcomes": [
+        "Website có thể được quản trị bởi Bên A",
+        "Thao tác quản trị thiết yếu có dấu vết audit"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "submit-contact",
+      "title": "Gửi và xử lý liên hệ",
+      "trigger": "Khách truy cập muốn gửi liên hệ hoặc yêu cầu từ website",
+      "steps": [
+        {
+          "id": "contact-open",
+          "actor": "visitor",
+          "action": "Mở biểu mẫu liên hệ",
+          "result": "Thấy thông tin liên hệ và biểu mẫu",
+          "surfaceId": "public-contact"
+        },
+        {
+          "id": "contact-submit",
+          "actor": "visitor",
+          "action": "Gửi biểu mẫu hợp lệ",
+          "result": "Yêu cầu được lưu và xác nhận tiếp nhận",
+          "surfaceId": "public-contact",
+          "stateId": "submission-new"
+        },
+        {
+          "id": "contact-process",
+          "actor": "staff",
+          "action": "Mở và xử lý yêu cầu",
+          "result": "Yêu cầu có trạng thái xử lý nội bộ",
+          "surfaceId": "admin-submissions",
+          "stateId": "submission-processing"
+        }
+      ],
+      "outcomes": [
+        "Thông tin gửi từ website được lưu trữ",
+        "Nhân sự quản trị có thể theo dõi việc xử lý"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "CMS có ba vai trò Admin, Manager và Staff; Admin toàn quyền, Manager quản lý nội dung/hội viên/biểu mẫu/cấu hình, Staff biên tập và xử lý biểu mẫu nhưng không quản lý tài khoản.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "Hồ sơ đăng ký hội viên đi theo new → reviewing → approved hoặc rejected; chỉ approved được hiển thị công khai.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Nội dung đi theo draft → published → archived; phiên bản đầu không có scheduling hoặc duyệt nhiều cấp.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "Dữ liệu nghiệp vụ được xóa mềm để giữ khả năng audit và phục hồi.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-05",
+      "statement": "Phiên bản đầu sử dụng tiếng Việt; đa ngôn ngữ nằm ngoài phạm vi.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-06",
+      "statement": "Không có cổng đăng nhập hoặc dashboard riêng cho hội viên trong phạm vi hiện tại.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-07",
+      "statement": "Mọi chức năng quản trị yêu cầu đăng nhập và kiểm tra quyền theo vai trò.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-08",
+      "statement": "Hệ thống ghi audit cho các thao tác quản trị thiết yếu; tập sự kiện và thời gian lưu chưa được chốt.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-09",
+      "statement": "Hệ thống hỗ trợ backup định kỳ và restore khi có sự cố; lịch, retention, RPO và RTO chưa được chốt.",
+      "strength": "partial",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-10",
+      "statement": "Website công khai phải responsive, SEO cơ bản, SSR và tối ưu hiệu năng trên trình duyệt phổ biến.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "BR-11",
+      "statement": "Danh sách nội dung công khai được nhóm theo danh mục đang hoạt động; danh mục theo thứ tự hiển thị và nội dung trong mỗi nhóm theo thời điểm xuất bản mới nhất trước. Phiên bản đầu không có filter, search hoặc pagination.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-12",
+      "statement": "Slug nội dung là duy nhất; chỉ nội dung published và chưa xóa mềm được trả về công khai. Draft, archived, deleted hoặc slug không tồn tại đều không được công khai và trang chi tiết trả về not-found.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-001",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-13",
+      "statement": "Nội dung chi tiết V1 dùng Markdown được làm sạch; mỗi nội dung có tối đa một hero media MinIO tùy chọn và bắt buộc alt text khi media tồn tại.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "membership-new",
+      "label": "Đăng ký mới",
+      "kind": "initial",
+      "transitions": [
+        "membership-reviewing"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "membership-reviewing",
+      "label": "Đang xem xét",
+      "kind": "pending",
+      "transitions": [
+        "membership-approved",
+        "membership-rejected"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "membership-approved",
+      "label": "Đã duyệt",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "membership-rejected",
+      "label": "Đã từ chối",
+      "kind": "error",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "content-draft",
+      "label": "Bản nháp",
+      "kind": "initial",
+      "transitions": [
+        "content-published"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "content-published",
+      "label": "Đã xuất bản",
+      "kind": "success",
+      "transitions": [
+        "content-archived"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "content-archived",
+      "label": "Đã lưu trữ",
+      "kind": "partial",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "submission-new",
+      "label": "Yêu cầu mới",
+      "kind": "initial",
+      "transitions": [
+        "submission-processing"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "submission-processing",
+      "label": "Đang xử lý",
+      "kind": "pending",
+      "transitions": [
+        "submission-completed"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "submission-completed",
+      "label": "Đã xử lý",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "admin-user",
+      "label": "Tài khoản quản trị",
+      "fields": [
+        "Thông tin tài khoản",
+        "Trạng thái hoạt động hoặc bị khóa",
+        "Vai trò Admin, Manager hoặc Staff",
+        "Dấu thời gian xóa mềm"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "member-application",
+      "label": "Đăng ký hội viên",
+      "fields": [
+        "Dữ liệu biểu mẫu do người đăng ký cung cấp",
+        "Trạng thái xử lý",
+        "Thời điểm gửi",
+        "Dấu thời gian xóa mềm"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "member-profile",
+      "label": "Hồ sơ hội viên và doanh nghiệp",
+      "fields": [
+        "Thông tin doanh nghiệp",
+        "Trạng thái duyệt",
+        "Trạng thái công khai",
+        "Dấu thời gian xóa mềm"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "content-entry",
+      "label": "Nội dung website",
+      "fields": [
+        "Loại nội dung",
+        "Danh mục",
+        "Slug duy nhất",
+        "Tiêu đề",
+        "Nội dung Markdown",
+        "Hero media key MinIO tùy chọn",
+        "Alt text bắt buộc khi có hero media",
+        "Trạng thái draft, published hoặc archived",
+        "Dấu thời gian xuất bản",
+        "Dấu thời gian xóa mềm"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "category",
+      "label": "Danh mục",
+      "fields": [
+        "Slug duy nhất",
+        "Nhãn chuyên mục",
+        "Thứ tự hiển thị",
+        "Trạng thái hoạt động"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "form-submission",
+      "label": "Dữ liệu biểu mẫu",
+      "fields": [
+        "Loại biểu mẫu",
+        "Payload người dùng gửi",
+        "Trạng thái xử lý",
+        "Thời điểm gửi",
+        "Dấu thời gian xóa mềm"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "site-configuration",
+      "label": "Cấu hình website",
+      "fields": [
+        "Thông tin website",
+        "Banner",
+        "Menu",
+        "Thông tin liên hệ",
+        "Cấu hình cơ bản"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "audit-entry",
+      "label": "Nhật ký quản trị",
+      "fields": [
+        "Người thao tác",
+        "Hành động",
+        "Đối tượng",
+        "Thời điểm",
+        "Chi tiết cần thiết"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "backup-record",
+      "label": "Bản sao lưu",
+      "fields": [
+        "Thời điểm tạo",
+        "Trạng thái",
+        "Vị trí lưu trữ",
+        "Kết quả restore nếu có"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "query-public-content-list",
+      "kind": "query",
+      "name": "Đọc danh sách nội dung công khai",
+      "owner": "backend",
+      "inputs": [
+        "Không có"
+      ],
+      "outputs": [
+        "Các danh mục đang hoạt động cùng nội dung published, chưa xóa mềm, theo thứ tự danh mục và publishedAt giảm dần"
+      ],
+      "failures": [
+        "Không thể tải danh sách"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "query-public-content",
+      "kind": "query",
+      "name": "Đọc chi tiết nội dung công khai",
+      "owner": "backend",
+      "inputs": [
+        "Slug nội dung"
+      ],
+      "outputs": [
+        "Một nội dung published và chưa xóa mềm"
+      ],
+      "failures": [
+        "Không tìm thấy",
+        "Nội dung draft, archived hoặc đã xóa mềm"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "query-public-members",
+      "kind": "query",
+      "name": "Đọc hội viên công khai",
+      "owner": "backend",
+      "inputs": [
+        "Phân trang hoặc định danh"
+      ],
+      "outputs": [
+        "Hồ sơ hội viên đã duyệt và công khai"
+      ],
+      "failures": [
+        "Không tìm thấy"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "submit-membership-application",
+      "kind": "mutation",
+      "name": "Gửi đăng ký hội viên",
+      "owner": "backend",
+      "inputs": [
+        "Dữ liệu biểu mẫu đăng ký"
+      ],
+      "outputs": [
+        "Đăng ký trạng thái new",
+        "Xác nhận tiếp nhận"
+      ],
+      "failures": [
+        "Dữ liệu không hợp lệ",
+        "Không thể lưu"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "submit-contact-form",
+      "kind": "mutation",
+      "name": "Gửi biểu mẫu liên hệ",
+      "owner": "backend",
+      "inputs": [
+        "Dữ liệu liên hệ hoặc yêu cầu"
+      ],
+      "outputs": [
+        "Biểu mẫu trạng thái new",
+        "Xác nhận tiếp nhận"
+      ],
+      "failures": [
+        "Dữ liệu không hợp lệ",
+        "Không thể lưu"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "authenticate-admin",
+      "kind": "mutation",
+      "name": "Đăng nhập quản trị",
+      "owner": "backend",
+      "inputs": [
+        "Thông tin đăng nhập"
+      ],
+      "outputs": [
+        "Phiên xác thực và quyền"
+      ],
+      "failures": [
+        "Sai thông tin",
+        "Tài khoản bị khóa",
+        "Không đủ quyền"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "logout-admin",
+      "kind": "mutation",
+      "name": "Đăng xuất quản trị",
+      "owner": "backend",
+      "inputs": [
+        "Phiên hiện tại"
+      ],
+      "outputs": [
+        "Phiên bị kết thúc"
+      ],
+      "failures": [
+        "Phiên không hợp lệ"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "manage-admin-users",
+      "kind": "command",
+      "name": "Quản lý tài khoản và phân quyền",
+      "owner": "backend",
+      "inputs": [
+        "Thông tin tài khoản",
+        "Vai trò",
+        "Trạng thái khóa"
+      ],
+      "outputs": [
+        "Tài khoản đã cập nhật",
+        "Audit entry"
+      ],
+      "failures": [
+        "Không đủ quyền",
+        "Dữ liệu không hợp lệ",
+        "Xung đột tài khoản"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "manage-content",
+      "kind": "command",
+      "name": "Quản lý và xuất bản nội dung",
+      "owner": "backend",
+      "inputs": [
+        "Nội dung",
+        "Danh mục",
+        "Trạng thái"
+      ],
+      "outputs": [
+        "Nội dung đã cập nhật",
+        "Audit entry"
+      ],
+      "failures": [
+        "Không đủ quyền",
+        "Dữ liệu không hợp lệ",
+        "Không tìm thấy"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "review-membership",
+      "kind": "command",
+      "name": "Xử lý đăng ký hội viên",
+      "owner": "backend",
+      "inputs": [
+        "Định danh đăng ký",
+        "Quyết định"
+      ],
+      "outputs": [
+        "Trạng thái đăng ký",
+        "Hồ sơ công khai nếu approved",
+        "Audit entry"
+      ],
+      "failures": [
+        "Không đủ quyền",
+        "Chuyển trạng thái không hợp lệ",
+        "Không tìm thấy"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "manage-site-configuration",
+      "kind": "command",
+      "name": "Cập nhật cấu hình website",
+      "owner": "backend",
+      "inputs": [
+        "Banner",
+        "Menu",
+        "Thông tin liên hệ",
+        "Cấu hình cơ bản"
+      ],
+      "outputs": [
+        "Cấu hình đã cập nhật",
+        "Audit entry"
+      ],
+      "failures": [
+        "Không đủ quyền",
+        "Dữ liệu không hợp lệ"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "create-backup",
+      "kind": "command",
+      "name": "Tạo backup",
+      "owner": "provider",
+      "inputs": [
+        "Phạm vi backup"
+      ],
+      "outputs": [
+        "Backup record"
+      ],
+      "failures": [
+        "Lưu trữ không khả dụng",
+        "Backup thất bại"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "restore-backup",
+      "kind": "command",
+      "name": "Khôi phục dữ liệu",
+      "owner": "provider",
+      "inputs": [
+        "Định danh backup"
+      ],
+      "outputs": [
+        "Kết quả restore"
+      ],
+      "failures": [
+        "Backup không hợp lệ",
+        "Restore thất bại"
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "public-home",
+      "routePattern": "unresolved://public-home",
+      "title": "Trang đầu cộng đồng",
+      "eyebrow": "Cộng đồng Doanh nghiệp Tây Sơn",
+      "purpose": "Định hướng khách truy cập tới thông tin cộng đồng, hội viên, nội dung nổi bật, đăng ký và liên hệ.",
+      "navigation": [
+        {
+          "id": "nav-information",
+          "label": "Giới thiệu",
+          "group": "public",
+          "availability": "available"
+        },
+        {
+          "id": "nav-members",
+          "label": "Hội viên",
+          "group": "public",
+          "availability": "available"
+        },
+        {
+          "id": "nav-content",
+          "label": "Tin tức & Hoạt động",
+          "group": "public",
+          "availability": "available"
+        },
+        {
+          "id": "nav-contact",
+          "label": "Liên hệ",
+          "group": "public",
+          "availability": "available"
+        }
+      ],
+      "regions": [
+        {
+          "id": "home-introduction",
+          "kind": "summary",
+          "title": "Giới thiệu cộng đồng",
+          "summary": "Nhận diện và thông tin định hướng của cộng đồng.",
+          "items": [],
+          "actions": [
+            {
+              "id": "home-learn-more",
+              "label": "Tìm hiểu cộng đồng",
+              "kind": "primary",
+              "target": "public-information"
+            }
+          ],
+          "states": [
+            "ready",
+            "unavailable"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        },
+        {
+          "id": "home-featured-content",
+          "kind": "collection",
+          "title": "Nội dung nổi bật",
+          "summary": "Tin tức, hoạt động và sự kiện đã xuất bản.",
+          "items": [],
+          "actions": [
+            {
+              "id": "home-view-content",
+              "label": "Xem nội dung",
+              "kind": "secondary",
+              "target": "public-content"
+            }
+          ],
+          "states": [
+            "loading",
+            "empty",
+            "ready",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        },
+        {
+          "id": "home-membership-entry",
+          "kind": "flow",
+          "title": "Tham gia cộng đồng",
+          "summary": "Lối vào danh sách và đăng ký hội viên.",
+          "items": [],
+          "actions": [
+            {
+              "id": "home-register",
+              "label": "Đăng ký hội viên",
+              "kind": "primary",
+              "target": "membership-registration"
+            }
+          ],
+          "states": [
+            "ready"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "public-information",
+      "routePattern": "unresolved://public-information",
+      "title": "Thông tin cộng đồng",
+      "eyebrow": "Về chúng tôi",
+      "purpose": "Công bố giới thiệu, điều lệ, ban chủ nhiệm và các nội dung liên quan.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "information-document",
+          "kind": "content",
+          "title": "Nội dung thông tin",
+          "summary": "Nội dung CMS đã xuất bản theo chuyên mục.",
+          "items": [],
+          "actions": [],
+          "states": [
+            "loading",
+            "ready",
+            "error",
+            "unavailable"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "member-directory",
+      "routePattern": "unresolved://member-directory",
+      "title": "Hội viên và doanh nghiệp",
+      "eyebrow": "Kết nối doanh nghiệp",
+      "purpose": "Hiển thị danh sách và thông tin doanh nghiệp của hội viên đã được duyệt công khai.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "member-list",
+          "kind": "collection",
+          "title": "Danh sách hội viên",
+          "summary": "Các hồ sơ approved và public.",
+          "items": [],
+          "actions": [
+            {
+              "id": "member-open-profile",
+              "label": "Xem doanh nghiệp",
+              "kind": "link",
+              "target": "member-profile"
+            }
+          ],
+          "states": [
+            "loading",
+            "empty",
+            "ready",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "membership-registration",
+      "routePattern": "unresolved://membership-registration",
+      "title": "Đăng ký hội viên",
+      "eyebrow": "Tham gia cộng đồng",
+      "purpose": "Thu thập và gửi thông tin đăng ký hội viên trực tuyến.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "membership-form",
+          "kind": "form",
+          "title": "Thông tin đăng ký",
+          "summary": "Các trường chính xác chờ owner cung cấp.",
+          "items": [],
+          "actions": [
+            {
+              "id": "membership-submit",
+              "label": "Gửi đăng ký",
+              "kind": "primary",
+              "target": "submit-membership-application"
+            }
+          ],
+          "states": [
+            "ready",
+            "disabled",
+            "submitting",
+            "success",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "public-content",
+      "routePattern": "/tin-tuc-hoat-dong",
+      "title": "Tin tức và hoạt động",
+      "eyebrow": "Cộng đồng đang diễn ra",
+      "purpose": "Hiển thị tin tức, hoạt động, sự kiện, từ thiện, đối ngoại và các nội dung truyền thông đã xuất bản.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "content-collection",
+          "kind": "collection",
+          "title": "Nội dung đã xuất bản",
+          "summary": "Danh sách chỉ đọc gồm các chuyên mục đang hoạt động theo thứ tự hiển thị; mỗi nhóm chứa nội dung published, chưa xóa mềm theo thời điểm xuất bản giảm dần, không có filter, search hoặc pagination trong V1.",
+          "items": [],
+          "actions": [
+            {
+              "id": "content-open-detail",
+              "label": "Đọc chi tiết",
+              "kind": "link",
+              "target": "content-detail"
+            }
+          ],
+          "states": [
+            "loading",
+            "empty",
+            "ready",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-002",
+            "EV-003",
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "public-content-detail",
+      "routePattern": "/tin-tuc-hoat-dong/:slug",
+      "title": "Chi tiết tin tức và hoạt động",
+      "eyebrow": "Nội dung cộng đồng",
+      "purpose": "Hiển thị một nội dung truyền thông đã xuất bản từ danh sách tin tức và hoạt động.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "content-detail",
+          "kind": "content",
+          "title": "Nội dung đã xuất bản",
+          "summary": "Tiêu đề, loại nội dung, chuyên mục, thời điểm xuất bản, Markdown đã làm sạch và hero media MinIO tùy chọn của một content entry published, chưa xóa mềm.",
+          "items": [],
+          "actions": [
+            {
+              "id": "content-back-to-collection",
+              "label": "Quay lại Tin tức & Hoạt động",
+              "kind": "link",
+              "target": "public-content"
+            }
+          ],
+          "states": [
+            "loading",
+            "ready",
+            "not-found",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-003",
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "public-contact",
+      "routePattern": "unresolved://public-contact",
+      "title": "Liên hệ",
+      "eyebrow": "Kết nối với cộng đồng",
+      "purpose": "Công bố thông tin liên hệ và tiếp nhận biểu mẫu liên hệ hoặc yêu cầu.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "contact-details",
+          "kind": "content",
+          "title": "Thông tin liên hệ",
+          "summary": "Thông tin được quản lý từ CMS.",
+          "items": [],
+          "actions": [],
+          "states": [
+            "ready",
+            "unavailable"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        },
+        {
+          "id": "contact-form",
+          "kind": "form",
+          "title": "Gửi liên hệ",
+          "summary": "Biểu mẫu tiếp nhận yêu cầu từ website.",
+          "items": [],
+          "actions": [
+            {
+              "id": "contact-send",
+              "label": "Gửi liên hệ",
+              "kind": "primary",
+              "target": "submit-contact-form"
+            }
+          ],
+          "states": [
+            "ready",
+            "disabled",
+            "submitting",
+            "success",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "admin-auth",
+      "routePattern": "unresolved://admin-auth",
+      "title": "Đăng nhập quản trị",
+      "eyebrow": "Tây Sơn CMS",
+      "purpose": "Xác thực người dùng quản trị và mở đúng quyền theo vai trò.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "admin-login-form",
+          "kind": "form",
+          "title": "Đăng nhập",
+          "summary": "Thông tin đăng nhập quản trị.",
+          "items": [],
+          "actions": [
+            {
+              "id": "admin-login",
+              "label": "Đăng nhập",
+              "kind": "primary",
+              "target": "authenticate-admin"
+            }
+          ],
+          "states": [
+            "ready",
+            "submitting",
+            "error",
+            "disabled"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "admin-content",
+      "routePattern": "unresolved://admin-content",
+      "title": "Quản lý nội dung",
+      "eyebrow": "Tây Sơn CMS",
+      "purpose": "Tạo, chỉnh sửa, xuất bản, lưu trữ nội dung và quản lý danh mục liên quan.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "admin-content-list",
+          "kind": "collection",
+          "title": "Nội dung",
+          "summary": "Danh sách nội dung theo loại và trạng thái.",
+          "items": [],
+          "actions": [
+            {
+              "id": "admin-create-content",
+              "label": "Tạo nội dung",
+              "kind": "primary",
+              "target": "content-editor"
+            }
+          ],
+          "states": [
+            "loading",
+            "empty",
+            "ready",
+            "error",
+            "permission-denied"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        },
+        {
+          "id": "admin-content-editor",
+          "kind": "form",
+          "title": "Biên tập nội dung",
+          "summary": "Soạn, lưu nháp, xuất bản hoặc lưu trữ theo quyền.",
+          "items": [],
+          "actions": [
+            {
+              "id": "admin-save-content",
+              "label": "Lưu",
+              "kind": "primary",
+              "target": "manage-content"
+            }
+          ],
+          "states": [
+            "ready",
+            "disabled",
+            "submitting",
+            "success",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "admin-members",
+      "routePattern": "unresolved://admin-members",
+      "title": "Quản lý hội viên",
+      "eyebrow": "Tây Sơn CMS",
+      "purpose": "Tiếp nhận, xem xét, duyệt hoặc từ chối đăng ký và quản lý hồ sơ công khai.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "admin-membership-queue",
+          "kind": "collection",
+          "title": "Hồ sơ đăng ký",
+          "summary": "Hồ sơ theo trạng thái new, reviewing, approved hoặc rejected.",
+          "items": [],
+          "actions": [
+            {
+              "id": "admin-review-member",
+              "label": "Xem hồ sơ",
+              "kind": "primary",
+              "target": "membership-review"
+            }
+          ],
+          "states": [
+            "loading",
+            "empty",
+            "ready",
+            "error",
+            "permission-denied"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "admin-submissions",
+      "routePattern": "unresolved://admin-submissions",
+      "title": "Quản lý biểu mẫu",
+      "eyebrow": "Tây Sơn CMS",
+      "purpose": "Xem và xử lý đăng ký, liên hệ hoặc yêu cầu được gửi từ website.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "admin-submission-list",
+          "kind": "collection",
+          "title": "Biểu mẫu đã gửi",
+          "summary": "Dữ liệu biểu mẫu và trạng thái xử lý.",
+          "items": [],
+          "actions": [
+            {
+              "id": "admin-open-submission",
+              "label": "Xử lý",
+              "kind": "primary",
+              "target": "submission-detail"
+            }
+          ],
+          "states": [
+            "loading",
+            "empty",
+            "ready",
+            "error",
+            "permission-denied"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "admin-system",
+      "routePattern": "unresolved://admin-system",
+      "title": "Quản trị hệ thống",
+      "eyebrow": "Tây Sơn CMS",
+      "purpose": "Quản lý người dùng, phân quyền, cấu hình website, audit, backup và restore.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "admin-user-management",
+          "kind": "collection",
+          "title": "Người dùng và phân quyền",
+          "summary": "Tài khoản, vai trò và trạng thái khóa.",
+          "items": [],
+          "actions": [
+            {
+              "id": "admin-add-user",
+              "label": "Thêm tài khoản",
+              "kind": "primary",
+              "target": "user-editor"
+            }
+          ],
+          "states": [
+            "loading",
+            "empty",
+            "ready",
+            "error",
+            "permission-denied"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        },
+        {
+          "id": "admin-site-settings",
+          "kind": "form",
+          "title": "Cấu hình website",
+          "summary": "Banner, menu, thông tin liên hệ và cấu hình cơ bản.",
+          "items": [],
+          "actions": [
+            {
+              "id": "admin-save-settings",
+              "label": "Lưu cấu hình",
+              "kind": "primary",
+              "target": "manage-site-configuration"
+            }
+          ],
+          "states": [
+            "ready",
+            "disabled",
+            "submitting",
+            "success",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        },
+        {
+          "id": "admin-audit-backup",
+          "kind": "collection",
+          "title": "Audit và dữ liệu",
+          "summary": "Nhật ký thao tác thiết yếu, backup và restore.",
+          "items": [],
+          "actions": [
+            {
+              "id": "admin-create-backup",
+              "label": "Tạo backup",
+              "kind": "secondary",
+              "target": "create-backup"
+            }
+          ],
+          "states": [
+            "loading",
+            "empty",
+            "ready",
+            "error",
+            "permission-denied"
+          ],
+          "evidenceIds": [
+            "EV-001"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "Website công khai hiển thị tốt trên desktop, laptop và thiết bị di động, có SEO cơ bản, SSR và hiệu năng tải trang phù hợp.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Khách truy cập xem được giới thiệu, thông tin cộng đồng, điều lệ, ban chủ nhiệm, hội viên, doanh nghiệp, tin tức, hoạt động, sự kiện và các chuyên mục đã xuất bản.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Người đăng ký gửi được biểu mẫu hội viên; hệ thống lưu hồ sơ ở trạng thái new và chỉ công khai hồ sơ approved.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "Khách gửi được biểu mẫu liên hệ hoặc yêu cầu và nhân sự quản trị theo dõi được trạng thái xử lý.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "CMS hỗ trợ đăng nhập, đăng xuất, thêm/sửa/xóa mềm/khóa tài khoản và phân quyền Admin, Manager, Staff.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "statement": "CMS quản lý được bài viết, tin tức, hoạt động, sự kiện, banner, menu, danh mục, hội viên, biểu mẫu và cấu hình website.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-07",
+      "statement": "API cung cấp đầy đủ giao tiếp giữa website công khai, CMS và backend với kiểm tra quyền phù hợp.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-08",
+      "statement": "Các thao tác quản trị thiết yếu tạo audit entry và dữ liệu nghiệp vụ sử dụng xóa mềm.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-09",
+      "statement": "Hệ thống có thể tạo backup định kỳ và thực hiện restore khi có sự cố.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-10",
+      "statement": "Bên A nhận quyền quản trị để chủ động đăng nhập và chỉnh sửa thông tin trong phạm vi CMS.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-11",
+      "statement": "Phiên bản đầu vận hành bằng tiếng Việt và không cung cấp cổng đăng nhập riêng cho hội viên.",
+      "evidenceIds": [
+        "EV-001"
+      ]
+    },
+    {
+      "id": "AC-12",
+      "statement": "List/detail Tin tức & Hoạt động chỉ đọc nội dung published chưa xóa mềm; danh sách nhóm theo chuyên mục không có filter, search hoặc pagination V1, và draft, archived, deleted hoặc unknown slug không xuất hiện công khai.",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "unknown-brand-assets",
+      "question": "Logo, màu thương hiệu, font, hình ảnh và nội dung khởi tạo chính thức là gì?",
+      "impact": "Chặn khóa visual identity và dữ liệu production của website công khai."
+    },
+    {
+      "id": "unknown-route-map",
+      "question": "Route URL chính xác cho các trang công khai và module CMS còn lại ngoài family /tin-tuc-hoat-dong là gì?",
+      "impact": "Chặn page map cuối cùng của các surface còn dùng unresolved route identities; không chặn list/detail Tin tức & Hoạt động đã được chốt."
+    },
+    {
+      "id": "unknown-member-fields",
+      "question": "Biểu mẫu đăng ký và hồ sơ doanh nghiệp gồm những trường nào, trường nào được công khai?",
+      "impact": "Chặn schema cuối cùng, validation, privacy và giao diện form/detail."
+    },
+    {
+      "id": "unknown-production-content-values",
+      "question": "Nhãn chuyên mục, nội dung, hình ảnh và media production chính thức là gì?",
+      "impact": "Không chặn schema, seed development hoặc list/detail V1; chỉ chặn dữ liệu production cuối cùng."
+    },
+    {
+      "id": "unknown-auth-recovery",
+      "question": "Cơ chế đặt lại mật khẩu, mời tài khoản, 2FA và thời hạn phiên được yêu cầu ra sao?",
+      "impact": "Chặn hoàn thiện security flow của CMS."
+    },
+    {
+      "id": "unknown-notifications",
+      "question": "Có cần gửi email hoặc thông báo khi tiếp nhận, duyệt hoặc từ chối đăng ký/liên hệ không?",
+      "impact": "Quyết định provider, template và event flow."
+    },
+    {
+      "id": "unknown-media-policy",
+      "question": "Giới hạn loại tệp, dung lượng, lưu trữ và xử lý ảnh/media là gì?",
+      "impact": "Chặn validation và xử lý upload của CMS; không chặn public read rendering từ hero media key tùy chọn."
+    },
+    {
+      "id": "unknown-audit-policy",
+      "question": "Những thao tác nào bắt buộc audit và thời gian lưu audit bao lâu?",
+      "impact": "Chặn tập sự kiện và retention chính xác."
+    },
+    {
+      "id": "unknown-backup-policy",
+      "question": "Tần suất backup, retention, vị trí lưu, RPO và RTO là gì?",
+      "impact": "Chặn cấu hình vận hành và acceptance test restore."
+    },
+    {
+      "id": "unknown-domain-hosting",
+      "question": "Tên miền, hosting/VPS, DNS, SSL và credential authority do ai cung cấp?",
+      "impact": "Chặn deploy/go-live nhưng không chặn code local."
+    },
+    {
+      "id": "unknown-browser-matrix",
+      "question": "Danh sách trình duyệt và phiên bản phải hỗ trợ cụ thể là gì?",
+      "impact": "Chặn browser acceptance matrix cuối cùng."
+    },
+    {
+      "id": "unknown-privacy-consent",
+      "question": "Nội dung đồng ý xử lý dữ liệu cá nhân, chống spam và thời hạn lưu biểu mẫu là gì?",
+      "impact": "Chặn privacy copy, consent field và retention."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "Owner cung cấp hợp đồng/phụ lục Tây Sơn có SHA-256 b7c71e5034ee8f2d2a79fb0ba42be16a93c91f27ded43fb18e75b8caf92ab973 và chấp thuận scope cùng các mặc định business được hiển thị trước khi publish pending.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "385cfe6dd712eff610dbefaf8060661780d51183c7c9bfe18b5c148ca750bdf1"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/web/src/components/blocks/PublicSiteHeader/index.tsx",
+      "startLine": 16,
+      "endLine": 41,
+      "claim": "Frontend header hiện hành định danh Tin tức & Hoạt động tại route /tin-tuc-hoat-dong.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "claim": "Owner bật mode=auto cho phần BRD còn lại; recommendation hẹp được chọn là giữ route danh sách hiện hành /tin-tuc-hoat-dong và dùng route con /tin-tuc-hoat-dong/:slug cho hành động Đọc chi tiết đã có trong authority.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "ae9b8dd30c1641399da5fb426e7b28fcc302cbf66bcfbea818324b660071604e"
+    },
+    {
+      "id": "EV-004",
+      "claim": "Owner phê duyệt bộ mặc định public-content V1 đã hiển thị bằng phản hồi `OK CONTENT DEFAUL`: nhóm theo danh mục, không filter/search/pagination, thứ tự xác định, slug duy nhất, Markdown được làm sạch, hero media MinIO tùy chọn với alt text bắt buộc, chỉ published và chưa xóa mềm được công khai, draft/archived/deleted/unknown trả về not-found; quản trị nội dung CMS là flow riêng.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "ad10d6fee01e09d0e4e7ece8f5bcb5a977776da32b2ca9a4bc5c8174a41c604c"
+    }
+  ]
+}

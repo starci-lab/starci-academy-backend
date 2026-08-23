@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "project": "tayson",
+  "featureId": "community-website-platform",
+  "head": "a5b7be0d2c2c884b5c5d6b159430488cdab5105c61a337e993ccd1792fd5bcb7",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci183/tayson.git",
+      "head": "6a954d40294c3dfaf7678d2eb4c34c1cd3c389d2"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci183/tayson-be.git",
+      "head": "4226f4404948d5e5a29a4a31c4fd8b1ed5951f8e"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "Owner cung cấp hợp đồng/phụ lục Tây Sơn có SHA-256 b7c71e5034ee8f2d2a79fb0ba42be16a93c91f27ded43fb18e75b8caf92ab973 và chấp thuận scope cùng các mặc định business được hiển thị trước khi publish pending.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "385cfe6dd712eff610dbefaf8060661780d51183c7c9bfe18b5c148ca750bdf1"
+    },
+    {
+      "id": "EV-002",
+      "role": "fe",
+      "path": "apps/web/src/components/blocks/PublicSiteHeader/index.tsx",
+      "startLine": 16,
+      "endLine": 41,
+      "claim": "Frontend header hiện hành định danh Tin tức & Hoạt động tại route /tin-tuc-hoat-dong.",
+      "kind": "route"
+    },
+    {
+      "id": "EV-003",
+      "claim": "Owner bật mode=auto cho phần BRD còn lại; recommendation hẹp được chọn là giữ route danh sách hiện hành /tin-tuc-hoat-dong và dùng route con /tin-tuc-hoat-dong/:slug cho hành động Đọc chi tiết đã có trong authority.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "ae9b8dd30c1641399da5fb426e7b28fcc302cbf66bcfbea818324b660071604e"
+    },
+    {
+      "id": "EV-004",
+      "claim": "Owner phê duyệt bộ mặc định public-content V1 đã hiển thị bằng phản hồi `OK CONTENT DEFAUL`: nhóm theo danh mục, không filter/search/pagination, thứ tự xác định, slug duy nhất, Markdown được làm sạch, hero media MinIO tùy chọn với alt text bắt buộc, chỉ published và chưa xóa mềm được công khai, draft/archived/deleted/unknown trả về not-found; quản trị nội dung CMS là flow riêng.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "ad10d6fee01e09d0e4e7ece8f5bcb5a977776da32b2ca9a4bc5c8174a41c604c"
+    },
+    {
+      "id": "EV-005",
+      "claim": "Owner phê duyệt bằng phản hồi `OK LIMIT 50/500`: collection công khai V1 có giới hạn cứng 50 danh mục đang hoạt động và 500 nội dung published chưa xóa mềm; vượt giới hạn phải fail toàn collection bằng load-error và không được cắt dữ liệu âm thầm.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "bc5c50366ba7002337798ec3fe07d8f9cf70f96aa353163191860e5c6bd44a4c"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "project": "tayson",
+  "featureId": "crm-membership-management",
+  "head": "8b9e9d34039f91f39422ae6798b5d3256198f813d6d06bd925c36bb2c2be804c",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "local-only:D:/Repositories/tayson-fe",
+      "head": "6a954d40294c3dfaf7678d2eb4c34c1cd3c389d2"
+    },
+    {
+      "role": "be",
+      "repository": "local-only:D:/Repositories/tayson-backend",
+      "head": "661c37a1c6bb29540f0c644680e295abcf5267c7"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "Owner đã chấp thuận nền tảng Tây Sơn có CRM Admin, Manager và Staff, vòng đời hồ sơ new → reviewing → approved hoặc rejected, chỉ approved được công khai, audit và xóa mềm.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "385cfe6dd712eff610dbefaf8060661780d51183c7c9bfe18b5c148ca750bdf1"
+    },
+    {
+      "id": "EV-002",
+      "claim": "Owner yêu cầu tạo business authority cho CRM hội viên Tây Sơn và chốt route quản trị /hoi-vien.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "9058a36a3e8162332ac8a76f3c461fff8851f053f39f9e5e743e291f368d5daf"
+    },
+    {
+      "id": "EV-003",
+      "claim": "Owner chốt mặc định CRM V1: schema hồ sơ và trường công khai an toàn, queue tìm-lọc-sắp xếp-phân trang 20 hồ sơ, cùng quy tắc xác nhận, lý do từ chối, ghi chú duyệt và audit quyết định.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "dafdcd4fe4242c476570bf977f1126570465d1b300faf29f2e47e1d9d52b5a26"
+    },
+    {
+      "id": "EV-004",
+      "claim": "Owner chốt backend contract mặc định cho CRM V1: GraphQL code-first với NestJS CQRS và TypeORM/PostgreSQL; phiên HTTP-only cho staff, manager, admin; optimistic concurrency bằng expectedVersion; không notification, invite, reset password hoặc 2FA.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "71c1d7621f28b2ae54fef4d14c58e584ad902b4b45a633addcbec71b36c3a6f7"
+    }
+  ]
+}
