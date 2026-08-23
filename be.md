@@ -1,36 +1,34 @@
 ---
 version: 1
-project: nivo
+project: tedo
 role: be
 approvedBy: Cuong (owner)
 approvedOn: 2026-08-20
 expiresOn: 2026-11-18
-reason: Temporary backend project/patch coverage and Sonar authority debt; lint and E2E remain blocking.
+reason: Temporary current-revision project/patch coverage and Sonar proof debt after zero-lint migration.
 scopes: source:project-coverage, source:patch-coverage, assurance:sonar, route:head
 ---
 
-# Nivo backend quality debt
+# Tedo backend quality debt
 
 ## Baseline
 
-- Revision `1c7c2515f6844064f55b492dafe7b96f2cecb08d`.
-- Project coverage: statements 46.17%, lines 47.57%, functions 37.13%, branches 39.71%.
-- No current four-metric patch artifact was retained for the backend coverage batches.
-- Sonar exact-SHA strict evidence is unavailable at `https://sonar.starci.org`.
-- Lint is 0/0; full E2E is 56 suites / 358 tests, zero skip/todo, exit 0.
+- Revision `aa698049efbe6401d74b9781596b1c1d2da4179a`.
+- Current four-metric project and patch artifacts were not retained after the lint migration.
+- The previous strict Sonar pass predates this revision.
+- Lint moved from 303 errors / 4 warnings to 0/0; typecheck/build, 51 unit suites / 163 tests and 2 E2E suites / 2 tests pass.
 
 ## Why this debt is accepted
 
-Coverage improved across many high-yield owner families, but the remaining source surface is still large.
-The debt keeps the exact measured gap visible and does not weaken lint or E2E.
+The zero-lint migration materially changed the revision, so old provider evidence cannot certify it. Coverage
+must be remeasured rather than inferred from the previous Sonar pass.
 
 ## Exit criteria
 
-- Project statements, lines and functions reach 80%; branches reach 75%.
-- Patch statements, lines, functions and branches reach 90%.
-- Exact-SHA strict Sonar profile passes.
+- Produce mature current-revision project and four-metric patch coverage.
+- Pass the exact-SHA strict Sonar profile.
 - Refresh the routed workspace head to the accepted repair revision.
 
 ## Progress
 
-- 2026-08-20: debt opened after broad coverage repair and repository-wide E2E isolation reached green.
+- 2026-08-20: debt opened after canonical zero-lint migration completed.
