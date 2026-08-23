@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "nivo",
   "featureId": "agentos-ai-knowledge-provisioning",
-  "head": "9dff5307ad1c43b9ac8750936988857ae3c4eb1b08c9359d2a58a6abf5e14b8c",
+  "head": "2d349c6b368b1943ddb384adef0780384a0fa7e6c284a4f9aeec21e3a864adec",
   "sources": [
     {
       "role": "fe",
