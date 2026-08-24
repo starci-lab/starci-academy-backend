@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Enrolled learners navigate course modules with exactly one kind, enter the kind-specific workspace, read or edit lesson content, mark progress, react, discuss lessons, and complete embedded challenges.
+Enrolled learners navigate course modules with exactly one kind, use the shared module conversation, work in the kind-specific workbench, track progress, and complete learning activities.
 
 ## Included
 
@@ -13,7 +13,8 @@ Enrolled learners navigate course modules with exactly one kind, enter the kind-
 - Course Q&A entry surface
 - Course learning home with progress, next actions and learning signals
 - A generic learning-module aggregate with exactly one required kind
-- Kind-specific module workspaces, beginning with chatbot and document
+- A shared conversation frame present in every module
+- An open set of kind-specific workbenches, with document, spreadsheet and calendar as examples
 
 ## Excluded
 

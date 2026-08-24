@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "course-learning",
-  "head": "17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473",
+  "head": "579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601",
   "sources": [
     {
       "role": "fe",
@@ -137,6 +137,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "a887a41b7e0adb78ec2da291b5d01cbb8b386113d798eee242222445218f15a0"
+    },
+    {
+      "id": "EV-015",
+      "claim": "The owner clarified that every learning module includes the shared chat frame, while the module kind selects an additional workbench; accounting or spreadsheet, scheduling or calendar, document and future workbenches are open-set examples.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "af23be552cece34ef04f8a091967b0c267488082d7cd63b48ecf1efa906c93ee"
     }
   ]
 }

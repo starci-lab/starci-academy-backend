@@ -23,28 +23,28 @@ Every learning module has exactly one required kind.
 
 ## BR-04
 
-Chatbot and document are initial module kinds, not the complete or permanently closed kind set.
+Chat is a shared capability of every learning module and is not one module kind; document, accounting or spreadsheet, scheduling or calendar, and future kinds identify workbench behavior.
 
 - Strength: `owner-confirmed`
-- Evidence: `EV-014`
+- Evidence: `EV-015`
 
 ## BR-05
 
-Shared module identity, ordering and lifecycle remain common while each kind owns its specific state, behavior and learner presentation.
+Shared module identity, ordering, lifecycle and conversation frame remain common while exactly one module kind owns the additional workbench state, behavior and learner presentation.
 
 - Strength: `owner-confirmed`
-- Evidence: `EV-014`
+- Evidence: `EV-015`
 
 ## BR-06
 
 Adding a future module kind must not redefine the business contract of the base learning-module aggregate.
 
 - Strength: `owner-confirmed`
-- Evidence: `EV-014`
+- Evidence: `EV-014`, `EV-015`
 
 ## BR-07
 
-A chatbot module opens a mailbox and conversation workspace; a document module opens a document workspace.
+Opening any module mounts one shared conversational shell and exactly one workbench resolved from its kind registry entry.
 
 - Strength: `owner-confirmed`
-- Evidence: `EV-014`
+- Evidence: `EV-015`

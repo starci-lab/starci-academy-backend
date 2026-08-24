@@ -1,12 +1,12 @@
 # Course learning and discussion
 
-> Business head: `17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473`
+> Business head: `579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
 ## 1. Overview
 
-Enrolled learners navigate course modules with exactly one kind, enter the kind-specific workspace, read or edit lesson content, mark progress, react, discuss lessons, and complete embedded challenges.
+Enrolled learners navigate course modules with exactly one kind, use the shared module conversation, work in the kind-specific workbench, track progress, and complete learning activities.
 
 Included:
 - Course content map and lesson reader
@@ -16,7 +16,8 @@ Included:
 - Course Q&A entry surface
 - Course learning home with progress, next actions and learning signals
 - A generic learning-module aggregate with exactly one required kind
-- Kind-specific module workspaces, beginning with chatbot and document
+- A shared conversation frame present in every module
+- An open set of kind-specific workbenches, with document, spreadsheet and calendar as examples
 
 Excluded:
 - Standalone coding-practice catalog
@@ -38,20 +39,22 @@ Excluded:
 - Navigate course content
 - Read lesson material
 - Use source workspace
+- Use the shared module conversation and kind-specific workbench
 - React and discuss
 - Attempt embedded challenges
 - Review course progress and choose the next action
 
-Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`, `EV-015`
 
 ### StarCi Academy platform
 
 - Return lesson content
 - Persist read state
 - Create lesson comments
-- Resolve each module to exactly one kind-specific workspace
+- Mount the shared conversation frame for every module
+- Resolve each module to exactly one kind-specific workbench
 
-Evidence: `EV-007`, `EV-008`, `EV-014`
+Evidence: `EV-007`, `EV-008`, `EV-014`, `EV-015`
 
 ## 4. Entry points and surfaces
 
@@ -79,8 +82,8 @@ Evidence: `EV-001`
 
 - ID: `lesson-workspace`
 - Route: `/[lang]/courses/[displayId]/learn/content/modules/[moduleId]/contents/[contentId]`
-- Purpose: Read lesson content and use its engagement tools.
-- Regions: `lesson-reader`, `lesson-discussion`
+- Purpose: Use the shared module conversation and the workbench selected by the module kind.
+- Regions: `module-conversation`, `module-workbench`, `lesson-reader`, `lesson-discussion`
 - Navigation: none
 
 Evidence: `EV-002`, `EV-003`, `EV-011`, `EV-012`, `EV-013`
@@ -112,14 +115,14 @@ Evidence: `EV-006`
 Trigger: An enrolled learner opens a course content route.
 
 1. **learner** — Review course progress, next actions and learning signals → The learner can continue into the relevant course destination
-2. **learner** — Choose a module from the course map and enter its kind-specific workspace → The chatbot mailbox, document workspace or another registered kind workspace opens
+2. **learner** — Choose a module from the course map and enter its shared conversation plus kind-specific workbench → The common conversation frame and exactly one registered workbench open for the module kind
 3. **learner** — Read, use source, react or discuss → Progress and discussion operations are submitted
 4. **learner** — Open an embedded challenge and submit an attempt → A challenge result surface becomes available
 
 Outcomes:
 - The learner advances through course content with persisted engagement evidence
 
-Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`, `EV-012`, `EV-013`, `EV-014`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`, `EV-012`, `EV-013`, `EV-014`, `EV-015`
 
 ## 6. Business rules
 
@@ -143,27 +146,27 @@ Strength: **owner-confirmed** · Evidence: `EV-014`
 
 ### BR-04
 
-Chatbot and document are initial module kinds, not the complete or permanently closed kind set.
+Chat is a shared capability of every learning module and is not one module kind; document, accounting or spreadsheet, scheduling or calendar, and future kinds identify workbench behavior.
 
-Strength: **owner-confirmed** · Evidence: `EV-014`
+Strength: **owner-confirmed** · Evidence: `EV-015`
 
 ### BR-05
 
-Shared module identity, ordering and lifecycle remain common while each kind owns its specific state, behavior and learner presentation.
+Shared module identity, ordering, lifecycle and conversation frame remain common while exactly one module kind owns the additional workbench state, behavior and learner presentation.
 
-Strength: **owner-confirmed** · Evidence: `EV-014`
+Strength: **owner-confirmed** · Evidence: `EV-015`
 
 ### BR-06
 
 Adding a future module kind must not redefine the business contract of the base learning-module aggregate.
 
-Strength: **owner-confirmed** · Evidence: `EV-014`
+Strength: **owner-confirmed** · Evidence: `EV-014`, `EV-015`
 
 ### BR-07
 
-A chatbot module opens a mailbox and conversation workspace; a document module opens a document workspace.
+Opening any module mounts one shared conversational shell and exactly one workbench resolved from its kind registry entry.
 
-Strength: **owner-confirmed** · Evidence: `EV-014`
+Strength: **owner-confirmed** · Evidence: `EV-015`
 
 ## 7. State model
 
@@ -175,7 +178,7 @@ Strength: **owner-confirmed** · Evidence: `EV-014`
 
 ## 8. Entities and data
 
-- **Learning module**: id, course, title, description, position, kind, status, created at, updated at, kind-specific state — `EV-014`
+- **Learning module**: id, course, title, description, position, kind, status, created at, updated at, conversation state, kind-specific workbench state — `EV-014`, `EV-015`
 - **Lesson content**: course, module, content, body, faces, source, outline, next steps — `EV-002`, `EV-003`
 - **Lesson comment**: content id, parent id, body — `EV-008`
 
@@ -191,10 +194,10 @@ Strength: **owner-confirmed** · Evidence: `EV-014`
 - **AC-03** The lesson workspace reuses existing nested layouts and presents the course map, centered reader, optional outline and current overlays as one composed full viewport without redesigning existing shell regions. — `EV-011`
 - **AC-04** SCHEMA V2 lessons render every authored programming-language tab, resolve the routed locale with default-body fallback, and rebuild the on-page outline from the selected article. — `EV-012`, `EV-013`
 - **AC-05** Module creation is rejected when its kind is missing. — `EV-014`
-- **AC-06** A persisted module resolves to one and only one kind-specific behavior and workspace. — `EV-014`
-- **AC-07** Chatbot and document modules resolve to the mailbox/conversation and document workspaces respectively. — `EV-014`
-- **AC-08** A third module kind can be introduced without changing the base module business contract. — `EV-014`
-- **AC-09** Missing, duplicated or kind-mismatched kind-specific state is rejected as an invariant violation. — `EV-014`
+- **AC-06** A persisted module resolves to one and only one kind-specific workbench in addition to the shared conversation frame. — `EV-014`, `EV-015`
+- **AC-07** Every resolved module exposes the shared conversation frame and exactly one workbench selected by its kind. — `EV-015`
+- **AC-08** A new module kind can add a workbench contract without changing the base module or shared conversation contract. — `EV-014`, `EV-015`
+- **AC-09** Missing, duplicated or kind-mismatched workbench state is rejected as an invariant violation. — `EV-014`, `EV-015`
 
 ## 11. Explicit unknowns
 
@@ -202,6 +205,8 @@ Strength: **owner-confirmed** · Evidence: `EV-014`
 - **May a module change kind after creation, or must it be replaced or migrated?** — The owner confirmed exactly one kind but did not authorize an in-place kind transition.
 - **Which persistence inheritance strategy implements the approved module-kind contract?** — STI, CTI, JSONB and referenced aggregates remain architecture alternatives, not business truth.
 - **Which authoring and learner permissions are common versus kind-specific?** — The shared and kind-owned permission boundary remains undefined.
+- **Does one module own one conversation or multiple threads?** — The owner confirmed a common chat frame but did not define conversation cardinality or mailbox behavior.
+- **Are external workbenches embedded, linked, or implemented natively?** — Spreadsheet, Excel and calendar examples establish workbench purpose but not provider or integration strategy.
 
 ## 12. Evidence index
 
@@ -221,3 +226,4 @@ Strength: **owner-confirmed** · Evidence: `EV-014`
 | EV-012 | fe | `src/modules/api/graphql/queries/query-content.ts:23` | api | The authenticated lesson query selects the legacy scalar body and every SCHEMA V2 programming-language body with locale translations. |
 | EV-013 | fe | `src/components/pages/CourseLearnContentPage/index.tsx:98` | ui | The connected lesson reader orders language bodies, preserves a valid language choice, resolves the routed locale with authored fallback, and derives the page outline from the selected markdown. |
 | EV-014 | owner | `decision:a887a41b7e0adb78ec2da291b5d01cbb8b386113d798eee242222445218f15a0` | owner-decision | The owner confirmed that the platform will support many modules, every module has exactly one kind, chatbot and document are only the first kinds, and the model must scale through inheritance rather than permanent hard-coded branches. |
+| EV-015 | owner | `decision:af23be552cece34ef04f8a091967b0c267488082d7cd63b48ecf1efa906c93ee` | owner-decision | The owner clarified that every learning module includes the shared chat frame, while the module kind selects an additional workbench; accounting or spreadsheet, scheduling or calendar, document and future workbenches are open-set examples. |

@@ -2,9 +2,9 @@
 
 ## Entity · Learning module (`learning-module`)
 
-Fields: `id`, `course`, `title`, `description`, `position`, `kind`, `status`, `created at`, `updated at`, `kind-specific state`
+Fields: `id`, `course`, `title`, `description`, `position`, `kind`, `status`, `created at`, `updated at`, `conversation state`, `kind-specific workbench state`
 
-Evidence: `EV-014`
+Evidence: `EV-014`, `EV-015`
 
 ## Entity · Lesson content (`lesson-content`)
 

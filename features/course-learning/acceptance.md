@@ -7,10 +7,10 @@
 | `AC-03` | The lesson workspace reuses existing nested layouts and presents the course map, centered reader, optional outline and current overlays as one composed full viewport without redesigning existing shell regions. | `EV-011` |
 | `AC-04` | SCHEMA V2 lessons render every authored programming-language tab, resolve the routed locale with default-body fallback, and rebuild the on-page outline from the selected article. | `EV-012`, `EV-013` |
 | `AC-05` | Module creation is rejected when its kind is missing. | `EV-014` |
-| `AC-06` | A persisted module resolves to one and only one kind-specific behavior and workspace. | `EV-014` |
-| `AC-07` | Chatbot and document modules resolve to the mailbox/conversation and document workspaces respectively. | `EV-014` |
-| `AC-08` | A third module kind can be introduced without changing the base module business contract. | `EV-014` |
-| `AC-09` | Missing, duplicated or kind-mismatched kind-specific state is rejected as an invariant violation. | `EV-014` |
+| `AC-06` | A persisted module resolves to one and only one kind-specific workbench in addition to the shared conversation frame. | `EV-014`, `EV-015` |
+| `AC-07` | Every resolved module exposes the shared conversation frame and exactly one workbench selected by its kind. | `EV-015` |
+| `AC-08` | A new module kind can add a workbench contract without changing the base module or shared conversation contract. | `EV-014`, `EV-015` |
+| `AC-09` | Missing, duplicated or kind-mismatched workbench state is rejected as an invariant violation. | `EV-014`, `EV-015` |
 
 ## Completion
 

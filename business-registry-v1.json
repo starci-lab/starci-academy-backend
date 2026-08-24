@@ -34,10 +34,10 @@
     },
     "course-learning": {
       "featureId": "course-learning",
-      "head": "17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473",
+      "head": "579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601",
       "authorityStatus": "modeled",
-      "baseHead": "a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc",
-      "previousHead": "a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc",
+      "baseHead": "17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473",
+      "previousHead": "17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473",
       "sources": [
         {
           "role": "fe",
@@ -320,6 +320,10 @@
       "17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473": {
         "hash": "17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473",
         "path": "objects/sha256/17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473.json"
+      },
+      "579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601": {
+        "hash": "579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601",
+        "path": "objects/sha256/579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601.json"
       },
       "83245d75882870bf2b2980af7325140a697a38228ed7db4d84bb56ac7f1e84a0": {
         "hash": "83245d75882870bf2b2980af7325140a697a38228ed7db4d84bb56ac7f1e84a0",
