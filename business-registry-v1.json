@@ -34,18 +34,18 @@
     },
     "course-learning": {
       "featureId": "course-learning",
-      "head": "a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc",
-      "authorityStatus": "implemented",
-      "baseHead": "19177d94209d6ab3b45c54f1981fa3152e39da0ad656de509076a3d089a60006",
-      "previousHead": "19177d94209d6ab3b45c54f1981fa3152e39da0ad656de509076a3d089a60006",
+      "head": "17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473",
+      "authorityStatus": "modeled",
+      "baseHead": "a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc",
+      "previousHead": "a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc",
       "sources": [
         {
           "role": "fe",
-          "head": "d019b01d32e3fa124a63bcfa499f795a1d2ed2eb"
+          "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
         },
         {
           "role": "be",
-          "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
+          "head": "eeeaef30b60b823eb894fed410cc6742ed0bd08f"
         }
       ]
     },
@@ -316,6 +316,10 @@
       "a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc": {
         "hash": "a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc",
         "path": "objects/sha256/a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc.json"
+      },
+      "17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473": {
+        "hash": "17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473",
+        "path": "objects/sha256/17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473.json"
       },
       "83245d75882870bf2b2980af7325140a697a38228ed7db4d84bb56ac7f1e84a0": {
         "hash": "83245d75882870bf2b2980af7325140a697a38228ed7db4d84bb56ac7f1e84a0",

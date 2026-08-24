@@ -1,12 +1,12 @@
 # Course learning and discussion
 
-> Business head: `a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc`
+> Business head: `17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
 ## 1. Overview
 
-Enrolled learners navigate course modules and lesson content, read or edit source snapshots, mark progress, react, discuss lessons, and complete embedded content challenges.
+Enrolled learners navigate course modules with exactly one kind, enter the kind-specific workspace, read or edit lesson content, mark progress, react, discuss lessons, and complete embedded challenges.
 
 Included:
 - Course content map and lesson reader
@@ -15,17 +15,21 @@ Included:
 - Embedded challenge and result route family
 - Course Q&A entry surface
 - Course learning home with progress, next actions and learning signals
+- A generic learning-module aggregate with exactly one required kind
+- Kind-specific module workspaces, beginning with chatbot and document
 
 Excluded:
 - Standalone coding-practice catalog
 - Course purchase and enrollment decisions
+- The persistence strategy used to implement module inheritance
+- Changing an existing module from one kind to another
 
 ## 2. Source heads
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `d019b01d32e3fa124a63bcfa499f795a1d2ed2eb` |
-| be | https://github.com/starci-lab/starci-academy-backend | `88a3959084772f9eaa0f5dcbc4e480d4356210f0` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `f14e3c24b4a087fb6d4bb09d73526964d3ecea3c` |
+| be | https://github.com/starci-lab/starci-academy-backend | `eeeaef30b60b823eb894fed410cc6742ed0bd08f` |
 
 ## 3. Actors and access
 
@@ -45,8 +49,9 @@ Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, 
 - Return lesson content
 - Persist read state
 - Create lesson comments
+- Resolve each module to exactly one kind-specific workspace
 
-Evidence: `EV-007`, `EV-008`
+Evidence: `EV-007`, `EV-008`, `EV-014`
 
 ## 4. Entry points and surfaces
 
@@ -107,14 +112,14 @@ Evidence: `EV-006`
 Trigger: An enrolled learner opens a course content route.
 
 1. **learner** — Review course progress, next actions and learning signals → The learner can continue into the relevant course destination
-2. **learner** — Choose a module and lesson from the course map → The lesson reader opens
+2. **learner** — Choose a module from the course map and enter its kind-specific workspace → The chatbot mailbox, document workspace or another registered kind workspace opens
 3. **learner** — Read, use source, react or discuss → Progress and discussion operations are submitted
 4. **learner** — Open an embedded challenge and submit an attempt → A challenge result surface becomes available
 
 Outcomes:
 - The learner advances through course content with persisted engagement evidence
 
-Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`, `EV-012`, `EV-013`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`, `EV-012`, `EV-013`, `EV-014`
 
 ## 6. Business rules
 
@@ -130,6 +135,36 @@ Read state and comments require authenticated course access guards.
 
 Strength: **confirmed** · Evidence: `EV-007`, `EV-008`
 
+### BR-03
+
+Every learning module has exactly one required kind.
+
+Strength: **owner-confirmed** · Evidence: `EV-014`
+
+### BR-04
+
+Chatbot and document are initial module kinds, not the complete or permanently closed kind set.
+
+Strength: **owner-confirmed** · Evidence: `EV-014`
+
+### BR-05
+
+Shared module identity, ordering and lifecycle remain common while each kind owns its specific state, behavior and learner presentation.
+
+Strength: **owner-confirmed** · Evidence: `EV-014`
+
+### BR-06
+
+Adding a future module kind must not redefine the business contract of the base learning-module aggregate.
+
+Strength: **owner-confirmed** · Evidence: `EV-014`
+
+### BR-07
+
+A chatbot module opens a mailbox and conversation workspace; a document module opens a document workspace.
+
+Strength: **owner-confirmed** · Evidence: `EV-014`
+
 ## 7. State model
 
 - **Course home ready** (`course-home-ready`, initial) → lesson-ready — `EV-009`, `EV-010`
@@ -140,6 +175,7 @@ Strength: **confirmed** · Evidence: `EV-007`, `EV-008`
 
 ## 8. Entities and data
 
+- **Learning module**: id, course, title, description, position, kind, status, created at, updated at, kind-specific state — `EV-014`
 - **Lesson content**: course, module, content, body, faces, source, outline, next steps — `EV-002`, `EV-003`
 - **Lesson comment**: content id, parent id, body — `EV-008`
 
@@ -154,10 +190,18 @@ Strength: **confirmed** · Evidence: `EV-007`, `EV-008`
 - **AC-02** Authenticated learners can persist lesson read state and create top-level comments or replies on content. — `EV-007`, `EV-008`
 - **AC-03** The lesson workspace reuses existing nested layouts and presents the course map, centered reader, optional outline and current overlays as one composed full viewport without redesigning existing shell regions. — `EV-011`
 - **AC-04** SCHEMA V2 lessons render every authored programming-language tab, resolve the routed locale with default-body fallback, and rebuild the on-page outline from the selected article. — `EV-012`, `EV-013`
+- **AC-05** Module creation is rejected when its kind is missing. — `EV-014`
+- **AC-06** A persisted module resolves to one and only one kind-specific behavior and workspace. — `EV-014`
+- **AC-07** Chatbot and document modules resolve to the mailbox/conversation and document workspaces respectively. — `EV-014`
+- **AC-08** A third module kind can be introduced without changing the base module business contract. — `EV-014`
+- **AC-09** Missing, duplicated or kind-mismatched kind-specific state is rejected as an invariant violation. — `EV-014`
 
 ## 11. Explicit unknowns
 
 - **Which exact purchase or enrollment action should every locked lesson show?** — The lesson surface confirms a locked state but does not establish one universal recovery action across all entry contexts.
+- **May a module change kind after creation, or must it be replaced or migrated?** — The owner confirmed exactly one kind but did not authorize an in-place kind transition.
+- **Which persistence inheritance strategy implements the approved module-kind contract?** — STI, CTI, JSONB and referenced aggregates remain architecture alternatives, not business truth.
+- **Which authoring and learner permissions are common versus kind-specific?** — The shared and kind-owned permission boundary remains undefined.
 
 ## 12. Evidence index
 
@@ -176,3 +220,4 @@ Strength: **confirmed** · Evidence: `EV-007`, `EV-008`
 | EV-011 | owner | `decision:340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece` | owner-decision | The owner accepted composed reader revision 340a6bdeede7cc5dfbae0841fd54930fb1de9288c8f918e260cb96827f107ece, then explicitly authorized the seven-file SCHEMA V2 language-body corrective boundary. |
 | EV-012 | fe | `src/modules/api/graphql/queries/query-content.ts:23` | api | The authenticated lesson query selects the legacy scalar body and every SCHEMA V2 programming-language body with locale translations. |
 | EV-013 | fe | `src/components/pages/CourseLearnContentPage/index.tsx:98` | ui | The connected lesson reader orders language bodies, preserves a valid language choice, resolves the routed locale with authored fallback, and derives the page outline from the selected markdown. |
+| EV-014 | owner | `decision:a887a41b7e0adb78ec2da291b5d01cbb8b386113d798eee242222445218f15a0` | owner-decision | The owner confirmed that the platform will support many modules, every module has exactly one kind, chatbot and document are only the first kinds, and the model must scale through inheritance rather than permanent hard-coded branches. |

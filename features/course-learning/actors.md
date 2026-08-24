@@ -20,5 +20,6 @@ Can:
 - Return lesson content
 - Persist read state
 - Create lesson comments
+- Resolve each module to exactly one kind-specific workspace
 
-Evidence: `EV-007`, `EV-008`
+Evidence: `EV-007`, `EV-008`, `EV-014`

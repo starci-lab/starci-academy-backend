@@ -6,6 +6,11 @@
 | `AC-02` | Authenticated learners can persist lesson read state and create top-level comments or replies on content. | `EV-007`, `EV-008` |
 | `AC-03` | The lesson workspace reuses existing nested layouts and presents the course map, centered reader, optional outline and current overlays as one composed full viewport without redesigning existing shell regions. | `EV-011` |
 | `AC-04` | SCHEMA V2 lessons render every authored programming-language tab, resolve the routed locale with default-body fallback, and rebuild the on-page outline from the selected article. | `EV-012`, `EV-013` |
+| `AC-05` | Module creation is rejected when its kind is missing. | `EV-014` |
+| `AC-06` | A persisted module resolves to one and only one kind-specific behavior and workspace. | `EV-014` |
+| `AC-07` | Chatbot and document modules resolve to the mailbox/conversation and document workspaces respectively. | `EV-014` |
+| `AC-08` | A third module kind can be introduced without changing the base module business contract. | `EV-014` |
+| `AC-09` | Missing, duplicated or kind-mismatched kind-specific state is rejected as an invariant violation. | `EV-014` |
 
 ## Completion
 

@@ -14,7 +14,7 @@ Choose the next module or lesson.
 
 | Region | Kind | Real representative content | States | Actions | Evidence |
 |---|---|---|---|---|---|
-| `module-navigation` | navigation | Modules; Lessons | pending, ready, empty, failed | Open lesson | `EV-001` |
+| `module-navigation` | navigation | Modules; Lessons; Module kind; Kind-specific workspace | pending, ready, empty, failed | Open lesson | `EV-001`, `EV-014` |
 
 ## Context rule
 

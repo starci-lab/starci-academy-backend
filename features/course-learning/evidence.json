@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "course-learning",
-  "head": "a95043aa570304bef99e3d2954159e8d4857550efaabba6784450480ffb749dc",
+  "head": "17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "d019b01d32e3fa124a63bcfa499f795a1d2ed2eb"
+      "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
     },
     {
       "role": "be",
       "repository": "https://github.com/starci-lab/starci-academy-backend",
-      "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
+      "head": "eeeaef30b60b823eb894fed410cc6742ed0bd08f"
     }
   ],
   "evidence": [
@@ -130,6 +130,13 @@
       "endLine": 230,
       "claim": "The connected lesson reader orders language bodies, preserves a valid language choice, resolves the routed locale with authored fallback, and derives the page outline from the selected markdown.",
       "kind": "ui"
+    },
+    {
+      "id": "EV-014",
+      "claim": "The owner confirmed that the platform will support many modules, every module has exactly one kind, chatbot and document are only the first kinds, and the model must scale through inheritance rather than permanent hard-coded branches.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "a887a41b7e0adb78ec2da291b5d01cbb8b386113d798eee242222445218f15a0"
     }
   ]
 }

@@ -1,5 +1,11 @@
 # Contracts · Course learning and discussion
 
+## Entity · Learning module (`learning-module`)
+
+Fields: `id`, `course`, `title`, `description`, `position`, `kind`, `status`, `created at`, `updated at`, `kind-specific state`
+
+Evidence: `EV-014`
+
 ## Entity · Lesson content (`lesson-content`)
 
 Fields: `course`, `module`, `content`, `body`, `faces`, `source`, `outline`, `next steps`
