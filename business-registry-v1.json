@@ -224,6 +224,21 @@
           "head": "b56ca6b1d19bd9b511830c398381f6eb4a902e1c"
         }
       ]
+    },
+    "agentos-support-desk": {
+      "featureId": "agentos-support-desk",
+      "head": "c28e7abfd18e74b62eb05bf7237ea1a3538f5fce2e6ce36480870c3f73ce539c",
+      "authorityStatus": "in-progress",
+      "sources": [
+        {
+          "role": "fe",
+          "head": "6eef6117b1d0506d1a8b4299fa225d5d22a1e73d"
+        },
+        {
+          "role": "be",
+          "head": "5c45c4430ce6b10fe747110212f611079a52ba54"
+        }
+      ]
     }
   },
   "objects": {
@@ -468,6 +483,10 @@
       "01e0eec6f0da753e9526d8260812fdb0aeb3aa760c277cf5d157717f5a9a4cb7": {
         "hash": "01e0eec6f0da753e9526d8260812fdb0aeb3aa760c277cf5d157717f5a9a4cb7",
         "path": "objects/sha256/01e0eec6f0da753e9526d8260812fdb0aeb3aa760c277cf5d157717f5a9a4cb7.json"
+      },
+      "c28e7abfd18e74b62eb05bf7237ea1a3538f5fce2e6ce36480870c3f73ce539c": {
+        "hash": "c28e7abfd18e74b62eb05bf7237ea1a3538f5fce2e6ce36480870c3f73ce539c",
+        "path": "objects/sha256/c28e7abfd18e74b62eb05bf7237ea1a3538f5fce2e6ce36480870c3f73ce539c.json"
       }
     }
   }

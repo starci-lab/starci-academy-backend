@@ -1,0 +1,2465 @@
+{
+  "schemaVersion": 2,
+  "authority": {
+    "status": "in-progress",
+    "basis": "owner-intent",
+    "requiredRoles": [
+      "fe",
+      "be"
+    ]
+  },
+  "project": "nivo",
+  "featureId": "agentos-support-desk",
+  "title": "AgentOS Support Desk business module",
+  "summary": "Support Desk is one durable customer-support capability. A private AI-guided Setup revision combines versioned public-safe Nivo support knowledge with customer facts until explicit business-understanding gates are reviewable. Test binds the exact draft, Apply freezes the next immutable context version, and Enable Live is separate. Customer conversations and tickets live in the Support workbench while one designated collaborative operations chat receives internal collaboration and proactive notices. AI side effects pass trusted policy and fresh-state validation. Provider prompt/token caching reuses only an exact stable input prefix to reduce input-token cost and latency; it never caches outputs, credentials, dynamic customer state or authorization.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/nivo-fe.git",
+      "head": "6eef6117b1d0506d1a8b4299fa225d5d22a1e73d"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/nivo-backend.git",
+      "head": "5c45c4430ce6b10fe747110212f611079a52ba54"
+    }
+  ],
+  "dependencies": [
+    {
+      "featureId": "agentos-module-studio",
+      "head": "01e0eec6f0da753e9526d8260812fdb0aeb3aa760c277cf5d157717f5a9a4cb7"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "One installed customer-support kind named Support Desk",
+      "Versioned public-safe Nivo bootstrap knowledge plus customer-owned knowledge sources",
+      "A distinct private AI-guided Setup session for each candidate context revision",
+      "At most one open Setup draft per module and message-level draft recomputation without context-version creation",
+      "Gate-based business understanding with provenance, unresolved gaps, conflicts and not-applicable decisions",
+      "Purpose-specific sandbox Test bound to an exact draft digest or immutable active context",
+      "Explicit Apply that freezes an immutable context version and separate Enable Live readiness",
+      "Telegram as the initial live customer channel through write-only encrypted credentials",
+      "One designated primary collaborative operations chat plus optional additional Execute chats",
+      "A Support workbench owning customer conversations, tickets, SLA, assignment, handoff and evidence",
+      "Reactive customer assistance and policy-governed proactive internal notices",
+      "Assist, constrained Autopilot, human takeover, paused and degraded operating modes",
+      "Provider AI prompt/token caching over deterministic stable input prefixes, with dynamic operational data after the cache boundary"
+    ],
+    "excludes": [
+      "Finance, scheduling, document-research or custom-module specialization",
+      "Treating a customer conversation as an Execute chat session",
+      "Creating a context version for every Setup message",
+      "Implicit Apply or implicit Enable Live",
+      "Giving the language model direct access to credentials or external send APIs",
+      "Placing raw secrets in prompts, widgets, logs, diagnostics, indexes or Nivo knowledge packages",
+      "Output or generated-reply caching across any customer turns",
+      "Treating an AI prompt-cache hit or miss as business readiness, correctness or authorization",
+      "Inventing production SLA, retention, autopilot-intent or notification policy before owner approval"
+    ]
+  },
+  "actors": [
+    {
+      "id": "module-administrator",
+      "label": "Authorized business owner or module administrator",
+      "capabilities": [
+        "Open and complete a private Setup revision",
+        "Review gates and evidence",
+        "Run sandbox tests",
+        "Apply an immutable context version",
+        "Configure write-only credentials",
+        "Enable, pause or recover live operation"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-operator",
+      "label": "Authorized support collaborator",
+      "capabilities": [
+        "Use the primary operations chat",
+        "Inspect and act in the Support workbench",
+        "Approve replies",
+        "Assign and resolve tickets",
+        "Take over or resume AI on a customer conversation"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "customer",
+      "label": "External customer contacting the business through an enabled channel",
+      "capabilities": [
+        "Send a support message",
+        "Receive only policy-eligible responses",
+        "Request or receive human handoff"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "setup-support-business",
+      "title": "Teach Support Desk through a private guided revision",
+      "trigger": "The module has no applied context or an administrator chooses New setup revision.",
+      "steps": [
+        {
+          "id": "open-setup-revision",
+          "actor": "module-administrator",
+          "action": "Open a new private Setup revision based on the currently active context when present",
+          "result": "One distinct resumable Setup session and one mutable candidate draft are created; the active context remains unchanged",
+          "surfaceId": "support-setup",
+          "stateId": "setup-draft-open"
+        },
+        {
+          "id": "answer-highest-risk-gap",
+          "actor": "module-administrator",
+          "action": "Answer the AI's highest-risk unresolved business question",
+          "result": "The answer gains provenance and updates gate coverage without creating a context version",
+          "surfaceId": "support-setup",
+          "stateId": "setup-interviewing"
+        },
+        {
+          "id": "resolve-conflicts-and-gaps",
+          "actor": "module-administrator",
+          "action": "Correct conflicts, mark facts unknown or not applicable, and add supporting knowledge",
+          "result": "Gate coverage reflects evidence quality rather than message count or model confidence",
+          "surfaceId": "support-setup",
+          "stateId": "setup-interviewing"
+        },
+        {
+          "id": "review-business-understanding",
+          "actor": "module-administrator",
+          "action": "Review the structured understanding, unresolved risks and proposed behavior",
+          "result": "The draft becomes review-ready only when every required gate has an acceptable disposition",
+          "surfaceId": "support-setup",
+          "stateId": "setup-review-ready"
+        }
+      ],
+      "outcomes": [
+        "One reviewable candidate is bound to its Setup session and digest",
+        "The existing active context and live operation are not mutated"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "test-apply-enable-support",
+      "title": "Prove, apply and separately enable Support Desk",
+      "trigger": "A Setup candidate is review-ready.",
+      "steps": [
+        {
+          "id": "run-bound-test",
+          "actor": "module-administrator",
+          "action": "Run purpose-specific sandbox conversations against the exact candidate digest",
+          "result": "Evidence records behavior, citations, policy decisions and assertions without contacting a live customer",
+          "surfaceId": "support-test",
+          "stateId": "support-test-running"
+        },
+        {
+          "id": "review-test-evidence",
+          "actor": "module-administrator",
+          "action": "Review pass, warning and fail evidence",
+          "result": "Any candidate edit marks prior test evidence stale",
+          "surfaceId": "support-test",
+          "stateId": "support-test-reviewed"
+        },
+        {
+          "id": "apply-candidate",
+          "actor": "module-administrator",
+          "action": "Explicitly Apply the exact candidate digest",
+          "result": "The next immutable business-context version becomes active atomically; no message history is rewritten",
+          "surfaceId": "support-setup",
+          "stateId": "context-applying"
+        },
+        {
+          "id": "enable-live",
+          "actor": "module-administrator",
+          "action": "Enable Live only after independent knowledge, policy, channel and credential readiness",
+          "result": "Support Desk may accept live events in its selected operating mode",
+          "surfaceId": "support-settings",
+          "stateId": "support-live"
+        }
+      ],
+      "outcomes": [
+        "Test is evidence, not consent",
+        "Apply and Enable Live remain separate trusted actions"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "handle-customer-message",
+      "title": "Handle one inbound customer turn safely",
+      "trigger": "A verified enabled channel delivers an inbound event.",
+      "steps": [
+        {
+          "id": "accept-inbound",
+          "actor": "customer",
+          "action": "Send a customer message through an enabled channel",
+          "result": "The event is verified, normalized, deduplicated and attached to the correct customer conversation",
+          "surfaceId": "support-operate",
+          "stateId": "inbound-received"
+        },
+        {
+          "id": "assemble-turn-context",
+          "actor": "support-operator",
+          "action": "Allow the system to bind active immutable context and fresh operational state",
+          "result": "The deterministic stable prefix contains trusted instructions, kind contract, tool schemas, Nivo bootstrap knowledge and the active immutable business context; fresh customer, ticket, consent, takeover, SLA, retrieved evidence and current message follow the prompt-cache boundary.",
+          "surfaceId": "support-operate",
+          "stateId": "ai-evaluating"
+        },
+        {
+          "id": "evaluate-support-turn",
+          "actor": "support-operator",
+          "action": "Let AI classify intent, urgency, sentiment and risk and propose a grounded response or action",
+          "result": "The model produces a proposal only; policy selects auto-send, approval, clarification, refusal or handoff",
+          "surfaceId": "support-operate",
+          "stateId": "response-pending"
+        },
+        {
+          "id": "revalidate-and-send",
+          "actor": "support-operator",
+          "action": "Approve when required or allow an eligible constrained auto action",
+          "result": "Immediately before send, trusted code revalidates active version, permission, consent, takeover, credential and idempotency",
+          "surfaceId": "support-operate",
+          "stateId": "response-sent"
+        },
+        {
+          "id": "update-workbench",
+          "actor": "support-operator",
+          "action": "Continue operational handling",
+          "result": "Conversation, ticket, SLA, assignment, handoff and evidence are updated without creating an Execute session",
+          "surfaceId": "support-operate",
+          "stateId": "ticket-active"
+        }
+      ],
+      "outcomes": [
+        "The customer receives only a policy-eligible attributable response",
+        "The workbench becomes the operational source of truth"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "collaborate-with-support-ai",
+      "title": "Operate Support Desk through internal collaboration",
+      "trigger": "An authorized support operator opens Operate.",
+      "steps": [
+        {
+          "id": "open-primary-ops-session",
+          "actor": "support-operator",
+          "action": "Open the designated primary operations chat",
+          "result": "The internal collaboration session resumes independently of all customer conversations",
+          "surfaceId": "support-operate",
+          "stateId": "ops-session-active"
+        },
+        {
+          "id": "receive-proactive-notice",
+          "actor": "support-operator",
+          "action": "Receive an AI notice produced from a registered event or approved schedule",
+          "result": "The notice includes source, severity, reason, affected identity and next action and obeys deduplication and notification policy",
+          "surfaceId": "support-operate",
+          "stateId": "ops-notice-ready"
+        },
+        {
+          "id": "inspect-support-workbench",
+          "actor": "support-operator",
+          "action": "Inspect queues, customer conversation, ticket, SLA, suggested response, sources and controls",
+          "result": "The right workbench preserves the exact selected operational identity",
+          "surfaceId": "support-operate",
+          "stateId": "ticket-active"
+        },
+        {
+          "id": "take-trusted-action",
+          "actor": "support-operator",
+          "action": "Assign, approve, take over, resolve or ask AI for analysis",
+          "result": "Every mutation is permission-checked, attributable and idempotent",
+          "surfaceId": "support-operate",
+          "stateId": "ops-session-active"
+        }
+      ],
+      "outcomes": [
+        "Internal collaboration and customer messaging remain different identities",
+        "Additional Execute chats may be created but never replace the primary operations session"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "revise-active-support-context",
+      "title": "Create and apply a later Support Desk context version",
+      "trigger": "The administrator needs to change business behavior.",
+      "steps": [
+        {
+          "id": "open-later-revision",
+          "actor": "module-administrator",
+          "action": "Choose New setup revision",
+          "result": "A new private Setup session starts from the active immutable version while live operation stays on that version",
+          "surfaceId": "support-setup",
+          "stateId": "setup-draft-open"
+        },
+        {
+          "id": "complete-later-revision",
+          "actor": "module-administrator",
+          "action": "Resolve gates and safely test the candidate",
+          "result": "The candidate remains isolated and test evidence stays digest-bound",
+          "surfaceId": "support-test",
+          "stateId": "support-test-reviewed"
+        },
+        {
+          "id": "apply-later-version",
+          "actor": "module-administrator",
+          "action": "Explicitly Apply the tested candidate",
+          "result": "Future turns bind the new active version; prior and already captured in-flight turns retain their recorded version",
+          "surfaceId": "support-setup",
+          "stateId": "context-active"
+        }
+      ],
+      "outcomes": [
+        "No Setup message creates a version",
+        "No previous Execute or customer history is rewritten"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "degrade-and-recover-support",
+      "title": "Fail safely and recover one affected support axis",
+      "trigger": "Knowledge, credential, channel, policy or provider readiness fails; an AI prompt-cache miss alone is normal and never degrades the module.",
+      "steps": [
+        {
+          "id": "degrade-affected-axis",
+          "actor": "support-operator",
+          "action": "Observe the readiness failure",
+          "result": "Only unsafe automatic actions stop; preserved axes remain usable",
+          "surfaceId": "support-diagnostics",
+          "stateId": "support-degraded"
+        },
+        {
+          "id": "notify-primary-ops",
+          "actor": "support-operator",
+          "action": "Receive one deduplicated internal failure notice",
+          "result": "Operators see cause, scope and safe next action without raw secrets",
+          "surfaceId": "support-operate",
+          "stateId": "ops-notice-ready"
+        },
+        {
+          "id": "recover-explicitly",
+          "actor": "module-administrator",
+          "action": "Repair and explicitly reverify the failed dependency",
+          "result": "The module resumes only after current readiness passes; no blind replay occurs",
+          "surfaceId": "support-settings",
+          "stateId": "support-live"
+        }
+      ],
+      "outcomes": [
+        "The module fails closed for affected side effects",
+        "Recovery is explicit, current and attributable"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-SD-01",
+      "statement": "Support Desk is one durable installed business capability with exactly one customer-support kind.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-006"
+      ]
+    },
+    {
+      "id": "BR-SD-02",
+      "statement": "Nivo bootstrap knowledge is public-safe, versioned and immutable by package digest.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "BR-SD-03",
+      "statement": "Customer business facts and customer-owned knowledge never mutate the Nivo bootstrap package.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "BR-SD-04",
+      "statement": "Each candidate context revision owns one distinct private resumable Setup session.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "BR-SD-05",
+      "statement": "A module has at most one open Setup draft at a time.",
+      "strength": "proposed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "BR-SD-06",
+      "statement": "Setup messages update one mutable candidate and never create immutable context versions by themselves.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "BR-SD-07",
+      "statement": "Setup progress measures required gate disposition, provenance and conflicts, not message count or model confidence.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "BR-SD-08",
+      "statement": "Completeness means every required gate has an acceptable disposition; it does not certify business truth.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "BR-SD-09",
+      "statement": "The required gates are identity and offers, customer segments, intent taxonomy, permitted answers, prohibited claims, escalation and handoff, hours and SLA, tone and language, privacy and consent, channel behavior, knowledge readiness and operating mode.",
+      "strength": "proposed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "BR-SD-10",
+      "statement": "Testing binds an exact draft digest or immutable active version and cannot contact live customers or mutate live state.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "BR-SD-11",
+      "statement": "Any candidate edit makes earlier draft-bound test evidence stale.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "BR-SD-12",
+      "statement": "Only explicit Apply freezes the next immutable context version and changes the module active context atomically.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "BR-SD-13",
+      "statement": "Enable Live is separate from Apply and requires active context, knowledge readiness, policy readiness, verified channel and valid credential.",
+      "strength": "proposed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "BR-SD-14",
+      "statement": "Telegram is the initial live provider; its bot token is write-only, encrypted and never returned.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-004"
+      ]
+    },
+    {
+      "id": "BR-SD-15",
+      "statement": "Webhook verification material is Nivo-managed and never exposed to the language model.",
+      "strength": "proposed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-004"
+      ]
+    },
+    {
+      "id": "BR-SD-16",
+      "statement": "External knowledge, CRM or handoff credentials are required only when their connector is enabled.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-004"
+      ]
+    },
+    {
+      "id": "BR-SD-17",
+      "statement": "Workspace AI readiness is a prerequisite and not a Support Desk credential.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-004"
+      ]
+    },
+    {
+      "id": "BR-SD-18",
+      "statement": "The production default is Assist; constrained Autopilot requires explicit enablement and an approved eligible-intent policy.",
+      "strength": "proposed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "BR-SD-19",
+      "statement": "Human takeover stops automatic customer responses for that conversation until an authorized resume.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "BR-SD-20",
+      "statement": "Customer conversations and tickets belong to the Support workbench and are not Execute sessions.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "BR-SD-21",
+      "statement": "One designated primary operations Execute session receives proactive notices; optional additional Execute sessions remain collaborative only.",
+      "strength": "proposed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "BR-SD-22",
+      "statement": "Proactive internal notices originate only from registered events or approved schedules and include source, severity, reason, affected identity and next action.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "BR-SD-23",
+      "statement": "Proactive notices obey recipient, quiet-hour, deduplication, acknowledgement and escalation policy.",
+      "strength": "proposed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "BR-SD-24",
+      "statement": "The language model may propose classifications, responses and tool intents but cannot perform external side effects directly.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "BR-SD-25",
+      "statement": "Trusted code freshly revalidates active context, permission, consent, takeover, credential and idempotency immediately before every external send.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "BR-SD-26",
+      "statement": "AI caching means provider prompt/input-token caching of an exact prompt prefix; it is not response caching, application state caching or authorization caching.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "BR-SD-27",
+      "statement": "The cacheable prefix has deterministic order: trusted system policy, Support Desk kind contract, versioned tool and widget schemas, Nivo bootstrap knowledge, then the active immutable business context.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "BR-SD-28",
+      "statement": "The dynamic suffix begins after the cache boundary and contains current permission and mode, credential readiness status, customer, conversation, ticket, consent, takeover, SLA, retrieved passages and the current message.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "BR-SD-29",
+      "statement": "Nivo computes a logical prompt-prefix fingerprint from model identity, prompt-contract version, kind-contract version, tool-schema versions, Nivo-knowledge digest and active-context digest; provider cache identity remains provider-owned.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "BR-SD-30",
+      "statement": "A new model, prompt contract, kind contract, tool schema, Nivo knowledge package or applied context naturally creates a different prefix fingerprint and therefore cannot reuse the old prefix cache entry.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "BR-SD-31",
+      "statement": "Setup may cache its stable instructions and append-only unchanged message prefix, but its mutable candidate draft remains after the stable boundary until Apply.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "BR-SD-32",
+      "statement": "Raw credentials, authorization state, live customer data and generated outputs never enter the shared stable cacheable prefix; generated replies are never cached or reused.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "BR-SD-33",
+      "statement": "Prompt caching is optional optimization: a hit reduces billed or processed input tokens and time-to-first-token, while a miss executes the same semantically correct request and never degrades the module.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "BR-SD-34",
+      "statement": "Nivo records provider-reported cached input tokens, uncached input tokens, hit or miss, latency and estimated cost without recording secret prompt content; these metrics do not change the action decision.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "BR-SD-35",
+      "statement": "Default UI uses business wording such as Business setup in use; prompt-prefix fingerprint, cache hit or miss, cached-token counts, version ordinals and digests remain progressive diagnostics.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "support-installed",
+      "label": "Support Desk is installed",
+      "kind": "ready",
+      "transitions": [
+        "setup-draft-open"
+      ],
+      "evidenceIds": [
+        "EV-SD-006"
+      ]
+    },
+    {
+      "id": "setup-draft-open",
+      "label": "A private Setup revision is open",
+      "kind": "pending",
+      "transitions": [
+        "setup-interviewing",
+        "setup-abandoned"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "setup-interviewing",
+      "label": "AI is resolving business-understanding gates",
+      "kind": "pending",
+      "transitions": [
+        "setup-review-ready",
+        "setup-abandoned"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "setup-review-ready",
+      "label": "Candidate understanding is reviewable",
+      "kind": "ready",
+      "transitions": [
+        "support-test-ready",
+        "context-applying",
+        "setup-abandoned"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "setup-abandoned",
+      "label": "Candidate Setup revision is abandoned",
+      "kind": "empty",
+      "transitions": [
+        "setup-draft-open"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "support-test-ready",
+      "label": "Support test is ready",
+      "kind": "ready",
+      "transitions": [
+        "support-test-running"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-test-running",
+      "label": "Support test is running",
+      "kind": "pending",
+      "transitions": [
+        "support-test-reviewed",
+        "support-test-refused"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-test-reviewed",
+      "label": "Support test evidence is reviewable",
+      "kind": "ready",
+      "transitions": [
+        "context-applying",
+        "setup-interviewing"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-test-refused",
+      "label": "Support test was refused",
+      "kind": "refused",
+      "transitions": [
+        "support-test-ready"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "context-applying",
+      "label": "Candidate context is applying",
+      "kind": "pending",
+      "transitions": [
+        "context-active",
+        "context-apply-refused"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "context-active",
+      "label": "An immutable business context is active",
+      "kind": "ready",
+      "transitions": [
+        "setup-draft-open",
+        "channel-unverified",
+        "support-live",
+        "support-paused"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "context-apply-refused",
+      "label": "Context Apply was refused",
+      "kind": "refused",
+      "transitions": [
+        "setup-review-ready"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "channel-unverified",
+      "label": "Live channel is not verified",
+      "kind": "empty",
+      "transitions": [
+        "channel-verifying"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-004"
+      ]
+    },
+    {
+      "id": "channel-verifying",
+      "label": "Live channel is verifying",
+      "kind": "pending",
+      "transitions": [
+        "channel-ready",
+        "channel-refused"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-004"
+      ]
+    },
+    {
+      "id": "channel-ready",
+      "label": "Live channel is ready",
+      "kind": "ready",
+      "transitions": [
+        "support-live",
+        "channel-refused"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-004"
+      ]
+    },
+    {
+      "id": "channel-refused",
+      "label": "Live channel verification failed",
+      "kind": "refused",
+      "transitions": [
+        "channel-verifying"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-004"
+      ]
+    },
+    {
+      "id": "support-paused",
+      "label": "Live support is paused",
+      "kind": "empty",
+      "transitions": [
+        "support-live"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-live",
+      "label": "Support Desk is accepting live work",
+      "kind": "ready",
+      "transitions": [
+        "inbound-received",
+        "support-paused",
+        "support-degraded"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "inbound-received",
+      "label": "Inbound customer event is accepted",
+      "kind": "pending",
+      "transitions": [
+        "ai-evaluating",
+        "human-takeover"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "ai-evaluating",
+      "label": "AI is proposing a governed support action",
+      "kind": "pending",
+      "transitions": [
+        "response-pending",
+        "human-takeover",
+        "support-degraded"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "response-pending",
+      "label": "A response awaits policy or human decision",
+      "kind": "pending",
+      "transitions": [
+        "response-sent",
+        "human-takeover",
+        "support-degraded"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "response-sent",
+      "label": "A customer response was sent",
+      "kind": "ready",
+      "transitions": [
+        "ticket-active",
+        "ticket-resolved"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "human-takeover",
+      "label": "A human controls the customer conversation",
+      "kind": "ready",
+      "transitions": [
+        "ticket-active",
+        "ai-evaluating"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "ticket-active",
+      "label": "A support ticket is active",
+      "kind": "ready",
+      "transitions": [
+        "ticket-resolved",
+        "human-takeover"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "ticket-resolved",
+      "label": "A support ticket is resolved",
+      "kind": "ready",
+      "transitions": [
+        "ticket-active"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "ops-session-active",
+      "label": "Primary internal operations chat is active",
+      "kind": "ready",
+      "transitions": [
+        "ops-notice-ready"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "ops-notice-ready",
+      "label": "A proactive internal notice is ready",
+      "kind": "ready",
+      "transitions": [
+        "ops-session-active"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-degraded",
+      "label": "One support readiness axis is degraded",
+      "kind": "refused",
+      "transitions": [
+        "support-live",
+        "support-paused"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "support-desk-module",
+      "label": "Installed Support Desk identity",
+      "fields": [
+        "moduleId",
+        "workspaceId",
+        "kindKey",
+        "status",
+        "operatingMode",
+        "activeContextVersionId",
+        "primaryOpsSessionId"
+      ],
+      "evidenceIds": [
+        "EV-SD-006"
+      ]
+    },
+    {
+      "id": "nivo-support-knowledge-package",
+      "label": "Public-safe Nivo support bootstrap",
+      "fields": [
+        "packageKey",
+        "version",
+        "digest",
+        "documents",
+        "testFixtures"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-setup-session",
+      "label": "Private candidate revision interview",
+      "fields": [
+        "sessionId",
+        "moduleId",
+        "basedOnContextVersionId",
+        "status",
+        "draftDigest",
+        "createdBy",
+        "createdAt"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "support-setup-gate",
+      "label": "Business-understanding gate",
+      "fields": [
+        "gateKey",
+        "required",
+        "status",
+        "facts",
+        "provenance",
+        "conflicts",
+        "updatedAt"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "support-context-version",
+      "label": "Immutable applied business context",
+      "fields": [
+        "contextVersionId",
+        "moduleId",
+        "ordinal",
+        "digest",
+        "setupSessionId",
+        "appliedBy",
+        "appliedAt"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "support-knowledge-source",
+      "label": "Customer-owned knowledge source",
+      "fields": [
+        "sourceId",
+        "moduleId",
+        "files",
+        "status",
+        "revision",
+        "indexRevision",
+        "permissionScope"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-credential-binding",
+      "label": "Write-only integration credential status",
+      "fields": [
+        "bindingId",
+        "moduleId",
+        "provider",
+        "label",
+        "maskedHint",
+        "verificationStatus",
+        "updatedAt"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-004"
+      ]
+    },
+    {
+      "id": "support-test-run",
+      "label": "Digest-bound sandbox evidence",
+      "fields": [
+        "testRunId",
+        "moduleId",
+        "draftDigest",
+        "contextVersionId",
+        "scenario",
+        "assertions",
+        "result",
+        "createdAt"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "customer-conversation",
+      "label": "External customer conversation",
+      "fields": [
+        "conversationId",
+        "moduleId",
+        "channel",
+        "externalIdentity",
+        "customerId",
+        "takeoverStatus",
+        "contextVersionId",
+        "lastActivityAt"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-ticket",
+      "label": "Support work item",
+      "fields": [
+        "ticketId",
+        "conversationId",
+        "intent",
+        "priority",
+        "status",
+        "assigneeId",
+        "slaPolicyId",
+        "dueAt"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-ops-session",
+      "label": "Internal collaborative Execute session",
+      "fields": [
+        "sessionId",
+        "moduleId",
+        "isPrimary",
+        "title",
+        "status",
+        "createdAt"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-ops-message",
+      "label": "Internal collaborative message or notice",
+      "fields": [
+        "messageId",
+        "sessionId",
+        "actor",
+        "content",
+        "noticeMetadata",
+        "contextVersionId",
+        "createdAt"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-action-decision",
+      "label": "Attributable trusted action decision",
+      "fields": [
+        "decisionId",
+        "conversationId",
+        "ticketId",
+        "proposal",
+        "policyResult",
+        "actorId",
+        "contextVersionId",
+        "idempotencyKey",
+        "createdAt"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "open-initial-support-setup",
+      "kind": "mutation",
+      "name": "openInitialSupportSetupRevision",
+      "owner": "backend",
+      "inputs": [
+        "moduleId",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "setupSession",
+        "candidate"
+      ],
+      "failures": [
+        "module not owned",
+        "open draft already exists"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "open-later-support-setup",
+      "kind": "mutation",
+      "name": "openLaterSupportSetupRevision",
+      "owner": "backend",
+      "inputs": [
+        "moduleId",
+        "basedOnContextVersionId",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "setupSession",
+        "candidate"
+      ],
+      "failures": [
+        "active version mismatch",
+        "open draft already exists"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "answer-support-setup",
+      "kind": "mutation",
+      "name": "answerSupportSetup",
+      "owner": "backend",
+      "inputs": [
+        "sessionId",
+        "message",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "persisted turn",
+        "gates",
+        "next question",
+        "draft digest"
+      ],
+      "failures": [
+        "session unavailable",
+        "unsafe attachment"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "abandon-support-setup",
+      "kind": "mutation",
+      "name": "abandonSupportSetup",
+      "owner": "backend",
+      "inputs": [
+        "sessionId"
+      ],
+      "outputs": [
+        "abandoned session"
+      ],
+      "failures": [
+        "session not owned",
+        "already applied"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "run-support-test",
+      "kind": "mutation",
+      "name": "runSupportTest",
+      "owner": "backend",
+      "inputs": [
+        "moduleId",
+        "draftDigest or contextVersionId",
+        "scenario",
+        "assertions"
+      ],
+      "outputs": [
+        "isolated test evidence"
+      ],
+      "failures": [
+        "stale draft",
+        "unsafe live action",
+        "unsupported assertion"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "apply-support-context",
+      "kind": "mutation",
+      "name": "applySupportContext",
+      "owner": "backend",
+      "inputs": [
+        "moduleId",
+        "sessionId",
+        "draftDigest",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "immutable context version",
+        "active binding"
+      ],
+      "failures": [
+        "incomplete gates",
+        "stale digest",
+        "concurrent apply"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "save-telegram-credential",
+      "kind": "mutation",
+      "name": "saveSupportTelegramCredential",
+      "owner": "backend",
+      "inputs": [
+        "moduleId",
+        "write-only token"
+      ],
+      "outputs": [
+        "masked credential status"
+      ],
+      "failures": [
+        "invalid credential",
+        "verification refused"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-004"
+      ]
+    },
+    {
+      "id": "verify-support-channel",
+      "kind": "mutation",
+      "name": "verifySupportChannel",
+      "owner": "backend",
+      "inputs": [
+        "moduleId",
+        "provider"
+      ],
+      "outputs": [
+        "channel readiness"
+      ],
+      "failures": [
+        "credential unavailable",
+        "provider refused"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-004"
+      ]
+    },
+    {
+      "id": "enable-support-live",
+      "kind": "mutation",
+      "name": "enableSupportLive",
+      "owner": "backend",
+      "inputs": [
+        "moduleId",
+        "operatingMode",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "live readiness"
+      ],
+      "failures": [
+        "context not active",
+        "knowledge not ready",
+        "channel not ready",
+        "policy not ready"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "pause-support-live",
+      "kind": "mutation",
+      "name": "pauseSupportLive",
+      "owner": "backend",
+      "inputs": [
+        "moduleId",
+        "reason"
+      ],
+      "outputs": [
+        "paused status"
+      ],
+      "failures": [
+        "module not live"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "accept-inbound-support-event",
+      "kind": "command",
+      "name": "acceptInboundSupportEvent",
+      "owner": "backend",
+      "inputs": [
+        "verified provider event"
+      ],
+      "outputs": [
+        "conversation",
+        "message",
+        "ticket"
+      ],
+      "failures": [
+        "signature invalid",
+        "duplicate event",
+        "module not live"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "evaluate-support-turn",
+      "kind": "command",
+      "name": "evaluateSupportTurn",
+      "owner": "backend",
+      "inputs": [
+        "conversationId",
+        "messageId"
+      ],
+      "outputs": [
+        "classification",
+        "retrieval evidence",
+        "proposed response",
+        "policy result"
+      ],
+      "failures": [
+        "context unavailable",
+        "knowledge unavailable",
+        "unsafe request"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "approve-support-reply",
+      "kind": "mutation",
+      "name": "approveSupportReply",
+      "owner": "backend",
+      "inputs": [
+        "decisionId",
+        "actorId",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "approved decision"
+      ],
+      "failures": [
+        "permission refused",
+        "stale decision",
+        "takeover active"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "send-eligible-auto-reply",
+      "kind": "command",
+      "name": "sendEligibleAutoReply",
+      "owner": "backend",
+      "inputs": [
+        "decisionId",
+        "idempotencyKey"
+      ],
+      "outputs": [
+        "provider send evidence"
+      ],
+      "failures": [
+        "fresh validation refused",
+        "provider failure"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "take-over-conversation",
+      "kind": "mutation",
+      "name": "takeOverSupportConversation",
+      "owner": "backend",
+      "inputs": [
+        "conversationId",
+        "actorId"
+      ],
+      "outputs": [
+        "takeover status"
+      ],
+      "failures": [
+        "conversation unavailable"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "resume-conversation-ai",
+      "kind": "mutation",
+      "name": "resumeSupportConversationAI",
+      "owner": "backend",
+      "inputs": [
+        "conversationId",
+        "actorId"
+      ],
+      "outputs": [
+        "AI resumed"
+      ],
+      "failures": [
+        "permission refused",
+        "readiness refused"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "assign-support-ticket",
+      "kind": "mutation",
+      "name": "assignSupportTicket",
+      "owner": "backend",
+      "inputs": [
+        "ticketId",
+        "assigneeId"
+      ],
+      "outputs": [
+        "updated ticket"
+      ],
+      "failures": [
+        "permission refused",
+        "ticket resolved"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "resolve-support-ticket",
+      "kind": "mutation",
+      "name": "resolveSupportTicket",
+      "owner": "backend",
+      "inputs": [
+        "ticketId",
+        "resolution",
+        "actorId"
+      ],
+      "outputs": [
+        "resolved ticket"
+      ],
+      "failures": [
+        "permission refused",
+        "evidence incomplete"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "post-proactive-support-notice",
+      "kind": "command",
+      "name": "postProactiveSupportNotice",
+      "owner": "backend",
+      "inputs": [
+        "registeredEventId",
+        "dedupeKey",
+        "notice"
+      ],
+      "outputs": [
+        "primary ops message"
+      ],
+      "failures": [
+        "event unregistered",
+        "quiet-hour policy deferred",
+        "duplicate notice"
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "support-setup",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/setup",
+      "title": "Set up Support Desk",
+      "eyebrow": "Private business setup",
+      "purpose": "AI-guided interview with one candidate revision.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "setup-chat",
+          "kind": "conversation",
+          "title": "Private Setup chat",
+          "summary": "AI asks the highest-risk unresolved question and preserves one draft.",
+          "items": [
+            {
+              "id": "setup-message",
+              "role": "entity",
+              "label": "Setup message"
+            }
+          ],
+          "actions": [
+            {
+              "id": "answer-setup",
+              "label": "Send",
+              "kind": "primary",
+              "target": "current"
+            }
+          ],
+          "states": [
+            "setup-draft-open",
+            "setup-interviewing",
+            "setup-review-ready"
+          ],
+          "evidenceIds": [
+            "EV-SD-001",
+            "EV-SD-002"
+          ]
+        },
+        {
+          "id": "business-understanding",
+          "kind": "summary",
+          "title": "Business understanding",
+          "summary": "Gate coverage, provenance, conflicts and unresolved risks.",
+          "items": [
+            {
+              "id": "gate-progress",
+              "role": "status",
+              "label": "Understanding progress"
+            },
+            {
+              "id": "active-setup",
+              "role": "fact",
+              "label": "Business setup in use"
+            }
+          ],
+          "actions": [
+            {
+              "id": "test-candidate",
+              "label": "Test",
+              "kind": "secondary",
+              "target": "/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/test"
+            },
+            {
+              "id": "apply-candidate",
+              "label": "Apply",
+              "kind": "primary",
+              "target": "current"
+            },
+            {
+              "id": "abandon-candidate",
+              "label": "Abandon",
+              "kind": "secondary",
+              "target": "current"
+            }
+          ],
+          "states": [
+            "setup-interviewing",
+            "setup-review-ready",
+            "context-applying",
+            "context-active"
+          ],
+          "evidenceIds": [
+            "EV-SD-001",
+            "EV-SD-002"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "support-test",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/test",
+      "title": "Test Support Desk",
+      "eyebrow": "Trust evidence",
+      "purpose": "Run sandbox conversations and inspect grounded policy evidence.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "test-scenario",
+          "kind": "form",
+          "title": "Conversation scenario",
+          "summary": "Customer persona, messages and expected behavior.",
+          "items": [
+            {
+              "id": "test-messages",
+              "role": "entity",
+              "label": "Test conversation"
+            }
+          ],
+          "actions": [
+            {
+              "id": "run-test",
+              "label": "Run test",
+              "kind": "primary",
+              "target": "current"
+            }
+          ],
+          "states": [
+            "support-test-ready",
+            "support-test-running"
+          ],
+          "evidenceIds": [
+            "EV-SD-001",
+            "EV-SD-002",
+            "EV-SD-003"
+          ]
+        },
+        {
+          "id": "test-evidence",
+          "kind": "details",
+          "title": "Evidence",
+          "summary": "Assertions, sources, policy decisions and draft binding.",
+          "items": [
+            {
+              "id": "test-result",
+              "role": "status",
+              "label": "Result"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "support-test-reviewed",
+            "support-test-refused"
+          ],
+          "evidenceIds": [
+            "EV-SD-001",
+            "EV-SD-002",
+            "EV-SD-003"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-operate",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/operate",
+      "title": "Operate Support Desk",
+      "eyebrow": "Internal support operations",
+      "purpose": "Collaborate internally in chat while operating customers and tickets in the workbench.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "ops-chat",
+          "kind": "conversation",
+          "title": "Operations chat",
+          "summary": "Primary internal chat receives proactive notices and operator collaboration.",
+          "items": [
+            {
+              "id": "ops-message",
+              "role": "entity",
+              "label": "Internal message"
+            }
+          ],
+          "actions": [
+            {
+              "id": "new-ops-chat",
+              "label": "New collaboration chat",
+              "kind": "secondary",
+              "target": "current"
+            }
+          ],
+          "states": [
+            "ops-session-active",
+            "ops-notice-ready"
+          ],
+          "evidenceIds": [
+            "EV-SD-001",
+            "EV-SD-003"
+          ]
+        },
+        {
+          "id": "support-workbench",
+          "kind": "workbench",
+          "title": "Support workbench",
+          "summary": "Queue, customer conversation, customer, ticket, SLA, suggested reply, sources and controls.",
+          "items": [
+            {
+              "id": "conversation",
+              "role": "entity",
+              "label": "Customer conversation"
+            },
+            {
+              "id": "ticket",
+              "role": "entity",
+              "label": "Ticket"
+            },
+            {
+              "id": "sla",
+              "role": "status",
+              "label": "SLA"
+            },
+            {
+              "id": "sources",
+              "role": "evidence",
+              "label": "Sources"
+            }
+          ],
+          "actions": [
+            {
+              "id": "approve-reply",
+              "label": "Approve reply",
+              "kind": "primary",
+              "target": "current"
+            },
+            {
+              "id": "takeover",
+              "label": "Take over",
+              "kind": "secondary",
+              "target": "current"
+            },
+            {
+              "id": "resolve-ticket",
+              "label": "Resolve",
+              "kind": "secondary",
+              "target": "current"
+            }
+          ],
+          "states": [
+            "ticket-active",
+            "human-takeover",
+            "ticket-resolved",
+            "support-degraded"
+          ],
+          "evidenceIds": [
+            "EV-SD-001",
+            "EV-SD-003"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-settings",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/settings",
+      "title": "Support Desk settings",
+      "eyebrow": "Readiness and integrations",
+      "purpose": "Configure knowledge, policy, mode and write-only integrations.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "go-live-readiness",
+          "kind": "summary",
+          "title": "Go-live gates",
+          "summary": "Context, knowledge, policy, channel and credential readiness.",
+          "items": [
+            {
+              "id": "readiness-axis",
+              "role": "status",
+              "label": "Readiness"
+            }
+          ],
+          "actions": [
+            {
+              "id": "enable-live",
+              "label": "Enable Live",
+              "kind": "primary",
+              "target": "current"
+            },
+            {
+              "id": "pause-live",
+              "label": "Pause",
+              "kind": "secondary",
+              "target": "current"
+            }
+          ],
+          "states": [
+            "context-active",
+            "channel-ready",
+            "support-live",
+            "support-paused"
+          ],
+          "evidenceIds": [
+            "EV-SD-001",
+            "EV-SD-002",
+            "EV-SD-003"
+          ]
+        },
+        {
+          "id": "telegram-credential",
+          "kind": "form",
+          "title": "Telegram",
+          "summary": "Write-only bot credential and masked verification status.",
+          "items": [
+            {
+              "id": "telegram-token",
+              "role": "secret",
+              "label": "Bot token"
+            }
+          ],
+          "actions": [
+            {
+              "id": "save-token",
+              "label": "Save and verify",
+              "kind": "primary",
+              "target": "current"
+            }
+          ],
+          "states": [
+            "channel-unverified",
+            "channel-verifying",
+            "channel-ready",
+            "channel-refused"
+          ],
+          "evidenceIds": [
+            "EV-SD-001",
+            "EV-SD-004"
+          ]
+        },
+        {
+          "id": "support-knowledge",
+          "kind": "collection",
+          "title": "Support knowledge",
+          "summary": "Nivo bootstrap and customer-owned file collections.",
+          "items": [
+            {
+              "id": "knowledge-files",
+              "role": "entity",
+              "label": "Files"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "context-active"
+          ],
+          "evidenceIds": [
+            "EV-SD-001",
+            "EV-SD-002",
+            "EV-SD-003"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "support-diagnostics",
+      "routePattern": "/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/diagnostics",
+      "title": "Support Desk diagnostics",
+      "eyebrow": "Advanced evidence",
+      "purpose": "Inspect context, knowledge-index, provider prompt-cache metrics, channel and failure evidence.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "diagnostic-evidence",
+          "kind": "details",
+          "title": "Runtime evidence",
+          "summary": "Version ordinals, digests, prompt-prefix fingerprint, provider cache hit or miss, cached and uncached input-token counts, credential status and safe failures.",
+          "items": [
+            {
+              "id": "context-digest",
+              "role": "evidence",
+              "label": "Context digest"
+            },
+            {
+              "id": "cache-freshness",
+              "role": "status",
+              "label": "AI cached input tokens"
+            }
+          ],
+          "actions": [
+            {
+              "id": "reverify",
+              "label": "Reverify",
+              "kind": "secondary",
+              "target": "current"
+            }
+          ],
+          "states": [
+            "support-live",
+            "support-degraded"
+          ],
+          "evidenceIds": [
+            "EV-SD-001",
+            "EV-SD-002",
+            "EV-SD-003"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-SD-01",
+      "statement": "Support Desk is one installed customer-support capability, not a bot template, tab or customer conversation.",
+      "evidenceIds": [
+        "EV-SD-006"
+      ]
+    },
+    {
+      "id": "AC-SD-02",
+      "statement": "Nivo bootstrap knowledge, customer applied context, customer knowledge sources and live operational state remain four distinct layers.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "AC-SD-03",
+      "statement": "Opening Setup creates or resumes one private session for the current candidate revision and never exposes it to ordinary operators.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "AC-SD-04",
+      "statement": "Each later revision opens a new private Setup session based on the active immutable version.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "AC-SD-05",
+      "statement": "No Setup message increments the active context version.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "AC-SD-06",
+      "statement": "Setup progress is derived from required gate disposition, provenance and conflicts.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "AC-SD-07",
+      "statement": "Every required gate is shown as complete, unresolved, conflicting, unknown or not applicable.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "AC-SD-08",
+      "statement": "A sandbox conversation test binds the exact candidate digest and cannot perform live side effects.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "AC-SD-09",
+      "statement": "Editing a candidate marks its prior test evidence stale.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "AC-SD-10",
+      "statement": "Apply explicitly freezes exactly one next immutable context version and atomically changes the active binding.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "AC-SD-11",
+      "statement": "Enable Live is a separate explicit action and cannot succeed until every declared readiness axis is ready.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "AC-SD-12",
+      "statement": "Telegram credentials are accepted only through write-only input, encrypted at rest and returned only as masked status.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-004"
+      ]
+    },
+    {
+      "id": "AC-SD-13",
+      "statement": "Workspace AI readiness is displayed as a prerequisite rather than collected as a module credential.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-004"
+      ]
+    },
+    {
+      "id": "AC-SD-14",
+      "statement": "Assist is the proposed production default; Autopilot cannot operate without explicit mode and eligible-intent policy.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "AC-SD-15",
+      "statement": "A verified inbound customer event creates or resumes a customer conversation and ticket, never an Execute session.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "AC-SD-16",
+      "statement": "The language model can propose but cannot directly send customer messages or invoke external side effects.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "AC-SD-17",
+      "statement": "Every customer send freshly checks active context, permission, consent, takeover, credential and idempotency.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "AC-SD-18",
+      "statement": "Human takeover immediately blocks automatic replies for that customer conversation until authorized resume.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "AC-SD-19",
+      "statement": "The right workbench shows the selected queue, customer conversation, customer, ticket, SLA, suggested reply, sources and controls.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "AC-SD-20",
+      "statement": "One designated internal operations chat receives attributable proactive notices; customer threads never appear there as chat sessions.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "AC-SD-21",
+      "statement": "Each proactive notice states its source, severity, reason, affected identity and recommended next action.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "AC-SD-22",
+      "statement": "Future turns bind a newly applied context while prior and already captured in-flight turns retain their recorded version.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002"
+      ]
+    },
+    {
+      "id": "AC-SD-23",
+      "statement": "An AI request places the exact deterministic stable prefix before a declared prompt-cache boundary and all live operational data after it.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "AC-SD-24",
+      "statement": "The stable prefix is fingerprinted by model, prompt contract, kind contract, tool schemas, Nivo knowledge digest and active immutable context digest.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "AC-SD-25",
+      "statement": "Applying a new context or changing any stable-prefix component produces a new fingerprint and cannot accidentally reuse an incompatible cached prefix.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "AC-SD-26",
+      "statement": "Current permission, mode, credential readiness, customer, conversation, ticket, consent, takeover, SLA, retrieval result and user message occur after the cache boundary.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "AC-SD-27",
+      "statement": "No raw credential, live authorization state, generated reply or sensitive dynamic customer payload is stored as reusable prompt-cache content.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "AC-SD-28",
+      "statement": "A cache miss produces the same governed AI request and business outcome as a hit; only cached input-token count, latency and cost may differ.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-005"
+      ]
+    },
+    {
+      "id": "AC-SD-29",
+      "statement": "A failed readiness axis stops only unsafe automatic actions, emits one deduplicated internal notice and requires explicit current-state recovery.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    },
+    {
+      "id": "AC-SD-30",
+      "statement": "Default product wording says Business setup in use and keeps version ordinal, digest and cache identities in diagnostics.",
+      "evidenceIds": [
+        "EV-SD-001",
+        "EV-SD-002",
+        "EV-SD-003"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "autopilot-eligible-intents",
+      "question": "Which exact customer intents may use constrained Autopilot?",
+      "impact": "Only Assist and human approval are safe until an eligible-intent policy is approved."
+    },
+    {
+      "id": "support-sla-policy",
+      "question": "What service hours, priority definitions and first-response or resolution targets apply?",
+      "impact": "SLA timers and escalations cannot claim production correctness until approved."
+    },
+    {
+      "id": "support-retention-policy",
+      "question": "How long are customer conversations, tickets, attachments, traces and test evidence retained?",
+      "impact": "Production deletion and audit rules remain undecided."
+    },
+    {
+      "id": "proactive-notification-policy",
+      "question": "Which events, recipients, quiet hours, acknowledgement deadlines and escalation ladder govern proactive notices?",
+      "impact": "Only manually observed internal events are safe until approved."
+    },
+    {
+      "id": "nivo-support-bootstrap-v1",
+      "question": "Which exact public-safe documents, taxonomy examples and sandbox fixtures form Nivo Support bootstrap package v1?",
+      "impact": "The package shape is approved, but its concrete content needs a separately reviewable versioned artifact."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-SD-001",
+      "claim": "The owner requested one correctly designed Support Desk module covering Nivo knowledge, Setup gates, credentials, complete AI operation, correct caching and a right-side workbench.",
+      "kind": "owner-decision",
+      "authority": "owner"
+    },
+    {
+      "id": "EV-SD-002",
+      "claim": "The owner clarified that a version advances only through a new private Setup revision and explicit Apply; individual Setup messages do not increment versions.",
+      "kind": "owner-decision",
+      "authority": "owner"
+    },
+    {
+      "id": "EV-SD-003",
+      "claim": "The owner clarified that post-Setup work uses an internal collaborative chat where AI may proactively report business information and a separate kind-specific workbench on the right.",
+      "kind": "owner-decision",
+      "authority": "owner"
+    },
+    {
+      "id": "EV-SD-004",
+      "claim": "Telegram is the initial local proof integration and its credential must be handled only through a write-only encrypted boundary; the raw value is not durable business evidence.",
+      "kind": "owner-decision",
+      "authority": "owner"
+    },
+    {
+      "id": "EV-SD-005",
+      "claim": "The owner clarified that caching means AI provider prompt/input-token caching to reduce repeated input tokens, not generic application, retrieval or output caching.",
+      "kind": "owner-decision",
+      "authority": "owner"
+    },
+    {
+      "id": "EV-SD-006",
+      "claim": "The approved shared Module Studio authority provides one-kind module identity, shared shell, Setup/Execute separation, immutable applied context and typed trusted workbench/widget boundaries.",
+      "kind": "dependency",
+      "authority": "business-head",
+      "head": "01e0eec6f0da753e9526d8260812fdb0aeb3aa760c277cf5d157717f5a9a4cb7"
+    }
+  ]
+}

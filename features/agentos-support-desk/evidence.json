@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "featureId": "agentos-support-desk",
+  "evidence": [
+    {
+      "id": "EV-SD-001",
+      "claim": "The owner requested one correctly designed Support Desk module covering Nivo knowledge, Setup gates, credentials, complete AI operation, correct caching and a right-side workbench.",
+      "kind": "owner-decision",
+      "authority": "owner"
+    },
+    {
+      "id": "EV-SD-002",
+      "claim": "The owner clarified that a version advances only through a new private Setup revision and explicit Apply; individual Setup messages do not increment versions.",
+      "kind": "owner-decision",
+      "authority": "owner"
+    },
+    {
+      "id": "EV-SD-003",
+      "claim": "The owner clarified that post-Setup work uses an internal collaborative chat where AI may proactively report business information and a separate kind-specific workbench on the right.",
+      "kind": "owner-decision",
+      "authority": "owner"
+    },
+    {
+      "id": "EV-SD-004",
+      "claim": "Telegram is the initial local proof integration and its credential must be handled only through a write-only encrypted boundary; the raw value is not durable business evidence.",
+      "kind": "owner-decision",
+      "authority": "owner"
+    },
+    {
+      "id": "EV-SD-005",
+      "claim": "The owner clarified that caching means AI provider prompt/input-token caching to reduce repeated input tokens, not generic application, retrieval or output caching.",
+      "kind": "owner-decision",
+      "authority": "owner"
+    },
+    {
+      "id": "EV-SD-006",
+      "claim": "The approved shared Module Studio authority provides one-kind module identity, shared shell, Setup/Execute separation, immutable applied context and typed trusted workbench/widget boundaries.",
+      "kind": "dependency",
+      "authority": "business-head",
+      "head": "01e0eec6f0da753e9526d8260812fdb0aeb3aa760c277cf5d157717f5a9a4cb7"
+    }
+  ]
+}
