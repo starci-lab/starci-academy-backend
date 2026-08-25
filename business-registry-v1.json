@@ -154,10 +154,14 @@
     "learn-ai-assistant": {
       "featureId": "learn-ai-assistant",
       "head": "92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824",
-      "authorityStatus": "modeled",
+      "authorityStatus": "approved",
       "baseHead": null,
       "previousHead": null,
       "sources": [
+        {
+          "role": "fe",
+          "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
+        },
         {
           "role": "be",
           "head": "b3af7fa540893667febf893b1e01fb991d5f6caf"
