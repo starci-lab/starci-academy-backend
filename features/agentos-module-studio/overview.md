@@ -30,4 +30,4 @@ An authenticated workspace owner creates, installs and operates many module inst
 | Role | Repository | Head |
 |---|---|---|
 | fe | https://github.com/starci-lab/nivo-fe.git | `6eef6117b1d0506d1a8b4299fa225d5d22a1e73d` |
-| be | https://github.com/starci-lab/nivo-backend.git | `ac05d90e7b6b59eb9dc4128872f3c02ba254e59a` |
+| be | https://github.com/starci-lab/nivo-backend.git | `5c45c4430ce6b10fe747110212f611079a52ba54` |
