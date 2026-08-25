@@ -7,8 +7,8 @@
       "fe",
       "be"
     ],
-    "baseHead": "535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc",
-    "previousHead": "de60e36e9b67893bcbcd1a42d376b0921afd19ec7da23e72461b8c16dcc2bcd8"
+    "baseHead": "b7bd88ae324073831db451f22f4ccd749f3bbb67ac2f4dd130b583fd55b28257",
+    "previousHead": "535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc"
   },
   "project": "starci-academy",
   "featureId": "practice-assessment",
@@ -58,7 +58,8 @@
         "EV-007",
         "EV-008",
         "EV-009",
-        "EV-010"
+        "EV-010",
+        "EV-014"
       ]
     },
     {
@@ -169,6 +170,53 @@
         "EV-009",
         "EV-010"
       ]
+    },
+    {
+      "id": "playground-journey",
+      "title": "Complete a guided Playground",
+      "trigger": "A learner opens the Playground catalog for a course.",
+      "steps": [
+        {
+          "id": "choose-playground",
+          "actor": "learner",
+          "action": "Choose a guided Playground",
+          "result": "The selected Playground setup opens",
+          "surfaceId": "playground-catalog",
+          "stateId": "playground-catalog-ready"
+        },
+        {
+          "id": "prepare-playground",
+          "actor": "learner",
+          "action": "Pair a machine and satisfy every declared readiness check",
+          "result": "The setup becomes ready for explicit entry",
+          "surfaceId": "playground-setup",
+          "stateId": "playground-setup-pending"
+        },
+        {
+          "id": "enter-playground",
+          "actor": "learner",
+          "action": "Enter the prepared Playground",
+          "result": "The guided live workspace opens without discarding setup context",
+          "surfaceId": "playground-setup",
+          "stateId": "playground-setup-ready"
+        },
+        {
+          "id": "complete-playground",
+          "actor": "learner",
+          "action": "Follow the guide and use the playground-kind workspace",
+          "result": "The learner completes or safely reconnects to the live session",
+          "surfaceId": "playground-session",
+          "stateId": "playground-session-active"
+        }
+      ],
+      "outcomes": [
+        "The learner moves from discovery through explicit readiness into a guided live Playground session"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-005",
+        "EV-014"
+      ]
     }
   ],
   "rules": [
@@ -194,6 +242,54 @@
       "strength": "confirmed",
       "evidenceIds": [
         "EV-010"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "Playground selection opens a distinct setup surface before the live session.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-014"
+      ]
+    },
+    {
+      "id": "BR-05",
+      "statement": "Entering a Playground requires every declared readiness check and remains an explicit learner action.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-014"
+      ]
+    },
+    {
+      "id": "BR-06",
+      "statement": "Reloading setup resumes an available open session before creating a replacement session.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-014"
+      ]
+    },
+    {
+      "id": "BR-07",
+      "statement": "A live-session deep link without a prior successful machine pair returns the learner to setup.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-014"
+      ]
+    },
+    {
+      "id": "BR-08",
+      "statement": "A connection drop after a successful pair keeps the learner in the live session and exposes reconnect guidance.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-014"
+      ]
+    },
+    {
+      "id": "BR-09",
+      "statement": "The live workspace anatomy follows the Playground kind while preserving one shared guided-session shell.",
+      "strength": "confirmed",
+      "evidenceIds": [
+        "EV-014"
       ]
     }
   ],
@@ -249,6 +345,98 @@
         "EV-002",
         "EV-009",
         "EV-010"
+      ]
+    },
+    {
+      "id": "playground-catalog-ready",
+      "label": "Playground catalog ready",
+      "kind": "initial",
+      "transitions": [
+        "playground-setup-pending"
+      ],
+      "evidenceIds": [
+        "EV-004",
+        "EV-014"
+      ]
+    },
+    {
+      "id": "playground-setup-pending",
+      "label": "Playground setup pending",
+      "kind": "pending",
+      "transitions": [
+        "playground-setup-ready",
+        "playground-setup-error"
+      ],
+      "evidenceIds": [
+        "EV-014"
+      ]
+    },
+    {
+      "id": "playground-setup-ready",
+      "label": "Playground setup ready",
+      "kind": "success",
+      "transitions": [
+        "playground-session-active"
+      ],
+      "evidenceIds": [
+        "EV-014"
+      ]
+    },
+    {
+      "id": "playground-setup-error",
+      "label": "Playground setup failed",
+      "kind": "error",
+      "transitions": [
+        "playground-setup-pending"
+      ],
+      "evidenceIds": [
+        "EV-014"
+      ]
+    },
+    {
+      "id": "playground-session-active",
+      "label": "Playground session active",
+      "kind": "success",
+      "transitions": [
+        "playground-session-reconnecting",
+        "playground-session-complete",
+        "playground-session-error"
+      ],
+      "evidenceIds": [
+        "EV-005",
+        "EV-014"
+      ]
+    },
+    {
+      "id": "playground-session-reconnecting",
+      "label": "Playground session reconnecting",
+      "kind": "pending",
+      "transitions": [
+        "playground-session-active",
+        "playground-session-error"
+      ],
+      "evidenceIds": [
+        "EV-014"
+      ]
+    },
+    {
+      "id": "playground-session-complete",
+      "label": "Playground session complete",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-014"
+      ]
+    },
+    {
+      "id": "playground-session-error",
+      "label": "Playground session failed",
+      "kind": "error",
+      "transitions": [
+        "playground-session-reconnecting"
+      ],
+      "evidenceIds": [
+        "EV-014"
       ]
     }
   ],
@@ -500,7 +688,7 @@
               "id": "prepare-playground",
               "label": "Open playground",
               "kind": "primary",
-              "target": "playground-session"
+              "target": "playground-setup"
             }
           ],
           "states": [
@@ -519,18 +707,82 @@
       ]
     },
     {
-      "id": "playground-session",
-      "routePattern": "/[lang]/courses/[displayId]/learn/playground/[slug]{/session}",
-      "title": "Playground session",
+      "id": "playground-setup",
+      "routePattern": "/[lang]/courses/[displayId]/learn/playground/[slug]",
+      "title": "Prepare Playground",
       "eyebrow": "StarCi Academy",
-      "purpose": "Prepare and run a guided live playground.",
-      "navigation": [],
+      "purpose": "Pair a machine, satisfy prerequisites and explicitly enter the guided session.",
+      "navigation": [
+        "playground-catalog"
+      ],
+      "regions": [
+        {
+          "id": "playground-readiness",
+          "kind": "flow",
+          "title": "Setup readiness",
+          "summary": "Playground identity, pairing command, machine snapshot, ordered setup steps and one readiness-derived entry decision.",
+          "items": [
+            {
+              "id": "playground-identity",
+              "role": "entity",
+              "label": "Playground"
+            },
+            {
+              "id": "pairing-status",
+              "role": "status",
+              "label": "Machine pairing"
+            },
+            {
+              "id": "readiness-checks",
+              "role": "status",
+              "label": "Readiness checks"
+            }
+          ],
+          "actions": [
+            {
+              "id": "verify-readiness",
+              "label": "Verify setup",
+              "kind": "secondary",
+              "target": "playground-setup"
+            },
+            {
+              "id": "enter-playground",
+              "label": "Enter Playground",
+              "kind": "primary",
+              "target": "playground-session"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed",
+            "expired"
+          ],
+          "evidenceIds": [
+            "EV-014"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-014"
+      ]
+    },
+    {
+      "id": "playground-session",
+      "routePattern": "/[lang]/courses/[displayId]/learn/playground/[slug]/session",
+      "title": "Live Playground session",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Follow the guide and use the playground-kind workspace while preserving reconnect context.",
+      "navigation": [
+        "playground-setup"
+      ],
       "regions": [
         {
           "id": "playground-workspace",
           "kind": "flow",
           "title": "Live playground",
-          "summary": "Setup instructions and active session workspace.",
+          "summary": "Guided steps beside a CLI/resource or RAG workspace, with visible active and reconnecting status.",
           "items": [
             {
               "id": "playground-identity",
@@ -545,8 +797,8 @@
           ],
           "actions": [
             {
-              "id": "start-playground",
-              "label": "Start session",
+              "id": "continue-playground",
+              "label": "Continue",
               "kind": "primary",
               "target": "playground-session"
             }
@@ -554,16 +806,19 @@
           "states": [
             "pending",
             "ready",
+            "reconnecting",
             "success",
             "error"
           ],
           "evidenceIds": [
-            "EV-005"
+            "EV-005",
+            "EV-014"
           ]
         }
       ],
       "evidenceIds": [
-        "EV-005"
+        "EV-005",
+        "EV-014"
       ]
     },
     {
@@ -731,6 +986,15 @@
         "EV-008",
         "EV-010"
       ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "The Playground journey exposes catalog, explicit readiness setup and a guarded live session as distinct surfaces with reconnect behavior.",
+      "evidenceIds": [
+        "EV-004",
+        "EV-005",
+        "EV-014"
+      ]
     }
   ],
   "unknowns": [
@@ -851,6 +1115,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc"
+    },
+    {
+      "id": "EV-014",
+      "claim": "Owner approved redesigning the complete Playground frontend journey across catalog, explicit readiness setup and guarded live session, using legacy behavior as reference while keeping cross-device persistence unknown.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "b7bd88ae324073831db451f22f4ccd749f3bbb67ac2f4dd130b583fd55b28257"
     }
   ]
 }

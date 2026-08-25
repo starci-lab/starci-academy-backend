@@ -6,6 +6,7 @@
 | `AC-02` | Submitting code returns submission and job identities for asynchronous judging. | `EV-009` |
 | `AC-03` | Starting a mock interview server-draws and persists a session for the chosen course, level and kind. | `EV-010` |
 | `AC-04` | The mock interview journey exposes setup, persisted session turns and an assessed result as distinct surfaces. | `EV-006`, `EV-007`, `EV-008`, `EV-010` |
+| `AC-05` | The Playground journey exposes catalog, explicit readiness setup and a guarded live session as distinct surfaces with reconnect behavior. | `EV-004`, `EV-005`, `EV-014` |
 
 ## Completion
 

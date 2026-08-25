@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "practice-assessment",
-  "head": "535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc",
+  "head": "b7bd88ae324073831db451f22f4ccd749f3bbb67ac2f4dd130b583fd55b28257",
   "sources": [
     {
       "role": "fe",
@@ -126,6 +126,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc"
+    },
+    {
+      "id": "EV-014",
+      "claim": "Owner approved redesigning the complete Playground frontend journey across catalog, explicit readiness setup and guarded live session, using legacy behavior as reference while keeping cross-device persistence unknown.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "b7bd88ae324073831db451f22f4ccd749f3bbb67ac2f4dd130b583fd55b28257"
     }
   ]
 }
