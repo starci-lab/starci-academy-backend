@@ -133,6 +133,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "8aca5e2fd4835c68ced689f6751af8094e3bd3c24602a7a2e89e5fae23820859"
+    },
+    {
+      "id": "EV-017",
+      "claim": "After Setup, every module needs its own purpose-specific Test area so a business owner can trust the configuration before operation. The test depends on module purpose: a chat or customer-support module tests a conversation, while other kinds use their own appropriate fixtures and assertions. The Test contract stays extensible by kind and must not become one universal chat-only tester.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "4049c6ebea9b046b2495d236c76eb4f834216f690f368c43e0884b54abba728f"
     }
   ]
 }

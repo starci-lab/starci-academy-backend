@@ -4,12 +4,12 @@
 
 - Status: `in-progress`
 - Basis: `owner-intent`
-- Previous head: `0badc5eae0edecbb0efff40241164a2144febca4fc34bf3a96c5a85c1dfbb70d`
+- Previous head: `a382ff502481d568de1f84fc72b26461b91d2b35c6cb1758fc791108c97bb5d0`
 - Required roles: `fe`, `be`
 
 ## Summary
 
-An authenticated workspace owner creates, installs and operates many module instances. Every module has exactly one kind, exactly one private resumable setup chat, zero-to-many collaborative execute chat sessions and one kind-resolved adaptive workbench while versioned context, configuration and technical diagnostics remain progressively disclosed.
+An authenticated workspace owner creates, installs, configures, tests and operates many module instances. Every module has exactly one kind, exactly one private resumable setup chat, a kind-resolved sandbox Test workbench, zero-to-many collaborative execute chat sessions and one kind-resolved adaptive operating workbench while versioned context, configuration and technical diagnostics remain progressively disclosed.
 
 ## Scope
 
@@ -24,6 +24,7 @@ An authenticated workspace owner creates, installs and operates many module inst
 - Module-scoped knowledge, integrations, permissions and settings separated from workspace-scoped AI readiness
 - Progressively disclosed lifecycle and technical diagnostics
 - Existing resumable custom-module interview, scanned attachments, write-only secrets, review and explicit publish transition
+- One versioned kind-resolved sandbox Test workbench per module that proves a selected immutable context version without changing Execute history or external systems
 
 ### Excluded
 
@@ -67,6 +68,13 @@ An authenticated workspace owner creates, installs and operates many module inst
 - **BR-29** — Nivo-owned manifests and bootstrap knowledge are public-safe versioned operational data under the data mount and idempotently seed database rows; customer credentials and secrets never enter that mount.
 - **BR-30** — Module credential fields are declared by the registered kind, accepted only through module Settings, stored write-only and encrypted, and returned only as masked configuration status.
 - **BR-31** — The local proof workspace contains exactly two installations of each initial kind, eight initial-kind installations total, and one private resumable setup session per installation; custom capability remains available but is not part of that seed set.
+- **BR-32** — Every module kind registers one versioned test-workbench contract beside its operating-workbench contract; shared Module Core renders the resolved contract and never branches on a closed kind enum.
+- **BR-33** — Every test run belongs to one exact installation and records the kind version, test-contract version and explicitly selected immutable context version.
+- **BR-34** — Test sessions, inputs, generated outputs and results are isolated from the one Setup session, all collaborative Execute sessions, their messages, widgets and live workbench state.
+- **BR-35** — Customer support tests a sandbox conversation, accounting tests fixture documents and calculations, calendar assistance tests a fake calendar, and document research tests questions and citations; these initial examples do not close the registry.
+- **BR-36** — A test cannot invoke a live external action, disclose a stored credential, mutate production data, apply a context version or authorize operation automatically.
+- **BR-37** — A completed test exposes pass, warning or fail, assertion-level evidence, the selected context version and test-contract version so the owner can inspect why the result is trusted or refused.
+- **BR-38** — Adding a new module kind and its test workbench does not require changing the shared shell, shared test-run identity, Setup contract or Execute contract.
 
 ## Journeys
 
@@ -77,6 +85,7 @@ An authenticated workspace owner creates, installs and operates many module inst
 - `manage-module-chat-sessions` — Manage many execute chat sessions separately from Setup
 - `operate-kind-module` — Operate one module through shared chat and its adaptive workbench
 - `configure-and-diagnose-module` — Configure a module without mixing workspace operations or runtime diagnostics
+- `test-module-before-operation` — Prove one configured module in its kind-specific sandbox
 
 ## Surfaces
 
@@ -87,6 +96,7 @@ An authenticated workspace owner creates, installs and operates many module inst
 - `module-operating-shell` — Module workspace: `/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/operate`
 - `module-settings` — Module settings: `/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/settings`
 - `module-diagnostics` — Module diagnostics: `/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/diagnostics`
+- `module-test` — Test module: `/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/test`
 
 ## Acceptance
 
@@ -122,6 +132,14 @@ An authenticated workspace owner creates, installs and operates many module inst
 - **AC-30** — Every one of the eight seeded installations resumes one private Setup chat and can explicitly apply its own immutable business-context version before execution.
 - **AC-31** — Each initial kind loads Nivo-owned bootstrap knowledge from its versioned data-mount package and remains operable when customer-specific knowledge has not yet been supplied.
 - **AC-32** — Submitting a kind-declared credential through Settings persists it through the encrypted write-only boundary, clears the input and returns only provider identity plus masked configured status.
+- **AC-33** — Every module exposes Test after Setup has produced an immutable context version, and the persistent shell resolves the Test workbench from the installed kind contract.
+- **AC-34** — A test run records one exact installation, kind version, test-contract version and selected candidate or active context version without creating an Execute session.
+- **AC-35** — Customer-support Test provides a sandbox conversation and evaluates declared behavior without sending to Telegram or another live channel.
+- **AC-36** — Accounting, calendar-assistant and document-research Tests respectively use fixture documents and calculations, a fake calendar, and questions with citation assertions.
+- **AC-37** — Test inputs, outputs and results never enter Setup or Execute history and never mutate live workbench or external-system state.
+- **AC-38** — Pass, warning and fail results expose assertion-level evidence, bound context version and test-contract version while all credentials remain undisclosed.
+- **AC-39** — A passing test does not apply a candidate context or authorize external mutations; the owner must still use the existing explicit context apply and confirmation boundaries.
+- **AC-40** — Registering another kind and its Test workbench requires no edit to shared Module Core, Setup Core or Execute Core.
 
 ## Unknowns and architecture handoff
 

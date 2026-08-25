@@ -14,5 +14,6 @@
 - Review completeness and explicitly publish or install a ready specification
 - Open the one private module setup chat and apply a versioned business context
 - Create, rename, resume and archive independent execute chat sessions
+- Run and review kind-specific sandbox tests against an explicit module context version before operation
 
 Evidence: `EV-001`

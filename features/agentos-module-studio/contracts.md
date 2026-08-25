@@ -58,6 +58,14 @@ Fields: `kindId`, `version`, `displayName`, `configurationSchema`, `capabilities
 
 Evidence: `EV-011`, `EV-012`, `EV-013`
 
+### Kind-specific module test run
+
+> ID: `module-kind-test-run`
+
+Fields: `testRunId`, `moduleId`, `kindVersion`, `testContractVersion`, `contextVersionId`, `fixture`, `assertions`, `status`, `warnings`, `createdAt`
+
+Evidence: `EV-017`
+
 ### Kind to workbench binding
 
 > ID: `module-workbench-binding`
@@ -142,3 +150,5 @@ Evidence: `EV-011`, `EV-012`, `EV-013`
 | `read-module-settings` | owner action · Read module-scoped settings | `workspace-owner` | `module-shell-ready` | `module-settings-ready` | operation-specific | `EV-011`, `EV-014` |
 | `save-module-settings` | owner action · Save module-scoped settings | `workspace-owner` | `module-settings-saving` | `module-settings-ready` | operation-specific | `EV-011`, `EV-014` |
 | `read-module-diagnostics` | owner action · Read advanced module diagnostics | `workspace-owner` | `module-shell-ready` | `module-diagnostics-ready` | operation-specific | `EV-011`, `EV-014` |
+| `open-module-test` | owner action · Open the kind-specific sandbox test workbench | `workspace-owner` | `context-review-ready` | `module-test-ready` | installation-and-context-version | `EV-017` |
+| `run-module-test` | owner action · Run one isolated kind-specific test contract | `workspace-owner` | `module-test-ready` | `module-test-running` | test-run-key | `EV-017` |

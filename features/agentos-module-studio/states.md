@@ -47,3 +47,8 @@
 | `module-settings-saving` | A module-scoped setting is being validated and saved | pending | `module-settings-ready`, `module-settings-refused` | `EV-011`, `EV-014` |
 | `module-settings-refused` | A setting failed without changing accepted module state | error | `module-settings-saving`, `module-settings-ready` | `EV-011`, `EV-014` |
 | `module-diagnostics-ready` | Advanced package and runtime evidence is available | success | `module-shell-ready` | `EV-011`, `EV-014` |
+| `module-test-ready` | Kind-specific sandbox test is ready for one context version | ready | `module-test-running` | `EV-017` |
+| `module-test-running` | One isolated kind-specific test run is evaluating | progress | `module-test-passed`, `module-test-warning`, `module-test-failed` | `EV-017` |
+| `module-test-passed` | Every required assertion passed | success | `module-test-ready`, `context-publishing`, `module-shell-loading` | `EV-017` |
+| `module-test-warning` | The test completed with owner-visible warnings | warning | `module-test-ready`, `setup-session-ready` | `EV-017` |
+| `module-test-failed` | One or more required assertions failed safely | refused | `module-test-ready`, `setup-session-ready` | `EV-017` |

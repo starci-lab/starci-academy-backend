@@ -2,7 +2,7 @@
 
 ## Purpose
 
-An authenticated workspace owner creates, installs and operates many module instances. Every module has exactly one kind, exactly one private resumable setup chat, zero-to-many collaborative execute chat sessions and one kind-resolved adaptive workbench while versioned context, configuration and technical diagnostics remain progressively disclosed. The initial shipped catalogue contains Support Desk, Finance Copilot, Scheduling AI and Knowledge Hub while custom modules remain supported outside the initial seeded proof set.
+An authenticated workspace owner creates, installs, configures, tests and operates many module instances. Every module has exactly one kind, exactly one private resumable setup chat, a kind-resolved sandbox Test workbench, zero-to-many collaborative execute chat sessions and one kind-resolved adaptive operating workbench while versioned context, configuration and technical diagnostics remain progressively disclosed. The initial shipped catalogue contains Support Desk, Finance Copilot, Scheduling AI and Knowledge Hub while custom modules remain supported outside the initial seeded proof set.
 
 ## Included
 
@@ -18,6 +18,7 @@ An authenticated workspace owner creates, installs and operates many module inst
 - Initial shipped kinds customer-support, accounting, calendar-assistant and document-research with their registered workbenches
 - Nivo-owned public-safe manifests and bootstrap knowledge sourced from the versioned operational-data mount
 - One proof workspace seeded idempotently with two installations per initial kind and exactly eight initial-kind installations
+- One versioned kind-resolved sandbox Test workbench per module that proves a selected immutable context version without changing Execute history or external systems
 
 ## Excluded
 
