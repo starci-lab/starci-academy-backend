@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "featureId": "global-chat",
+  "facts": [
+    {
+      "kind": "owner-intent",
+      "owner": "product-owner",
+      "source": "request:current",
+      "revision": "sha256:73cc922670248e076898ff1f7169d335028a22306fefa28b9ef6a2d8bd2ea40c",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "Model StarCi Academy Global Chat business authority."
+    },
+    {
+      "kind": "business-baseline",
+      "owner": "starci-academy-business-authority",
+      "source": "business-registry-v1.json",
+      "revision": "sha256:0d8e73c42e802e2fc27ae916e0d0d03def07b0cfa9760c4701f32e8297f47ae2",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "No global-chat feature head existed before this publication."
+    },
+    {
+      "kind": "owner-approval",
+      "owner": "product-owner",
+      "source": "session://tasks/global-chat-business-20260825/approval/70cca2621a1a69881b24d2a1a580dac3583f1f5e521d14c870ff1e6c0d874122",
+      "revision": "sha256:bf97a33765febcbd4e7f87b7deba5cb41f8df52d1fe20fafbabbfe12a94121bc",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "The exact modeled revision was approved."
+    }
+  ]
+}

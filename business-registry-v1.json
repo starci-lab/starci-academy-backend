@@ -133,6 +133,23 @@
           "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
         }
       ]
+    },
+    "global-chat": {
+      "featureId": "global-chat",
+      "head": "70cca2621a1a69881b24d2a1a580dac3583f1f5e521d14c870ff1e6c0d874122",
+      "authorityStatus": "modeled",
+      "baseHead": null,
+      "previousHead": null,
+      "sources": [
+        {
+          "role": "fe",
+          "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
+        },
+        {
+          "role": "be",
+          "head": "eeeaef30b60b823eb894fed410cc6742ed0bd08f"
+        }
+      ]
     }
   },
   "objects": {
@@ -369,6 +386,10 @@
       "362e268e5e7139abd534bed976dd909c36a3280639ac2fa7e18f3f1f09fd0238": {
         "hash": "362e268e5e7139abd534bed976dd909c36a3280639ac2fa7e18f3f1f09fd0238",
         "path": "objects/sha256/362e268e5e7139abd534bed976dd909c36a3280639ac2fa7e18f3f1f09fd0238.json"
+      },
+      "70cca2621a1a69881b24d2a1a580dac3583f1f5e521d14c870ff1e6c0d874122": {
+        "hash": "70cca2621a1a69881b24d2a1a580dac3583f1f5e521d14c870ff1e6c0d874122",
+        "path": "objects/sha256/70cca2621a1a69881b24d2a1a580dac3583f1f5e521d14c870ff1e6c0d874122.json"
       }
     }
   }

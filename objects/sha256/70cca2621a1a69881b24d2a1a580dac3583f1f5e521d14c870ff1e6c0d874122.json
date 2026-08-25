@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "global-chat",
+  "title": "Global Chat",
+  "lifecycle": {
+    "status": "modeled",
+    "baseHead": null,
+    "previousHead": null
+  },
+  "intent": "Create one academy-wide, safe, low-friction community conversation space that helps active learners ask, answer, and connect outside a single course context.",
+  "businessValue": [
+    "increase learner belonging and return frequency",
+    "shorten time to peer help",
+    "surface community expertise",
+    "create a moderated cross-course community layer"
+  ],
+  "actors": [
+    {
+      "id": "active-member",
+      "goal": "read and participate in the academy-wide conversation"
+    },
+    {
+      "id": "moderator",
+      "goal": "keep conversation safe, relevant, and recoverable"
+    },
+    {
+      "id": "community-admin",
+      "goal": "set policy, appoint moderators, and review escalations"
+    },
+    {
+      "id": "platform",
+      "goal": "enforce eligibility, delivery, unread, and moderation outcomes"
+    }
+  ],
+  "eligibility": {
+    "read": "authenticated active academy member unless chat-banned",
+    "write": "authenticated active academy member unless muted or chat-banned",
+    "guest": "not eligible"
+  },
+  "journeys": [
+    "discover Global Chat from persistent academy navigation and open the shared room",
+    "catch up from the last-read point and see unread and mention indicators",
+    "post a text message, reply to a message, react, edit own message, or remove own message",
+    "report a message or member and immediately hide that content for the reporter",
+    "moderator reviews a report, dismisses it, removes content, mutes a member, bans a member, or escalates it",
+    "community admin reviews escalations and restores or confirms moderation outcomes"
+  ],
+  "surfaces": [
+    "global-chat-room",
+    "message-context",
+    "unread-and-mentions",
+    "report-dialog",
+    "moderation-queue",
+    "moderation-case-detail"
+  ],
+  "operations": [
+    "enter-room",
+    "read-history",
+    "post-message",
+    "reply",
+    "react",
+    "edit-own-message",
+    "remove-own-message",
+    "report",
+    "mute-room-notifications",
+    "moderate-content",
+    "mute-member",
+    "ban-member",
+    "appeal-or-review"
+  ],
+  "states": {
+    "room": [
+      "active",
+      "read-only",
+      "archived"
+    ],
+    "message": [
+      "visible",
+      "edited",
+      "author-removed",
+      "moderator-removed"
+    ],
+    "memberChatAccess": [
+      "active",
+      "muted",
+      "banned"
+    ],
+    "report": [
+      "open",
+      "under-review",
+      "dismissed",
+      "actioned",
+      "escalated",
+      "closed"
+    ]
+  },
+  "rules": [
+    "Global Chat is one academy-wide public-to-members room, not a direct-message or course-specific channel.",
+    "Only eligible authenticated members can read or write; membership and chat sanctions are enforced at every operation.",
+    "Text, emoji, reactions, replies, mentions, and safe links are MVP content; file, image, audio, video, voice, and live calls are out of MVP.",
+    "An author can edit or remove only their own message; every edit is visibly marked.",
+    "Removal hides content from ordinary members but preserves an auditable moderation record.",
+    "Reporting is confidential; the reported member is not told the reporter identity.",
+    "A reporter immediately stops seeing the reported content while the case remains independently reviewable.",
+    "Moderators must choose a reason for content removal, mute, ban, restoration, or dismissal.",
+    "Room notification is in-app and user-mutable; email and push notifications are out of MVP.",
+    "Spam, flooding, impersonation, harassment, hate, sexual exploitation, doxxing, malware, and illegal content are prohibited.",
+    "Course-specific questions may occur, but canonical course Q&A remains owned by course-learning and is not replaced by Global Chat.",
+    "The product must retain sufficient moderation evidence and expose a policy-controlled retention period before production launch."
+  ],
+  "failures": [
+    {
+      "case": "member not eligible",
+      "outcome": "deny room or write action with a clear access state"
+    },
+    {
+      "case": "member muted",
+      "outcome": "allow policy-defined reading but deny posting until mute expiry"
+    },
+    {
+      "case": "member banned",
+      "outcome": "deny Global Chat access until restored"
+    },
+    {
+      "case": "message rejected by safety policy",
+      "outcome": "do not publish and explain the category without exposing moderation internals"
+    },
+    {
+      "case": "duplicate send",
+      "outcome": "one user action produces at most one visible message"
+    },
+    {
+      "case": "moderation race",
+      "outcome": "the latest valid moderation decision is authoritative and auditable"
+    }
+  ],
+  "acceptance": [
+    "An active authenticated member opens Global Chat, reads recent history, posts text, and another eligible member can observe the same visible message.",
+    "A guest or inactive member cannot read or post.",
+    "A member can reply, react, mention, edit, and remove only content they own; unauthorized ownership actions are denied.",
+    "Unread position and mention indicators advance predictably when the member reads the room.",
+    "A report creates one confidential moderation case and hides the reported content for the reporter without deciding guilt.",
+    "A moderator can dismiss, remove, mute, ban, escalate, and record a reason; ordinary members see only the resulting public state.",
+    "Muted and banned access states are consistently enforced across read and write paths.",
+    "Moderator removal and restoration preserve an audit trail.",
+    "MVP does not expose direct messages, arbitrary member-created rooms, media uploads, voice/video, or external notifications.",
+    "Production launch is blocked until policy owner, moderator coverage, prohibited-content policy, retention period, and escalation response targets are approved."
+  ],
+  "nonGoals": [
+    "direct messages",
+    "course-specific canonical Q&A",
+    "member-created groups or rooms",
+    "media uploads",
+    "voice or video",
+    "AI-generated replies",
+    "external email or push notification",
+    "public unauthenticated viewing"
+  ],
+  "kpis": [
+    "weekly active chat participants",
+    "reader-to-participant conversion",
+    "percentage of questions receiving a peer reply",
+    "median time to first reply",
+    "7-day return rate of chat participants",
+    "reports per 1000 messages",
+    "median moderation resolution time",
+    "repeat-offender rate"
+  ],
+  "launchGates": [
+    "named business policy owner",
+    "documented community policy",
+    "moderator staffing schedule",
+    "retention period approved by privacy/legal owner",
+    "severity and escalation matrix",
+    "report-response service targets",
+    "pilot success and safety thresholds"
+  ],
+  "openDecisions": [
+    "whether chat-banned members may read or are fully denied",
+    "exact edit window and whether edit history is visible to members",
+    "exact message and moderation-evidence retention periods",
+    "moderator coverage hours and severity-based response targets",
+    "minimum account age or trust threshold for posting safe links",
+    "whether mentions are available to all members at launch",
+    "pilot cohort and numerical KPI thresholds"
+  ],
+  "evidence": [
+    {
+      "kind": "owner-intent",
+      "ref": "request:current",
+      "revision": "sha256:73cc922670248e076898ff1f7169d335028a22306fefa28b9ef6a2d8bd2ea40c",
+      "confidence": "high",
+      "conflict": "none"
+    },
+    {
+      "kind": "business-baseline",
+      "ref": ".worktrees/starci-academy/businesses/business-registry-v1.json",
+      "revision": "sha256:0d8e73c42e802e2fc27ae916e0d0d03def07b0cfa9760c4701f32e8297f47ae2",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "global-chat head absent"
+    }
+  ]
+}
