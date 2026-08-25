@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "featureId": "learn-ai-assistant",
+  "facts": [
+    {
+      "kind": "owner-intent",
+      "owner": "product-owner",
+      "source": "request:current",
+      "revision": "sha256:eda106c793299cbf90a5bc597a51399e81ef50adaca50b2d06a355b1b789483f",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "Provide an AI assistant throughout Learn with the active course or enrollment as primary scope."
+    },
+    {
+      "kind": "owner-correction",
+      "owner": "product-owner",
+      "source": "request:learn-ai-chat-correction",
+      "revision": "sha256:b24bc6afcc0245484708528279fd4a32fb1b7ac9eaebf1755259c552a523d7eb",
+      "confidence": "high",
+      "conflict": "supersedes-global-chat-interpretation",
+      "finding": "The requested chat is an individual AI learning assistant, not academy-wide member community chat."
+    },
+    {
+      "kind": "scope-clarification",
+      "owner": "product-owner",
+      "source": "request:course-wide-scope",
+      "revision": "sha256:4be51106e660202e0b9c0e73b717d9fab66d0d954908ac54b3f4cba57bb2c91c",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "The assistant is available across Learn; lesson, challenge, quiz, and selected text are optional contextual anchors."
+    },
+    {
+      "kind": "business-baseline",
+      "owner": "starci-academy-business-authority",
+      "source": "objects/sha256/97b2978cc5705323a692a1839e6ee51ad9d189aa90cbd943a61b9f9305670860.json",
+      "revision": "sha256:97b2978cc5705323a692a1839e6ee51ad9d189aa90cbd943a61b9f9305670860",
+      "confidence": "high",
+      "conflict": "rejected-feature-scope",
+      "finding": "The published global-chat model remains separate history and is not authority for this feature."
+    },
+    {
+      "kind": "owner-approval",
+      "owner": "product-owner",
+      "source": "session://tasks/business-learn-ai-course-assistant-20260825/approval/92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824",
+      "revision": "sha256:bac407efee7dee0cd93a075fd784d20945ed756dbef7657056f908fadc1b7b15",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "The exact modeled Learn AI Assistant revision was approved."
+    },
+    {
+      "kind": "source-baseline",
+      "owner": "starci-academy-backend",
+      "source": "repository:starci-academy/be",
+      "revision": "git:b3af7fa540893667febf893b1e01fb991d5f6caf",
+      "routeRevision": "sha256:f39ec943b1353f370478a08901f34b8cb05f61a6dbde6a00e2d2e86bfe0726dd",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "Business authority was modeled against the current routed backend source baseline without reading product source."
+    }
+  ]
+}
+

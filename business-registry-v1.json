@@ -150,6 +150,19 @@
           "head": "373b578dcea5d0c4d6deb83dbe2663615c1a045d"
         }
       ]
+    },
+    "learn-ai-assistant": {
+      "featureId": "learn-ai-assistant",
+      "head": "92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824",
+      "authorityStatus": "modeled",
+      "baseHead": null,
+      "previousHead": null,
+      "sources": [
+        {
+          "role": "be",
+          "head": "b3af7fa540893667febf893b1e01fb991d5f6caf"
+        }
+      ]
     }
   },
   "objects": {
@@ -394,6 +407,10 @@
       "97b2978cc5705323a692a1839e6ee51ad9d189aa90cbd943a61b9f9305670860": {
         "hash": "97b2978cc5705323a692a1839e6ee51ad9d189aa90cbd943a61b9f9305670860",
         "path": "objects/sha256/97b2978cc5705323a692a1839e6ee51ad9d189aa90cbd943a61b9f9305670860.json"
+      },
+      "92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824": {
+        "hash": "92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824",
+        "path": "objects/sha256/92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824.json"
       }
     }
   }

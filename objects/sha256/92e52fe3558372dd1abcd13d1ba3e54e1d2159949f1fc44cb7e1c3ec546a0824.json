@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "learn-ai-assistant",
+  "title": "Learn AI Assistant",
+  "lifecycle": {
+    "status": "modeled",
+    "baseHead": null,
+    "previousHead": null
+  },
+  "intent": "Provide every eligible learner with one persistent AI assistant throughout the Learn workspace, grounded first in the active course or enrollment while allowing the current learning item and selected text to refine an individual request.",
+  "businessValue": [
+    "reduce friction when learners encounter unfamiliar language or concepts",
+    "shorten time from confusion to continued learning",
+    "provide consistent course-aware help across every Learn screen",
+    "improve completion without requiring the learner to leave the course workspace"
+  ],
+  "actors": [
+    {
+      "id": "active-learner",
+      "goal": "understand course content and continue learning with contextual AI help"
+    },
+    {
+      "id": "platform-ai-assistant",
+      "goal": "answer within the learner's authorized course context and preserve conversation continuity"
+    },
+    {
+      "id": "course-owner",
+      "goal": "protect course meaning, learning integrity, and authorized content boundaries"
+    },
+    {
+      "id": "platform-operator",
+      "goal": "control safety, privacy, availability, cost, and provider behavior"
+    }
+  ],
+  "eligibility": {
+    "use": "authenticated learner with current Learn access to the active course or enrollment",
+    "contentContext": "only content the learner is authorized to access",
+    "guest": "not eligible"
+  },
+  "journeys": [
+    "enter any screen in Learn and open the same assistant for the active course or enrollment",
+    "ask a course-level question without selecting a lesson, challenge, quiz, or text fragment",
+    "navigate between course overview, lesson, challenge, quiz, and other Learn screens while conversation continuity remains",
+    "select or copy course text and ask the assistant to translate, explain, simplify, or summarize it",
+    "ask for an explanation, example, progressive hint, or debugging guidance for the current challenge",
+    "review the context used by the assistant, remove optional context, retry a failed request, or start a new course conversation"
+  ],
+  "surfaces": [
+    "learn-assistant-entry",
+    "course-conversation",
+    "active-context-summary",
+    "selected-text-action",
+    "assistant-response",
+    "conversation-controls"
+  ],
+  "operations": [
+    "open-assistant",
+    "ask-course-question",
+    "attach-current-learning-item",
+    "attach-selected-text",
+    "translate-selection",
+    "explain-concept",
+    "summarize-content",
+    "request-example",
+    "request-progressive-hint",
+    "request-debugging-guidance",
+    "copy-response",
+    "retry-request",
+    "cancel-response",
+    "remove-optional-context",
+    "start-new-conversation"
+  ],
+  "states": {
+    "assistant": [
+      "ready",
+      "responding",
+      "temporarily-unavailable"
+    ],
+    "conversation": [
+      "empty",
+      "active",
+      "reset"
+    ],
+    "context": [
+      "course-only",
+      "course-with-learning-item",
+      "course-with-selection"
+    ],
+    "request": [
+      "queued",
+      "streaming",
+      "completed",
+      "failed",
+      "cancelled"
+    ],
+    "enrollmentAccess": [
+      "eligible",
+      "expired",
+      "revoked"
+    ]
+  },
+  "rules": [
+    "The assistant is available throughout Learn; no lesson, challenge, quiz, or other individual learning item is required to start a conversation.",
+    "The active course or enrollment is the primary scope for grounding, authorization, history, and continuity.",
+    "A lesson, challenge, quiz, current screen, or selected text is optional request context and never the sole owner of the conversation.",
+    "The same course conversation remains available while the learner navigates across Learn screens within that course.",
+    "Switching courses changes the primary scope and must not silently carry private or course-specific context into the new course.",
+    "The assistant may translate, explain, simplify, summarize, provide examples, and give progressive challenge or debugging guidance.",
+    "The assistant never submits a quiz, challenge, assessment, or code result on behalf of the learner and is not the authority for grades or completion.",
+    "Only content and progress context the learner is authorized to access may be supplied to the assistant.",
+    "Selected text is included only after an explicit learner action and can be removed before sending.",
+    "Responses are visibly identified as AI-generated and must communicate uncertainty when the available course context is insufficient.",
+    "Conversation data, prompts, selected text, course content, and generated responses follow approved privacy, retention, safety, and provider-processing policy.",
+    "The assistant is an individual learning aid, not academy-wide community chat, member-to-member messaging, canonical course Q&A, or instructor communication."
+  ],
+  "failures": [
+    {
+      "case": "learner has no current course access",
+      "outcome": "deny assistant use for that course and show the access state"
+    },
+    {
+      "case": "course or learning-item context becomes stale",
+      "outcome": "refresh authorized context or ask the learner to resend without using stale content"
+    },
+    {
+      "case": "selected text is empty, too large, or unsupported",
+      "outcome": "preserve the draft, explain the limit, and allow the learner to adjust the selection"
+    },
+    {
+      "case": "AI provider times out or fails",
+      "outcome": "keep the learner message, expose retry, and do not duplicate a completed response"
+    },
+    {
+      "case": "course changes during an active request",
+      "outcome": "complete or cancel against the original course scope and never merge context silently"
+    },
+    {
+      "case": "request conflicts with safety or learning-integrity policy",
+      "outcome": "decline the unsafe portion and offer bounded learning help"
+    },
+    {
+      "case": "grounding is insufficient or contradictory",
+      "outcome": "state uncertainty, distinguish course-backed context from general explanation, and ask a clarifying question"
+    }
+  ],
+  "acceptance": [
+    "An eligible learner can open the assistant from every Learn screen and ask a course-level question without an active lesson or challenge.",
+    "One course conversation remains continuous while the learner navigates among course overview, lesson, challenge, quiz, and other Learn surfaces.",
+    "A learner can explicitly attach selected course text and receive a translation in the requested supported language.",
+    "A learner can ask for explanation, simplification, summary, or an example using course-level context plus any optional current item.",
+    "A learner can request progressive help for a challenge without the assistant submitting or changing the learner's work.",
+    "The learner can see which course and optional learning-item or selected-text context will be used and can remove optional context.",
+    "A course switch creates or resumes the target course scope without leaking the previous course's context.",
+    "Expired or revoked enrollment prevents new assistant use and prevents unauthorized content from being supplied.",
+    "A failed response can be retried without duplicating a successfully completed turn.",
+    "MVP clearly separates the Learn AI Assistant from community chat, member messaging, instructor communication, and canonical grading."
+  ],
+  "nonGoals": [
+    "academy-wide community chat",
+    "member-to-member or direct messaging",
+    "lesson-only, challenge-only, or quiz-only conversation ownership",
+    "automatic quiz, challenge, assessment, or code submission",
+    "authoring or editing canonical course content",
+    "instructor or moderator communication",
+    "cross-course memory by default",
+    "voice or video calls",
+    "arbitrary file uploads",
+    "public unauthenticated access"
+  ],
+  "kpis": [
+    "weekly active eligible learners using the assistant",
+    "assistant adoption across distinct Learn surfaces",
+    "learner-rated helpful response rate",
+    "translation request completion rate",
+    "challenge-help continuation rate",
+    "median time from first question to resumed learning activity",
+    "response completion latency",
+    "provider and policy failure rate",
+    "AI cost per active assisted learner",
+    "learning-integrity incident rate"
+  ],
+  "launchGates": [
+    "approved AI provider, data-processing, privacy, and retention policy",
+    "course authorization and cross-course isolation proof",
+    "grounding and context-size policy",
+    "supported-language and translation quality evaluation",
+    "challenge and assessment integrity policy",
+    "safety refusal and escalation policy",
+    "usage limits, cost controls, and abuse protection",
+    "latency, failure, retry, and provider-degradation observability",
+    "representative course-level helpfulness evaluation",
+    "learner-facing AI disclosure and context transparency"
+  ],
+  "openDecisions": [
+    "exact conversation retention period and learner deletion controls",
+    "whether course conversations synchronize across devices",
+    "AI provider and model-routing policy",
+    "which languages are supported at launch and how target language is selected",
+    "whether responses show course-content citations or source locations",
+    "maximum selected-text and course-context size",
+    "depth of hints or solution disclosure for graded challenges and quizzes",
+    "per-learner and per-course usage limits",
+    "whether course owners can configure assistant behavior or disable it",
+    "whether a learner can intentionally bring context from another enrolled course"
+  ],
+  "evidence": [
+    {
+      "kind": "owner-intent",
+      "ref": "request:current",
+      "revision": "sha256:eda106c793299cbf90a5bc597a51399e81ef50adaca50b2d06a355b1b789483f",
+      "confidence": "high",
+      "conflict": "none"
+    },
+    {
+      "kind": "owner-correction",
+      "ref": "request:learn-ai-chat-correction",
+      "revision": "sha256:b24bc6afcc0245484708528279fd4a32fb1b7ac9eaebf1755259c552a523d7eb",
+      "confidence": "high",
+      "conflict": "supersedes-global-chat-interpretation"
+    },
+    {
+      "kind": "scope-clarification",
+      "ref": "request:course-wide-scope",
+      "revision": "sha256:4be51106e660202e0b9c0e73b717d9fab66d0d954908ac54b3f4cba57bb2c91c",
+      "confidence": "high",
+      "conflict": "none"
+    },
+    {
+      "kind": "business-baseline",
+      "ref": ".worktrees/starci-academy/businesses/objects/sha256/97b2978cc5705323a692a1839e6ee51ad9d189aa90cbd943a61b9f9305670860.json",
+      "revision": "sha256:97b2978cc5705323a692a1839e6ee51ad9d189aa90cbd943a61b9f9305670860",
+      "confidence": "high",
+      "conflict": "rejected-feature-scope"
+    },
+    {
+      "kind": "source-baseline",
+      "ref": "repository:starci-academy/be",
+      "revision": "git:b3af7fa540893667febf893b1e01fb991d5f6caf",
+      "routeRevision": "sha256:f39ec943b1353f370478a08901f34b8cb05f61a6dbde6a00e2d2e86bfe0726dd",
+      "confidence": "high",
+      "conflict": "none"
+    }
+  ]
+}
+
