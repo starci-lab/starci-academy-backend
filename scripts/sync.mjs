@@ -17,7 +17,8 @@
  *   3. check `sops` + `age` are on PATH
  *   4. sops-decrypt every .stacks/dev/**\/*.enc to the plaintext twin beside it
  *   5. GENERATE the env bridge            <-- the step that makes a fresh box boot
- *   6. clone/pull every gitmount declared in metadata.json
+ *   6. clone/pull every gitmount declared in metadata.json, using an encrypted
+ *      runtime credential when the mount declares one
  *   7. create empty placeholders for the mount files boot would ENOENT on
  *   8. cross-check .stacks/dev/runtime/env/KEYS.md against what was produced
  *   9. print the resolved ports and the next commands
@@ -1305,10 +1306,67 @@ const gitmountPath = (name) => {
 }
 
 /**
+ * Builds a non-interactive Git environment for one mount. A declared token is
+ * read from its already decrypted runtime file and passed to Git through a
+ * process-only config entry. It is never persisted in the remote URL, Git
+ * config, generated env bridge, or command line.
+ * @param mount - one metadata.json gitmount declaration.
+ * @param credentials - `{ pointers }` from readCredentialValues.
+ * @returns `{ env, authenticated }`.
+ */
+const gitmountEnvironment = (mount, credentials) => {
+    const env = {
+        ...process.env,
+        GIT_TERMINAL_PROMPT: "0",
+    }
+    const names = [mount.credentialEnv,
+        ...(Array.isArray(mount.credentialFallbackEnvs)
+            ? mount.credentialFallbackEnvs
+            : [])].filter((name) => typeof name === "string" && name !== "")
+    const credentialName = names.find((name) => credentials.pointers.has(name))
+    if (!credentialName) {
+        return {
+            env, authenticated: false
+        }
+    }
+    const pointer = credentials.pointers.get(credentialName)
+    const tokenPath = join(REPO_ROOT,
+        pointer.split("/").join(sep))
+    const token = readFileSync(tokenPath,
+        "utf8").trim()
+    if (token === "") {
+        return {
+            env, authenticated: false
+        }
+    }
+    let origin
+    try {
+        origin = new URL(mount.repo).origin
+    } catch {
+        return {
+            env, authenticated: false
+        }
+    }
+    const parsedCount = Number.parseInt(env.GIT_CONFIG_COUNT ?? "0",
+        10)
+    const configIndex = Number.isSafeInteger(parsedCount) && parsedCount >= 0
+        ? parsedCount
+        : 0
+    env.GIT_CONFIG_COUNT = String(configIndex + 1)
+    env[`GIT_CONFIG_KEY_${configIndex}`] = `http.${origin}/.extraheader`
+    env[`GIT_CONFIG_VALUE_${configIndex}`] = `Authorization: Basic ${Buffer.from(`x-access-token:${token}`,
+        "utf8").toString("base64")}`
+    return {
+        env, authenticated: true
+    }
+}
+
+/**
  * Clones or refreshes every gitmount declared in metadata.json. For this repo
  * that is the private seed-content repo that used to live at `.mount/data`.
+ * @param credentials - `{ pointers }` from readCredentialValues.
  */
-const syncGitmounts = () => {
+const syncGitmounts = (credentials) => {
     step(".gitmounts")
     const declared = readMetadataRaw().gitmounts
     if (!declared || Object.keys(declared).length === 0) {
@@ -1321,6 +1379,8 @@ const syncGitmounts = () => {
                 "Install git, then re-run `npm run sync`."])
     }
     for (const [name, mount] of Object.entries(declared)) {
+        const auth = gitmountEnvironment(mount,
+            credentials)
         const label = mount.path || `.gitmounts/${name}`
         const target = join(REPO_ROOT,
             label.split("/").join(sep))
@@ -1330,7 +1390,10 @@ const syncGitmounts = () => {
                 ["-C",
                     target,
                     "pull",
-                    "--ff-only"])
+                    "--ff-only"],
+                {
+                    env: auth.env
+                })
             if (result.status === 0) {
                 ok(`${label} -- ${result.stdout.trim().split(/\r?\n/).pop() || "up to date"}`)
             } else {
@@ -1350,13 +1413,18 @@ const syncGitmounts = () => {
         args.push(mount.repo,
             target)
         const result = run("git",
-            args)
+            args,
+            {
+                env: auth.env
+            })
         if (result.status !== 0) {
             fail(`could not clone ${mount.repo} into ${label}`,
                 [result.stderr.trim().split(/\r?\n/).slice(-3).join("\n    "),
                     "",
-                    "It may be a PRIVATE repo -- git has to be authenticated to GitHub:",
-                    "  gh auth login          (or configure a git credential helper)",
+                    auth.authenticated
+                        ? "The encrypted Git credential was supplied but GitHub rejected or could not use it."
+                        : "It may be a PRIVATE repo and no declared encrypted Git credential was available.",
+                    "Check the mount credential declaration and encrypted runtime file,",
                     "then re-run `npm run sync`."])
         }
         ok(`${label} cloned`)
@@ -1655,7 +1723,7 @@ const main = async () => {
     // Skipped under --quiet: this clones/pulls over the network, and the prestart
     // hook must not turn `npm run start:dev` into a network-dependent command.
     if (!QUIET) {
-        syncGitmounts()
+        syncGitmounts(credentials)
     }
     ensureRuntimeFiles(table,
         dataMountPath)

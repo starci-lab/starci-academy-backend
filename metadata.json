@@ -61,6 +61,8 @@
         "data": {
             "repo": "https://github.com/starci-lab/data.git",
             "path": ".gitmounts/data",
+            "credentialEnv": "DATA_GIT_TOKEN",
+            "credentialFallbackEnvs": ["GITHUB_ACCESS_TOKEN"],
             "description": "Private seed-content repo (courses, coding problems, achievements, changelog, advertisements, mock-interview-eq). Replaces .mount/data. No \"ref\" on purpose: clone the repo default branch."
         }
     }
