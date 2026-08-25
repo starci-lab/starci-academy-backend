@@ -22,7 +22,7 @@
         "build": "nest build core",
     "sync": "node scripts/sync.mjs",
     "workspace:bootstrap": "node .claude/scripts/workspace-portable.mjs bootstrap --source . --repositories-root .. --credential-file .stacks/dev/runtime/files/data-git-token.key --apply",
-    "sync:device": "npm run sync && npm run workspace:bootstrap",
+    "sync:device": "npm run sync && npm --prefix .claude ci && npm --prefix .claude run setup:python && npm run workspace:bootstrap",
         "compose": "node scripts/compose.mjs",
         "compose:starci": "node scripts/starci-compose.mjs",
         "secret:gen": "node scripts/secrets-gen.mjs",
