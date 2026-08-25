@@ -1,23 +1,29 @@
 import {
-    Injectable,
+    Injectable 
 } from "@nestjs/common"
 import {
-    EntityManager,
+    EntityManager, In, Not 
 } from "typeorm"
 import {
-    ChatConversationEntity,
+    randomUUID 
+} from "node:crypto"
+import {
+    ChatConversationEntity 
 } from "@modules/databases/postgresql/primary/entities/chat-conversation.entity"
 import {
-    ChatMessageEntity,
+    ChatMessageEntity 
 } from "@modules/databases/postgresql/primary/entities/chat-message.entity"
 import {
-    UserEntity,
+    ChatReportEntity 
+} from "@modules/databases/postgresql/primary/entities/chat-report.entity"
+import {
+    UserEntity 
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
-    ChatConversationType,
+    ChatConversationType 
 } from "@modules/databases/postgresql/primary/enums/chat-conversation-type"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
+    InjectPrimaryPostgreSQLEntityManager 
 } from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ChatConversationNotFoundException,
@@ -25,16 +31,16 @@ import {
     ChatMembershipRequiredException,
 } from "@modules/platform/exceptions/errors/community/chat"
 import {
-    EventName,
+    EventName 
 } from "@modules/platform/event/enums/event-name"
 import {
-    EventEmitterService,
+    EventEmitterService 
 } from "@modules/platform/event/event-emitter.service"
 import {
-    envConfig,
+    envConfig 
 } from "@modules/platform/env/config"
 import {
-    MembershipService,
+    MembershipService 
 } from "@modules/membership/membership.service"
 import type {
     AssertChatAccessParams,
@@ -44,6 +50,12 @@ import type {
     ListChatMessagesResult,
     SendChatMessageParams,
 } from "./types"
+import {
+    GlobalChatPolicyService 
+} from "./global-chat-policy.service"
+import {
+    GlobalChatService 
+} from "./global-chat.service"
 
 @Injectable()
 /**
@@ -55,44 +67,31 @@ import type {
  */
 export class ChatService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly eventEmitterService: EventEmitterService,
-        private readonly membershipService: MembershipService,
+    @InjectPrimaryPostgreSQLEntityManager()
+    private readonly entityManager: EntityManager,
+    private readonly eventEmitterService: EventEmitterService,
+    private readonly membershipService: MembershipService,
+    private readonly globalChatService: GlobalChatService,
+    private readonly globalChatPolicyService: GlobalChatPolicyService,
     ) {}
 
     /**
-     * Loads (or lazily creates) the single global community chat conversation.
-     * @returns The community conversation row.
-     */
+   * Loads (or lazily creates) the single global community chat conversation.
+   * @returns The community conversation row.
+   */
     async getOrCreateCommunityConversation(): Promise<ChatConversationEntity> {
-        // there is exactly one community room (member = null) -- find it first
-        const existing = await this.entityManager.findOne(ChatConversationEntity,
-            {
-                where: {
-                    type: ChatConversationType.Community,
-                },
-            })
-        if (existing) {
-            return existing
-        }
-        // first access ever -> create the singleton community room
-        return this.entityManager.save(this.entityManager.create(ChatConversationEntity,
-            {
-                type: ChatConversationType.Community,
-                member: null,
-            }))
+        return this.globalChatService.getOrCreateRoom()
     }
 
     /**
-     * Loads (or lazily creates) a member's private founder DM conversation.
-     * @param params - {@link GetOrCreateFounderDmParams}
-     * @returns The member's founder DM conversation row.
-     */
+   * Loads (or lazily creates) a member's private founder DM conversation.
+   * @param params - {@link GetOrCreateFounderDmParams}
+   * @returns The member's founder DM conversation row.
+   */
     async getOrCreateFounderDm({
         memberId,
     }: GetOrCreateFounderDmParams): Promise<ChatConversationEntity> {
-        // one DM per member -- find this member's thread first
+    // one DM per member -- find this member's thread first
         const existing = await this.entityManager.findOne(ChatConversationEntity,
             {
                 where: {
@@ -106,28 +105,34 @@ export class ChatService {
             return existing
         }
         // first time the member opens the DM -> create it
-        return this.entityManager.save(this.entityManager.create(ChatConversationEntity,
-            {
-                type: ChatConversationType.FounderDm,
-                member: {
-                    id: memberId,
-                },
-            }))
+        return this.entityManager.save(
+            this.entityManager.create(ChatConversationEntity,
+                {
+                    type: ChatConversationType.FounderDm,
+                    member: {
+                        id: memberId,
+                    },
+                }),
+        )
     }
 
     /**
-     * Loads a conversation by id, or throws if it does not exist.
-     * @param conversationId - Conversation primary id.
-     * @returns The conversation row.
-     */
-    async getConversationOrThrow(conversationId: string): Promise<ChatConversationEntity> {
-        // load the row so callers can access-check + scope messages to it
-        const conversation = await this.entityManager.findOne(ChatConversationEntity,
+   * Loads a conversation by id, or throws if it does not exist.
+   * @param conversationId - Conversation primary id.
+   * @returns The conversation row.
+   */
+    async getConversationOrThrow(
+        conversationId: string,
+    ): Promise<ChatConversationEntity> {
+    // load the row so callers can access-check + scope messages to it
+        const conversation = await this.entityManager.findOne(
+            ChatConversationEntity,
             {
                 where: {
                     id: conversationId,
                 },
-            })
+            },
+        )
         // a missing row is a hard not-found for every caller
         if (!conversation) {
             throw new ChatConversationNotFoundException({
@@ -138,11 +143,11 @@ export class ChatService {
     }
 
     /**
-     * Authorizes a realtime room subscription using the identity established by
-     * the Socket.IO handshake. Keeping this in the domain service makes socket
-     * reads obey the same membership and founder-DM policy as GraphQL reads and
-     * writes; a room join must never be a policy bypass.
-     */
+   * Authorizes a realtime room subscription using the identity established by
+   * the Socket.IO handshake. Keeping this in the domain service makes socket
+   * reads obey the same membership and founder-DM policy as GraphQL reads and
+   * writes; a room join must never be a policy bypass.
+   */
     async assertCanSubscribe({
         conversationId,
         keycloakId,
@@ -167,29 +172,52 @@ export class ChatService {
     }
 
     /**
-     * Lists a page of a conversation's messages (newest-first), after access checks.
-     * @param params - {@link ListChatMessagesParams}
-     * @returns The page of messages + total count.
-     */
+   * Lists a page of a conversation's messages (newest-first), after access checks.
+   * @param params - {@link ListChatMessagesParams}
+   * @returns The page of messages + total count.
+   */
     async listMessages({
         conversationId,
         user,
         offset,
         limit,
     }: ListChatMessagesParams): Promise<ListChatMessagesResult> {
-        // resolve + access-check the conversation before reading any message
+    // resolve + access-check the conversation before reading any message
         const conversation = await this.getConversationOrThrow(conversationId)
         await this.assertCanAccess({
             conversation,
             user,
         })
         // newest-first page; total drives the cursor in the resolver
-        const [
-            messages,
-            total,
-        ] = await this.entityManager.findAndCount(ChatMessageEntity,
+        const hiddenReports =
+      conversation.type === ChatConversationType.Community
+          ? await this.entityManager.find(ChatReportEntity,
+              {
+                  where: {
+                      conversation: {
+                          id: conversationId,
+                      },
+                      reporter: {
+                          id: user.id,
+                      },
+                      reporterHidden: true,
+                  },
+              })
+          : []
+        const hiddenMessageIds = hiddenReports
+            .map((report) => report.messageId)
+            .filter((messageId): messageId is string => Boolean(messageId))
+        const [messages,
+            total] = await this.entityManager.findAndCount(
+            ChatMessageEntity,
             {
                 where: {
+                    ...(hiddenMessageIds.length
+                        ? {
+                            id: Not(In(hiddenMessageIds)),
+                        }
+                        : {
+                        }),
                     conversation: {
                         id: conversationId,
                     },
@@ -202,7 +230,8 @@ export class ChatService {
                 },
                 skip: offset,
                 take: limit,
-            })
+            },
+        )
         return {
             messages,
             total,
@@ -210,21 +239,46 @@ export class ChatService {
     }
 
     /**
-     * Sends a message to a conversation, after access checks, and fans out the event.
-     * @param params - {@link SendChatMessageParams}
-     * @returns The persisted message (author relation loaded).
-     */
+   * Sends a message to a conversation, after access checks, and fans out the event.
+   * @param params - {@link SendChatMessageParams}
+   * @returns The persisted message (author relation loaded).
+   */
     async sendMessage({
         conversationId,
         body,
+        clientCommandId,
         user,
     }: SendChatMessageParams): Promise<ChatMessageEntity> {
-        // resolve + access-check the conversation before writing
+    // resolve + access-check the conversation before writing
         const conversation = await this.getConversationOrThrow(conversationId)
         await this.assertCanAccess({
             conversation,
             user,
         })
+        if (conversation.type === ChatConversationType.Community) {
+            const result = await this.globalChatService.sendMessage({
+                user,
+                commandId: clientCommandId ?? randomUUID(),
+                body,
+            })
+            const message = result.messageId
+                ? await this.entityManager.findOne(ChatMessageEntity,
+                    {
+                        where: {
+                            id: result.messageId,
+                        },
+                        relations: {
+                            author: true,
+                        },
+                    })
+                : null
+            if (!message) {
+                throw new ChatConversationNotFoundException({
+                    conversationId,
+                })
+            }
+            return message
+        }
         // build the row via relation ids only -- no need to load full rows
         const draft = this.entityManager.create(ChatMessageEntity,
             {
@@ -263,21 +317,28 @@ export class ChatService {
     }
 
     /**
-     * Asserts the user may participate in a conversation: an active membership is
-     * required for any chat, and a founder DM is further restricted to its owning
-     * member + the founder.
-     * @param params - {@link AssertChatAccessParams}
-     */
+   * Asserts the user may participate in a conversation: an active membership is
+   * required for any chat, and a founder DM is further restricted to its owning
+   * member + the founder.
+   * @param params - {@link AssertChatAccessParams}
+   */
     private async assertCanAccess({
         conversation,
         user,
     }: AssertChatAccessParams): Promise<void> {
-        // chat is member-only -- block anyone without an active membership
+    // chat is member-only -- block anyone without an active membership
         const isMember = await this.membershipService.isActive(user.id)
         if (!isMember) {
             throw new ChatMembershipRequiredException({
                 userId: user.id,
             })
+        }
+        if (conversation.type === ChatConversationType.Community) {
+            await this.globalChatPolicyService.assertCanRead({
+                conversationId: conversation.id,
+                user,
+            })
+            return
         }
         // a founder DM is private to its owning member + the founder
         if (conversation.type === ChatConversationType.FounderDm) {

@@ -1,24 +1,29 @@
 import {
-    Module,
+    Module 
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass,
+    ConfigurableModuleClass 
 } from "./community-chat.module-definition"
 import {
-    CommunityChatGateway,
+    CommunityChatGateway 
 } from "./community-chat.gateway"
 import {
-    CommunityChatRoomService,
+    CommunityChatRoomService 
 } from "./community-chat-room.service"
+import {
+    GlobalChatOutboxPublisherService 
+} from "./global-chat-outbox-publisher.service"
 
 @Module({
     providers: [
         CommunityChatGateway,
         CommunityChatRoomService,
+        GlobalChatOutboxPublisherService,
     ],
     exports: [
         CommunityChatGateway,
         CommunityChatRoomService,
+        GlobalChatOutboxPublisherService,
     ],
 })
 /**

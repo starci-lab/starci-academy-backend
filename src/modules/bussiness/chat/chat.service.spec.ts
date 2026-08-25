@@ -1,18 +1,23 @@
 import {
-    Test,
-    TestingModule,
+    Test, TestingModule 
 } from "@nestjs/testing"
 import {
-    getEntityManagerToken,
+    getEntityManagerToken 
 } from "@nestjs/typeorm"
 import {
-    ChatService,
+    ChatService 
 } from "./chat.service"
 import {
-    ChatConversationType,
+    GlobalChatPolicyService 
+} from "./global-chat-policy.service"
+import {
+    GlobalChatService 
+} from "./global-chat.service"
+import {
+    ChatConversationType 
 } from "@modules/databases/postgresql/primary/enums/chat-conversation-type"
 import type {
-    UserEntity,
+    UserEntity 
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ChatConversationNotFoundException,
@@ -20,19 +25,16 @@ import {
     ChatMembershipRequiredException,
 } from "@modules/platform/exceptions/errors/community/chat"
 import {
-    EventName,
-} from "@modules/platform/event/enums/event-name"
-import {
-    EventEmitterService,
+    EventEmitterService 
 } from "@modules/platform/event/event-emitter.service"
 import {
-    MembershipService,
+    MembershipService 
 } from "@modules/membership/membership.service"
 import {
-    makeEntityManagerMock,
+    makeEntityManagerMock 
 } from "@tests/mocks/entity-manager.mock"
 import type {
-    EntityManagerMock,
+    EntityManagerMock 
 } from "@tests/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
@@ -49,6 +51,12 @@ describe("ChatService",
         let entityManager: EntityManagerMock
         let eventEmitterService: jest.Mocked<Pick<EventEmitterService, "emit">>
         let membershipService: jest.Mocked<Pick<MembershipService, "isActive">>
+        let globalChatService: jest.Mocked<
+    Pick<GlobalChatService, "getOrCreateRoom" | "sendMessage">
+  >
+        let globalChatPolicyService: jest.Mocked<
+    Pick<GlobalChatPolicyService, "assertCanRead">
+  >
 
         const conversationId = "conversation-1"
         const member = {
@@ -79,6 +87,14 @@ describe("ChatService",
                 isActive: jest.fn().mockResolvedValue(true),
             } as unknown as jest.Mocked<Pick<MembershipService, "isActive">>
 
+            globalChatService = {
+                getOrCreateRoom: jest.fn(),
+                sendMessage: jest.fn(),
+            }
+            globalChatPolicyService = {
+                assertCanRead: jest.fn().mockResolvedValue(null),
+            }
+
             module = await Test.createTestingModule({
                 providers: [
                     ChatService,
@@ -94,6 +110,14 @@ describe("ChatService",
                         provide: MembershipService,
                         useValue: membershipService,
                     },
+                    {
+                        provide: GlobalChatService,
+                        useValue: globalChatService,
+                    },
+                    {
+                        provide: GlobalChatPolicyService,
+                        useValue: globalChatPolicyService,
+                    },
                 ],
             }).compile()
 
@@ -106,33 +130,21 @@ describe("ChatService",
 
         describe("getOrCreateCommunityConversation",
             () => {
-                it("returns the existing community room without creating a new one",
+                it("delegates singleton ownership to the canonical Global Chat service",
                     async () => {
                         const existing = {
                             id: conversationId,
                             type: ChatConversationType.Community,
                         }
-                        entityManager.findOne.mockResolvedValueOnce(existing)
+                        globalChatService.getOrCreateRoom.mockResolvedValueOnce(
+        existing as never,
+                        )
 
                         const result = await service.getOrCreateCommunityConversation()
 
                         expect(result).toBe(existing)
-                        expect(entityManager.save).not.toHaveBeenCalled()
-                    })
-
-                it("creates the singleton community room on first access",
-                    async () => {
-                        // findOne default resolves null -> nothing exists yet
-                        await service.getOrCreateCommunityConversation()
-
-                        expect(entityManager.create).toHaveBeenCalledWith(
-                            expect.anything(),
-                            expect.objectContaining({
-                                type: ChatConversationType.Community,
-                                member: null,
-                            }),
-                        )
-                        expect(entityManager.save).toHaveBeenCalledTimes(1)
+                        expect(globalChatService.getOrCreateRoom).toHaveBeenCalledTimes(1)
+                        expect(entityManager.findOne).not.toHaveBeenCalled()
                     })
             })
 
@@ -194,19 +206,23 @@ describe("ChatService",
                                 type: ChatConversationType.Community,
                             })
 
-                        await expect(service.assertCanSubscribe({
-                            conversationId,
-                            keycloakId: "kc-member-1",
-                        })).resolves.toBeUndefined()
+                        await expect(
+                            service.assertCanSubscribe({
+                                conversationId,
+                                keycloakId: "kc-member-1",
+                            }),
+                        ).resolves.toBeUndefined()
                         expect(membershipService.isActive).toHaveBeenCalledWith(member.id)
                     })
 
                 it("does not authorize a Keycloak subject without a local user",
                     async () => {
-                        await expect(service.assertCanSubscribe({
-                            conversationId,
-                            keycloakId: "kc-missing",
-                        })).rejects.toBeInstanceOf(ChatForbiddenException)
+                        await expect(
+                            service.assertCanSubscribe({
+                                conversationId,
+                                keycloakId: "kc-missing",
+                            }),
+                        ).rejects.toBeInstanceOf(ChatForbiddenException)
                         expect(membershipService.isActive).not.toHaveBeenCalled()
                     })
 
@@ -220,10 +236,12 @@ describe("ChatService",
                                 memberId: member.id,
                             })
 
-                        await expect(service.assertCanSubscribe({
-                            conversationId,
-                            keycloakId: "kc-member-2",
-                        })).rejects.toBeInstanceOf(ChatForbiddenException)
+                        await expect(
+                            service.assertCanSubscribe({
+                                conversationId,
+                                keycloakId: "kc-member-2",
+                            }),
+                        ).rejects.toBeInstanceOf(ChatForbiddenException)
                     })
             })
 
@@ -275,10 +293,9 @@ describe("ChatService",
                                     id: conversationId,
                                     type: ChatConversationType.Community,
                                 })
-                                entityManager.findAndCount.mockResolvedValueOnce([
-                                    [],
-                                    0,
-                                ])
+                                entityManager.find.mockResolvedValueOnce([])
+                                entityManager.findAndCount.mockResolvedValueOnce([[],
+                                    0])
 
                                 await expect(
                                     service.listMessages({
@@ -303,10 +320,8 @@ describe("ChatService",
                                     type: ChatConversationType.FounderDm,
                                     memberId: member.id,
                                 })
-                                entityManager.findAndCount.mockResolvedValueOnce([
-                                    [],
-                                    0,
-                                ])
+                                entityManager.findAndCount.mockResolvedValueOnce([[],
+                                    0])
 
                                 await expect(
                                     service.listMessages({
@@ -328,10 +343,8 @@ describe("ChatService",
                                     type: ChatConversationType.FounderDm,
                                     memberId: member.id,
                                 })
-                                entityManager.findAndCount.mockResolvedValueOnce([
-                                    [],
-                                    0,
-                                ])
+                                entityManager.findAndCount.mockResolvedValueOnce([[],
+                                    0])
 
                                 await expect(
                                     service.listMessages({
@@ -412,64 +425,66 @@ describe("ChatService",
 
         describe("sendMessage",
             () => {
-                it("persists the message and emits ChatMessageCreated",
+                it("delegates community writes to the idempotent Global Chat command service",
                     async () => {
                         entityManager.findOne
-                            // getConversationOrThrow
+                        // getConversationOrThrow
                             .mockResolvedValueOnce({
                                 id: conversationId,
                                 type: ChatConversationType.Community,
                             })
-                        entityManager.save.mockResolvedValueOnce({
-                            id: "message-1",
+                        globalChatService.sendMessage.mockResolvedValueOnce({
+                            commandId: "command-1",
+                            conversationId,
+                            messageId: "message-1",
                         })
                         const reloaded = {
                             id: "message-1",
                             body: "hi",
                         }
                         entityManager.findOne
-                            // reload-after-save
+                        // reload-after-save
                             .mockResolvedValueOnce(reloaded)
 
                         const result = await service.sendMessage({
                             conversationId,
                             body: "hi",
+                            clientCommandId: "command-1",
                             user: member,
                         })
 
                         expect(result).toBe(reloaded)
-                        expect(eventEmitterService.emit).toHaveBeenCalledWith({
-                            event: EventName.ChatMessageCreated,
-                            payload: {
-                                conversationId,
-                                messageId: "message-1",
-                                authorId: member.id,
-                            },
+                        expect(globalChatService.sendMessage).toHaveBeenCalledWith({
+                            user: member,
+                            commandId: "command-1",
+                            body: "hi",
                         })
+                        expect(eventEmitterService.emit).not.toHaveBeenCalled()
                     })
 
-                it("falls back to the just-saved row if the reload race returns nothing",
+                it("fails closed if the durable command result cannot be reloaded",
                     async () => {
                         entityManager.findOne
-                            // getConversationOrThrow
+                        // getConversationOrThrow
                             .mockResolvedValueOnce({
                                 id: conversationId,
                                 type: ChatConversationType.Community,
                             })
-                        const saved = {
-                            id: "message-1",
-                        }
-                        entityManager.save.mockResolvedValueOnce(saved)
-                        // reload-after-save unexpectedly misses
+                        globalChatService.sendMessage.mockResolvedValueOnce({
+                            commandId: "command-1",
+                            conversationId,
+                            messageId: "message-1",
+                        })
                         entityManager.findOne.mockResolvedValueOnce(null)
 
-                        const result = await service.sendMessage({
-                            conversationId,
-                            body: "hi",
-                            user: member,
-                        })
-
-                        expect(result).toBe(saved)
+                        await expect(
+                            service.sendMessage({
+                                conversationId,
+                                body: "hi",
+                                clientCommandId: "command-1",
+                                user: member,
+                            }),
+                        ).rejects.toBeInstanceOf(ChatConversationNotFoundException)
                     })
             })
     })

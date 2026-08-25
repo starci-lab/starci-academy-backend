@@ -1,19 +1,34 @@
 import {
-    Module,
+    Module 
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass,
+    ConfigurableModuleClass 
 } from "./chat.module-definition"
 import {
-    ChatService,
+    ChatService 
 } from "./chat.service"
+import {
+    GlobalChatMetricsService 
+} from "./global-chat-metrics.service"
+import {
+    GlobalChatPolicyService 
+} from "./global-chat-policy.service"
+import {
+    GlobalChatService 
+} from "./global-chat.service"
 
 @Module({
     providers: [
         ChatService,
+        GlobalChatService,
+        GlobalChatPolicyService,
+        GlobalChatMetricsService,
     ],
     exports: [
         ChatService,
+        GlobalChatService,
+        GlobalChatPolicyService,
+        GlobalChatMetricsService,
     ],
 })
 /**
