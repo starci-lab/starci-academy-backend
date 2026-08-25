@@ -21,10 +21,20 @@
 | `secret-refused` | A named integration secret was refused without being stored | error | `secret-saving`, `intake-incomplete` | `EV-001` |
 | `specification-ready` | A complete versioned module specification is ready for review | success | `intake-awaiting-answer`, `module-publishing` | `EV-001` |
 | `module-publishing` | The explicitly confirmed module publish is running | pending | `module-active`, `module-publish-refused` | `EV-001` |
-| `module-active` | The custom module has an existing installation identity | success |  | `EV-001`, `EV-002`, `EV-006`, `EV-008` |
+| `module-active` | The custom module has an existing installation identity | success | `context-setup-required`, `setup-session-ready`, `module-shell-loading` | `EV-001`, `EV-002`, `EV-006`, `EV-008` |
+| `context-setup-required` | The module has no active effective business context | initial | `setup-session-ready` | `EV-015` |
+| `setup-session-ready` | The module single private setup session is ready | success | `context-draft`, `context-review-ready`, `context-active` | `EV-015` |
+| `context-draft` | Setup contains unapplied business-context changes | partial | `context-draft`, `context-review-ready`, `context-publish-refused` | `EV-015` |
+| `context-review-ready` | The exact draft context version is ready for review and explicit apply | success | `context-draft`, `context-publishing` | `EV-015` |
+| `context-publishing` | The explicitly confirmed context version is being applied | pending | `context-active`, `context-publish-refused` | `EV-015` |
+| `context-active` | One immutable effective context version is active | success | `setup-session-ready`, `module-shell-loading`, `execute-session-empty`, `execute-session-active` | `EV-015` |
+| `context-publish-refused` | Context apply failed while the prior active version remains usable | error | `context-draft`, `context-review-ready`, `context-active` | `EV-015` |
+| `execute-session-empty` | A new execute chat session is ready for its first message | initial | `chat-sending`, `execute-session-archived` | `EV-015` |
+| `execute-session-active` | One execute chat session is selected and active | success | `chat-sending`, `execute-session-empty`, `execute-session-archived` | `EV-015` |
+| `execute-session-archived` | An execute chat session is archived without affecting other module state | success | `execute-session-active`, `execute-session-empty` | `EV-015` |
 | `module-publish-refused` | Publishing failed while the reviewable specification remains intact | error | `specification-ready`, `module-publishing` | `EV-001` |
 | `module-shell-loading` | The module operating shell is loading | pending | `module-shell-ready`, `module-shell-refused` | `EV-011`, `EV-014` |
-| `module-shell-ready` | Shared chat and the module frame are ready | success | `chat-sending`, `workbench-loading`, `module-settings-ready`, `module-diagnostics-ready` | `EV-011`, `EV-014` |
+| `module-shell-ready` | The module frame and selected execute session are ready | success | `chat-sending`, `workbench-loading`, `module-settings-ready`, `module-diagnostics-ready` | `EV-011`, `EV-014` |
 | `module-shell-refused` | The module shell could not be loaded | error | `module-shell-loading` | `EV-011`, `EV-014` |
 | `chat-sending` | A module conversation turn is being persisted | pending | `module-shell-ready`, `chat-refused` | `EV-011`, `EV-014` |
 | `chat-refused` | A conversation turn failed without losing prior history or workbench state | error | `chat-sending`, `module-shell-ready` | `EV-011`, `EV-014` |

@@ -119,6 +119,13 @@
       "authority": "staging",
       "url": "https://app.staging.nivo.vn/en/agentos/workspaces/9d59e51d-551f-4750-a02a-07891fde6695/modules/0760ac49-f4b2-4a89-8de3-f7f262a8b226",
       "observedAt": "2026-08-25"
+    },
+    {
+      "id": "EV-015",
+      "claim": "Every module has many chat sessions: exactly one private resumable setup chat session teaches and revises versioned business context, while zero-to-many independent collaborative execute chat sessions perform operational work. Opening Setup resumes the same session; New chat creates only an execute session; applied context changes never rewrite prior execute history.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "927be149b055b88f671ef33879327c19a61be7ef2882bbb23b5a1a23a34fa338"
     }
   ]
 }

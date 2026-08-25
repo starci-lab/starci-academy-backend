@@ -4,12 +4,12 @@
 
 - Status: `in-progress`
 - Basis: `owner-intent`
-- Previous head: `2bf93759d04613ebeaf06f4ed3282dc9b28883c75fef7ba38904d37bebbe2201`
+- Previous head: `0badc5eae0edecbb0efff40241164a2144febca4fc34bf3a96c5a85c1dfbb70d`
 - Required roles: `fe`, `be`
 
 ## Summary
 
-An authenticated workspace owner creates, installs and operates many module instances. Every module has exactly one kind, inherits one persistent collaborative chat, and resolves its kind to one adaptive workbench while configuration and technical diagnostics remain progressively disclosed.
+An authenticated workspace owner creates, installs and operates many module instances. Every module has exactly one kind, exactly one private resumable setup chat, zero-to-many collaborative execute chat sessions and one kind-resolved adaptive workbench while versioned context, configuration and technical diagnostics remain progressively disclosed.
 
 ## Scope
 
@@ -17,7 +17,8 @@ An authenticated workspace owner creates, installs and operates many module inst
 
 - Module collection, custom-module studio and installed-module operation inside one exact ready AgentOS workspace
 - Exactly-one-kind identity for every module instance and an extensible kind registry
-- One persistent collaborative chat inherited by every module kind
+- Exactly one private resumable setup chat and zero-to-many collaborative execute chat sessions for every module
+- Explicitly applied versioned business context produced through the setup chat without rewriting execute history
 - One kind-resolved adaptive workbench operating beside the shared chat
 - Typed trusted widgets rendered inside chat from structured payloads
 - Module-scoped knowledge, integrations, permissions and settings separated from workspace-scoped AI readiness
@@ -46,7 +47,7 @@ An authenticated workspace owner creates, installs and operates many module inst
 - **BR-09** — Interview, attachment, secret and publish failures are independent block-state axes; a refusal preserves every other previously accepted part of the module profile.
 - **BR-10** — The TEDO page contributes interaction shape only; none of its project content, prices, artifact promises, actors or business rules becomes Nivo product truth.
 - **BR-11** — Every module instance belongs to one exact workspace and has exactly one immutable kind identity for a published version.
-- **BR-12** — Every module kind inherits the same persistent collaborative chat contract.
+- **BR-12** — Every module kind inherits the same collaborative execute-chat contract with zero-to-many independent sessions.
 - **BR-13** — Every registered module kind resolves to exactly one workbench definition; a missing or incompatible binding is an explicit unavailable state.
 - **BR-14** — A new module kind is added through registry, schema, capabilities and workbench registration without modifying Module Core, Chat Core or the persistent shell.
 - **BR-15** — Chatbot, document, spreadsheet, calendar and similar workbenches are examples, not a closed business enum.
@@ -55,12 +56,20 @@ An authenticated workspace owner creates, installs and operates many module inst
 - **BR-18** — The primary module route is an operating surface with chat and workbench; package metadata and runtime internals are secondary diagnostics.
 - **BR-19** — Conversation, workbench, configuration and diagnostics are independent state axes so one failure does not erase or falsely disable unrelated accepted state.
 - **BR-20** — Responsive presentation may collapse navigation, chat and workbench into drill-down surfaces, but preserves the same module identity and active work context.
+- **BR-21** — Every module has exactly one private resumable setup chat session and may have zero-to-many independent collaborative execute chat sessions.
+- **BR-22** — Opening Setup always resumes the same module setup session; New chat creates only an execute session and can never create or replace Setup.
+- **BR-23** — Setup messages are private to authorized module administrators and never appear in execute session history or the operational conversation list.
+- **BR-24** — Only an explicitly applied immutable context version can affect execution; setup drafts never change the active effective context.
+- **BR-25** — Every execute message retains the effective context version used, and applying a later setup revision never rewrites prior execute messages or sessions.
+- **BR-26** — A setup draft or apply failure preserves the last active context and leaves every execute session, workbench and unrelated module state usable.
 
 ## Journeys
 
 - `create-and-complete-module` — Create a custom module through adaptive follow-up questions
 - `resume-and-manage-module` — Resume or manage one exact custom module
 - `review-and-publish-module` — Review and explicitly publish one complete custom module
+- `setup-and-activate-module-context` — Teach one module through its single private setup chat
+- `manage-module-chat-sessions` — Manage many execute chat sessions separately from Setup
 - `operate-kind-module` — Operate one module through shared chat and its adaptive workbench
 - `configure-and-diagnose-module` — Configure a module without mixing workspace operations or runtime diagnostics
 
@@ -69,6 +78,7 @@ An authenticated workspace owner creates, installs and operates many module inst
 - `module-management` — Modules: `/[locale]/agentos/workspaces/[workspaceId]/modules`
 - `module-create` — Create module: `/[locale]/agentos/workspaces/[workspaceId]/modules/create`
 - `module-studio` — Module studio: `/[locale]/agentos/workspaces/[workspaceId]/modules/studio/[moduleId]`
+- `module-setup` — Set up module: `/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/setup`
 - `module-operating-shell` — Module workspace: `/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/operate`
 - `module-settings` — Module settings: `/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/settings`
 - `module-diagnostics` — Module diagnostics: `/[locale]/agentos/workspaces/[workspaceId]/modules/[moduleId]/diagnostics`
@@ -95,6 +105,13 @@ An authenticated workspace owner creates, installs and operates many module inst
 - **AC-18** — Package digests, embeddings, containers, storage and raw failure evidence are absent from the default operating surface and available in diagnostics.
 - **AC-19** — Failure of chat, workbench, settings or diagnostics preserves every unrelated ready axis.
 - **AC-20** — Small-screen navigation preserves the exact module, conversation and workbench context while presenting one primary pane at a time.
+- **AC-21** — Chat navigation displays one fixed private Setup entry separately from zero-to-many collaborative execute chat sessions.
+- **AC-22** — New chat creates a new execute session and cannot create, duplicate or replace the module setup session.
+- **AC-23** — Reloading or reopening Setup restores the same private setup session identity, accepted history, draft context and active version.
+- **AC-24** — A module without an active context enters Setup and cannot execute until the exact complete draft context version is explicitly applied.
+- **AC-25** — Applying a later setup draft changes the active context without rewriting prior execute messages, widgets or session history.
+- **AC-26** — Every execute message retains the effective context version used while setup history remains unavailable to ordinary operational collaborators.
+- **AC-27** — Archiving one execute session does not affect Setup, the active context, other execute sessions or the kind workbench.
 
 ## Unknowns and architecture handoff
 

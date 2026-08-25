@@ -2,13 +2,14 @@
 
 ## Purpose
 
-An authenticated workspace owner creates, installs and operates many module instances. Every module has exactly one kind, inherits one persistent collaborative chat, and resolves its kind to one adaptive workbench while configuration and technical diagnostics remain progressively disclosed.
+An authenticated workspace owner creates, installs and operates many module instances. Every module has exactly one kind, exactly one private resumable setup chat, zero-to-many collaborative execute chat sessions and one kind-resolved adaptive workbench while versioned context, configuration and technical diagnostics remain progressively disclosed.
 
 ## Included
 
 - Module collection, custom-module studio and installed-module operation inside one exact ready AgentOS workspace
 - Exactly-one-kind identity for every module instance and an extensible kind registry
-- One persistent collaborative chat inherited by every module kind
+- Exactly one private resumable setup chat and zero-to-many collaborative execute chat sessions for every module
+- Explicitly applied versioned business context produced through the setup chat without rewriting execute history
 - One kind-resolved adaptive workbench operating beside the shared chat
 - Typed trusted widgets rendered inside chat from structured payloads
 - Module-scoped knowledge, integrations, permissions and settings separated from workspace-scoped AI readiness

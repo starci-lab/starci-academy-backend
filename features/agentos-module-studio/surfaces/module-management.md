@@ -17,7 +17,7 @@ Manage custom module drafts and published module identities for one exact ready 
 | Region | Kind | Real representative content | States | Actions | Evidence |
 |---|---|---|---|---|---|
 | `module-collection-header` | summary | Workspace | module-collection-loading, module-collection-empty, module-collection-ready, module-collection-refused | Create module | `EV-001` |
-| `custom-module-collection` | collection | Module; Status; Profile progress; Last updated | module-collection-loading, module-collection-empty, module-collection-ready, module-collection-refused | Continue, Open installation | `EV-001`, `EV-002`, `EV-004` |
+| `custom-module-collection` | collection | Module; Status; Profile progress; Last updated | module-collection-loading, module-collection-empty, module-collection-ready, module-collection-refused | Continue; Open installation | `EV-001`, `EV-002`, `EV-004` |
 
 ## Context rule
 

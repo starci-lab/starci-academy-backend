@@ -195,9 +195,9 @@
     },
     "agentos-module-studio": {
       "featureId": "agentos-module-studio",
-      "head": "0badc5eae0edecbb0efff40241164a2144febca4fc34bf3a96c5a85c1dfbb70d",
+      "head": "125f16ed4c6264bfc4a44e581cf81b25f9eff2cc4a584838165a3997a14eed7a",
       "authorityStatus": "in-progress",
-      "previousHead": "2bf93759d04613ebeaf06f4ed3282dc9b28883c75fef7ba38904d37bebbe2201",
+      "previousHead": "0badc5eae0edecbb0efff40241164a2144febca4fc34bf3a96c5a85c1dfbb70d",
       "sources": [
         {
           "role": "fe",
@@ -452,6 +452,10 @@
       "0badc5eae0edecbb0efff40241164a2144febca4fc34bf3a96c5a85c1dfbb70d": {
         "hash": "0badc5eae0edecbb0efff40241164a2144febca4fc34bf3a96c5a85c1dfbb70d",
         "path": "objects/sha256/0badc5eae0edecbb0efff40241164a2144febca4fc34bf3a96c5a85c1dfbb70d.json"
+      },
+      "125f16ed4c6264bfc4a44e581cf81b25f9eff2cc4a584838165a3997a14eed7a": {
+        "hash": "125f16ed4c6264bfc4a44e581cf81b25f9eff2cc4a584838165a3997a14eed7a",
+        "path": "objects/sha256/125f16ed4c6264bfc4a44e581cf81b25f9eff2cc4a584838165a3997a14eed7a.json"
       }
     }
   }

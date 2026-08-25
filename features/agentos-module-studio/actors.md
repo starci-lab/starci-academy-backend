@@ -12,5 +12,7 @@
 - Attach supporting images and documents
 - Configure or remove named integration secrets without reading them back
 - Review completeness and explicitly publish or install a ready specification
+- Open the one private module setup chat and apply a versioned business context
+- Create, rename, resume and archive independent execute chat sessions
 
 Evidence: `EV-001`

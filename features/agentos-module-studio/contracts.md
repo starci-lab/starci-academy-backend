@@ -66,21 +66,37 @@ Fields: `bindingId`, `kindId`, `workbenchKey`, `version`, `status`
 
 Evidence: `EV-011`, `EV-012`, `EV-013`
 
-### Persistent module conversation
+### Typed module chat session
 
-> ID: `module-conversation`
+> ID: `module-chat-session`
 
-Fields: `conversationId`, `workspaceId`, `moduleId`, `status`, `createdAt`, `updatedAt`
+Fields: `sessionId`, `workspaceId`, `moduleId`, `sessionType`, `title`, `status`, `createdAt`, `updatedAt`, `archivedAt`
 
-Evidence: `EV-011`, `EV-012`, `EV-013`
+Evidence: `EV-011`, `EV-012`, `EV-013`, `EV-015`
 
 ### Attributed module conversation message
 
 > ID: `module-message`
 
-Fields: `messageId`, `conversationId`, `actorId`, `role`, `content`, `widgetPayloads`, `createdAt`
+Fields: `messageId`, `sessionId`, `actorId`, `role`, `content`, `widgetPayloads`, `effectiveContextVersionId`, `createdAt`
 
-Evidence: `EV-011`, `EV-012`, `EV-013`
+Evidence: `EV-011`, `EV-012`, `EV-013`, `EV-015`
+
+### Versioned module business context
+
+> ID: `module-business-context-version`
+
+Fields: `contextVersionId`, `moduleId`, `setupSessionId`, `version`, `status`, `inheritedWorkspaceContextRef`, `moduleOverrides`, `missingFields`, `createdAt`, `appliedAt`
+
+Evidence: `EV-015`
+
+### Immutable effective module context
+
+> ID: `module-effective-context-snapshot`
+
+Fields: `effectiveContextVersionId`, `moduleId`, `sourceContextVersionId`, `resolvedProfile`, `activatedAt`, `supersededAt`
+
+Evidence: `EV-015`
 
 ### Trusted typed widget in chat
 
@@ -94,7 +110,7 @@ Evidence: `EV-011`, `EV-012`, `EV-013`
 
 > ID: `module-operating-profile`
 
-Fields: `moduleId`, `kindId`, `displayName`, `status`, `conversationId`, `workbenchKey`, `configurationReadiness`, `healthSummary`
+Fields: `moduleId`, `kindId`, `displayName`, `status`, `activeSessionId`, `activeContextVersionId`, `workbenchKey`, `configurationReadiness`, `healthSummary`
 
 Evidence: `EV-011`, `EV-012`, `EV-013`
 
@@ -102,20 +118,27 @@ Evidence: `EV-011`, `EV-012`, `EV-013`
 
 | ID | Contract | Owner / actor | Inputs / from | Outputs / to | Failures / idempotency | Evidence |
 |---|---|---|---|---|---|---|
-| `read-custom-modules` | query · `myAgentosCustomModules` | backend | `workspaceId` | owner-scoped custom module summaries | workspace not found; workspace not ready; workspace not owned | `EV-001` |
-| `start-module-intake` | mutation · `startAgentosCustomModuleIntake` | backend | `workspaceId`, `openingMessage`, `idempotencyKey` | module, session, profile, progress and next question | workspace or message refused; duplicate identity mismatch | `EV-001` |
-| `read-module-studio` | query · `myAgentosCustomModuleStudio` | backend | `workspaceId`, `moduleId` | module, intake, conversation, resources and specification | module absent or not owned | `EV-001` |
-| `answer-module-intake` | mutation · `answerAgentosCustomModuleIntake` | backend | exact session turn | persisted answer, recomputed profile and next question | refused turn preserves accepted state | `EV-001` |
-| `prepare-module-attachment` | mutation · attachment preparation | backend | exact module and file metadata | quarantined upload identity | unsupported or unauthorized upload | `EV-001` |
-| `finalize-module-attachment` | mutation · attachment finalization | backend | exact upload identity | scanning or ready attachment | scan or ownership refusal | `EV-001` |
-| `remove-module-attachment` | mutation · attachment removal | backend | exact attachment identity | removed attachment status | absent or unauthorized attachment | `EV-001` |
-| `save-module-secret` | mutation · write-only secret save | backend | provider, label and secret value | masked configured status | validation or storage refusal | `EV-001` |
-| `remove-module-secret` | mutation · secret removal | backend | exact integration identity | unconfigured status | absent or unauthorized integration | `EV-001` |
-| `publish-custom-module` | mutation · explicit module publish | backend | exact specification version and idempotency identity | installation identity or safe refusal | incomplete, stale or refused specification | `EV-001` |
-| `open-module-operating-shell` | owner action | `workspace-owner` | `module-shell-loading` | `module-shell-ready` | operation-specific | `EV-011`, `EV-014` |
-| `send-module-message` | owner action | `workspace-owner` | `chat-sending` | `module-shell-ready` | operation-specific | `EV-011`, `EV-014` |
-| `load-kind-workbench` | owner action | `workspace-owner` | `workbench-loading` | `workbench-ready` | operation-specific | `EV-011`, `EV-014` |
-| `invoke-widget-action` | owner action | `workspace-owner` | `widget-ready` | `module-shell-ready` | operation-specific | `EV-011`, `EV-014` |
-| `read-module-settings` | owner action | `workspace-owner` | `module-shell-ready` | `module-settings-ready` | operation-specific | `EV-011`, `EV-014` |
-| `save-module-settings` | owner action | `workspace-owner` | `module-settings-saving` | `module-settings-ready` | operation-specific | `EV-011`, `EV-014` |
-| `read-module-diagnostics` | owner action | `workspace-owner` | `module-shell-ready` | `module-diagnostics-ready` | operation-specific | `EV-011`, `EV-014` |
+| `read-custom-modules` | query · `myAgentosCustomModules` | backend | workspaceId | owner-scoped custom module summaries | workspace not found; workspace not ready; workspace not owned | `EV-001` |
+| `start-module-intake` | mutation · `startAgentosCustomModuleIntake` | backend | workspaceId, openingMessage, idempotencyKey | moduleId; sessionId; persisted opening answer; structured profile; progress; missing fields; next question | workspace not ready; workspace not owned; opening message refused; duplicate identity mismatch | `EV-001` |
+| `read-module-studio` | query · `myAgentosCustomModuleStudio` | backend | workspaceId, moduleId | custom module; intake session; conversation; structured profile; attachments; masked integration statuses; current specification | module not found; workspace or module not owned | `EV-001` |
+| `answer-module-intake` | mutation · `answerAgentosCustomModuleIntake` | backend | moduleId, sessionId, message, correction target when applicable, idempotencyKey | persisted turn; structured profile; progress; missing fields; next question or completion; module specification when complete | session not found; module or session not owned; message refused; intake engine unavailable | `EV-001` |
+| `prepare-module-attachment` | mutation · `prepareAgentosModuleAttachmentUpload` | backend | moduleId, filename, mimeType, size, idempotencyKey | attachmentId; short-lived quarantine upload grant; expiresAt | module not owned; unsupported file; file limit exceeded; upload grant unavailable | `EV-001` |
+| `finalize-module-attachment` | mutation · `finalizeAgentosModuleAttachment` | backend | attachmentId, checksum | attachment scanning status | attachment not owned; upload absent or expired; checksum mismatch; scan refused or unavailable | `EV-001` |
+| `remove-module-attachment` | mutation · `removeAgentosModuleAttachment` | backend | attachmentId, idempotencyKey | attachment removed | attachment not owned; attachment locked by publishing | `EV-001` |
+| `save-module-secret` | mutation · `saveAgentosModuleIntegrationSecret` | backend | moduleId, provider, label, secret value, idempotencyKey | masked configured integration status | module not owned; provider unsupported; secret invalid; encryption or storage unavailable | `EV-001` |
+| `remove-module-secret` | mutation · `removeAgentosModuleIntegrationSecret` | backend | integrationId, idempotencyKey | integration no longer configured | integration not owned; integration locked by publishing | `EV-001` |
+| `publish-custom-module` | mutation · `publishAgentosCustomModule` | backend | moduleId, specificationVersion, acknowledgedPublish = true, idempotencyKey | publish operation identity; accepted status; installationId when available | module not owned; intake incomplete; specification version stale; attachment not scan-ready; required integration not configured; publish not acknowledged; installation refused | `EV-001` |
+| `open-module-setup-session` | owner action · Open or resume the single module setup session | `workspace-owner` | `context-setup-required` | `setup-session-ready` | unique module plus setup session type | `EV-015` |
+| `answer-module-setup` | owner action · Persist a private setup turn and recompute the draft context | `workspace-owner` | `setup-session-ready` | `context-draft` | operation-specific | `EV-015` |
+| `publish-module-context` | owner action · Explicitly apply one exact module context version | `workspace-owner` | `context-publishing` | `context-active` | context-version-specific | `EV-015` |
+| `read-module-chat-sessions` | owner action · Read the fixed Setup entry and execute chat session collection | `workspace-owner` | `module-shell-loading` | `execute-session-active` | read-only | `EV-015` |
+| `create-execute-session` | owner action · Create a new execute chat session | `workspace-owner` | `execute-session-active` | `execute-session-empty` | operation-specific | `EV-015` |
+| `rename-execute-session` | owner action · Rename one execute chat session | `workspace-owner` | `execute-session-active` | `execute-session-active` | operation-specific | `EV-015` |
+| `archive-execute-session` | owner action · Archive one execute chat session | `workspace-owner` | `execute-session-active` | `execute-session-archived` | operation-specific | `EV-015` |
+| `open-module-operating-shell` | owner action · Open module operating shell | `workspace-owner` | `module-shell-loading` | `module-shell-ready` | operation-specific | `EV-011`, `EV-014` |
+| `send-module-message` | owner action · Send module conversation message | `workspace-owner` | `chat-sending` | `module-shell-ready` | operation-specific | `EV-011`, `EV-014` |
+| `load-kind-workbench` | owner action · Resolve and load kind workbench | `workspace-owner` | `workbench-loading` | `workbench-ready` | operation-specific | `EV-011`, `EV-014` |
+| `invoke-widget-action` | owner action · Invoke trusted widget action | `workspace-owner` | `widget-ready` | `module-shell-ready` | operation-specific | `EV-011`, `EV-014` |
+| `read-module-settings` | owner action · Read module-scoped settings | `workspace-owner` | `module-shell-ready` | `module-settings-ready` | operation-specific | `EV-011`, `EV-014` |
+| `save-module-settings` | owner action · Save module-scoped settings | `workspace-owner` | `module-settings-saving` | `module-settings-ready` | operation-specific | `EV-011`, `EV-014` |
+| `read-module-diagnostics` | owner action · Read advanced module diagnostics | `workspace-owner` | `module-shell-ready` | `module-diagnostics-ready` | operation-specific | `EV-011`, `EV-014` |
