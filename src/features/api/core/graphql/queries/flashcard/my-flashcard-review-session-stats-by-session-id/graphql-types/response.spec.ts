@@ -8,27 +8,27 @@ import type {
     GraphQLSchema
 } from "graphql"
 import {
-    GlobalChatMessageObject
-} from "./global-chat.object"
+    MyFlashcardReviewSessionStatsBySessionIdResponse
+} from "./response"
 
 @Resolver()
-class GlobalChatMessageObjectProbe {
-    @Query(() => GlobalChatMessageObject)
-    query(): GlobalChatMessageObject { throw new Error("schema probe") }
+class MyFlashcardReviewSessionStatsBySessionIdResponseProbe {
+    @Query(() => MyFlashcardReviewSessionStatsBySessionIdResponse)
+    query(): MyFlashcardReviewSessionStatsBySessionIdResponse { throw new Error("schema probe") }
 }
 
-describe("global chat object GraphQL contract",
+describe("review stats response GraphQL contract",
     () => {
         let schema: GraphQLSchema
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [GraphQLSchemaBuilderModule]
             }).compile()
-            schema = await (await moduleRef.get(GraphQLSchemaFactory)).create([GlobalChatMessageObjectProbe])
+            schema = await (await moduleRef.get(GraphQLSchemaFactory)).create([MyFlashcardReviewSessionStatsBySessionIdResponseProbe])
         })
         it("builds the declared contract and executes lazy callbacks",
             () => {
-                expect(schema.getType("GlobalChatMessageObject")).toBeDefined()
+                expect(schema.getType("MyFlashcardReviewSessionStatsBySessionIdResponse")).toBeDefined()
                 expect(schema.getQueryType() ?? schema.getMutationType()).toBeDefined()
             })
     })

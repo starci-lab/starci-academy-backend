@@ -8,27 +8,27 @@ import type {
     GraphQLSchema
 } from "graphql"
 import {
-    GlobalChatMessageObject
-} from "./global-chat.object"
+    IndexSearchResponse
+} from "./response"
 
 @Resolver()
-class GlobalChatMessageObjectProbe {
-    @Query(() => GlobalChatMessageObject)
-    query(): GlobalChatMessageObject { throw new Error("schema probe") }
+class IndexSearchResponseProbe {
+    @Query(() => IndexSearchResponse)
+    query(): IndexSearchResponse { throw new Error("schema probe") }
 }
 
-describe("global chat object GraphQL contract",
+describe("index search response GraphQL contract",
     () => {
         let schema: GraphQLSchema
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [GraphQLSchemaBuilderModule]
             }).compile()
-            schema = await (await moduleRef.get(GraphQLSchemaFactory)).create([GlobalChatMessageObjectProbe])
+            schema = await (await moduleRef.get(GraphQLSchemaFactory)).create([IndexSearchResponseProbe])
         })
         it("builds the declared contract and executes lazy callbacks",
             () => {
-                expect(schema.getType("GlobalChatMessageObject")).toBeDefined()
+                expect(schema.getType("IndexSearchResponse")).toBeDefined()
                 expect(schema.getQueryType() ?? schema.getMutationType()).toBeDefined()
             })
     })
