@@ -1,8 +1,8 @@
 # Practice and assessment
 
-> Business identity: `starci-academy/practice-assessment@de60e36e9b67893bcbcd1a42d376b0921afd19ec7da23e72461b8c16dcc2bcd8`
+> Business identity: `starci-academy/practice-assessment@535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc`
 >
-> Source heads: authority `implemented` · base `2df136cf2975aa81336d78711f848041be2bf421e0da2207c961d58c0b2ce345` · `fe@3ddee49455ea`, `be@88a395908477`
+> Source heads: authority `approved` · base `535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc` · `fe@f14e3c24b4a0`, `be@88a395908477`
 >
 > Load this file first. Load only the modules named by the current task.
 
@@ -25,7 +25,7 @@
 ## Primary flow
 
 ```text
-assessment-ready → assessment-pending → assessment-pending
+assessment-ready → assessment-pending → assessment-complete
 ```
 
 ## Surface map
@@ -37,7 +37,8 @@ assessment-ready → assessment-pending → assessment-pending
 | `playground-catalog` | `/[lang]/courses/[displayId]/learn/playground` | Choose a guided live playground. | [surface](surfaces/playground-catalog.md) |
 | `playground-session` | `/[lang]/courses/[displayId]/learn/playground/[slug]{/session}` | Prepare and run a guided live playground. | [surface](surfaces/playground-session.md) |
 | `mock-interview-setup` | `/[lang]/courses/[displayId]/learn/mock-interview` | Choose interview parameters and start a session. | [surface](surfaces/mock-interview-setup.md) |
-| `mock-interview-session` | `/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]{/result}` | Complete interview turns and inspect the assessed result. | [surface](surfaces/mock-interview-session.md) |
+| `mock-interview-session` | `/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]` | Complete the persisted interview turns. | [surface](surfaces/mock-interview-session.md) |
+| `mock-interview-result` | `/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]/result` | Inspect the assessed result after completing the interview. | [surface](surfaces/mock-interview-result.md) |
 
 ## Data and operation map
 

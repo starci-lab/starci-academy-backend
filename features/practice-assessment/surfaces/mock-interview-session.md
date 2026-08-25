@@ -1,10 +1,10 @@
-# Surface · Interview session and result
+# Surface · Interview session
 
-> ID: `mock-interview-session` · Route: `/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]{/result}`
+> ID: `mock-interview-session` · Route: `/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]`
 
 ## Job
 
-Complete interview turns and inspect the assessed result.
+Complete the persisted interview turns.
 
 ## Navigation
 
@@ -14,7 +14,7 @@ Complete interview turns and inspect the assessed result.
 
 | Region | Kind | Real representative content | States | Actions | Evidence |
 |---|---|---|---|---|---|
-| `interview-run` | flow | Interview turns; Assessment result | pending, ready, success, error | Submit answer, View result | `EV-007`, `EV-008`, `EV-010` |
+| `interview-run` | flow | Interview turns | pending, ready, success, error | Submit answer | `EV-007`, `EV-010` |
 
 ## Context rule
 

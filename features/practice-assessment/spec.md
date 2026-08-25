@@ -1,6 +1,6 @@
 # Practice and assessment
 
-> Business head: `de60e36e9b67893bcbcd1a42d376b0921afd19ec7da23e72461b8c16dcc2bcd8`
+> Business head: `535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -22,7 +22,7 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `3ddee49455eac29501b9b04e0bf123c51e0a81db` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `f14e3c24b4a087fb6d4bb09d73526964d3ecea3c` |
 | be | https://github.com/starci-lab/starci-academy-backend | `88a3959084772f9eaa0f5dcbc4e480d4356210f0` |
 
 ## 3. Actors and access
@@ -95,15 +95,25 @@ Evidence: `EV-005`
 
 Evidence: `EV-006`
 
-### Interview session and result
+### Interview session
 
 - ID: `mock-interview-session`
-- Route: `/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]{/result}`
-- Purpose: Complete interview turns and inspect the assessed result.
+- Route: `/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]`
+- Purpose: Complete the persisted interview turns.
 - Regions: `interview-run`
 - Navigation: none
 
-Evidence: `EV-007`, `EV-008`
+Evidence: `EV-007`
+
+### Interview result
+
+- ID: `mock-interview-result`
+- Route: `/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]/result`
+- Purpose: Inspect the assessed result after completing the interview.
+- Regions: `interview-assessment`
+- Navigation: none
+
+Evidence: `EV-008`
 
 ## 5. Business flows
 
@@ -119,6 +129,20 @@ Outcomes:
 - The learner receives a judging job or a persisted mock interview session and result path
 
 Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`
+
+### Complete a mock interview
+
+Trigger: A learner opens the mock interview route for a course.
+
+1. **learner** — Choose the interview level and kind → The setup is ready to start
+2. **learner** — Start the interview → The server draws and persists the interview session
+3. **learner** — Complete the interview turns → The session reaches an assessed outcome
+4. **learner** — Inspect the assessed result → The learner sees the completed interview assessment
+
+Outcomes:
+- The learner completes a persisted mock interview journey from setup through assessed result
+
+Evidence: `EV-006`, `EV-007`, `EV-008`, `EV-010`, `EV-013`
 
 ## 6. Business rules
 
@@ -163,6 +187,7 @@ Strength: **confirmed** · Evidence: `EV-010`
 - **AC-01** Practice, coding problem, playground and mock interview route families mount their declared surfaces. — `EV-001`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`
 - **AC-02** Submitting code returns submission and job identities for asynchronous judging. — `EV-009`
 - **AC-03** Starting a mock interview server-draws and persists a session for the chosen course, level and kind. — `EV-010`
+- **AC-04** The mock interview journey exposes setup, persisted session turns and an assessed result as distinct surfaces. — `EV-006`, `EV-007`, `EV-008`, `EV-010`
 
 ## 11. Explicit unknowns
 
@@ -184,3 +209,4 @@ Strength: **confirmed** · Evidence: `EV-010`
 | EV-010 | be | `src/features/api/core/graphql/mutations/interview/start-mock-interview-session/start-mock-interview-session.resolver.ts:70` | api | The guarded startMockInterviewSession mutation server-draws and persists a course, level and kind session. |
 | EV-011 | owner | `decision:2e6794d9a35c5acc029dee9eafc2978fa91dd9589da5f8ce3f6111cbfb465275` | owner-decision | The owner authorized refreshing study-library and practice-assessment to current routed source heads before continuing the four-layout design set. |
 | EV-012 | owner | `decision:fee04602de7b3f4deab3147add8577d5ce22603c29b5b152f1266c45c10b1e9f` | owner-decision | Owner approved reconciling practice-assessment to the current routed FE and BE commits before executing the accepted mock interview flow. |
+| EV-013 | owner | `decision:535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc` | owner-decision | Owner approved redesigning the complete mock interview frontend journey across setup, persisted interview turns and assessed result without changing the backend contract. |

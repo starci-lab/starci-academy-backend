@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "practice-assessment",
-  "head": "de60e36e9b67893bcbcd1a42d376b0921afd19ec7da23e72461b8c16dcc2bcd8",
+  "head": "535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "3ddee49455eac29501b9b04e0bf123c51e0a81db"
+      "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
     },
     {
       "role": "be",
@@ -119,6 +119,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "fee04602de7b3f4deab3147add8577d5ce22603c29b5b152f1266c45c10b1e9f"
+    },
+    {
+      "id": "EV-013",
+      "claim": "Owner approved redesigning the complete mock interview frontend journey across setup, persisted interview turns and assessed result without changing the backend contract.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc"
     }
   ]
 }

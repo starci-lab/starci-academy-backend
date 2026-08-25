@@ -1,14 +1,14 @@
 {
   "schemaVersion": 2,
   "authority": {
-    "status": "implemented",
-    "basis": "reconciled",
+    "status": "approved",
+    "basis": "owner-approved",
     "requiredRoles": [
       "fe",
       "be"
     ],
-    "baseHead": "2df136cf2975aa81336d78711f848041be2bf421e0da2207c961d58c0b2ce345",
-    "previousHead": "1e6dd347f5fcf678e1b96f70041a9a1013006a89b87a107140b3c9ae171b5811"
+    "baseHead": "535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc",
+    "previousHead": "de60e36e9b67893bcbcd1a42d376b0921afd19ec7da23e72461b8c16dcc2bcd8"
   },
   "project": "starci-academy",
   "featureId": "practice-assessment",
@@ -18,7 +18,7 @@
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "3ddee49455eac29501b9b04e0bf123c51e0a81db"
+      "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
     },
     {
       "role": "be",
@@ -71,6 +71,55 @@
       "evidenceIds": [
         "EV-009",
         "EV-010"
+      ]
+    },
+    {
+      "id": "mock-interview-journey",
+      "title": "Complete a mock interview",
+      "trigger": "A learner opens the mock interview route for a course.",
+      "steps": [
+        {
+          "id": "configure-interview",
+          "actor": "learner",
+          "action": "Choose the interview level and kind",
+          "result": "The setup is ready to start",
+          "surfaceId": "mock-interview-setup",
+          "stateId": "assessment-ready"
+        },
+        {
+          "id": "start-interview-session",
+          "actor": "learner",
+          "action": "Start the interview",
+          "result": "The server draws and persists the interview session",
+          "surfaceId": "mock-interview-setup",
+          "stateId": "assessment-pending"
+        },
+        {
+          "id": "complete-interview-turns",
+          "actor": "learner",
+          "action": "Complete the interview turns",
+          "result": "The session reaches an assessed outcome",
+          "surfaceId": "mock-interview-session",
+          "stateId": "assessment-pending"
+        },
+        {
+          "id": "inspect-interview-result",
+          "actor": "learner",
+          "action": "Inspect the assessed result",
+          "result": "The learner sees the completed interview assessment",
+          "surfaceId": "mock-interview-result",
+          "stateId": "assessment-complete"
+        }
+      ],
+      "outcomes": [
+        "The learner completes a persisted mock interview journey from setup through assessed result"
+      ],
+      "evidenceIds": [
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-010",
+        "EV-013"
       ]
     }
   ],
@@ -567,10 +616,10 @@
     },
     {
       "id": "mock-interview-session",
-      "routePattern": "/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]{/result}",
-      "title": "Interview session and result",
+      "routePattern": "/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]",
+      "title": "Interview session",
       "eyebrow": "StarCi Academy",
-      "purpose": "Complete interview turns and inspect the assessed result.",
+      "purpose": "Complete the persisted interview turns.",
       "navigation": [],
       "regions": [
         {
@@ -583,11 +632,6 @@
               "id": "interview-turns",
               "role": "entity",
               "label": "Interview turns"
-            },
-            {
-              "id": "interview-result",
-              "role": "status",
-              "label": "Assessment result"
             }
           ],
           "actions": [
@@ -596,12 +640,6 @@
               "label": "Submit answer",
               "kind": "primary",
               "target": "interview-turn"
-            },
-            {
-              "id": "view-result",
-              "label": "View result",
-              "kind": "link",
-              "target": "interview-result"
             }
           ],
           "states": [
@@ -612,13 +650,46 @@
           ],
           "evidenceIds": [
             "EV-007",
-            "EV-008",
             "EV-010"
           ]
         }
       ],
       "evidenceIds": [
-        "EV-007",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "mock-interview-result",
+      "routePattern": "/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]/result",
+      "title": "Interview result",
+      "eyebrow": "StarCi Academy",
+      "purpose": "Inspect the assessed result after completing the interview.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "interview-assessment",
+          "kind": "status",
+          "title": "Assessment result",
+          "summary": "Completed interview assessment and result details.",
+          "items": [
+            {
+              "id": "interview-result",
+              "role": "status",
+              "label": "Assessment result"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "pending",
+            "success",
+            "error"
+          ],
+          "evidenceIds": [
+            "EV-008"
+          ]
+        }
+      ],
+      "evidenceIds": [
         "EV-008"
       ]
     }
@@ -648,6 +719,16 @@
       "id": "AC-03",
       "statement": "Starting a mock interview server-draws and persists a session for the chosen course, level and kind.",
       "evidenceIds": [
+        "EV-010"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "The mock interview journey exposes setup, persisted session turns and an assessed result as distinct surfaces.",
+      "evidenceIds": [
+        "EV-006",
+        "EV-007",
+        "EV-008",
         "EV-010"
       ]
     }
@@ -763,6 +844,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "fee04602de7b3f4deab3147add8577d5ce22603c29b5b152f1266c45c10b1e9f"
+    },
+    {
+      "id": "EV-013",
+      "claim": "Owner approved redesigning the complete mock interview frontend journey across setup, persisted interview turns and assessed result without changing the backend contract.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc"
     }
   ]
 }
