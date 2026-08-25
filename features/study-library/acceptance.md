@@ -1,11 +1,19 @@
 # Acceptance · Study library
 
-| ID | Observable result | Evidence/test |
-|---|---|---|
-| `AC-01` | Flashcard, foundation and mind-map routes mount their declared study surfaces. | `EV-001`, `EV-003`, `EV-005` |
-| `AC-02` | Starting a review persists a resumable session for the selected deck and card order. | `EV-006` |
-| `AC-03` | Foundation queries return a paginated list for the selected category. | `EV-007` |
-| `AC-04` | The flashcard experience forms one continuous journey from library entry through start or resume, ordered card work, completion result and next action. | `EV-001`, `EV-002`, `EV-006`, `EV-009` |
+| ID | Observable result |
+|---|---|
+| `AC-01` | Flashcard, foundation and mind-map routes mount their declared surfaces. |
+| `AC-02` | Starting review persists a resumable selected deck and card order. |
+| `AC-03` | Foundation queries preserve paginated category behavior. |
+| `AC-04` | Flashcard entry clearly presents Study and Quick quiz and preserves mode in route identity. |
+| `AC-05` | Study starts from due work or a deck and supports all-versus-due selection when available. |
+| `AC-06` | Study persists before focused work, restores progress, supports reveal and four ratings, and ends at a dedicated result. |
+| `AC-07` | Quick quiz exposes Begin, History and Stats and enters work only after a playable run is persisted. |
+| `AC-08` | Quick quiz restores valid unfinished work and safely recovers from invalid or expired identity. |
+| `AC-09` | Both live modes expose progress and safe leave or finish-early behavior without losing acknowledged work. |
+| `AC-10` | Results expose branch-appropriate evidence, weak topics and next-study actions. |
+| `AC-11` | Every remote-data surface has loading, ready, empty, failed and retry or recovery behavior. |
+| `AC-12` | No redesign changes backend inputs, scoring, scheduling, access gates or route semantics; Foundations and Mind map remain outside the visual redesign. |
 
 ## Completion
 

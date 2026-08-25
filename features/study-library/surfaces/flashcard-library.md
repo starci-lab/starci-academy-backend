@@ -4,18 +4,13 @@
 
 ## Job
 
-Choose review or quiz work and start or resume a session.
-
-## Navigation
-
-- none
+Understand readiness, choose Study or Quick quiz, and start or resume the selected work.
 
 ## Prototype contract
 
-| Region | Kind | Real representative content | States | Actions | Evidence |
-|---|---|---|---|---|---|
-| `flashcard-decks` | collection | Cards due; Retention; Decks | pending, ready, empty, failed | Start review, Resume | `EV-001`, `EV-002`, `EV-006` |
+| Region | Kind | Real representative content | States | Actions |
+|---|---|---|---|---|
+| `study-overview` | collection | Due count, retention, saved session, searchable decks | pending, ready, empty, failed | Start due, resume, choose all or due |
+| `quick-quiz-overview` | flow | Begin, History, Stats, saved quiz | pending, ready, empty, failed, invalid | Start or resume Quick quiz |
 
-## Context rule
-
-Layout preview may use these identities, values, statuses and actions to show density and hierarchy. Block design owns final anatomy.
+Evidence: `EV-001`, `EV-002`, `EV-006`, `EV-010`, `EV-011`

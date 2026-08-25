@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "study-library",
-  "head": "9d78d0d20b04aaa1eba272432456ecbabbd2b2f079943e31e3530c2b89e3e3b9",
+  "head": "1f134aaa1d014eb977ca8f8d974e3d7002a01d1a115931f0b7a180b4c8c2c84b",
   "sources": [
     {
       "role": "fe",
@@ -92,6 +92,20 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "2b332376e579594225f6c15d8736fd359196bd2bc295efd52ec058850a368e21"
+    },
+    {
+      "id": "EV-010",
+      "claim": "The owner approved the expanded complete flashcard business model with explicit Study and Quick quiz branches, resumable focused sessions, dedicated results and recovery states.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "ce09c803d7bf929b9223ae621df6812663a499c3eb5cfd83c68d2230e83f8c3a"
+    },
+    {
+      "id": "EV-011",
+      "claim": "The declared legacy StarCi Academy flashcard manifest evidences the complete Study and Quick quiz journey shape but is reference-only and does not override current routed frontend or backend contracts.",
+      "kind": "reference-artifact",
+      "authority": "reference-only",
+      "decisionId": "bc932c4e153e17b9761c69eab20162a8d1923d04ea0bbb5eda070678880470af"
     }
   ]
 }

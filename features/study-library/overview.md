@@ -2,12 +2,14 @@
 
 ## Purpose
 
-Learners use course flashcard review and quiz sessions, browse foundational reference materials, and inspect the course mind map as complementary study modes.
+A course-level flashcard hub leads learners into either spaced-repetition Study or a configurable Quick quiz, preserves unfinished work, and closes each run with actionable results while Foundations and Mind map remain complementary study tools.
 
 ## Included
 
-- Flashcard review and quiz route families
-- Resumable review sessions and results
+- Flashcard mode entry and deck navigation
+- Study overview, due queue, deck configuration, focused review, resume and result
+- Quick quiz setup, history, stats, focused timed work, resume and result
+- Loading, empty, error, invalid or expired session, completion retry and recovery states
 - Foundation categories and resources
 - Course mind map
 
@@ -15,6 +17,8 @@ Learners use course flashcard review and quiz sessions, browse foundational refe
 
 - Standalone coding problems
 - Mock interview assessment
+- New backend contracts or changed scoring and scheduling algorithms
+- Legacy visual design as product authority
 
 ## Source heads
 

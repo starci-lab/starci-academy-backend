@@ -1,37 +1,24 @@
 # Contracts · Study library
 
-## Entity · Flashcard deck (`flashcard-deck`)
+## Entities
 
-Fields: `id`, `title`, `description`, `difficulty`, `card count`, `due count`, `mastered count`
+- `flashcard-deck`: id, title, description, difficulty, card count, due count, mastered count — `EV-002`
+- `flashcard-review-session`: session id, review source, optional deck id, ordered cards, current position, graded positions, reviewed count, status — `EV-001`, `EV-006`, `EV-010`, `EV-011`
+- `flashcard-quiz-session`: session id, configuration, ordered cards, deadline, current position, per-card outcomes, status — `EV-010`, `EV-011`
+- `flashcard-session-result`: session id, completion metrics, scheduling or coverage evidence, XP when applicable, weak topics, next study actions — `EV-010`, `EV-011`
+- `foundation-category`: id, title, description, thumbnail, resources — `EV-003`, `EV-004`, `EV-007`
 
-Evidence: `EV-002`
+## Operations
 
-## Entity · Flashcard session (`flashcard-session`)
+| Operation | Kind / owner | Input | Output |
+|---|---|---|---|
+| `startFlashcardReviewSession` | mutation / backend | deck id, card order | resumable review session |
+| `syncFlashcardReviewSessionProgress` | mutation / backend | session and review progress | acknowledged resumable progress |
+| `reviewFlashcard` | mutation / backend | card, session and four-grade recall | existing scheduling result |
+| `completeFlashcardReviewSession` | mutation / backend | session and completed review evidence | review result identity |
+| `startFlashcardQuizSession` | mutation / backend | course, existing configuration and card order | resumable timed quiz |
+| `syncFlashcardQuizSessionProgress` | mutation / backend | session, current position and outcomes | acknowledged quiz progress |
+| `completeFlashcardQuizSession` | mutation / backend | session and per-card result evidence | server-derived coverage, XP and result |
+| `foundations` | query / backend | category id and pagination | foundation page |
 
-Fields: `session id`, `deck id`, `ordered cards`, `progress`, `result`
-
-Evidence: `EV-001`, `EV-006`
-
-## Entity · Foundation category (`foundation-category`)
-
-Fields: `id`, `title`, `description`, `thumbnail`, `resources`
-
-Evidence: `EV-003`, `EV-004`, `EV-007`
-
-## Operation · startFlashcardReviewSession
-
-- Kind/owner: `mutation` / `backend`
-- Inputs: deck id, card order
-- Outputs: resumable review session
-- Failures: authentication rejected, deck unavailable, session creation failed
-- Evidence: `EV-006`
-
-## Operation · foundations
-
-- Kind/owner: `query` / `backend`
-- Inputs: category id, pagination
-- Outputs: foundation page
-- Failures: category missing, query failed
-- Evidence: `EV-007`
-
-No field, failure or operation may appear here without routed source evidence.
+Failures remain explicit in `model.json`. No redesign may invent an operation or change an existing input, score, schedule, access gate or route identity.
