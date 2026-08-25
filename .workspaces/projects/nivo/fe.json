@@ -1,6 +1,6 @@
 {
   "$schema": "../../../.claude/readiness/initialization/workspaces/portable-route.schema.json",
-  "version": 1,
+  "schemaVersion": 6,
   "project": "nivo",
   "role": "fe",
   "repository": {
@@ -16,7 +16,6 @@
     "manifests": [
       "package.json"
     ],
-    "grammar": "starci",
-    "grammarProfile": "nivo-console"
+    "grammarId": "core"
   }
 }

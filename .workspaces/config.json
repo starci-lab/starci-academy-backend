@@ -1,5 +1,5 @@
 {
-  "$schema": "../.claude/contexts/workspaces/config.schema.json",
-  "version": 1,
+  "$schema": "../.claude/readiness/initialization/workspaces/config.schema.json",
+  "schemaVersion": 6,
   "defaultLang": "vi"
 }

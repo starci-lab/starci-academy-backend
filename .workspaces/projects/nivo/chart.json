@@ -1,6 +1,6 @@
 {
   "$schema": "../../../.claude/readiness/initialization/workspaces/portable-route.schema.json",
-  "version": 1,
+  "schemaVersion": 6,
   "project": "nivo",
   "role": "chart",
   "repository": {
@@ -18,7 +18,6 @@
       "charts/expert-academy/Chart.yaml",
       "charts/mmo/Chart.yaml"
     ],
-    "grammar": null,
-    "grammarProfile": null
+    "grammarId": null
   }
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "../../../.claude/readiness/initialization/workspaces/portable-route.schema.json",
-  "version": 1,
+  "schemaVersion": 6,
   "project": "starci-academy",
   "role": "be",
   "repository": {
@@ -19,7 +19,6 @@
     "manifests": [
       "package.json"
     ],
-    "grammar": null,
-    "grammarProfile": null
+    "grammarId": null
   }
 }
