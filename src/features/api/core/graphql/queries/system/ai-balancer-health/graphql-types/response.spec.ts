@@ -1,16 +1,40 @@
 import {
-    AiBalancerKeyHealthData, AiBalancerHealthResponseData 
+    Test
+} from "@nestjs/testing"
+import {
+    GraphQLSchemaBuilderModule, GraphQLSchemaFactory, Query, Resolver
+} from "@nestjs/graphql"
+import {
+    AiBalancerHealthResponse
+} from "./response"
+@Resolver()
+class StaticProbe { @Query(() => AiBalancerHealthResponse) query(): AiBalancerHealthResponse { throw new Error("probe") } }
+import {
+    AiBalancerKeyHealthData, AiBalancerHealthResponseData
 } from "./response"
 describe("AI balancer health response",
     () => { it("keeps key availability and provider summaries",
         () => { const key = Object.assign(new AiBalancerKeyHealthData(),
             {
-                keyId: "k1", available: true, latencyMs: 20 
+                keyId: "k1", available: true, latencyMs: 20
             }); const data = Object.assign(new AiBalancerHealthResponseData(),
             {
-                providers: [], keys: [key], healthy: true 
+                providers: [], keys: [key], healthy: true
             }); expect(data).toMatchObject({
             healthy: true, keys: [{
-                available: true, latencyMs: 20 
-            }] 
+                available: true, latencyMs: 20
+            }]
         }) }) })
+
+describe("AiBalancerHealthResponse GraphQL schema",
+    () => {
+        it("builds the declared response/request type",
+            async () => {
+                const moduleRef = await Test.createTestingModule({
+                    imports: [GraphQLSchemaBuilderModule]
+                }).compile()
+                const schema = await (await moduleRef.get(GraphQLSchemaFactory)).create([StaticProbe])
+                expect(schema.getQueryType()?.getFields()).toHaveProperty("query")
+                expect(schema.getType("AiBalancerHealthResponse")).toBeDefined()
+            })
+    })

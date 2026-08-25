@@ -1,16 +1,41 @@
 import {
-    CoursePriceQuoteLineData, CoursePriceQuotesData 
+    Test
+} from "@nestjs/testing"
+import {
+    GraphQLSchemaBuilderModule, GraphQLSchemaFactory, Query, Resolver
+} from "@nestjs/graphql"
+import {
+    CoursePriceQuotesResponse
+} from "./response"
+@Resolver()
+class StaticProbe { @Query(() => CoursePriceQuotesResponse) query(): CoursePriceQuotesResponse { throw new Error("probe") } }
+import {
+    CoursePriceQuoteLineData, CoursePriceQuotesData
 } from "./response"
 describe("course price quote response DTOs",
     () => { it("carries nullable prices and totals",
         () => { const line = Object.assign(new CoursePriceQuoteLineData(),
             {
-                courseId: "c1", chargedPriceVnd: 100, chargedPriceUsd: null, currentPhase: "EarlyBird" 
+                courseId: "c1", chargedPriceVnd: 100, chargedPriceUsd: null, currentPhase: "EarlyBird"
             }); const data = Object.assign(new CoursePriceQuotesData(),
             {
-                lines: [line], totalChargedVnd: 100, totalChargedUsd: null, itemCount: 1 
+                lines: [line], totalChargedVnd: 100, totalChargedUsd: null, itemCount: 1
             }); expect(data).toMatchObject({
             lines: [expect.objectContaining({
-                chargedPriceUsd: null 
-            })], totalChargedVnd: 100, itemCount: 1 
+                chargedPriceUsd: null
+            })], totalChargedVnd: 100, itemCount: 1
         }) }) })
+
+describe("course price quote GraphQL schema",
+    () => {
+        it("builds the response and nested data types",
+            async () => {
+
+                const moduleRef = await Test.createTestingModule({
+                    imports: [GraphQLSchemaBuilderModule]
+                }).compile()
+                const schema = await (await moduleRef.get(GraphQLSchemaFactory)).create([StaticProbe])
+                expect(schema.getType("CoursePriceQuotesResponse")).toBeDefined()
+                expect(schema.getType("CoursePriceQuotesData")).toBeDefined()
+            })
+    })
