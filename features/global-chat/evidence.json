@@ -15,10 +15,10 @@
       "kind": "business-baseline",
       "owner": "starci-academy-business-authority",
       "source": "business-registry-v1.json",
-      "revision": "sha256:0d8e73c42e802e2fc27ae916e0d0d03def07b0cfa9760c4701f32e8297f47ae2",
+      "revision": "sha256:dbc1f9bb95e94310952496a73f7724527b68622cbb6da70e65eb656d79878dfd",
       "confidence": "high",
       "conflict": "none",
-      "finding": "No global-chat feature head existed before this publication."
+      "finding": "Previous global-chat head 70cca2621a1a69881b24d2a1a580dac3583f1f5e521d14c870ff1e6c0d874122 existed before this publication."
     },
     {
       "kind": "owner-approval",
@@ -28,6 +28,25 @@
       "confidence": "high",
       "conflict": "none",
       "finding": "The exact modeled revision was approved."
+    },
+    {
+      "kind": "source-baseline",
+      "owner": "starci-academy-backend",
+      "source": "repository:starci-academy/be",
+      "revision": "git:373b578dcea5d0c4d6deb83dbe2663615c1a045d",
+      "routeRevision": "sha256:665a8d2f6ebf676b70a120079081786e335a5461b64c2d0126acaa0359aac029",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "The approved business semantics were rebound to the current routed backend source baseline."
+    },
+    {
+      "kind": "owner-approval",
+      "owner": "product-owner",
+      "source": "session://tasks/global-chat-architecture-20260825/approval/97b2978cc5705323a692a1839e6ee51ad9d189aa90cbd943a61b9f9305670860",
+      "revision": "sha256:be05ab27501b49059d29a52b6e8bff58b1d19cc3fe94e85bd193ce34d45f4fdf",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "The exact baseline-rebound revision was approved."
     }
   ]
 }
