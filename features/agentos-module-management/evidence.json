@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "agentos-module-management",
+  "head": "362e268e5e7139abd534bed976dd909c36a3280639ac2fa7e18f3f1f09fd0238",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "eeeaef30b60b823eb894fed410cc6742ed0bd08f"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "The owner requested a flow with a module-type selection interface followed by a module management page and asked which settings belong there.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "259a774285e8ad4555a82ee87fb080f43184fc4039e5da7d77b51b49d0665731"
+    },
+    {
+      "id": "EV-002",
+      "claim": "The owner clarified that this flow belongs to end users after they install AgentOS, not to course learners or course authors.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "ea43df131ef5801f0a144afda84716be5703a6254bc006bfdd495027c7d43207"
+    },
+    {
+      "id": "EV-003",
+      "claim": "The owner confirmed that every module has shared chat while exactly one open-set kind selects an additional workbench; document, spreadsheet or accounting, and calendar or scheduling are examples rather than a closed enum.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "af23be552cece34ef04f8a091967b0c267488082d7cd63b48ecf1efa906c93ee"
+    },
+    {
+      "id": "EV-004",
+      "claim": "The owner approved the complete proposed AgentOS post-install module creation and management business model.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "61346d21f2a015b9b499d4830bda8effcecbb588cf0d942221e4853748ef67c8"
+    }
+  ]
+}

@@ -49,6 +49,23 @@
         }
       ]
     },
+    "agentos-module-management": {
+      "featureId": "agentos-module-management",
+      "head": "362e268e5e7139abd534bed976dd909c36a3280639ac2fa7e18f3f1f09fd0238",
+      "authorityStatus": "modeled",
+      "baseHead": null,
+      "previousHead": null,
+      "sources": [
+        {
+          "role": "fe",
+          "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
+        },
+        {
+          "role": "be",
+          "head": "eeeaef30b60b823eb894fed410cc6742ed0bd08f"
+        }
+      ]
+    },
     "study-library": {
       "featureId": "study-library",
       "head": "b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699",
@@ -340,6 +357,10 @@
       "b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699": {
         "hash": "b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699",
         "path": "objects/sha256/b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699.json"
+      },
+      "362e268e5e7139abd534bed976dd909c36a3280639ac2fa7e18f3f1f09fd0238": {
+        "hash": "362e268e5e7139abd534bed976dd909c36a3280639ac2fa7e18f3f1f09fd0238",
+        "path": "objects/sha256/362e268e5e7139abd534bed976dd909c36a3280639ac2fa7e18f3f1f09fd0238.json"
       }
     }
   }

@@ -1,0 +1,677 @@
+{
+  "schemaVersion": 2,
+  "authority": {
+    "status": "modeled",
+    "basis": "owner-evidence",
+    "requiredRoles": [
+      "fe",
+      "be"
+    ],
+    "baseHead": null,
+    "previousHead": null
+  },
+  "project": "starci-academy",
+  "featureId": "agentos-module-management",
+  "title": "AgentOS post-install module creation and management",
+  "summary": "After AgentOS is installed and ready, an end user creates a module by choosing one extensible kind, configures the common module and shared chat plus one kind-specific workbench, validates readiness, and activates the module.",
+  "sources": [
+    {
+      "role": "fe",
+      "repository": "https://github.com/starci-lab/starci-academy-fe.git",
+      "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
+    },
+    {
+      "role": "be",
+      "repository": "https://github.com/starci-lab/starci-academy-backend",
+      "head": "eeeaef30b60b823eb894fed410cc6742ed0bd08f"
+    }
+  ],
+  "scope": {
+    "includes": [
+      "Post-install module creation",
+      "Module kind selection",
+      "Module management",
+      "Shared chat configuration",
+      "Kind-specific workbench configuration",
+      "Readiness validation and activation"
+    ],
+    "excludes": [
+      "Course learning",
+      "Frontend layout implementation",
+      "Database inheritance strategy",
+      "Specific Excel or Calendar embedding technology",
+      "Deployment"
+    ]
+  },
+  "actors": [
+    {
+      "id": "agentos-user",
+      "label": "AgentOS user",
+      "capabilities": [
+        "Create a module after AgentOS is ready",
+        "Choose one registered module kind",
+        "Configure common module settings and shared chat",
+        "Configure the kind-specific workbench",
+        "Validate readiness and activate a module"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "agentos-platform",
+      "label": "AgentOS platform",
+      "capabilities": [
+        "List registered module kinds",
+        "Create draft modules",
+        "Mount shared chat for every module",
+        "Resolve one kind-specific workbench",
+        "Validate readiness and gate activation"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "post-install-module-setup",
+      "title": "Create, configure and activate an AgentOS module",
+      "trigger": "AgentOS reaches the installed-ready state and the user starts module creation.",
+      "steps": [
+        {
+          "id": "choose-module-kind",
+          "actor": "agentos-user",
+          "action": "Choose exactly one kind from the registered kind catalog",
+          "result": "The selected kind is bound to a new draft module",
+          "surfaceId": "module-kind-selection",
+          "stateId": "module-draft"
+        },
+        {
+          "id": "configure-module",
+          "actor": "agentos-user",
+          "action": "Configure Overview, Shared chat and the selected kind workbench",
+          "result": "Common, chat and kind-owned settings are saved on the draft module",
+          "surfaceId": "module-management",
+          "stateId": "module-draft"
+        },
+        {
+          "id": "validate-readiness",
+          "actor": "agentos-user",
+          "action": "Run readiness validation",
+          "result": "The module becomes ready or shows actionable missing-setting evidence",
+          "surfaceId": "module-management",
+          "stateId": "module-ready"
+        },
+        {
+          "id": "activate-module",
+          "actor": "agentos-user",
+          "action": "Activate a ready module",
+          "result": "The module becomes available in the AgentOS user workspace",
+          "surfaceId": "module-management",
+          "stateId": "module-active"
+        }
+      ],
+      "outcomes": [
+        "The user obtains an active module with shared chat and one workbench selected by its kind"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "BR-01",
+      "statement": "The UI may label the discriminator Type; durable domain authority names it kind.",
+      "strength": "owner-approved",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-02",
+      "statement": "A module has exactly one kind selected from an extensible registry, never a closed product enum.",
+      "strength": "owner-approved",
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-03",
+      "statement": "Kind is selected before the draft module is created and is immutable for that module; changing kind requires creating another module.",
+      "strength": "owner-approved",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-04",
+      "statement": "Every module exposes the same shared chat capability regardless of kind.",
+      "strength": "owner-approved",
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-05",
+      "statement": "Each kind resolves exactly one additional workbench contract; adding a kind registers a new contract without changing the module shell or shared chat.",
+      "strength": "owner-approved",
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-06",
+      "statement": "The management page separates common module settings, shared-chat settings and kind-owned workbench settings.",
+      "strength": "owner-approved",
+      "evidenceIds": [
+        "EV-001",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-07",
+      "statement": "A module remains draft until all required common, chat and kind-owned settings pass readiness validation.",
+      "strength": "owner-approved",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-08",
+      "statement": "Activation is rejected with actionable missing-setting evidence when readiness fails.",
+      "strength": "owner-approved",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "BR-09",
+      "statement": "Excel, Calendar, Document, Accounting and Scheduling are examples of workbenches, not hard-coded kinds or integration modes.",
+      "strength": "owner-approved",
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "module-draft",
+      "label": "Draft",
+      "kind": "initial",
+      "transitions": [
+        "module-ready"
+      ],
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "module-ready",
+      "label": "Ready",
+      "kind": "ready",
+      "transitions": [
+        "module-draft",
+        "module-active"
+      ],
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "module-active",
+      "label": "Active",
+      "kind": "success",
+      "transitions": [],
+      "evidenceIds": [
+        "EV-004"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "module",
+      "label": "AgentOS module",
+      "fields": [
+        "id",
+        "display name",
+        "purpose or description",
+        "kind",
+        "lifecycle state",
+        "shared chat configuration",
+        "kind-specific workbench configuration"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "module-kind",
+      "label": "Module kind",
+      "fields": [
+        "kind identifier",
+        "display label",
+        "workbench contract",
+        "required configuration schema"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "shared-chat",
+      "label": "Shared chat",
+      "fields": [
+        "operating instructions",
+        "knowledge or context sources",
+        "access policy"
+      ],
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-module-kinds",
+      "kind": "query",
+      "name": "listRegisteredModuleKinds",
+      "owner": "platform",
+      "inputs": [],
+      "outputs": [
+        "registered module kinds"
+      ],
+      "failures": [
+        "kind registry unavailable"
+      ],
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "create-module",
+      "kind": "mutation",
+      "name": "createDraftModule",
+      "owner": "platform",
+      "inputs": [
+        "selected kind"
+      ],
+      "outputs": [
+        "draft module"
+      ],
+      "failures": [
+        "kind missing",
+        "kind not registered"
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "configure-module",
+      "kind": "mutation",
+      "name": "updateModuleConfiguration",
+      "owner": "platform",
+      "inputs": [
+        "overview settings",
+        "shared-chat settings",
+        "kind-workbench settings"
+      ],
+      "outputs": [
+        "updated draft module"
+      ],
+      "failures": [
+        "invalid common setting",
+        "invalid shared-chat setting",
+        "kind-contract mismatch"
+      ],
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "validate-module-readiness",
+      "kind": "query",
+      "name": "validateModuleReadiness",
+      "owner": "platform",
+      "inputs": [
+        "module id"
+      ],
+      "outputs": [
+        "readiness status",
+        "missing-setting evidence"
+      ],
+      "failures": [
+        "module missing"
+      ],
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "activate-module",
+      "kind": "mutation",
+      "name": "activateModule",
+      "owner": "platform",
+      "inputs": [
+        "module id"
+      ],
+      "outputs": [
+        "active module"
+      ],
+      "failures": [
+        "module not ready",
+        "missing required configuration"
+      ],
+      "evidenceIds": [
+        "EV-004"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "module-kind-selection",
+      "routePattern": "AgentOS post-install module creation entry",
+      "title": "Choose module type",
+      "eyebrow": "AgentOS",
+      "purpose": "Choose one registered module kind before creating the draft module.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "kind-catalog",
+          "kind": "collection",
+          "title": "Module types",
+          "summary": "An extensible catalog of registered module kinds and their workbench purpose.",
+          "items": [
+            {
+              "id": "registered-kind",
+              "role": "choice",
+              "label": "Module type"
+            }
+          ],
+          "actions": [
+            {
+              "id": "create-selected-module",
+              "label": "Create module",
+              "kind": "primary",
+              "target": "module-management"
+            }
+          ],
+          "states": [
+            "pending",
+            "ready",
+            "empty",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-001",
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "module-management",
+      "routePattern": "AgentOS module management entry",
+      "title": "Manage module",
+      "eyebrow": "AgentOS",
+      "purpose": "Configure common module behavior, shared chat, the kind-specific workbench, readiness and activation.",
+      "navigation": [],
+      "regions": [
+        {
+          "id": "module-overview",
+          "kind": "form",
+          "title": "Overview",
+          "summary": "Set the module display name and purpose or description.",
+          "items": [
+            {
+              "id": "module-name",
+              "role": "field",
+              "label": "Display name"
+            },
+            {
+              "id": "module-purpose",
+              "role": "field",
+              "label": "Purpose"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "ready",
+            "invalid"
+          ],
+          "evidenceIds": [
+            "EV-004"
+          ]
+        },
+        {
+          "id": "shared-chat-settings",
+          "kind": "form",
+          "title": "Shared chat",
+          "summary": "Configure instructions, knowledge or context sources and access policy shared by every module kind.",
+          "items": [
+            {
+              "id": "chat-instructions",
+              "role": "field",
+              "label": "Operating instructions"
+            },
+            {
+              "id": "chat-context",
+              "role": "field",
+              "label": "Knowledge and context"
+            },
+            {
+              "id": "chat-access",
+              "role": "field",
+              "label": "Access policy"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "ready",
+            "invalid"
+          ],
+          "evidenceIds": [
+            "EV-003",
+            "EV-004"
+          ]
+        },
+        {
+          "id": "kind-workbench-settings",
+          "kind": "form",
+          "title": "Workbench",
+          "summary": "Render and validate the configuration declared by the selected kind contract.",
+          "items": [
+            {
+              "id": "kind-workbench-fields",
+              "role": "field",
+              "label": "Kind-specific settings"
+            }
+          ],
+          "actions": [],
+          "states": [
+            "pending",
+            "ready",
+            "invalid",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-003",
+            "EV-004"
+          ]
+        },
+        {
+          "id": "module-readiness",
+          "kind": "summary",
+          "title": "Readiness",
+          "summary": "Show validation status, actionable missing settings and activation eligibility.",
+          "items": [
+            {
+              "id": "readiness-status",
+              "role": "status",
+              "label": "Readiness status"
+            },
+            {
+              "id": "missing-settings",
+              "role": "status",
+              "label": "Missing settings"
+            }
+          ],
+          "actions": [
+            {
+              "id": "validate-readiness",
+              "label": "Check readiness",
+              "kind": "secondary",
+              "target": "validateModuleReadiness"
+            },
+            {
+              "id": "activate-module",
+              "label": "Activate module",
+              "kind": "primary",
+              "target": "activateModule"
+            }
+          ],
+          "states": [
+            "draft",
+            "ready",
+            "active",
+            "failed"
+          ],
+          "evidenceIds": [
+            "EV-004"
+          ]
+        }
+      ],
+      "evidenceIds": [
+        "EV-001",
+        "EV-003",
+        "EV-004"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-01",
+      "statement": "After AgentOS is ready, a user can choose one registered kind and land on management for the created draft module.",
+      "evidenceIds": [
+        "EV-001",
+        "EV-002",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Management always shows Overview, Shared chat, kind workbench and Readiness areas.",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "statement": "Two different kinds reuse the same module shell and chat while rendering different workbench contracts.",
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "statement": "A newly registered kind is selectable without modifying shared chat or the module shell.",
+      "evidenceIds": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "statement": "Activation fails with specific missing-setting feedback until all required configuration validates.",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "statement": "Changing a module kind is not offered; the user creates a new module instead.",
+      "evidenceIds": [
+        "EV-004"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "shared-chat-cardinality",
+      "question": "Does shared chat contain one conversation or multiple threads per module?",
+      "impact": "The shared chat capability is approved but its conversation or mailbox cardinality remains undefined."
+    },
+    {
+      "id": "module-permissions",
+      "question": "Which roles and sharing granularity apply to module management and use?",
+      "impact": "The exact permission and collaboration policy remains undefined."
+    },
+    {
+      "id": "workbench-integration-mode",
+      "question": "Is each workbench embedded, linked or implemented natively?",
+      "impact": "Examples establish purpose but not provider or integration technology."
+    },
+    {
+      "id": "kind-specific-schema",
+      "question": "Which fields and credentials are required by each registered kind?",
+      "impact": "The registry contract is approved while each concrete kind schema remains separately owned."
+    },
+    {
+      "id": "extended-lifecycle",
+      "question": "What are the archive, delete, duplicate and import or export rules?",
+      "impact": "The approved lifecycle closes at activation."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "The owner requested a flow with a module-type selection interface followed by a module management page and asked which settings belong there.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "259a774285e8ad4555a82ee87fb080f43184fc4039e5da7d77b51b49d0665731"
+    },
+    {
+      "id": "EV-002",
+      "claim": "The owner clarified that this flow belongs to end users after they install AgentOS, not to course learners or course authors.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "ea43df131ef5801f0a144afda84716be5703a6254bc006bfdd495027c7d43207"
+    },
+    {
+      "id": "EV-003",
+      "claim": "The owner confirmed that every module has shared chat while exactly one open-set kind selects an additional workbench; document, spreadsheet or accounting, and calendar or scheduling are examples rather than a closed enum.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "af23be552cece34ef04f8a091967b0c267488082d7cd63b48ecf1efa906c93ee"
+    },
+    {
+      "id": "EV-004",
+      "claim": "The owner approved the complete proposed AgentOS post-install module creation and management business model.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "61346d21f2a015b9b499d4830bda8effcecbb588cf0d942221e4853748ef67c8"
+    }
+  ]
+}
