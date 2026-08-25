@@ -1,20 +1,28 @@
 import {
-    Module,
+    Module 
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass,
+    ConfigurableModuleClass 
 } from "./chat.module-definition"
 import {
-    SendChatMessageResolver,
+    SendChatMessageResolver 
 } from "./send-chat-message/send-chat-message.resolver"
 import {
-    SendChatMessageService,
+    SendChatMessageService 
 } from "./send-chat-message/send-chat-message.service"
+import {
+    GlobalChatMutationResolver 
+} from "./global-chat/global-chat.resolver"
+import {
+    GlobalChatMutationService 
+} from "./global-chat/global-chat.service"
 
 @Module({
     providers: [
         SendChatMessageResolver,
         SendChatMessageService,
+        GlobalChatMutationResolver,
+        GlobalChatMutationService,
     ],
 })
 /**

@@ -1,27 +1,33 @@
 import {
-    Module,
+    Module 
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass,
+    ConfigurableModuleClass 
 } from "./chat.module-definition"
 import {
-    CommunityChatConversationResolver,
+    CommunityChatConversationResolver 
 } from "./community-chat-conversation/community-chat-conversation.resolver"
 import {
-    CommunityChatConversationService,
+    CommunityChatConversationService 
 } from "./community-chat-conversation/community-chat-conversation.service"
 import {
-    MyFounderConversationResolver,
+    MyFounderConversationResolver 
 } from "./my-founder-conversation/my-founder-conversation.resolver"
 import {
-    MyFounderConversationService,
+    MyFounderConversationService 
 } from "./my-founder-conversation/my-founder-conversation.service"
 import {
-    ChatMessagesResolver,
+    ChatMessagesResolver 
 } from "./chat-messages/chat-messages.resolver"
 import {
-    ChatMessagesService,
+    ChatMessagesService 
 } from "./chat-messages/chat-messages.service"
+import {
+    GlobalChatResolver 
+} from "./global-chat/global-chat.resolver"
+import {
+    GlobalChatQueryService 
+} from "./global-chat/global-chat.service"
 
 @Module({
     providers: [
@@ -31,6 +37,8 @@ import {
         MyFounderConversationService,
         ChatMessagesResolver,
         ChatMessagesService,
+        GlobalChatResolver,
+        GlobalChatQueryService,
     ],
 })
 /**
