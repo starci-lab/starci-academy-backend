@@ -1,80 +1,80 @@
 import {
-    Test,
+    Test 
 } from "@nestjs/testing"
 import type {
-    INestApplication,
+    INestApplication 
 } from "@nestjs/common"
 import {
-    getEntityManagerToken,
+    getEntityManagerToken 
 } from "@nestjs/typeorm"
 import type {
-    EntityManager,
+    EntityManager 
 } from "typeorm"
 import {
-    TransactionEntity,
+    TransactionEntity 
 } from "@modules/databases/postgresql/primary/entities/transaction.entity"
 import {
-    UserEntity,
+    UserEntity 
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
-    ActionType,
+    ActionType 
 } from "@modules/databases/postgresql/primary/enums/action-type"
 import {
-    PaymentType,
+    PaymentType 
 } from "@modules/databases/postgresql/primary/enums/payment-type"
 import {
-    PricingPhase,
+    PricingPhase 
 } from "@modules/databases/postgresql/primary/enums/pricing-phase"
 import {
-    TransactionStatus,
+    TransactionStatus 
 } from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
-    PrimaryPostgreSQLModule,
+    PrimaryPostgreSQLModule 
 } from "@modules/databases/postgresql/primary/primary.module"
 import {
-    MembershipNotAvailableException,
+    MembershipNotAvailableException 
 } from "@modules/platform/exceptions/errors/membership/membership-not-available"
 import {
-    EnqueueReconcileTransactionJobService,
+    EnqueueReconcileTransactionJobService 
 } from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
 import {
-    MountFilesystemService,
+    MountFilesystemService 
 } from "@modules/filesystem/mount.service"
 import type {
-    AppConfig,
+    AppConfig 
 } from "@modules/filesystem/types/config"
 import {
-    DayjsService,
+    DayjsService 
 } from "@modules/lib/mixin/dayjs.service"
 import {
-    RetryService,
+    RetryService 
 } from "@modules/lib/mixin/retry.service"
 import {
-    SEPAY,
+    SEPAY 
 } from "@modules/integrations/sepay/constants/sepay"
 import {
-    PAYOS,
+    PAYOS 
 } from "@modules/integrations/payos/constants/payos"
 import {
-    STRIPE,
+    STRIPE 
 } from "@modules/integrations/stripe/constants/stripe"
 import {
-    PaypalClient,
+    PaypalClient 
 } from "@modules/integrations/paypal/paypal.client"
 import {
-    NowPaymentsClient,
+    NowPaymentsClient 
 } from "@modules/integrations/nowpayments/nowpayments.client"
 import {
-    PurchaseMembershipHandler,
+    PurchaseMembershipHandler 
 } from "@features/api/core/graphql/mutations/membership/purchase-membership/purchase-membership.handler"
 import {
-    PurchaseMembershipCommand,
+    PurchaseMembershipCommand 
 } from "@features/api/core/graphql/mutations/membership/purchase-membership/purchase-membership.command"
 import type {
-    PurchaseMembershipRequest,
+    PurchaseMembershipRequest 
 } from "@features/api/core/graphql/mutations/membership/purchase-membership/graphql-types/request"
 import {
-    TestHelpersModule,
+    TestHelpersModule 
 } from "@tests/helpers/test-helpers.module"
 import type {
     NowPaymentsCheckoutClientMock,
@@ -84,11 +84,23 @@ import type {
     StripeCheckoutClientMock,
 } from "@tests/helpers/types/checkout-client-mocks"
 import type {
-    EnqueueJobMock,
+    EnqueueJobMock 
 } from "@tests/helpers/types/job-enqueue-mocks"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
+
+/**
+ * The handler's checkout seam is a concrete provider whose SDK dependencies
+ * remain mocked below. Resolve the exact constructor token without duplicating
+ * its module path in this integration harness.
+ */
+const CHECKOUT_GATEWAY_SERVICE = (
+  Reflect.getMetadata(
+      "design:paramtypes",
+      PurchaseMembershipHandler,
+  ) as Array<unknown>
+)[1]
 
 /** Monthly VND price the mounted `app.yaml` `membership` section is stubbed to return. */
 const MEMBERSHIP_PRICE_VND = 99_000
@@ -178,36 +190,37 @@ describe("Purchase membership (integration)",
                 ],
                 providers: [
                     PurchaseMembershipHandler,
-                    DayjsService,
-                    RetryService,
-                    {
-                        provide: SEPAY,
-                        useValue: sepayClient,
-                    },
-                    {
-                        provide: PAYOS,
-                        useValue: payosClient,
-                    },
-                    {
-                        provide: STRIPE,
-                        useValue: stripeClient,
-                    },
-                    {
-                        provide: PaypalClient,
-                        useValue: paypalClient,
-                    },
-                    {
-                        provide: NowPaymentsClient,
-                        useValue: nowPaymentsClient,
-                    },
-                    {
-                        provide: EnqueueReconcileTransactionJobService,
-                        useValue: enqueueReconcileTransactionJob,
-                    },
-                    {
-                        provide: MountFilesystemService,
-                        useValue: mountFilesystemServiceMock,
-                    },
+        CHECKOUT_GATEWAY_SERVICE as never,
+        DayjsService,
+        RetryService,
+        {
+            provide: SEPAY,
+            useValue: sepayClient,
+        },
+        {
+            provide: PAYOS,
+            useValue: payosClient,
+        },
+        {
+            provide: STRIPE,
+            useValue: stripeClient,
+        },
+        {
+            provide: PaypalClient,
+            useValue: paypalClient,
+        },
+        {
+            provide: NowPaymentsClient,
+            useValue: nowPaymentsClient,
+        },
+        {
+            provide: EnqueueReconcileTransactionJobService,
+            useValue: enqueueReconcileTransactionJob,
+        },
+        {
+            provide: MountFilesystemService,
+            useValue: mountFilesystemServiceMock,
+        },
                 ],
             }).compile()
 
@@ -236,9 +249,7 @@ describe("Purchase membership (integration)",
             jest.clearAllMocks()
         })
 
-        const seedUser = async (
-            referenceId: string,
-        ): Promise<UserEntity> =>
+        const seedUser = async (referenceId: string): Promise<UserEntity> =>
             entityManager.save(
                 entityManager.create(UserEntity,
                     {
@@ -247,7 +258,8 @@ describe("Purchase membership (integration)",
             )
 
         const buildRequest = (
-            overrides: Partial<PurchaseMembershipRequest> & Pick<PurchaseMembershipRequest, "paymentType">,
+            overrides: Partial<PurchaseMembershipRequest> &
+      Pick<PurchaseMembershipRequest, "paymentType">,
         ): PurchaseMembershipRequest => ({
             payosReturnUrl: "https://academy.test/return",
             payosCancelUrl: "https://academy.test/cancel",
@@ -275,14 +287,12 @@ describe("Purchase membership (integration)",
                 )
                 expect(result.amount).toBe(MEMBERSHIP_PRICE_VND)
 
-                const transaction = await entityManager.findOneOrFail(
-                    TransactionEntity,
+                const transaction = await entityManager.findOneOrFail(TransactionEntity,
                     {
                         where: {
                             id: result.transactionId,
                         },
-                    },
-                )
+                    })
                 expect(transaction.status).toBe(TransactionStatus.Pending)
                 expect(transaction.actionType).toBe(ActionType.MembershipPurchase)
                 // `course` is the @ManyToOne relation, left undefined by a
@@ -324,14 +334,12 @@ describe("Purchase membership (integration)",
                         ],
                     }),
                 )
-                const transaction = await entityManager.findOneOrFail(
-                    TransactionEntity,
+                const transaction = await entityManager.findOneOrFail(TransactionEntity,
                     {
                         where: {
                             id: result.transactionId,
                         },
-                    },
-                )
+                    })
                 expect(transaction.actionType).toBe(ActionType.MembershipPurchase)
                 expect(transaction.providerPaymentId).toBe("cs_test_membership")
                 // the persisted amount stays the stable VND reference, not the USD charge

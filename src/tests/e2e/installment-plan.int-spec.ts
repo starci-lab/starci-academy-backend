@@ -1,149 +1,149 @@
 import {
-    CommandBus,
+    CommandBus 
 } from "@nestjs/cqrs"
 import {
-    CourseEntity,
+    CourseEntity 
 } from "@modules/databases/postgresql/primary/entities/course.entity"
 import {
-    EnrollmentEntity,
+    EnrollmentEntity 
 } from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
-    InstallmentPlanEntity,
+    InstallmentPlanEntity 
 } from "@modules/databases/postgresql/primary/entities/installment-plan.entity"
 import {
-    PricingPhaseEntity,
+    PricingPhaseEntity 
 } from "@modules/databases/postgresql/primary/entities/pricing-phase.entity"
 import {
-    TransactionEntity,
+    TransactionEntity 
 } from "@modules/databases/postgresql/primary/entities/transaction.entity"
 import {
-    UserEntity,
+    UserEntity 
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
-    InstallmentPlanStatus,
+    InstallmentPlanStatus 
 } from "@modules/databases/postgresql/primary/enums/installment-plan-status"
 import {
-    Locale,
+    Locale 
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    PaymentType,
+    PaymentType 
 } from "@modules/databases/postgresql/primary/enums/payment-type"
 import {
-    PricingPhase,
+    PricingPhase 
 } from "@modules/databases/postgresql/primary/enums/pricing-phase"
 import {
-    TransactionStatus,
+    TransactionStatus 
 } from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
-    AiEntitlementService,
+    AiEntitlementService 
 } from "@modules/ai/ai-entitlement.service"
 import {
-    CourseStatsProjectionService,
+    CourseStatsProjectionService 
 } from "@modules/bussiness/projections/course-stats/course-stats-projection.service"
 import {
-    UserStatsProjectionService,
+    UserStatsProjectionService 
 } from "@modules/bussiness/projections/user-stats/user-stats-projection.service"
 import {
-    UserXpProjectionService,
+    UserXpProjectionService 
 } from "@modules/bussiness/projections/user-xp/user-xp-projection.service"
 import {
-    InstallmentPlanService,
+    InstallmentPlanService 
 } from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
-    JobActionService,
+    JobActionService 
 } from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
-    EnqueueEnrollJobService,
+    EnqueueEnrollJobService 
 } from "@modules/bussiness/jobs/enqueue/enroll.service"
 import {
-    EnqueueReconcileTransactionJobService,
+    EnqueueReconcileTransactionJobService 
 } from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
 import {
-    EnqueueResolveGithubJobService,
+    EnqueueResolveGithubJobService 
 } from "@modules/bussiness/jobs/enqueue/resolve-github.service"
 import {
-    EnqueueSendMailJobService,
+    EnqueueSendMailJobService 
 } from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
-    LoyaltyDiscountService,
+    LoyaltyDiscountService 
 } from "@modules/bussiness/loyalty/loyalty-discount.service"
 import {
-    NotificationService,
+    NotificationService 
 } from "@modules/bussiness/notification/notification.service"
 import {
-    VoucherService,
+    VoucherService 
 } from "@modules/bussiness/rewards/voucher.service"
 import {
-    TransactionActionService,
+    TransactionActionService 
 } from "@modules/bussiness/transactions/atomic/transaction-action.service"
 import {
-    UserService,
+    UserService 
 } from "@modules/bussiness/user/user.service"
 import {
-    DayjsService,
+    DayjsService 
 } from "@modules/lib/mixin/dayjs.service"
 import {
-    RetryService,
+    RetryService 
 } from "@modules/lib/mixin/retry.service"
 import {
-    MembershipService,
+    MembershipService 
 } from "@modules/membership/membership.service"
 import {
-    NowPaymentsClient,
+    NowPaymentsClient 
 } from "@modules/integrations/nowpayments/nowpayments.client"
 import {
-    PaypalClient,
+    PaypalClient 
 } from "@modules/integrations/paypal/paypal.client"
 import {
-    PAYOS,
+    PAYOS 
 } from "@modules/integrations/payos/constants/payos"
 import {
-    SEPAY,
+    SEPAY 
 } from "@modules/integrations/sepay/constants/sepay"
 import {
-    STRIPE,
+    STRIPE 
 } from "@modules/integrations/stripe/constants/stripe"
 import {
-    CoursePriceCalculatorService,
+    CoursePriceCalculatorService 
 } from "@modules/bussiness/course-pricing/course-price-calculator.service"
 import {
-    CoursePriceQuoteService,
+    CoursePriceQuoteService 
 } from "@modules/bussiness/course-pricing/course-price-quote.service"
 import {
-    CoursesCheckoutCommand,
+    CoursesCheckoutCommand 
 } from "@features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout.command"
 import {
-    CoursesCheckoutHandler,
+    CoursesCheckoutHandler 
 } from "@features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout.handler"
 import {
-    CoursesCheckoutPricingService,
+    CoursesCheckoutPricingService 
 } from "@features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout-pricing.service"
 import {
-    PayNextInstallmentCommand,
+    PayNextInstallmentCommand 
 } from "@features/api/core/graphql/mutations/installment-plans/pay-next-installment/pay-next-installment.command"
 import {
-    PayNextInstallmentHandler,
+    PayNextInstallmentHandler 
 } from "@features/api/core/graphql/mutations/installment-plans/pay-next-installment/pay-next-installment.handler"
 import {
-    SepayWebhookCommand,
+    SepayWebhookCommand 
 } from "@features/api/core/http/sepay/webhook/webhook.command"
 import {
-    SepayWebhookHandler,
+    SepayWebhookHandler 
 } from "@features/api/core/http/sepay/webhook/webhook.handler"
 import {
-    EnrollStepService,
+    EnrollStepService 
 } from "@features/api/processors/enroll/steps/enroll-step.service"
 import {
-    bootFlowWorld,
+    bootFlowWorld 
 } from "@tests/helpers/flow-world"
 import type {
-    FlowWorld,
+    FlowWorld 
 } from "@tests/helpers/flow-world"
 import type {
-    SepayCheckoutAndOrderClientMock,
+    SepayCheckoutAndOrderClientMock 
 } from "@tests/helpers/types/checkout-client-mocks"
 import type {
-    EnqueueForTransactionJobMock,
+    EnqueueForTransactionJobMock 
 } from "@tests/helpers/types/job-enqueue-mocks"
 
 /**
@@ -188,7 +188,8 @@ describe("a learner pays a course off over time",
             }
             enqueueEnrollFacade = {
                 enqueueForTransaction: jest.fn(async (params: unknown) =>
-                    realEnqueueEnroll.enqueueForTransaction(params as never)),
+                    realEnqueueEnroll.enqueueForTransaction(params as never),
+                ),
             }
 
             world = await bootFlowWorld({
@@ -300,16 +301,16 @@ describe("a learner pays a course off over time",
             installmentPlanService = world.app.get(InstallmentPlanService)
 
             realEnqueueEnroll = new EnqueueEnrollJobService(
-                {
-                } as never,
-                {
-                } as never,
-                {
-                } as never,
-                {
-                } as never,
-                world.entityManager,
-                installmentPlanService,
+      {
+      } as never,
+      {
+      } as never,
+      {
+      } as never,
+      {
+      } as never,
+      world.entityManager,
+      installmentPlanService,
             )
             jest.spyOn(realEnqueueEnroll,
                 "enqueue").mockResolvedValue({
@@ -417,14 +418,29 @@ describe("a learner pays a course off over time",
                     }),
                 )
 
-                const plan = await world.entityManager.findOneOrFail(InstallmentPlanEntity,
+                const reconcileQueue = world.app.get(EnqueueReconcileTransactionJobService)
+                expect(reconcileQueue.enqueue).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        transactionId: originTransactionId,
+                    }),
+                )
+                // The webhook now wakes the reconcile queue instead of finalizing
+                // enrollment inline. This harness replaces that broker, so execute
+                // the successful reconcile handoff before asserting its effects.
+                await enqueueEnrollFacade.enqueueForTransaction({
+                    transaction: origin,
+                } as never)
+
+                const plan = await world.entityManager.findOneOrFail(
+                    InstallmentPlanEntity,
                     {
                         where: {
                             originTransaction: {
                                 id: originTransactionId,
                             },
                         },
-                    })
+                    },
+                )
                 planId = plan.id
                 expect(plan.installmentsPaid).toBe(1)
                 expect(plan.status).toBe(InstallmentPlanStatus.Active)
@@ -451,7 +467,8 @@ describe("a learner pays a course off over time",
                     extended: undefined,
                 } as never)
 
-                const enrollment = await world.entityManager.findOneOrFail(EnrollmentEntity,
+                const enrollment = await world.entityManager.findOneOrFail(
+                    EnrollmentEntity,
                     {
                         where: {
                             user: {
@@ -461,7 +478,8 @@ describe("a learner pays a course off over time",
                                 id: courseId,
                             },
                         },
-                    })
+                    },
+                )
                 expect(enrollment.isEnrolled).toBe(true)
                 const origin = await world.entityManager.findOneOrFail(TransactionEntity,
                     {
@@ -490,16 +508,20 @@ describe("a learner pays a course off over time",
                     }),
                 )
                 secondCycleTransactionId = checkout.transactionId
-                expect(await installmentPlanService.applyPaymentForTransaction({
-                    transactionId: secondCycleTransactionId,
-                    planId,
-                    paidAmountVnd: checkout.amount,
-                })).toBe(true)
+                expect(
+                    await installmentPlanService.applyPaymentForTransaction({
+                        transactionId: secondCycleTransactionId,
+                        planId,
+                        paidAmountVnd: checkout.amount,
+                    }),
+                ).toBe(true)
 
-                const plan = await world.entityManager.findOneByOrFail(InstallmentPlanEntity,
+                const plan = await world.entityManager.findOneByOrFail(
+                    InstallmentPlanEntity,
                     {
                         id: planId,
-                    })
+                    },
+                )
                 expect(plan.installmentsPaid).toBe(2)
                 expect(plan.status).toBe(InstallmentPlanStatus.Active)
             })
@@ -522,19 +544,24 @@ describe("a learner pays a course off over time",
                     }),
                 )
                 finalCycleTransactionId = checkout.transactionId
-                expect(await installmentPlanService.applyPaymentForTransaction({
-                    transactionId: finalCycleTransactionId,
-                    planId,
-                    paidAmountVnd: checkout.amount,
-                })).toBe(true)
+                expect(
+                    await installmentPlanService.applyPaymentForTransaction({
+                        transactionId: finalCycleTransactionId,
+                        planId,
+                        paidAmountVnd: checkout.amount,
+                    }),
+                ).toBe(true)
 
-                const plan = await world.entityManager.findOneByOrFail(InstallmentPlanEntity,
+                const plan = await world.entityManager.findOneByOrFail(
+                    InstallmentPlanEntity,
                     {
                         id: planId,
-                    })
+                    },
+                )
                 expect(plan.installmentsPaid).toBe(MONTHS)
                 expect(plan.status).toBe(InstallmentPlanStatus.Completed)
-                const enrollment = await world.entityManager.findOneOrFail(EnrollmentEntity,
+                const enrollment = await world.entityManager.findOneOrFail(
+                    EnrollmentEntity,
                     {
                         where: {
                             user: {
@@ -544,28 +571,35 @@ describe("a learner pays a course off over time",
                                 id: courseId,
                             },
                         },
-                    })
+                    },
+                )
                 expect(enrollment.isEnrolled).toBe(true)
             })
 
         it("ignores a duplicate settlement for the final cycle",
             async () => {
-                const finalTransaction = await world.entityManager.findOneOrFail(TransactionEntity,
+                const finalTransaction = await world.entityManager.findOneOrFail(
+                    TransactionEntity,
                     {
                         where: {
                             id: finalCycleTransactionId,
                         },
-                    })
-                expect(await installmentPlanService.applyPaymentForTransaction({
-                    transactionId: finalCycleTransactionId,
-                    planId,
-                    paidAmountVnd: finalTransaction.amount,
-                })).toBe(false)
+                    },
+                )
+                expect(
+                    await installmentPlanService.applyPaymentForTransaction({
+                        transactionId: finalCycleTransactionId,
+                        planId,
+                        paidAmountVnd: finalTransaction.amount,
+                    }),
+                ).toBe(false)
 
-                const plan = await world.entityManager.findOneByOrFail(InstallmentPlanEntity,
+                const plan = await world.entityManager.findOneByOrFail(
+                    InstallmentPlanEntity,
                     {
                         id: planId,
-                    })
+                    },
+                )
                 expect(plan.installmentsPaid).toBe(MONTHS)
                 expect(plan.status).toBe(InstallmentPlanStatus.Completed)
                 expect(secondCycleTransactionId).not.toBe(finalCycleTransactionId)
