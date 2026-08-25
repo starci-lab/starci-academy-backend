@@ -1,8 +1,10 @@
-# Actors · AgentOS custom module studio
+# Actors · AgentOS module studio and adaptive operating shell
 
-## Authenticated owner of one exact ready AgentOS workspace (`workspace-owner`)
+## Authenticated owner of one exact ready AgentOS workspace
 
-Can:
+> ID: `workspace-owner`
+
+### Capabilities
 
 - Browse workspace-owned custom module drafts and published modules
 - Start and resume an adaptive module interview

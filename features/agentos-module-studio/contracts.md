@@ -1,119 +1,121 @@
-# Contracts · AgentOS custom module studio
+# Contracts · AgentOS module studio and adaptive operating shell
 
-## Entity · Workspace-owned custom module (`custom-module`)
+## Entities
+
+### Workspace-owned custom module
+
+> ID: `custom-module`
 
 Fields: `moduleId`, `workspaceId`, `name`, `status`, `readinessPercent`, `specificationVersion`, `publishedInstallationId`, `createdAt`, `updatedAt`
 
 Evidence: `EV-001`
 
-## Entity · Adaptive module intake session (`module-intake-session`)
+### Adaptive module intake session
+
+> ID: `module-intake-session`
 
 Fields: `sessionId`, `moduleId`, `status`, `currentQuestion`, `missingFields`, `progress`, `updatedAt`
 
 Evidence: `EV-001`
 
-## Entity · Persisted module intake turn (`module-intake-message`)
+### Persisted module intake turn
+
+> ID: `module-intake-message`
 
 Fields: `messageId`, `sessionId`, `role`, `content`, `attachmentIds`, `createdAt`
 
 Evidence: `EV-001`
 
-## Entity · Quarantined module attachment (`module-attachment`)
+### Quarantined module attachment
+
+> ID: `module-attachment`
 
 Fields: `attachmentId`, `moduleId`, `filename`, `mediaKind`, `mimeType`, `size`, `status`, `failureCode`, `createdAt`
 
 Evidence: `EV-001`
 
-## Entity · Masked module integration configuration (`module-integration-status`)
+### Masked module integration configuration
+
+> ID: `module-integration-status`
 
 Fields: `integrationId`, `moduleId`, `provider`, `label`, `configured`, `maskedHint`, `updatedAt`
 
 Evidence: `EV-001`
 
-## Entity · Versioned reviewable custom module specification (`module-specification`)
+### Versioned reviewable custom module specification
+
+> ID: `module-specification`
 
 Fields: `specificationId`, `moduleId`, `version`, `status`, `profileSnapshot`, `attachmentRefs`, `integrationRequirements`, `generatedAt`
 
 Evidence: `EV-001`
 
-## Operation · myAgentosCustomModules
+### Extensible module kind definition
 
-- Kind/owner: `query` / `backend`
-- Inputs: workspaceId
-- Outputs: owner-scoped custom module summaries
-- Failures: workspace not found, workspace not ready, workspace not owned
-- Evidence: `EV-001`
+> ID: `module-kind-definition`
 
-## Operation · startAgentosCustomModuleIntake
+Fields: `kindId`, `version`, `displayName`, `configurationSchema`, `capabilities`, `workbenchKey`, `widgetKeys`, `status`
 
-- Kind/owner: `mutation` / `backend`
-- Inputs: workspaceId, openingMessage, idempotencyKey
-- Outputs: moduleId, sessionId, persisted opening answer, structured profile, progress, missing fields, next question
-- Failures: workspace not ready, workspace not owned, opening message refused, duplicate identity mismatch
-- Evidence: `EV-001`
+Evidence: `EV-011`, `EV-012`, `EV-013`
 
-## Operation · myAgentosCustomModuleStudio
+### Kind to workbench binding
 
-- Kind/owner: `query` / `backend`
-- Inputs: workspaceId, moduleId
-- Outputs: custom module, intake session, conversation, structured profile, attachments, masked integration statuses, current specification
-- Failures: module not found, workspace or module not owned
-- Evidence: `EV-001`
+> ID: `module-workbench-binding`
 
-## Operation · answerAgentosCustomModuleIntake
+Fields: `bindingId`, `kindId`, `workbenchKey`, `version`, `status`
 
-- Kind/owner: `mutation` / `backend`
-- Inputs: moduleId, sessionId, message, correction target when applicable, idempotencyKey
-- Outputs: persisted turn, structured profile, progress, missing fields, next question or completion, module specification when complete
-- Failures: session not found, module or session not owned, message refused, intake engine unavailable
-- Evidence: `EV-001`
+Evidence: `EV-011`, `EV-012`, `EV-013`
 
-## Operation · prepareAgentosModuleAttachmentUpload
+### Persistent module conversation
 
-- Kind/owner: `mutation` / `backend`
-- Inputs: moduleId, filename, mimeType, size, idempotencyKey
-- Outputs: attachmentId, short-lived quarantine upload grant, expiresAt
-- Failures: module not owned, unsupported file, file limit exceeded, upload grant unavailable
-- Evidence: `EV-001`
+> ID: `module-conversation`
 
-## Operation · finalizeAgentosModuleAttachment
+Fields: `conversationId`, `workspaceId`, `moduleId`, `status`, `createdAt`, `updatedAt`
 
-- Kind/owner: `mutation` / `backend`
-- Inputs: attachmentId, checksum
-- Outputs: attachment scanning status
-- Failures: attachment not owned, upload absent or expired, checksum mismatch, scan refused or unavailable
-- Evidence: `EV-001`
+Evidence: `EV-011`, `EV-012`, `EV-013`
 
-## Operation · removeAgentosModuleAttachment
+### Attributed module conversation message
 
-- Kind/owner: `mutation` / `backend`
-- Inputs: attachmentId, idempotencyKey
-- Outputs: attachment removed
-- Failures: attachment not owned, attachment locked by publishing
-- Evidence: `EV-001`
+> ID: `module-message`
 
-## Operation · saveAgentosModuleIntegrationSecret
+Fields: `messageId`, `conversationId`, `actorId`, `role`, `content`, `widgetPayloads`, `createdAt`
 
-- Kind/owner: `mutation` / `backend`
-- Inputs: moduleId, provider, label, secret value, idempotencyKey
-- Outputs: masked configured integration status
-- Failures: module not owned, provider unsupported, secret invalid, encryption or storage unavailable
-- Evidence: `EV-001`
+Evidence: `EV-011`, `EV-012`, `EV-013`
 
-## Operation · removeAgentosModuleIntegrationSecret
+### Trusted typed widget in chat
 
-- Kind/owner: `mutation` / `backend`
-- Inputs: integrationId, idempotencyKey
-- Outputs: integration no longer configured
-- Failures: integration not owned, integration locked by publishing
-- Evidence: `EV-001`
+> ID: `module-widget-instance`
 
-## Operation · publishAgentosCustomModule
+Fields: `widgetId`, `messageId`, `widgetKey`, `schemaVersion`, `payload`, `status`
 
-- Kind/owner: `mutation` / `backend`
-- Inputs: moduleId, specificationVersion, acknowledgedPublish = true, idempotencyKey
-- Outputs: publish operation identity, accepted status, installationId when available
-- Failures: module not owned, intake incomplete, specification version stale, attachment not scan-ready, required integration not configured, publish not acknowledged, installation refused
-- Evidence: `EV-001`
+Evidence: `EV-011`, `EV-012`, `EV-013`
 
-No field, failure or operation may appear here without routed source evidence.
+### Owner-safe module operating projection
+
+> ID: `module-operating-profile`
+
+Fields: `moduleId`, `kindId`, `displayName`, `status`, `conversationId`, `workbenchKey`, `configurationReadiness`, `healthSummary`
+
+Evidence: `EV-011`, `EV-012`, `EV-013`
+
+## Operations
+
+| ID | Contract | Owner / actor | Inputs / from | Outputs / to | Failures / idempotency | Evidence |
+|---|---|---|---|---|---|---|
+| `read-custom-modules` | query · `myAgentosCustomModules` | backend | `workspaceId` | owner-scoped custom module summaries | workspace not found; workspace not ready; workspace not owned | `EV-001` |
+| `start-module-intake` | mutation · `startAgentosCustomModuleIntake` | backend | `workspaceId`, `openingMessage`, `idempotencyKey` | module, session, profile, progress and next question | workspace or message refused; duplicate identity mismatch | `EV-001` |
+| `read-module-studio` | query · `myAgentosCustomModuleStudio` | backend | `workspaceId`, `moduleId` | module, intake, conversation, resources and specification | module absent or not owned | `EV-001` |
+| `answer-module-intake` | mutation · `answerAgentosCustomModuleIntake` | backend | exact session turn | persisted answer, recomputed profile and next question | refused turn preserves accepted state | `EV-001` |
+| `prepare-module-attachment` | mutation · attachment preparation | backend | exact module and file metadata | quarantined upload identity | unsupported or unauthorized upload | `EV-001` |
+| `finalize-module-attachment` | mutation · attachment finalization | backend | exact upload identity | scanning or ready attachment | scan or ownership refusal | `EV-001` |
+| `remove-module-attachment` | mutation · attachment removal | backend | exact attachment identity | removed attachment status | absent or unauthorized attachment | `EV-001` |
+| `save-module-secret` | mutation · write-only secret save | backend | provider, label and secret value | masked configured status | validation or storage refusal | `EV-001` |
+| `remove-module-secret` | mutation · secret removal | backend | exact integration identity | unconfigured status | absent or unauthorized integration | `EV-001` |
+| `publish-custom-module` | mutation · explicit module publish | backend | exact specification version and idempotency identity | installation identity or safe refusal | incomplete, stale or refused specification | `EV-001` |
+| `open-module-operating-shell` | owner action | `workspace-owner` | `module-shell-loading` | `module-shell-ready` | operation-specific | `EV-011`, `EV-014` |
+| `send-module-message` | owner action | `workspace-owner` | `chat-sending` | `module-shell-ready` | operation-specific | `EV-011`, `EV-014` |
+| `load-kind-workbench` | owner action | `workspace-owner` | `workbench-loading` | `workbench-ready` | operation-specific | `EV-011`, `EV-014` |
+| `invoke-widget-action` | owner action | `workspace-owner` | `widget-ready` | `module-shell-ready` | operation-specific | `EV-011`, `EV-014` |
+| `read-module-settings` | owner action | `workspace-owner` | `module-shell-ready` | `module-settings-ready` | operation-specific | `EV-011`, `EV-014` |
+| `save-module-settings` | owner action | `workspace-owner` | `module-settings-saving` | `module-settings-ready` | operation-specific | `EV-011`, `EV-014` |
+| `read-module-diagnostics` | owner action | `workspace-owner` | `module-shell-ready` | `module-diagnostics-ready` | operation-specific | `EV-011`, `EV-014` |

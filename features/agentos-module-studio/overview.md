@@ -1,25 +1,28 @@
-# Overview · AgentOS custom module studio
+# Overview · AgentOS module studio and adaptive operating shell
 
 ## Purpose
 
-An authenticated owner creates and manages workspace-owned custom module drafts through a resumable adaptive interview, supplies scanned supporting files and write-only integration secrets, reviews a backend-owned completeness profile and explicitly publishes a versioned module specification into the existing AgentOS installation lifecycle.
+An authenticated workspace owner creates, installs and operates many module instances. Every module has exactly one kind, inherits one persistent collaborative chat, and resolves its kind to one adaptive workbench while configuration and technical diagnostics remain progressively disclosed.
 
 ## Included
 
-- Custom-module management nested under one exact ready AgentOS workspace
-- Pre-persistence module creation followed by a persistent resumable module studio
-- Backend-owned adaptive follow-up questions, structured module profile, missing fields, progress and completion
-- Quarantined image and document attachment intake with scan, retry and removal states
-- Write-only encrypted named integration-secret intake with masked configuration status
-- Versioned reviewable module specification and an explicit publish or install transition
+- Module collection, custom-module studio and installed-module operation inside one exact ready AgentOS workspace
+- Exactly-one-kind identity for every module instance and an extensible kind registry
+- One persistent collaborative chat inherited by every module kind
+- One kind-resolved adaptive workbench operating beside the shared chat
+- Typed trusted widgets rendered inside chat from structured payloads
+- Module-scoped knowledge, integrations, permissions and settings separated from workspace-scoped AI readiness
+- Progressively disclosed lifecycle and technical diagnostics
+- Existing resumable custom-module interview, scanned attachments, write-only secrets, review and explicit publish transition
 
 ## Excluded
 
-- Changing the existing immutable solution-module catalogue, catalogue install mutation or installation-detail route
-- Changing AgentOS order, Wallet payment, workspace provisioning or readiness semantics
-- Returning, rendering or logging secret values, storage credentials, scanner internals or raw control-plane access
-- Publishing or installing a module automatically when a chat turn completes
-- Importing TEDO product content, pricing, artifacts, actors or business rules
+- Changing AgentOS order, Wallet payment, workspace provisioning or workspace readiness semantics
+- Treating infrastructure containers, hashes, embeddings or storage identifiers as the primary module experience
+- Binding the business model to a closed enum of chatbot, document, spreadsheet or calendar kinds
+- Rendering arbitrary untrusted HTML or scripts inside chat
+- Choosing STI, CTI, JSONB or physical plugin storage before an architecture decision
+- Returning reusable workspace, provider, storage or integration credentials
 
 ## Source heads
 

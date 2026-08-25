@@ -1,20 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "project": "nivo",
   "featureId": "agentos-module-studio",
-  "head": "2bf93759d04613ebeaf06f4ed3282dc9b28883c75fef7ba38904d37bebbe2201",
-  "sources": [
-    {
-      "role": "fe",
-      "repository": "https://github.com/starci-lab/nivo-fe.git",
-      "head": "894e608bba73d791e5d2767cdc420da770c8c42b"
-    },
-    {
-      "role": "be",
-      "repository": "https://github.com/starci-lab/nivo-backend.git",
-      "head": "ac05d90e7b6b59eb9dc4128872f3c02ba254e59a"
-    }
-  ],
   "evidence": [
     {
       "id": "EV-001",
@@ -103,6 +90,35 @@
       "endLine": 27,
       "claim": "The current backend installation collection is read through exact user and workspace ownership.",
       "kind": "api"
+    },
+    {
+      "id": "EV-011",
+      "claim": "Every Nivo AgentOS workspace can own many modules; every module has exactly one kind, every kind uses the shared persistent collaborative chat and resolves one adaptive workbench, typed trusted widgets may render inside chat, module settings stay module-scoped, and technical package evidence moves to progressive diagnostics.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "a7f4c63f904d0a646dea2b9af7a3444bd166ed6a4eaf74b463a4813fc89299b1"
+    },
+    {
+      "id": "EV-012",
+      "claim": "Workbench examples include chatbot inbox, document surface, accounting spreadsheet and scheduling calendar; they illustrate extensibility and do not form a closed enum.",
+      "kind": "owner-example",
+      "authority": "owner",
+      "decisionId": "a7f4c63f904d0a646dea2b9af7a3444bd166ed6a4eaf74b463a4813fc89299b1"
+    },
+    {
+      "id": "EV-013",
+      "claim": "The shared chat may render interactive HTML-like widgets only through a typed trusted widget contract rather than arbitrary page markup.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "a7f4c63f904d0a646dea2b9af7a3444bd166ed6a4eaf74b463a4813fc89299b1"
+    },
+    {
+      "id": "EV-014",
+      "claim": "Authenticated staging observation showed AgentOS dashboard, order flow, workspace control center, solution catalogue, installed module list, workspace AI readiness and package-oriented module detail; the module detail had no shared chat or kind workbench and its AI & Knowledge action routed to the workspace-level area.",
+      "kind": "observed-surface",
+      "authority": "staging",
+      "url": "https://app.staging.nivo.vn/en/agentos/workspaces/9d59e51d-551f-4750-a02a-07891fde6695/modules/0760ac49-f4b2-4a89-8de3-f7f262a8b226",
+      "observedAt": "2026-08-25"
     }
   ]
 }
