@@ -1,585 +1,615 @@
 import {
-    DynamicModule, Module
+    DynamicModule, Module 
 } from "@nestjs/common"
 import {
-    TypeOrmModule as NestTypeOrmModule
+    TypeOrmModule as NestTypeOrmModule 
 } from "@nestjs/typeorm"
 import {
     ConfigurableModuleClass,
-    OPTIONS_TYPE
+    OPTIONS_TYPE,
 } from "./primary.module-definition"
 import {
-    envConfig,
+    envConfig 
 } from "@modules/platform/env/config"
 import {
-    POSTGRESQL_PRIMARY,
+    POSTGRESQL_PRIMARY 
 } from "./constants/connection"
 import {
-    InMemoryQueryResultCache,
+    InMemoryQueryResultCache 
 } from "./cache/in-memory-query-result-cache"
 import {
-    AchievementEntity,
+    AchievementEntity 
 } from "./entities/achievement.entity"
 import {
-    ActivityReactionEntity,
+    ActivityReactionEntity 
 } from "./entities/activity-reaction.entity"
 import {
-    ActivityEntity,
+    ActivityEntity 
 } from "./entities/activity.entity"
 import {
-    AdvertisementEntity,
+    AdvertisementEntity 
 } from "./entities/advertisement.entity"
 import {
-    AiModelTranslationEntity,
+    AiModelTranslationEntity 
 } from "./entities/ai-model-translation.entity"
 import {
-    AiModelEntity,
+    AiModelEntity 
 } from "./entities/ai-model.entity"
 import {
-    AiSubscriptionEntity,
+    AiSubscriptionEntity 
 } from "./entities/ai-subscription.entity"
 import {
-    BlogPostEntity,
+    BlogPostEntity 
 } from "./entities/blog-post.entity"
 import {
-    CartItemEntity,
+    CartItemEntity 
 } from "./entities/cart-item.entity"
 import {
-    ChallengeOutputLangTranslationEntity,
+    ChallengeOutputLangTranslationEntity 
 } from "./entities/challenge-output-lang-translation.entity"
 import {
-    ChallengeOutputLangEntity,
+    ChallengeOutputLangEntity 
 } from "./entities/challenge-output-lang.entity"
 import {
-    ChallengeOutputEntity,
+    ChallengeOutputEntity 
 } from "./entities/challenge-output.entity"
 import {
-    ChallengePrerequisiteLangTranslationEntity,
+    ChallengePrerequisiteLangTranslationEntity 
 } from "./entities/challenge-prerequisite-lang-translation.entity"
 import {
-    ChallengePrerequisiteLangEntity,
+    ChallengePrerequisiteLangEntity 
 } from "./entities/challenge-prerequisite-lang.entity"
 import {
-    ChallengePrerequisiteEntity,
+    ChallengePrerequisiteEntity 
 } from "./entities/challenge-prerequisite.entity"
 import {
-    ChallengeRequirementLangTranslationEntity,
+    ChallengeRequirementLangTranslationEntity 
 } from "./entities/challenge-requirement-lang-translation.entity"
 import {
-    ChallengeRequirementLangEntity,
+    ChallengeRequirementLangEntity 
 } from "./entities/challenge-requirement-lang.entity"
 import {
-    ChallengeRequirementEntity,
+    ChallengeRequirementEntity 
 } from "./entities/challenge-requirement.entity"
 import {
-    ChallengeStepLangTranslationEntity,
+    ChallengeStepLangTranslationEntity 
 } from "./entities/challenge-step-lang-translation.entity"
 import {
-    ChallengeStepLangEntity,
+    ChallengeStepLangEntity 
 } from "./entities/challenge-step-lang.entity"
 import {
-    ChallengeStepEntity,
+    ChallengeStepEntity 
 } from "./entities/challenge-step.entity"
 import {
-    ChallengeSubmissionApproachCriteriaLangEntity,
+    ChallengeSubmissionApproachCriteriaLangEntity 
 } from "./entities/challenge-submission-approach-criteria-lang.entity"
 import {
-    ChallengeSubmissionApproachCriteriaEntity,
+    ChallengeSubmissionApproachCriteriaEntity 
 } from "./entities/challenge-submission-approach-criteria.entity"
 import {
-    ChallengeSubmissionOutcomeCriteriaLangEntity,
+    ChallengeSubmissionOutcomeCriteriaLangEntity 
 } from "./entities/challenge-submission-outcome-criteria-lang.entity"
 import {
-    ChallengeSubmissionOutcomeCriteriaEntity,
+    ChallengeSubmissionOutcomeCriteriaEntity 
 } from "./entities/challenge-submission-outcome-criteria.entity"
 import {
-    ChallengeSubmissionPromptTranslationEntity,
+    ChallengeSubmissionPromptTranslationEntity 
 } from "./entities/challenge-submission-prompt-translation.entity"
 import {
-    ChallengeSubmissionPromptEntity,
+    ChallengeSubmissionPromptEntity 
 } from "./entities/challenge-submission-prompt.entity"
 import {
-    ChallengeSubmissionTranslationEntity,
+    ChallengeSubmissionTranslationEntity 
 } from "./entities/challenge-submission-translation.entity"
 import {
-    ChallengeSubmissionEntity,
+    ChallengeSubmissionEntity 
 } from "./entities/challenge-submission.entity"
 import {
-    ChallengeTranslationEntity,
+    ChallengeTranslationEntity 
 } from "./entities/challenge-translation.entity"
 import {
-    ChallengeEntity,
+    ChallengeEntity 
 } from "./entities/challenge.entity"
 import {
-    ChangelogEntryEntity,
+    ChangelogEntryEntity 
 } from "./entities/changelog-entry.entity"
 import {
-    ChatConversationEntity,
+    ChatConversationEntity 
 } from "./entities/chat-conversation.entity"
 import {
-    ChatMessageEntity,
+    ChatMessageEntity 
 } from "./entities/chat-message.entity"
 import {
-    CodeExplainingTranslationEntity,
+    ChatCommandReceiptEntity 
+} from "./entities/chat-command-receipt.entity"
+import {
+    ChatMessageMentionEntity 
+} from "./entities/chat-message-mention.entity"
+import {
+    ChatMessageReactionEntity 
+} from "./entities/chat-message-reaction.entity"
+import {
+    ChatModerationAuditEntity 
+} from "./entities/chat-moderation-audit.entity"
+import {
+    ChatModerationCaseEntity 
+} from "./entities/chat-moderation-case.entity"
+import {
+    ChatOutboxEntity 
+} from "./entities/chat-outbox.entity"
+import {
+    ChatParticipationEntity 
+} from "./entities/chat-participation.entity"
+import {
+    ChatReadStateEntity 
+} from "./entities/chat-read-state.entity"
+import {
+    ChatReportEntity 
+} from "./entities/chat-report.entity"
+import {
+    CodeExplainingTranslationEntity 
 } from "./entities/code-explaining-translation.entity"
 import {
-    CodeExplainingEntity,
+    CodeExplainingEntity 
 } from "./entities/code-explaining.entity"
 import {
-    CodeImplementationTranslationEntity,
+    CodeImplementationTranslationEntity 
 } from "./entities/code-implementation-translation.entity"
 import {
-    CodeImplementationEntity,
+    CodeImplementationEntity 
 } from "./entities/code-implementation.entity"
 import {
-    CodingProblemSolutionEntity,
+    CodingProblemSolutionEntity 
 } from "./entities/coding-problem-solution.entity"
 import {
-    CodingProblemStarterCodeEntity,
+    CodingProblemStarterCodeEntity 
 } from "./entities/coding-problem-starter-code.entity"
 import {
-    CodingProblemTestcaseEntity,
+    CodingProblemTestcaseEntity 
 } from "./entities/coding-problem-testcase.entity"
 import {
-    CodingProblemTranslationEntity,
+    CodingProblemTranslationEntity 
 } from "./entities/coding-problem-translation.entity"
 import {
-    CodingProblemEntity,
+    CodingProblemEntity 
 } from "./entities/coding-problem.entity"
 import {
-    CodingSolutionRevealEntity,
+    CodingSolutionRevealEntity 
 } from "./entities/coding-solution-reveal.entity"
 import {
-    CodingSubmissionEntity,
+    CodingSubmissionEntity 
 } from "./entities/coding-submission.entity"
 import {
-    CoinHistoryEntity,
+    CoinHistoryEntity 
 } from "./entities/coin-history.entity"
 import {
-    CommentReactionEntity,
+    CommentReactionEntity 
 } from "./entities/comment-reaction.entity"
 import {
-    CommunityPostCommentReactionEntity,
+    CommunityPostCommentReactionEntity 
 } from "./entities/community-post-comment-reaction.entity"
 import {
-    CommunityPostCommentEntity,
+    CommunityPostCommentEntity 
 } from "./entities/community-post-comment.entity"
 import {
-    CommunityPostReactionEntity,
+    CommunityPostReactionEntity 
 } from "./entities/community-post-reaction.entity"
 import {
-    CommunityPostEntity,
+    CommunityPostEntity 
 } from "./entities/community-post.entity"
 import {
-    ConsultantTranslationEntity,
+    ConsultantTranslationEntity 
 } from "./entities/consultant-translation.entity"
 import {
-    ConsultantEntity,
+    ConsultantEntity 
 } from "./entities/consultant.entity"
 import {
-    ContentAiMessageEntity,
+    ContentAiMessageEntity 
 } from "./entities/content-ai-message.entity"
 import {
-    ContentAiSessionEntity,
+    ContentAiSessionEntity 
 } from "./entities/content-ai-session.entity"
 import {
-    ContentBodyTranslationEntity,
+    ContentAiTurnEntity 
+} from "./entities/content-ai-turn.entity"
+import {
+    ContentBodyTranslationEntity 
 } from "./entities/content-body-translation.entity"
 import {
-    ContentBodyEntity,
+    ContentBodyEntity 
 } from "./entities/content-body.entity"
 import {
-    ContentCommentEntity,
+    ContentCommentEntity 
 } from "./entities/content-comment.entity"
 import {
-    ContentEngagementProjectionTranslationEntity,
+    ContentEngagementProjectionTranslationEntity 
 } from "./entities/content-engagement-projection-translation.entity"
 import {
-    ContentEngagementProjectionEntity,
+    ContentEngagementProjectionEntity 
 } from "./entities/content-engagement-projection.entity"
 import {
-    ContentLearningOutcomeTranslationEntity,
+    ContentLearningOutcomeTranslationEntity 
 } from "./entities/content-learning-outcome-translation.entity"
 import {
-    ContentLearningOutcomeEntity,
+    ContentLearningOutcomeEntity 
 } from "./entities/content-learning-outcome.entity"
 import {
-    ContentReactionEntity,
+    ContentReactionEntity 
 } from "./entities/content-reaction.entity"
 import {
-    ContentTranslationEntity,
+    ContentTranslationEntity 
 } from "./entities/content-translation.entity"
 import {
-    ContentEntity,
+    ContentEntity 
 } from "./entities/content.entity"
 import {
-    CourseMetadataEntity,
+    CourseMetadataEntity 
 } from "./entities/course-metadata.entity"
 import {
-    CourseStatsProjectionTranslationEntity,
+    CourseStatsProjectionTranslationEntity 
 } from "./entities/course-stats-projection-translation.entity"
 import {
-    CourseStatsProjectionEntity,
+    CourseStatsProjectionEntity 
 } from "./entities/course-stats-projection.entity"
 import {
-    CourseReviewStatsProjectionEntity,
+    CourseReviewStatsProjectionEntity 
 } from "./entities/course-review-stats-projection.entity"
 import {
-    CourseReviewEntity,
+    CourseReviewEntity 
 } from "./entities/course-review.entity"
 import {
-    CourseTranslationEntity,
+    CourseTranslationEntity 
 } from "./entities/course-translation.entity"
 import {
-    CourseVoucherEntity,
+    CourseVoucherEntity 
 } from "./entities/course-voucher.entity"
 import {
-    CourseEntity,
+    CourseEntity 
 } from "./entities/course.entity"
 import {
-    CreditUsageHistoryEntity,
+    CreditUsageHistoryEntity 
 } from "./entities/credit-usage-history.entity"
 import {
-    CvBlocksEntity,
+    CvBlocksEntity 
 } from "./entities/cv-blocks.entity"
 import {
-    DailyQuestCompletionEntity,
+    DailyQuestCompletionEntity 
 } from "./entities/daily-quest-completion.entity"
 import {
-    DeviceEntity,
+    DeviceEntity 
 } from "./entities/device.entity"
 import {
-    EnrollmentEntity,
+    EnrollmentEntity 
 } from "./entities/enrollment.entity"
 import {
-    FlashcardCardTranslationEntity,
+    FlashcardCardTranslationEntity 
 } from "./entities/flashcard-card-translation.entity"
 import {
-    FlashcardCardEntity,
+    FlashcardCardEntity 
 } from "./entities/flashcard-card.entity"
 import {
-    FlashcardDeckTranslationEntity,
+    FlashcardDeckTranslationEntity 
 } from "./entities/flashcard-deck-translation.entity"
 import {
-    FlashcardDeckEntity,
+    FlashcardDeckEntity 
 } from "./entities/flashcard-deck.entity"
 import {
-    FlashcardDueReviewSessionEntity,
+    FlashcardDueReviewSessionEntity 
 } from "./entities/flashcard-due-review-session.entity"
 import {
-    FlashcardQuizSessionEntity,
+    FlashcardQuizSessionEntity 
 } from "./entities/flashcard-quiz-session.entity"
 import {
-    FlashcardReviewEventEntity,
+    FlashcardReviewEventEntity 
 } from "./entities/flashcard-review-event.entity"
 import {
-    FlashcardReviewSessionEntity,
+    FlashcardReviewSessionEntity 
 } from "./entities/flashcard-review-session.entity"
 import {
-    FoundationCategoryTranslationEntity,
+    FoundationCategoryTranslationEntity 
 } from "./entities/foundation-category-translation.entity"
 import {
-    FoundationCategoryEntity,
+    FoundationCategoryEntity 
 } from "./entities/foundation-category.entity"
 import {
-    FoundationTagTranslationEntity,
+    FoundationTagTranslationEntity 
 } from "./entities/foundation-tag-translation.entity"
 import {
-    FoundationTagEntity,
+    FoundationTagEntity 
 } from "./entities/foundation-tag.entity"
 import {
-    FoundationTranslationEntity,
+    FoundationTranslationEntity 
 } from "./entities/foundation-translation.entity"
 import {
-    FoundationEntity,
+    FoundationEntity 
 } from "./entities/foundation.entity"
 import {
-    HeadhuntingCompanyTranslationEntity,
+    HeadhuntingCompanyTranslationEntity 
 } from "./entities/headhunting-company-translation.entity"
 import {
-    HeadhuntingCompanyEntity,
+    HeadhuntingCompanyEntity 
 } from "./entities/headhunting-company.entity"
 import {
-    InstallmentPlanEntity,
+    InstallmentPlanEntity 
 } from "./entities/installment-plan.entity"
 import {
-    JobPostingEntity,
+    JobPostingEntity 
 } from "./entities/job-posting.entity"
 import {
-    JobApplicationEntity,
+    JobApplicationEntity 
 } from "./entities/job-application.entity"
 import {
-    JobEntity,
+    JobEntity 
 } from "./entities/job.entity"
 import {
-    KpiWeeklyRewardFloorEntity,
+    KpiWeeklyRewardFloorEntity 
 } from "./entities/kpi-weekly-reward-floor.entity"
 import {
-    LeagueCohortPointsProjectionEntity,
+    LeagueCohortPointsProjectionEntity 
 } from "./entities/league-cohort-points-projection.entity"
 import {
-    LeagueCohortEntity,
+    LeagueCohortEntity 
 } from "./entities/league-cohort.entity"
 import {
-    LivestreamSessionTranslationEntity,
+    LivestreamSessionTranslationEntity 
 } from "./entities/livestream-session-translation.entity"
 import {
-    LivestreamSessionEntity,
+    LivestreamSessionEntity 
 } from "./entities/livestream-session.entity"
 import {
-    LoginSessionEntity,
+    LoginSessionEntity 
 } from "./entities/login-session.entity"
 import {
-    MembershipEntity,
+    MembershipEntity 
 } from "./entities/membership.entity"
 import {
-    MilestoneTaskApproachCriteriaLangEntity,
+    MilestoneTaskApproachCriteriaLangEntity 
 } from "./entities/milestone-task-approach-criteria-lang.entity"
 import {
-    MilestoneTaskApproachCriteriaEntity,
+    MilestoneTaskApproachCriteriaEntity 
 } from "./entities/milestone-task-approach-criteria.entity"
 import {
-    MilestoneTaskBriefTranslationEntity,
+    MilestoneTaskBriefTranslationEntity 
 } from "./entities/milestone-task-brief-translation.entity"
 import {
-    MilestoneTaskBriefEntity,
+    MilestoneTaskBriefEntity 
 } from "./entities/milestone-task-brief.entity"
 import {
-    MilestoneTaskCodeImplementationTranslationEntity,
+    MilestoneTaskCodeImplementationTranslationEntity 
 } from "./entities/milestone-task-code-implementation-translation.entity"
 import {
-    MilestoneTaskCodeImplementationEntity,
+    MilestoneTaskCodeImplementationEntity 
 } from "./entities/milestone-task-code-implementation.entity"
 import {
-    MilestoneTaskCriteriaTranslationEntity,
+    MilestoneTaskCriteriaTranslationEntity 
 } from "./entities/milestone-task-criteria-translation.entity"
 import {
-    MilestoneTaskCriteriaEntity,
+    MilestoneTaskCriteriaEntity 
 } from "./entities/milestone-task-criteria.entity"
 import {
-    MilestoneTaskOutcomeCriteriaLangEntity,
+    MilestoneTaskOutcomeCriteriaLangEntity 
 } from "./entities/milestone-task-outcome-criteria-lang.entity"
 import {
-    MilestoneTaskOutcomeCriteriaEntity,
+    MilestoneTaskOutcomeCriteriaEntity 
 } from "./entities/milestone-task-outcome-criteria.entity"
 import {
-    MilestoneTaskTranslationEntity,
+    MilestoneTaskTranslationEntity 
 } from "./entities/milestone-task-translation.entity"
 import {
-    MilestoneTaskEntity,
+    MilestoneTaskEntity 
 } from "./entities/milestone-task.entity"
 import {
-    MilestoneTranslationEntity,
+    MilestoneTranslationEntity 
 } from "./entities/milestone-translation.entity"
 import {
-    MilestoneEntity,
+    MilestoneEntity 
 } from "./entities/milestone.entity"
 import {
-    MockInterviewAttemptEntity,
+    MockInterviewAttemptEntity 
 } from "./entities/mock-interview-attempt.entity"
 import {
-    MockInterviewChecklistEntity,
+    MockInterviewChecklistEntity 
 } from "./entities/mock-interview-checklist.entity"
 import {
-    MockInterviewLangTranslationEntity,
+    MockInterviewLangTranslationEntity 
 } from "./entities/mock-interview-lang-translation.entity"
 import {
-    MockInterviewLangEntity,
+    MockInterviewLangEntity 
 } from "./entities/mock-interview-lang.entity"
 import {
-    MockInterviewSessionEntity,
+    MockInterviewSessionEntity 
 } from "./entities/mock-interview-session.entity"
 import {
-    MockInterviewTranslationEntity,
+    MockInterviewTranslationEntity 
 } from "./entities/mock-interview-translation.entity"
 import {
-    MockInterviewEntity,
+    MockInterviewEntity 
 } from "./entities/mock-interview.entity"
 import {
-    ModuleTranslationEntity,
+    ModuleTranslationEntity 
 } from "./entities/module-translation.entity"
 import {
-    ModuleEntity,
+    ModuleEntity 
 } from "./entities/module.entity"
 import {
-    NotificationEntity,
+    NotificationEntity 
 } from "./entities/notification.entity"
 import {
-    PlaygroundSessionEntity,
+    PlaygroundSessionEntity 
 } from "./entities/playground-session.entity"
 import {
-    PlaygroundStepTranslationEntity,
+    PlaygroundStepTranslationEntity 
 } from "./entities/playground-step-translation.entity"
 import {
-    PlaygroundStepEntity,
+    PlaygroundStepEntity 
 } from "./entities/playground-step.entity"
 import {
-    PlaygroundTranslationEntity,
+    PlaygroundTranslationEntity 
 } from "./entities/playground-translation.entity"
 import {
-    PlaygroundEntity,
+    PlaygroundEntity 
 } from "./entities/playground.entity"
 import {
-    PrerequisiteTranslationEntity,
+    PrerequisiteTranslationEntity 
 } from "./entities/prerequisite-translation.entity"
 import {
-    PrerequisiteEntity,
+    PrerequisiteEntity 
 } from "./entities/prerequisite.entity"
 import {
-    PreviewContentTranslationEntity,
+    PreviewContentTranslationEntity 
 } from "./entities/preview-content-translation.entity"
 import {
-    PreviewContentEntity,
+    PreviewContentEntity 
 } from "./entities/preview-content.entity"
 import {
-    PricingPhaseEntity,
+    PricingPhaseEntity 
 } from "./entities/pricing-phase.entity"
 import {
-    QnaTranslationEntity,
+    QnaTranslationEntity 
 } from "./entities/qna-translation.entity"
 import {
-    QnaEntity,
+    QnaEntity 
 } from "./entities/qna.entity"
 import {
-    RagPlaygroundSessionEntity,
+    RagPlaygroundSessionEntity 
 } from "./entities/rag-playground-session.entity"
 import {
-    ResourceEntity,
+    ResourceEntity 
 } from "./entities/resource.entity"
 import {
-    RewardRedemptionEntity,
+    RewardRedemptionEntity 
 } from "./entities/reward-redemption.entity"
 import {
-    StreakProtectedDayEntity,
+    StreakProtectedDayEntity 
 } from "./entities/streak-protected-day.entity"
 import {
-    SyncStateEntity,
+    SyncStateEntity 
 } from "./entities/sync-state.entity"
 import {
-    TemplateCVTranslationEntity,
+    TemplateCVTranslationEntity 
 } from "./entities/template-cv-translation.entity"
 import {
-    TemplateCVEntity,
+    TemplateCVEntity 
 } from "./entities/template-cv.entity"
 import {
-    TransactionItemEntity,
+    TransactionItemEntity 
 } from "./entities/transaction-item.entity"
 import {
-    TransactionEntity,
+    TransactionEntity 
 } from "./entities/transaction.entity"
 import {
-    TrendingContentsProjectionEntity,
+    TrendingContentsProjectionEntity 
 } from "./entities/trending-contents-projection.entity"
 import {
-    UserAchievementProjectionEntity,
+    UserAchievementProjectionEntity 
 } from "./entities/user-achievement-projection.entity"
 import {
-    UserAchievementEntity,
+    UserAchievementEntity 
 } from "./entities/user-achievement.entity"
 import {
-    UserCapstoneProjectionEntity,
+    UserCapstoneProjectionEntity 
 } from "./entities/user-capstone-projection.entity"
 import {
-    UserChallengeProgressProjectionEntity,
+    UserChallengeProgressProjectionEntity 
 } from "./entities/user-challenge-progress-projection.entity"
 import {
-    UserChallengeSubmissionAttemptEntity,
+    UserChallengeSubmissionAttemptEntity 
 } from "./entities/user-challenge-submission-attempt.entity"
 import {
-    UserChallengeSubmissionFeedbackEntity,
+    UserChallengeSubmissionFeedbackEntity 
 } from "./entities/user-challenge-submission-feedback.entity"
 import {
-    UserChallengeSubmissionEntity,
+    UserChallengeSubmissionEntity 
 } from "./entities/user-challenge-submission.entity"
 import {
-    UserCodingProjectionEntity,
+    UserCodingProjectionEntity 
 } from "./entities/user-coding-projection.entity"
 import {
-    UserContentEntity,
+    UserContentEntity 
 } from "./entities/user-content.entity"
 import {
-    UserContributionProjectionEntity,
+    UserContributionProjectionEntity 
 } from "./entities/user-contribution-projection.entity"
 import {
-    UserCourseProgressProjectionTranslationEntity,
+    UserCourseProgressProjectionTranslationEntity 
 } from "./entities/user-course-progress-projection-translation.entity"
 import {
-    UserCourseProgressProjectionEntity,
+    UserCourseProgressProjectionEntity 
 } from "./entities/user-course-progress-projection.entity"
 import {
-    UserCvGenerationEntity,
+    UserCvGenerationEntity 
 } from "./entities/user-cv-generation.entity"
 import {
-    UserFlashcardCourseStatsProjectionEntity,
+    UserFlashcardCourseStatsProjectionEntity 
 } from "./entities/user-flashcard-course-stats-projection.entity"
 import {
-    UserFlashcardReviewEntity,
+    UserFlashcardReviewEntity 
 } from "./entities/user-flashcard-review.entity"
 import {
-    UserFlashcardStatsProjectionEntity,
+    UserFlashcardStatsProjectionEntity 
 } from "./entities/user-flashcard-stats-projection.entity"
 import {
-    UserFollowEntity,
+    UserFollowEntity 
 } from "./entities/user-follow.entity"
 import {
-    UserLeagueEntity,
+    UserLeagueEntity 
 } from "./entities/user-league.entity"
 import {
-    UserMilestoneTaskAttemptFeedbackEntity,
+    UserMilestoneTaskAttemptFeedbackEntity 
 } from "./entities/user-milestone-task-attempt-feedback.entity"
 import {
-    UserMilestoneTaskAttemptEntity,
+    UserMilestoneTaskAttemptEntity 
 } from "./entities/user-milestone-task-attempt.entity"
 import {
-    UserMilestoneTaskEntity,
+    UserMilestoneTaskEntity 
 } from "./entities/user-milestone-task.entity"
 import {
-    UserMockInterviewCourseStatsProjectionEntity,
+    UserMockInterviewCourseStatsProjectionEntity 
 } from "./entities/user-mock-interview-course-stats-projection.entity"
 import {
-    UserPinnedProjectEntity,
+    UserPinnedProjectEntity 
 } from "./entities/user-pinned-project.entity"
 import {
-    UserPinnedProjectsProjectionEntity,
+    UserPinnedProjectsProjectionEntity 
 } from "./entities/user-pinned-projects-projection.entity"
 import {
-    UserSolvedChallengesProjectionEntity,
+    UserSolvedChallengesProjectionEntity 
 } from "./entities/user-solved-challenges-projection.entity"
 import {
-    UserStatsProjectionTranslationEntity,
+    UserStatsProjectionTranslationEntity 
 } from "./entities/user-stats-projection-translation.entity"
 import {
-    UserStatsProjectionEntity,
+    UserStatsProjectionEntity 
 } from "./entities/user-stats-projection.entity"
 import {
-    UserXpProjectionEntity,
+    UserXpProjectionEntity 
 } from "./entities/user-xp-projection.entity"
 import {
-    UserEntity,
+    UserEntity 
 } from "./entities/user.entity"
 import {
-    ValuePropositionTranslationEntity,
+    ValuePropositionTranslationEntity 
 } from "./entities/value-proposition-translation.entity"
 import {
-    ValuePropositionEntity,
+    ValuePropositionEntity 
 } from "./entities/value-proposition.entity"
 import {
-    WeeklyChallengeClaimEntity,
+    WeeklyChallengeClaimEntity 
 } from "./entities/weekly-challenge-claim.entity"
 import {
-    XpHistoryEntity,
+    XpHistoryEntity 
 } from "./entities/xp-history.entity"
 import {
-    ResolversModule,
+    ResolversModule 
 } from "./resolvers/resolvers.module"
 import {
-    HydrationModule,
+    HydrationModule 
 } from "./hydration/hydration.module"
 import {
-    SyncStateService
+    SyncStateService 
 } from "./sync-state.service"
 import {
-    PostgreSqlAdvisoryLockService,
+    PostgreSqlAdvisoryLockService 
 } from "./lock/postgresql-advisory-lock.service"
 
 /**
@@ -753,6 +783,7 @@ const PRIMARY_ENTITIES = [
     ContentReactionEntity,
     ContentAiSessionEntity,
     ContentAiMessageEntity,
+    ContentAiTurnEntity,
     ActivityReactionEntity,
     ContentCommentEntity,
     CommentReactionEntity,
@@ -762,6 +793,15 @@ const PRIMARY_ENTITIES = [
     CommunityPostCommentReactionEntity,
     ChatConversationEntity,
     ChatMessageEntity,
+    ChatParticipationEntity,
+    ChatReadStateEntity,
+    ChatMessageReactionEntity,
+    ChatMessageMentionEntity,
+    ChatReportEntity,
+    ChatModerationCaseEntity,
+    ChatModerationAuditEntity,
+    ChatCommandReceiptEntity,
+    ChatOutboxEntity,
     NotificationEntity,
     UserPinnedProjectEntity,
     JobPostingEntity,
@@ -784,7 +824,9 @@ const PRIMARY_ENTITIES = [
  * ever changes (add the entity to `forFeature()` the day something injects
  * its Repository).
  */
-const ENTITIES_WITHOUT_FEATURE_REPOSITORY: Set<(typeof PRIMARY_ENTITIES)[number]> = new Set([
+const ENTITIES_WITHOUT_FEATURE_REPOSITORY: Set<
+  (typeof PRIMARY_ENTITIES)[number]
+> = new Set([
     ChallengeSubmissionApproachCriteriaEntity,
     ChallengeSubmissionApproachCriteriaLangEntity,
     ChallengeSubmissionOutcomeCriteriaEntity,
@@ -804,94 +846,81 @@ const PRIMARY_FEATURE_ENTITIES = PRIMARY_ENTITIES.filter(
  */
 export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
     /**
-     * Register.
-     * @param options - Options.
-     * @returns Dynamic module.
-     */
-    public static register(
-        options: typeof OPTIONS_TYPE = {
-        }
-    ): DynamicModule {
+   * Register.
+   * @param options - Options.
+   * @returns Dynamic module.
+   */
+    public static register(options: typeof OPTIONS_TYPE = {
+    }): DynamicModule {
         const dynamicModule = super.register(options)
         const extraModules: Array<DynamicModule> = []
         if (options.withHydration !== false) {
             extraModules.push(
                 HydrationModule.register({
-                    isGlobal: options.isGlobal
+                    isGlobal: options.isGlobal,
                 }),
             )
         }
         if (options.withResolvers) {
             extraModules.push(
                 ResolversModule.register({
-                    isGlobal: options.isGlobal
-                })
+                    isGlobal: options.isGlobal,
+                }),
             )
         }
         return {
             ...dynamicModule,
             imports: [
-                NestTypeOrmModule.forRootAsync(
-                    {
-                        name: POSTGRESQL_PRIMARY,
-                        useFactory: async () => {
-                            const {
-                                database,
-                                host,
-                                password,
-                                port,
-                                username,
-                                synchronize
-                            } = envConfig().databases.postgresql.primary
-                            return {
-                                type: "postgres",
-                                host,
-                                port,
-                                username,
-                                password,
-                                database,
-                                entities: PRIMARY_ENTITIES,
-                                synchronize,
-                                logging: false,
-                                cache: {
-                                    provider(dataSource) {
-                                        return new InMemoryQueryResultCache(dataSource)
-                                    }
-                                }
-                            }
+                NestTypeOrmModule.forRootAsync({
+                    name: POSTGRESQL_PRIMARY,
+                    useFactory: async () => {
+                        const { database, host, password, port, username, synchronize } =
+              envConfig().databases.postgresql.primary
+                        return {
+                            type: "postgres",
+                            host,
+                            port,
+                            username,
+                            password,
+                            database,
+                            entities: PRIMARY_ENTITIES,
+                            synchronize,
+                            logging: false,
+                            cache: {
+                                provider(dataSource) {
+                                    return new InMemoryQueryResultCache(dataSource)
+                                },
+                            },
                         }
-                    }
-                ),
+                    },
+                }),
                 this.forFeature(),
                 ...extraModules,
             ],
-            providers: [
-                SyncStateService,
-                PostgreSqlAdvisoryLockService,
-            ],
+            providers: [SyncStateService,
+                PostgreSqlAdvisoryLockService],
             exports: [
                 ...extraModules,
                 SyncStateService,
                 PostgreSqlAdvisoryLockService,
-            ]
+            ],
         }
     }
 
     /**
-     * For feature.
-     * @param options - Options.
-     * @returns Dynamic module.
-     */
-    private static forFeature(
-    ): DynamicModule {
+   * For feature.
+   * @param options - Options.
+   * @returns Dynamic module.
+   */
+    private static forFeature(): DynamicModule {
         return {
             module: PrimaryPostgreSQLModule,
             imports: [
                 NestTypeOrmModule.forFeature(
                     PRIMARY_FEATURE_ENTITIES,
-                    POSTGRESQL_PRIMARY
+                    POSTGRESQL_PRIMARY,
                 ),
-            ]
+            ],
         }
     }
 }

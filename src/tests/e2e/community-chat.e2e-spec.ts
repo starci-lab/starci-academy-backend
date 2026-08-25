@@ -1,7 +1,6 @@
 import request from "supertest"
 import {
-    io,
-    type Socket,
+    io, type Socket 
 } from "socket.io-client"
 import type {
     CanActivate,
@@ -9,105 +8,118 @@ import type {
     INestApplication,
 } from "@nestjs/common"
 import {
-    GqlExecutionContext,
+    GqlExecutionContext 
 } from "@nestjs/graphql"
 import {
-    Test,
+    Test 
 } from "@nestjs/testing"
 import {
-    getEntityManagerToken,
+    getEntityManagerToken 
 } from "@nestjs/typeorm"
 import type {
-    EntityManager,
+    EntityManager 
 } from "typeorm"
 import {
-    ApolloServerModule,
+    ApolloServerModule 
 } from "@modules/api/apollo/server/apollo-server.module"
 import {
-    ApolloServerType,
+    ApolloServerType 
 } from "@modules/api/apollo/server/enums/server"
 import {
-    SendChatMessageResolver,
+    SendChatMessageResolver 
 } from "@features/api/core/graphql/mutations/chat/send-chat-message/send-chat-message.resolver"
 import {
-    SendChatMessageService,
+    SendChatMessageService 
 } from "@features/api/core/graphql/mutations/chat/send-chat-message/send-chat-message.service"
 import {
-    CommunityChatGateway,
+    CommunityChatGateway 
 } from "@features/socketio/core/community-chat/community-chat.gateway"
 import {
-    CommunityChatRoomService,
+    CommunityChatRoomService 
 } from "@features/socketio/core/community-chat/community-chat-room.service"
 import {
-    PublicationEvent,
+    GlobalChatOutboxPublisherService 
+} from "@features/socketio/core/community-chat/global-chat-outbox-publisher.service"
+import {
+    PublicationEvent 
 } from "@features/socketio/core/enums/publication-event"
 import {
-    SubscriptionEvent,
+    SubscriptionEvent 
 } from "@features/socketio/core/enums/subscription-event"
 import {
-    ChatService,
+    ChatService 
 } from "@modules/bussiness/chat/chat.service"
 import {
-    ChatConversationEntity,
+    GlobalChatMetricsService 
+} from "@modules/bussiness/chat/global-chat-metrics.service"
+import {
+    GlobalChatPolicyService 
+} from "@modules/bussiness/chat/global-chat-policy.service"
+import {
+    GlobalChatService 
+} from "@modules/bussiness/chat/global-chat.service"
+import {
+    ChatConversationEntity 
 } from "@modules/databases/postgresql/primary/entities/chat-conversation.entity"
 import {
-    ChatMessageEntity,
+    ChatMessageEntity 
 } from "@modules/databases/postgresql/primary/entities/chat-message.entity"
 import {
-    UserEntity,
+    ChatOutboxEntity 
+} from "@modules/databases/postgresql/primary/entities/chat-outbox.entity"
+import {
+    UserEntity 
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
-    ChatConversationType,
+    ChatConversationType 
 } from "@modules/databases/postgresql/primary/enums/chat-conversation-type"
 import {
-    PrimaryPostgreSQLModule,
+    PrimaryPostgreSQLModule 
 } from "@modules/databases/postgresql/primary/primary.module"
 import {
-    SUPERJSON,
+    SUPERJSON 
 } from "@modules/lib/mixin/constants/superjson"
 import {
-    KeycloakAuthGraphQLGuard,
+    KeycloakAuthGraphQLGuard 
 } from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
-    KeycloakTokenService,
+    KeycloakTokenService 
 } from "@modules/integrations/keycloak/token.service"
 import {
-    MembershipService,
+    MembershipService 
 } from "@modules/membership/membership.service"
 import {
-    EventName,
+    EventName 
 } from "@modules/platform/event/enums/event-name"
 import {
-    EventEmitterService,
+    EventEmitterService 
 } from "@modules/platform/event/event-emitter.service"
 import {
-    WsResponseService,
+    WsResponseService 
 } from "@modules/platform/socketio/response.service"
 import {
-    nextMessage,
-    until,
+    nextMessage, until 
 } from "@tests/helpers/flow-wait"
 import {
-    TestHelpersModule,
+    TestHelpersModule 
 } from "@tests/helpers/test-helpers.module"
 
 interface ChatSocketMessage {
-    success: boolean
-    data: {
-        conversationId: string
-        messageId: string
-        authorId: string
-    }
+  success: boolean;
+  data: {
+    conversationId: string;
+    messageId: string | null;
+  };
 }
 
 interface FlowEventListenerParams {
-    event: EventName
-    listener: (payload: unknown) => void
+  event: EventName;
+  listener: (payload: unknown) => void;
 }
 
 interface FlowEventEmitParams {
-    event: EventName
-    payload: unknown
+  event: EventName;
+  payload: unknown;
 }
 
 describe("a community member sends a message and the room receives it",
@@ -132,8 +144,9 @@ describe("a community member sends a message and the room receives it",
         const guard: CanActivate = {
             canActivate: (context: ExecutionContext): boolean => {
                 if (!member) return false
-                GqlExecutionContext.create(context)
-                    .getContext<{ req: { user?: UserEntity } }>().req.user = member
+                GqlExecutionContext.create(context).getContext<{
+        req: { user?: UserEntity };
+      }>().req.user = member
                 return true
             },
         }
@@ -143,60 +156,87 @@ describe("a community member sends a message and the room receives it",
                 imports: [
                     TestHelpersModule,
                     ApolloServerModule.register({
-                        type: ApolloServerType.Monolithic, useServices: false
+                        type: ApolloServerType.Monolithic,
+                        useServices: false,
                     }),
                     PrimaryPostgreSQLModule.register({
-                        isGlobal: true, withHydration: false, withResolvers: false
+                        isGlobal: true,
+                        withHydration: false,
+                        withResolvers: false,
                     }),
                 ],
                 providers: [
                     ChatService,
+                    GlobalChatService,
+                    GlobalChatPolicyService,
+                    GlobalChatMetricsService,
+                    GlobalChatOutboxPublisherService,
                     SendChatMessageService,
                     SendChatMessageResolver,
                     CommunityChatRoomService,
                     WsResponseService,
                     CommunityChatGateway,
                     {
-                        provide: MembershipService, useValue: {
-                            isActive: jest.fn().mockResolvedValue(true)
-                        }
+                        provide: MembershipService,
+                        useValue: {
+                            isActive: jest.fn().mockResolvedValue(true),
+                        },
                     },
                     {
-                        provide: EventEmitterService, useValue: events
+                        provide: EventEmitterService,
+                        useValue: events,
                     },
                     {
-                        provide: KeycloakTokenService, useValue: {
+                        provide: KeycloakTokenService,
+                        useValue: {
                             verifyAccessToken: jest.fn(async (token: string) => ({
-                                active: true, sub: token
-                            }))
-                        }
+                                active: true,
+                                sub: token,
+                            })),
+                        },
                     },
                     {
-                        provide: SUPERJSON, useValue: {
-                            stringify: JSON.stringify, parse: JSON.parse
-                        }
+                        provide: SUPERJSON,
+                        useValue: {
+                            stringify: JSON.stringify,
+                            parse: JSON.parse,
+                        },
                     },
                 ],
-            }).overrideGuard(KeycloakAuthGraphQLGuard).useValue(guard).compile()
+            })
+                .overrideGuard(KeycloakAuthGraphQLGuard)
+                .useValue(guard)
+                .compile()
             app = moduleRef.createNestApplication()
             globalThis.__APP__ = app
             await app.listen(0)
             entityManager = app.get(getEntityManagerToken("primary"))
 
-            await entityManager.query("TRUNCATE TABLE \"chat_messages\", \"chat_conversations\", \"users\" RESTART IDENTITY CASCADE")
-            member = await entityManager.save(entityManager.create(UserEntity,
-                {
-                    keycloakId: `chat-member-${Date.now()}`, username: "chat-member"
-                }))
-            conversation = await entityManager.save(entityManager.create(ChatConversationEntity,
-                {
-                    type: ChatConversationType.Community, member: null
-                }))
+            await entityManager.query(
+                "TRUNCATE TABLE \"chat_messages\", \"chat_conversations\", \"users\" RESTART IDENTITY CASCADE",
+            )
+            member = await entityManager.save(
+                entityManager.create(UserEntity,
+                    {
+                        keycloakId: `chat-member-${Date.now()}`,
+                        username: "chat-member",
+                    }),
+            )
+            conversation = await entityManager.save(
+                entityManager.create(ChatConversationEntity,
+                    {
+                        type: ChatConversationType.Community,
+                        member: null,
+                        roomKey: "academy-global",
+                    }),
+            )
             socket = io(`${await app.getUrl()}/community_chat`,
                 {
-                    transports: ["websocket"], auth: {
-                        token: member.keycloakId
-                    }, forceNew: true
+                    transports: ["websocket"],
+                    auth: {
+                        token: member.keycloakId,
+                    },
+                    forceNew: true,
                 })
             await new Promise<void>((resolve, reject) => {
                 socket.once("connect",
@@ -207,15 +247,22 @@ describe("a community member sends a message and the room receives it",
             socket.emit(PublicationEvent.SubscribeCommunityChat,
                 {
                     data: {
-                        conversationId: conversation.id
-                    }
+                        conversationId: conversation.id,
+                    },
                 })
-            const namespace = (app.get(CommunityChatGateway) as unknown as { server: { adapter: { rooms: Map<string, Set<string>> } } }).server
+            const namespace = (
+      app.get(CommunityChatGateway) as unknown as {
+        server: { adapter: { rooms: Map<string, Set<string>> } };
+      }
+            ).server
             const room = app.get(CommunityChatRoomService).name(conversation.id)
-            await until(() => Boolean(socket.id && namespace.adapter.rooms.get(room)?.has(socket.id)),
+            await until(
+                () =>
+                    Boolean(socket.id && namespace.adapter.rooms.get(room)?.has(socket.id)),
                 {
-                    describe: "the client to join its community chat room"
-                })
+                    describe: "the client to join its community chat room",
+                },
+            )
         })
 
         afterAll(async () => {
@@ -223,18 +270,33 @@ describe("a community member sends a message and the room receives it",
             await app?.close().catch(() => undefined)
         })
 
-        it("persists the message through GraphQL and delivers the matching socket event",
+        it("persists one retry-safe command and delivers its durable invalidation",
             async () => {
-                const delivered = nextMessage<ChatSocketMessage>(socket,
-                    SubscriptionEvent.ChatMessageCreated)
+                const delivered = nextMessage<ChatSocketMessage>(
+                    socket,
+                    SubscriptionEvent.GlobalChatInvalidated,
+                )
+                const query = `mutation { sendChatMessage(request: { conversationId: "${conversation.id}", body: "Hello room", clientCommandId: "e2e-command-1" }) { success error data { id body } } }`
                 const response = await request(app.getHttpServer()).post("/graphql").send({
-                    query: `mutation { sendChatMessage(request: { conversationId: "${conversation.id}", body: "Hello room" }) { success error data { id body } } }`,
+                    query,
                 })
                 expect(response.body).toHaveProperty("data.sendChatMessage.success",
                     true)
+                const replay = await request(app.getHttpServer()).post("/graphql").send({
+                    query,
+                })
+                expect(replay.body).toHaveProperty(
+                    "data.sendChatMessage.data.id",
+                    response.body.data.sendChatMessage.data.id,
+                )
+                await app.get(GlobalChatOutboxPublisherService).publishPending()
                 const message = await delivered
                 expect(message.data.conversationId).toBe(conversation.id)
-                expect(message.data.authorId).toBe(member?.id)
+                expect(Object.keys(message.data).sort()).toEqual([
+                    "conversationId",
+                    "messageId",
+                ])
                 expect(await entityManager.count(ChatMessageEntity)).toBe(1)
+                expect(await entityManager.count(ChatOutboxEntity)).toBe(1)
             })
     })

@@ -1,7 +1,5 @@
 import {
-    Field,
-    ID,
-    ObjectType,
+    Field, ID, ObjectType 
 } from "@nestjs/graphql"
 import {
     Column,
@@ -12,26 +10,22 @@ import {
     RelationId,
 } from "typeorm"
 import {
-    UuidAbstractEntity,
+    UuidAbstractEntity 
 } from "./abstract"
 import {
-    ChatConversationEntity,
+    ChatConversationEntity 
 } from "./chat-conversation.entity"
 import {
-    UserEntity,
+    UserEntity 
 } from "./user.entity"
 
 @ObjectType({
     description: "A single chat message in a conversation.",
 })
 @Entity("chat_messages")
-@Index(
-    "IDX_chat_messages_conversation_created",
-    [
-        "conversation",
-        "createdAt",
-    ],
-)
+@Index("IDX_chat_messages_conversation_created",
+    ["conversation",
+        "createdAt"])
 /**
  * A single chat message inside a {@link ChatConversationEntity}. `isDeleted`
  * is reserved for a future author-delete affordance (soft-delete, so the
@@ -39,95 +33,131 @@ import {
  * today, so it always reads `false`.
  */
 export class ChatMessageEntity extends UuidAbstractEntity {
-    /**
-     * Raw message body authored by the user.
-     */
-    @Field(
-        () => String,
-        {
-            description: "Message body authored by the user.",
-        },
-    )
-    @Column({
-        name: "body",
-        type: "text",
-    })
-        body: string
+  /** Message being replied to; kept nullable so root messages remain unchanged. */
+  @ManyToOne(() => ChatMessageEntity,
+      {
+          nullable: true,
+          onDelete: "SET NULL",
+      })
+  @JoinColumn({
+      name: "reply_to_id",
+  })
+      replyTo: ChatMessageEntity | null
 
-    /**
-     * Soft-delete flag (keeps the row so the thread does not collapse).
-     * Always `false` today -- reserved for a future author-delete affordance
-     * that no service method or mutation currently sets.
-     */
-    @Field(
-        () => Boolean,
-        {
-            description: "Whether the message was soft-deleted by its author. " +
-                "Reserved for a future delete affordance — always false today.",
-        },
-    )
-    @Column({
-        name: "is_deleted",
-        type: "boolean",
-        default: false,
-    })
-        isDeleted: boolean
+  @RelationId((message: ChatMessageEntity) => message.replyTo)
+      replyToId: string | null
 
-    /**
-     * Conversation this message belongs to.
-     */
-    @ManyToOne(
-        () => ChatConversationEntity,
-        {
-            onDelete: "CASCADE",
-        },
-    )
-    @JoinColumn({
-        name: "conversation_id",
-        foreignKeyConstraintName: "fk_conversation_id_chat_messages_chat_conversations",
-    })
-        conversation: ChatConversationEntity
+  /**
+   * Raw message body authored by the user.
+   */
+  @Field(() => String,
+      {
+          description: "Message body authored by the user.",
+      })
+  @Column({
+      name: "body",
+      type: "text",
+  })
+      body: string
 
-    /**
-     * Owning conversation id (denormalized via relation).
-     */
-    @Field(
-        () => ID,
-        {
-            description: "Owning conversation id.",
-        },
-    )
-    @RelationId(
-        (message: ChatMessageEntity) => message.conversation,
-    )
-        conversationId: string
+  /**
+   * Soft-delete flag (keeps the row so the thread does not collapse).
+   * Always `false` today -- reserved for a future author-delete affordance
+   * that no service method or mutation currently sets.
+   */
+  @Field(() => Boolean,
+      {
+          description:
+      "Whether the message was soft-deleted by its author. " +
+      "Reserved for a future delete affordance — always false today.",
+      })
+  @Column({
+      name: "is_deleted",
+      type: "boolean",
+      default: false,
+  })
+      isDeleted: boolean
 
-    /**
-     * Author of the message.
-     */
-    @ManyToOne(
-        () => UserEntity,
-        {
-            onDelete: "CASCADE",
-        },
-    )
-    @JoinColumn({
-        name: "user_id",
-        foreignKeyConstraintName: "fk_user_id_chat_messages_users",
-    })
-        author: UserEntity
+  /** Optimistic concurrency token for edits/removals/moderation. */
+  @Column({
+      name: "version",
+      type: "int",
+      default: 1,
+  })
+      version: number
 
-    /**
-     * Author user id (denormalized via relation).
-     */
-    @Field(
-        () => ID,
-        {
-            description: "Author user id.",
-        },
-    )
-    @RelationId(
-        (message: ChatMessageEntity) => message.author,
-    )
-        authorId: string
+  @Column({
+      name: "edited_at",
+      type: "timestamptz",
+      nullable: true,
+  })
+      editedAt: Date | null
+
+  @Column({
+      name: "removed_at",
+      type: "timestamptz",
+      nullable: true,
+  })
+      removedAt: Date | null
+
+  @Column({
+      name: "removed_by_moderator",
+      type: "boolean",
+      default: false,
+  })
+      removedByModerator: boolean
+
+  @Column({
+      name: "removal_reason",
+      type: "text",
+      nullable: true,
+  })
+      removalReason: string | null
+
+  /**
+   * Conversation this message belongs to.
+   */
+  @ManyToOne(() => ChatConversationEntity,
+      {
+          onDelete: "CASCADE",
+      })
+  @JoinColumn({
+      name: "conversation_id",
+      foreignKeyConstraintName:
+      "fk_conversation_id_chat_messages_chat_conversations",
+  })
+      conversation: ChatConversationEntity
+
+  /**
+   * Owning conversation id (denormalized via relation).
+   */
+  @Field(() => ID,
+      {
+          description: "Owning conversation id.",
+      })
+  @RelationId((message: ChatMessageEntity) => message.conversation)
+      conversationId: string
+
+  /**
+   * Author of the message.
+   */
+  @ManyToOne(() => UserEntity,
+      {
+          onDelete: "CASCADE",
+      })
+  @JoinColumn({
+      name: "user_id",
+      foreignKeyConstraintName: "fk_user_id_chat_messages_users",
+  })
+      author: UserEntity
+
+  /**
+   * Author user id (denormalized via relation).
+   */
+  @Field(() => ID,
+      {
+          description: "Author user id.",
+      })
+  @RelationId((message: ChatMessageEntity) => message.author)
+      authorId: string
 }

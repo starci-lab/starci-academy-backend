@@ -1,14 +1,15 @@
 import {
-    EventName,
+    EventName 
 } from "./enums/event-name"
 import {
-    AiModelHealthUpdatedEventPayload,
+    AiModelHealthUpdatedEventPayload 
 } from "./types/event-payload/ai-model-health-updated"
 import {
-    ChallengeSubmissionProgressUpdatedEventPayload,
+    ChallengeSubmissionProgressUpdatedEventPayload 
 } from "./types/event-payload/challenge-submission-progress-updated"
 import {
     ChatMessageChangedEventPayload,
+    GlobalChatInvalidatedEventPayload,
 } from "./types/event-payload/chat"
 import {
     CommunityPostChangedEventPayload,
@@ -22,16 +23,16 @@ import {
     CommentReactionChangedEventPayload,
 } from "./types/event-payload/content-discussion"
 import {
-    JobStatusUpdatedEventPayload,
+    JobStatusUpdatedEventPayload 
 } from "./types/event-payload/job-status-updated"
 import {
-    MilestoneTaskProgressUpdatedEventPayload,
+    MilestoneTaskProgressUpdatedEventPayload 
 } from "./types/event-payload/milestone-task-progress-updated"
 import {
-    NotificationCreatedEventPayload,
+    NotificationCreatedEventPayload 
 } from "./types/event-payload/notification"
 import {
-    PingEventPayload,
+    PingEventPayload 
 } from "./types/event-payload/ping"
 
 /** Map of event names to NATS/local usage and payload type. */
@@ -182,11 +183,20 @@ export const configMap = {
     },
     /** Event name: a chat message was created in a conversation. */
     [EventName.ChatMessageCreated]: {
-        // Every pod owns different Socket.IO clients. Publish through NATS as
-        // well as locally so a write on pod A reaches a room connected to pod B.
+    // Every pod owns different Socket.IO clients. Publish through NATS as
+    // well as locally so a write on pod A reaches a room connected to pod B.
         useNats: true,
         useLocal: true,
         eventPayload: {
         } as ChatMessageChangedEventPayload,
+    },
+    /** Event name: a durable Global Chat command invalidated actor projections. */
+    [EventName.GlobalChatInvalidated]: {
+    // One pod leases each outbox row; NATS fans the compact invalidation out
+    // to Socket.IO clients connected to every other pod.
+        useNats: true,
+        useLocal: true,
+        eventPayload: {
+        } as GlobalChatInvalidatedEventPayload,
     },
 }

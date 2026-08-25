@@ -1,87 +1,97 @@
 import type {
-    INestApplication,
+    INestApplication 
 } from "@nestjs/common"
 import {
-    Test,
+    Test 
 } from "@nestjs/testing"
 import {
-    getEntityManagerToken,
+    getEntityManagerToken 
 } from "@nestjs/typeorm"
 import {
-    io,
-    type Socket,
+    io, type Socket 
 } from "socket.io-client"
 import type {
-    EntityManager,
+    EntityManager 
 } from "typeorm"
 import type {
-    Namespace,
+    Namespace 
 } from "socket.io"
 import {
-    CommunityChatGateway,
+    CommunityChatGateway 
 } from "@features/socketio/core/community-chat/community-chat.gateway"
 import {
-    CommunityChatRoomService,
+    CommunityChatRoomService 
 } from "@features/socketio/core/community-chat/community-chat-room.service"
 import {
-    PublicationEvent,
+    PublicationEvent 
 } from "@features/socketio/core/enums/publication-event"
 import {
-    SubscriptionEvent,
+    SubscriptionEvent 
 } from "@features/socketio/core/enums/subscription-event"
 import {
-    ChatService,
+    ChatService 
 } from "@modules/bussiness/chat/chat.service"
 import {
-    ChatConversationEntity,
+    GlobalChatMetricsService 
+} from "@modules/bussiness/chat/global-chat-metrics.service"
+import {
+    GlobalChatPolicyService 
+} from "@modules/bussiness/chat/global-chat-policy.service"
+import {
+    GlobalChatService 
+} from "@modules/bussiness/chat/global-chat.service"
+import {
+    ChatConversationEntity 
 } from "@modules/databases/postgresql/primary/entities/chat-conversation.entity"
 import {
-    MembershipEntity,
+    ChatParticipationEntity 
+} from "@modules/databases/postgresql/primary/entities/chat-participation.entity"
+import {
+    MembershipEntity 
 } from "@modules/databases/postgresql/primary/entities/membership.entity"
 import {
-    UserEntity,
+    UserEntity 
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
-    ChatConversationType,
+    ChatConversationType 
 } from "@modules/databases/postgresql/primary/enums/chat-conversation-type"
 import {
-    MembershipStatus,
+    MembershipStatus 
 } from "@modules/databases/postgresql/primary/enums/membership-status"
 import {
-    PrimaryPostgreSQLModule,
+    PrimaryPostgreSQLModule 
 } from "@modules/databases/postgresql/primary/primary.module"
 import {
-    KeycloakTokenService,
+    KeycloakTokenService 
 } from "@modules/integrations/keycloak/token.service"
 import {
-    SUPERJSON,
+    SUPERJSON 
 } from "@modules/lib/mixin/constants/superjson"
 import {
-    DayjsService,
+    DayjsService 
 } from "@modules/lib/mixin/dayjs.service"
 import {
-    MembershipService,
+    MembershipService 
 } from "@modules/membership/membership.service"
 import {
-    EventEmitterService,
+    EventEmitterService 
 } from "@modules/platform/event/event-emitter.service"
 import {
-    WsResponseService,
+    WsResponseService 
 } from "@modules/platform/socketio/response.service"
 import {
-    nextMessage,
-    until,
+    nextMessage, until 
 } from "@tests/helpers/flow-wait"
 import {
-    TestHelpersModule,
+    TestHelpersModule 
 } from "@tests/helpers/test-helpers.module"
 
 interface SubscriptionResult {
-    success: boolean
-    error?: string
-    data?: {
-        conversationId: string
-    }
+  success: boolean;
+  error?: string;
+  data?: {
+    conversationId: string;
+  };
 }
 
 describe("community chat rooms admit only authenticated conversation participants",
@@ -92,6 +102,7 @@ describe("community chat rooms admit only authenticated conversation participant
         let otherMember: UserEntity
         let outsider: UserEntity
         let ownerDm: ChatConversationEntity
+        let globalRoom: ChatConversationEntity
         let ownerSocket: Socket
         let otherMemberSocket: Socket
         let outsiderSocket: Socket
@@ -118,8 +129,10 @@ describe("community chat rooms admit only authenticated conversation participant
             socket: Socket,
             conversationId: string,
         ): Promise<SubscriptionResult> => {
-            const result = nextMessage<SubscriptionResult>(socket,
-                SubscriptionEvent.CommunityChatSubscription)
+            const result = nextMessage<SubscriptionResult>(
+                socket,
+                SubscriptionEvent.CommunityChatSubscription,
+            )
             socket.emit(PublicationEvent.SubscribeCommunityChat,
                 {
                     data: {
@@ -143,6 +156,9 @@ describe("community chat rooms admit only authenticated conversation participant
                     DayjsService,
                     MembershipService,
                     ChatService,
+                    GlobalChatService,
+                    GlobalChatPolicyService,
+                    GlobalChatMetricsService,
                     CommunityChatRoomService,
                     WsResponseService,
                     CommunityChatGateway,
@@ -177,7 +193,9 @@ describe("community chat rooms admit only authenticated conversation participant
             globalThis.__APP__ = app
             await app.listen(0)
             entityManager = app.get(getEntityManagerToken("primary"))
-            await entityManager.query("TRUNCATE TABLE \"chat_messages\", \"chat_conversations\", \"memberships\", \"users\" RESTART IDENTITY CASCADE")
+            await entityManager.query(
+                "TRUNCATE TABLE \"chat_messages\", \"chat_conversations\", \"memberships\", \"users\" RESTART IDENTITY CASCADE",
+            )
 
             const users = await entityManager.save([
                 entityManager.create(UserEntity,
@@ -215,11 +233,41 @@ describe("community chat rooms admit only authenticated conversation participant
                         autoRenew: false,
                     }),
             ])
-            ownerDm = await entityManager.save(entityManager.create(ChatConversationEntity,
-                {
-                    type: ChatConversationType.FounderDm,
-                    member: owner,
-                }))
+            ownerDm = await entityManager.save(
+                entityManager.create(ChatConversationEntity,
+                    {
+                        type: ChatConversationType.FounderDm,
+                        member: owner,
+                    }),
+            )
+            globalRoom = await entityManager.save(
+                entityManager.create(ChatConversationEntity,
+                    {
+                        type: ChatConversationType.Community,
+                        member: null,
+                        roomKey: "academy-global",
+                    }),
+            )
+            await entityManager.save([
+                entityManager.create(ChatParticipationEntity,
+                    {
+                        conversation: globalRoom,
+                        user: owner,
+                        accessState: "banned",
+                        role: "member",
+                        mutedUntil: null,
+                        notificationsMuted: false,
+                    }),
+                entityManager.create(ChatParticipationEntity,
+                    {
+                        conversation: globalRoom,
+                        user: otherMember,
+                        accessState: "muted",
+                        role: "member",
+                        mutedUntil: new Date("2099-01-01T00:00:00.000Z"),
+                        notificationsMuted: false,
+                    }),
+            ])
         })
 
         afterAll(async () => {
@@ -252,9 +300,11 @@ describe("community chat rooms admit only authenticated conversation participant
                 ownerSocket = sockets[0]
                 otherMemberSocket = sockets[1]
                 outsiderSocket = sockets[2]
-                const namespace = (app.get(CommunityChatGateway) as unknown as {
-                    server: Namespace
-                }).server
+                const namespace = (
+      app.get(CommunityChatGateway) as unknown as {
+        server: Namespace;
+      }
+                ).server
                 const room = app.get(CommunityChatRoomService).name(ownerDm.id)
                 expect(namespace.adapter.rooms.get(room)).toBeUndefined()
             })
@@ -263,21 +313,30 @@ describe("community chat rooms admit only authenticated conversation participant
             async () => {
                 const result = await subscribe(ownerSocket,
                     ownerDm.id)
-                expect(result).toEqual(expect.objectContaining({
-                    success: true,
-                    data: {
-                        conversationId: ownerDm.id,
-                    },
-                }))
-                const namespace = (app.get(CommunityChatGateway) as unknown as {
-                    server: Namespace
-                }).server
+                expect(result).toEqual(
+                    expect.objectContaining({
+                        success: true,
+                        data: {
+                            conversationId: ownerDm.id,
+                        },
+                    }),
+                )
+                const namespace = (
+      app.get(CommunityChatGateway) as unknown as {
+        server: Namespace;
+      }
+                ).server
                 const room = app.get(CommunityChatRoomService).name(ownerDm.id)
-                await until(() => Boolean(ownerSocket.id
-                    && namespace.adapter.rooms.get(room)?.has(ownerSocket.id)),
-                {
-                    describe: "the authorized owner to join the founder-DM room",
-                })
+                await until(
+                    () =>
+                        Boolean(
+                            ownerSocket.id &&
+          namespace.adapter.rooms.get(room)?.has(ownerSocket.id),
+                        ),
+                    {
+                        describe: "the authorized owner to join the founder-DM room",
+                    },
+                )
             })
 
         it("keeps another active member out of the owner's founder-DM room",
@@ -286,11 +345,15 @@ describe("community chat rooms admit only authenticated conversation participant
                     ownerDm.id)
                 expect(result.success).toBe(false)
                 expect(result.error).toBe("CHAT_FORBIDDEN_EXCEPTION")
-                const namespace = (app.get(CommunityChatGateway) as unknown as {
-                    server: Namespace
-                }).server
+                const namespace = (
+      app.get(CommunityChatGateway) as unknown as {
+        server: Namespace;
+      }
+                ).server
                 const room = app.get(CommunityChatRoomService).name(ownerDm.id)
-                expect(namespace.adapter.rooms.get(room)?.has(otherMemberSocket.id!)).toBe(false)
+                expect(namespace.adapter.rooms.get(room)?.has(otherMemberSocket.id!)).toBe(
+                    false,
+                )
             })
 
         it("keeps a non-member out of every community-chat room",
@@ -299,10 +362,40 @@ describe("community chat rooms admit only authenticated conversation participant
                     ownerDm.id)
                 expect(result.success).toBe(false)
                 expect(result.error).toBe("CHAT_MEMBERSHIP_REQUIRED_EXCEPTION")
-                const namespace = (app.get(CommunityChatGateway) as unknown as {
-                    server: Namespace
-                }).server
+                const namespace = (
+      app.get(CommunityChatGateway) as unknown as {
+        server: Namespace;
+      }
+                ).server
                 const room = app.get(CommunityChatRoomService).name(ownerDm.id)
-                expect(namespace.adapter.rooms.get(room)?.has(outsiderSocket.id!)).toBe(false)
+                expect(namespace.adapter.rooms.get(room)?.has(outsiderSocket.id!)).toBe(
+                    false,
+                )
+            })
+
+        it("allows a muted member to read invalidations but not bypass write policy",
+            async () => {
+                const result = await subscribe(otherMemberSocket,
+                    globalRoom.id)
+                expect(result).toEqual(
+                    expect.objectContaining({
+                        success: true,
+                        data: {
+                            conversationId: globalRoom.id,
+                        },
+                    }),
+                )
+            })
+
+        it("keeps a banned member outside the Global Chat socket room",
+            async () => {
+                const result = await subscribe(ownerSocket,
+                    globalRoom.id)
+                expect(result.success).toBe(false)
+                const namespace = (
+      app.get(CommunityChatGateway) as unknown as { server: Namespace }
+                ).server
+                const room = app.get(CommunityChatRoomService).name(globalRoom.id)
+                expect(namespace.adapter.rooms.get(room)?.has(ownerSocket.id!)).toBe(false)
             })
     })
