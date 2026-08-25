@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "study-library",
-  "head": "b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699",
+  "head": "9d78d0d20b04aaa1eba272432456ecbabbd2b2f079943e31e3530c2b89e3e3b9",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "e06ee0cb1a19e47ab3d66dd4b37de141e19f1343"
+      "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
     },
     {
       "role": "be",
@@ -85,6 +85,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "2e6794d9a35c5acc029dee9eafc2978fa91dd9589da5f8ce3f6111cbfb465275"
+    },
+    {
+      "id": "EV-009",
+      "claim": "The owner approved redesigning the complete StarCi Academy flashcard UX journey while preserving existing business and backend contracts.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "2b332376e579594225f6c15d8736fd359196bd2bc295efd52ec058850a368e21"
     }
   ]
 }

@@ -1,8 +1,8 @@
 # Study library
 
-> Business identity: `starci-academy/study-library@b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699`
+> Business identity: `starci-academy/study-library@9d78d0d20b04aaa1eba272432456ecbabbd2b2f079943e31e3530c2b89e3e3b9`
 >
-> Source heads: authority `implemented` · base `32dfc8af971c614a5c5bdd6ba78d194b07af476e13a28e643f69edc63e0feef1` · `fe@e06ee0cb1a19`, `be@88a395908477`
+> Source heads: authority `approved` · base `b5a638183a3de17e38b457cd0d639e1e008b5812914d7e78f0c7472026c76699` · `fe@f14e3c24b4a`, `be@88a395908477`
 >
 > Load this file first. Load only the modules named by the current task.
 
@@ -12,7 +12,7 @@
 
 **Primary actor.** Learner
 
-**Primary outcome.** The learner receives a resumable study session or reaches the selected reference material
+**Primary outcome.** The learner receives a resumable study session, completes the ordered cards and understands the next study action, or reaches the selected reference material
 
 **Never does.** Standalone coding problems
 

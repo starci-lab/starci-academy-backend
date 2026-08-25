@@ -20,5 +20,5 @@ Learners use course flashcard review and quiz sessions, browse foundational refe
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `e06ee0cb1a19e47ab3d66dd4b37de141e19f1343` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `f14e3c24b4a087fb6d4bb09d73526964d3ecea3c` |
 | be | https://github.com/starci-lab/starci-academy-backend | `88a3959084772f9eaa0f5dcbc4e480d4356210f0` |
