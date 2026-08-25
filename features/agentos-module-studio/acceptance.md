@@ -27,3 +27,8 @@
 - **AC-25** — Applying a later setup draft changes the active context without rewriting prior execute messages, widgets or session history. (`EV-015`)
 - **AC-26** — Every execute message retains the effective context version used while setup history remains unavailable to ordinary operational collaborators. (`EV-015`)
 - **AC-27** — Archiving one execute session does not affect Setup, the active context, other execute sessions or the kind workbench. (`EV-015`)
+- **AC-28** — The module catalogue and installed collection expose Support Desk, Finance Copilot, Scheduling AI and Knowledge Hub using the shared shell and their distinct registered workbenches. (`EV-016`)
+- **AC-29** — A clean local proof boot idempotently produces exactly two installations per initial kind and exactly eight initial-kind installations in the selected workspace without creating custom demo fixtures. (`EV-016`)
+- **AC-30** — Every one of the eight seeded installations resumes one private Setup chat and can explicitly apply its own immutable business-context version before execution. (`EV-016`)
+- **AC-31** — Each initial kind loads Nivo-owned bootstrap knowledge from its versioned data-mount package and remains operable when customer-specific knowledge has not yet been supplied. (`EV-016`)
+- **AC-32** — Submitting a kind-declared credential through Settings persists it through the encrypted write-only boundary, clears the input and returns only provider identity plus masked configured status. (`EV-016`)

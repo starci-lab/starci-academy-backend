@@ -62,6 +62,11 @@ An authenticated workspace owner creates, installs and operates many module inst
 - **BR-24** — Only an explicitly applied immutable context version can affect execution; setup drafts never change the active effective context.
 - **BR-25** — Every execute message retains the effective context version used, and applying a later setup revision never rewrites prior execute messages or sessions.
 - **BR-26** — A setup draft or apply failure preserves the last active context and leaves every execute session, workbench and unrelated module state usable.
+- **BR-27** — The initial shipped kind catalogue contains customer-support (Support Desk), accounting (Finance Copilot), calendar-assistant (Scheduling AI) and document-research (Knowledge Hub); these are registered initial entries and never a closed core enum.
+- **BR-28** — Each initial-kind installation owns the same setup, execute, context, settings and diagnostics lifecycle while resolving only its registered workbench and typed widgets.
+- **BR-29** — Nivo-owned manifests and bootstrap knowledge are public-safe versioned operational data under the data mount and idempotently seed database rows; customer credentials and secrets never enter that mount.
+- **BR-30** — Module credential fields are declared by the registered kind, accepted only through module Settings, stored write-only and encrypted, and returned only as masked configuration status.
+- **BR-31** — The local proof workspace contains exactly two installations of each initial kind, eight initial-kind installations total, and one private resumable setup session per installation; custom capability remains available but is not part of that seed set.
 
 ## Journeys
 
@@ -112,6 +117,11 @@ An authenticated workspace owner creates, installs and operates many module inst
 - **AC-25** — Applying a later setup draft changes the active context without rewriting prior execute messages, widgets or session history.
 - **AC-26** — Every execute message retains the effective context version used while setup history remains unavailable to ordinary operational collaborators.
 - **AC-27** — Archiving one execute session does not affect Setup, the active context, other execute sessions or the kind workbench.
+- **AC-28** — The module catalogue and installed collection expose Support Desk, Finance Copilot, Scheduling AI and Knowledge Hub using the shared shell and their distinct registered workbenches.
+- **AC-29** — A clean local proof boot idempotently produces exactly two installations per initial kind and exactly eight initial-kind installations in the selected workspace without creating custom demo fixtures.
+- **AC-30** — Every one of the eight seeded installations resumes one private Setup chat and can explicitly apply its own immutable business-context version before execution.
+- **AC-31** — Each initial kind loads Nivo-owned bootstrap knowledge from its versioned data-mount package and remains operable when customer-specific knowledge has not yet been supplied.
+- **AC-32** — Submitting a kind-declared credential through Settings persists it through the encrypted write-only boundary, clears the input and returns only provider identity plus masked configured status.
 
 ## Unknowns and architecture handoff
 
@@ -125,5 +135,3 @@ An authenticated workspace owner creates, installs and operates many module inst
   - Impact: Architecture must decide storage without weakening exactly-one-kind, shared-chat or kind-workbench business invariants.
 - **trusted-widget-contract** — Which widget schemas, action permissions, sandbox and version-compatibility rules form the initial trusted registry?
   - Impact: Implementation may not render arbitrary HTML while this security contract remains unresolved.
-- **initial-kind-catalogue** — Which module kinds ship first beyond the observed chatbot and custom module examples?
-  - Impact: The business registry remains extensible and examples cannot become a closed enum.
