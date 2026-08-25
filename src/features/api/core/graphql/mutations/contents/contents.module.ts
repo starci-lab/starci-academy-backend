@@ -1,32 +1,35 @@
 import {
-    Module,
+    Module 
 } from "@nestjs/common"
 import {
-    MarkAsReadedSingleMutationModule,
+    MarkAsReadedSingleMutationModule 
 } from "./mark-as-readed/mark-as-readed.module"
 import {
-    ToggleFavouriteSingleMutationModule,
+    ToggleFavouriteSingleMutationModule 
 } from "./toggle-favourite/toggle-favourite.module"
 import {
-    AskContentAiSingleMutationModule,
+    AskContentAiSingleMutationModule 
 } from "./ask-content-ai/ask-content-ai.module"
 import {
-    DeleteContentAiSessionSingleMutationModule,
+    DeleteContentAiSessionSingleMutationModule 
 } from "./delete-content-ai-session/delete-content-ai-session.module"
 import {
-    CreateContentAiSessionSingleMutationModule,
+    CreateContentAiSessionSingleMutationModule 
 } from "./create-content-ai-session/create-content-ai-session.module"
 import {
-    TouchContentAiSessionSingleMutationModule,
+    TouchContentAiSessionSingleMutationModule 
 } from "./touch-content-ai-session/touch-content-ai-session.module"
 import {
-    RenameContentAiSessionSingleMutationModule,
+    RenameContentAiSessionSingleMutationModule 
 } from "./rename-content-ai-session/rename-content-ai-session.module"
 import {
-    SetContentAiSessionArchivedSingleMutationModule,
+    SetContentAiSessionArchivedSingleMutationModule 
 } from "./set-content-ai-session-archived/set-content-ai-session-archived.module"
 import {
-    ConfigurableModuleClass
+    LearnAiCompanionMutationModule 
+} from "./learn-ai-companion/learn-ai-companion.module"
+import {
+    ConfigurableModuleClass 
 } from "./contents.module-definition"
 
 @Module({
@@ -55,7 +58,10 @@ import {
         SetContentAiSessionArchivedSingleMutationModule.register({
             isGlobal: true,
         }),
+        LearnAiCompanionMutationModule.register({
+            isGlobal: true,
+        }),
     ],
 })
 /** Composition root that registers every content write globally so the schema picks them up from one import. */
-export class ContentsMutationModule extends ConfigurableModuleClass { }
+export class ContentsMutationModule extends ConfigurableModuleClass {}

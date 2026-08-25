@@ -1,9 +1,8 @@
 import {
-    Test,
-    TestingModule,
+    Test, TestingModule 
 } from "@nestjs/testing"
 import {
-    getEntityManagerToken,
+    getEntityManagerToken 
 } from "@nestjs/typeorm"
 import {
     AIMessage,
@@ -11,37 +10,37 @@ import {
     SystemMessage,
 } from "@langchain/core/messages"
 import {
-    ContentAiService,
+    ContentAiService 
 } from "./content-ai.service"
 import {
-    S3NameResolverService,
+    S3NameResolverService 
 } from "@modules/integrations/s3/s3-name-resolver.service"
 import {
-    S3ReadService,
+    S3ReadService 
 } from "@modules/integrations/s3/s3-read.service"
 import {
-    CourseRagRetrievalService,
+    CourseRagRetrievalService 
 } from "@modules/integrations/rag/course-rag-retrieval.service"
 import {
-    UserService,
+    UserService 
 } from "../user/user.service"
 import {
-    Locale,
+    Locale 
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    ContentAiSessionTitleTooLongException,
+    ContentAiSessionTitleTooLongException 
 } from "@modules/platform/exceptions/errors/courses/content-ai-session-title-too-long"
 import {
-    ContentNotFoundException,
+    ContentNotFoundException 
 } from "@modules/platform/exceptions/errors/courses/content-not-found"
 import {
-    PremiumContentAiAccessDeniedException,
+    PremiumContentAiAccessDeniedException 
 } from "@modules/platform/exceptions/errors/courses/premium-content-ai-access-denied"
 import {
-    makeEntityManagerMock,
+    makeEntityManagerMock 
 } from "@tests/mocks/entity-manager.mock"
 import type {
-    EntityManagerMock,
+    EntityManagerMock 
 } from "@tests/mocks/entity-manager.mock"
 
 // Control the hybrid stuff-vs-RAG threshold deterministically while keeping the
@@ -82,20 +81,20 @@ describe("ContentAiService",
         let service: ContentAiService
         let entityManager: EntityManagerMock
         let s3ReadService: {
-            json: jest.Mock
-        }
+    json: jest.Mock;
+  }
         let s3NameResolverService: {
-            content: jest.Mock
-            repo: jest.Mock
-        }
+    content: jest.Mock;
+    repo: jest.Mock;
+  }
         let userService: {
-            checkEnrollment: jest.Mock
-            getUserByKeycloakId: jest.Mock
-        }
+    checkEnrollment: jest.Mock;
+    getUserByKeycloakId: jest.Mock;
+  }
         let contentRagRetrievalService: {
-            retrieveContentExcerpt: jest.Mock
-            retrieveCourseExcerpt: jest.Mock
-        }
+    retrieveContentExcerpt: jest.Mock;
+    retrieveCourseExcerpt: jest.Mock;
+  }
 
         const userId = "user-1"
         const contentId = "content-1"
@@ -115,10 +114,7 @@ describe("ContentAiService",
         }
 
         /** Build a MinIO content snapshot with the given scalar body. */
-        const makeContent = (
-            body: string,
-            isPremium = false,
-        ) => ({
+        const makeContent = (body: string, isPremium = false) => ({
             id: contentId,
             isPremium,
             body,
@@ -131,10 +127,12 @@ describe("ContentAiService",
                 json: jest.fn().mockResolvedValue(makeContent(smallBody)),
             }
             s3NameResolverService = {
-                content: jest.fn((id: string,
-                    locale: string) => `contents/${id}/${locale}.json`),
-                repo: jest.fn((repoName: string,
-                    dir: string) => `repo/${repoName}/${dir}.json`),
+                content: jest.fn(
+                    (id: string, locale: string) => `contents/${id}/${locale}.json`,
+                ),
+                repo: jest.fn(
+                    (repoName: string, dir: string) => `repo/${repoName}/${dir}.json`,
+                ),
             }
             // default: not premium -> entitlement never consulted; program per-test
             userService = {
@@ -201,8 +199,9 @@ describe("ContentAiService",
                 const { messages } = await service.prepareMessages(baseParams)
 
                 // small lesson -> no retrieval round-trip
-                expect(contentRagRetrievalService.retrieveContentExcerpt)
-                    .not.toHaveBeenCalled()
+                expect(
+                    contentRagRetrievalService.retrieveContentExcerpt,
+                ).not.toHaveBeenCalled()
                 const system = messages[0] as SystemMessage
                 expect(system).toBeInstanceOf(SystemMessage)
                 expect(system.content).toContain(smallBody)
@@ -215,18 +214,18 @@ describe("ContentAiService",
         it("calls retrieveContentExcerpt(contentId) and grounds on its excerpt when body > threshold",
             async () => {
                 s3ReadService.json.mockResolvedValueOnce(makeContent(largeBody))
-                contentRagRetrievalService.retrieveContentExcerpt
-                    .mockResolvedValueOnce({
-                        excerpt: "RELEVANT-CHUNK-ABOUT-INDEXES",
-                    })
+                contentRagRetrievalService.retrieveContentExcerpt.mockResolvedValueOnce({
+                    excerpt: "RELEVANT-CHUNK-ABOUT-INDEXES",
+                })
 
                 const { messages } = await service.prepareMessages(baseParams)
 
-                expect(contentRagRetrievalService.retrieveContentExcerpt)
-                    .toHaveBeenCalledWith({
-                        contentId,
-                        query: baseParams.question,
-                    })
+                expect(
+                    contentRagRetrievalService.retrieveContentExcerpt,
+                ).toHaveBeenCalledWith({
+                    contentId,
+                    query: baseParams.question,
+                })
                 const system = messages[0] as SystemMessage
                 // the retrieved excerpt is the grounding, not the whole large body
                 expect(system.content).toContain("RELEVANT-CHUNK-ABOUT-INDEXES")
@@ -236,15 +235,15 @@ describe("ContentAiService",
         it("falls back to the WHOLE body when retrieval returns an empty excerpt",
             async () => {
                 s3ReadService.json.mockResolvedValueOnce(makeContent(largeBody))
-                contentRagRetrievalService.retrieveContentExcerpt
-                    .mockResolvedValueOnce({
-                        excerpt: "   ",
-                    })
+                contentRagRetrievalService.retrieveContentExcerpt.mockResolvedValueOnce({
+                    excerpt: "   ",
+                })
 
                 const { messages } = await service.prepareMessages(baseParams)
 
-                expect(contentRagRetrievalService.retrieveContentExcerpt)
-                    .toHaveBeenCalled()
+                expect(
+                    contentRagRetrievalService.retrieveContentExcerpt,
+                ).toHaveBeenCalled()
                 const system = messages[0] as SystemMessage
                 // empty retrieval -> never degrade below stuffing the whole body
                 expect(system.content).toContain(largeBody)
@@ -254,15 +253,15 @@ describe("ContentAiService",
             async () => {
                 // 105 short prior turns; the window caps at MAX_HISTORY_MESSAGES
                 // (100) -- the turns are tiny so all 100 also fit the char budget.
-                const history = Array.from({
-                    length: 105,
-                },
-                (_unused, index) => ({
-                    role: index % 2 === 0
-                        ? "user"
-                        : "assistant",
-                    content: `turn-${index}`,
-                }))
+                const history = Array.from(
+                    {
+                        length: 105,
+                    },
+                    (_unused, index) => ({
+                        role: index % 2 === 0 ? "user" : "assistant",
+                        content: `turn-${index}`,
+                    }),
+                )
 
                 const { messages } = await service.prepareMessages({
                     ...baseParams,
@@ -275,10 +274,8 @@ describe("ContentAiService",
                     -1)
                 expect(replayed).toHaveLength(100)
                 // oldest replayed is turn-5 (105 - 100), newest is turn-104
-                expect((replayed[0] as HumanMessage | AIMessage).content)
-                    .toBe("turn-5")
-                expect((replayed[99] as HumanMessage | AIMessage).content)
-                    .toBe("turn-104")
+                expect((replayed[0] as HumanMessage | AIMessage).content).toBe("turn-5")
+                expect((replayed[99] as HumanMessage | AIMessage).content).toBe("turn-104")
                 // assistant turns map to AIMessage, user turns to HumanMessage
                 // (turn-5 = odd index = assistant, turn-104 = even = user)
                 expect(replayed[0]).toBeInstanceOf(AIMessage)
@@ -301,12 +298,13 @@ describe("ContentAiService",
                 })
                 userService.checkEnrollment.mockResolvedValueOnce(false)
 
-                await expect(
-                    service.prepareMessages(baseParams),
-                ).rejects.toBeInstanceOf(PremiumContentAiAccessDeniedException)
+                await expect(service.prepareMessages(baseParams)).rejects.toBeInstanceOf(
+                    PremiumContentAiAccessDeniedException,
+                )
                 // never reach grounding when the gate trips
-                expect(contentRagRetrievalService.retrieveContentExcerpt)
-                    .not.toHaveBeenCalled()
+                expect(
+                    contentRagRetrievalService.retrieveContentExcerpt,
+                ).not.toHaveBeenCalled()
             })
 
         it("allows premium content when the learner is entitled",
@@ -327,9 +325,10 @@ describe("ContentAiService",
 
                 const { messages } = await service.prepareMessages(baseParams)
 
-                expect(userService.checkEnrollment)
-                    .toHaveBeenCalledWith(userId,
-                        "course-1")
+                expect(userService.checkEnrollment).toHaveBeenCalledWith(
+                    userId,
+                    "course-1",
+                )
                 expect(messages[0]).toBeInstanceOf(SystemMessage)
             })
 
@@ -337,9 +336,9 @@ describe("ContentAiService",
             async () => {
                 s3ReadService.json.mockResolvedValueOnce(null)
 
-                await expect(
-                    service.prepareMessages(baseParams),
-                ).rejects.toBeInstanceOf(ContentNotFoundException)
+                await expect(service.prepareMessages(baseParams)).rejects.toBeInstanceOf(
+                    ContentNotFoundException,
+                )
             })
 
         // ── ENTITLEMENT PER SCOPE -- the security surface ────────────────────────
@@ -377,12 +376,14 @@ describe("ContentAiService",
                         })
 
                         // gate resolved the owning course...
-                        expect(userService.checkEnrollment)
-                            .toHaveBeenCalledWith(userId,
-                                courseId)
+                        expect(userService.checkEnrollment).toHaveBeenCalledWith(
+                            userId,
+                            courseId,
+                        )
                         // ...and refused BEFORE retrieval -> no capstone brief pulled
-                        expect(contentRagRetrievalService.retrieveContentExcerpt)
-                            .not.toHaveBeenCalled()
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).not.toHaveBeenCalled()
                         const system = messages[0] as SystemMessage
                         expect(system.content).toContain("TASK MATERIAL")
                     })
@@ -391,10 +392,9 @@ describe("ContentAiService",
                     async () => {
                         entityManager.findOne.mockResolvedValueOnce(taskRow)
                         userService.checkEnrollment.mockResolvedValueOnce(true)
-                        contentRagRetrievalService.retrieveContentExcerpt
-                            .mockResolvedValueOnce({
-                                excerpt: "TASK-BRIEF-CHUNK",
-                            })
+                        contentRagRetrievalService.retrieveContentExcerpt.mockResolvedValueOnce({
+                            excerpt: "TASK-BRIEF-CHUNK",
+                        })
 
                         const { messages } = await service.prepareMessages({
                             userId,
@@ -403,13 +403,15 @@ describe("ContentAiService",
                             locale: Locale.En,
                         })
 
-                        expect(contentRagRetrievalService.retrieveContentExcerpt)
-                            .toHaveBeenCalledWith({
-                                contentId: taskId,
-                                query: "What does this task need?",
-                            })
-                        expect((messages[0] as SystemMessage).content)
-                            .toContain("TASK-BRIEF-CHUNK")
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).toHaveBeenCalledWith({
+                            contentId: taskId,
+                            query: "What does this task need?",
+                        })
+                        expect((messages[0] as SystemMessage).content).toContain(
+                            "TASK-BRIEF-CHUNK",
+                        )
                     })
 
                 it("CHALLENGE · not enrolled → NO brief/test-cases fetched (no leak)",
@@ -436,13 +438,16 @@ describe("ContentAiService",
                             locale: Locale.En,
                         })
 
-                        expect(userService.checkEnrollment)
-                            .toHaveBeenCalledWith(userId,
-                                courseId)
-                        expect(contentRagRetrievalService.retrieveContentExcerpt)
-                            .not.toHaveBeenCalled()
-                        expect((messages[0] as SystemMessage).content)
-                            .toContain("CHALLENGE MATERIAL")
+                        expect(userService.checkEnrollment).toHaveBeenCalledWith(
+                            userId,
+                            courseId,
+                        )
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).not.toHaveBeenCalled()
+                        expect((messages[0] as SystemMessage).content).toContain(
+                            "CHALLENGE MATERIAL",
+                        )
                     })
 
                 it("QUIZ · not enrolled → NO answers fetched (no leak)",
@@ -463,13 +468,14 @@ describe("ContentAiService",
                             locale: Locale.En,
                         })
 
-                        expect(userService.checkEnrollment)
-                            .toHaveBeenCalledWith(userId,
-                                courseId)
-                        expect(contentRagRetrievalService.retrieveContentExcerpt)
-                            .not.toHaveBeenCalled()
-                        expect((messages[0] as SystemMessage).content)
-                            .toContain("QUIZ MATERIAL")
+                        expect(userService.checkEnrollment).toHaveBeenCalledWith(
+                            userId,
+                            courseId,
+                        )
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).not.toHaveBeenCalled()
+                        expect((messages[0] as SystemMessage).content).toContain("QUIZ MATERIAL")
                     })
 
                 it("COURSE · not enrolled → grounds on course RAG with PREMIUM content EXCLUDED (no leak)",
@@ -483,10 +489,9 @@ describe("ContentAiService",
                                 id: "premium-2",
                             },
                         ])
-                        contentRagRetrievalService.retrieveCourseExcerpt
-                            .mockResolvedValueOnce({
-                                excerpt: "FREE-COURSE-CHUNK",
-                            })
+                        contentRagRetrievalService.retrieveCourseExcerpt.mockResolvedValueOnce({
+                            excerpt: "FREE-COURSE-CHUNK",
+                        })
 
                         const { messages } = await service.prepareMessages({
                             userId,
@@ -495,31 +500,31 @@ describe("ContentAiService",
                             locale: Locale.En,
                         })
 
-                        expect(userService.checkEnrollment)
-                            .toHaveBeenCalledWith(userId,
-                                courseId)
+                        expect(userService.checkEnrollment).toHaveBeenCalledWith(
+                            userId,
+                            courseId,
+                        )
                         // never the binary block anymore -- the RAG call itself
                         // excludes every premium lesson id of the course
-                        expect(contentRagRetrievalService.retrieveCourseExcerpt)
-                            .toHaveBeenCalledWith({
-                                courseId,
-                                query: "What does this course cover?",
-                                excludeContentIds: [
-                                    "premium-1",
-                                    "premium-2",
-                                ],
-                            })
-                        expect((messages[0] as SystemMessage).content)
-                            .toContain("FREE-COURSE-CHUNK")
+                        expect(
+                            contentRagRetrievalService.retrieveCourseExcerpt,
+                        ).toHaveBeenCalledWith({
+                            courseId,
+                            query: "What does this course cover?",
+                            excludeContentIds: ["premium-1",
+                                "premium-2"],
+                        })
+                        expect((messages[0] as SystemMessage).content).toContain(
+                            "FREE-COURSE-CHUNK",
+                        )
                     })
 
                 it("COURSE · enrolled → grounds on course-wide RAG",
                     async () => {
                         userService.checkEnrollment.mockResolvedValueOnce(true)
-                        contentRagRetrievalService.retrieveCourseExcerpt
-                            .mockResolvedValueOnce({
-                                excerpt: "COURSE-WIDE-CHUNK",
-                            })
+                        contentRagRetrievalService.retrieveCourseExcerpt.mockResolvedValueOnce({
+                            excerpt: "COURSE-WIDE-CHUNK",
+                        })
 
                         const { messages } = await service.prepareMessages({
                             userId,
@@ -528,21 +533,22 @@ describe("ContentAiService",
                             locale: Locale.En,
                         })
 
-                        expect(contentRagRetrievalService.retrieveCourseExcerpt)
-                            .toHaveBeenCalledWith({
-                                courseId,
-                                query: "What does this course cover?",
-                            })
-                        expect((messages[0] as SystemMessage).content)
-                            .toContain("COURSE-WIDE-CHUNK")
+                        expect(
+                            contentRagRetrievalService.retrieveCourseExcerpt,
+                        ).toHaveBeenCalledWith({
+                            courseId,
+                            query: "What does this course cover?",
+                        })
+                        expect((messages[0] as SystemMessage).content).toContain(
+                            "COURSE-WIDE-CHUNK",
+                        )
                     })
 
                 it("FOUNDATION · global library → grounds WITHOUT an enrollment gate",
                     async () => {
-                        contentRagRetrievalService.retrieveContentExcerpt
-                            .mockResolvedValueOnce({
-                                excerpt: "FOUNDATION-DOC-CHUNK",
-                            })
+                        contentRagRetrievalService.retrieveContentExcerpt.mockResolvedValueOnce({
+                            excerpt: "FOUNDATION-DOC-CHUNK",
+                        })
 
                         const { messages } = await service.prepareMessages({
                             userId,
@@ -552,15 +558,16 @@ describe("ContentAiService",
                         })
 
                         // foundation is a global library -> NO enrollment check at all
-                        expect(userService.checkEnrollment)
-                            .not.toHaveBeenCalled()
-                        expect(contentRagRetrievalService.retrieveContentExcerpt)
-                            .toHaveBeenCalledWith({
-                                contentId: foundationId,
-                                query: "Explain this concept",
-                            })
-                        expect((messages[0] as SystemMessage).content)
-                            .toContain("FOUNDATION-DOC-CHUNK")
+                        expect(userService.checkEnrollment).not.toHaveBeenCalled()
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).toHaveBeenCalledWith({
+                            contentId: foundationId,
+                            query: "Explain this concept",
+                        })
+                        expect((messages[0] as SystemMessage).content).toContain(
+                            "FOUNDATION-DOC-CHUNK",
+                        )
                     })
             })
 
@@ -593,8 +600,8 @@ describe("ContentAiService",
                 let insert: jest.Mock
                 beforeEach(() => {
                     insert = jest.fn().mockResolvedValue({
-                    })
-                    ;(entityManager as unknown as { insert: jest.Mock }).insert = insert
+                    });
+                    (entityManager as unknown as { insert: jest.Mock }).insert = insert
                 })
 
                 it("createSession CONTENT → anchors on origin_content_id + enrollment",
@@ -722,14 +729,14 @@ describe("ContentAiService",
                 it("saveTurn FOUNDATION → owned via USER: writes user_id, null enrollment + content",
                     async () => {
                         entityManager.query
-                            // resolveOwnedSession -> owned via user (no enrollment)
+                        // resolveOwnedSession -> owned via user (no enrollment)
                             .mockResolvedValueOnce([
                                 {
                                     enrollmentId: null,
                                     userId,
                                 },
                             ])
-                            // auto-title UPDATE
+                        // auto-title UPDATE
                             .mockResolvedValueOnce([])
 
                         await service.saveTurn({
@@ -795,13 +802,13 @@ describe("ContentAiService",
                     async () => {
                         entityManager.findOne.mockResolvedValueOnce(taskRow)
                         entityManager.query
-                            // resolveEnrollmentByCourse
+                        // resolveEnrollmentByCourse
                             .mockResolvedValueOnce([
                                 {
                                     id: enrollmentId,
                                 },
                             ])
-                            // the list query
+                        // the list query
                             .mockResolvedValueOnce([])
 
                         await service.sessions({
@@ -813,19 +820,15 @@ describe("ContentAiService",
                         // the SECOND query is the list; its params carry the owner +
                         // scope + task anchor
                         const listCall = entityManager.query.mock.calls[1]
-                        const [
-                            sql,
-                            params,
-                        ] = listCall
+                        const [sql,
+                            params] = listCall
                         expect(sql).toContain("s.enrollment_id = $1")
                         expect(sql).toContain("s.scope = $2")
                         expect(sql).toContain("s.origin_task_id = $3")
                         expect(params.slice(0,
-                            3)).toEqual([
-                            enrollmentId,
+                            3)).toEqual([enrollmentId,
                             "task",
-                            taskId,
-                        ])
+                            taskId])
                     })
 
                 it("FOUNDATION → lists keyed on the USER (no enrollment), scope='foundation'",
@@ -841,18 +844,14 @@ describe("ContentAiService",
                         // global doc -> NO enrollment lookup, single (list) query
                         expect(entityManager.findOne).not.toHaveBeenCalled()
                         expect(entityManager.query).toHaveBeenCalledTimes(1)
-                        const [
-                            sql,
-                            params,
-                        ] = entityManager.query.mock.calls[0]
+                        const [sql,
+                            params] = entityManager.query.mock.calls[0]
                         expect(sql).toContain("s.user_id = $1")
                         expect(sql).toContain("s.origin_foundation_id = $3")
                         expect(params.slice(0,
-                            3)).toEqual([
-                            userId,
+                            3)).toEqual([userId,
                             "foundation",
-                            foundationId,
-                        ])
+                            foundationId])
                     })
 
                 it("COURSE · not enrolled → empty list, no leak",
@@ -881,10 +880,9 @@ describe("ContentAiService",
                 it("CONTENT · additive BASE layers course-wide RAG UNDER the lesson's own material",
                     async () => {
                         userService.checkEnrollment.mockResolvedValueOnce(true)
-                        contentRagRetrievalService.retrieveCourseExcerpt
-                            .mockResolvedValueOnce({
-                                excerpt: "COURSE-WIDE-BASE-CHUNK",
-                            })
+                        contentRagRetrievalService.retrieveCourseExcerpt.mockResolvedValueOnce({
+                            excerpt: "COURSE-WIDE-BASE-CHUNK",
+                        })
 
                         const { messages } = await service.prepareMessages(baseParams)
 
@@ -895,11 +893,12 @@ describe("ContentAiService",
                         // ...AND the lesson's own page grounding, unchanged
                         expect(system.content).toContain("=== LESSON CONTENT ===")
                         expect(system.content).toContain(smallBody)
-                        expect(contentRagRetrievalService.retrieveCourseExcerpt)
-                            .toHaveBeenCalledWith({
-                                courseId: "course-1",
-                                query: baseParams.question,
-                            })
+                        expect(
+                            contentRagRetrievalService.retrieveCourseExcerpt,
+                        ).toHaveBeenCalledWith({
+                            courseId: "course-1",
+                            query: baseParams.question,
+                        })
                     })
 
                 it("GLOBAL · fully anchorless (no anchor, no course) → general tutor, no base section, never throws",
@@ -912,11 +911,17 @@ describe("ContentAiService",
 
                         // no course to resolve -> no entitlement / RAG machinery touched at all
                         expect(userService.checkEnrollment).not.toHaveBeenCalled()
-                        expect(contentRagRetrievalService.retrieveCourseExcerpt).not.toHaveBeenCalled()
-                        expect(contentRagRetrievalService.retrieveContentExcerpt).not.toHaveBeenCalled()
+                        expect(
+                            contentRagRetrievalService.retrieveCourseExcerpt,
+                        ).not.toHaveBeenCalled()
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).not.toHaveBeenCalled()
 
                         const system = messages[0] as SystemMessage
-                        expect(system.content).not.toContain("=== COURSE KNOWLEDGE (retrieved) ===")
+                        expect(system.content).not.toContain(
+                            "=== COURSE KNOWLEDGE (retrieved) ===",
+                        )
                         expect(system.content).toContain("general, sharp programming tutor")
                         const last = messages[messages.length - 1] as HumanMessage
                         expect(last.content).toBe("How do I reverse a linked list?")
@@ -937,14 +942,12 @@ describe("ContentAiService",
                             },
                         })
                         userService.checkEnrollment.mockResolvedValue(true)
-                        contentRagRetrievalService.retrieveContentExcerpt
-                            .mockResolvedValueOnce({
-                                excerpt: "CHALLENGE-BRIEF-CHUNK",
-                            })
-                        contentRagRetrievalService.retrieveCourseExcerpt
-                            .mockResolvedValueOnce({
-                                excerpt: "COURSE-BASE-CHUNK",
-                            })
+                        contentRagRetrievalService.retrieveContentExcerpt.mockResolvedValueOnce({
+                            excerpt: "CHALLENGE-BRIEF-CHUNK",
+                        })
+                        contentRagRetrievalService.retrieveCourseExcerpt.mockResolvedValueOnce({
+                            excerpt: "COURSE-BASE-CHUNK",
+                        })
 
                         const { messages } = await service.prepareMessages({
                             userId,
@@ -953,17 +956,19 @@ describe("ContentAiService",
                             locale: Locale.En,
                         })
 
-                        expect(contentRagRetrievalService.retrieveContentExcerpt)
-                            .toHaveBeenCalledWith({
-                                contentId: "challenge-1",
-                                query: "What does this challenge want?",
-                            })
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).toHaveBeenCalledWith({
+                            contentId: "challenge-1",
+                            query: "What does this challenge want?",
+                        })
                         const system = (messages[0] as SystemMessage).content as string
                         expect(system).toContain("CHALLENGE-BRIEF-CHUNK")
                         // the course-wide BASE layers UNDER the challenge's own material
                         expect(system).toContain("COURSE-BASE-CHUNK")
-                        expect(system.indexOf("COURSE-BASE-CHUNK"))
-                            .toBeLessThan(system.indexOf("CHALLENGE-BRIEF-CHUNK"))
+                        expect(system.indexOf("COURSE-BASE-CHUNK")).toBeLessThan(
+                            system.indexOf("CHALLENGE-BRIEF-CHUNK"),
+                        )
                     })
 
                 it("QUIZ · enrolled → grounds on the deck's own question/answer material",
@@ -975,10 +980,9 @@ describe("ContentAiService",
                             },
                         })
                         userService.checkEnrollment.mockResolvedValue(true)
-                        contentRagRetrievalService.retrieveContentExcerpt
-                            .mockResolvedValueOnce({
-                                excerpt: "QUIZ-QA-CHUNK",
-                            })
+                        contentRagRetrievalService.retrieveContentExcerpt.mockResolvedValueOnce({
+                            excerpt: "QUIZ-QA-CHUNK",
+                        })
 
                         const { messages } = await service.prepareMessages({
                             userId,
@@ -987,13 +991,13 @@ describe("ContentAiService",
                             locale: Locale.En,
                         })
 
-                        expect(contentRagRetrievalService.retrieveContentExcerpt)
-                            .toHaveBeenCalledWith({
-                                contentId: "deck-1",
-                                query: "Why is A correct?",
-                            })
-                        expect((messages[0] as SystemMessage).content)
-                            .toContain("QUIZ-QA-CHUNK")
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).toHaveBeenCalledWith({
+                            contentId: "deck-1",
+                            query: "Why is A correct?",
+                        })
+                        expect((messages[0] as SystemMessage).content).toContain("QUIZ-QA-CHUNK")
                     })
 
                 it("TASK · unknown owning course → refuses without ever asking about enrollment",
@@ -1009,11 +1013,13 @@ describe("ContentAiService",
                         })
 
                         expect(userService.checkEnrollment).not.toHaveBeenCalled()
-                        expect(contentRagRetrievalService.retrieveContentExcerpt)
-                            .not.toHaveBeenCalled()
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).not.toHaveBeenCalled()
                         // ...and with no course there is no BASE layer either
-                        expect((messages[0] as SystemMessage).content)
-                            .not.toContain("=== COURSE KNOWLEDGE (retrieved) ===")
+                        expect((messages[0] as SystemMessage).content).not.toContain(
+                            "=== COURSE KNOWLEDGE (retrieved) ===",
+                        )
                     })
 
                 it("CHALLENGE · unknown owning course → refuses without an enrollment check",
@@ -1028,8 +1034,9 @@ describe("ContentAiService",
                         })
 
                         expect(userService.checkEnrollment).not.toHaveBeenCalled()
-                        expect(contentRagRetrievalService.retrieveContentExcerpt)
-                            .not.toHaveBeenCalled()
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).not.toHaveBeenCalled()
                     })
 
                 it("QUIZ · unknown owning course → refuses without an enrollment check",
@@ -1044,8 +1051,9 @@ describe("ContentAiService",
                         })
 
                         expect(userService.checkEnrollment).not.toHaveBeenCalled()
-                        expect(contentRagRetrievalService.retrieveContentExcerpt)
-                            .not.toHaveBeenCalled()
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).not.toHaveBeenCalled()
                     })
 
                 it("CONTENT · premium flag falls back to the MinIO snapshot when the DB row is gone",
@@ -1056,9 +1064,9 @@ describe("ContentAiService",
                         // no owning course the viewer can never be entitled
                         entityManager.findOne.mockResolvedValueOnce(null)
 
-                        await expect(
-                            service.prepareMessages(baseParams),
-                        ).rejects.toBeInstanceOf(PremiumContentAiAccessDeniedException)
+                        await expect(service.prepareMessages(baseParams)).rejects.toBeInstanceOf(
+                            PremiumContentAiAccessDeniedException,
+                        )
                         expect(userService.checkEnrollment).not.toHaveBeenCalled()
                     })
 
@@ -1074,8 +1082,9 @@ describe("ContentAiService",
                         const { messages } = await service.prepareMessages(baseParams)
 
                         expect(userService.checkEnrollment).not.toHaveBeenCalled()
-                        expect(contentRagRetrievalService.retrieveCourseExcerpt)
-                            .not.toHaveBeenCalled()
+                        expect(
+                            contentRagRetrievalService.retrieveCourseExcerpt,
+                        ).not.toHaveBeenCalled()
                         const system = (messages[0] as SystemMessage).content as string
                         expect(system).not.toContain("=== COURSE KNOWLEDGE (retrieved) ===")
                         expect(system).toContain(smallBody)
@@ -1088,11 +1097,13 @@ describe("ContentAiService",
                             locale: Locale.Vi,
                         })
 
-                        expect((messages[0] as SystemMessage).content)
-                            .toContain("Reply in Vietnamese")
-                        expect(s3NameResolverService.content)
-                            .toHaveBeenCalledWith(contentId,
-                                Locale.Vi)
+                        expect((messages[0] as SystemMessage).content).toContain(
+                            "Reply in Vietnamese",
+                        )
+                        expect(s3NameResolverService.content).toHaveBeenCalledWith(
+                            contentId,
+                            Locale.Vi,
+                        )
                     })
             })
 
@@ -1131,13 +1142,10 @@ describe("ContentAiService",
                 it("replays nothing when the grounding alone consumes the whole input budget",
                     async () => {
                         // a lesson body far past the 24k input budget leaves zero room
-                        s3ReadService.json.mockResolvedValueOnce(
-                            makeContent("z".repeat(30_000)),
-                        )
-                        contentRagRetrievalService.retrieveContentExcerpt
-                            .mockResolvedValueOnce({
-                                excerpt: "y".repeat(30_000),
-                            })
+                        s3ReadService.json.mockResolvedValueOnce(makeContent("z".repeat(30_000)))
+                        contentRagRetrievalService.retrieveContentExcerpt.mockResolvedValueOnce({
+                            excerpt: "y".repeat(30_000),
+                        })
 
                         const { messages } = await service.prepareMessages({
                             ...baseParams,
@@ -1174,17 +1182,10 @@ describe("ContentAiService",
                 })
 
                 /** Route the single S3 mock by key: lesson snapshot vs repo file map. */
-                const s3Returns = (
-                    content: unknown,
-                    files: unknown,
-                ) => {
-                    s3ReadService.json.mockImplementation(async (
-                        args: {
-                            key: string
-                        },
-                    ) => args.key.startsWith("repo/")
-                        ? files
-                        : content)
+                const s3Returns = (content: unknown, files: unknown) => {
+                    s3ReadService.json.mockImplementation(async (args: { key: string }) =>
+                        args.key.startsWith("repo/") ? files : content,
+                    )
                 }
 
                 it("stuffs the whole body AND every repo file when the lesson fits",
@@ -1201,17 +1202,19 @@ describe("ContentAiService",
 
                         const { messages } = await service.prepareMessages(baseParams)
 
-                        expect(s3NameResolverService.repo)
-                            .toHaveBeenCalledWith("demo-repo",
-                                "frontend")
+                        expect(s3NameResolverService.repo).toHaveBeenCalledWith(
+                            "demo-repo",
+                            "frontend",
+                        )
                         const system = (messages[0] as SystemMessage).content as string
                         expect(system).toContain("=== LESSON CODE (full source) ===")
                         expect(system).toContain("// /src/App.tsx")
                         expect(system).toContain("export const sum = (a, b) => a + b")
                         expect(system).toContain(smallBody)
                         // the whole lesson fit -> no retrieval round-trip
-                        expect(contentRagRetrievalService.retrieveContentExcerpt)
-                            .not.toHaveBeenCalled()
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).not.toHaveBeenCalled()
                     })
 
                 it("skips lockfiles, minified artifacts, sourcemaps, vendored and empty files",
@@ -1268,18 +1271,18 @@ describe("ContentAiService",
                                     code: "q".repeat(30_000),
                                 },
                             })
-                        contentRagRetrievalService.retrieveContentExcerpt
-                            .mockResolvedValueOnce({
-                                excerpt: "RELEVANT-CODE-CHUNK",
-                            })
+                        contentRagRetrievalService.retrieveContentExcerpt.mockResolvedValueOnce({
+                            excerpt: "RELEVANT-CODE-CHUNK",
+                        })
 
                         const { messages } = await service.prepareMessages(baseParams)
 
-                        expect(contentRagRetrievalService.retrieveContentExcerpt)
-                            .toHaveBeenCalledWith({
-                                contentId,
-                                query: baseParams.question,
-                            })
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).toHaveBeenCalledWith({
+                            contentId,
+                            query: baseParams.question,
+                        })
                         const system = (messages[0] as SystemMessage).content as string
                         expect(system).toContain("RELEVANT-CODE-CHUNK")
                         expect(system).not.toContain("q".repeat(30_000))
@@ -1293,10 +1296,9 @@ describe("ContentAiService",
                                     code: "q".repeat(30_000),
                                 },
                             })
-                        contentRagRetrievalService.retrieveContentExcerpt
-                            .mockResolvedValueOnce({
-                                excerpt: "   ",
-                            })
+                        contentRagRetrievalService.retrieveContentExcerpt.mockResolvedValueOnce({
+                            excerpt: "   ",
+                        })
 
                         const { messages } = await service.prepareMessages(baseParams)
 
@@ -1322,11 +1324,7 @@ describe("ContentAiService",
 
                 it("degrades to body-only when the repo read throws",
                     async () => {
-                        s3ReadService.json.mockImplementation(async (
-                            args: {
-                                key: string
-                            },
-                        ) => {
+                        s3ReadService.json.mockImplementation(async (args: { key: string }) => {
                             if (args.key.startsWith("repo/")) {
                                 throw new Error("MinIO unavailable")
                             }
@@ -1340,22 +1338,26 @@ describe("ContentAiService",
 
                 it("never reads a repo for a lesson missing its base URL or directory",
                     async () => {
-                        s3Returns(sandboxContent(smallBody,
+                        s3Returns(
+                            sandboxContent(smallBody,
+                                {
+                                    githubBaseUrl: null,
+                                }),
                             {
-                                githubBaseUrl: null,
-                            }),
-                        {
-                        })
+                            },
+                        )
 
                         await service.prepareMessages(baseParams)
                         expect(s3NameResolverService.repo).not.toHaveBeenCalled()
 
-                        s3Returns(sandboxContent(smallBody,
+                        s3Returns(
+                            sandboxContent(smallBody,
+                                {
+                                    githubDir: null,
+                                }),
                             {
-                                githubDir: null,
-                            }),
-                        {
-                        })
+                            },
+                        )
 
                         await service.prepareMessages(baseParams)
                         expect(s3NameResolverService.repo).not.toHaveBeenCalled()
@@ -1363,12 +1365,14 @@ describe("ContentAiService",
 
                 it("never reads a repo when the base URL has no trailing repo segment",
                     async () => {
-                        s3Returns(sandboxContent(smallBody,
+                        s3Returns(
+                            sandboxContent(smallBody,
+                                {
+                                    githubBaseUrl: "https://github.com/org/",
+                                }),
                             {
-                                githubBaseUrl: "https://github.com/org/",
-                            }),
-                        {
-                        })
+                            },
+                        )
 
                         const { messages } = await service.prepareMessages(baseParams)
 
@@ -1404,8 +1408,9 @@ describe("ContentAiService",
                             locale: Locale.Vi,
                         })
 
-                        expect((messages[0] as SystemMessage).content)
-                            .toContain("ban dich tieng viet")
+                        expect((messages[0] as SystemMessage).content).toContain(
+                            "ban dich tieng viet",
+                        )
                     })
 
                 it("falls back to the bucket's own markdown when the locale has no translation",
@@ -1423,8 +1428,9 @@ describe("ContentAiService",
 
                         const { messages } = await service.prepareMessages(baseParams)
 
-                        expect((messages[0] as SystemMessage).content)
-                            .toContain("bucket default markdown")
+                        expect((messages[0] as SystemMessage).content).toContain(
+                            "bucket default markdown",
+                        )
                     })
 
                 it("walks past an empty bucket to the first one carrying markdown",
@@ -1446,8 +1452,9 @@ describe("ContentAiService",
 
                         const { messages } = await service.prepareMessages(baseParams)
 
-                        expect((messages[0] as SystemMessage).content)
-                            .toContain("second bucket markdown")
+                        expect((messages[0] as SystemMessage).content).toContain(
+                            "second bucket markdown",
+                        )
                     })
 
                 it("grounds on nothing (rather than throwing) when the snapshot has no body at all",
@@ -1461,10 +1468,12 @@ describe("ContentAiService",
                         const { messages } = await service.prepareMessages(baseParams)
 
                         // the lesson section is still rendered, just empty
-                        expect((messages[0] as SystemMessage).content)
-                            .toContain("=== LESSON CONTENT ===")
-                        expect(contentRagRetrievalService.retrieveContentExcerpt)
-                            .not.toHaveBeenCalled()
+                        expect((messages[0] as SystemMessage).content).toContain(
+                            "=== LESSON CONTENT ===",
+                        )
+                        expect(
+                            contentRagRetrievalService.retrieveContentExcerpt,
+                        ).not.toHaveBeenCalled()
                     })
             })
 
@@ -1476,18 +1485,19 @@ describe("ContentAiService",
                             id: "user-uuid",
                         })
 
-                        await expect(service.resolveUserIdByKeycloakId("kc-sub"))
-                            .resolves.toBe("user-uuid")
-                        expect(userService.getUserByKeycloakId)
-                            .toHaveBeenCalledWith("kc-sub")
+                        await expect(service.resolveUserIdByKeycloakId("kc-sub")).resolves.toBe(
+                            "user-uuid",
+                        )
+                        expect(userService.getUserByKeycloakId).toHaveBeenCalledWith("kc-sub")
                     })
 
                 it("returns null when no user matches the subject",
                     async () => {
                         userService.getUserByKeycloakId.mockResolvedValueOnce(null)
 
-                        await expect(service.resolveUserIdByKeycloakId("kc-ghost"))
-                            .resolves.toBeNull()
+                        await expect(
+                            service.resolveUserIdByKeycloakId("kc-ghost"),
+                        ).resolves.toBeNull()
                     })
             })
 
@@ -1625,25 +1635,14 @@ describe("ContentAiService",
                 // single-element tuple -- a second element would be an argument the case
                 // never receives.
                 it.each([
-                    [
-                        "content",
-                    ],
-                    [
-                        "challenge",
-                    ],
-                    [
-                        "quiz",
-                    ],
-                    [
-                        "task",
-                    ],
-                    [
-                        "course",
-                    ],
-                    [
-                        "foundation",
-                    ],
-                ] as const)("refuses to create a %s session with no anchor id",
+                    ["content"],
+                    ["challenge"],
+                    ["quiz"],
+                    ["task"],
+                    ["course"],
+                    ["foundation"],
+                ] as const)(
+                    "refuses to create a %s session with no anchor id",
                     async (scope) => {
                         const id = await service.createSession({
                             userId,
@@ -1652,7 +1651,8 @@ describe("ContentAiService",
 
                         expect(id).toBeNull()
                         expect(entityManager.save).not.toHaveBeenCalled()
-                    })
+                    },
+                )
 
                 it("derives the TASK scope and anchors on origin_task_id",
                     async () => {
@@ -1686,10 +1686,12 @@ describe("ContentAiService",
                     async () => {
                         entityManager.findOne.mockResolvedValueOnce(null)
 
-                        await expect(service.createSession({
-                            userId,
-                            taskId: "ghost",
-                        })).resolves.toBeNull()
+                        await expect(
+                            service.createSession({
+                                userId,
+                                taskId: "ghost",
+                            }),
+                        ).resolves.toBeNull()
                         expect(entityManager.query).not.toHaveBeenCalled()
                     })
 
@@ -1728,10 +1730,12 @@ describe("ContentAiService",
                     async () => {
                         entityManager.findOne.mockResolvedValueOnce(null)
 
-                        await expect(service.createSession({
-                            userId,
-                            challengeId: "ghost",
-                        })).resolves.toBeNull()
+                        await expect(
+                            service.createSession({
+                                userId,
+                                challengeId: "ghost",
+                            }),
+                        ).resolves.toBeNull()
                         expect(entityManager.query).not.toHaveBeenCalled()
                     })
 
@@ -1739,10 +1743,12 @@ describe("ContentAiService",
                     async () => {
                         entityManager.findOne.mockResolvedValueOnce(null)
 
-                        await expect(service.createSession({
-                            userId,
-                            quizId: "ghost",
-                        })).resolves.toBeNull()
+                        await expect(
+                            service.createSession({
+                                userId,
+                                quizId: "ghost",
+                            }),
+                        ).resolves.toBeNull()
                         expect(entityManager.query).not.toHaveBeenCalled()
                     })
             })
@@ -1804,17 +1810,13 @@ describe("ContentAiService",
                             scope: "global",
                         })
 
-                        const [
-                            sql,
-                            params,
-                        ] = entityManager.query.mock.calls[0]
+                        const [sql,
+                            params] = entityManager.query.mock.calls[0]
                         expect(sql).toContain("s.user_id = $1")
                         expect(sql).not.toContain("origin_")
                         expect(params.slice(0,
-                            2)).toEqual([
-                            userId,
-                            "global",
-                        ])
+                            2)).toEqual([userId,
+                            "global"])
                         expect(list).toEqual([
                             {
                                 id: "s-1",
@@ -1854,10 +1856,8 @@ describe("ContentAiService",
                             challengeId: "challenge-1",
                         })
 
-                        const [
-                            sql,
-                            params,
-                        ] = entityManager.query.mock.calls[1]
+                        const [sql,
+                            params] = entityManager.query.mock.calls[1]
                         expect(sql).toContain("s.origin_challenge_id = $3")
                         expect(params.slice(0,
                             3)).toEqual([
@@ -1888,10 +1888,8 @@ describe("ContentAiService",
                             quizId: "deck-1",
                         })
 
-                        const [
-                            sql,
-                            params,
-                        ] = entityManager.query.mock.calls[1]
+                        const [sql,
+                            params] = entityManager.query.mock.calls[1]
                         expect(sql).toContain("s.origin_quiz_id = $3")
                         expect(params[2]).toBe("deck-1")
                     })
@@ -1914,10 +1912,8 @@ describe("ContentAiService",
                             search: "  kafka  ",
                         })
 
-                        const [
-                            sql,
-                            params,
-                        ] = entityManager.query.mock.calls[0]
+                        const [sql,
+                            params] = entityManager.query.mock.calls[0]
                         expect(sql).toContain("s.title ILIKE $3")
                         expect(sql).toContain("m3.message ILIKE $3")
                         expect(params[2]).toBe("%kafka%")
@@ -1945,22 +1941,13 @@ describe("ContentAiService",
                     })
 
                 it.each([
-                    [
-                        "task",
-                    ],
-                    [
-                        "challenge",
-                    ],
-                    [
-                        "quiz",
-                    ],
-                    [
-                        "course",
-                    ],
-                    [
-                        "foundation",
-                    ],
-                ] as const)("returns an empty %s list when its anchor id is missing",
+                    ["task"],
+                    ["challenge"],
+                    ["quiz"],
+                    ["course"],
+                    ["foundation"],
+                ] as const)(
+                    "returns an empty %s list when its anchor id is missing",
                     async (scope) => {
                         const list = await service.sessions({
                             userId,
@@ -1969,7 +1956,8 @@ describe("ContentAiService",
 
                         expect(list).toEqual([])
                         expect(entityManager.query).not.toHaveBeenCalled()
-                    })
+                    },
+                )
 
                 it("derives the listing scope from each anchor, falling through to the global chat",
                     async () => {
@@ -2004,11 +1992,12 @@ describe("ContentAiService",
                         expect(entityManager.query.mock.calls[2][1][1]).toBe("foundation")
 
                         // COURSE anchor -> enrollment-owned course list
-                        entityManager.query.mockResolvedValueOnce([
-                            {
-                                id: enrollmentId,
-                            },
-                        ])
+                        entityManager.query
+                            .mockResolvedValueOnce([
+                                {
+                                    id: enrollmentId,
+                                },
+                            ])
                             .mockResolvedValueOnce([])
                         await service.sessions({
                             userId,
@@ -2106,18 +2095,16 @@ describe("ContentAiService",
                             includeArchived: true,
                         })
 
-                        const [
-                            sql,
-                            params,
-                        ] = entityManager.query.mock.calls[1]
-                        expect(sql).toContain("s.enrollment_id = $1 AND s.origin_content_id = $2")
-                        expect(params).toEqual([
-                            enrollmentId,
+                        const [sql,
+                            params] = entityManager.query.mock.calls[1]
+                        expect(sql).toContain(
+                            "s.enrollment_id = $1 AND s.origin_content_id = $2",
+                        )
+                        expect(params).toEqual([enrollmentId,
                             contentId,
                             20,
                             0,
-                            true,
-                        ])
+                            true])
                         expect(list).toEqual([
                             {
                                 id: "s-1",
@@ -2173,18 +2160,14 @@ describe("ContentAiService",
                             search: "  nginx ",
                         })
 
-                        const [
-                            sql,
-                            params,
-                        ] = entityManager.query.mock.calls[1]
+                        const [sql,
+                            params] = entityManager.query.mock.calls[1]
                         // search deliberately carries NO archived_at filter
                         expect(sql).not.toContain("archived_at")
-                        expect(params).toEqual([
-                            enrollmentId,
+                        expect(params).toEqual([enrollmentId,
                             "%nginx%",
                             20,
-                            0,
-                        ])
+                            0])
                         expect(list[0]).toMatchObject({
                             scope: "content",
                             originContentId: "other-content",
@@ -2208,18 +2191,145 @@ describe("ContentAiService",
                     })
             })
 
+        describe("Learn AI companion continuity",
+            () => {
+                const courseId = "course-1"
+                const enrollmentId = "enrollment-1"
+                const companion = {
+                    id: "learn-session-1",
+                    courseId,
+                    enrollmentId,
+                    title: null,
+                    archivedAt: null,
+                    updatedAt: new Date("2026-08-26T00:00:00.000Z"),
+                }
+
+                it("resolves one active Learn-owned session for the enrollment",
+                    async () => {
+                        entityManager.query
+                            .mockResolvedValueOnce([
+                                {
+                                    id: enrollmentId,
+                                },
+                            ])
+                            .mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([companion])
+
+                        await expect(
+                            service.resolveLearnAiCompanion({
+                                userId,
+                                courseId,
+                            }),
+                        ).resolves.toEqual(companion)
+
+                        const [insertSql] = entityManager.query.mock.calls[1]
+                        expect(insertSql).toContain("'learn_companion'")
+                        expect(insertSql).toContain("ON CONFLICT (enrollment_id)")
+                        expect(entityManager.transaction).toHaveBeenCalledTimes(1)
+                    })
+
+                it("does not create a companion without a course enrollment",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([])
+
+                        await expect(
+                            service.resolveLearnAiCompanion({
+                                userId,
+                                courseId,
+                            }),
+                        ).resolves.toBeNull()
+
+                        expect(entityManager.transaction).not.toHaveBeenCalled()
+                    })
+
+                it("loads transcript and durable request lifecycle from only the active companion",
+                    async () => {
+                        const messages = [
+                            {
+                                role: "user",
+                                content: "Explain closures",
+                            },
+                        ]
+                        const turns = [
+                            {
+                                streamId: "stream-1",
+                                state: "completed",
+                                response: "A closure retains lexical scope.",
+                                errorCode: null,
+                                attemptCount: 1,
+                                updatedAt: companion.updatedAt,
+                            },
+                        ]
+                        entityManager.query
+                            .mockResolvedValueOnce([
+                                {
+                                    id: enrollmentId,
+                                },
+                            ])
+                            .mockResolvedValueOnce([companion])
+                            .mockResolvedValueOnce(messages)
+                            .mockResolvedValueOnce(turns)
+
+                        await expect(
+                            service.loadLearnAiCompanion({
+                                userId,
+                                courseId,
+                                limit: 500,
+                                offset: -4,
+                            }),
+                        ).resolves.toEqual({
+                            session: companion,
+                            messages,
+                            turns,
+                        })
+
+                        expect(entityManager.query.mock.calls[2][1]).toEqual([
+                            companion.id,
+                            100,
+                            0,
+                        ])
+                        expect(entityManager.query.mock.calls[3][0]).toContain(
+                            "FROM content_ai_turns",
+                        )
+                    })
+
+                it("archives the active companion so the next resolve can create a fresh identity",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([
+                            {
+                                id: companion.id,
+                            },
+                        ])
+
+                        await expect(
+                            service.resetLearnAiCompanion({
+                                userId,
+                                courseId,
+                            }),
+                        ).resolves.toEqual({
+                            archivedSessionId: companion.id,
+                        })
+
+                        expect(entityManager.query.mock.calls[0][0]).toContain(
+                            "experience = 'learn_companion'",
+                        )
+                        expect(entityManager.query.mock.calls[0][0]).toContain("e.user_id = $1")
+                    })
+            })
+
         // ── OWNERSHIP-GUARDED SESSION WRITES ─────────────────────────────────────
         describe("ownership-guarded session operations",
             () => {
                 const sessionId = "session-1"
 
                 /** Program `resolveOwnedSession` to answer "owned by this learner". */
-                const owned = () => entityManager.query.mockResolvedValueOnce([
-                    {
-                        enrollmentId: "enr-1",
-                        userId: null,
-                    },
-                ])
+                const owned = () =>
+                    entityManager.query.mockResolvedValueOnce([
+                        {
+                            enrollmentId: "enr-1",
+                            userId: null,
+                        },
+                    ])
 
                 /** Program `resolveOwnedSession` to answer "not yours". */
                 const notOwned = () => entityManager.query.mockResolvedValueOnce([])
@@ -2240,10 +2350,12 @@ describe("ContentAiService",
                                     },
                                 ])
 
-                                await expect(service.loadSessionMessages({
-                                    userId,
-                                    sessionId,
-                                })).resolves.toEqual([
+                                await expect(
+                                    service.loadSessionMessages({
+                                        userId,
+                                        sessionId,
+                                    }),
+                                ).resolves.toEqual([
                                     {
                                         role: "user",
                                         content: "q1",
@@ -2253,18 +2365,21 @@ describe("ContentAiService",
                                         content: "a1",
                                     },
                                 ])
-                                expect(entityManager.query.mock.calls[1][0])
-                                    .toContain("ORDER BY created_at ASC")
+                                expect(entityManager.query.mock.calls[1][0]).toContain(
+                                    "ORDER BY created_at ASC",
+                                )
                             })
 
                         it("returns nothing for a session the learner does not own",
                             async () => {
                                 notOwned()
 
-                                await expect(service.loadSessionMessages({
-                                    userId,
-                                    sessionId,
-                                })).resolves.toEqual([])
+                                await expect(
+                                    service.loadSessionMessages({
+                                        userId,
+                                        sessionId,
+                                    }),
+                                ).resolves.toEqual([])
                                 expect(entityManager.query).toHaveBeenCalledTimes(1)
                             })
                     })
@@ -2274,8 +2389,8 @@ describe("ContentAiService",
                         let insert: jest.Mock
                         beforeEach(() => {
                             insert = jest.fn().mockResolvedValue({
-                            })
-                            ;(entityManager as unknown as { insert: jest.Mock }).insert = insert
+                            });
+                            (entityManager as unknown as { insert: jest.Mock }).insert = insert
                         })
 
                         it("records the grounding content on a content-scope turn and auto-titles the session",
@@ -2301,16 +2416,12 @@ describe("ContentAiService",
                                 })
                                 // the answer is trimmed before it is stored
                                 expect(rows[1].message).toBe("It speeds up lookups.")
-                                const [
-                                    sql,
-                                    params,
-                                ] = entityManager.query.mock.calls[1]
+                                const [sql,
+                                    params] = entityManager.query.mock.calls[1]
                                 expect(sql).toContain("COALESCE(title, $2)")
-                                expect(params).toEqual([
-                                    sessionId,
+                                expect(params).toEqual([sessionId,
                                     "What is an index?",
-                                    userId,
-                                ])
+                                    userId])
                             })
 
                         it("truncates a very long first question when auto-titling",
@@ -2325,8 +2436,7 @@ describe("ContentAiService",
                                     answer: "a",
                                 })
 
-                                expect(entityManager.query.mock.calls[1][1][1])
-                                    .toHaveLength(120)
+                                expect(entityManager.query.mock.calls[1][1][1]).toHaveLength(120)
                             })
 
                         it("is a no-op for a blank question",
@@ -2368,16 +2478,12 @@ describe("ContentAiService",
                                     sessionId,
                                 })
 
-                                const [
-                                    sql,
-                                    params,
-                                ] = entityManager.query.mock.calls[1]
+                                const [sql,
+                                    params] = entityManager.query.mock.calls[1]
                                 expect(sql).toContain("DELETE FROM content_ai_sessions")
                                 expect(sql).toContain("e.user_id = $2")
-                                expect(params).toEqual([
-                                    sessionId,
-                                    userId,
-                                ])
+                                expect(params).toEqual([sessionId,
+                                    userId])
                             })
 
                         it("does not delete a session the learner does not own",
@@ -2406,17 +2512,13 @@ describe("ContentAiService",
                                     title: "  Indexing deep dive  ",
                                 })
 
-                                const [
-                                    sql,
-                                    params,
-                                ] = entityManager.query.mock.calls[1]
+                                const [sql,
+                                    params] = entityManager.query.mock.calls[1]
                                 expect(sql).toContain("SET title = $2")
                                 expect(sql).not.toContain("COALESCE")
-                                expect(params).toEqual([
-                                    sessionId,
+                                expect(params).toEqual([sessionId,
                                     "Indexing deep dive",
-                                    userId,
-                                ])
+                                    userId])
                             })
 
                         it("resets a blank title to NULL so auto-titling resumes",
@@ -2435,19 +2537,21 @@ describe("ContentAiService",
 
                         it("rejects a title past the column limit before touching the database",
                             async () => {
-                                const error = await service.renameContentAiSession({
-                                    userId,
-                                    sessionId,
-                                    title: "t".repeat(201),
-                                }).catch((thrown: unknown) => thrown)
-
-                                expect(error)
-                                    .toBeInstanceOf(ContentAiSessionTitleTooLongException)
-                                expect((error as ContentAiSessionTitleTooLongException).metadata)
-                                    .toMatchObject({
-                                        length: 201,
-                                        max: 200,
+                                const error = await service
+                                    .renameContentAiSession({
+                                        userId,
+                                        sessionId,
+                                        title: "t".repeat(201),
                                     })
+                                    .catch((thrown: unknown) => thrown)
+
+                                expect(error).toBeInstanceOf(ContentAiSessionTitleTooLongException)
+                                expect(
+                                    (error as ContentAiSessionTitleTooLongException).metadata,
+                                ).toMatchObject({
+                                    length: 201,
+                                    max: 200,
+                                })
                                 expect(entityManager.query).not.toHaveBeenCalled()
                             })
 
@@ -2462,8 +2566,7 @@ describe("ContentAiService",
                                     title: "t".repeat(200),
                                 })
 
-                                expect(entityManager.query.mock.calls[1][1][1])
-                                    .toHaveLength(200)
+                                expect(entityManager.query.mock.calls[1][1][1]).toHaveLength(200)
                             })
 
                         it("does not rename a session the learner does not own",
@@ -2493,8 +2596,9 @@ describe("ContentAiService",
                                     archived: true,
                                 })
 
-                                expect(entityManager.query.mock.calls[1][0])
-                                    .toContain("SET archived_at = now()")
+                                expect(entityManager.query.mock.calls[1][0]).toContain(
+                                    "SET archived_at = now()",
+                                )
                             })
 
                         it("clears archived_at when unarchiving",
@@ -2508,8 +2612,9 @@ describe("ContentAiService",
                                     archived: false,
                                 })
 
-                                expect(entityManager.query.mock.calls[1][0])
-                                    .toContain("SET archived_at = NULL")
+                                expect(entityManager.query.mock.calls[1][0]).toContain(
+                                    "SET archived_at = NULL",
+                                )
                             })
 
                         it("does not archive a session the learner does not own",
@@ -2538,15 +2643,11 @@ describe("ContentAiService",
                                     sessionId,
                                 })
 
-                                const [
-                                    sql,
-                                    params,
-                                ] = entityManager.query.mock.calls[1]
+                                const [sql,
+                                    params] = entityManager.query.mock.calls[1]
                                 expect(sql).toContain("SET updated_at = now()")
-                                expect(params).toEqual([
-                                    sessionId,
-                                    userId,
-                                ])
+                                expect(params).toEqual([sessionId,
+                                    userId])
                             })
 
                         it("does not bump a session the learner does not own",

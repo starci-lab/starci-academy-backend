@@ -1,8 +1,8 @@
 import {
-    Injectable,
+    Injectable 
 } from "@nestjs/common"
 import type {
-    EntityManager,
+    EntityManager 
 } from "typeorm"
 import {
     AIMessage,
@@ -10,58 +10,58 @@ import {
     SystemMessage,
 } from "@langchain/core/messages"
 import type {
-    BaseMessage,
+    BaseMessage 
 } from "@langchain/core/messages"
 import {
-    ChallengeEntity,
+    ChallengeEntity 
 } from "@modules/databases/postgresql/primary/entities/challenge.entity"
 import {
-    ContentAiMessageEntity,
+    ContentAiMessageEntity 
 } from "@modules/databases/postgresql/primary/entities/content-ai-message.entity"
 import {
-    ContentAiSessionEntity,
+    ContentAiSessionEntity 
 } from "@modules/databases/postgresql/primary/entities/content-ai-session.entity"
 import {
-    ContentEntity,
+    ContentEntity 
 } from "@modules/databases/postgresql/primary/entities/content.entity"
 import {
-    FlashcardDeckEntity,
+    FlashcardDeckEntity 
 } from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
 import {
-    MilestoneTaskEntity,
+    MilestoneTaskEntity 
 } from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
 import {
-    Locale,
+    Locale 
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
+    InjectPrimaryPostgreSQLEntityManager 
 } from "@modules/databases/postgresql/primary/primary.decorators"
 import {
-    S3Provider,
+    S3Provider 
 } from "@modules/integrations/s3/enums/s3"
 import {
-    S3NameResolverService,
+    S3NameResolverService 
 } from "@modules/integrations/s3/s3-name-resolver.service"
 import {
-    S3ReadService,
+    S3ReadService 
 } from "@modules/integrations/s3/s3-read.service"
 import {
-    ContentAiSessionTitleTooLongException,
+    ContentAiSessionTitleTooLongException 
 } from "@modules/platform/exceptions/errors/courses/content-ai-session-title-too-long"
 import {
-    ContentNotFoundException,
+    ContentNotFoundException 
 } from "@modules/platform/exceptions/errors/courses/content-not-found"
 import {
-    PremiumContentAiAccessDeniedException,
+    PremiumContentAiAccessDeniedException 
 } from "@modules/platform/exceptions/errors/courses/premium-content-ai-access-denied"
 import {
-    CourseRagRetrievalService,
+    CourseRagRetrievalService 
 } from "@modules/integrations/rag/course-rag-retrieval.service"
 import {
-    envConfig,
+    envConfig 
 } from "@modules/platform/env/config"
 import {
-    UserService,
+    UserService 
 } from "../user/user.service"
 import type {
     BuildSystemPromptParams,
@@ -79,16 +79,26 @@ import type {
     PrepareContentAiMessagesResult,
 } from "./types/messages"
 import type {
+    AcquireContentAiTurnParams,
+    AcquireContentAiTurnResult,
     BuildScopedSessionsQueryParams,
     BuildScopedSessionsQueryResult,
+    CompleteContentAiTurnParams,
     CreateContentAiSessionParams,
     ContentAiSessionsParams,
+    ContentAiTurnState,
     DeleteContentAiSessionParams,
     DeriveContentAiScopeByAnchorPriorityParams,
     ListScopedContentAiSessionsParams,
+    LoadLearnAiCompanionParams,
     LoadContentAiSessionMessagesParams,
+    LearnAiCompanionSnapshot,
+    MarkContentAiTurnChargingParams,
+    MarkContentAiTurnTerminalParams,
     RenameContentAiSessionParams,
     ResolvedContentAiSessionOwner,
+    ResetLearnAiCompanionResult,
+    ResolveLearnAiCompanionParams,
     ResolveScopedSessionOwnerAnchors,
     ResolveSessionRowToCreateAnchors,
     SaveContentAiTurnParams,
@@ -145,7 +155,8 @@ const MAX_CODE_STUFF_CHARS = 24000
  * already dropped by the repo synchronizer, but a committed lockfile still lands
  * in the file map and would blow the budget with noise the tutor never needs.)
  */
-const NON_SOURCE_CODE_FILE = /(?:^|\/)(?:package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$|\.lock$|\.min\.(?:js|css)$|\.map$/i
+const NON_SOURCE_CODE_FILE =
+  /(?:^|\/)(?:package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$|\.lock$|\.min\.(?:js|css)$|\.map$/i
 
 @Injectable()
 /**
@@ -159,53 +170,51 @@ const NON_SOURCE_CODE_FILE = /(?:^|\/)(?:package-lock\.json|yarn\.lock|pnpm-lock
  */
 export class ContentAiService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly s3ReadService: S3ReadService,
-        private readonly s3NameResolverService: S3NameResolverService,
-        private readonly userService: UserService,
-        private readonly contentRagRetrievalService: CourseRagRetrievalService,
-    ) { }
+    @InjectPrimaryPostgreSQLEntityManager()
+    private readonly entityManager: EntityManager,
+    private readonly s3ReadService: S3ReadService,
+    private readonly s3NameResolverService: S3NameResolverService,
+    private readonly userService: UserService,
+    private readonly contentRagRetrievalService: CourseRagRetrievalService,
+    ) {}
 
     /**
-     * Build the grounded chat messages for a content-AI question: resolve the
-     * ADDITIVE grounding (a course-wide BASE layer plus whichever page-specific
-     * material applies), enforce every scope's own entitlement gate, then
-     * assemble `system prompt + capped history + new question`.
-     *
-     * Additive layering: BASE = this course's RAG (premium-excluded for a
-     * non-enrolled viewer), computed whenever a course can be resolved for the
-     * request (from the anchor, or from an explicit `courseId`); PAGE = the
-     * existing per-anchor material (lesson body, task brief, ...). A request
-     * with NO anchor at all is the "chung" app-wide chat: `courseId` optional,
-     * `courseId` given -> `"course"` scope (its grounding IS the base layer, no
-     * page of its own); no `courseId` either -> `"global"` scope, which degrades
-     * to a general programming tutor when there is no base to ground on.
-     * Anchorless never throws anymore -- it always resolves to a scope.
-     *
-     * @param params - {@link PrepareContentAiMessagesParams}.
-     * @returns The ordered messages to invoke/stream against the model.
-     * @throws ContentNotFoundException when an anchored content's body is missing.
-     * @throws PremiumContentAiAccessDeniedException when premium content is not entitled.
-     */
-    async prepareMessages(
-        {
-            userId,
-            contentId,
-            taskId,
-            challengeId,
-            quizId,
-            foundationId,
-            courseId,
-            question,
-            history,
-            locale,
-        }: PrepareContentAiMessagesParams,
-    ): Promise<PrepareContentAiMessagesResult> {
-        // Dispatch the PAGE grounding by scope (priority content > task >
-        // challenge > quiz > foundation > course > global, unchanged), while ALSO
-        // resolving the current course id ONCE per anchor -- it doubles as the key
-        // for the additive BASE layer below, so it is never re-resolved.
+   * Build the grounded chat messages for a content-AI question: resolve the
+   * ADDITIVE grounding (a course-wide BASE layer plus whichever page-specific
+   * material applies), enforce every scope's own entitlement gate, then
+   * assemble `system prompt + capped history + new question`.
+   *
+   * Additive layering: BASE = this course's RAG (premium-excluded for a
+   * non-enrolled viewer), computed whenever a course can be resolved for the
+   * request (from the anchor, or from an explicit `courseId`); PAGE = the
+   * existing per-anchor material (lesson body, task brief, ...). A request
+   * with NO anchor at all is the "chung" app-wide chat: `courseId` optional,
+   * `courseId` given -> `"course"` scope (its grounding IS the base layer, no
+   * page of its own); no `courseId` either -> `"global"` scope, which degrades
+   * to a general programming tutor when there is no base to ground on.
+   * Anchorless never throws anymore -- it always resolves to a scope.
+   *
+   * @param params - {@link PrepareContentAiMessagesParams}.
+   * @returns The ordered messages to invoke/stream against the model.
+   * @throws ContentNotFoundException when an anchored content's body is missing.
+   * @throws PremiumContentAiAccessDeniedException when premium content is not entitled.
+   */
+    async prepareMessages({
+        userId,
+        contentId,
+        taskId,
+        challengeId,
+        quizId,
+        foundationId,
+        courseId,
+        question,
+        history,
+        locale,
+    }: PrepareContentAiMessagesParams): Promise<PrepareContentAiMessagesResult> {
+    // Dispatch the PAGE grounding by scope (priority content > task >
+    // challenge > quiz > foundation > course > global, unchanged), while ALSO
+    // resolving the current course id ONCE per anchor -- it doubles as the key
+    // for the additive BASE layer below, so it is never re-resolved.
         let page = ""
         let scope: ContentAiScope
         let baseCourseId: string | null = null
@@ -277,12 +286,8 @@ export class ContentAiService {
         // "course" scope has no page of its own -- its grounding IS the base
         // layer, rendered through the scope's OWN section header rather than a
         // second, duplicate "COURSE KNOWLEDGE" header.
-        const promptPage = scope === "course"
-            ? base
-            : page
-        const promptBase = scope === "course"
-            ? ""
-            : base
+        const promptPage = scope === "course" ? base : page
+        const promptBase = scope === "course" ? "" : base
 
         // replay recent turns as a ROLLING TOKEN-BUDGET window: keep as many of the
         // NEWEST turns as fit in the input left after grounding + the question + the
@@ -298,11 +303,16 @@ export class ContentAiService {
         })
         const historyBudgetChars = Math.max(
             0,
-            MAX_INPUT_CHARS - systemPromptText.length - question.length - RESPONSE_RESERVE_CHARS,
+            MAX_INPUT_CHARS -
+        systemPromptText.length -
+        question.length -
+        RESPONSE_RESERVE_CHARS,
         )
         const windowedHistory: Array<ContentAiHistoryMessage> = []
         let usedChars = 0
-        for (const message of (history ?? []).slice(-MAX_HISTORY_MESSAGES).reverse()) {
+        for (const message of (history ?? [])
+            .slice(-MAX_HISTORY_MESSAGES)
+            .reverse()) {
             usedChars += message.content.length
             if (usedChars > historyBudgetChars) {
                 break
@@ -310,9 +320,11 @@ export class ContentAiService {
             // rebuild oldest-first as we accept newest-first
             windowedHistory.unshift(message)
         }
-        const historyMessages = windowedHistory.map((message) => message.role === "assistant"
-            ? new AIMessage(message.content)
-            : new HumanMessage(message.content))
+        const historyMessages = windowedHistory.map((message) =>
+            message.role === "assistant"
+                ? new AIMessage(message.content)
+                : new HumanMessage(message.content),
+        )
         const messages: Array<BaseMessage> = [
             new SystemMessage(systemPromptText),
             ...historyMessages,
@@ -324,33 +336,29 @@ export class ContentAiService {
     }
 
     /**
-     * Lesson-scope grounding: load the lesson body from MinIO, enforce the
-     * premium-content gate, then stuff the whole body (+ full repo code) or
-     * RAG-retrieve for large lessons. Also resolves the lesson's owning course
-     * id (already fetched for the premium gate) so the caller can layer the
-     * additive BASE (course-wide) grounding on top without a second lookup.
-     *
-     * @param params - The learner, the content id, the question, and the locale.
-     * @returns The grounding text for the lesson system prompt, plus the owning course id.
-     * @throws ContentNotFoundException when the content body is missing.
-     * @throws PremiumContentAiAccessDeniedException when premium content is not entitled.
-     */
-    private async resolveLessonGrounding(
-        {
-            userId,
-            contentId,
-            question,
-            locale,
-        }: ResolveLessonGroundingParams,
-    ): Promise<PageGroundingResult> {
-        // The lesson body lives in MinIO (the Postgres `body` column is empty for
-        // snapshot-backed content) -- load it the same way the content reader does,
-        // NOT from `ContentEntity.body`, or the model is grounded on an empty body
-        // and replies "I'm not sure, the content wasn't provided".
-        const objectKey = this.s3NameResolverService.content(
-            contentId,
-            locale,
-        )
+   * Lesson-scope grounding: load the lesson body from MinIO, enforce the
+   * premium-content gate, then stuff the whole body (+ full repo code) or
+   * RAG-retrieve for large lessons. Also resolves the lesson's owning course
+   * id (already fetched for the premium gate) so the caller can layer the
+   * additive BASE (course-wide) grounding on top without a second lookup.
+   *
+   * @param params - The learner, the content id, the question, and the locale.
+   * @returns The grounding text for the lesson system prompt, plus the owning course id.
+   * @throws ContentNotFoundException when the content body is missing.
+   * @throws PremiumContentAiAccessDeniedException when premium content is not entitled.
+   */
+    private async resolveLessonGrounding({
+        userId,
+        contentId,
+        question,
+        locale,
+    }: ResolveLessonGroundingParams): Promise<PageGroundingResult> {
+    // The lesson body lives in MinIO (the Postgres `body` column is empty for
+    // snapshot-backed content) -- load it the same way the content reader does,
+    // NOT from `ContentEntity.body`, or the model is grounded on an empty body
+    // and replies "I'm not sure, the content wasn't provided".
+        const objectKey = this.s3NameResolverService.content(contentId,
+            locale)
         const content = await this.s3ReadService.json<ContentEntity>({
             key: objectKey,
             provider: S3Provider.Minio,
@@ -364,8 +372,7 @@ export class ContentAiService {
         // Premium gate: source the premium flag + owning course from the live DB
         // row and block ungranted premium content (a non-enrolled viewer could
         // otherwise pull a locked lesson's full body out through the AI).
-        const row = await this.entityManager.findOne(
-            ContentEntity,
+        const row = await this.entityManager.findOne(ContentEntity,
             {
                 where: {
                     id: contentId,
@@ -385,8 +392,7 @@ export class ContentAiService {
                         },
                     },
                 },
-            },
-        )
+            })
         const isPremium = row?.isPremium ?? content.isPremium
         const courseId = row?.module?.course?.id
         if (isPremium) {
@@ -419,30 +425,28 @@ export class ContentAiService {
     }
 
     /**
-     * Task-scope grounding: pull the capstone / personal-project task's brief +
-     * acceptance-criteria chunks from the content RAG index. Milestone chunks are
-     * written with `metadata.contentId = taskId` (shared UUID id-space), so the
-     * same single-doc retrieval the lesson scope uses returns exactly this task's
-     * material. Degrades to an empty excerpt (un-grounded) when the index is
-     * absent / retrieval misses -- retrieval never blocks the chat.
-     *
-     * Entitlement: capstone material is ENROLLED-ONLY. We resolve the task's
-     * owning course (task -> milestone -> course) and gate on enrollment; a
-     * non-enrolled viewer gets an empty excerpt (no leak), so the model never
-     * reveals capstone briefs/criteria through the AI. Mirrors the course scope.
-     *
-     * @param params - The learner, the task id, and the question.
-     * @returns The grounding text (empty when the viewer is not enrolled), plus the owning course id.
-     */
-    private async resolveTaskGrounding(
-        {
-            userId,
-            taskId,
-            question,
-        }: ResolveTaskGroundingParams,
-    ): Promise<PageGroundingResult> {
-        // resolve the task's owning course so we can enforce the enrolled-only gate
-        // (also doubles as the additive BASE layer's key -- resolved ONCE here)
+   * Task-scope grounding: pull the capstone / personal-project task's brief +
+   * acceptance-criteria chunks from the content RAG index. Milestone chunks are
+   * written with `metadata.contentId = taskId` (shared UUID id-space), so the
+   * same single-doc retrieval the lesson scope uses returns exactly this task's
+   * material. Degrades to an empty excerpt (un-grounded) when the index is
+   * absent / retrieval misses -- retrieval never blocks the chat.
+   *
+   * Entitlement: capstone material is ENROLLED-ONLY. We resolve the task's
+   * owning course (task -> milestone -> course) and gate on enrollment; a
+   * non-enrolled viewer gets an empty excerpt (no leak), so the model never
+   * reveals capstone briefs/criteria through the AI. Mirrors the course scope.
+   *
+   * @param params - The learner, the task id, and the question.
+   * @returns The grounding text (empty when the viewer is not enrolled), plus the owning course id.
+   */
+    private async resolveTaskGrounding({
+        userId,
+        taskId,
+        question,
+    }: ResolveTaskGroundingParams): Promise<PageGroundingResult> {
+    // resolve the task's owning course so we can enforce the enrolled-only gate
+    // (also doubles as the additive BASE layer's key -- resolved ONCE here)
         const courseId = await this.resolveCourseIdOfTask(taskId)
         const entitled = courseId
             ? await this.userService.checkEnrollment(userId,
@@ -454,12 +458,11 @@ export class ContentAiService {
                 courseId,
             }
         }
-        const {
-            excerpt,
-        } = await this.contentRagRetrievalService.retrieveContentExcerpt({
-            contentId: taskId,
-            query: question,
-        })
+        const { excerpt } =
+      await this.contentRagRetrievalService.retrieveContentExcerpt({
+          contentId: taskId,
+          query: question,
+      })
         return {
             grounding: excerpt,
             courseId,
@@ -467,29 +470,27 @@ export class ContentAiService {
     }
 
     /**
-     * Challenge-scope grounding: pull a hands-on challenge's brief + steps + test
-     * cases from the content RAG index. Challenge chunks are written with
-     * `metadata.contentId = challengeId` (shared UUID id-space, `kind = "challenge"`),
-     * so the same single-doc retrieval the lesson scope uses returns exactly this
-     * challenge's material.
-     *
-     * Entitlement: ENROLLED-ONLY, mirroring the task scope. We resolve the
-     * challenge's owning course (challenge -> content -> module -> course) and gate on
-     * enrollment; a non-enrolled viewer gets an empty excerpt (no leak), so the
-     * model never reveals a challenge's brief / test cases through the AI.
-     *
-     * @param params - The learner, the challenge id, and the question.
-     * @returns The grounding text (empty when the viewer is not enrolled), plus the owning course id.
-     */
-    private async resolveChallengeGrounding(
-        {
-            userId,
-            challengeId,
-            question,
-        }: ResolveChallengeGroundingParams,
-    ): Promise<PageGroundingResult> {
-        // resolve the challenge's owning course so we can enforce the enrolled-only
-        // gate (also doubles as the additive BASE layer's key -- resolved ONCE here)
+   * Challenge-scope grounding: pull a hands-on challenge's brief + steps + test
+   * cases from the content RAG index. Challenge chunks are written with
+   * `metadata.contentId = challengeId` (shared UUID id-space, `kind = "challenge"`),
+   * so the same single-doc retrieval the lesson scope uses returns exactly this
+   * challenge's material.
+   *
+   * Entitlement: ENROLLED-ONLY, mirroring the task scope. We resolve the
+   * challenge's owning course (challenge -> content -> module -> course) and gate on
+   * enrollment; a non-enrolled viewer gets an empty excerpt (no leak), so the
+   * model never reveals a challenge's brief / test cases through the AI.
+   *
+   * @param params - The learner, the challenge id, and the question.
+   * @returns The grounding text (empty when the viewer is not enrolled), plus the owning course id.
+   */
+    private async resolveChallengeGrounding({
+        userId,
+        challengeId,
+        question,
+    }: ResolveChallengeGroundingParams): Promise<PageGroundingResult> {
+    // resolve the challenge's owning course so we can enforce the enrolled-only
+    // gate (also doubles as the additive BASE layer's key -- resolved ONCE here)
         const courseId = await this.resolveCourseIdOfChallenge(challengeId)
         const entitled = courseId
             ? await this.userService.checkEnrollment(userId,
@@ -501,12 +502,11 @@ export class ContentAiService {
                 courseId,
             }
         }
-        const {
-            excerpt,
-        } = await this.contentRagRetrievalService.retrieveContentExcerpt({
-            contentId: challengeId,
-            query: question,
-        })
+        const { excerpt } =
+      await this.contentRagRetrievalService.retrieveContentExcerpt({
+          contentId: challengeId,
+          query: question,
+      })
         return {
             grounding: excerpt,
             courseId,
@@ -514,29 +514,27 @@ export class ContentAiService {
     }
 
     /**
-     * Quiz-scope grounding: pull a flashcard-quiz's question/answer material from
-     * the content RAG index. A StarCi quiz draws from a flashcard DECK; deck chunks
-     * are indexed with `metadata.contentId = deckId` (`kind = "flashcard"`), so the
-     * same single-doc retrieval returns exactly this quiz's Q&A. `quizId` is the
-     * deck the quiz is drawn from.
-     *
-     * Entitlement: ENROLLED-ONLY. We resolve the deck's owning course (decks carry
-     * a direct `course_id`) and gate on enrollment; a non-enrolled viewer gets an
-     * empty excerpt (no leak of answers). The FE additionally HIDES the chat during
-     * a live attempt (integrity) -- this scope is used only while reviewing.
-     *
-     * @param params - The learner, the quiz deck id, and the question.
-     * @returns The grounding text (empty when the viewer is not enrolled), plus the owning course id.
-     */
-    private async resolveQuizGrounding(
-        {
-            userId,
-            quizId,
-            question,
-        }: ResolveQuizGroundingParams,
-    ): Promise<PageGroundingResult> {
-        // resolve the quiz deck's owning course so we can enforce the enrolled-only
-        // gate (also doubles as the additive BASE layer's key -- resolved ONCE here)
+   * Quiz-scope grounding: pull a flashcard-quiz's question/answer material from
+   * the content RAG index. A StarCi quiz draws from a flashcard DECK; deck chunks
+   * are indexed with `metadata.contentId = deckId` (`kind = "flashcard"`), so the
+   * same single-doc retrieval returns exactly this quiz's Q&A. `quizId` is the
+   * deck the quiz is drawn from.
+   *
+   * Entitlement: ENROLLED-ONLY. We resolve the deck's owning course (decks carry
+   * a direct `course_id`) and gate on enrollment; a non-enrolled viewer gets an
+   * empty excerpt (no leak of answers). The FE additionally HIDES the chat during
+   * a live attempt (integrity) -- this scope is used only while reviewing.
+   *
+   * @param params - The learner, the quiz deck id, and the question.
+   * @returns The grounding text (empty when the viewer is not enrolled), plus the owning course id.
+   */
+    private async resolveQuizGrounding({
+        userId,
+        quizId,
+        question,
+    }: ResolveQuizGroundingParams): Promise<PageGroundingResult> {
+    // resolve the quiz deck's owning course so we can enforce the enrolled-only
+    // gate (also doubles as the additive BASE layer's key -- resolved ONCE here)
         const courseId = await this.resolveCourseIdOfQuiz(quizId)
         const entitled = courseId
             ? await this.userService.checkEnrollment(userId,
@@ -548,12 +546,11 @@ export class ContentAiService {
                 courseId,
             }
         }
-        const {
-            excerpt,
-        } = await this.contentRagRetrievalService.retrieveContentExcerpt({
-            contentId: quizId,
-            query: question,
-        })
+        const { excerpt } =
+      await this.contentRagRetrievalService.retrieveContentExcerpt({
+          contentId: quizId,
+          query: question,
+      })
         return {
             grounding: excerpt,
             courseId,
@@ -561,96 +558,88 @@ export class ContentAiService {
     }
 
     /**
-     * Foundation-scope grounding: single-doc RAG over one GLOBAL foundation-
-     * library document. Foundation entities are NOT course-scoped (they belong to
-     * a foundation-category and carry no courseId), so there is intentionally NO
-     * premium / enrollment gate -- the foundation library is global. Chunks are
-     * indexed with `metadata.contentId = foundationId`, so the lesson scope's
-     * single-doc retrieval returns this foundation's material. Degrades to an
-     * empty excerpt when the index is absent / retrieval misses.
-     *
-     * @param params - The learner, the foundation id, and the question.
-     * @returns The grounding text for the foundation system prompt.
-     */
+   * Foundation-scope grounding: single-doc RAG over one GLOBAL foundation-
+   * library document. Foundation entities are NOT course-scoped (they belong to
+   * a foundation-category and carry no courseId), so there is intentionally NO
+   * premium / enrollment gate -- the foundation library is global. Chunks are
+   * indexed with `metadata.contentId = foundationId`, so the lesson scope's
+   * single-doc retrieval returns this foundation's material. Degrades to an
+   * empty excerpt when the index is absent / retrieval misses.
+   *
+   * @param params - The learner, the foundation id, and the question.
+   * @returns The grounding text for the foundation system prompt.
+   */
     // `params` accepts `userId` for signature symmetry with the other scopes; a
     // global foundation doc needs no per-user gate, so it is not destructured here.
-    private async resolveFoundationGrounding(
-        {
-            foundationId,
-            question,
-        }: ResolveFoundationGroundingParams,
-    ): Promise<string> {
-        const {
-            excerpt,
-        } = await this.contentRagRetrievalService.retrieveContentExcerpt({
-            contentId: foundationId,
-            query: question,
-        })
+    private async resolveFoundationGrounding({
+        foundationId,
+        question,
+    }: ResolveFoundationGroundingParams): Promise<string> {
+        const { excerpt } =
+      await this.contentRagRetrievalService.retrieveContentExcerpt({
+          contentId: foundationId,
+          query: question,
+      })
         return excerpt
     }
 
     /**
-     * The additive BASE (course-wide) grounding layer. Used two ways:
-     * - stacked UNDER a page's own grounding (content/task/challenge/quiz), so a
-     *   question can pull in course-wide context even while a specific lesson is
-     *   open;
-     * - as the WHOLE grounding for the `"course"` scope (a surface with no
-     *   material of its own -- mind-map, leaderboard, the course home, ...), which
-     *   has no page section of its own to layer under.
-     *
-     * PREMIUM-SAFE by construction (fulfils the exclusion this scope's grounding
-     * used to punt on): enrolled -> full course RAG; not enrolled -> the SAME
-     * course RAG with every premium lesson's id excluded (`must_not` on
-     * `metadata.contentId`), so a trial learner still gets course-wide chat over
-     * the free material, never a locked lesson surfaced through the AI.
-     *
-     * @param params - The learner, the course id, and the question.
-     * @returns The grounding text (never includes premium material for a non-entitled viewer).
-     */
-    private async resolveBaseGrounding(
-        {
-            userId,
-            courseId,
-            question,
-        }: ResolveBaseGroundingParams,
-    ): Promise<string> {
+   * The additive BASE (course-wide) grounding layer. Used two ways:
+   * - stacked UNDER a page's own grounding (content/task/challenge/quiz), so a
+   *   question can pull in course-wide context even while a specific lesson is
+   *   open;
+   * - as the WHOLE grounding for the `"course"` scope (a surface with no
+   *   material of its own -- mind-map, leaderboard, the course home, ...), which
+   *   has no page section of its own to layer under.
+   *
+   * PREMIUM-SAFE by construction (fulfils the exclusion this scope's grounding
+   * used to punt on): enrolled -> full course RAG; not enrolled -> the SAME
+   * course RAG with every premium lesson's id excluded (`must_not` on
+   * `metadata.contentId`), so a trial learner still gets course-wide chat over
+   * the free material, never a locked lesson surfaced through the AI.
+   *
+   * @param params - The learner, the course id, and the question.
+   * @returns The grounding text (never includes premium material for a non-entitled viewer).
+   */
+    private async resolveBaseGrounding({
+        userId,
+        courseId,
+        question,
+    }: ResolveBaseGroundingParams): Promise<string> {
         const enrolled = await this.userService.checkEnrollment(userId,
             courseId)
         if (enrolled) {
-            const {
-                excerpt,
-            } = await this.contentRagRetrievalService.retrieveCourseExcerpt({
-                courseId,
-                query: question,
-            })
+            const { excerpt } =
+        await this.contentRagRetrievalService.retrieveCourseExcerpt({
+            courseId,
+            query: question,
+        })
             return excerpt
         }
         const premiumContentIds = await this.resolvePremiumContentIds(courseId)
-        const {
-            excerpt,
-        } = await this.contentRagRetrievalService.retrieveCourseExcerpt({
-            courseId,
-            query: question,
-            excludeContentIds: premiumContentIds,
-        })
+        const { excerpt } =
+      await this.contentRagRetrievalService.retrieveCourseExcerpt({
+          courseId,
+          query: question,
+          excludeContentIds: premiumContentIds,
+      })
         return excerpt
     }
 
     /**
-     * Resolve every PREMIUM content (lesson) id under a course, so a non-enrolled
-     * viewer's BASE grounding can exclude them (`excludeContentIds`) instead of
-     * being blocked outright. Never throws -- an empty result just means "nothing
-     * to exclude", not "no premium content" (the caller degrades safely either way
-     * since `retrieveCourseExcerpt` itself degrades to an empty excerpt on failure).
-     *
-     * @param courseId - The course to scan.
-     * @returns The premium content ids under the course (possibly empty).
-     */
+   * Resolve every PREMIUM content (lesson) id under a course, so a non-enrolled
+   * viewer's BASE grounding can exclude them (`excludeContentIds`) instead of
+   * being blocked outright. Never throws -- an empty result just means "nothing
+   * to exclude", not "no premium content" (the caller degrades safely either way
+   * since `retrieveCourseExcerpt` itself degrades to an empty excerpt on failure).
+   *
+   * @param courseId - The course to scan.
+   * @returns The premium content ids under the course (possibly empty).
+   */
     private async resolvePremiumContentIds(
         courseId: string,
     ): Promise<Array<string>> {
-        const rows = await this.entityManager.find(
-            ContentEntity,
+        const rows = await this.entityManager.find(ContentEntity,
             {
                 where: {
                     isPremium: true,
@@ -668,40 +657,37 @@ export class ContentAiService {
                 select: {
                     id: true,
                 },
-            },
-        )
+            })
         return rows.map((row) => row.id)
     }
 
     /**
-     * Resolve the text to ground the answer on. The tutor must be able to read the
-     * lesson's FULL source -- not just the prose, and not only for large lessons -- so
-     * for a lesson that ships code we prefer to stuff the WHOLE body + EVERY repo
-     * file (a short lesson previously stuffed body-only, hiding its code):
-     *
-     * - **Has code, and body + full code <= {@link MAX_CODE_STUFF_CHARS}**: stuff the
-     *   whole lesson (body + all repo files). The tutor sees every file, so it can
-     *   read/explain any snippet the student points at -- regardless of lesson size.
-     * - **Has code but too big to stuff**: RAG-retrieve the top-k most relevant chunks
-     *   (body + code, filtered to this content) so the prompt stays within the free
-     *   local model's context window.
-     * - **No code (prose-only lesson)**: small body -> stuff whole; large body -> RAG.
-     *
-     * Falls back to the whole body whenever retrieval misses/fails/index absent -- so
-     * the chat never degrades below body-only grounding.
-     *
-     * @param params - The content snapshot, its id, the question, and the whole body.
-     * @returns The grounding text to put in the system prompt.
-     */
-    private async resolveGrounding(
-        {
-            content,
-            contentId,
-            question,
-            body,
-        }: ResolveGroundingParams,
-    ): Promise<string> {
-        // full lesson code (all repo files) -- "" for a prose-only lesson
+   * Resolve the text to ground the answer on. The tutor must be able to read the
+   * lesson's FULL source -- not just the prose, and not only for large lessons -- so
+   * for a lesson that ships code we prefer to stuff the WHOLE body + EVERY repo
+   * file (a short lesson previously stuffed body-only, hiding its code):
+   *
+   * - **Has code, and body + full code <= {@link MAX_CODE_STUFF_CHARS}**: stuff the
+   *   whole lesson (body + all repo files). The tutor sees every file, so it can
+   *   read/explain any snippet the student points at -- regardless of lesson size.
+   * - **Has code but too big to stuff**: RAG-retrieve the top-k most relevant chunks
+   *   (body + code, filtered to this content) so the prompt stays within the free
+   *   local model's context window.
+   * - **No code (prose-only lesson)**: small body -> stuff whole; large body -> RAG.
+   *
+   * Falls back to the whole body whenever retrieval misses/fails/index absent -- so
+   * the chat never degrades below body-only grounding.
+   *
+   * @param params - The content snapshot, its id, the question, and the whole body.
+   * @returns The grounding text to put in the system prompt.
+   */
+    private async resolveGrounding({
+        content,
+        contentId,
+        question,
+        body,
+    }: ResolveGroundingParams): Promise<string> {
+    // full lesson code (all repo files) -- "" for a prose-only lesson
         const code = await this.loadFullCode(content)
 
         if (code) {
@@ -711,44 +697,40 @@ export class ContentAiService {
                 return stuffed
             }
             // too big for the local model -> RAG the most relevant body+code chunks
-            const { excerpt } = await this.contentRagRetrievalService.retrieveContentExcerpt({
-                contentId,
-                query: question,
-            })
-            return excerpt.trim()
-                ? excerpt
-                : stuffed.slice(0,
-                    MAX_CODE_STUFF_CHARS)
+            const { excerpt } =
+        await this.contentRagRetrievalService.retrieveContentExcerpt({
+            contentId,
+            query: question,
+        })
+            return excerpt.trim() ? excerpt : stuffed.slice(0,
+                MAX_CODE_STUFF_CHARS)
         }
 
         // prose-only lesson: small -> stuff whole; large -> RAG (fallback to body)
         if (body.length <= envConfig().services.contentRag.stuffCharThreshold) {
             return body
         }
-        const { excerpt } = await this.contentRagRetrievalService.retrieveContentExcerpt({
-            contentId,
-            query: question,
-        })
-        return excerpt.trim()
-            ? excerpt
-            : body
+        const { excerpt } =
+      await this.contentRagRetrievalService.retrieveContentExcerpt({
+          contentId,
+          query: question,
+      })
+        return excerpt.trim() ? excerpt : body
     }
 
     /**
-     * Read a lesson's FULL source from MinIO -- every repo file concatenated (each
-     * prefixed with its path), or "" for a prose-only lesson (no code in MinIO).
-     *
-     * Mirrors the repo-file read the lesson RAG indexer uses: the synchronizer
-     * writes the Sandpack file map to `repo/<repoName>/<githubDir>.json` where
-     * `repoName` is the last path segment of `githubBaseUrl`. Non-fatal: any
-     * read/parse failure returns "" so grounding degrades to body-only.
-     *
-     * @param content - The content snapshot (needs `isSandbox`/`githubBaseUrl`/`githubDir`).
-     * @returns The concatenated source, or "" when the lesson ships no code.
-     */
-    private async loadFullCode(
-        content: ContentEntity,
-    ): Promise<string> {
+   * Read a lesson's FULL source from MinIO -- every repo file concatenated (each
+   * prefixed with its path), or "" for a prose-only lesson (no code in MinIO).
+   *
+   * Mirrors the repo-file read the lesson RAG indexer uses: the synchronizer
+   * writes the Sandpack file map to `repo/<repoName>/<githubDir>.json` where
+   * `repoName` is the last path segment of `githubBaseUrl`. Non-fatal: any
+   * read/parse failure returns "" so grounding degrades to body-only.
+   *
+   * @param content - The content snapshot (needs `isSandbox`/`githubBaseUrl`/`githubDir`).
+   * @returns The concatenated source, or "" when the lesson ships no code.
+   */
+    private async loadFullCode(content: ContentEntity): Promise<string> {
         if (!content.isSandbox || !content.githubBaseUrl || !content.githubDir) {
             return ""
         }
@@ -757,20 +739,23 @@ export class ContentAiService {
             return ""
         }
         try {
-            const files = await this.s3ReadService.json<Record<string, { code: string }>>({
-                key: this.s3NameResolverService.repo(repoName,
-                    content.githubDir),
-                provider: S3Provider.Minio,
-            })
+            const files = await this.s3ReadService.json<
+        Record<string, { code: string }>
+      >({
+          key: this.s3NameResolverService.repo(repoName,
+              content.githubDir),
+          provider: S3Provider.Minio,
+      })
             const parts: Array<string> = []
-            for (const [
-                filePath,
-                file,
-            ] of Object.entries(files ?? {
+            for (const [filePath,
+                file] of Object.entries(files ?? {
                 })) {
                 // skip lockfiles / minified artifacts / stray vendored files -- real
                 // source only, so the budget isn't wasted on noise the tutor ignores
-                if (NON_SOURCE_CODE_FILE.test(filePath) || filePath.includes("node_modules/")) {
+                if (
+                    NON_SOURCE_CODE_FILE.test(filePath) ||
+          filePath.includes("node_modules/")
+                ) {
                     continue
                 }
                 if (!file.code?.trim()) {
@@ -786,30 +771,28 @@ export class ContentAiService {
     }
 
     /**
-     * Resolve the lesson markdown to ground on. Snapshot-backed content keeps the
-     * V1 scalar `body` EMPTY and stores the real lesson under the V2 `bodies`
-     * buckets (one per language variant, each with per-locale `translations`) --
-     * so reading `content.body` alone grounds the model on an empty body and it
-     * replies "the content wasn't provided". Prefer the localized text of the
-     * first non-empty bucket (the prose is shared across language variants;
-     * tutoring doesn't need all four), falling back to the legacy scalar body.
-     *
-     * @param content - The content snapshot loaded from MinIO.
-     * @param locale - The request locale (selects the body translation).
-     * @returns The lesson markdown, or empty string when none is available.
-     */
-    private resolveBodyText(
-        content: ContentEntity,
-        locale: Locale,
-    ): string {
-        // V1 legacy scalar body, when populated
+   * Resolve the lesson markdown to ground on. Snapshot-backed content keeps the
+   * V1 scalar `body` EMPTY and stores the real lesson under the V2 `bodies`
+   * buckets (one per language variant, each with per-locale `translations`) --
+   * so reading `content.body` alone grounds the model on an empty body and it
+   * replies "the content wasn't provided". Prefer the localized text of the
+   * first non-empty bucket (the prose is shared across language variants;
+   * tutoring doesn't need all four), falling back to the legacy scalar body.
+   *
+   * @param content - The content snapshot loaded from MinIO.
+   * @param locale - The request locale (selects the body translation).
+   * @returns The lesson markdown, or empty string when none is available.
+   */
+    private resolveBodyText(content: ContentEntity, locale: Locale): string {
+    // V1 legacy scalar body, when populated
         if (content.body?.trim()) {
             return content.body
         }
         // V2 bodies[]: take the first bucket's localized (or default) markdown
         for (const bucket of content.bodies ?? []) {
-            const translated = (bucket.translations ?? [])
-                .find((translation) => translation.locale === locale)?.body
+            const translated = (bucket.translations ?? []).find(
+                (translation) => translation.locale === locale,
+            )?.body
             const text = translated ?? bucket.body
             if (text?.trim()) {
                 return text
@@ -818,23 +801,11 @@ export class ContentAiService {
         return ""
     }
 
-    /**
-     * Resolve the enrollment id for `(user, the content's owning course)`.
-     *
-     * Course-scoped data keys off the enrollment (not the raw user). Trial rows
-     * (`is_enrolled = false`) count -- a learner reading/asking about a lesson has
-     * an enrollment row whether or not they have paid.
-     *
-     * @param userId - The asking learner.
-     * @param contentId - Content whose course the enrollment is resolved against.
-     * @returns The enrollment id, or `null` when none exists / the course is unknown.
-     */
-    private async resolveEnrollmentId(
-        userId: string,
+    /** Resolve a lesson's owning course for cross-course turn isolation. */
+    private async resolveCourseIdOfContent(
         contentId: string,
     ): Promise<string | null> {
-        const row = await this.entityManager.findOne(
-            ContentEntity,
+        const row = await this.entityManager.findOne(ContentEntity,
             {
                 where: {
                     id: contentId,
@@ -853,9 +824,26 @@ export class ContentAiService {
                         },
                     },
                 },
-            },
-        )
-        const courseId = row?.module?.course?.id
+            })
+        return row?.module?.course?.id ?? null
+    }
+
+    /**
+   * Resolve the enrollment id for `(user, the content's owning course)`.
+   *
+   * Course-scoped data keys off the enrollment (not the raw user). Trial rows
+   * (`is_enrolled = false`) count -- a learner reading/asking about a lesson has
+   * an enrollment row whether or not they have paid.
+   *
+   * @param userId - The asking learner.
+   * @param contentId - Content whose course the enrollment is resolved against.
+   * @returns The enrollment id, or `null` when none exists / the course is unknown.
+   */
+    private async resolveEnrollmentId(
+        userId: string,
+        contentId: string,
+    ): Promise<string | null> {
+        const courseId = await this.resolveCourseIdOfContent(contentId)
         if (!courseId) {
             return null
         }
@@ -864,41 +852,36 @@ export class ContentAiService {
     }
 
     /**
-     * Resolve the enrollment id for `(user, course)` directly. Trial rows
-     * (`is_enrolled = false`) count -- an enrollment row exists whether or not the
-     * learner has paid. Used to anchor task / course sessions (whose course is
-     * known without a content lookup).
-     *
-     * @param userId - The asking learner.
-     * @param courseId - The course to resolve the enrollment against.
-     * @returns The enrollment id, or `null` when the learner has no enrollment row.
-     */
+   * Resolve the enrollment id for `(user, course)` directly. Trial rows
+   * (`is_enrolled = false`) count -- an enrollment row exists whether or not the
+   * learner has paid. Used to anchor task / course sessions (whose course is
+   * known without a content lookup).
+   *
+   * @param userId - The asking learner.
+   * @param courseId - The course to resolve the enrollment against.
+   * @returns The enrollment id, or `null` when the learner has no enrollment row.
+   */
     private async resolveEnrollmentByCourse(
         userId: string,
         courseId: string,
     ): Promise<string | null> {
         const rows = await this.entityManager.query<Array<{ id: string }>>(
             "SELECT id FROM enrollments WHERE user_id = $1 AND course_id = $2 LIMIT 1",
-            [
-                userId,
-                courseId,
-            ],
+            [userId,
+                courseId],
         )
         return rows[0]?.id ?? null
     }
 
     /**
-     * Resolve a task's owning course (task -> milestone -> course), so a task session
-     * can be anchored to the right enrollment.
-     *
-     * @param taskId - The capstone / personal-project task.
-     * @returns The owning course id, or `null` when the task / course is unknown.
-     */
-    private async resolveCourseIdOfTask(
-        taskId: string,
-    ): Promise<string | null> {
-        const task = await this.entityManager.findOne(
-            MilestoneTaskEntity,
+   * Resolve a task's owning course (task -> milestone -> course), so a task session
+   * can be anchored to the right enrollment.
+   *
+   * @param taskId - The capstone / personal-project task.
+   * @returns The owning course id, or `null` when the task / course is unknown.
+   */
+    private async resolveCourseIdOfTask(taskId: string): Promise<string | null> {
+        const task = await this.entityManager.findOne(MilestoneTaskEntity,
             {
                 where: {
                     id: taskId,
@@ -917,23 +900,21 @@ export class ContentAiService {
                         },
                     },
                 },
-            },
-        )
+            })
         return task?.milestone?.course?.id ?? null
     }
 
     /**
-     * Resolve a challenge's owning course (challenge -> content -> module -> course),
-     * so a challenge session can be anchored to the right enrollment / gated.
-     *
-     * @param challengeId - The hands-on challenge.
-     * @returns The owning course id, or `null` when the challenge / course is unknown.
-     */
+   * Resolve a challenge's owning course (challenge -> content -> module -> course),
+   * so a challenge session can be anchored to the right enrollment / gated.
+   *
+   * @param challengeId - The hands-on challenge.
+   * @returns The owning course id, or `null` when the challenge / course is unknown.
+   */
     private async resolveCourseIdOfChallenge(
         challengeId: string,
     ): Promise<string | null> {
-        const challenge = await this.entityManager.findOne(
-            ChallengeEntity,
+        const challenge = await this.entityManager.findOne(ChallengeEntity,
             {
                 where: {
                     id: challengeId,
@@ -957,23 +938,19 @@ export class ContentAiService {
                         },
                     },
                 },
-            },
-        )
+            })
         return challenge?.content?.module?.course?.id ?? null
     }
 
     /**
-     * Resolve a quiz deck's owning course. A flashcard deck carries a direct
-     * `course_id`, so this is a single lookup.
-     *
-     * @param quizId - The flashcard deck the quiz is drawn from.
-     * @returns The owning course id, or `null` when the deck / course is unknown.
-     */
-    private async resolveCourseIdOfQuiz(
-        quizId: string,
-    ): Promise<string | null> {
-        const deck = await this.entityManager.findOne(
-            FlashcardDeckEntity,
+   * Resolve a quiz deck's owning course. A flashcard deck carries a direct
+   * `course_id`, so this is a single lookup.
+   *
+   * @param quizId - The flashcard deck the quiz is drawn from.
+   * @returns The owning course id, or `null` when the deck / course is unknown.
+   */
+    private async resolveCourseIdOfQuiz(quizId: string): Promise<string | null> {
+        const deck = await this.entityManager.findOne(FlashcardDeckEntity,
             {
                 where: {
                     id: quizId,
@@ -987,69 +964,65 @@ export class ContentAiService {
                         id: true,
                     },
                 },
-            },
-        )
+            })
         return deck?.course?.id ?? null
     }
 
     /**
-     * Resolve the real `users.id` (uuid) from a Keycloak subject id. The socket
-     * gateway stamps the Keycloak sub, but course-scoped data keys off
-     * `enrollments.user_id` (= `users.id`) -- so the sub must be resolved first.
-     *
-     * @param keycloakId - The Keycloak subject id from the socket.
-     * @returns The real user id, or `null` when no user matches.
-     */
-    async resolveUserIdByKeycloakId(
-        keycloakId: string,
-    ): Promise<string | null> {
+   * Resolve the real `users.id` (uuid) from a Keycloak subject id. The socket
+   * gateway stamps the Keycloak sub, but course-scoped data keys off
+   * `enrollments.user_id` (= `users.id`) -- so the sub must be resolved first.
+   *
+   * @param keycloakId - The Keycloak subject id from the socket.
+   * @returns The real user id, or `null` when no user matches.
+   */
+    async resolveUserIdByKeycloakId(keycloakId: string): Promise<string | null> {
         const user = await this.userService.getUserByKeycloakId(keycloakId)
         return user?.id ?? null
     }
 
     /**
-     * Create a new (empty) conversation anchored to one of the scopes --
-     * content / task / challenge / quiz / foundation / course / global (the
-     * SESSION-PER-SCOPE model). The scope is taken explicitly when given, else
-     * derived by anchor priority (content > task > challenge > quiz > foundation
-     * > course > global), mirroring `prepareMessages`. Auto-titled later from its
-     * first question.
-     *
-     * Anchoring + entitlement per scope:
-     * - **content / task / challenge / quiz / course**: key off the resolved
-     *   enrollment (trial rows count). Their own material stays gated at answer
-     *   time in `prepareMessages`.
-     * - **foundation**: GLOBAL -- no course, no enrollment; keys off the raw user.
-     * - **global**: the app-wide "chung" chat -- no anchor at all; GLOBAL like
-     *   `foundation`, keyed off the raw user.
-     *
-     * @param params - The learner, the (optional) scope, and the anchor ids.
-     * @returns The new session id, or `null` when no valid anchor / enrollment resolves.
-     */
-    async createSession(
-        {
-            userId,
-            scope,
-            contentId,
-            taskId,
-            challengeId,
-            quizId,
-            foundationId,
-            courseId,
-            archived,
-        }: CreateContentAiSessionParams,
-    ): Promise<string | null> {
-        // derive scope by anchor priority when the caller did not pin one; an
-        // anchorless request always resolves -- it lands on the "global" chat
-        const resolvedScope: ContentAiScope = scope
-            ?? this.deriveScopeByAnchorPriority({
-                contentId,
-                taskId,
-                challengeId,
-                quizId,
-                foundationId,
-                courseId,
-            })
+   * Create a new (empty) conversation anchored to one of the scopes --
+   * content / task / challenge / quiz / foundation / course / global (the
+   * SESSION-PER-SCOPE model). The scope is taken explicitly when given, else
+   * derived by anchor priority (content > task > challenge > quiz > foundation
+   * > course > global), mirroring `prepareMessages`. Auto-titled later from its
+   * first question.
+   *
+   * Anchoring + entitlement per scope:
+   * - **content / task / challenge / quiz / course**: key off the resolved
+   *   enrollment (trial rows count). Their own material stays gated at answer
+   *   time in `prepareMessages`.
+   * - **foundation**: GLOBAL -- no course, no enrollment; keys off the raw user.
+   * - **global**: the app-wide "chung" chat -- no anchor at all; GLOBAL like
+   *   `foundation`, keyed off the raw user.
+   *
+   * @param params - The learner, the (optional) scope, and the anchor ids.
+   * @returns The new session id, or `null` when no valid anchor / enrollment resolves.
+   */
+    async createSession({
+        userId,
+        scope,
+        contentId,
+        taskId,
+        challengeId,
+        quizId,
+        foundationId,
+        courseId,
+        archived,
+    }: CreateContentAiSessionParams): Promise<string | null> {
+    // derive scope by anchor priority when the caller did not pin one; an
+    // anchorless request always resolves -- it lands on the "global" chat
+        const resolvedScope: ContentAiScope =
+      scope ??
+      this.deriveScopeByAnchorPriority({
+          contentId,
+          taskId,
+          challengeId,
+          quizId,
+          foundationId,
+          courseId,
+      })
 
         // resolve the row to persist per scope; a missing anchor / enrollment -> null
         // (no session created) so a non-entitled or malformed request is a silent
@@ -1068,29 +1041,175 @@ export class ContentAiService {
             return null
         }
 
-        const session = this.entityManager.create(
-            ContentAiSessionEntity,
+        const session = this.entityManager.create(ContentAiSessionEntity,
             {
                 ...toCreate,
                 title: null,
                 // born-archived side-threads (selection asks) are stamped now so
                 // they stay out of the default list but remain searchable
-                archivedAt: archived
-                    ? new Date()
-                    : null,
-            },
-        )
+                archivedAt: archived ? new Date() : null,
+            })
         await this.entityManager.save(session)
         return session.id
     }
 
+    /** Resolve the one active Learn companion owned by this enrollment/course. */
+    async resolveLearnAiCompanion({
+        userId,
+        courseId,
+    }: ResolveLearnAiCompanionParams): Promise<
+    LearnAiCompanionSnapshot["session"]
+  > {
+        const enrollmentId = await this.resolveEnrollmentByCourse(userId,
+            courseId)
+        if (!enrollmentId) {
+            return null
+        }
+        return this.entityManager.transaction(async (manager) => {
+            await manager.query(
+                `INSERT INTO content_ai_sessions (
+                    id, scope, experience, enrollment_id, title,
+                    archived_at, created_at, updated_at
+                )
+                VALUES (uuid_generate_v4(), 'course', 'learn_companion', $1,
+                        NULL, NULL, now(), now())
+                ON CONFLICT (enrollment_id)
+                    WHERE experience = 'learn_companion' AND archived_at IS NULL
+                DO NOTHING`,
+                [enrollmentId],
+            )
+            const rows = await manager.query<
+        Array<NonNullable<LearnAiCompanionSnapshot["session"]>>
+      >(
+          `SELECT s.id,
+                        e.course_id AS "courseId",
+                        s.enrollment_id AS "enrollmentId",
+                        s.title,
+                        s.archived_at AS "archivedAt",
+                        s.updated_at AS "updatedAt"
+                   FROM content_ai_sessions s
+                   JOIN enrollments e ON e.id = s.enrollment_id
+                  WHERE s.enrollment_id = $1
+                    AND s.experience = 'learn_companion'
+                    AND s.archived_at IS NULL
+                  LIMIT 1`,
+          [enrollmentId],
+      )
+            return rows[0] ?? null
+        })
+    }
+
+    /** Read the active Learn companion, transcript, and durable request states. */
+    async loadLearnAiCompanion({
+        userId,
+        courseId,
+        limit,
+        offset,
+    }: LoadLearnAiCompanionParams): Promise<LearnAiCompanionSnapshot> {
+        const enrollmentId = await this.resolveEnrollmentByCourse(userId,
+            courseId)
+        if (!enrollmentId) {
+            return {
+                session: null,
+                messages: [],
+                turns: [],
+            }
+        }
+        const sessions = await this.entityManager.query<
+      Array<NonNullable<LearnAiCompanionSnapshot["session"]>>
+    >(
+        `SELECT s.id,
+                    e.course_id AS "courseId",
+                    s.enrollment_id AS "enrollmentId",
+                    s.title,
+                    s.archived_at AS "archivedAt",
+                    s.updated_at AS "updatedAt"
+               FROM content_ai_sessions s
+               JOIN enrollments e ON e.id = s.enrollment_id
+              WHERE s.enrollment_id = $1
+                AND s.experience = 'learn_companion'
+                AND s.archived_at IS NULL
+              LIMIT 1`,
+        [enrollmentId],
+    )
+        const session = sessions[0] ?? null
+        if (!session) {
+            return {
+                session: null,
+                messages: [],
+                turns: [],
+            }
+        }
+        const pageLimit = Math.min(Math.max(limit ?? 50,
+            1),
+        100)
+        const pageOffset = Math.max(offset ?? 0,
+            0)
+        const [messages,
+            turns] = await Promise.all([
+            this.entityManager.query<Array<{ role: string; content: string }>>(
+                `SELECT role, message AS content
+                   FROM content_ai_messages
+                  WHERE session_id = $1
+                  ORDER BY created_at ASC
+                  LIMIT $2 OFFSET $3`,
+                [session.id,
+                    pageLimit,
+                    pageOffset],
+            ),
+            this.entityManager.query<LearnAiCompanionSnapshot["turns"]>(
+                `SELECT stream_id AS "streamId",
+                        state,
+                        response,
+                        error_code AS "errorCode",
+                        attempt_count AS "attemptCount",
+                        updated_at AS "updatedAt"
+                   FROM content_ai_turns
+                  WHERE session_id = $1
+                  ORDER BY created_at ASC`,
+                [session.id],
+            ),
+        ])
+        return {
+            session,
+            messages,
+            turns,
+        }
+    }
+
+    /** Archive the current Learn companion; the next resolve creates a new one. */
+    async resetLearnAiCompanion({
+        userId,
+        courseId,
+    }: ResolveLearnAiCompanionParams): Promise<ResetLearnAiCompanionResult> {
+        const rows = await this.entityManager.query<Array<{ id: string }>>(
+            `WITH archived AS (
+                UPDATE content_ai_sessions s
+                   SET archived_at = now(), updated_at = now()
+                  FROM enrollments e
+                 WHERE s.enrollment_id = e.id
+                   AND e.user_id = $1
+                   AND e.course_id = $2
+                   AND s.experience = 'learn_companion'
+                   AND s.archived_at IS NULL
+             RETURNING s.id
+            )
+            SELECT id FROM archived`,
+            [userId,
+                courseId],
+        )
+        return {
+            archivedSessionId: rows[0]?.id ?? null,
+        }
+    }
+
     /**
-     * Resolve the row {@link createSession} should persist for the given scope --
-     * a missing anchor or a non-entitled (no resolvable enrollment) request
-     * resolves to `null`, so the caller creates no orphan row.
-     * @param resolvedScope - The scope to create a session row for.
-     * @param anchors - The learner plus every anchor id `createSession` was given.
-     */
+   * Resolve the row {@link createSession} should persist for the given scope --
+   * a missing anchor or a non-entitled (no resolvable enrollment) request
+   * resolves to `null`, so the caller creates no orphan row.
+   * @param resolvedScope - The scope to create a session row for.
+   * @param anchors - The learner plus every anchor id `createSession` was given.
+   */
     private async resolveSessionRowToCreate(
         resolvedScope: ContentAiScope,
         anchors: ResolveSessionRowToCreateAnchors,
@@ -1121,13 +1240,13 @@ export class ContentAiService {
             return this.resolveCourseSessionRow(userId,
                 courseId)
         case "foundation":
-            // GLOBAL library doc -- no course, no enrollment; anchor on the raw
-            // user (course-agnostic side of the enrollment-centric model)
+        // GLOBAL library doc -- no course, no enrollment; anchor on the raw
+        // user (course-agnostic side of the enrollment-centric model)
             return this.resolveFoundationSessionRow(userId,
                 foundationId)
         default:
-            // global: the app-wide "chung" chat -- no anchor at all; GLOBAL like
-            // foundation, keyed off the raw user
+        // global: the app-wide "chung" chat -- no anchor at all; GLOBAL like
+        // foundation, keyed off the raw user
             return {
                 scope: "global",
                 userId,
@@ -1163,7 +1282,8 @@ export class ContentAiService {
         if (!challengeId) {
             return null
         }
-        const challengeCourseId = await this.resolveCourseIdOfChallenge(challengeId)
+        const challengeCourseId =
+      await this.resolveCourseIdOfChallenge(challengeId)
         const enrollmentId = challengeCourseId
             ? await this.resolveEnrollmentByCourse(userId,
                 challengeCourseId)
@@ -1259,21 +1379,19 @@ export class ContentAiService {
     }
 
     /**
-     * Derives a session's scope from whichever anchor id is set, by priority
-     * (content > task > challenge > quiz > foundation > course), falling back
-     * to the anchorless "global" chat. Shared by `createSession` and the
-     * session list so an unpinned request resolves identically in both.
-     */
-    private deriveScopeByAnchorPriority(
-        {
-            contentId,
-            taskId,
-            challengeId,
-            quizId,
-            foundationId,
-            courseId,
-        }: DeriveContentAiScopeByAnchorPriorityParams,
-    ): ContentAiScope {
+   * Derives a session's scope from whichever anchor id is set, by priority
+   * (content > task > challenge > quiz > foundation > course), falling back
+   * to the anchorless "global" chat. Shared by `createSession` and the
+   * session list so an unpinned request resolves identically in both.
+   */
+    private deriveScopeByAnchorPriority({
+        contentId,
+        taskId,
+        challengeId,
+        quizId,
+        foundationId,
+        courseId,
+    }: DeriveContentAiScopeByAnchorPriorityParams): ContentAiScope {
         if (contentId) {
             return "content"
         }
@@ -1296,37 +1414,35 @@ export class ContentAiService {
     }
 
     /**
-     * List the learner's conversations for the CURRENT scope (recency-first): a
-     * lesson lists that content's chats, a task lists that task's, a foundation
-     * lists that foundation doc's, a course lists the whole-course chats. When a
-     * non-empty `search` is given the CONTENT scope searches ALL the learner's
-     * course conversations (so an old "kafka"/"nginx" chat is findable); the other
-     * scopes filter their own list by title/message text.
-     *
-     * The scope is taken explicitly when given, else derived by anchor priority
-     * (content > task > challenge > quiz > foundation > course > global),
-     * mirroring `prepareMessages` / `createSession`.
-     *
-     * @param params - The learner, the (optional) scope, the anchor ids, and paging.
-     * @returns Conversation summaries (recency-first).
-     */
-    async sessions(
-        {
-            userId,
-            scope,
-            contentId,
-            taskId,
-            challengeId,
-            quizId,
-            foundationId,
-            courseId,
-            search,
-            limit,
-            offset,
-            includeArchived,
-        }: ContentAiSessionsParams,
-    ): Promise<Array<ContentAiSessionSummary>> {
-        // clamp the page so a bad client value can't pull the whole table
+   * List the learner's conversations for the CURRENT scope (recency-first): a
+   * lesson lists that content's chats, a task lists that task's, a foundation
+   * lists that foundation doc's, a course lists the whole-course chats. When a
+   * non-empty `search` is given the CONTENT scope searches ALL the learner's
+   * course conversations (so an old "kafka"/"nginx" chat is findable); the other
+   * scopes filter their own list by title/message text.
+   *
+   * The scope is taken explicitly when given, else derived by anchor priority
+   * (content > task > challenge > quiz > foundation > course > global),
+   * mirroring `prepareMessages` / `createSession`.
+   *
+   * @param params - The learner, the (optional) scope, the anchor ids, and paging.
+   * @returns Conversation summaries (recency-first).
+   */
+    async sessions({
+        userId,
+        scope,
+        contentId,
+        taskId,
+        challengeId,
+        quizId,
+        foundationId,
+        courseId,
+        search,
+        limit,
+        offset,
+        includeArchived,
+    }: ContentAiSessionsParams): Promise<Array<ContentAiSessionSummary>> {
+    // clamp the page so a bad client value can't pull the whole table
         const pageLimit = Math.min(Math.max(limit ?? 20,
             1),
         50)
@@ -1336,15 +1452,16 @@ export class ContentAiService {
 
         // derive scope by anchor priority when not pinned; an anchorless
         // request always resolves -- it lands on the "global" chat's list
-        const resolvedScope: ContentAiScope = scope
-            ?? this.deriveScopeByAnchorPriority({
-                contentId,
-                taskId,
-                challengeId,
-                quizId,
-                foundationId,
-                courseId,
-            })
+        const resolvedScope: ContentAiScope =
+      scope ??
+      this.deriveScopeByAnchorPriority({
+          contentId,
+          taskId,
+          challengeId,
+          quizId,
+          foundationId,
+          courseId,
+      })
 
         // CONTENT: original behaviour, verbatim (list this content, or course-wide
         // search) -- no regression to the shipped lesson list.
@@ -1356,17 +1473,21 @@ export class ContentAiService {
                 // search ALWAYS spans archived rows -- digging up an archived (or
                 // born-archived selection) chat is exactly when search is used, so
                 // `includeArchived` is not threaded here.
-                return this.searchSessions(userId,
+                return this.searchSessions(
+                    userId,
                     contentId,
                     trimmed,
                     pageLimit,
-                    pageOffset)
+                    pageOffset,
+                )
             }
-            return this.listSessions(userId,
+            return this.listSessions(
+                userId,
                 contentId,
                 pageLimit,
                 pageOffset,
-                includeArchived ?? false)
+                includeArchived ?? false,
+            )
         }
 
         // TASK / CHALLENGE / QUIZ / FOUNDATION / COURSE / GLOBAL: scope-anchored
@@ -1387,38 +1508,38 @@ export class ContentAiService {
     }
 
     /**
-     * List (or in-scope search) conversations for a NON-content scope -- task,
-     * challenge, quiz, foundation, course, or global. Resolves the scope's owner +
-     * anchor, then runs one recency-first paged query. A task/challenge/quiz/course
-     * session is owned via the enrollment; a GLOBAL foundation or global (app-wide)
-     * session is owned via the raw user. The anchor isolates the surface
-     * (`origin_task_id` / `origin_foundation_id` / ...); a course or global session
-     * has no per-item anchor and is selected by `scope` alone.
-     *
-     * A non-empty `search` narrows THIS scope's list by title/message text (no
-     * cross-content JOIN -- task/foundation/course rows have no content title) and
-     * spans archived rows, matching the content-scope search semantics.
-     *
-     * @param params - The learner, the scope, the anchor ids, search + paging.
-     * @returns Conversation summaries (recency-first), or empty when unauthorized.
-     */
-    private async listScopedSessions(
-        {
-            userId,
-            scope,
-            taskId,
-            challengeId,
-            quizId,
-            foundationId,
-            courseId,
-            search,
-            limit,
-            offset,
-            includeArchived,
-        }: ListScopedContentAiSessionsParams,
-    ): Promise<Array<ContentAiSessionSummary>> {
-        // resolve the owner predicate + the anchor predicate for this scope. Column
-        // names are whitelisted (never client input) so they interpolate safely.
+   * List (or in-scope search) conversations for a NON-content scope -- task,
+   * challenge, quiz, foundation, course, or global. Resolves the scope's owner +
+   * anchor, then runs one recency-first paged query. A task/challenge/quiz/course
+   * session is owned via the enrollment; a GLOBAL foundation or global (app-wide)
+   * session is owned via the raw user. The anchor isolates the surface
+   * (`origin_task_id` / `origin_foundation_id` / ...); a course or global session
+   * has no per-item anchor and is selected by `scope` alone.
+   *
+   * A non-empty `search` narrows THIS scope's list by title/message text (no
+   * cross-content JOIN -- task/foundation/course rows have no content title) and
+   * spans archived rows, matching the content-scope search semantics.
+   *
+   * @param params - The learner, the scope, the anchor ids, search + paging.
+   * @returns Conversation summaries (recency-first), or empty when unauthorized.
+   */
+    private async listScopedSessions({
+        userId,
+        scope,
+        taskId,
+        challengeId,
+        quizId,
+        foundationId,
+        courseId,
+        search,
+        limit,
+        offset,
+        includeArchived,
+    }: ListScopedContentAiSessionsParams): Promise<
+    Array<ContentAiSessionSummary>
+  > {
+    // resolve the owner predicate + the anchor predicate for this scope. Column
+    // names are whitelisted (never client input) so they interpolate safely.
         const owner = await this.resolveScopedSessionOwner(scope,
             {
                 userId,
@@ -1431,12 +1552,7 @@ export class ContentAiService {
         if (!owner?.ownerId) {
             return []
         }
-        const {
-            ownerColumn,
-            ownerId,
-            anchorColumn,
-            anchorId,
-        } = owner
+        const { ownerColumn, ownerId, anchorColumn, anchorId } = owner
 
         // Build the parametrized query incrementally: $1 owner, $2 scope, then the
         // optional anchor, then the search-or-archived clause, then paging. Column
@@ -1448,40 +1564,41 @@ export class ContentAiService {
             snippetExpr,
             limitParam,
             offsetParam,
-        } = this.buildScopedSessionsQuery(
-            {
-                ownerId,
-                scope,
-                anchorColumn,
-                anchorId,
-                search,
-                includeArchived,
-                limit,
-                offset,
-            },
-        )
+        } = this.buildScopedSessionsQuery({
+            ownerId,
+            scope,
+            anchorColumn,
+            anchorId,
+            search,
+            includeArchived,
+            limit,
+            offset,
+        })
 
-        const rows = await this.entityManager.query<Array<{
-            id: string
-            title: string | null
-            updatedAt: Date
-            messageCount: number
-            snippet: string | null
-        }>>(
-            `SELECT s.id, s.title, s.updated_at AS "updatedAt",
+        const rows = await this.entityManager.query<
+      Array<{
+        id: string;
+        title: string | null;
+        updatedAt: Date;
+        messageCount: number;
+        snippet: string | null;
+      }>
+    >(
+        `SELECT s.id, s.title, s.updated_at AS "updatedAt",
                     COUNT(m.id)::int AS "messageCount",
                     ${snippetExpr} AS "snippet"
              FROM content_ai_sessions s
              LEFT JOIN content_ai_messages m ON m.session_id = s.id
              WHERE s.${ownerColumn} = $1 AND s.scope = $2
+               AND s.experience IS NULL
                ${anchorClause}
                ${searchClause}
              GROUP BY s.id
              HAVING COUNT(m.id) > 0
              ORDER BY s.updated_at DESC
              LIMIT $${limitParam} OFFSET $${offsetParam}`,
-            params,
-        )
+        params,
+    )
         return rows.map((row) => ({
             id: row.id,
             title: row.title,
@@ -1495,24 +1612,18 @@ export class ContentAiService {
     }
 
     /**
-     * Resolve the owner column/id + anchor column/id for one non-content scope.
-     * `null` means the scope's own anchor id was missing entirely (the caller
-     * treats that the same as an unresolved owner -- an empty list).
-     * @param scope - The scope being listed.
-     * @param anchors - The learner plus every anchor id `listScopedSessions` was given.
-     */
+   * Resolve the owner column/id + anchor column/id for one non-content scope.
+   * `null` means the scope's own anchor id was missing entirely (the caller
+   * treats that the same as an unresolved owner -- an empty list).
+   * @param scope - The scope being listed.
+   * @param anchors - The learner plus every anchor id `listScopedSessions` was given.
+   */
     private async resolveScopedSessionOwner(
         scope: ContentAiScope,
         anchors: ResolveScopedSessionOwnerAnchors,
     ): Promise<ScopedSessionOwner | null> {
-        const {
-            userId,
-            taskId,
-            challengeId,
-            quizId,
-            foundationId,
-            courseId,
-        } = anchors
+        const { userId, taskId, challengeId, quizId, foundationId, courseId } =
+      anchors
         switch (scope) {
         case "task":
             return this.resolveTaskScopedOwner(userId,
@@ -1527,12 +1638,12 @@ export class ContentAiService {
             return this.resolveCourseScopedOwner(userId,
                 courseId)
         case "foundation":
-            // GLOBAL library doc -- owned by the raw user, anchored on the doc
+        // GLOBAL library doc -- owned by the raw user, anchored on the doc
             return this.resolveFoundationScopedOwner(userId,
                 foundationId)
         default:
-            // global: the app-wide "chung" chat -- owned by the raw user, no
-            // anchor column at all (there is nothing narrower than the scope itself)
+        // global: the app-wide "chung" chat -- owned by the raw user, no
+        // anchor column at all (there is nothing narrower than the scope itself)
             return {
                 ownerColumn: "user_id",
                 ownerId: userId,
@@ -1571,7 +1682,8 @@ export class ContentAiService {
         if (!challengeId) {
             return null
         }
-        const challengeCourseId = await this.resolveCourseIdOfChallenge(challengeId)
+        const challengeCourseId =
+      await this.resolveCourseIdOfChallenge(challengeId)
         const ownerId = challengeCourseId
             ? await this.resolveEnrollmentByCourse(userId,
                 challengeCourseId)
@@ -1640,29 +1752,25 @@ export class ContentAiService {
     }
 
     /**
-     * Build the parametrized SQL fragments for {@link listScopedSessions}: $1
-     * owner, $2 scope, then the optional anchor, then the search-or-archived
-     * clause, then paging. Search spans archived rows (same as content search);
-     * a plain list hides archived unless `includeArchived` is set. When
-     * searching, the snippet reuses the SAME pattern param.
-     * @param params - The resolved owner/anchor plus search + paging inputs.
-     */
-    private buildScopedSessionsQuery(
-        {
-            ownerId,
-            scope,
-            anchorColumn,
-            anchorId,
-            search,
-            includeArchived,
-            limit,
-            offset,
-        }: BuildScopedSessionsQueryParams,
-    ): BuildScopedSessionsQueryResult {
-        const params: Array<unknown> = [
-            ownerId,
-            scope,
-        ]
+   * Build the parametrized SQL fragments for {@link listScopedSessions}: $1
+   * owner, $2 scope, then the optional anchor, then the search-or-archived
+   * clause, then paging. Search spans archived rows (same as content search);
+   * a plain list hides archived unless `includeArchived` is set. When
+   * searching, the snippet reuses the SAME pattern param.
+   * @param params - The resolved owner/anchor plus search + paging inputs.
+   */
+    private buildScopedSessionsQuery({
+        ownerId,
+        scope,
+        anchorColumn,
+        anchorId,
+        search,
+        includeArchived,
+        limit,
+        offset,
+    }: BuildScopedSessionsQueryParams): BuildScopedSessionsQueryResult {
+        const params: Array<unknown> = [ownerId,
+            scope]
         let anchorClause = ""
         if (anchorColumn) {
             params.push(anchorId)
@@ -1698,9 +1806,9 @@ export class ContentAiService {
     }
 
     /**
-     * List conversations anchored to one content (recency-first), paged. Archived
-     * conversations are hidden unless `includeArchived` is set.
-     */
+   * List conversations anchored to one content (recency-first), paged. Archived
+   * conversations are hidden unless `includeArchived` is set.
+   */
     private async listSessions(
         userId: string,
         contentId: string,
@@ -1713,17 +1821,19 @@ export class ContentAiService {
         if (!enrollmentId) {
             return []
         }
-        const rows = await this.entityManager.query<Array<{
-            id: string
-            title: string | null
-            updatedAt: Date
-            messageCount: number
-        }>>(
-            // HAVING COUNT > 0 hides empty/abandoned sessions (created on send but
-            // never got a saved turn) so the list + auto-select only see real chats.
-            // `archived_at IS NULL` hides archived (incl. born-archived selection)
-            // sessions from the default list unless includeArchived is requested.
-            `SELECT s.id, s.title, s.updated_at AS "updatedAt",
+        const rows = await this.entityManager.query<
+      Array<{
+        id: string;
+        title: string | null;
+        updatedAt: Date;
+        messageCount: number;
+      }>
+    >(
+        // HAVING COUNT > 0 hides empty/abandoned sessions (created on send but
+        // never got a saved turn) so the list + auto-select only see real chats.
+        // `archived_at IS NULL` hides archived (incl. born-archived selection)
+        // sessions from the default list unless includeArchived is requested.
+        `SELECT s.id, s.title, s.updated_at AS "updatedAt",
                     COUNT(m.id)::int AS "messageCount"
              FROM content_ai_sessions s
              LEFT JOIN content_ai_messages m ON m.session_id = s.id
@@ -1733,14 +1843,12 @@ export class ContentAiService {
              HAVING COUNT(m.id) > 0
              ORDER BY s.updated_at DESC
              LIMIT $3 OFFSET $4`,
-            [
-                enrollmentId,
-                contentId,
-                limit,
-                offset,
-                includeArchived,
-            ],
-        )
+        [enrollmentId,
+            contentId,
+            limit,
+            offset,
+            includeArchived],
+    )
         return rows.map((row) => ({
             id: row.id,
             title: row.title,
@@ -1754,11 +1862,11 @@ export class ContentAiService {
     }
 
     /**
-     * Search ALL the learner's conversations in the content's course, paged.
-     * INTENTIONALLY spans archived rows too (no `archived_at` filter): search is
-     * exactly how a learner digs an archived / born-archived selection chat back
-     * up, so it must see them.
-     */
+   * Search ALL the learner's conversations in the content's course, paged.
+   * INTENTIONALLY spans archived rows too (no `archived_at` filter): search is
+   * exactly how a learner digs an archived / born-archived selection chat back
+   * up, so it must see them.
+   */
     private async searchSessions(
         userId: string,
         contentId: string,
@@ -1772,16 +1880,18 @@ export class ContentAiService {
             return []
         }
         const pattern = `%${query}%`
-        const rows = await this.entityManager.query<Array<{
-            id: string
-            title: string | null
-            updatedAt: Date
-            messageCount: number
-            originContentId: string
-            originContentTitle: string | null
-            snippet: string | null
-        }>>(
-            `SELECT * FROM (
+        const rows = await this.entityManager.query<
+      Array<{
+        id: string;
+        title: string | null;
+        updatedAt: Date;
+        messageCount: number;
+        originContentId: string;
+        originContentTitle: string | null;
+        snippet: string | null;
+      }>
+    >(
+        `SELECT * FROM (
                 SELECT s.id, s.title, s.updated_at AS "updatedAt",
                        s.origin_content_id AS "originContentId",
                        c.title AS "originContentTitle",
@@ -1798,13 +1908,11 @@ export class ContentAiService {
                         WHERE m.session_id = s.id AND m.message ILIKE $2))
              ) t ORDER BY t."updatedAt" DESC
              LIMIT $3 OFFSET $4`,
-            [
-                enrollmentId,
-                pattern,
-                limit,
-                offset,
-            ],
-        )
+        [enrollmentId,
+            pattern,
+            limit,
+            offset],
+    )
         return rows.map((row) => ({
             id: row.id,
             title: row.title,
@@ -1818,17 +1926,17 @@ export class ContentAiService {
     }
 
     /**
-     * Load a conversation's turns (oldest first) so the thread can be rebuilt.
-     * Returns empty when the session is not owned by the learner.
-     *
-     * @param params - The learner + the session.
-     */
-    async loadSessionMessages(
-        {
-            userId,
-            sessionId,
-        }: LoadContentAiSessionMessagesParams,
-    ): Promise<Array<ContentAiHistoryMessage>> {
+   * Load a conversation's turns (oldest first) so the thread can be rebuilt.
+   * Returns empty when the session is not owned by the learner.
+   *
+   * @param params - The learner + the session.
+   */
+    async loadSessionMessages({
+        userId,
+        sessionId,
+    }: LoadContentAiSessionMessagesParams): Promise<
+    Array<ContentAiHistoryMessage>
+  > {
         const owned = await this.resolveOwnedSession(userId,
             sessionId)
         if (!owned) {
@@ -1836,15 +1944,15 @@ export class ContentAiService {
         }
         // raw SQL -- avoid TypeORM `where`/`select` ambiguity on `session_id`
         // (it carries both @Column and @RelationId), which can throw at runtime
-        const rows = await this.entityManager.query<Array<{ role: string, message: string }>>(
-            `SELECT role, message
+        const rows = await this.entityManager.query<
+      Array<{ role: string; message: string }>
+    >(
+        `SELECT role, message
                FROM content_ai_messages
               WHERE session_id = $1
               ORDER BY created_at ASC`,
-            [
-                sessionId,
-            ],
-        )
+        [sessionId],
+    )
         return rows.map((row) => ({
             role: row.role,
             content: row.message,
@@ -1852,25 +1960,23 @@ export class ContentAiService {
     }
 
     /**
-     * Persist one `(question -> answer)` turn under a conversation, for ANY scope.
-     * The turn inherits the session's owner anchors (enrollment for a course-scoped
-     * session, user for a foundation session). A content-scope turn also records
-     * the content it was grounded on (`contentId`) so that conversation can span
-     * lessons; task/foundation/course turns pass no content (the anchor lives on
-     * the session). Auto-titles the session from its first question + bumps its
-     * recency. No-op when the answer is empty or the session is not owned.
-     *
-     * @param params - The learner, the session, the (optional) grounding content, the Q + A.
-     */
-    async saveTurn(
-        {
-            userId,
-            sessionId,
-            contentId,
-            question,
-            answer,
-        }: SaveContentAiTurnParams,
-    ): Promise<void> {
+   * Persist one `(question -> answer)` turn under a conversation, for ANY scope.
+   * The turn inherits the session's owner anchors (enrollment for a course-scoped
+   * session, user for a foundation session). A content-scope turn also records
+   * the content it was grounded on (`contentId`) so that conversation can span
+   * lessons; task/foundation/course turns pass no content (the anchor lives on
+   * the session). Auto-titles the session from its first question + bumps its
+   * recency. No-op when the answer is empty or the session is not owned.
+   *
+   * @param params - The learner, the session, the (optional) grounding content, the Q + A.
+   */
+    async saveTurn({
+        userId,
+        sessionId,
+        contentId,
+        question,
+        answer,
+    }: SaveContentAiTurnParams): Promise<void> {
         const trimmedAnswer = answer.trim()
         if (!question.trim() || !trimmedAnswer) {
             return
@@ -1889,8 +1995,7 @@ export class ContentAiService {
             userId: owned.userId,
             contentId: contentId ?? null,
         }
-        await this.entityManager.insert(
-            ContentAiMessageEntity,
+        await this.entityManager.insert(ContentAiMessageEntity,
             [
                 {
                     ...anchor,
@@ -1902,8 +2007,7 @@ export class ContentAiService {
                     role: "assistant",
                     message: trimmedAnswer,
                 },
-            ],
-        )
+            ])
         // auto-title from the first question (only when still untitled) + bump recency
         // the owner predicate is carried in the write itself, not just the SELECT above
         await this.entityManager.query(
@@ -1917,26 +2021,339 @@ export class ContentAiService {
                      WHERE e.id = content_ai_sessions.enrollment_id AND e.user_id = $3
                   )
                 )`,
-            [
-                sessionId,
+            [sessionId,
                 question.trim().slice(0,
                     120),
-                userId,
-            ],
+                userId],
         )
     }
 
     /**
-     * Delete a conversation (cascades its messages). No-op when not owned.
-     *
-     * @param params - The learner + the session to delete.
-     */
-    async deleteSession(
-        {
+   * Claim a client request identity before invoking a provider. A completed
+   * duplicate replays its stored answer, an active duplicate is rejected, and
+   * failed/cancelled attempts may be atomically reacquired for the exact same
+   * request hash. A charging row is deliberately never retried automatically:
+   * its debit may have succeeded even when the final local commit did not.
+   */
+    async acquireTurn({
+        userId,
+        sessionId,
+        streamId,
+        requestHash,
+        contentId,
+        taskId,
+        challengeId,
+        quizId,
+        courseId,
+        experience,
+    }: AcquireContentAiTurnParams): Promise<AcquireContentAiTurnResult> {
+        const contextCourseId = contentId
+            ? await this.resolveCourseIdOfContent(contentId)
+            : taskId
+                ? await this.resolveCourseIdOfTask(taskId)
+                : challengeId
+                    ? await this.resolveCourseIdOfChallenge(challengeId)
+                    : quizId
+                        ? await this.resolveCourseIdOfQuiz(quizId)
+                        : (courseId ?? null)
+        return this.entityManager.transaction(async (manager) => {
+            const inserted = await manager.query<
+        Array<{
+          id: string;
+        }>
+      >(
+          `INSERT INTO content_ai_turns (
+                    session_id, stream_id, request_hash, state,
+                    attempt_count, created_at, updated_at
+                )
+                SELECT s.id, $2, $3, 'processing', 1, now(), now()
+                  FROM content_ai_sessions s
+                  LEFT JOIN enrollments e ON e.id = s.enrollment_id
+                 WHERE s.id = $1
+                   AND (e.user_id = $4 OR s.user_id = $4)
+                   AND ($5::uuid IS NULL OR e.course_id = $5)
+                   AND ($6::varchar IS NULL OR s.experience = $6)
+                ON CONFLICT (session_id, stream_id) DO NOTHING
+                RETURNING id`,
+          [
+              sessionId,
+              streamId,
+              requestHash,
+              userId,
+              contextCourseId,
+              experience ?? null,
+          ],
+      )
+
+            const rows = await manager.query<
+        Array<{
+          id: string;
+          requestHash: string;
+          state: ContentAiTurnState;
+          response: string | null;
+          courseId: string | null;
+        }>
+      >(
+          `SELECT t.id,
+                        t.request_hash AS "requestHash",
+                        t.state,
+                        t.response,
+                        e.course_id AS "courseId"
+                   FROM content_ai_turns t
+                   JOIN content_ai_sessions s ON s.id = t.session_id
+                   LEFT JOIN enrollments e ON e.id = s.enrollment_id
+                  WHERE t.session_id = $1
+                    AND t.stream_id = $2
+                    AND (e.user_id = $3 OR s.user_id = $3)
+                    AND ($4::uuid IS NULL OR e.course_id = $4)
+                    AND ($5::varchar IS NULL OR s.experience = $5)
+                  FOR UPDATE OF t`,
+          [sessionId,
+              streamId,
+              userId,
+              contextCourseId,
+              experience ?? null],
+      )
+            const turn = rows[0]
+            if (!turn) {
+                return {
+                    outcome: "not-owned",
+                }
+            }
+            if (inserted.length > 0) {
+                return {
+                    outcome: "acquired",
+                    courseId: turn.courseId,
+                }
+            }
+            if (turn.requestHash !== requestHash) {
+                return {
+                    outcome: "conflict",
+                }
+            }
+            if (turn.state === "completed") {
+                return {
+                    outcome: "replay",
+                    answer: turn.response ?? "",
+                    courseId: turn.courseId,
+                }
+            }
+            if (turn.state === "processing") {
+                return {
+                    outcome: "in-progress",
+                }
+            }
+            if (turn.state === "charging") {
+                return {
+                    outcome: "recovery-required",
+                }
+            }
+
+            await manager.query(
+                `UPDATE content_ai_turns
+                    SET state = 'processing',
+                        response = NULL,
+                        error_code = NULL,
+                        completed_at = NULL,
+                        attempt_count = attempt_count + 1,
+                        updated_at = now()
+                  WHERE id = $1 AND state IN ('failed', 'cancelled')`,
+                [turn.id],
+            )
+            return {
+                outcome: "acquired",
+                courseId: turn.courseId,
+            }
+        })
+    }
+
+    /** Store the fully buffered provider answer before attempting a debit. */
+    async markTurnCharging({
+        userId,
+        sessionId,
+        streamId,
+        requestHash,
+        answer,
+    }: MarkContentAiTurnChargingParams): Promise<boolean> {
+        const trimmedAnswer = answer.trim()
+        if (!trimmedAnswer) {
+            return false
+        }
+        const rows = await this.entityManager.query<
+      Array<{
+        id: string;
+      }>
+    >(
+        `UPDATE content_ai_turns t
+                SET state = 'charging',
+                    response = $5,
+                    error_code = NULL,
+                    updated_at = now()
+               FROM content_ai_sessions s
+               LEFT JOIN enrollments e ON e.id = s.enrollment_id
+              WHERE t.session_id = s.id
+                AND t.session_id = $1
+                AND t.stream_id = $2
+                AND t.request_hash = $3
+                AND t.state = 'processing'
+                AND (e.user_id = $4 OR s.user_id = $4)
+              RETURNING t.id`,
+        [sessionId,
+            streamId,
+            requestHash,
             userId,
+            trimmedAnswer],
+    )
+        return rows.length > 0
+    }
+
+    /**
+   * Atomically append the visible transcript and mark a charged turn complete.
+   * If the transaction fails, the turn remains at the charging barrier so a
+   * reconnect cannot accidentally debit the learner again.
+   */
+    async completeTurn({
+        userId,
+        sessionId,
+        streamId,
+        requestHash,
+        contentId,
+        question,
+        answer,
+    }: CompleteContentAiTurnParams): Promise<boolean> {
+        const trimmedQuestion = question.trim()
+        const trimmedAnswer = answer.trim()
+        if (!trimmedQuestion || !trimmedAnswer) {
+            return false
+        }
+        return this.entityManager.transaction(async (manager) => {
+            const rows = await manager.query<
+        Array<{
+          id: string;
+          enrollmentId: string | null;
+          userId: string | null;
+          response: string | null;
+        }>
+      >(
+          `SELECT t.id,
+                        s.enrollment_id AS "enrollmentId",
+                        s.user_id AS "userId",
+                        t.response
+                   FROM content_ai_turns t
+                   JOIN content_ai_sessions s ON s.id = t.session_id
+                   LEFT JOIN enrollments e ON e.id = s.enrollment_id
+                  WHERE t.session_id = $1
+                    AND t.stream_id = $2
+                    AND t.request_hash = $3
+                    AND t.state = 'charging'
+                    AND (e.user_id = $4 OR s.user_id = $4)
+                  FOR UPDATE OF t`,
+          [sessionId,
+              streamId,
+              requestHash,
+              userId],
+      )
+            const turn = rows[0]
+            if (!turn || turn.response?.trim() !== trimmedAnswer) {
+                return false
+            }
+            const anchor = {
+                sessionId,
+                enrollmentId: turn.enrollmentId,
+                userId: turn.userId,
+                contentId: contentId ?? null,
+            }
+            await manager.insert(ContentAiMessageEntity,
+                [
+                    {
+                        ...anchor,
+                        role: "user",
+                        message: question,
+                    },
+                    {
+                        ...anchor,
+                        role: "assistant",
+                        message: trimmedAnswer,
+                    },
+                ])
+            await manager.query(
+                `UPDATE content_ai_sessions
+                    SET title = COALESCE(title, $2), updated_at = now()
+                  WHERE id = $1
+                    AND (
+                      user_id = $3
+                      OR EXISTS (
+                        SELECT 1 FROM enrollments e
+                         WHERE e.id = content_ai_sessions.enrollment_id AND e.user_id = $3
+                      )
+                    )`,
+                [sessionId,
+                    trimmedQuestion.slice(0,
+                        120),
+                    userId],
+            )
+            await manager.query(
+                `UPDATE content_ai_turns
+                    SET state = 'completed',
+                        error_code = NULL,
+                        completed_at = now(),
+                        updated_at = now()
+                  WHERE id = $1`,
+                [turn.id],
+            )
+            return true
+        })
+    }
+
+    /** Record a retryable provider failure or cancellation before charging. */
+    async markTurnTerminal({
+        userId,
+        sessionId,
+        streamId,
+        requestHash,
+        state,
+        errorCode,
+    }: MarkContentAiTurnTerminalParams): Promise<boolean> {
+        const rows = await this.entityManager.query<
+      Array<{
+        id: string;
+      }>
+    >(
+        `UPDATE content_ai_turns t
+                SET state = $5,
+                    error_code = $6,
+                    updated_at = now()
+               FROM content_ai_sessions s
+               LEFT JOIN enrollments e ON e.id = s.enrollment_id
+              WHERE t.session_id = s.id
+                AND t.session_id = $1
+                AND t.stream_id = $2
+                AND t.request_hash = $3
+                AND t.state = 'processing'
+                AND (e.user_id = $4 OR s.user_id = $4)
+              RETURNING t.id`,
+        [
             sessionId,
-        }: DeleteContentAiSessionParams,
-    ): Promise<void> {
+            streamId,
+            requestHash,
+            userId,
+            state,
+            errorCode.trim().slice(0,
+                200) || state,
+        ],
+    )
+        return rows.length > 0
+    }
+
+    /**
+   * Delete a conversation (cascades its messages). No-op when not owned.
+   *
+   * @param params - The learner + the session to delete.
+   */
+    async deleteSession({
+        userId,
+        sessionId,
+    }: DeleteContentAiSessionParams): Promise<void> {
         const owned = await this.resolveOwnedSession(userId,
             sessionId)
         if (!owned) {
@@ -1953,32 +2370,28 @@ export class ContentAiService {
                      WHERE e.id = content_ai_sessions.enrollment_id AND e.user_id = $2
                   )
                 )`,
-            [
-                sessionId,
-                userId,
-            ],
+            [sessionId,
+                userId],
         )
     }
 
     /**
-     * Rename a conversation. Overwrites the title OUTRIGHT (no COALESCE) -- the
-     * learner's explicit rename wins over the auto-derived title. An empty/blank
-     * title resets to NULL, so the session falls back to auto-titling from its
-     * first question again. No-op when not owned.
-     *
-     * @param params - The learner, the session, and the new title (blank -> reset).
-     * @throws ContentAiSessionTitleTooLongException when the title exceeds the
-     *   `content_ai_sessions.title` column limit (200 chars).
-     */
-    async renameContentAiSession(
-        {
-            userId,
-            sessionId,
-            title,
-        }: RenameContentAiSessionParams,
-    ): Promise<void> {
-        // reject over-long titles at the boundary rather than letting the varchar(200)
-        // column raise a raw DB error; an empty/blank title resets to auto-titling
+   * Rename a conversation. Overwrites the title OUTRIGHT (no COALESCE) -- the
+   * learner's explicit rename wins over the auto-derived title. An empty/blank
+   * title resets to NULL, so the session falls back to auto-titling from its
+   * first question again. No-op when not owned.
+   *
+   * @param params - The learner, the session, and the new title (blank -> reset).
+   * @throws ContentAiSessionTitleTooLongException when the title exceeds the
+   *   `content_ai_sessions.title` column limit (200 chars).
+   */
+    async renameContentAiSession({
+        userId,
+        sessionId,
+        title,
+    }: RenameContentAiSessionParams): Promise<void> {
+    // reject over-long titles at the boundary rather than letting the varchar(200)
+    // column raise a raw DB error; an empty/blank title resets to auto-titling
         const trimmed = title.trim()
         if (trimmed.length > 200) {
             throw new ContentAiSessionTitleTooLongException({
@@ -2003,28 +2416,24 @@ export class ContentAiService {
                      WHERE e.id = content_ai_sessions.enrollment_id AND e.user_id = $3
                   )
                 )`,
-            [
-                sessionId,
+            [sessionId,
                 trimmed || null,
-                userId,
-            ],
+                userId],
         )
     }
 
     /**
-     * Archive / unarchive a conversation. Archiving stamps `archived_at = now()`
-     * (drops it from the default list, still searchable); unarchiving clears it
-     * back to NULL (returns it to the list). No-op when not owned.
-     *
-     * @param params - The learner, the session, and the target archived state.
-     */
-    async setContentAiSessionArchived(
-        {
-            userId,
-            sessionId,
-            archived,
-        }: SetContentAiSessionArchivedParams,
-    ): Promise<void> {
+   * Archive / unarchive a conversation. Archiving stamps `archived_at = now()`
+   * (drops it from the default list, still searchable); unarchiving clears it
+   * back to NULL (returns it to the list). No-op when not owned.
+   *
+   * @param params - The learner, the session, and the target archived state.
+   */
+    async setContentAiSessionArchived({
+        userId,
+        sessionId,
+        archived,
+    }: SetContentAiSessionArchivedParams): Promise<void> {
         const owned = await this.resolveOwnedSession(userId,
             sessionId)
         if (!owned) {
@@ -2043,27 +2452,23 @@ export class ContentAiService {
             archived
                 ? `UPDATE content_ai_sessions SET archived_at = now() WHERE id = $1${ownerPredicate}`
                 : `UPDATE content_ai_sessions SET archived_at = NULL WHERE id = $1${ownerPredicate}`,
-            [
-                sessionId,
-                userId,
-            ],
+            [sessionId,
+                userId],
         )
     }
 
     /**
-     * Mark a conversation as just-opened (bumps `updated_at` -> it sorts to the top
-     * + becomes the one auto-reopened on reload). No-op when not owned. This is how
-     * "remember the last conversation I read" is persisted server-side (not in the
-     * browser): reading a chat bumps its recency.
-     *
-     * @param params - The learner + the session being opened.
-     */
-    async touchSession(
-        {
-            userId,
-            sessionId,
-        }: TouchContentAiSessionParams,
-    ): Promise<void> {
+   * Mark a conversation as just-opened (bumps `updated_at` -> it sorts to the top
+   * + becomes the one auto-reopened on reload). No-op when not owned. This is how
+   * "remember the last conversation I read" is persisted server-side (not in the
+   * browser): reading a chat bumps its recency.
+   *
+   * @param params - The learner + the session being opened.
+   */
+    async touchSession({
+        userId,
+        sessionId,
+    }: TouchContentAiSessionParams): Promise<void> {
         const owned = await this.resolveOwnedSession(userId,
             sessionId)
         if (!owned) {
@@ -2081,76 +2486,70 @@ export class ContentAiService {
                      WHERE e.id = content_ai_sessions.enrollment_id AND e.user_id = $2
                   )
                 )`,
-            [
-                sessionId,
-                userId,
-            ],
+            [sessionId,
+                userId],
         )
     }
 
     /**
-     * Resolve the owner anchors of a session IF it belongs to the user. Ownership
-     * holds either way of the enrollment-centric split: a course-scoped session
-     * (content / task / course) is owned via `enrollments.user_id`; a
-     * course-agnostic foundation session is owned via the session's own `user_id`.
-     * A LEFT JOIN keeps foundation rows (null enrollment) matchable.
-     *
-     * @param userId - The asking learner.
-     * @param sessionId - The session to check.
-     * @returns `{ enrollmentId, userId }` (either may be null) when owned, else `null`.
-     */
+   * Resolve the owner anchors of a session IF it belongs to the user. Ownership
+   * holds either way of the enrollment-centric split: a course-scoped session
+   * (content / task / course) is owned via `enrollments.user_id`; a
+   * course-agnostic foundation session is owned via the session's own `user_id`.
+   * A LEFT JOIN keeps foundation rows (null enrollment) matchable.
+   *
+   * @param userId - The asking learner.
+   * @param sessionId - The session to check.
+   * @returns `{ enrollmentId, userId }` (either may be null) when owned, else `null`.
+   */
     private async resolveOwnedSession(
         userId: string,
         sessionId: string,
     ): Promise<ResolvedContentAiSessionOwner | null> {
-        const rows = await this.entityManager.query<Array<{
-            enrollmentId: string | null
-            userId: string | null
-        }>>(
-            `SELECT s.enrollment_id AS "enrollmentId", s.user_id AS "userId"
+        const rows = await this.entityManager.query<
+      Array<{
+        enrollmentId: string | null;
+        userId: string | null;
+      }>
+    >(
+        `SELECT s.enrollment_id AS "enrollmentId", s.user_id AS "userId"
                FROM content_ai_sessions s
                LEFT JOIN enrollments e ON e.id = s.enrollment_id
-              WHERE s.id = $1 AND (e.user_id = $2 OR s.user_id = $2)
+              WHERE s.id = $1
+                AND s.experience IS NULL
+                AND (e.user_id = $2 OR s.user_id = $2)
               LIMIT 1`,
-            [
-                sessionId,
-                userId,
-            ],
-        )
+        [sessionId,
+            userId],
+    )
         return rows[0] ?? null
     }
 
     /**
-     * System prompt grounding the answer in the scope's material and pinning the
-     * reply language to the request locale. Composes the ADDITIVE layers: when
-     * `base` is non-empty it renders FIRST as its own clearly-delimited
-     * `=== COURSE KNOWLEDGE (retrieved) ===` section, ahead of the scope's own
-     * persona + material section (built by {@link buildScopePromptLines}) -- so a
-     * question grounds on the whole course AND the current page at once. `base`
-     * is "" for the `"course"` scope (its grounding is carried in `page` instead,
-     * through the scope's own single section) and is typically "" for
-     * `"foundation"` (a global doc has no owning course).
-     *
-     * @param params - {@link BuildSystemPromptParams}.
-     * @returns The system prompt string.
-     */
-    private buildSystemPrompt(
-        {
-            base,
-            page,
-            locale,
-            scope,
-        }: BuildSystemPromptParams,
-    ): string {
-        const language = locale === Locale.Vi
-            ? "Vietnamese"
-            : "English"
+   * System prompt grounding the answer in the scope's material and pinning the
+   * reply language to the request locale. Composes the ADDITIVE layers: when
+   * `base` is non-empty it renders FIRST as its own clearly-delimited
+   * `=== COURSE KNOWLEDGE (retrieved) ===` section, ahead of the scope's own
+   * persona + material section (built by {@link buildScopePromptLines}) -- so a
+   * question grounds on the whole course AND the current page at once. `base`
+   * is "" for the `"course"` scope (its grounding is carried in `page` instead,
+   * through the scope's own single section) and is typically "" for
+   * `"foundation"` (a global doc has no owning course).
+   *
+   * @param params - {@link BuildSystemPromptParams}.
+   * @returns The system prompt string.
+   */
+    private buildSystemPrompt({
+        base,
+        page,
+        locale,
+        scope,
+    }: BuildSystemPromptParams): string {
+        const language = locale === Locale.Vi ? "Vietnamese" : "English"
         const baseLines = base.trim()
-            ? [
-                "=== COURSE KNOWLEDGE (retrieved) ===",
+            ? ["=== COURSE KNOWLEDGE (retrieved) ===",
                 base,
-                "",
-            ]
+                ""]
             : []
         return [
             ...baseLines,
@@ -2161,18 +2560,18 @@ export class ContentAiService {
     }
 
     /**
-     * Build the scope-specific persona + rules + material-section lines (no
-     * additive BASE layer -- that is prepended by {@link buildSystemPrompt}). Each
-     * branch is the original per-scope prompt, unchanged; `"global"` is new and
-     * carries no material section of its own (there is no page to show -- the
-     * additive BASE, when present, is the only grounding a global chat gets).
-     *
-     * @param grounding - The scope's own page grounding (lesson body/code, task
-     *   material, course RAG, or foundation document); ignored for `"global"`.
-     * @param language - The reply language, already resolved from the locale.
-     * @param scope - Which surface the question is grounded on.
-     * @returns The prompt lines for this scope (joined by the caller).
-     */
+   * Build the scope-specific persona + rules + material-section lines (no
+   * additive BASE layer -- that is prepended by {@link buildSystemPrompt}). Each
+   * branch is the original per-scope prompt, unchanged; `"global"` is new and
+   * carries no material section of its own (there is no page to show -- the
+   * additive BASE, when present, is the only grounding a global chat gets).
+   *
+   * @param grounding - The scope's own page grounding (lesson body/code, task
+   *   material, course RAG, or foundation document); ignored for `"global"`.
+   * @param language - The reply language, already resolved from the locale.
+   * @param scope - Which surface the question is grounded on.
+   * @returns The prompt lines for this scope (joined by the caller).
+   */
     private buildScopePromptLines(
         grounding: string,
         language: string,

@@ -1,6 +1,6 @@
 import request from "supertest"
 import {
-    Test,
+    Test 
 } from "@nestjs/testing"
 import type {
     INestApplication,
@@ -8,109 +8,118 @@ import type {
     ExecutionContext,
 } from "@nestjs/common"
 import {
-    CqrsModule,
+    CqrsModule 
 } from "@nestjs/cqrs"
 import {
-    GqlExecutionContext,
+    GqlExecutionContext 
 } from "@nestjs/graphql"
 import {
-    getEntityManagerToken,
+    getEntityManagerToken 
 } from "@nestjs/typeorm"
 import type {
-    EntityManager,
+    EntityManager 
 } from "typeorm"
 import {
-    ApolloServerModule,
+    ApolloServerModule 
 } from "@modules/api/apollo/server/apollo-server.module"
 import {
-    ApolloServerType,
+    ApolloServerType 
 } from "@modules/api/apollo/server/enums/server"
 import {
-    ContentAiMessageEntity,
+    ContentAiMessageEntity 
 } from "@modules/databases/postgresql/primary/entities/content-ai-message.entity"
 import {
-    ContentAiSessionEntity,
+    ContentAiSessionEntity 
 } from "@modules/databases/postgresql/primary/entities/content-ai-session.entity"
 import {
-    ContentEntity,
+    ContentAiTurnEntity 
+} from "@modules/databases/postgresql/primary/entities/content-ai-turn.entity"
+import {
+    ContentEntity 
 } from "@modules/databases/postgresql/primary/entities/content.entity"
 import {
-    CourseEntity,
+    CourseEntity 
 } from "@modules/databases/postgresql/primary/entities/course.entity"
 import {
-    EnrollmentEntity,
+    EnrollmentEntity 
 } from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
-    ModuleEntity,
+    ModuleEntity 
 } from "@modules/databases/postgresql/primary/entities/module.entity"
 import {
-    UserEntity,
+    UserEntity 
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
-    Locale,
+    Locale 
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    ModelProvider,
+    ModelProvider 
 } from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
-    PricingPhase,
+    PricingPhase 
 } from "@modules/databases/postgresql/primary/enums/pricing-phase"
 import {
-    PrimaryPostgreSQLModule,
+    PrimaryPostgreSQLModule 
 } from "@modules/databases/postgresql/primary/primary.module"
 import {
-    KeycloakAuthGraphQLGuard,
+    KeycloakAuthGraphQLGuard 
 } from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
-    CacheService,
+    CacheService 
 } from "@modules/integrations/cache/cache.service"
 import {
-    S3NameResolverService,
+    S3NameResolverService 
 } from "@modules/integrations/s3/s3-name-resolver.service"
 import {
-    S3ReadService,
+    S3ReadService 
 } from "@modules/integrations/s3/s3-read.service"
 import {
-    CourseRagRetrievalService,
+    CourseRagRetrievalService 
 } from "@modules/integrations/rag/course-rag-retrieval.service"
 import {
-    AiEntitlementService,
+    AiEntitlementService 
 } from "@modules/ai/ai-entitlement.service"
 import {
-    AiInvokeService,
+    AiInvokeService 
 } from "@modules/ai/ai-invoke.service"
 import {
-    ContentAiService,
+    ContentAiService 
 } from "@modules/bussiness/content-ai/content-ai.service"
 import {
-    UserService,
+    UserService 
 } from "@modules/bussiness/user/user.service"
 import {
-    AskContentAiHandler,
+    AskContentAiHandler 
 } from "@features/api/core/graphql/mutations/contents/ask-content-ai/ask-content-ai.handler"
 import {
-    AskContentAiResolver,
+    AskContentAiResolver 
 } from "@features/api/core/graphql/mutations/contents/ask-content-ai/ask-content-ai.resolver"
 import {
-    AskContentAiService,
+    AskContentAiService 
 } from "@features/api/core/graphql/mutations/contents/ask-content-ai/ask-content-ai.service"
 import {
-    CreateContentAiSessionResolver,
+    CreateContentAiSessionResolver 
 } from "@features/api/core/graphql/mutations/contents/create-content-ai-session/create-content-ai-session.resolver"
 import {
-    DeleteContentAiSessionResolver,
+    DeleteContentAiSessionResolver 
 } from "@features/api/core/graphql/mutations/contents/delete-content-ai-session/delete-content-ai-session.resolver"
 import {
-    RenameContentAiSessionResolver,
+    RenameContentAiSessionResolver 
 } from "@features/api/core/graphql/mutations/contents/rename-content-ai-session/rename-content-ai-session.resolver"
 import {
-    SetContentAiSessionArchivedResolver,
+    SetContentAiSessionArchivedResolver 
 } from "@features/api/core/graphql/mutations/contents/set-content-ai-session-archived/set-content-ai-session-archived.resolver"
 import {
-    TouchContentAiSessionResolver,
+    TouchContentAiSessionResolver 
 } from "@features/api/core/graphql/mutations/contents/touch-content-ai-session/touch-content-ai-session.resolver"
 import {
-    TestHelpersModule,
+    LearnAiCompanionMutationResolver 
+} from "@features/api/core/graphql/mutations/contents/learn-ai-companion/learn-ai-companion.resolver"
+import {
+    LearnAiCompanionQueryResolver 
+} from "@features/api/core/graphql/queries/contents/learn-ai-companion/learn-ai-companion.resolver"
+import {
+    TestHelpersModule 
 } from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
@@ -177,8 +186,9 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                 if (!currentUser) {
                     return false
                 }
-                const gqlContext = GqlExecutionContext.create(context)
-                    .getContext<{ req: { user?: UserEntity } }>()
+                const gqlContext = GqlExecutionContext.create(context).getContext<{
+        req: { user?: UserEntity };
+      }>()
                 gqlContext.req.user = currentUser
                 return true
             },
@@ -286,6 +296,37 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                 }
             }
         `
+        const RESOLVE_LEARN_COMPANION_MUTATION = `
+            mutation ResolveLearnCompanion($request: ResolveLearnAiCompanionRequest!) {
+                resolveLearnAiCompanion(request: $request) {
+                    success
+                    error
+                    data { sessionId }
+                }
+            }
+        `
+        const RESET_LEARN_COMPANION_MUTATION = `
+            mutation ResetLearnCompanion($request: ResetLearnAiCompanionRequest!) {
+                resetLearnAiCompanion(request: $request) {
+                    success
+                    error
+                    data { archivedSessionId }
+                }
+            }
+        `
+        const LEARN_COMPANION_QUERY = `
+            query LearnCompanion($request: LearnAiCompanionRequest!) {
+                learnAiCompanion(request: $request) {
+                    success
+                    error
+                    data {
+                        session { id courseId enrollmentId title archivedAt updatedAt }
+                        messages { role content }
+                        turns { streamId state response errorCode attemptCount updatedAt }
+                    }
+                }
+            }
+        `
 
         /** POST a GraphQL mutation with a single `$request` variable. */
         const gql = (query: string, input: Record<string, unknown>) =>
@@ -315,14 +356,16 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                     CqrsModule,
                 ],
                 providers: [
-                    // satisfies "Query root type must be provided" -- this module
-                    // registers only mutation resolvers, so the generated schema
-                    // needs a no-op root `@Query` to pass validation at `app.init()`.
+                // satisfies "Query root type must be provided" -- this module
+                // registers only mutation resolvers, so the generated schema
+                // needs a no-op root `@Query` to pass validation at `app.init()`.
                     CreateContentAiSessionResolver,
                     DeleteContentAiSessionResolver,
                     RenameContentAiSessionResolver,
                     SetContentAiSessionArchivedResolver,
                     TouchContentAiSessionResolver,
+                    LearnAiCompanionMutationResolver,
+                    LearnAiCompanionQueryResolver,
                     AskContentAiResolver,
                     AskContentAiService,
                     AskContentAiHandler,
@@ -408,10 +451,10 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
         afterEach(async () => {
             // course/content fixtures (seeded in beforeAll) are read-only across the
             // whole suite; everything else is per-test. CASCADE also clears
-            // content_ai_sessions/content_ai_messages (both FK-reference users/
+            // content_ai_sessions/content_ai_messages/content_ai_turns (all FK-reference users/
             // enrollments) even though they're listed explicitly for clarity.
             await entityManager.query(
-                "TRUNCATE TABLE \"content_ai_messages\", \"content_ai_sessions\", \"enrollments\", \"users\" RESTART IDENTITY CASCADE",
+                "TRUNCATE TABLE \"content_ai_turns\", \"content_ai_messages\", \"content_ai_sessions\", \"enrollments\", \"users\" RESTART IDENTITY CASCADE",
             )
             currentUser = null
             jest.clearAllMocks()
@@ -452,13 +495,15 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
             )
 
         /**
-         * Seed a content-scope session directly (bypassing the `createContentAiSession`
-         * mutation, whose happy path is covered separately) -- owned via the
-         * enrollment, exactly like a real lesson conversation.
-         */
+   * Seed a content-scope session directly (bypassing the `createContentAiSession`
+   * mutation, whose happy path is covered separately) -- owned via the
+   * enrollment, exactly like a real lesson conversation.
+   */
         const seedEnrollmentOwnedSession = async (
             enrollment: EnrollmentEntity,
-            overrides: Partial<Pick<ContentAiSessionEntity, "title" | "archivedAt">> = {
+            overrides: Partial<
+      Pick<ContentAiSessionEntity, "title" | "archivedAt">
+    > = {
             },
         ): Promise<ContentAiSessionEntity> =>
             entityManager.save(
@@ -473,15 +518,17 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
             )
 
         /**
-         * Seed a foundation-scope session directly -- owned via the raw `user`
-         * column (the OTHER half of `resolveOwnedSession`'s ownership OR-clause,
-         * `enrollment.userId = caller OR session.userId = caller`). No foundation
-         * doc fixture is needed: `originFoundationId` is a nullable FK and this
-         * spec never reads through it.
-         */
+   * Seed a foundation-scope session directly -- owned via the raw `user`
+   * column (the OTHER half of `resolveOwnedSession`'s ownership OR-clause,
+   * `enrollment.userId = caller OR session.userId = caller`). No foundation
+   * doc fixture is needed: `originFoundationId` is a nullable FK and this
+   * spec never reads through it.
+   */
         const seedUserOwnedSession = async (
             user: UserEntity,
-            overrides: Partial<Pick<ContentAiSessionEntity, "title" | "archivedAt">> = {
+            overrides: Partial<
+      Pick<ContentAiSessionEntity, "title" | "archivedAt">
+    > = {
             },
         ): Promise<ContentAiSessionEntity> =>
             entityManager.save(
@@ -494,6 +541,71 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                     }),
             )
 
+        it("keeps one Learn-owned companion across course pages and creates a fresh identity only after reset",
+            async () => {
+                const learner = await seedUser("kc-learn-ai-companion")
+                const enrollment = await seedEnrollment(learner)
+                currentUser = learner
+
+                const firstResolve = await gql(RESOLVE_LEARN_COMPANION_MUTATION,
+                    {
+                        courseId: course.id,
+                    })
+                expect(firstResolve.status).toBe(200)
+                const firstSessionId: string =
+      firstResolve.body.data.resolveLearnAiCompanion.data.sessionId
+                expect(firstSessionId).toBeTruthy()
+
+                const secondResolve = await gql(RESOLVE_LEARN_COMPANION_MUTATION,
+                    {
+                        courseId: course.id,
+                    })
+                expect(secondResolve.body.data.resolveLearnAiCompanion.data.sessionId).toBe(
+                    firstSessionId,
+                )
+
+                const visible = await gql(LEARN_COMPANION_QUERY,
+                    {
+                        courseId: course.id,
+                    })
+                expect(visible.status).toBe(200)
+                expect(visible.body.data.learnAiCompanion.data).toMatchObject({
+                    session: {
+                        id: firstSessionId,
+                        courseId: course.id,
+                        enrollmentId: enrollment.id,
+                    },
+                    messages: [],
+                    turns: [],
+                })
+
+                const reset = await gql(RESET_LEARN_COMPANION_MUTATION,
+                    {
+                        courseId: course.id,
+                    })
+                expect(reset.body.data.resetLearnAiCompanion.data.archivedSessionId).toBe(
+                    firstSessionId,
+                )
+
+                const afterReset = await gql(RESOLVE_LEARN_COMPANION_MUTATION,
+                    {
+                        courseId: course.id,
+                    })
+                const freshSessionId: string =
+      afterReset.body.data.resolveLearnAiCompanion.data.sessionId
+                expect(freshSessionId).toBeTruthy()
+                expect(freshSessionId).not.toBe(firstSessionId)
+
+                const archived = await entityManager.findOneOrFail(ContentAiSessionEntity,
+                    {
+                        where: {
+                            id: firstSessionId,
+                        },
+                    })
+                expect(archived.experience).toBe("learn_companion")
+                expect(archived.archivedAt).not.toBeNull()
+            })
+
         it("createContentAiSession → askContentAi → saveTurn (mirrors the socket gateway) persists a real session + turns; a one-shot ask alone stays ephemeral",
             async () => {
                 const userA = await seedUser("kc-content-ai-owner")
@@ -505,15 +617,18 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                         contentId: content.id,
                     })
                 expect(created.status).toBe(200)
-                const sessionId: string | null = created.body.data.createContentAiSession.data.id
+                const sessionId: string | null =
+      created.body.data.createContentAiSession.data.id
                 expect(sessionId).toBeTruthy()
 
-                const freshSession = await entityManager.findOneOrFail(ContentAiSessionEntity,
+                const freshSession = await entityManager.findOneOrFail(
+                    ContentAiSessionEntity,
                     {
                         where: {
                             id: sessionId as string,
                         },
-                    })
+                    },
+                )
                 expect(freshSession.scope).toBe("content")
                 expect(freshSession.enrollmentId).toBeTruthy()
                 expect(freshSession.title).toBeNull()
@@ -568,13 +683,179 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                 expect(turns[1].message).toBe(ANSWER_MARKER)
 
                 // auto-titled from the first question on the first saved turn
-                const titledSession = await entityManager.findOneOrFail(ContentAiSessionEntity,
+                const titledSession = await entityManager.findOneOrFail(
+                    ContentAiSessionEntity,
                     {
                         where: {
                             id: sessionId as string,
                         },
-                    })
+                    },
+                )
                 expect(titledSession.title).toBe(question)
+            })
+
+        it("durable course turns replay once, retry failed attempts, and reject cross-course or cross-owner reuse",
+            async () => {
+                const owner = await seedUser("kc-content-ai-durable-owner")
+                const enrollment = await seedEnrollment(owner)
+                const session = await entityManager.save(
+                    entityManager.create(ContentAiSessionEntity,
+                        {
+                            scope: "course",
+                            enrollment,
+                            title: null,
+                        }),
+                )
+                const requestHash = "a".repeat(64)
+                const firstClaim = await contentAiService.acquireTurn({
+                    userId: owner.id,
+                    sessionId: session.id,
+                    streamId: "stable-stream",
+                    requestHash,
+                    courseId: course.id,
+                })
+                expect(firstClaim).toEqual({
+                    outcome: "acquired",
+                    courseId: course.id,
+                })
+                await expect(
+                    contentAiService.acquireTurn({
+                        userId: owner.id,
+                        sessionId: session.id,
+                        streamId: "stable-stream",
+                        requestHash,
+                        courseId: course.id,
+                    }),
+                ).resolves.toEqual({
+                    outcome: "in-progress",
+                })
+
+                const answer = "A course-aware durable answer"
+                await expect(
+                    contentAiService.markTurnCharging({
+                        userId: owner.id,
+                        sessionId: session.id,
+                        streamId: "stable-stream",
+                        requestHash,
+                        answer,
+                    }),
+                ).resolves.toBe(true)
+                await expect(
+                    contentAiService.completeTurn({
+                        userId: owner.id,
+                        sessionId: session.id,
+                        streamId: "stable-stream",
+                        requestHash,
+                        courseId: course.id,
+                        question: "Explain the course architecture",
+                        answer,
+                    }),
+                ).resolves.toBe(true)
+                await expect(
+                    contentAiService.acquireTurn({
+                        userId: owner.id,
+                        sessionId: session.id,
+                        streamId: "stable-stream",
+                        requestHash,
+                        courseId: course.id,
+                    }),
+                ).resolves.toEqual({
+                    outcome: "replay",
+                    answer,
+                    courseId: course.id,
+                })
+                expect(
+                    await entityManager.count(ContentAiMessageEntity,
+                        {
+                            where: {
+                                sessionId: session.id,
+                            },
+                        }),
+                ).toBe(2)
+                const completedTurn = await entityManager.findOneOrFail(
+                    ContentAiTurnEntity,
+                    {
+                        where: {
+                            sessionId: session.id,
+                            streamId: "stable-stream",
+                        },
+                    },
+                )
+                expect(completedTurn.state).toBe("completed")
+                expect(completedTurn.attemptCount).toBe(1)
+
+                const retryHash = "b".repeat(64)
+                await contentAiService.acquireTurn({
+                    userId: owner.id,
+                    sessionId: session.id,
+                    streamId: "retry-stream",
+                    requestHash: retryHash,
+                    courseId: course.id,
+                })
+                await expect(
+                    contentAiService.markTurnTerminal({
+                        userId: owner.id,
+                        sessionId: session.id,
+                        streamId: "retry-stream",
+                        requestHash: retryHash,
+                        state: "failed",
+                        errorCode: "provider timeout",
+                    }),
+                ).resolves.toBe(true)
+                await expect(
+                    contentAiService.acquireTurn({
+                        userId: owner.id,
+                        sessionId: session.id,
+                        streamId: "retry-stream",
+                        requestHash: retryHash,
+                        courseId: course.id,
+                    }),
+                ).resolves.toEqual({
+                    outcome: "acquired",
+                    courseId: course.id,
+                })
+                const retriedTurn = await entityManager.findOneOrFail(ContentAiTurnEntity,
+                    {
+                        where: {
+                            sessionId: session.id,
+                            streamId: "retry-stream",
+                        },
+                    })
+                expect(retriedTurn.attemptCount).toBe(2)
+
+                const otherCourse = await entityManager.save(
+                    entityManager.create(CourseEntity,
+                        {
+                            title: "Isolated course",
+                            displayId: "isolated-content-ai-course-e2e",
+                            description: "cross-course isolation fixture",
+                            originalPrice: 499_000,
+                            defaultLocale: Locale.En,
+                        }),
+                )
+                await expect(
+                    contentAiService.acquireTurn({
+                        userId: owner.id,
+                        sessionId: session.id,
+                        streamId: "wrong-course",
+                        requestHash: "c".repeat(64),
+                        courseId: otherCourse.id,
+                    }),
+                ).resolves.toEqual({
+                    outcome: "not-owned",
+                })
+                const attacker = await seedUser("kc-content-ai-durable-attacker")
+                await expect(
+                    contentAiService.acquireTurn({
+                        userId: attacker.id,
+                        sessionId: session.id,
+                        streamId: "attacker-stream",
+                        requestHash: "d".repeat(64),
+                        courseId: course.id,
+                    }),
+                ).resolves.toEqual({
+                    outcome: "not-owned",
+                })
             })
 
         it("createContentAiSession with NO enrollment for the content's course → silent no-op: null id, no row persisted",
@@ -660,12 +941,14 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                 expect(attackerAttempt.status).toBe(200)
                 expect(attackerAttempt.body.data.renameContentAiSession.success).toBe(true)
 
-                const untouched = await entityManager.findOneOrFail(ContentAiSessionEntity,
+                const untouched = await entityManager.findOneOrFail(
+                    ContentAiSessionEntity,
                     {
                         where: {
                             id: session.id,
                         },
-                    })
+                    },
+                )
                 expect(untouched.title).toBe("Original title")
 
                 currentUser = owner
@@ -701,14 +984,18 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                         archived: true,
                     })
                 expect(attackerAttempt.status).toBe(200)
-                expect(attackerAttempt.body.data.setContentAiSessionArchived.success).toBe(true)
+                expect(attackerAttempt.body.data.setContentAiSessionArchived.success).toBe(
+                    true,
+                )
 
-                const untouched = await entityManager.findOneOrFail(ContentAiSessionEntity,
+                const untouched = await entityManager.findOneOrFail(
+                    ContentAiSessionEntity,
                     {
                         where: {
                             id: session.id,
                         },
-                    })
+                    },
+                )
                 expect(untouched.archivedAt).toBeNull()
 
                 currentUser = owner
@@ -718,7 +1005,9 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                         archived: true,
                     })
                 expect(ownerAttempt.status).toBe(200)
-                expect(ownerAttempt.body.data.setContentAiSessionArchived.success).toBe(true)
+                expect(ownerAttempt.body.data.setContentAiSessionArchived.success).toBe(
+                    true,
+                )
 
                 const archived = await entityManager.findOneOrFail(ContentAiSessionEntity,
                     {
@@ -736,12 +1025,14 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                 // foundation scope: owned via session.userId, NOT enrollment.userId --
                 // exercises the other side of `resolveOwnedSession`'s OR-clause
                 const session = await seedUserOwnedSession(owner)
-                const beforeAt = (await entityManager.findOneOrFail(ContentAiSessionEntity,
-                    {
-                        where: {
-                            id: session.id,
-                        },
-                    })).updatedAt.getTime()
+                const beforeAt = (
+                    await entityManager.findOneOrFail(ContentAiSessionEntity,
+                        {
+                            where: {
+                                id: session.id,
+                            },
+                        })
+                ).updatedAt.getTime()
 
                 currentUser = attacker
                 const attackerAttempt = await gql(TOUCH_SESSION_MUTATION,
@@ -751,12 +1042,14 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                 expect(attackerAttempt.status).toBe(200)
                 expect(attackerAttempt.body.data.touchContentAiSession.success).toBe(true)
 
-                const untouchedAt = (await entityManager.findOneOrFail(ContentAiSessionEntity,
-                    {
-                        where: {
-                            id: session.id,
-                        },
-                    })).updatedAt.getTime()
+                const untouchedAt = (
+                    await entityManager.findOneOrFail(ContentAiSessionEntity,
+                        {
+                            where: {
+                                id: session.id,
+                            },
+                        })
+                ).updatedAt.getTime()
                 expect(untouchedAt).toBe(beforeAt)
 
                 currentUser = owner
@@ -767,12 +1060,14 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                 expect(ownerAttempt.status).toBe(200)
                 expect(ownerAttempt.body.data.touchContentAiSession.success).toBe(true)
 
-                const touchedAt = (await entityManager.findOneOrFail(ContentAiSessionEntity,
-                    {
-                        where: {
-                            id: session.id,
-                        },
-                    })).updatedAt.getTime()
+                const touchedAt = (
+                    await entityManager.findOneOrFail(ContentAiSessionEntity,
+                        {
+                            where: {
+                                id: session.id,
+                            },
+                        })
+                ).updatedAt.getTime()
                 expect(touchedAt).toBeGreaterThan(beforeAt)
             })
     })

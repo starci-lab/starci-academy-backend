@@ -1,36 +1,39 @@
 import {
-    Module,
+    Module 
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass,
+    ConfigurableModuleClass 
 } from "./contents.module-definition"
 import {
-    ContentsSingleQueryModule,
+    ContentsSingleQueryModule 
 } from "./contents/contents.module"
 import {
-    ContentSingleQueryModule,
+    ContentSingleQueryModule 
 } from "./content/content.module"
 import {
-    ContentStatusSingleQueryModule,
+    ContentStatusSingleQueryModule 
 } from "./content-status/content-status.module"
 import {
-    PublicContentSingleQueryModule,
+    PublicContentSingleQueryModule 
 } from "./public-content/public-content.module"
 import {
-    SavedContentsSingleQueryModule,
+    SavedContentsSingleQueryModule 
 } from "./saved-contents/saved-contents.module"
 import {
-    SandboxRepoUrlModule,
+    SandboxRepoUrlModule 
 } from "./sandbox-repo-url/sandbox-repo-url.module"
 import {
-    ContentSuggestionsSingleQueryModule,
+    ContentSuggestionsSingleQueryModule 
 } from "./content-suggestions/content-suggestions.module"
 import {
-    ContentAiHistorySingleQueryModule,
+    ContentAiHistorySingleQueryModule 
 } from "./content-ai-history/content-ai-history.module"
 import {
-    ContentAiSessionsSingleQueryModule,
+    ContentAiSessionsSingleQueryModule 
 } from "./content-ai-sessions/content-ai-sessions.module"
+import {
+    LearnAiCompanionQueryModule 
+} from "./learn-ai-companion/learn-ai-companion.module"
 
 @Module({
     imports: [
@@ -59,6 +62,9 @@ import {
             isGlobal: true,
         }),
         ContentAiSessionsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        LearnAiCompanionQueryModule.register({
             isGlobal: true,
         }),
     ],
