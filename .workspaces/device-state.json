@@ -1,0 +1,36 @@
+{
+  "$schema": "../.claude/readiness/initialization/workspaces/device-state.schema.json",
+  "schemaVersion": 1,
+  "id": "starci-academy-local-state-v1",
+  "project": "starci-academy",
+  "docker": {
+    "helperImage": "postgres:16-alpine",
+    "volumes": [
+      { "name": "starci-academy-backend_es-data" },
+      { "name": "starci-academy-backend_kafka-data" },
+      { "name": "starci-academy-backend_keycloak-data" },
+      { "name": "starci-academy-backend_minio-data" },
+      { "name": "starci-academy-backend_nats-data" },
+      { "name": "starci-academy-backend_pg-data" },
+      { "name": "starci-academy-backend_prometheus-data" },
+      { "name": "starci-academy-backend_qdrant-data" },
+      { "name": "starci-academy-backend_redis-data" },
+      { "name": "starci-academy-backend_sonarqube-data" },
+      { "name": "starci-academy-backend_sonarqube-extensions" },
+      { "name": "starci-academy-backend_sonarqube-logs" },
+      { "name": "starci-academy-backend_sonarqube-postgres-data" },
+      { "name": "starci-academy-backend_sonarqube-temp" },
+      { "name": "starci-source-context_qdrant-context-data" }
+    ]
+  },
+  "encryption": {
+    "masterIdentity": "~/.starci/master.identity"
+  },
+  "remote": {
+    "repository": "starci-lab/data",
+    "releasePrefix": "device-state-starci-academy",
+    "tokenFile": ".stacks/dev/runtime/files/data-git-token.key",
+    "chunkBytes": 67108864,
+    "retention": 2
+  }
+}
