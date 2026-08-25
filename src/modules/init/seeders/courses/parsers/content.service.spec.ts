@@ -1,70 +1,73 @@
 import path from "path"
 import fs from "fs/promises"
 import type {
-    Dirent,
+    Dirent
 } from "fs"
 import {
-    getEntityManagerToken,
+    getEntityManagerToken
 } from "@nestjs/typeorm"
 import {
-    Test,
+    Test
 } from "@nestjs/testing"
 import {
-    COURSE_PARSER_FIXTURE_ROOT,
+    COURSE_PARSER_FIXTURE_ROOT
 } from "@tests/fixtures/course-parser/root"
 import type {
-    TestingModule,
+    TestingModule
 } from "@nestjs/testing"
 import {
-    ContentBodyEntity,
+    ContentBodyEntity
 } from "@modules/databases/postgresql/primary/entities/content-body.entity"
 import {
-    Locale,
+    ContentEntity
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    Locale
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    Sha256Service,
+    Sha256Service
 } from "@modules/crypto/sha256.service"
 import {
-    ContextLoaderService,
+    ContextLoaderService
 } from "../../shared/contexts/loader.service"
 import {
-    CoerceMdScalarService,
+    CoerceMdScalarService
 } from "../../shared/extracts/coerce-md-scalar.service"
 import {
-    ExtractJsonFromMdService,
+    ExtractJsonFromMdService
 } from "../../shared/extracts/extract-json-from-md.service"
 import {
-    MergeJsonService,
+    MergeJsonService
 } from "../../shared/merge/merge.service"
 import {
-    PathResolverService,
+    PathResolverService
 } from "../../shared/path/resolver.service"
 import type {
-    ResolvedFilePath,
+    ResolvedFilePath
 } from "../../shared/path/types"
 import {
-    ContentBodyIdFactoryService,
+    ContentBodyIdFactoryService
 } from "../id-factories/content-body.service"
 import {
-    ContentLearningOutcomeIdFactoryService,
+    ContentLearningOutcomeIdFactoryService
 } from "../id-factories/content-learning-outcome.service"
 import {
-    ContentIdFactoryService,
+    ContentIdFactoryService
 } from "../id-factories/content.service"
 import {
-    CourseIdFactoryService,
+    CourseIdFactoryService
 } from "../id-factories/course.service"
 import {
-    ModuleIdFactoryService,
+    ModuleIdFactoryService
 } from "../id-factories/module.service"
 import {
-    WinstonService,
+    WinstonService
 } from "@modules/platform/winston/winston.service"
 import {
-    ContentPathService,
+    ContentPathService
 } from "../path/content.service"
 import {
-    ContentParserService,
+    ContentParserService
 } from "./content.service"
 
 /** Fixture folder for the NestJS "frameworks in backend" lesson (SCHEMA V2 sample). */
@@ -75,7 +78,7 @@ const FRAMEWORKS_IN_BACKEND_FIXTURE_DIR = path.join(
 
 /** Relative path under the `courses` context root passed to {@link ContextLoaderService}. */
 const FRAMEWORKS_IN_BACKEND_RELATIVE_PATH =
-    "0-fullstack-mastery/modules/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend"
+  "0-fullstack-mastery/modules/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend"
 
 /**
  * Lists indexed fixture folders (`{orderIndex}-{slug}`) under a courses-relative directory.
@@ -86,18 +89,14 @@ const FRAMEWORKS_IN_BACKEND_RELATIVE_PATH =
 async function listIndexedFixtureDirs(
     relativeDir: string,
 ): Promise<Array<ResolvedFilePath>> {
-    const absoluteDir = path.join(
-        COURSE_PARSER_FIXTURE_ROOT,
-        relativeDir,
-    )
+    const absoluteDir = path.join(COURSE_PARSER_FIXTURE_ROOT,
+        relativeDir)
     let entries: Array<Dirent>
     try {
-        entries = await fs.readdir(
-            absoluteDir,
+        entries = await fs.readdir(absoluteDir,
             {
                 withFileTypes: true,
-            },
-        )
+            })
     } catch {
         return []
     }
@@ -128,17 +127,13 @@ describe("ContentParserService",
 
         beforeAll(async () => {
             viMarkdown = await fs.readFile(
-                path.join(
-                    FRAMEWORKS_IN_BACKEND_FIXTURE_DIR,
-                    "vi.md",
-                ),
+                path.join(FRAMEWORKS_IN_BACKEND_FIXTURE_DIR,
+                    "vi.md"),
                 "utf8",
             )
             enMarkdown = await fs.readFile(
-                path.join(
-                    FRAMEWORKS_IN_BACKEND_FIXTURE_DIR,
-                    "en.md",
-                ),
+                path.join(FRAMEWORKS_IN_BACKEND_FIXTURE_DIR,
+                    "en.md"),
                 "utf8",
             )
         })
@@ -146,16 +141,12 @@ describe("ContentParserService",
         beforeEach(async () => {
             const contextLoaderService = {
                 load: jest.fn(
-                    async (
-                        _baseDir: string,
-                        relativePath: string,
-                    ): Promise<string> => fs.readFile(
-                        path.join(
-                            COURSE_PARSER_FIXTURE_ROOT,
-                            relativePath,
+                    async (_baseDir: string, relativePath: string): Promise<string> =>
+                        fs.readFile(
+                            path.join(COURSE_PARSER_FIXTURE_ROOT,
+                                relativePath),
+                            "utf8",
                         ),
-                        "utf8",
-                    ),
                 ),
             }
             const pathResolverService = {
@@ -163,7 +154,8 @@ describe("ContentParserService",
                     async (
                         _baseDir: string,
                         relativePath: string,
-                    ): Promise<Array<ResolvedFilePath>> => listIndexedFixtureDirs(relativePath),
+                    ): Promise<Array<ResolvedFilePath>> =>
+                        listIndexedFixtureDirs(relativePath),
                 ),
                 // real service reads `.e2e/<lang>/flow-*.md`; the fixture lesson has no `.e2e/`
                 // folder, so mirror the real "absent directory" contract (`[]`) rather than stub blind.
@@ -174,10 +166,8 @@ describe("ContentParserService",
                     ): Promise<Array<string>> => {
                         try {
                             return await fs.readdir(
-                                path.join(
-                                    COURSE_PARSER_FIXTURE_ROOT,
-                                    relativePath,
-                                ),
+                                path.join(COURSE_PARSER_FIXTURE_ROOT,
+                                    relativePath),
                             )
                         } catch {
                             return []
@@ -239,8 +229,7 @@ describe("ContentParserService",
 
         describe("parse",
             () => {
-                it(
-                    "parses 0-frameworks-in-backend vi.md + en.md and four language bodies",
+                it("parses 0-frameworks-in-backend vi.md + en.md and four language bodies",
                     async () => {
                         const parsed = await service.parse({
                             paths: [
@@ -267,12 +256,12 @@ describe("ContentParserService",
                         expect(parsed.isPremium).toBe(false)
                         expect(parsed.verified).toEqual(new Date("2026-05-30"))
                         expect(parsed.bodies).toHaveLength(4)
-                        expect(parsed.bodies?.map((body: ContentBodyEntity) => body.lang)).toEqual([
-                            "typescript",
+                        expect(
+                            parsed.bodies?.map((body: ContentBodyEntity) => body.lang),
+                        ).toEqual(["typescript",
                             "java",
                             "csharp",
-                            "go",
-                        ])
+                            "go"])
                         const typescriptBody = parsed.bodies?.find(
                             (body) => body.lang === "typescript",
                         )
@@ -290,7 +279,8 @@ describe("ContentParserService",
                                     contentId: parsed.id,
                                     locale: Locale.Vi,
                                     field: "description",
-                                    value: "Hiểu vai trò của một backend framework: vì sao framework chia code thành module, vì sao nó tự khởi tạo và ghép nối các thành phần thay cho bạn, và inversion of control giải quyết vấn đề gì. Bài minh hoạ song song bằng TypeScript, Java, C# và Go — bạn chọn ngôn ngữ của mình.", // vn-ok: vi-locale seed fixture assertion
+                                    value:
+              "Hiểu vai trò của một backend framework: vì sao framework chia code thành module, vì sao nó tự khởi tạo và ghép nối các thành phần thay cho bạn, và inversion of control giải quyết vấn đề gì. Bài minh hoạ song song bằng TypeScript, Java, C# và Go — bạn chọn ngôn ngữ của mình.", // vn-ok: vi-locale seed fixture assertion
                                 },
                                 {
                                     contentId: parsed.id,
@@ -307,9 +297,55 @@ describe("ContentParserService",
                             ]),
                         )
                         expect(parsed.translations).toHaveLength(4)
-                    },
-                )
-            },
-        )
-    },
-)
+                    })
+
+                it("throws when the requested content ordinal is not mounted",
+                    async () => {
+                        await expect(
+                            service.parse({
+                                paths: [],
+                                courseIndex: 0,
+                                moduleIndex: 0,
+                                contentIndex: 9,
+                            }),
+                        ).rejects.toMatchObject({
+                            code: "CONTENT_PATH_NOT_FOUND_EXCEPTION"
+                        })
+                    })
+            })
+
+        it("skips content parse failures and logs the mounted path",
+            async () => {
+                const pathService = module.get(ContentPathService)
+                jest
+                    .mocked(pathService.paths)
+                    .mockResolvedValue([
+                        {
+                            relativePath: "missing", orderIndex: 1, displayId: "missing"
+                        },
+                    ])
+                const result = await service.parseMany({
+                    moduleRelativePath: "module",
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                })
+                expect(result).toEqual([])
+                expect(module.get(WinstonService).log).toHaveBeenCalled()
+            })
+
+        it("loads persisted contents by deterministic module id",
+            async () => {
+                const rows = [{
+                    id: "content-1"
+                }] as never
+                const manager = module.get(getEntityManagerToken("primary"))
+                jest.mocked(manager.find).mockResolvedValue(rows)
+                await expect(
+                    service.contentsFromDatabase({
+                        courseIndex: 2, moduleIndex: 3
+                    }),
+                ).resolves.toBe(rows)
+                expect(manager.find).toHaveBeenCalledWith(ContentEntity,
+                    expect.anything())
+            })
+    })
