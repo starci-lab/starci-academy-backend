@@ -300,6 +300,32 @@ describe("FlashcardDeckReadService",
                         expect(checkEnrollment).toHaveBeenCalledWith("user-1",
                             courseId)
                     })
+                it("defaults viewer statistics when the aggregate returns no row",
+                    async () => {
+                        const card = {
+                            id: "card-1",
+                            isPremium: true,
+                            answer: "hidden",
+                            explanation: "hidden details",
+                        }
+                        const deck = {
+                            id: flashcardDeckId,
+                            cards: [card],
+                            defaultLocale: Locale.En,
+                        } as unknown as FlashcardDeckEntity
+                        entityManager.find.mockResolvedValueOnce([deck])
+                        const checkEnrollment = module.get(UserService).checkEnrollment as jest.Mock
+                        checkEnrollment.mockResolvedValueOnce(false)
+
+                        await service.listByCourse(courseId,
+                            Locale.En,
+                            "user-1")
+
+                        expect(deck.dueCount).toBe(0)
+                        expect(deck.masteredCount).toBe(0)
+                        expect(card.answer).toBeNull()
+                        expect(card.explanation).toBeNull()
+                    })
                 it("computes next intervals from prior reviews and locks a premium ES card",
                     async () => {
                         const card = {

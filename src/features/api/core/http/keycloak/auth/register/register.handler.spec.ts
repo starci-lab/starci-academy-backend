@@ -110,4 +110,33 @@ entityManager as never,
                 }))).rejects.toBe(failure)
                 expect(entityManager.save).not.toHaveBeenCalled()
             })
+
+        it("rejects a token response whose decoded payload is not an object",
+            async () => {
+                const tokenService = {
+                    registerUserWithPassword: jest.fn().mockResolvedValue("kc-2"),
+                    sendVerifyEmail: jest.fn(),
+                    exchangePasswordForToken: jest.fn().mockResolvedValue({
+                        access_token: "access",
+                    }),
+                }
+                const jwtService = {
+                    decode: jest.fn().mockReturnValue(null),
+                }
+                const handler = new KeycloakRegisterHandler(tokenService as never,
+                    {
+                    } as never,
+{
+    findOne: jest.fn()
+} as never,
+jwtService as never)
+
+                await expect(handler.execute(new KeycloakRegisterCommand({
+                    email: "invalid@example.com",
+                    password: "password",
+                    firstName: "Invalid",
+                    lastName: "Token",
+                }))).rejects.toThrow()
+                expect(tokenService.sendVerifyEmail).toHaveBeenCalledWith("kc-2")
+            })
     })

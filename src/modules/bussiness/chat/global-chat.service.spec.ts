@@ -1226,6 +1226,384 @@ describe("GlobalChatService",
                 })
                 expect(manager.createQueryBuilder).toHaveBeenCalledTimes(1)
             })
+
+        it("validates safe message links and rejects malformed or non-http URLs",
+            () => {
+                const methods = service as unknown as {
+                    validateBody: (body: string) => void
+                }
+                expect(() => methods.validateBody("hello https://example.test/path")).not.toThrow()
+                expect(() => methods.validateBody("hello ftp://example.test")).not.toThrow()
+                expect(() => methods.validateBody("hello https://[bad")).toThrow()
+                expect(() => methods.validateBody(" ")).toThrow()
+                expect(() => methods.validateBody("x".repeat(4001))).toThrow()
+            })
+
+        it("decodes valid cursors and rejects empty, malformed, and incomplete cursors",
+            () => {
+                const methods = service as unknown as {
+                    encodeCursor: (createdAt: Date, id: string) => string
+                    decodeCursor: (cursor?: string) => { createdAt: Date; id: string } | null
+                }
+                const cursor = methods.encodeCursor(new Date("2026-01-01T00:00:00.000Z"),
+                    "message-1")
+                expect(methods.decodeCursor(cursor)).toEqual({
+                    createdAt: new Date("2026-01-01T00:00:00.000Z"),
+                    id: "message-1",
+                })
+                expect(methods.decodeCursor()).toBeNull()
+                expect(methods.decodeCursor("not-base64-json")).toBeNull()
+                expect(methods.decodeCursor(Buffer.from(JSON.stringify({
+                    id: "message-1"
+                })).toString("base64url"))).toBeNull()
+            })
+
+        it("uses an empty mention list when the optional mention input is omitted",
+            async () => {
+                manager.findOne
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce(room)
+
+                await expect(service.sendMessage({
+                    user,
+                    commandId: "message-without-mentions",
+                    body: "plain message",
+                })).resolves.toEqual(expect.objectContaining({
+                    messageId: "message-1",
+                }))
+
+                expect(manager.find).not.toHaveBeenCalled()
+            })
+
+        it("advances an existing read state with no timestamp, but leaves a newer state unchanged",
+            async () => {
+                const createdAt = new Date("2026-08-25T12:00:00.000Z")
+                const readState: {
+                    lastReadAt: Date | null
+                } = {
+                    lastReadAt: null,
+                }
+                manager.findOne.mockImplementation(async (target: { name?: string }) => {
+                    if (target.name === "ChatCommandReceiptEntity") return null
+                    if (target.name === "ChatConversationEntity") return room
+                    if (target.name === "ChatMessageEntity") return {
+                        id: "message-1",
+                        createdAt,
+                    }
+                    if (target.name === "ChatReadStateEntity") return readState
+                    return null
+                })
+
+                await service.markRead({
+                    user,
+                    commandId: "read-missing-timestamp",
+                    messageId: "message-1",
+                })
+                expect(manager.save).toHaveBeenCalledWith(expect.objectContaining({
+                    lastReadAt: createdAt,
+                }))
+
+                manager.save.mockClear()
+                readState.lastReadAt = new Date("2026-08-26T12:00:00.000Z")
+                await service.markRead({
+                    user,
+                    commandId: "read-already-newer",
+                    messageId: "message-1",
+                })
+                expect(manager.save.mock.calls.some((call) =>
+                    Boolean((call[0] as { lastReadAt?: Date }).lastReadAt),
+                )).toBe(false)
+            })
+
+        it("projects deleted messages and author fallbacks without leaking their body",
+            () => {
+                const projectMessage = (service as unknown as {
+                    projectMessage: (message: unknown, viewerId: string, reactions: unknown[], mentionedViewer: boolean) => Record<string, unknown>
+                }).projectMessage
+                const removed = projectMessage({
+                    id: "removed",
+                    isDeleted: true,
+                    removedByModerator: false,
+                    body: "secret",
+                    authorId: "member-2",
+                    author: {
+                        username: "author-name",
+                        avatar: undefined,
+                    },
+                    replyToId: undefined,
+                    version: 2,
+                    editedAt: null,
+                    removedAt: new Date("2026-08-25T12:00:00.000Z"),
+                    createdAt: new Date("2026-08-25T11:00:00.000Z"),
+                },
+                user.id,
+                [],
+                false)
+                const visible = projectMessage({
+                    id: "visible",
+                    isDeleted: false,
+                    removedByModerator: false,
+                    body: "hello",
+                    authorId: user.id,
+                    author: {
+                        displayName: "Display",
+                        avatar: "avatar-url",
+                    },
+                    replyToId: null,
+                    version: 1,
+                    editedAt: null,
+                    removedAt: null,
+                    createdAt: new Date("2026-08-25T11:00:00.000Z"),
+                },
+                user.id,
+                [],
+                true)
+
+                expect(removed).toEqual(expect.objectContaining({
+                    body: null,
+                    authorName: "author-name",
+                    authorAvatar: null,
+                    removalState: "author-removed",
+                    isMine: false,
+                }))
+                expect(visible).toEqual(expect.objectContaining({
+                    body: "hello",
+                    authorName: "Display",
+                    authorAvatar: "avatar-url",
+                    removalState: null,
+                    isMine: true,
+                    mentionedViewer: true,
+                }))
+            })
+
+        it("accepts a report whose message has no author and stores optional details as null",
+            async () => {
+                manager.findOne.mockImplementation(async (target: { name?: string }) => {
+                    if (target.name === "ChatCommandReceiptEntity") return null
+                    if (target.name === "ChatConversationEntity") return room
+                    if (target.name === "ChatMessageEntity") return {
+                        id: "message-without-author",
+                        authorId: undefined,
+                        body: "evidence",
+                        version: 1,
+                    }
+                    return null
+                })
+
+                await service.report({
+                    user,
+                    commandId: "report-without-author",
+                    messageId: "message-without-author",
+                    category: " spam ",
+                })
+
+                expect(manager.create.mock.calls.map((call) => call[1])).toContainEqual(
+                    expect.objectContaining({
+                        reportedUser: null,
+                        details: null,
+                    }),
+                )
+            })
+
+        it("uses an unfiltered moderation queue and the default page size",
+            async () => {
+                manager.findOne.mockResolvedValueOnce(room)
+                await expect(service.moderationQueue({
+                    user,
+                })).resolves.toEqual([])
+
+                expect(manager.find).toHaveBeenCalledWith(expect.anything(),
+                    expect.objectContaining({
+                        where: {
+                        },
+                        take: 50,
+                    }))
+            })
+
+        it("returns an inside-transaction replay without executing the command body",
+            async () => {
+                const response = {
+                    commandId: "inside-replay",
+                    conversationId: room.id,
+                }
+                manager.findOne
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce({
+                        commandType: "send-message",
+                        response,
+                    })
+
+                await expect(service.sendMessage({
+                    user,
+                    commandId: "inside-replay",
+                    body: "not persisted",
+                })).resolves.toEqual(response)
+                expect(manager.transaction).toHaveBeenCalled()
+                expect(manager.save).not.toHaveBeenCalled()
+            })
+
+        it("dismisses a moderation case with no reported target without touching membership",
+            async () => {
+                const moderationCase = {
+                    id: "case-no-target",
+                    reportId: "report-no-target",
+                    status: "open",
+                    outcome: null,
+                    reason: null,
+                    version: 1,
+                    report: {
+                        id: "report-no-target",
+                        messageId: null,
+                        reportedUserId: null,
+                        reporterId: user.id,
+                        category: "spam",
+                        details: null,
+                        status: "open",
+                    },
+                }
+                manager.findOne.mockImplementation(async (target: { name?: string }) => {
+                    if (target.name === "ChatCommandReceiptEntity") return null
+                    if (target.name === "ChatConversationEntity") return room
+                    if (target.name === "ChatModerationCaseEntity") return moderationCase
+                    return null
+                })
+
+                await expect(service.moderate({
+                    user,
+                    commandId: "dismiss-no-target",
+                    caseId: moderationCase.id,
+                    action: "dismiss",
+                    reason: "reviewed",
+                    expectedVersion: 1,
+                })).resolves.toEqual(expect.objectContaining({
+                    status: "dismissed",
+                    messageId: undefined,
+                }))
+                expect(manager.update).not.toHaveBeenCalled()
+            })
+
+        it("mutes a message author and records the requested mute expiry",
+            async () => {
+                const moderationCase = {
+                    id: "case-mute",
+                    reportId: "report-mute",
+                    status: "open",
+                    outcome: null,
+                    reason: null,
+                    version: 1,
+                    report: {
+                        id: "report-mute",
+                        messageId: "message-mute",
+                        reportedUserId: null,
+                        reporterId: user.id,
+                        category: "spam",
+                        details: null,
+                        status: "open",
+                        message: {
+                            id: "message-mute",
+                            authorId: "member-2",
+                        },
+                    },
+                }
+                const participation = {
+                    accessState: "active",
+                    mutedUntil: null,
+                }
+                manager.findOne.mockImplementation(async (target: { name?: string }) => {
+                    if (target.name === "ChatCommandReceiptEntity") return null
+                    if (target.name === "ChatConversationEntity") return room
+                    if (target.name === "ChatModerationCaseEntity") return moderationCase
+                    if (target.name === "ChatParticipationEntity") return participation
+                    return null
+                })
+                const mutedUntil = new Date("2026-09-01T00:00:00.000Z")
+
+                await expect(service.moderate({
+                    user,
+                    commandId: "mute-author",
+                    caseId: moderationCase.id,
+                    action: "mute",
+                    reason: "temporary restriction",
+                    expectedVersion: 1,
+                    mutedUntil,
+                })).resolves.toEqual(expect.objectContaining({
+                    status: "actioned",
+                }))
+                expect(participation).toEqual(expect.objectContaining({
+                    accessState: "muted",
+                    mutedUntil,
+                }))
+            })
+
+        it("rejects a moderation decision made against a stale case version",
+            async () => {
+                const moderationCase = {
+                    id: "case-stale",
+                    version: 4,
+                    report: {
+                        messageId: null,
+                        reportedUserId: null,
+                    },
+                }
+                manager.findOne.mockImplementation(async (target: { name?: string }) => {
+                    if (target.name === "ChatCommandReceiptEntity") return null
+                    if (target.name === "ChatConversationEntity") return room
+                    if (target.name === "ChatModerationCaseEntity") return moderationCase
+                    return null
+                })
+
+                await expect(service.moderate({
+                    user,
+                    commandId: "stale-moderation",
+                    caseId: moderationCase.id,
+                    action: "dismiss",
+                    reason: "reviewed",
+                    expectedVersion: 3,
+                })).rejects.toMatchObject({
+                    code: "GLOBAL_CHAT_MODERATION_VERSION_CONFLICT",
+                })
+            })
+
+        it("escalates a moderation case without resolving its timestamp",
+            async () => {
+                const moderationCase = {
+                    id: "case-escalate",
+                    reportId: "report-escalate",
+                    status: "open",
+                    outcome: null,
+                    reason: null,
+                    version: 1,
+                    report: {
+                        id: "report-escalate",
+                        messageId: null,
+                        reportedUserId: null,
+                        reporterId: user.id,
+                        category: "spam",
+                        details: null,
+                        status: "open",
+                    },
+                }
+                manager.findOne.mockImplementation(async (target: { name?: string }) => {
+                    if (target.name === "ChatCommandReceiptEntity") return null
+                    if (target.name === "ChatConversationEntity") return room
+                    if (target.name === "ChatModerationCaseEntity") return moderationCase
+                    return null
+                })
+
+                await expect(service.moderate({
+                    user,
+                    commandId: "escalate-case",
+                    caseId: moderationCase.id,
+                    action: "escalate",
+                    reason: "needs review",
+                    expectedVersion: 1,
+                })).resolves.toEqual(expect.objectContaining({
+                    status: "escalated",
+                    messageId: undefined,
+                }))
+                expect(moderationCase.report.status).toBe("escalated")
+            })
     })
 
 describe("GlobalChatPolicyService",

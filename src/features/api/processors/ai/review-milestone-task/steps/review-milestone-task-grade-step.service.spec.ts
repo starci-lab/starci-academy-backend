@@ -394,6 +394,61 @@ describe("ReviewMilestoneTaskGradeStepService",
                     emitChangeEvent: true,
                 }))
             })
+
+        it("uses safe defaults for a missing branch and tracked job id",
+            async () => {
+                programTask({
+                    id: "task-defaults",
+                    title: null,
+                    verified: null,
+                    maxScore: 10,
+                    criterias: [],
+                })
+                const { service, gradingRetrievalService } = makeService(entityManager)
+                const context = makeContext({
+                    branch: undefined,
+                }) as {
+                    job: {
+                        id?: string
+                        fencingToken: number
+                    }
+                    payload: Record<string, unknown>
+                }
+                context.job.id = undefined
+
+                await expect(service.process(context as never)).resolves.toBeUndefined()
+                expect(gradingRetrievalService.retrieveGradingExcerpt).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        jobId: "",
+                    }),
+                )
+            })
+
+        it.each([
+            [
+                "404",
+                GitRepositoryNotFoundException,
+            ],
+            [
+                "403",
+                GitRepositoryAccessDeniedException,
+            ],
+        ])("normalizes a non-Error repository failure for %s",
+            async (message, exception) => {
+                programTask({
+                    id: "task-loader",
+                    title: "Loader",
+                    verified: null,
+                    maxScore: 10,
+                    criterias: [],
+                })
+                loaderLoadMock.mockRejectedValueOnce({
+                    message,
+                })
+                const { service } = makeService(entityManager)
+
+                await expect(service.process(makeContext())).rejects.toBeInstanceOf(exception)
+            })
         it("rejects an empty repository as a domain error before retrieval",
             async () => {
                 programTask({

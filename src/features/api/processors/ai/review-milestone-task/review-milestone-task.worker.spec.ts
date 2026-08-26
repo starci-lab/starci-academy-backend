@@ -85,4 +85,117 @@ describe("ReviewMilestoneTaskWorker",
 
             await expect(worker.process(bull())).rejects.toThrow("invalid review payload")
             expect(actions.completeJob).not.toHaveBeenCalled()
-        }) })
+        })
+
+    it("uses empty identifiers when the queue and tracked job omit ids",
+        async () => {
+            const job = {
+                id: undefined,
+                currentStep: 0,
+                maxSteps: 0,
+            }
+            const actions = {
+                getJob: jest.fn().mockResolvedValue(job),
+                processingJob: jest.fn(),
+                completeJob: jest.fn(),
+            }
+            const log = jest.fn()
+            const worker = new ReviewMilestoneTaskWorker(actions as never,
+                {
+                    parse: jest.fn().mockReturnValue({
+                    })
+                } as never,
+                {
+                    getStepMap: jest.fn().mockReturnValue(new Map())
+                } as never,
+                {
+                    log
+                } as never,
+                {
+                    now: jest.fn().mockReturnValue({
+                        diff: jest.fn()
+                    }),
+                    from: jest.fn(),
+                } as never)
+
+            await expect(worker.process({
+                id: undefined,
+                data: "x",
+                queueName: "review",
+            } as never)).resolves.toBeUndefined()
+            expect(actions.completeJob).toHaveBeenCalledWith({
+                job
+            })
+            expect(log).toHaveBeenCalledWith(expect.anything(),
+                expect.objectContaining({
+                    jobId: ""
+                }))
+        })
+
+    it("logs and rethrows a processing failure before parsing the payload",
+        async () => {
+            const failure = new Error("job state unavailable")
+            const log = jest.fn()
+            const actions = {
+                getJob: jest.fn().mockResolvedValue({
+                    id: "j1"
+                }),
+                processingJob: jest.fn().mockRejectedValue(failure),
+            }
+            const worker = new ReviewMilestoneTaskWorker(actions as never,
+                {
+                    parse: jest.fn()
+                } as never,
+                {
+                    getStepMap: jest.fn()
+                } as never,
+                {
+                    log
+                } as never,
+                {
+                    now: jest.fn().mockReturnValue({
+                        diff: jest.fn()
+                    }),
+                    from: jest.fn(),
+                } as never)
+
+            await expect(worker.process(bull())).rejects.toBe(failure)
+            expect(log).toHaveBeenCalledWith(expect.anything(),
+                expect.objectContaining({
+                    jobId: "j1", error: failure.message
+                }))
+        })
+
+    it("logs an empty job id when processing fails before a tracked job is loaded",
+        async () => {
+            const failure = new Error("job state unavailable")
+            const log = jest.fn()
+            const actions = {
+                getJob: jest.fn().mockResolvedValue(undefined),
+                processingJob: jest.fn().mockRejectedValue(failure),
+            }
+            const worker = new ReviewMilestoneTaskWorker(actions as never,
+                {
+                    parse: jest.fn(),
+                } as never,
+                {
+                    getStepMap: jest.fn(),
+                } as never,
+                {
+                    log,
+                } as never,
+                {
+                    now: jest.fn().mockReturnValue({
+                        diff: jest.fn(),
+                    }),
+                    from: jest.fn(),
+                } as never)
+
+            await expect(worker.process(bull())).rejects.toBe(failure)
+            expect(log).toHaveBeenCalledWith(expect.anything(),
+                expect.objectContaining({
+                    jobId: "",
+                    error: failure.message,
+                }))
+        })
+    })

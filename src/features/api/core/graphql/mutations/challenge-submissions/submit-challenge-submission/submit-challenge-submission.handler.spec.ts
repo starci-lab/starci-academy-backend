@@ -562,6 +562,49 @@ describe("SubmitChallengeSubmissionHandler",
                         },
                     }))
             })
+
+        it("reports a null reset time when the exhausted quota window has no reset",
+            async () => {
+                const entitlement = module.get(AiEntitlementService) as unknown as {
+                    snapshot: jest.Mock
+                }
+                entitlement.snapshot.mockResolvedValueOnce({
+                    credit: {
+                        remaining5h: 0,
+                        remainingWeek: 3,
+                    },
+                    window5hResetAt: null,
+                    windowWeekResetAt: new Date("2030-01-02T03:04:00.000Z"),
+                })
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-quota",
+                        challengeId: "chal-quota",
+                        type: SubmissionType.GithubUrl,
+                    })
+                    .mockResolvedValueOnce({
+                        id: "chal-quota",
+                    })
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce({
+                        id: "ucs-quota",
+                        submissionUrl: "https://github.com/me/repo",
+                    })
+                    .mockResolvedValueOnce({
+                        id: "ucs-quota",
+                        submissionUrl: "https://github.com/me/repo",
+                        selectedLang: null,
+                    })
+
+                await expect(handler.execute(new SubmitChallengeSubmissionCommand({
+                    request: {
+                        challengeSubmissionId: "sub-quota",
+                    },
+                    user: fakeUser("user-quota"),
+                }))).rejects.toBeInstanceOf(SubmissionQuotaExceededException)
+                expect(enqueueGitV2.enqueue).not.toHaveBeenCalled()
+            })
         it("backfills enrollment when an existing row receives a replacement URL",
             async () => {
                 const existing: {

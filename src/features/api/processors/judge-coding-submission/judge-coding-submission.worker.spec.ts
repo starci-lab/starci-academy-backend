@@ -244,6 +244,40 @@ describe("JudgeCodingSubmissionWorker — process",
                     job: trackedJob(1),
                 })
             })
+
+        it("logs an empty tracked id on successful completion",
+            async () => {
+                const harness = makeWorker()
+                const first = trackedJob(0)
+                first.id = undefined as never
+                const finished = trackedJob(1)
+                finished.id = undefined as never
+                harness.jobActionService.getJob
+                    .mockResolvedValueOnce(first)
+                    .mockResolvedValueOnce(finished)
+
+                await expect(harness.worker.process(bullJob())).resolves.toBeUndefined()
+                expect(harness.winstonService.log).toHaveBeenCalledWith(
+                    expect.anything(),
+                    expect.objectContaining({
+                        jobId: "",
+                    }),
+                )
+            })
+
+        it("stringifies a non-Error step failure before failing the tracked job",
+            async () => {
+                const harness = makeWorker()
+                harness.submission.verdict = CodingVerdict.Accepted
+                harness.jobActionService.getJob.mockResolvedValue(trackedJob(0))
+                harness.stepProcess.mockRejectedValueOnce("judge unavailable")
+
+                await expect(harness.worker.process(bullJob())).rejects.toBe("judge unavailable")
+                expect(harness.jobActionService.failJob).toHaveBeenCalledWith({
+                    job: trackedJob(0),
+                    error: "judge unavailable",
+                })
+            })
     })
 
 describe("JudgeCodingSubmissionWorker — terminal failure helpers",

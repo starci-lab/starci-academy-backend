@@ -22,6 +22,9 @@ import {
     AiCeilSurface,
 } from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
 import {
+    AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
@@ -463,6 +466,14 @@ describe("AiInvokeService",
                             ...base,
                             provider: ModelProvider.Anthropic,
                         })).toBeInstanceOf(ChatAnthropic)
+                        expect(buildClient({
+                            ...base,
+                            provider: ModelProvider.Local,
+                        })).toBeInstanceOf(ChatOpenAI)
+                        expect(buildClient({
+                            ...base,
+                            provider: ModelProvider.OpenRouter,
+                        })).toBeInstanceOf(ChatOpenAI)
                     })
             })
 
@@ -703,6 +714,20 @@ describe("AiInvokeService",
                         expect(result).toEqual(expect.objectContaining({
                             text: "graded",
                             cost: 0,
+                        }))
+                    })
+
+                it("maps interview surfaces to the grading task for the auto lane",
+                    async () => {
+                        await service.run({
+                            userId: "user-1",
+                            messages,
+                            surface: AiCeilSurface.Interview,
+                        })
+
+                        expect(useApiService.useApi).toHaveBeenCalledWith(expect.objectContaining({
+                            lane: "chain",
+                            task: AiModelTask.Grading,
                         }))
                     })
 

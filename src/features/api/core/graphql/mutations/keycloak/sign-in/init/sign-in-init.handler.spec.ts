@@ -500,4 +500,107 @@ describe("SignInInitHandler",
                 expect(otpChallengeService.createActionChallenge).not.toHaveBeenCalled()
                 expect(enqueueSendMailJobService.enqueue).not.toHaveBeenCalled()
             })
+
+        it("rejects a local bypass token with malformed decoded claims",
+            async () => {
+                process.env.LOCAL_TEST_AUTH_BYPASS_ENABLED = "true"
+                keycloakTokenService.exchangePasswordForToken.mockResolvedValueOnce({
+                    access_token: "access-local",
+                    refresh_token: "refresh-local",
+                } as never)
+                jwtService.decode.mockReturnValueOnce(null as never)
+
+                await expect(handler.execute(new SignInInitCommand({
+                    request: {
+                        email: "test@starci.local",
+                        password: "secret",
+                    },
+                }))).rejects.toThrow()
+                expect(otpChallengeService.createActionChallenge).not.toHaveBeenCalled()
+            })
+
+        it("creates a local bypass user using request email when the token omits email",
+            async () => {
+                process.env.LOCAL_TEST_AUTH_BYPASS_ENABLED = "true"
+                keycloakTokenService.exchangePasswordForToken.mockResolvedValueOnce({
+                    access_token: "access-local",
+                    refresh_token: "refresh-local",
+                } as never)
+                jwtService.decode.mockReturnValueOnce({
+                    sub: "keycloak-fallback",
+                    preferred_username: "fallback-user",
+                } as never)
+                entityManager.findOne.mockResolvedValueOnce(null)
+                entityManager.create.mockReturnValueOnce({
+                    id: "local-fallback",
+                    email: "test@starci.local",
+                } as never)
+
+                const result = await handler.execute(new SignInInitCommand({
+                    request: {
+                        email: "test@starci.local",
+                        password: "secret",
+                    },
+                }))
+
+                expect(result.kind).toBe("session")
+                expect(entityManager.save).toHaveBeenCalled()
+                expect(emailBloomFilterService.add).toHaveBeenCalledWith("test@starci.local")
+            })
+
+        it("rejects a supplied TOTP code when verification returns false",
+            async () => {
+                keycloakTokenService.exchangePasswordForToken.mockResolvedValueOnce({
+                    access_token: "access-totp",
+                    refresh_token: "refresh-totp",
+                } as never)
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "user-totp",
+                    twoFactorEnabled: true,
+                    twoFactorSecret: JSON.stringify({
+                        ciphertext: "encrypted",
+                    }),
+                })
+                totpService.verify.mockReturnValueOnce(false)
+
+                await expect(handler.execute(new SignInInitCommand({
+                    request: {
+                        email: "user@example.com",
+                        password: "secret",
+                        twoFactorCode: "000000",
+                    },
+                }))).rejects.toBeInstanceOf(TwoFactorInvalidCodeException)
+                expect(totpService.verify).toHaveBeenCalledWith({
+                    secret: "totp-secret",
+                    token: "000000",
+                })
+                expect(otpChallengeService.createActionChallenge).not.toHaveBeenCalled()
+            })
+
+        it("adds an empty fallback when a newly created local user has no email",
+            async () => {
+                process.env.LOCAL_TEST_AUTH_BYPASS_ENABLED = "true"
+                keycloakTokenService.exchangePasswordForToken.mockResolvedValueOnce({
+                    access_token: "access-local-null-email",
+                    refresh_token: "refresh-local-null-email",
+                } as never)
+                jwtService.decode.mockReturnValueOnce({
+                    sub: "keycloak-null-email",
+                } as never)
+                entityManager.findOne.mockResolvedValueOnce(null)
+                entityManager.create.mockReturnValueOnce({
+                    id: "local-null-email",
+                    email: null,
+                } as never)
+
+                await expect(handler.execute(new SignInInitCommand({
+                    request: {
+                        email: "test@starci.local",
+                        password: "secret",
+                    },
+                }))).resolves.toEqual(expect.objectContaining({
+                    kind: "session",
+                }))
+                expect(emailBloomFilterService.add).toHaveBeenCalledWith("")
+            })
     })

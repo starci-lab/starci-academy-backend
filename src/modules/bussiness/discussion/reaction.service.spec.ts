@@ -24,6 +24,9 @@ import type {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
+    ContentReactionEntity,
+} from "@modules/databases/postgresql/primary/entities/content-reaction.entity"
+import {
     CommentNotFoundException,
 } from "@modules/platform/exceptions/errors/discussion/comment"
 import {
@@ -265,6 +268,42 @@ describe("ReactionService",
                         // nothing to remove or save
                         expect(entityManager.remove).not.toHaveBeenCalled()
                         expect(entityManager.save).not.toHaveBeenCalled()
+                    })
+
+                it("stores the resolved enrollment for a first reaction on course content",
+                    async () => {
+                        const enrollment = {
+                            id: "enrollment-1",
+                        }
+                        entityManager.findOne
+                            .mockResolvedValueOnce(null)
+                            .mockResolvedValueOnce({
+                                id: contentId,
+                                module: {
+                                    courseId: "course-1",
+                                },
+                            })
+                            .mockResolvedValueOnce(null)
+                        userService.resolveOrCreateTrialEnrollment.mockResolvedValueOnce(
+                            enrollment as never,
+                        )
+
+                        await service.reactToContent({
+                            contentId,
+                            user,
+                            type: ReactionType.Like,
+                        })
+
+                        expect(userService.resolveOrCreateTrialEnrollment).toHaveBeenCalledWith(
+                            user.id,
+                            "course-1",
+                        )
+                        expect(entityManager.create).toHaveBeenCalledWith(
+                            ContentReactionEntity,
+                            expect.objectContaining({
+                                enrollment,
+                            }),
+                        )
                     })
             })
 

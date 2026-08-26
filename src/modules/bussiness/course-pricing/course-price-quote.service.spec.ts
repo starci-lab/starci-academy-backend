@@ -270,4 +270,25 @@ describe("CoursePriceQuoteService",
                     intent: CoursePriceQuoteIntent.Discovery,
                 })).rejects.toThrow("pricing configuration missing")
             })
+
+        it("sums nullable USD fields only when every course has a quote",
+            () => {
+                const methods = service as unknown as {
+                    sumNullable: (lines: Array<{ listUsd?: number | null }>, field: "listUsd") => number | null
+                }
+                expect(methods.sumNullable([{
+                    listUsd: 10
+                },
+                {
+                    listUsd: 5
+                }],
+                "listUsd")).toBe(15)
+                expect(methods.sumNullable([{
+                    listUsd: 10
+                },
+                {
+                    listUsd: null
+                }],
+                "listUsd")).toBeNull()
+            })
     })

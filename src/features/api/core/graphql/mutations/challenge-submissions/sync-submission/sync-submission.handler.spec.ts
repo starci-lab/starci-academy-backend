@@ -74,6 +74,7 @@ describe("SyncSubmissionHandler",
             Pick<PostgreSqlAdvisoryLockService, "acquireUserChallengeSubmissionXactLock">
         >
         let gradingLaneValidationService: jest.Mocked<Pick<GradingLaneValidationService, "validate">>
+        let userService: jest.Mocked<Pick<UserService, "resolveOrCreateTrialEnrollment">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager -- `transaction` runs the callback inline
@@ -99,6 +100,10 @@ describe("SyncSubmissionHandler",
                 }),
             } as unknown as jest.Mocked<Pick<GradingLaneValidationService, "validate">>
 
+            userService = {
+                resolveOrCreateTrialEnrollment: jest.fn().mockResolvedValue(null),
+            } as unknown as jest.Mocked<Pick<UserService, "resolveOrCreateTrialEnrollment">>
+
             module = await Test.createTestingModule({
                 providers: [
                     SyncSubmissionHandler,
@@ -118,9 +123,7 @@ describe("SyncSubmissionHandler",
                         // best-effort trial-enrollment resolution -- a bare stub keeps the
                         // enrollment-lookup path inert for these specs
                         provide: UserService,
-                        useValue: {
-                            resolveOrCreateTrialEnrollment: jest.fn().mockResolvedValue(null),
-                        },
+                        useValue: userService,
                     },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
@@ -362,5 +365,96 @@ describe("SyncSubmissionHandler",
                     user: fakeUser("user-1"),
                 }))).rejects.toBe(failure)
                 expect(urlValidatorService.isValid).not.toHaveBeenCalled()
+            })
+
+        it("creates a course-enrolled selection row when the challenge has a course",
+            async () => {
+                const enrollment = {
+                    id: "enrollment-1",
+                }
+                userService.resolveOrCreateTrialEnrollment.mockResolvedValueOnce(enrollment as never)
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-course",
+                        type: "githubUrl",
+                        challenge: {
+                            content: {
+                                module: {
+                                    courseId: "course-1",
+                                },
+                            },
+                        },
+                    })
+                    .mockResolvedValueOnce(null)
+
+                await handler.execute(new SyncSubmissionCommand({
+                    request: {
+                        id: "sub-course",
+                    },
+                    user: fakeUser("user-1"),
+                }))
+
+                expect(userService.resolveOrCreateTrialEnrollment).toHaveBeenCalledWith(
+                    "user-1",
+                    "course-1",
+                )
+                expect(entityManager.create).toHaveBeenCalledWith(expect.anything(),
+                    expect.objectContaining({
+                        enrollment,
+                        submissionUrl: "",
+                    }))
+            })
+
+        it("backfills enrollment on an existing selection row while applying a partial lane",
+            async () => {
+                const enrollment = {
+                    id: "enrollment-2",
+                }
+                const existing: {
+                    id: string
+                    submissionUrl: string
+                    enrollmentId: string | null
+                    enrollment?: unknown
+                    selectedModelProvider?: ModelProvider
+                } = {
+                    id: "ucs-course",
+                    submissionUrl: "",
+                    enrollmentId: null,
+                }
+                userService.resolveOrCreateTrialEnrollment.mockResolvedValueOnce(enrollment as never)
+                gradingLaneValidationService.validate.mockResolvedValueOnce({
+                    gradingModel: undefined,
+                    gradingProvider: ModelProvider.OpenAI,
+                } as never)
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-course",
+                        type: "githubUrl",
+                        challenge: {
+                            content: {
+                                module: {
+                                    courseId: "course-2",
+                                },
+                            },
+                        },
+                    })
+                    .mockResolvedValueOnce(existing)
+
+                await handler.execute(
+                    new SyncSubmissionCommand({
+                        request: {
+                            id: "sub-course",
+                            selectedModelProvider: ModelProvider.OpenAI,
+                        },
+                        user: fakeUser("user-2"),
+                    }),
+                )
+
+                expect(existing.enrollment).toBe(enrollment)
+                expect(existing.selectedModelProvider).toBe(ModelProvider.OpenAI)
+                expect(entityManager.save).toHaveBeenCalledWith(
+                    expect.anything(),
+                    existing,
+                )
             })
     })

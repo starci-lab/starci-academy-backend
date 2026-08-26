@@ -975,4 +975,33 @@ describe("AutocompleteGlobalSearchService",
                     locale: Locale.En,
                 } as never)).rejects.toBe(failure)
             })
+
+        it("fills unselected entity buckets without invoking their index services",
+            async () => {
+                const result = await service.execute({
+                    request: {
+                        query: "typescript",
+                        entities: [CourseEntity.name],
+                    },
+                    locale: Locale.En,
+                } as never)
+
+                expect(result).toEqual(expect.objectContaining({
+                    courses: [],
+                    modules: [],
+                    challenges: [],
+                    contents: [],
+                    flashcardDecks: [],
+                    milestones: [],
+                    milestoneTasks: [],
+                    foundations: [],
+                }))
+                expect(searches[CourseEntity.name]).toHaveBeenCalledTimes(1)
+                for (const [entityName,
+                    search] of Object.entries(searches)) {
+                    if (entityName !== CourseEntity.name) {
+                        expect(search).not.toHaveBeenCalled()
+                    }
+                }
+            })
     })

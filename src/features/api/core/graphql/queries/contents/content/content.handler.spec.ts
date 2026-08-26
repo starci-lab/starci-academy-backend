@@ -222,6 +222,23 @@ describe("ContentHandler",
                 expect(redis.expire).not.toHaveBeenCalled()
             })
 
+        it("rejects subsequent over-limit reads without repeating the breach log",
+            async () => {
+                redis.incr.mockResolvedValue(202)
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "c1",
+                    isPremium: false,
+                })
+
+                await expect(handler.execute(new ContentQuery({
+                    request: {
+                        id: "c1",
+                    },
+                    user: fakeUser("scraper"),
+                }))).rejects.toBeInstanceOf(ContentScrapeRateLimitException)
+                expect(s3ReadService.json).not.toHaveBeenCalled()
+            })
+
         it("repairs a missing Redis TTL before continuing normal request validation",
             async () => {
                 redis.incr.mockResolvedValue(2)
@@ -491,7 +508,13 @@ describe("ContentHandler",
                 entityManager.findOne.mockResolvedValueOnce({
                     id: "c1",
                     isPremium: true,
+                    module: {
+                        course: {
+                            id: "course-1",
+                        },
+                    },
                 })
+                userService.checkEnrollment.mockResolvedValueOnce(false)
                 s3ReadService.json.mockResolvedValueOnce(buildS3Content({
                     isPremium: true,
                     body: null,
@@ -511,6 +534,7 @@ describe("ContentHandler",
                     request: {
                         id: "c1",
                     },
+                    user: fakeUser("u1"),
                 }))
 
                 expect(result.body).toBe("")
@@ -555,5 +579,65 @@ describe("ContentHandler",
                         id: "c1",
                     },
                 }))).rejects.toBe(failure)
+            })
+
+        it("stubs English outcomes when a free lesson has no outcome rows",
+            async () => {
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "c1",
+                    isPremium: false,
+                })
+                s3ReadService.json.mockResolvedValueOnce(buildS3Content({
+                    outcomes: [],
+                }))
+
+                const result = await handler.execute(new ContentQuery({
+                    request: {
+                        id: "c1",
+                    },
+                    locale: Locale.En,
+                }))
+
+                expect(result.outcomes).toHaveLength(3)
+                expect(result.outcomes[0].text).toContain("core ideas")
+            })
+
+        it("handles absent schema-v2 bodies and translations while locking a dangling fence",
+            async () => {
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "c1",
+                    isPremium: true,
+                    module: {
+                        course: {
+                            id: "course-1",
+                        },
+                    },
+                })
+                userService.checkEnrollment.mockResolvedValueOnce(false)
+                s3ReadService.json.mockResolvedValueOnce(buildS3Content({
+                    isPremium: true,
+                    body: "intro ".repeat(700) + "\n``` unfinished",
+                    bodies: [
+                        {
+                            body: "short body",
+                            translations: undefined,
+                        },
+                    ],
+                }))
+
+                const result = await handler.execute(new ContentQuery({
+                    request: {
+                        id: "c1",
+                    },
+                    user: fakeUser("u1"),
+                }))
+
+                expect(userService.checkEnrollment).toHaveBeenCalledWith(
+                    "u1",
+                    "course-1",
+                )
+                expect(result.body).not.toContain("unfinished")
+                expect(result.bodies[0].body).toBe("short body")
+                expect(result.bodies[0].translations).toBeUndefined()
             })
     })

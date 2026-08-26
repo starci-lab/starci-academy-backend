@@ -501,4 +501,26 @@ describe("ReconcileTransactionWorker",
                 expect(resolve).not.toHaveBeenCalled()
                 expect(updateStatus).not.toHaveBeenCalled()
             })
+
+        it("defaults a legacy payload without a retry lane to the fast queue",
+            async () => {
+                entityManager.findOne.mockResolvedValue(transaction())
+                resolve.mockResolvedValue({
+                    state: "pending",
+                    providerStatus: "PENDING",
+                })
+
+                await worker.process({
+                    data: JSON.stringify({
+                        transactionId: TRANSACTION_ID,
+                        attempt: 1,
+                    }),
+                } as Job<string>)
+
+                expect(enqueueReconcile).toHaveBeenCalledWith({
+                    transactionId: TRANSACTION_ID,
+                    attempt: 2,
+                    lane: "fast",
+                })
+            })
     })

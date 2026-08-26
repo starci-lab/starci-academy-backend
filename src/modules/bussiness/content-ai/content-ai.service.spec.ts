@@ -2293,6 +2293,32 @@ describe("ContentAiService",
                         )
                     })
 
+                it("returns an empty snapshot when enrollment or active session is absent",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([])
+                        await expect(service.loadLearnAiCompanion({
+                            userId,
+                            courseId,
+                        })).resolves.toEqual({
+                            session: null,
+                            messages: [],
+                            turns: [],
+                        })
+                        entityManager.query
+                            .mockResolvedValueOnce([{
+                                id: enrollmentId
+                            }])
+                            .mockResolvedValueOnce([])
+                        await expect(service.loadLearnAiCompanion({
+                            userId,
+                            courseId,
+                        })).resolves.toEqual({
+                            session: null,
+                            messages: [],
+                            turns: [],
+                        })
+                    })
+
                 it("archives the active companion so the next resolve can create a fresh identity",
                     async () => {
                         entityManager.query.mockResolvedValueOnce([

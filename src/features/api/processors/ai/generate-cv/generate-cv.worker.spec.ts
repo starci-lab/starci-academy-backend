@@ -208,4 +208,65 @@ describe("GenerateCvWorker",
                 expect(h.jobActionService.completeJob).toHaveBeenCalled()
                 expect(h.winstonService.log).toHaveBeenCalled()
             })
+
+        it("logs a lookup failure with an empty job id when Bull omits its id",
+            async () => {
+                const h = make()
+                const failure = new Error("job lookup unavailable")
+                h.jobActionService.getJob.mockRejectedValueOnce(failure)
+
+                await expect(h.worker.process({
+                    ...bull(),
+                    id: undefined,
+                } as never)).rejects.toBe(failure)
+                expect(h.winstonService.log).toHaveBeenCalledWith(expect.anything(),
+                    expect.objectContaining({
+                        jobId: "",
+                        error: failure.message,
+                    }))
+            })
+
+        it("stringifies a non-Error pipeline failure while marking the generation failed",
+            async () => {
+                const h = make()
+                h.jobActionService.getJob.mockResolvedValueOnce({
+                    ...h.job,
+                    currentStep: 0,
+                    maxSteps: 1,
+                })
+                h.jobActionService.getJob.mockResolvedValueOnce({
+                    ...h.job,
+                    currentStep: 0,
+                    maxSteps: 1,
+                })
+                h.step.process.mockRejectedValueOnce("pipeline stopped")
+
+                await expect(h.worker.process(bull())).rejects.toBe("pipeline stopped")
+                expect(h.entityManager.update).toHaveBeenCalledWith(
+                    UserCvGenerationEntity,
+                    {
+                        id: "g1",
+                    },
+                    expect.objectContaining({
+                        errorMessage: "pipeline stopped",
+                    }),
+                )
+            })
+
+        it("logs an empty job id when an already-finished job has no id",
+            async () => {
+                const h = make()
+                h.jobActionService.getJob.mockResolvedValueOnce({
+                    ...h.job,
+                    id: undefined,
+                    currentStep: 2,
+                    maxSteps: 2,
+                })
+
+                await expect(h.worker.process(bull())).resolves.toBeUndefined()
+                expect(h.winstonService.log).toHaveBeenCalledWith(expect.anything(),
+                    expect.objectContaining({
+                        jobId: "",
+                    }))
+            })
     })

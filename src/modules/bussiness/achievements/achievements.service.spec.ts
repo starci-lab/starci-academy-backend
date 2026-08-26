@@ -440,6 +440,26 @@ describe("AchievementsService",
                         expect(entityManager.query).toHaveBeenCalled()
                     })
 
+                it("defaults missing cached data and count fields on a fresh projection hit",
+                    async () => {
+                        const service = await build({
+                            badges: [],
+                            definitions: [],
+                            values: [],
+                        })
+                        entityManager.findOne.mockResolvedValueOnce({
+                            updatedAt: new Date(),
+                            value: {
+                            },
+                        })
+
+                        await expect(service.getMyAchievements(USER_ID)).resolves.toEqual({
+                            data: [],
+                            count: 0,
+                            newAchievements: [],
+                        })
+                    })
+
                 it("invalidates the user's cached projection through the entity manager",
                     async () => {
                         const service = await build({
@@ -475,6 +495,25 @@ describe("AchievementsService",
 
                         expect(rarity).toEqual(new Map())
                         expect(entityManager.query).toHaveBeenCalledTimes(1)
+                    })
+
+                it("maps an absent composite metric row to zero for each badge",
+                    async () => {
+                        const service = await build({
+                            badges: [new FakeBadge("busy-bee")],
+                            definitions: [],
+                            values: [],
+                        })
+                        entityManager.query.mockResolvedValueOnce([])
+                        const computeValues = (service as unknown as {
+                            computeValues: (userId: string, manager: EntityManagerMock) => Promise<Map<string, number>>
+                        }).computeValues.bind(service)
+
+                        await expect(computeValues(USER_ID,
+                            entityManager)).resolves.toEqual(new Map([
+                            ["busy-bee",
+                                0],
+                        ]))
                     })
 
                 it("keeps the earliest award time and highest tier when indexing duplicates",

@@ -563,4 +563,79 @@ describe("MockInterviewGateway streaming policy",
                 expect(run).not.toHaveBeenCalled()
                 expect(success).toHaveBeenCalled()
             })
+
+        it("passes a pinned model selection through to the provider",
+            async () => {
+                const run = jest.fn().mockResolvedValue({
+                    model: "gpt-pinned",
+                    provider: ModelProvider.OpenAI,
+                    cost: 1,
+                    promptTokens: 1,
+                    completionTokens: 1,
+                    attempts: 1,
+                })
+                const consume = jest.fn().mockResolvedValue(undefined)
+                const success = jest.fn()
+                const gateway = new MockInterviewGateway(
+                    {
+                        prepareTurn: jest.fn().mockResolvedValue({
+                            messages: [new HumanMessage("prepared")],
+                        }),
+                    } as never,
+                    {
+                        getUserByKeycloakId: jest.fn().mockResolvedValue({
+                            id: "user-pinned",
+                        }),
+                    } as never,
+                    {
+                        run,
+                    } as never,
+                    {
+                        consume,
+                    } as never,
+                    {
+                        success,
+                    } as never,
+                    {
+                        findOne: jest.fn().mockResolvedValue({
+                            id: "session-pinned",
+                            createdAt: new Date(),
+                        }),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                )
+
+                await gateway.handleAskMockInterviewTurn({
+                    id: "socket-pinned",
+                    data: {
+                        userId: "subject-pinned",
+                    },
+                } as never,
+{
+    locale: "en",
+    data: {
+        streamId: "stream-pinned",
+        sessionId: "session-pinned",
+        courseId: "course-1",
+        promptTitle: "Question",
+        phase: "requirements",
+        latestAnswer: "answer",
+        history: [],
+        mode: "design",
+        model: "gpt-pinned",
+        provider: ModelProvider.OpenAI,
+    },
+} as never)
+
+                expect(run).toHaveBeenCalledWith(expect.objectContaining({
+                    selection: {
+                        model: "gpt-pinned",
+                        provider: ModelProvider.OpenAI,
+                    },
+                }))
+                expect(consume).toHaveBeenCalled()
+                expect(success).toHaveBeenCalled()
+            })
     })

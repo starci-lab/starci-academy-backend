@@ -955,6 +955,45 @@ describe("FlashcardReviewService",
                         expect(entityManager.find).toHaveBeenCalledTimes(1)
                     })
 
+                it("uses new-card scheduling defaults when a stored review has null state fields",
+                    async () => {
+                        entityManager.find
+                            .mockResolvedValueOnce([{
+                                flashcardCard: {
+                                    id: cardId,
+                                },
+                                ease: null,
+                                intervalDays: null,
+                                repetitions: null,
+                            }])
+                            .mockResolvedValueOnce([{
+                                id: cardId,
+                                isPremium: false,
+                                question: "front",
+                                answer: "back",
+                                tags: [],
+                                deck: {
+                                    id: "deck-1",
+                                    title: "Deck",
+                                    courseId: null,
+                                    translations: [],
+                                },
+                            }])
+
+                        const result = await service.listByIds({
+                            userId,
+                            cardIds: [cardId],
+                            locale: Locale.En,
+                        })
+
+                        expect(result[0].nextIntervals).toEqual({
+                            again: 1,
+                            hard: 1,
+                            good: 1,
+                            easy: 1,
+                        })
+                    })
+
                 it("maps a missing deck and optional card fields to safe response defaults",
                     () => {
                         const mapToDueFlashcards = (service as unknown as {

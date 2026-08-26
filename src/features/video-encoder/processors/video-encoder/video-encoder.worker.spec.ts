@@ -166,4 +166,19 @@ describe("VideoEncoderWorker",
                 expect(h.step.process).not.toHaveBeenCalled()
                 expect(h.jobActionService.completeJob).toHaveBeenCalled()
             })
+
+        it("does not mark a retryable lookup failure as terminal",
+            async () => {
+                const h = make()
+                const failure = new Error("temporary lookup failure")
+                h.jobActionService.getJob.mockRejectedValueOnce(failure)
+
+                await expect(h.worker.process(bull(0,
+                    3))).rejects.toBe(failure)
+                expect(h.jobActionService.failJob).not.toHaveBeenCalled()
+                expect(h.winstonService.log).toHaveBeenCalledWith(expect.anything(),
+                    expect.objectContaining({
+                        error: failure.message
+                    }))
+            })
     })

@@ -358,4 +358,39 @@ describe("SignUpVerifyOtpHandler",
                 }))).rejects.toBe(failure)
                 expect(jwtService.decode).not.toHaveBeenCalled()
             })
+
+        it("uses the stored email when the OTP payload omits a username",
+            async () => {
+                otpChallengeService.verifyActionChallenge.mockResolvedValueOnce({
+                    ...validVerifyResult,
+                    payload: {
+                        ...validVerifyResult.payload,
+                        username: undefined,
+                    },
+                } as never)
+                jwtService.decode.mockReturnValueOnce({
+                    sub: "kc-email-user",
+                    email: "new@example.com",
+                } as never)
+                keycloakTokenService.exchangePasswordForToken.mockResolvedValueOnce({
+                    access_token: "access-email",
+                    refresh_token: "refresh-email",
+                } as never)
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "local-existing"
+                } as never)
+
+                await handler.execute(new SignUpVerifyOtpCommand({
+                    request: {
+                        challengeId: "chal-1",
+                        otp: "123456",
+                    },
+                }))
+
+                expect(keycloakTokenService.exchangePasswordForToken)
+                    .toHaveBeenCalledWith(expect.objectContaining({
+                        username: "new@example.com",
+                    }))
+                expect(entityManager.save).not.toHaveBeenCalled()
+            })
     })

@@ -245,4 +245,164 @@ describe("IndexSearchHandler",
                     size: 10,
                 }))
             })
+
+        it("uses the hit id and challenge parent when the source and highlights are absent",
+            async () => {
+                search.mockResolvedValueOnce(buildSearchResponse([
+                    {
+                        _id: "challenge-hit",
+                    },
+                ]))
+                cacheGet.mockResolvedValueOnce({
+                    challenge: {
+                        id: "challenge-1",
+                        displayId: "task-1",
+                    },
+                    content: {
+                        id: "content-1",
+                        displayId: "lesson-1",
+                    },
+                    module: {
+                        id: "module-1",
+                        displayId: "module-1",
+                    },
+                    course: {
+                        id: "course-1",
+                        displayId: "course-1",
+                    },
+                } as ParentIndexCacheResult)
+
+                const result = await handler.execute(new IndexSearchQuery({
+                    request: {
+                        type: IndexSearchType.ChallengeIndex,
+                        query: "task",
+                    },
+                }))
+
+                expect(result.items[0]).toEqual({
+                    id: "challenge-hit",
+                    displayId: "",
+                    title: "",
+                    texts: [],
+                    parentPath: {
+                        courseDisplayId: "course-1",
+                        moduleDisplayId: "module-1",
+                        contentDisplayId: "lesson-1",
+                        challengeDisplayId: "task-1",
+                    },
+                })
+            })
+
+        it("hydrates a course-only parent and ignores falsy highlight fragments",
+            async () => {
+                search.mockResolvedValueOnce(buildSearchResponse([
+                    {
+                        _source: {
+                            id: "course-1",
+                            displayId: "course",
+                            title: "Course",
+                        },
+                        highlight: {
+                            title: [
+                                "",
+                                "<em>Course</em>",
+                            ],
+                            description: [],
+                        },
+                    },
+                ]))
+                cacheGet.mockResolvedValueOnce({
+                    course: {
+                        id: "course-1",
+                        displayId: "course",
+                    },
+                } as ParentIndexCacheResult)
+
+                const result = await handler.execute(new IndexSearchQuery({
+                    request: {
+                        type: IndexSearchType.CourseIndex,
+                        query: "course",
+                    },
+                    locale: Locale.Vi,
+                }))
+
+                expect(result.items[0].texts).toEqual(["<em>Course</em>"])
+                expect(result.items[0].parentPath).toEqual({
+                    courseDisplayId: "course",
+                    moduleDisplayId: undefined,
+                    contentDisplayId: undefined,
+                    challengeDisplayId: undefined,
+                })
+                expect(search).toHaveBeenCalledWith(expect.objectContaining({
+                    query: expect.objectContaining({
+                        bool: expect.objectContaining({
+                            must: [{
+                                term: {
+                                    locale: Locale.Vi,
+                                },
+                            }],
+                        }),
+                    }),
+                }))
+            })
+
+        it("returns only the available module parent fields for a partial cache entry",
+            async () => {
+                search.mockResolvedValueOnce(buildSearchResponse([
+                    {
+                        _source: {
+                            id: "module-1",
+                            displayId: "module",
+                            title: "Module",
+                        },
+                    },
+                ]))
+                cacheGet.mockResolvedValueOnce({
+                    module: {
+                        id: "module-1",
+                        displayId: "module",
+                    },
+                } as ParentIndexCacheResult)
+
+                const result = await handler.execute(new IndexSearchQuery({
+                    request: {
+                        type: IndexSearchType.ModuleIndex,
+                        query: "module",
+                    },
+                }))
+
+                expect(result.items[0].parentPath).toEqual({
+                    courseDisplayId: undefined,
+                    moduleDisplayId: "module",
+                    contentDisplayId: undefined,
+                    challengeDisplayId: undefined,
+                })
+            })
+
+        it("uses an empty id when Elasticsearch omits both source and hit identifiers",
+            async () => {
+                search.mockResolvedValueOnce(buildSearchResponse([{
+                }]))
+
+                const result = await handler.execute(new IndexSearchQuery({
+                    request: {
+                        type: IndexSearchType.ContentIndex,
+                        query: "unknown-id",
+                    },
+                }))
+
+                expect(cacheGet).toHaveBeenCalledWith(expect.objectContaining({
+                    args: [
+                        expect.any(String),
+                        "",
+                    ],
+                }))
+                expect(result.items[0]).toEqual({
+                    id: "",
+                    displayId: "",
+                    title: "",
+                    texts: [],
+                    parentPath: undefined,
+                })
+            })
     })

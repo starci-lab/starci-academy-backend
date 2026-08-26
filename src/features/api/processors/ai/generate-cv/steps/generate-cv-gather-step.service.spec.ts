@@ -202,6 +202,28 @@ describe("GenerateCvGatherStepService",
                 expect(extractCvText).toHaveBeenCalled()
             })
 
+        it("converts an uploaded source whose extractor returns no text to null",
+            async () => {
+                const { entityManager, jobAction, s3, service } = makeService()
+                entityManager.findOne.mockResolvedValueOnce({
+                    source: CvSource.Uploaded,
+                    uploadedCdnKey: "cv/empty.pdf",
+                })
+                s3.buffer.mockResolvedValueOnce(Buffer.from("pdf"))
+                jest.mocked(extractCvText).mockResolvedValueOnce("")
+
+                await service.process(context({
+                    mode: CvGenerationMode.Revise,
+                    sourceCvSubmissionId: "source-cv",
+                }))
+
+                const [[saved]] = jobAction.saveExecutionResult.mock.calls
+                expect(saved.executionResult.sourceCvText).toBeNull()
+                expect(s3.buffer).toHaveBeenCalledWith(expect.objectContaining({
+                    key: "cv/empty.pdf",
+                }))
+            })
+
         it("propagates profile lookup failures without saving an execution result",
             async () => {
                 const { entityManager, jobAction, service } = makeService()
@@ -210,5 +232,41 @@ describe("GenerateCvGatherStepService",
 
                 await expect(service.process(context())).rejects.toBe(failure)
                 expect(jobAction.saveExecutionResult).not.toHaveBeenCalled()
+            })
+
+        it.each([
+            [null,
+                null,
+                undefined],
+            [{
+                source: CvSource.Uploaded, uploadedCdnKey: null
+            },
+            null,
+            undefined],
+            [{
+                source: CvSource.Uploaded, uploadedCdnKey: "cv.pdf"
+            },
+            null,
+            Buffer.alloc(0)],
+            [{
+                source: CvSource.Generated, structuredData: null
+            },
+            null,
+            undefined],
+        ])("stores a null source text when source material is unavailable (%s)",
+            async (source, expected, buffer) => {
+                const { entityManager, jobAction, s3, service } = makeService()
+                entityManager.findOne.mockResolvedValueOnce(source)
+                if (buffer !== undefined) {
+                    s3.buffer.mockResolvedValueOnce(buffer)
+                }
+
+                await service.process(context({
+                    mode: CvGenerationMode.Revise,
+                    sourceCvSubmissionId: "source-cv",
+                }))
+
+                const [[saved]] = jobAction.saveExecutionResult.mock.calls
+                expect(saved.executionResult.sourceCvText).toBe(expected)
             })
     })
