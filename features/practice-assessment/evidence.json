@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "practice-assessment",
-  "head": "b7bd88ae324073831db451f22f4ccd749f3bbb67ac2f4dd130b583fd55b28257",
+  "head": "421904174c1d4e477c5b547cdc9b2c88ed1e6efa5c7a28652f2228f0ee853fa9",
   "sources": [
     {
       "role": "fe",
@@ -133,6 +133,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "b7bd88ae324073831db451f22f4ccd749f3bbb67ac2f4dd130b583fd55b28257"
+    },
+    {
+      "id": "EV-015",
+      "claim": "Owner approved replacing the mock interview setup's meaningless three-step progress with a complete course-scoped, resumable practice loop from overview and minimal setup through persisted turns, truthful grading, answer-linked result, history and comparable progress.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "4626c06604e3d87962f37593bdd905d9683769dd0cf02c789dfc27f9690f0bb3"
     }
   ]
 }

@@ -14,9 +14,9 @@ Evidence: `EV-009`
 
 ## Entity · Mock interview session (`mock-interview-session`)
 
-Fields: `course`, `level`, `kind`, `session id`, `turns`, `result`
+Fields: `course`, `level`, `kind`, `session id`, `turns`, `current position`, `format total`, `status`, `last confirmed time`, `rubric`, `result`, `recommendations`
 
-Evidence: `EV-006`, `EV-007`, `EV-008`, `EV-010`
+Evidence: `EV-006`, `EV-007`, `EV-008`, `EV-010`, `EV-015`
 
 ## Operation · submitCodingSolution
 
@@ -34,4 +34,44 @@ Evidence: `EV-006`, `EV-007`, `EV-008`, `EV-010`
 - Failures: authentication rejected, selection unavailable, session creation failed
 - Evidence: `EV-010`
 
-No field, failure or operation may appear here without routed source evidence.
+## Operation · resumableMockInterviewSession
+
+- Kind/owner: `query` / `backend`
+- Inputs: course
+- Outputs: resumable session or none, server-confirmed position
+- Failures: authentication rejected, session unavailable
+- Evidence: `EV-015`
+
+## Operation · submitMockInterviewTurn
+
+- Kind/owner: `mutation` / `backend`
+- Inputs: session id, current turn identity, learner answer
+- Outputs: confirmed submitted turn, server-confirmed position, next prompt or completion state
+- Failures: authentication rejected, session conflict, answer rejected, turn persistence failed
+- Evidence: `EV-015`
+
+## Operation · abandonMockInterviewSession
+
+- Kind/owner: `mutation` / `backend`
+- Inputs: session id, explicit learner confirmation
+- Outputs: abandoned session status
+- Failures: authentication rejected, session conflict, session abandonment failed
+- Evidence: `EV-015`
+
+## Operation · completeMockInterviewSession
+
+- Kind/owner: `mutation` / `backend`
+- Inputs: session id
+- Outputs: grading status
+- Failures: required turns incomplete, session conflict, assessment dispatch failed
+- Evidence: `EV-015`
+
+## Operation · mockInterviewDevelopment
+
+- Kind/owner: `query` / `backend`
+- Inputs: course, optional format, optional target level
+- Outputs: graded attempt history, comparable progress or insufficient-data reason
+- Failures: authentication rejected, history unavailable
+- Evidence: `EV-015`
+
+No field, failure or operation may appear here without routed source evidence or explicit owner-approved target authority.

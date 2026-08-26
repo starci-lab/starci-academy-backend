@@ -2,14 +2,14 @@
 
 ## Purpose
 
-Learners choose coding domains and problems, submit code for asynchronous judging, launch guided playgrounds, and complete server-drawn mock interview sessions with results.
+Learners choose coding domains and problems, submit code for asynchronous judging, launch guided playgrounds, and follow a resumable course-scoped mock interview loop from preparation through evidence-based assessment and next practice.
 
 ## Included
 
 - Coding practice hub, domain and problem routes
 - Asynchronous coding submissions
 - Course playground catalog, setup and session
-- Mock interview setup, session and result
+- Course-scoped mock interview overview, setup, resumable session, assessment, result, history and progress
 
 ## Excluded
 

@@ -1,18 +1,18 @@
 # Practice and assessment
 
-> Business head: `b7bd88ae324073831db451f22f4ccd749f3bbb67ac2f4dd130b583fd55b28257`
+> Business head: `421904174c1d4e477c5b547cdc9b2c88ed1e6efa5c7a28652f2228f0ee853fa9`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
 ## 1. Overview
 
-Learners choose coding domains and problems, submit code for asynchronous judging, launch guided playgrounds, and complete server-drawn mock interview sessions with results.
+Learners choose coding domains and problems, submit code for asynchronous judging, launch guided playgrounds, and follow a resumable course-scoped mock interview loop from preparation through evidence-based assessment and next practice.
 
 Included:
 - Coding practice hub, domain and problem routes
 - Asynchronous coding submissions
 - Course playground catalog, setup and session
-- Mock interview setup, session and result
+- Course-scoped mock interview overview, setup, resumable session, assessment, result, history and progress
 
 Excluded:
 - Embedded lesson challenge submissions
@@ -32,16 +32,18 @@ Excluded:
 - Choose a coding domain
 - Solve and submit coding problems
 - Run course playground sessions
-- Start and complete mock interviews
+- Prepare, resume and complete mock interviews
+- Use answer-linked assessment to choose the next course learning action
 
-Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`, `EV-014`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`, `EV-014`, `EV-015`
 
 ### StarCi Academy platform
 
 - Queue coding solutions for judging
 - Draw and persist mock interview sessions
+- Restore confirmed interview progress and produce answer-linked assessment
 
-Evidence: `EV-009`, `EV-010`
+Evidence: `EV-009`, `EV-010`, `EV-015`
 
 ## 4. Entry points and surfaces
 
@@ -99,31 +101,31 @@ Evidence: `EV-005`, `EV-014`
 
 - ID: `mock-interview-setup`
 - Route: `/[lang]/courses/[displayId]/learn/mock-interview`
-- Purpose: Choose interview parameters and start a session.
-- Regions: `interview-setup`
+- Purpose: Resume an unfinished course interview, prepare a new one, or inspect prior development without presenting fake setup progress.
+- Regions: `interview-entry`, `interview-setup`, `interview-development`
 - Navigation: none
 
-Evidence: `EV-006`
+Evidence: `EV-006`, `EV-010`, `EV-015`
 
 ### Interview session
 
 - ID: `mock-interview-session`
 - Route: `/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]`
-- Purpose: Complete the persisted interview turns.
+- Purpose: Answer one prompt at a time while preserving submitted turns and exposing only real session progress.
 - Regions: `interview-run`
-- Navigation: none
+- Navigation: `mock-interview-setup`
 
-Evidence: `EV-007`
+Evidence: `EV-007`, `EV-010`, `EV-015`
 
 ### Interview result
 
 - ID: `mock-interview-result`
 - Route: `/[lang]/courses/[displayId]/learn/mock-interview/interview/[sessionId]/result`
-- Purpose: Inspect the assessed result after completing the interview.
+- Purpose: Wait for truthful assessment, understand answer-linked performance and choose the next course learning action.
 - Regions: `interview-assessment`
-- Navigation: none
+- Navigation: `mock-interview-setup`, `mock-interview-session`
 
-Evidence: `EV-008`
+Evidence: `EV-008`, `EV-015`
 
 ## 5. Business flows
 
@@ -133,26 +135,29 @@ Trigger: A learner opens practice or a course assessment route.
 
 1. **learner** — Choose a coding domain, playground or mock interview → The selected setup surface opens
 2. **learner** — Submit source code for a problem → A submission and judging job are returned
-3. **learner** — Choose course, level and interview kind → The server draws and persists an interview session
+3. **learner** — Resume an unfinished interview or prepare a course-scoped format and target level → The learner enters a recoverable session and a path through assessment to the next learning action
 
 Outcomes:
-- The learner receives a judging job or a persisted mock interview session and result path
+- The learner receives a judging job, a guided Playground, or a recoverable mock interview practice loop
 
-Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`
+Evidence: `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`, `EV-009`, `EV-010`, `EV-015`
 
-### Complete a mock interview
+### Practise through a resumable mock interview loop
 
 Trigger: A learner opens the mock interview route for a course.
 
-1. **learner** — Choose the interview level and kind → The setup is ready to start
-2. **learner** — Start the interview → The server draws and persists the interview session
-3. **learner** — Complete the interview turns → The session reaches an assessed outcome
-4. **learner** — Inspect the assessed result → The learner sees the completed interview assessment
+1. **learner** — Open the course mock interview home → Resume, prepare new, or inspect prior development
+2. **learner** — Resume or choose format and target level → A resumable session opens or the format contract is explained
+3. **learner** — Start the configured interview → The server persists a session with a declared phase or turn total
+4. **learner** — Submit each answer → Confirmed turns and position remain recoverable
+5. **platform** — Assess the completed interview → Truthful submitting, grading, delayed or failed status is shown
+6. **learner** — Inspect answer-linked strengths, gaps and recommendations → A next learning action is chosen
+7. **learner** — Review graded history and comparable progress → Attempt details or an insufficient-data explanation is shown
 
 Outcomes:
-- The learner completes a persisted mock interview journey from setup through assessed result
+- The learner repeatedly practises without losing confirmed work and converts evidence-based assessment into a next course learning action
 
-Evidence: `EV-006`, `EV-007`, `EV-008`, `EV-010`, `EV-013`
+Evidence: `EV-006`, `EV-007`, `EV-008`, `EV-010`, `EV-013`, `EV-015`
 
 ### Complete a guided Playground
 
@@ -224,6 +229,66 @@ The live workspace anatomy follows the Playground kind while preserving one shar
 
 Strength: **confirmed** · Evidence: `EV-014`
 
+### BR-10
+
+Mock interview setup never presents generic journey progress; real progress requires a server-confirmed current position and total.
+
+Strength: **confirmed** · Evidence: `EV-015`
+
+### BR-11
+
+A learner has at most one resumable mock interview session per course, and Resume is primary on return.
+
+Strength: **confirmed** · Evidence: `EV-015`
+
+### BR-12
+
+Starting new requires explicit abandonment of the resumable session and never silently discards confirmed work.
+
+Strength: **confirmed** · Evidence: `EV-015`
+
+### BR-13
+
+Format and target level are the only required setup choices and lock after creation; course is inherited from Learn.
+
+Strength: **confirmed** · Evidence: `EV-015`
+
+### BR-14
+
+Submitted turns and server-confirmed position are recovery authority across refresh, reconnect and leaving Learn.
+
+Strength: **confirmed** · Evidence: `EV-015`
+
+### BR-15
+
+Interview mode exposes no between-turn score or coaching unless a separately declared coaching format is selected.
+
+Strength: **confirmed** · Evidence: `EV-015`
+
+### BR-16
+
+Completion passes through truthful submitting and grading states; delayed or failed grading never appears complete.
+
+Strength: **confirmed** · Evidence: `EV-015`
+
+### BR-17
+
+Assessment is traceable to submitted answers and the declared rubric, with recommendations inside the current course.
+
+Strength: **confirmed** · Evidence: `EV-015`
+
+### BR-18
+
+Only graded, sufficiently comparable attempts produce a progress trend; otherwise an insufficient-data explanation is shown.
+
+Strength: **confirmed** · Evidence: `EV-015`
+
+### BR-19
+
+Every empty, delayed and failed mock interview state exposes a truthful recovery action.
+
+Strength: **confirmed** · Evidence: `EV-015`
+
 ## 7. State model
 
 - **Assessment ready** (`assessment-ready`, initial) → assessment-pending, assessment-error — `EV-001`, `EV-002`, `EV-003`, `EV-004`, `EV-006`
@@ -238,29 +303,59 @@ Strength: **confirmed** · Evidence: `EV-014`
 - **Playground session reconnecting** (`playground-session-reconnecting`, pending) → playground-session-active, playground-session-error — `EV-014`
 - **Playground session complete** (`playground-session-complete`, success) → terminal — `EV-014`
 - **Playground session failed** (`playground-session-error`, error) → playground-session-reconnecting — `EV-014`
+- **No interview in progress** (`interview-no-session`, initial) → interview-setup-ready — `EV-015`
+- **Interview setup ready** (`interview-setup-ready`, initial) → interview-creating, interview-active, interview-start-error — `EV-006`, `EV-010`, `EV-015`
+- **Creating interview** (`interview-creating`, pending) → interview-active, interview-start-error — `EV-010`, `EV-015`
+- **Interview active** (`interview-active`, success) → interview-saving-turn, interview-paused-resumable, interview-reconnecting, interview-completion-submitting, interview-abandoned — `EV-007`, `EV-010`, `EV-015`
+- **Saving answer** (`interview-saving-turn`, pending) → interview-active, interview-completion-submitting, interview-save-error — `EV-015`
+- **Ready to resume** (`interview-paused-resumable`, pending) → interview-active, interview-abandoned — `EV-015`
+- **Reconnecting** (`interview-reconnecting`, pending) → interview-active, interview-save-error — `EV-015`
+- **Submitting completion** (`interview-completion-submitting`, pending) → interview-grading, interview-save-error — `EV-015`
+- **Assessment in progress** (`interview-grading`, pending) → interview-graded, interview-grading-delayed, interview-grading-error — `EV-008`, `EV-015`
+- **Interview assessed** (`interview-graded`, success) → interview-setup-ready — `EV-008`, `EV-015`
+- **Start failed** (`interview-start-error`, error) → interview-setup-ready — `EV-010`, `EV-015`
+- **Save failed** (`interview-save-error`, error) → interview-active, interview-paused-resumable — `EV-015`
+- **Assessment delayed** (`interview-grading-delayed`, pending) → interview-grading, interview-graded, interview-grading-error — `EV-015`
+- **Assessment failed** (`interview-grading-error`, error) → interview-grading — `EV-015`
+- **Interview abandoned** (`interview-abandoned`, error) → interview-setup-ready — `EV-015`
 
 ## 8. Entities and data
 
 - **Coding problem**: slug, domain, statement, language, source code, test cases — `EV-003`, `EV-009`
 - **Coding submission**: submission id, job id, verdict — `EV-009`
-- **Mock interview session**: course, level, kind, session id, turns, result — `EV-006`, `EV-007`, `EV-008`, `EV-010`
+- **Mock interview session**: course, level, kind, session id, turns, current position, format total, status, last confirmed time, rubric, result, recommendations — `EV-006`, `EV-007`, `EV-008`, `EV-010`, `EV-015`
 
 ## 9. Operations and APIs
 
 - **submitCodingSolution** (mutation, backend) — input: problem slug, language, source code; output: submission id, job id; failures: authentication rejected, problem or language rejected, judge queue failed — `EV-009`
 - **startMockInterviewSession** (mutation, backend) — input: course, level, kind; output: persisted interview session; failures: authentication rejected, selection unavailable, session creation failed — `EV-010`
+- **resumableMockInterviewSession** (query, backend) — input: course; output: resumable session or none, server-confirmed position — `EV-015`
+- **submitMockInterviewTurn** (mutation, backend) — input: session id, turn identity, answer; output: confirmed turn, position, next prompt or completion — `EV-015`
+- **abandonMockInterviewSession** (mutation, backend) — input: session id, explicit confirmation; output: abandoned status — `EV-015`
+- **completeMockInterviewSession** (mutation, backend) — input: session id; output: grading status — `EV-015`
+- **mockInterviewDevelopment** (query, backend) — input: course, optional format and level; output: graded history and comparable progress or insufficient-data reason — `EV-015`
 
 ## 10. Acceptance conditions
 
 - **AC-01** Practice, coding problem, playground and mock interview route families mount their declared surfaces. — `EV-001`, `EV-003`, `EV-004`, `EV-005`, `EV-006`, `EV-007`, `EV-008`
 - **AC-02** Submitting code returns submission and job identities for asynchronous judging. — `EV-009`
 - **AC-03** Starting a mock interview server-draws and persists a session for the chosen course, level and kind. — `EV-010`
-- **AC-04** The mock interview journey exposes setup, persisted session turns and an assessed result as distinct surfaces. — `EV-006`, `EV-007`, `EV-008`, `EV-010`
+- **AC-04** A first-time learner understands format, expected effort and assessment output before starting, without decorative setup progress. — `EV-006`, `EV-015`
 - **AC-05** The Playground journey exposes catalog, explicit readiness setup and a guarded live session as distinct surfaces with reconnect behavior. — `EV-004`, `EV-005`, `EV-014`
+- **AC-06** An unfinished interview makes Resume primary and starting new requires explicit abandonment. — `EV-015`
+- **AC-07** Active progress uses only server-confirmed current position and format total. — `EV-007`, `EV-015`
+- **AC-08** Refresh, reconnect and leaving Learn preserve confirmed work. — `EV-015`
+- **AC-09** Completion passes through submitting and grading before result. — `EV-008`, `EV-015`
+- **AC-10** Delayed or failed assessment has truthful recovery. — `EV-015`
+- **AC-11** Result connects answer evidence, gaps, course content and next practice. — `EV-008`, `EV-015`
+- **AC-12** History distinguishes no data, insufficient data and supported trend. — `EV-015`
+- **AC-13** Concurrent or stale advancement cannot overwrite confirmed position. — `EV-015`
 
 ## 11. Explicit unknowns
 
 - **Which playground session state is durable across devices?** — The routed surfaces prove setup and session entry, but the cited backend operations in this feature do not establish cross-device persistence semantics.
+- **What phase or turn totals, durations and rubric versions belong to each format and level?** — Architecture and backend contracts must assign their authority without inventing values in UI.
+- **What minimum sample and dimensions permit a progress trend?** — Progress remains insufficient-data until an approved comparison rule exists.
 
 ## 12. Evidence index
 
@@ -280,3 +375,4 @@ Strength: **confirmed** · Evidence: `EV-014`
 | EV-012 | owner | `decision:fee04602de7b3f4deab3147add8577d5ce22603c29b5b152f1266c45c10b1e9f` | owner-decision | Owner approved reconciling practice-assessment to the current routed FE and BE commits before executing the accepted mock interview flow. |
 | EV-013 | owner | `decision:535bba7789be754d510d300f488aa1354fc17c340ba65b3d1be26a4740b738dc` | owner-decision | Owner approved redesigning the complete mock interview frontend journey across setup, persisted interview turns and assessed result without changing the backend contract. |
 | EV-014 | owner | `decision:b7bd88ae324073831db451f22f4ccd749f3bbb67ac2f4dd130b583fd55b28257` | owner-decision | Owner approved redesigning the complete Playground frontend journey across catalog, explicit readiness setup and guarded live session, using legacy behavior as reference while keeping cross-device persistence unknown. |
+| EV-015 | owner | `decision:4626c06604e3d87962f37593bdd905d9683769dd0cf02c789dfc27f9690f0bb3` | owner-decision | Owner approved replacing meaningless setup progress with a complete course-scoped, resumable mock interview practice loop. |

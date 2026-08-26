@@ -62,3 +62,73 @@ The live workspace anatomy follows the Playground kind while preserving one shar
 
 - Strength: `confirmed`
 - Evidence: `EV-014`
+
+## BR-10
+
+Mock interview setup never presents generic journey progress; progress is shown only after session creation when a server-confirmed current phase or turn and total are both available.
+
+- Strength: `confirmed`
+- Evidence: `EV-015`
+
+## BR-11
+
+A learner has at most one resumable mock interview session per course, and that session is the primary action on return.
+
+- Strength: `confirmed`
+- Evidence: `EV-015`
+
+## BR-12
+
+Starting a new mock interview while one is resumable requires explicit abandonment confirmation; replacement never silently discards confirmed work.
+
+- Strength: `confirmed`
+- Evidence: `EV-015`
+
+## BR-13
+
+Interview format and target level are the only required setup choices and become immutable after session creation; the course is inherited from Learn.
+
+- Strength: `confirmed`
+- Evidence: `EV-015`
+
+## BR-14
+
+Submitted turns and the server-confirmed session position are recovery authority across refresh, reconnect and leaving Learn.
+
+- Strength: `confirmed`
+- Evidence: `EV-015`
+
+## BR-15
+
+Interview mode does not expose scores or coaching between turns unless a separately declared coaching format is selected.
+
+- Strength: `confirmed`
+- Evidence: `EV-015`
+
+## BR-16
+
+A completed interview passes through explicit submitting and grading states; delayed or failed grading never appears as a completed result.
+
+- Strength: `confirmed`
+- Evidence: `EV-015`
+
+## BR-17
+
+Assessment claims are traceable to submitted answers and the declared rubric, and recommendations remain inside the current course context.
+
+- Strength: `confirmed`
+- Evidence: `EV-015`
+
+## BR-18
+
+Only graded attempts enter history and only sufficiently comparable graded attempts produce a progress trend; otherwise the learner sees an insufficient-data explanation.
+
+- Strength: `confirmed`
+- Evidence: `EV-015`
+
+## BR-19
+
+Every empty, delayed and failed mock interview state exposes a truthful recovery action.
+
+- Strength: `confirmed`
+- Evidence: `EV-015`
