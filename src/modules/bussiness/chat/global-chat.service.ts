@@ -701,8 +701,7 @@ export class GlobalChatService {
                         },
                     })
                 if (
-                    !current ||
-          !current.lastReadAt ||
+                    !current?.lastReadAt ||
           current.lastReadAt < message.createdAt
                 ) {
                     const state =
@@ -988,22 +987,22 @@ export class GlobalChatService {
                         room.id,
                         targetUserId,
                     )
-                    participation.accessState =
-            params.action === "ban"
-                ? "banned"
-                : params.action === "mute"
-                    ? "muted"
-                    : "active"
+                    participation.accessState = "active"
+                    if (params.action === "ban") {
+                        participation.accessState = "banned"
+                    } else if (params.action === "mute") {
+                        participation.accessState = "muted"
+                    }
                     participation.mutedUntil =
             params.action === "mute" ? (params.mutedUntil ?? null) : null
                     await manager.save(participation)
                 }
-                moderationCase.status =
-          params.action === "escalate"
-              ? "escalated"
-              : params.action === "dismiss"
-                  ? "dismissed"
-                  : "actioned"
+                moderationCase.status = "actioned"
+                if (params.action === "escalate") {
+                    moderationCase.status = "escalated"
+                } else if (params.action === "dismiss") {
+                    moderationCase.status = "dismissed"
+                }
                 moderationCase.outcome = params.action
                 moderationCase.reason = params.reason.trim()
                 moderationCase.assignee = params.user
@@ -1200,6 +1199,7 @@ export class GlobalChatService {
                 )
                 if (insideReplay) return insideReplay
                 const value = await execute(manager)
+                const serializedResponse = JSON.stringify(value)
                 await manager.save(
                     manager.create(ChatCommandReceiptEntity,
                         {
@@ -1208,7 +1208,7 @@ export class GlobalChatService {
                             },
                             commandId: normalizedId,
                             commandType,
-                            response: JSON.parse(JSON.stringify(value)) as Record<
+                            response: JSON.parse(serializedResponse) as Record<
               string,
               unknown
             >,
@@ -1317,6 +1317,13 @@ export class GlobalChatService {
         reactions: Array<GlobalChatReactionProjection>,
         mentionedViewer: boolean,
     ): GlobalChatMessageProjection {
+        let removalState: GlobalChatMessageProjection["removalState"] = null
+        if (message.isDeleted) {
+            removalState = "author-removed"
+            if (message.removedByModerator) {
+                removalState = "moderator-removed"
+            }
+        }
         return {
             id: message.id,
             body: message.isDeleted ? null : message.body,
@@ -1328,11 +1335,7 @@ export class GlobalChatService {
             version: message.version,
             editedAt: message.editedAt,
             removedAt: message.removedAt,
-            removalState: message.isDeleted
-                ? message.removedByModerator
-                    ? "moderator-removed"
-                    : "author-removed"
-                : null,
+            removalState,
             createdAt: message.createdAt,
             reactions,
             mentionedViewer,
