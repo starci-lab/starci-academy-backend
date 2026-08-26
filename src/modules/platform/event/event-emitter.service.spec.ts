@@ -1,0 +1,68 @@
+import {
+    EventEmitterService,
+} from "./event-emitter.service"
+import {
+    EventName,
+} from "./enums/event-name"
+import {
+    JobStatus,
+} from "@modules/databases/postgresql/primary/enums/job-status"
+
+describe("EventEmitterService",
+    () => {
+        const local = {
+            emit: jest.fn(), on: jest.fn(), off: jest.fn()
+        }
+        const producer = {
+            publish: jest.fn()
+        }
+        const factory = {
+            create: jest.fn(() => "serialized")
+        }
+        const service = new EventEmitterService(local as never,
+producer as never,
+factory as never)
+
+        beforeEach(() => jest.clearAllMocks())
+
+        it("emits locally and publishes a serialized NATS message when both are requested",
+            async () => {
+                const payload = {
+                    jobId: "job-1",
+                    status: JobStatus.Queued,
+                }
+                await service.emit({
+                    event: EventName.JobStatusUpdated,
+                    payload,
+                    options: {
+                        useLocal: true, useNats: true
+                    },
+                })
+
+                expect(local.emit).toHaveBeenCalledWith(EventName.JobStatusUpdated,
+                    payload)
+                expect(factory.create).toHaveBeenCalledWith({
+                    message: payload
+                })
+                expect(producer.publish).toHaveBeenCalledWith({
+                    subject: EventName.JobStatusUpdated,
+                    payload: "serialized",
+                })
+            })
+
+        it("registers and removes listeners using the resolved event name",
+            () => {
+                const listener = jest.fn()
+                service.on({
+                    event: EventName.JobStatusUpdated, listener
+                })
+                service.off({
+                    event: EventName.JobStatusUpdated, listener
+                })
+
+                expect(local.on).toHaveBeenCalledWith(EventName.JobStatusUpdated,
+                    listener)
+                expect(local.off).toHaveBeenCalledWith(EventName.JobStatusUpdated,
+                    listener)
+            })
+    })
