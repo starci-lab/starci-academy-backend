@@ -133,4 +133,45 @@ describe("ResolveGithubWorker retry lifecycle",
                 expect(step).not.toHaveBeenCalled()
                 expect(jobActionService.failJob).toHaveBeenCalled()
             })
+
+        it("completes a job whose current step already reached maxSteps",
+            async () => {
+                const trackedJob = {
+                    id: "resolve-job",
+                    currentStep: 2,
+                    maxSteps: 2,
+                } as JobEntity
+                const jobActionService = {
+                    getJob: jest.fn().mockResolvedValue(trackedJob),
+                    processingJob: jest.fn(),
+                    completeJob: jest.fn(),
+                    failJob: jest.fn(),
+                }
+                const worker = new ResolveGithubWorker(
+                    jobActionService as never,
+                    {
+                        parse: jest.fn().mockReturnValue({
+                        }),
+                    } as never,
+                    {
+                        getStepMap: jest.fn().mockReturnValue(new Map()),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                    new DayjsService(),
+                )
+
+                await expect(worker.process({
+                    id: undefined,
+                    data: "{}",
+                    queueName: "resolve-github",
+                    attemptsMade: 0,
+                    opts: {
+                    },
+                } as never)).resolves.toBeUndefined()
+                expect(jobActionService.completeJob).toHaveBeenCalledWith({
+                    job: trackedJob,
+                })
+            })
     })

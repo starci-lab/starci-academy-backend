@@ -285,4 +285,14 @@ describe("InstallmentPlanEnforcementCronService",
                 expect(installmentPlanService.lockGatedEnrollments).not.toHaveBeenCalled()
                 expect(mockDefaultedEmail).not.toHaveBeenCalled()
             })
+
+        it("skips plans that are not overdue at the current clock time",
+            async () => {
+                entityManager.find.mockResolvedValue([])
+
+                await service.enforceOverduePlans()
+
+                expect(entityManager.update).not.toHaveBeenCalled()
+                expect(mockDueEmail).not.toHaveBeenCalled()
+            })
     })

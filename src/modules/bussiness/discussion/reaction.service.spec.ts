@@ -613,6 +613,20 @@ describe("ReactionService",
                         expect(result.c2.total).toBe(0)
                         expect(result).not.toHaveProperty("unknown")
                     })
+
+                it("normalizes an empty comment summary when no reaction rows exist",
+                    async () => {
+                        const emptySummary = (service as unknown as {
+                            emptySummary: () => { total: number; counts: Array<unknown> }
+                        }).emptySummary
+                        expect(emptySummary()).toEqual({
+                            total: 0,
+                            counts: [],
+                            myReaction: null,
+                            shareCount: 0,
+                            viewCount: 0,
+                        })
+                    })
             })
 
     })

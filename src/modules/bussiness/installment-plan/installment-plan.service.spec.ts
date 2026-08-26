@@ -534,5 +534,17 @@ describe("InstallmentPlanService",
                         })
                         expect(entityManager.update).toHaveBeenCalledTimes(2)
                     })
+
+                it("returns no installment options for free courses and defaults unknown markup to zero",
+                    () => {
+                        expect(service.computeInstallmentOptions(0)).toEqual([])
+                        expect(service.computeInstallmentTotal(100000,
+                            99)).toEqual({
+                            months: 99,
+                            markupPercent: 0,
+                            totalAmountVnd: 100000,
+                            monthlyAmountVnd: 1010,
+                        })
+                    })
             })
     })

@@ -4,54 +4,79 @@ import {
 
 describe("UserStatsProjectionListener",
     () => {
-        const service = {
-            recompute: jest.fn().mockResolvedValue(undefined)
+        it("derives endpoint, XP, notification, and empty targets",
+            async () => {
+                const recompute = jest.fn().mockResolvedValue(undefined)
+                const checkAndGrant = jest.fn().mockResolvedValue(undefined)
+                const checkAndGrantDailyBonus = jest.fn().mockResolvedValue(undefined)
+                const listener = new UserStatsProjectionListener(
+            {
+            } as never,
+            {
+            } as never,
+            {
+                recompute
+            } as never,
+            {
+                checkAndGrant, checkAndGrantDailyBonus
+            } as never,
+                ) as unknown as {
+            deriveTargets: (message: unknown) => string[]
+            recomputeTarget: (id: string) => Promise<void>
         }
-        const streak = {
-            checkAndGrant: jest.fn().mockResolvedValue(undefined), checkAndGrantDailyBonus: jest.fn().mockResolvedValue(undefined)
-        }
-        const listener = new UserStatsProjectionListener({
-        } as never,
-{
-} as never,
-service as never,
-streak as never)
-        const exposedListener = listener as unknown as {
-            deriveTargets: (event: unknown) => string[]
-            recomputeTarget: (userId: string) => Promise<void>
-        }
-
-        beforeEach(() => jest.clearAllMocks())
-
-        it("derives both unique follow endpoints",
-            () => {
-                expect(exposedListener.deriveTargets({
+                expect(listener.deriveTargets({
                     topic: "cdc.user_follows", row: {
-                        follower_id: "u1", following_id: "u1"
+                        follower_id: "one", following_id: "two"
                     }
-                })).toEqual(["u1",
-                    "u1"])
-            })
-
-        it("skips missing XP and notification users",
-            () => {
-                expect(exposedListener.deriveTargets({
+                })).toEqual(["one",
+                    "two"])
+                expect(listener.deriveTargets({
+                    topic: "cdc.user_follows", row: {
+                        follower_id: "one"
+                    }
+                })).toEqual(["one"])
+                expect(listener.deriveTargets({
+                    topic: "cdc.xp_histories", row: {
+                        user_id: "xp-user"
+                    }
+                })).toEqual(["xp-user"])
+                expect(listener.deriveTargets({
                     topic: "cdc.xp_histories", row: {
                     }
                 })).toEqual([])
-                expect(exposedListener.deriveTargets({
+                expect(listener.deriveTargets({
+                    topic: "cdc.notifications", row: {
+                        user_id: "notify-user"
+                    }
+                })).toEqual(["notify-user"])
+                expect(listener.deriveTargets({
                     topic: "cdc.notifications", row: {
                     }
                 })).toEqual([])
-            })
-
-        it("recomputes stats and grants both streak bonuses",
-            async () => {
-                await exposedListener.recomputeTarget("user-1")
-                expect(service.recompute).toHaveBeenCalledWith({
+                await listener.recomputeTarget("user-1")
+                expect(recompute).toHaveBeenCalledWith({
                     userId: "user-1"
                 })
-                expect(streak.checkAndGrant).toHaveBeenCalledWith("user-1")
-                expect(streak.checkAndGrantDailyBonus).toHaveBeenCalledWith("user-1")
+                expect(checkAndGrant).toHaveBeenCalledWith("user-1")
+                expect(checkAndGrantDailyBonus).toHaveBeenCalledWith("user-1")
+            })
+
+        it("preserves both endpoints when a follow row references the same user",
+            () => {
+                const listener = new UserStatsProjectionListener({
+                } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never) as unknown as { deriveTargets: (message: unknown) => string[] }
+                expect(listener.deriveTargets({
+                    topic: "cdc.user_follows",
+                    row: {
+                        follower_id: "same", following_id: "same"
+                    },
+                })).toEqual(["same",
+                    "same"])
             })
     })

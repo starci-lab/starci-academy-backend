@@ -446,4 +446,16 @@ describe("LeagueService",
                     myPoints: 0,
                 })
             })
+
+        it("returns an empty leaderboard when no rows are available",
+            async () => {
+                entityManager.query.mockResolvedValueOnce([]).mockResolvedValueOnce([])
+
+                await expect(service.getGlobalLeaderboard(userId,
+                    1)).resolves.toEqual({
+                    entries: [],
+                    myRank: 1,
+                    myPoints: 0,
+                })
+            })
     })

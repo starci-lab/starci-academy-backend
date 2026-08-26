@@ -470,4 +470,16 @@ describe("EnrollStepService",
                 expect(course.metadata?.currentPhase).toBe(PricingPhase.Regular)
                 expect(entityManager.save).toHaveBeenCalledWith(course)
             })
+
+        it("propagates a database lookup failure without creating an enrollment",
+            async () => {
+                const failure = new Error("database unavailable")
+                entityManager.findOne.mockRejectedValueOnce(failure)
+
+                await expect(service.process(makeContext())).rejects.toBe(failure)
+
+                expect(entityManager.create).not.toHaveBeenCalled()
+                expect(transactionActionService.updateTransactionStatusIfExpected)
+                    .not.toHaveBeenCalled()
+            })
     })

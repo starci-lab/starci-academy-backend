@@ -111,4 +111,15 @@ describe("UserCapstoneProjectionService",
                     .resolves.toEqual([])
                 expect(manager.query).not.toHaveBeenCalled()
             })
+
+        it("uses the projection freshness threshold for lazy refresh decisions",
+            () => {
+                const service = new UserCapstoneProjectionService({
+                    query: jest.fn()
+                } as never) as unknown as {
+                    isStale: (updatedAt: Date) => boolean
+                }
+                expect(service.isStale(new Date(Date.now() - 60 * 60 * 1000))).toBe(true)
+                expect(service.isStale(new Date())).toBe(false)
+            })
     })

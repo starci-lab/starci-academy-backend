@@ -78,4 +78,21 @@ describe("AuthController",
                 expect(register).toHaveBeenCalledWith("carol",
                     "different")
             })
+        it("uses the verifier's null result as the login rejection boundary",
+            () => {
+                const verify = jest.fn().mockReturnValue(undefined)
+                const controller = new AuthController({
+                    sign: jest.fn(),
+                } as never,
+{
+    verify,
+} as never)
+
+                expect(() => controller.login({
+                    username: "unknown",
+                    password: "bad",
+                })).toThrow(MockInvalidCredentialsException)
+                expect(verify).toHaveBeenCalledWith("unknown",
+                    "bad")
+            })
     })

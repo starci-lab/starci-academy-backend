@@ -605,6 +605,27 @@ PAYLOAD as never)
                     }),
                 )
             })
+
+        it("reports a rejected durable acquisition without invoking the provider",
+            async () => {
+                const harness = createHarness()
+                harness.contentAiService.acquireTurn.mockResolvedValueOnce({
+                    outcome: "rejected",
+                    reason: "already-processing",
+                })
+
+                await harness.gateway.handleAskContentAi(CLIENT as never,
+                    PAYLOAD as never)
+
+                expect(harness.aiInvokeService.run).not.toHaveBeenCalled()
+                expect(harness.wsResponseService.success).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        data: expect.objectContaining({
+                            streamId: "stream-1",
+                        }),
+                    }),
+                )
+            })
     })
 
 describe("ContentAiService durable turn journal",

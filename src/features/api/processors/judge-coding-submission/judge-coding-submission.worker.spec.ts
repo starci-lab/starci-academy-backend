@@ -368,4 +368,16 @@ describe("JudgeCodingSubmissionWorker — terminal failure helpers",
                     }),
                 )
             })
+
+        it("does not dispatch a step after the tracked job reaches its final step",
+            async () => {
+                const harness = makeWorker()
+                harness.jobActionService.getJob.mockResolvedValue(trackedJob(1,
+                    1))
+
+                await expect(harness.worker.process(bullJob())).resolves.toBeUndefined()
+
+                expect(harness.stepProcess).not.toHaveBeenCalled()
+                expect(harness.jobActionService.completeJob).toHaveBeenCalled()
+            })
     })

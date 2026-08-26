@@ -31,4 +31,11 @@ describe("UserPinnedProjectsProjectionService",
                 expect(manager.query).toHaveBeenCalledWith(expect.stringContaining("ON CONFLICT"),
                     ["user-1"])
             })
+
+        it("treats old projection rows as stale and fresh rows as current",
+            () => {
+                const methods = service as unknown as { isStale: (updatedAt: Date) => boolean }
+                expect(methods.isStale(new Date(Date.now() - 60 * 60 * 1000))).toBe(true)
+                expect(methods.isStale(new Date())).toBe(false)
+            })
     })

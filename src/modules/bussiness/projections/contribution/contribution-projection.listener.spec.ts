@@ -61,4 +61,13 @@ describe("ContributionProjectionListener",
 
                 await expect(listener.recomputeTarget("user-3")).rejects.toBe(failure)
             })
+
+        it("passes the actor id through without changing it",
+            async () => {
+                const { listener, recompute } = makeListener()
+                await listener.recomputeTarget("user-with-dashes")
+                expect(recompute).toHaveBeenCalledWith(expect.objectContaining({
+                    userId: "user-with-dashes",
+                }))
+            })
     })

@@ -1523,5 +1523,19 @@ describe("UserFlashcardCourseStatsProjectionService",
                             enrollmentId: ENROLLMENT_ID,
                         })).rejects.toThrow(dbError)
                     })
+
+                it("returns safe retention percentages for zero and complete totals",
+                    async () => {
+                        const service = await build()
+                        const methods = service as unknown as {
+                            retentionPercent: (recalled: string, total: string) => number
+                        }
+                        expect(methods.retentionPercent("0",
+                            "0")).toBe(0)
+                        expect(methods.retentionPercent("3",
+                            "4")).toBe(75)
+                        expect(methods.retentionPercent("bad",
+                            "4")).toBe(0)
+                    })
             })
     })

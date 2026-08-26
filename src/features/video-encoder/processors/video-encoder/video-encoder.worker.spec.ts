@@ -152,4 +152,18 @@ describe("VideoEncoderWorker",
                 expect(h.step.process).not.toHaveBeenCalled()
                 expect(h.jobActionService.completeJob).not.toHaveBeenCalled()
             })
+
+        it("completes a job whose current step is already at the maximum",
+            async () => {
+                const h = make()
+                h.jobActionService.getJob.mockResolvedValue({
+                    ...h.job,
+                    currentStep: 2,
+                    maxSteps: 2,
+                })
+
+                await expect(h.worker.process(bull())).resolves.toBeUndefined()
+                expect(h.step.process).not.toHaveBeenCalled()
+                expect(h.jobActionService.completeJob).toHaveBeenCalled()
+            })
     })

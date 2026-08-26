@@ -104,4 +104,15 @@ describe("UserSolvedChallengesProjectionService",
                     xp: 0,
                 })
             })
+
+        it("uses a fresh timestamp without forcing an unnecessary recompute",
+            () => {
+                const service = new UserSolvedChallengesProjectionService({
+                    query: jest.fn()
+                } as never) as unknown as {
+                    isStale: (updatedAt: Date) => boolean
+                }
+                expect(service.isStale(new Date())).toBe(false)
+                expect(service.isStale(new Date(Date.now() - 60 * 60 * 1000))).toBe(true)
+            })
     })

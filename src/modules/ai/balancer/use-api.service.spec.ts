@@ -1340,4 +1340,82 @@ describe("UseApiService",
                             .toThrow(UnsupportedAiProviderException)
                     })
             })
+
+        it("filters and orders an entitled task chain while preserving stale models",
+            async () => {
+                const first = Object.assign(buildModelRow("first"),
+                    {
+                        category: AiModelCategory.Medium,
+                        weight: 1,
+                        supportedTasks: [AiModelTask.Chatting],
+                    })
+                const second = Object.assign(buildModelRow("second"),
+                    {
+                        category: AiModelCategory.Low,
+                        weight: 5,
+                        supportedTasks: [AiModelTask.Grading],
+                    })
+                const stale = Object.assign(buildModelRow("stale"),
+                    {
+                        category: AiModelCategory.Low,
+                        weight: 1,
+                    })
+                aiModelCatalogService.enabledModels.mockResolvedValue([first,
+                    second,
+                    stale])
+                const resolveChain = (service as unknown as {
+                    resolveAutoModelChain: (params: { categories: AiModelCategory[]; task: AiModelTask }) => Promise<AiModelEntity[]>
+                }).resolveAutoModelChain.bind(service)
+                await expect(resolveChain({
+                    categories: [AiModelCategory.Low,
+                        AiModelCategory.Medium],
+                    task: AiModelTask.Chatting,
+                })).resolves.toEqual([stale,
+                    first])
+            })
+
+        it("normalizes no-active acquisitions and preserves infrastructure failures",
+            async () => {
+                const tryAcquire = (service as unknown as {
+                    tryAcquire: (provider: ModelProvider) => Promise<unknown>
+                }).tryAcquire.bind(service)
+                aiBalancerService.acquire.mockRejectedValueOnce(new NoActiveBalancerKeyException({
+                    provider: ModelProvider.OpenAI,
+                    totalKeysCount: 1,
+                }))
+                await expect(tryAcquire(ModelProvider.OpenAI)).resolves.toBeNull()
+                const failure = new Error("redis down")
+                aiBalancerService.acquire.mockRejectedValueOnce(failure)
+                await expect(tryAcquire(ModelProvider.OpenAI)).rejects.toBe(failure)
+            })
+
+        it("reads provider probe error formats and falls back to status text",
+            async () => {
+                const readProbeError = (service as unknown as {
+                    readProbeError: (response: Response) => Promise<string>
+                }).readProbeError.bind(service)
+                await expect(readProbeError(new Response(JSON.stringify({
+                    error: "quota"
+                }),
+                {
+                    status: 429, statusText: "Too Many",
+                }))).resolves.toBe("quota")
+                await expect(readProbeError(new Response(JSON.stringify({
+                    error: {
+                        message: "invalid"
+                    }
+                }),
+                {
+                    status: 400, statusText: "Bad Request",
+                }))).resolves.toBe("invalid")
+                await expect(readProbeError(new Response(JSON.stringify({
+                }),
+                {
+                    status: 503, statusText: "Unavailable",
+                }))).resolves.toBe("Unavailable")
+                await expect(readProbeError(new Response("not-json",
+                    {
+                        status: 500, statusText: "Server Error",
+                    }))).resolves.toBe("Server Error")
+            })
     })

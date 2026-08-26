@@ -691,5 +691,12 @@ describe("CommentService",
                             p2: 1,
                         })
                     })
+
+                it("returns no counts without touching the query builder for undefined ids",
+                    async () => {
+                        await expect(service.countReplies([])).resolves.toEqual({
+                        })
+                        expect(entityManager.createQueryBuilder).not.toHaveBeenCalled()
+                    })
             })
     })

@@ -76,4 +76,25 @@ describe("RestTransformInterceptor",
                     },
                 })
             })
+
+        it("uses the handler message before the controller message",
+            async () => {
+                const reflector = {
+                    get: jest.fn()
+                        .mockReturnValueOnce("handler message")
+                        .mockReturnValueOnce("controller message"),
+                }
+                await expect(firstValueFrom(new RestTransformInterceptor(reflector as never).intercept(context,
+                    {
+                        handle: () => of({
+                            ok: true
+                        })
+                    } as never))).resolves.toEqual({
+                    data: {
+                        ok: true
+                    },
+                    message: "handler message",
+                    success: true,
+                })
+            })
     })

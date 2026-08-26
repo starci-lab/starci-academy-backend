@@ -164,4 +164,34 @@ describe("ProgressProjectionListener",
                 })).resolves.toEqual([])
                 expect(query).not.toHaveBeenCalled()
             })
+
+        it("derives enrollment changes directly and skips incomplete rows",
+            async () => {
+                const service = new ProgressProjectionListener({
+                    query: jest.fn()
+                } as never,
+                    {
+                        recompute: jest.fn()
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never)
+                const deriveTargets = (message: unknown) => (service as unknown as {
+                    deriveTargets(value: unknown): Promise<Array<unknown>>
+                }).deriveTargets.call(service,
+                    message)
+                await expect(deriveTargets({
+                    topic: "prefix.enrollments", row: {
+                        user_id: "user-1", course_id: "course-1",
+                    }
+                })).resolves.toEqual([{
+                    userId: "user-1", courseId: "course-1"
+                }])
+                await expect(deriveTargets({
+                    topic: "prefix.enrollments", row: {
+                        user_id: "user-1",
+                    }
+                })).resolves.toEqual([])
+            })
     })

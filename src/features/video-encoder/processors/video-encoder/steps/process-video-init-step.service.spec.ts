@@ -55,4 +55,36 @@ entityManager as never); await expect(service.process({
                 },
             } as never)).rejects.toThrow()
             expect(buffer).not.toHaveBeenCalled()
+        })
+
+    it("propagates object download failures without opening a transaction",
+        async () => {
+            const buffer = jest.fn().mockRejectedValue(new Error("storage unavailable"))
+            const transaction = jest.fn()
+            const service = new ProcessVideoInitStepService({
+                increaseJob: jest.fn(), saveExecutionResult: jest.fn(),
+            } as never,
+{
+    log: jest.fn()
+} as never,
+{
+    buffer
+} as never,
+            {
+                query: jest.fn(), transaction
+            } as never)
+
+            await expect(service.process({
+                job: {
+                    id: "j1"
+                },
+                payload: {
+                    assetId: "a1",
+                    url: "https://cdn.example/bucket/video.mp4",
+                    filename: "video.mp4",
+                    callbackQueries: {
+                    },
+                },
+            } as never)).rejects.toThrow("storage unavailable")
+            expect(transaction).not.toHaveBeenCalled()
         }) })

@@ -489,4 +489,16 @@ describe("ReconcileTransactionWorker",
                     },
                 )
             })
+
+        it("skips provider polling when the transaction is already finalized",
+            async () => {
+                entityManager.findOne.mockResolvedValue(transaction({
+                    status: TransactionStatus.Succeeded,
+                }))
+
+                await expect(worker.process(job())).resolves.toBeUndefined()
+
+                expect(resolve).not.toHaveBeenCalled()
+                expect(updateStatus).not.toHaveBeenCalled()
+            })
     })

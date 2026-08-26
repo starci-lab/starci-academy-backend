@@ -514,4 +514,53 @@ describe("MockInterviewGateway streaming policy",
                     }),
                 }))
             })
+
+        it("does not invoke a provider when the session is already completed",
+            async () => {
+                const run = jest.fn()
+                const success = jest.fn()
+                const gateway = new MockInterviewGateway({
+                    prepareTurn: jest.fn(),
+                } as never,
+{
+    getUserByKeycloakId: jest.fn().mockResolvedValue({
+        id: "user-1"
+    }),
+} as never,
+{
+    run
+} as never,
+{
+    consume: jest.fn()
+} as never,
+                {
+                    success
+                } as never,
+{
+    findOne: jest.fn().mockResolvedValue({
+        id: "session-1",
+        status: "completed",
+        createdAt: new Date(),
+    }),
+} as never,
+{
+    log: jest.fn()
+} as never)
+
+                await gateway.handleAskMockInterviewTurn({
+                    id: "socket-1",
+                    data: {
+                        userId: "kc-1"
+                    },
+                } as never,
+{
+    data: {
+        streamId: "stream-1",
+        sessionId: "session-1",
+    },
+} as never)
+
+                expect(run).not.toHaveBeenCalled()
+                expect(success).toHaveBeenCalled()
+            })
     })

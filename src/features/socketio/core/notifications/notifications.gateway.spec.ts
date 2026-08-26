@@ -138,4 +138,37 @@ response as never,
                     },
                 }))
             })
+
+        it("does not emit a success response when joining the room fails",
+            async () => {
+                const response = {
+                    error: jest.fn(),
+                    successToRoom: jest.fn(),
+                }
+                const gateway = new NotificationsGateway({
+                    getUserByKeycloakId: jest.fn().mockResolvedValue({
+                        id: "u1"
+                    }),
+                } as never,
+{
+    name: jest.fn().mockReturnValue("notifications:u1"),
+} as never,
+response as never,
+{
+    on: jest.fn()
+} as never,
+                {
+                    log: jest.fn()
+                } as never)
+                const join = jest.fn().mockRejectedValue(new Error("room unavailable"))
+
+                await expect(gateway.handleSubscribeNotifications({
+                    id: "socket-1",
+                    data: {
+                        userId: "kc1"
+                    },
+                    join,
+                } as never)).resolves.toBeUndefined()
+                expect(response.successToRoom).not.toHaveBeenCalled()
+            })
     })

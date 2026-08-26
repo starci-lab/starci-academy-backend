@@ -560,5 +560,15 @@ describe("ChatService",
                             },
                         })
                     })
+
+                it("rejects a blank message before querying the conversation",
+                    async () => {
+                        await expect(service.sendMessage({
+                            conversationId,
+                            body: "   ",
+                            user: member,
+                        })).rejects.toBeInstanceOf(Error)
+                        expect(entityManager.findOne).toHaveBeenCalledTimes(1)
+                    })
             })
     })

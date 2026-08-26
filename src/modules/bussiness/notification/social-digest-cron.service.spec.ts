@@ -337,5 +337,18 @@ describe("SocialDigestCronService",
                             }),
                         )
                     })
+
+                it("completes an empty aggregation without enqueueing mail",
+                    async () => {
+                        queryBuilder.getRawMany.mockResolvedValueOnce([])
+                        await expect(service.sendDailyDigests()).resolves.toBeUndefined()
+                        expect(mockEnqueueLearnerEmail).not.toHaveBeenCalled()
+                        expect(winstonLogSpy).toHaveBeenCalledWith(
+                            WinstonLog.CronTickCompleted,
+                            expect.objectContaining({
+                                count: 0
+                            }),
+                        )
+                    })
             })
     })
