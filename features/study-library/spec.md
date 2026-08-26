@@ -1,72 +1,52 @@
 # Study library
 
-> Business head: `1f134aaa1d014eb977ca8f8d974e3d7002a01d1a115931f0b7a180b4c8c2c84b`
+> Business head: `bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d`
 >
 > Generated projection of the immutable model. Update through the routed business-authority workflow.
 
 ## Overview
 
-A course-level flashcard hub leads learners into either spaced-repetition Study or a configurable Quick quiz, preserves unfinished work, and closes each run with actionable results. Foundations and Mind map retain their existing behavior.
+A course-level flashcard hub preserves the existing spaced-repetition Study branch and provides a separate scored cloze assessment whose questions are filled from a word bank, never falling back to review behavior.
 
-## Actors
+## Authority boundary
 
-- **Learner** — chooses a mode, starts or resumes work, completes cards, inspects results and follows recommended study.
-- **Platform** — exposes readiness, persists and restores sessions, records acknowledged progress, and returns result evidence.
+- Existing Study is explicitly unchanged and outside this revision.
+- The assessment is cloze-only, word-bank driven and scored per blank.
+- Frontend and backend share a backend-owned eligibility and result-validity boundary.
+- Non-cloze cards, zero-blank outcomes and mixed legacy sessions cannot produce scored completion.
+
+## Flows
+
+- **Enter flashcards** — The learner enters the right flashcard branch or resumes acknowledged work
+- **Study flashcards** — The learner completes or safely pauses a persisted spaced-repetition run and receives a clear next study action
+- **Take a scored cloze assessment** — The learner completes or safely pauses a cloze-valid scored assessment and receives evidence-linked follow-up
+- **Use reference study tools** — Existing Foundations and Mind map behavior remains available outside the flashcard redesign
 
 ## Surfaces
 
 | Surface | Route | Purpose |
 |---|---|---|
-| `flashcard-library` | `/[lang]/courses/[displayId]/learn/flashcards/{review|quiz}` | Readiness, mode choice, Study overview and Quick quiz Begin/History/Stats. |
-| `study-session` | `.../review/sessions/[sessionId]` | Focused reveal-and-rate spaced-repetition work. |
-| `study-result` | `.../review/sessions/[sessionId]/result` | Recall evidence, next due, weak topics and next action. |
-| `quick-quiz-session` | `.../quiz/sessions/[sessionId]` | Focused timed answer, check and solution work. |
-| `quick-quiz-result` | `.../quiz/sessions/[sessionId]/result` | Coverage, XP, outcomes, weak topics and next action. |
-| `foundation-library` | `/[lang]/courses/[displayId]/learn/foundations{/...}` | Existing foundation browsing. |
-| `course-mind-map` | `/[lang]/courses/[displayId]/learn/mind-map` | Existing course concept map. |
+| `flashcard-library` | `/[lang]/courses/[displayId]/learn/flashcards/{review\|quiz}` | Understand flashcard readiness, enter unchanged Study, or start or resume the separate scored cloze assessment. |
+| `study-session` | `/[lang]/courses/[displayId]/learn/flashcards/review/sessions/[sessionId]` | Work through persisted spaced-repetition cards without surrounding distraction. |
+| `study-result` | `/[lang]/courses/[displayId]/learn/flashcards/review/sessions/[sessionId]/result` | Explain completed review evidence and guide the next study action. |
+| `quick-quiz-session` | `/[lang]/courses/[displayId]/learn/flashcards/quiz/sessions/[sessionId]` | Complete persisted timed cloze questions by selecting word-bank terms into every blank, with clear checking and recovery. |
+| `quick-quiz-result` | `/[lang]/courses/[displayId]/learn/flashcards/quiz/sessions/[sessionId]/result` | Explain cloze performance by correct and total blanks and guide evidence-linked follow-up. |
+| `foundation-library` | `/[lang]/courses/[displayId]/learn/foundations{/[categoryId]/[foundationId]}` | Find and open reference foundations by category. |
+| `course-mind-map` | `/[lang]/courses/[displayId]/learn/mind-map` | Inspect the course knowledge structure as a mind map. |
 
-## Flows
+## State summary
 
-### Flashcard entry
+Hub: ready, empty, error. Study: configuring, starting, active, saving, invalid, result. Assessment: configuring, starting, active, saving, unavailable, invalid or expired, result.
 
-Read readiness → choose Study or Quick quiz → enter setup or resume acknowledged work.
+## Acceptance focus
 
-### Study
-
-Choose due queue or deck → choose all or due cards → persist → reveal and rate → save/leave/resume or finish early → dedicated result → recommended study or return.
-
-### Quick quiz
-
-Open Begin/History/Stats → configure within existing capability → persist timed run → answer/check/reveal → save/leave/resume, expire or finish early → dedicated result → retry, recommended study or return.
-
-### Reference tools
-
-Foundations and Mind map remain available outside the flashcard visual redesign.
-
-## Contract invariants
-
-- Persist before focused navigation.
-- Restore exact acknowledged progress.
-- Live and result routes have distinct meaning.
-- Invalid or expired identities recover safely.
-- Existing backend inputs, scoring, scheduling, access gates and route semantics remain unchanged.
-- Legacy evidence informs journey completeness only.
-
-## States
-
-Hub: ready, empty, error. Study: configuring, starting, active, saving, invalid, result. Quick quiz: configuring, starting, active, saving, invalid or expired, result. Every remote surface includes pending, ready, empty or failed behavior as applicable.
-
-## Acceptance
-
-1. Study and Quick quiz are explicit and route-addressable.
-2. Study supports due/deck, all/due, persisted resume, reveal, four ratings and dedicated results.
-3. Quick quiz supports Begin/History/Stats, persisted timed resume, answer check, solution reveal and dedicated results.
-4. Both branches preserve acknowledged work on safe exit and confirm finish early.
-5. Result screens expose branch-specific evidence, weak topics and next-study actions.
-6. All remote and session recovery states are designed.
-7. No current contract semantics change.
-8. Foundations and Mind map remain outside the flashcard redesign.
+1. Every assessment card contains at least one valid cloze blank.
+2. Learners fill blanks from a word bank and may revise unchecked choices.
+3. Backend rejects non-cloze card IDs and zero-blank outcomes.
+4. Insufficient eligible content blocks start with an explicit explanation.
+5. Invalid or mixed legacy sessions recover without false scoring.
+6. Study behavior and scheduling remain unchanged.
 
 ## Evidence
 
-Current routed source evidence remains `EV-001`–`EV-007`; owner approvals are `EV-008`–`EV-010`. Legacy manifest `EV-011` is reference-only.
+Current source evidence is `EV-001`–`EV-007`, `EV-013` and `EV-014`; owner decisions and observations are `EV-008`–`EV-012` and `EV-015`. Legacy manifest `EV-011` remains reference-only.

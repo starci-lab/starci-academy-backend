@@ -1,13 +1,17 @@
-# Surface · Quick quiz result
+# Surface · Cloze assessment result
 
 > ID: `quick-quiz-result` · Route: `/[lang]/courses/[displayId]/learn/flashcards/quiz/sessions/[sessionId]/result`
 
 ## Job
 
-Explain quiz performance and guide evidence-linked follow-up.
+Explain cloze performance by correct and total blanks and guide evidence-linked follow-up.
 
-| Region | Real representative content | States | Actions |
-|---|---|---|---|
-| `quick-quiz-result-evidence` | Coverage, XP, per-card outcomes and weak topics | pending, ready, empty, failed | Continue learning, try another quiz, back to flashcards |
+## Cloze assessment result (`quick-quiz-result-evidence`)
 
-Evidence: `EV-010`, `EV-011`
+Blank coverage, XP, per-question outcomes, weak topics and contextual study actions.
+
+| Kind | Representative content | States | Actions | Evidence |
+|---|---|---|---|---|
+| flow | Coverage and XP (`fact`), Per-card outcomes (`entity`), Weak topics (`entity`) | pending, ready, empty, failed | Continue learning → `existing-learning-route`, Try another Quick quiz → `flashcard-library`, Back to flashcards → `flashcard-library` | `EV-012`, `EV-014` |
+
+Evidence: `EV-012`, `EV-014`

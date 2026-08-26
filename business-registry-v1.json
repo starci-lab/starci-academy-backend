@@ -68,18 +68,18 @@
     },
     "study-library": {
       "featureId": "study-library",
-      "head": "1f134aaa1d014eb977ca8f8d974e3d7002a01d1a115931f0b7a180b4c8c2c84b",
+      "head": "bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d",
       "authorityStatus": "approved",
-      "baseHead": "9d78d0d20b04aaa1eba272432456ecbabbd2b2f079943e31e3530c2b89e3e3b9",
-      "previousHead": "9d78d0d20b04aaa1eba272432456ecbabbd2b2f079943e31e3530c2b89e3e3b9",
+      "baseHead": "1f134aaa1d014eb977ca8f8d974e3d7002a01d1a115931f0b7a180b4c8c2c84b",
+      "previousHead": "1f134aaa1d014eb977ca8f8d974e3d7002a01d1a115931f0b7a180b4c8c2c84b",
       "sources": [
         {
           "role": "fe",
-          "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
+          "head": "595fd21545ad8f781cd465b4bd5e1a85302f6d42"
         },
         {
           "role": "be",
-          "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
+          "head": "eccda3bd9df9abfdca22059ea88232fec3249af1"
         }
       ]
     },
@@ -415,6 +415,10 @@
       "92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824": {
         "hash": "92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824",
         "path": "objects/sha256/92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824.json"
+      },
+      "bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d": {
+        "hash": "bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d",
+        "path": "objects/sha256/bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d.json"
       }
     }
   }

@@ -1,13 +1,17 @@
-# Surface · Quick quiz session
+# Surface · Cloze assessment session
 
 > ID: `quick-quiz-session` · Route: `/[lang]/courses/[displayId]/learn/flashcards/quiz/sessions/[sessionId]`
 
 ## Job
 
-Complete persisted timed flashcard questions with clear checking and recovery.
+Complete persisted timed cloze questions by selecting word-bank terms into every blank, with clear checking and recovery.
 
-| Region | Real representative content | States | Actions |
-|---|---|---|---|
-| `quick-quiz-work` | Deadline, progress, prompt, answer, checked solution | pending, ready, checking, saving, expired, failed | Check answer, exit and resume later, finish early |
+## Cloze assessment (`quick-quiz-work`)
 
-Evidence: `EV-010`, `EV-011`
+Deadline, progress, cloze prompt, ordered blanks, word bank, learner selections, checked solution and safe exit controls with no review fallback.
+
+| Kind | Representative content | States | Actions | Evidence |
+|---|---|---|---|---|
+| flow | Time remaining (`status`), Cloze question (`entity`), Answer blanks (`field`), Word bank (`field`), Checked solution (`status`) | pending, ready, checking, saving, expired, failed | Check answer → `quiz-solution`, Exit and resume later → `flashcard-library`, Finish early → `quick-quiz-result` | `EV-012`, `EV-013`, `EV-014`, `EV-015` |
+
+Evidence: `EV-012`, `EV-013`, `EV-014`, `EV-015`

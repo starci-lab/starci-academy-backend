@@ -2,27 +2,28 @@
 
 ## Purpose
 
-A course-level flashcard hub leads learners into either spaced-repetition Study or a configurable Quick quiz, preserves unfinished work, and closes each run with actionable results while Foundations and Mind map remain complementary study tools.
+A course-level flashcard hub preserves the existing spaced-repetition Study branch and provides a separate scored cloze assessment whose questions are filled from a word bank, never falling back to review behavior.
 
 ## Included
 
-- Flashcard mode entry and deck navigation
-- Study overview, due queue, deck configuration, focused review, resume and result
-- Quick quiz setup, history, stats, focused timed work, resume and result
-- Loading, empty, error, invalid or expired session, completion retry and recovery states
-- Foundation categories and resources
-- Course mind map
+- Existing Flashcard mode entry and deck navigation
+- Existing Study behavior, unchanged and outside this revision
+- Scored cloze assessment setup, eligibility, history, stats, timed work, resume and result
+- Word-bank selection into one or more cloze blanks with per-blank scoring
+- Explicit unavailable, invalid, expired and legacy-session recovery states
 
 ## Excluded
 
+- Redesigning or removing the existing Study branch
+- Multiple-choice assessment
+- Reveal-and-rate or SM-2 fallback inside an assessment
 - Standalone coding problems
 - Mock interview assessment
-- New backend contracts or changed scoring and scheduling algorithms
 - Legacy visual design as product authority
 
 ## Source heads
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `f14e3c24b4a087fb6d4bb09d73526964d3ecea3c` |
-| be | https://github.com/starci-lab/starci-academy-backend | `88a3959084772f9eaa0f5dcbc4e480d4356210f0` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `595fd21545ad8f781cd465b4bd5e1a85302f6d42` |
+| be | https://github.com/starci-lab/starci-academy-backend | `eccda3bd9df9abfdca22059ea88232fec3249af1` |

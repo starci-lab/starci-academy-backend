@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "study-library",
-  "head": "1f134aaa1d014eb977ca8f8d974e3d7002a01d1a115931f0b7a180b4c8c2c84b",
+  "head": "bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
+      "head": "595fd21545ad8f781cd465b4bd5e1a85302f6d42"
     },
     {
       "role": "be",
       "repository": "https://github.com/starci-lab/starci-academy-backend",
-      "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
+      "head": "eccda3bd9df9abfdca22059ea88232fec3249af1"
     }
   ],
   "evidence": [
@@ -106,6 +106,47 @@
       "kind": "reference-artifact",
       "authority": "reference-only",
       "decisionId": "bc932c4e153e17b9761c69eab20162a8d1923d04ea0bbb5eda070678880470af"
+    },
+    {
+      "id": "EV-012",
+      "claim": "The product owner confirmed that Quiz is a scored examination in which learners select words to fill blanks, and that the existing Study branch was not requested for redesign in this revision.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "a4dd5bee1ffbed725a913368ce742c176e91afa9b5e0fed8f9bf6a110cce8d36"
+    },
+    {
+      "id": "EV-013",
+      "role": "fe",
+      "sourceHead": "595fd21545ad8f781cd465b4bd5e1a85302f6d42",
+      "paths": [
+        "src/components/blocks/learn/CourseFlashcardsQuizBlock/index.tsx",
+        "src/components/blocks/learn/CourseFlashcardsReviewBlock/index.tsx",
+        "src/components/blocks/learn/CourseFlashcardSessionBlock/index.tsx",
+        "src/components/blocks/learn/CourseFlashcardSessionBlock/component.tsx"
+      ],
+      "claim": "Current frontend contains word-bank cloze behavior but selects and marks quiz eligibility without cloze filtering and falls back to review-like reveal/rating when cloze is missing.",
+      "kind": "source-contradiction"
+    },
+    {
+      "id": "EV-014",
+      "role": "be",
+      "sourceHead": "eccda3bd9df9abfdca22059ea88232fec3249af1",
+      "paths": [
+        "src/modules/bussiness/flashcard/types/flashcard-quiz-session.ts",
+        "src/modules/bussiness/flashcard/flashcard-quiz-session.service.ts"
+      ],
+      "claim": "Current backend persists correctBlanks and totalBlanks for quiz outcomes and currently treats zero-blank outcomes as zero contribution rather than rejecting them.",
+      "kind": "api-contract"
+    },
+    {
+      "id": "EV-015",
+      "claim": "The attached current UI screenshots show a generic Trắc nghiệm setup whose framing does not disclose the word-bank cloze examination contract.",
+      "kind": "owner-observation",
+      "authority": "owner",
+      "artifactSha256": [
+        "c21ba39d8e6204ea9da994db42073bb9a2b0f746b5029c04b79bf33e4b6dee33",
+        "43629cfcd0f52f28220de99f0e1e5549ae9a50560e0fb154df594891412a2de4"
+      ]
     }
   ]
 }
