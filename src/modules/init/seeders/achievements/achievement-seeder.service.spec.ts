@@ -123,4 +123,37 @@ describe("AchievementSeederService",
                     ["slug"])
                 expect(upsert).toHaveBeenCalledTimes(1)
             })
+
+        it("returns quietly when the configured achievement file is absent",
+            async () => {
+                jest.mocked(envConfig).mockReturnValue({
+                    mountPath: {
+                        data: {
+                            achievements: "C:/missing-achievements",
+                        },
+                    },
+                } as ReturnType<typeof envConfig>)
+                jest.mocked(getRuntimeContextRoot).mockReturnValue(undefined)
+                jest.mocked(existsSync).mockReset().mockReturnValue(false)
+                jest.mocked(readFileSync).mockClear()
+                const upsert = jest.fn()
+                const service = new AchievementSeederService(
+                    {
+                        upsert,
+                    } as never,
+                    {
+                        isAchievementsSeederEnabled: jest.fn().mockReturnValue(true),
+                    } as never,
+                    {
+                        extract: jest.fn(),
+                    } as never,
+                    {
+                    } as never,
+                )
+
+                await service.seed()
+
+                expect(readFileSync).not.toHaveBeenCalled()
+                expect(upsert).not.toHaveBeenCalled()
+            })
     })

@@ -183,4 +183,31 @@ describe("BlogSeederService",
 
             expect(upsert).not.toHaveBeenCalled()
         })
+
+    it("does not read markdown when the seeder is disabled",
+        async () => {
+            const load = jest.fn()
+            const service = new BlogSeederService(
+                {
+                    upsert: jest.fn(),
+                } as never,
+                {
+                    isBlogSeederEnabled: jest.fn().mockReturnValue(false),
+                } as never,
+                {
+                    filePaths: jest.fn(),
+                } as never,
+                {
+                    load,
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+            )
+
+            await service.seed()
+
+            expect(load).not.toHaveBeenCalled()
+        })
     })

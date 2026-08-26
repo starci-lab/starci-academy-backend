@@ -353,6 +353,13 @@ describe("CourseParserService",
                             courseIndex: 0,
                         })
                         expect(invalid.sortIndex).toBe(0)
+                        const toSortIndex = (service as unknown as {
+                            toSortIndex: (value: unknown, fallback: number) => number
+                        }).toSortIndex.bind(service)
+                        expect(toSortIndex(" 11 ",
+                            3)).toBe(11)
+                        expect(toSortIndex(Number.POSITIVE_INFINITY,
+                            3)).toBe(3)
                     })
 
                 it("reads the authored mind-map when `mind-map.json` is present",

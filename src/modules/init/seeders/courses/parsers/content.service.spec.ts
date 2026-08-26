@@ -587,4 +587,32 @@ describe("ContentParserService",
                     contentId: "content-id",
                 })).resolves.toEqual([])
             })
+
+        it("normalizes difficulty values case-insensitively and rejects non-string values",
+            () => {
+                const parser = service as unknown as {
+                    toDifficulty: (value: unknown) => string | null
+                }
+
+                expect(parser.toDifficulty("  BEGINNER ")).toBe("beginner")
+                expect(parser.toDifficulty("unsupported")).toBeNull()
+                expect(parser.toDifficulty(1)).toBeNull()
+                expect(parser.toDifficulty(null)).toBeNull()
+            })
+
+        it("uses finite sort indexes and falls back for malformed mount values",
+            () => {
+                const parser = service as unknown as {
+                    toSortIndex: (value: unknown, fallback: number) => number
+                }
+
+                expect(parser.toSortIndex(" 7 ",
+                    2)).toBe(7)
+                expect(parser.toSortIndex(4,
+                    2)).toBe(4)
+                expect(parser.toSortIndex("not-a-number",
+                    2)).toBe(2)
+                expect(parser.toSortIndex(undefined,
+                    2)).toBe(2)
+            })
     })

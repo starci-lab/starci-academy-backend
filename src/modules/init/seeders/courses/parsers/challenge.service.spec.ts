@@ -649,5 +649,73 @@ describe("ChallengeParserService",
                 expect(result.prerequisites).toHaveLength(2)
                 expect(result.prerequisites?.[1]?.langs).toHaveLength(1)
             })
+
+        it("coerces rubric language values and ignores a malformed body bucket",
+            () => {
+                const parser = service as unknown as {
+                    parseCriteria: (params: {
+                        criteria: unknown
+                        kind: "approach" | "outcome"
+                        challengeSubmissionId: string
+                        courseIndex: number
+                        moduleIndex: number
+                        contentIndex: number
+                        challengeIndex: number
+                        submissionIndex: number
+                    }) => { rows: Array<{ langs: Array<{ lang: string; body: string | null }> }>; totalScore: number }
+                }
+
+                const result = parser.parseCriteria({
+                    criteria: [{
+                        orderIndex: 3,
+                        sortIndex: 8,
+                        score: 12,
+                        critical: true,
+                        body: "not-an-array",
+                    },
+                    {
+                        orderIndex: 4,
+                        score: 5,
+                        critical: false,
+                        body: [{
+                            orderIndex: 2,
+                            lang: "vi",
+                            body: "Description",
+                        }],
+                    }],
+                    kind: "outcome",
+                    challengeSubmissionId: "submission-id",
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                    challengeIndex: 0,
+                    submissionIndex: 0,
+                })
+
+                expect(result.totalScore).toBe(17)
+                expect(result.rows[0]?.langs).toEqual([])
+                expect(result.rows[1]?.langs).toEqual([
+                    expect.objectContaining({
+                        lang: "vi",
+                        body: "Description",
+                    }),
+                ])
+            })
+
+        it("resolves finite sort indexes and falls back for invalid values",
+            () => {
+                const parser = service as unknown as {
+                    toSortIndex: (value: unknown, fallback: number) => number
+                }
+
+                expect(parser.toSortIndex(" 5 ",
+                    1)).toBe(5)
+                expect(parser.toSortIndex(3,
+                    1)).toBe(3)
+                expect(parser.toSortIndex("bad",
+                    1)).toBe(1)
+                expect(parser.toSortIndex(undefined,
+                    1)).toBe(1)
+            })
     },
 )

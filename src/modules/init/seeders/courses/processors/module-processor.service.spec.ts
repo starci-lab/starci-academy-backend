@@ -209,4 +209,50 @@ describe("ModuleProcessorService",
                 expect(persist).toHaveBeenCalledTimes(1)
                 expect(processContent).toHaveBeenCalledTimes(1)
             })
+
+        it("does not process content when the display-id filter excludes every module",
+            async () => {
+                const persist = jest.fn().mockResolvedValue(undefined)
+                const processContent = jest.fn()
+                const service = new ModuleProcessorService(
+                    {
+                        parse: jest.fn().mockResolvedValue({
+                            id: "module-0",
+                        }),
+                    } as never,
+                    {
+                        paths: jest.fn().mockResolvedValue([{
+                            orderIndex: 0,
+                            relativePath: "module-0",
+                            displayId: "other-module",
+                        }]),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                    {
+                        partitionUuidSync: jest.fn().mockResolvedValue({
+                            createEntities: [],
+                            updateEntities: [],
+                            deleteEntities: [],
+                        }),
+                    } as never,
+                    {
+                        process: persist,
+                    } as never,
+                    {
+                        process: processContent,
+                    } as never,
+                )
+
+                await service.process({
+                    courseResult,
+                    moduleIndexFilterByDisplayId: new Map([
+                        ["course",
+                            new Set<number>()],
+                    ]),
+                })
+
+                expect(processContent).not.toHaveBeenCalled()
+            })
     })

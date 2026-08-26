@@ -394,5 +394,53 @@ describe("MilestoneTaskParserService",
                     },
                 )
             })
+
+        it("keeps explicit zero scalars and falls back for unknown enum values",
+            async () => {
+                const merge = module.get(MergeJsonService)
+                const extractor = module.get(ExtractJsonFromMdService)
+                jest.spyOn(extractor,
+                    "extract").mockReturnValue({
+                    } as never)
+                jest.spyOn(merge,
+                    "merge").mockReturnValue({
+                        title: "Task",
+                        description: "Description",
+                        orderIndex: 0,
+                        sortIndex: 0,
+                        weight: 0,
+                        type: "unknown",
+                        maxScore: 0,
+                        difficulty: "invalid",
+                        criterias: [],
+                        translations: [{
+                            locale: Locale.Vi,
+                            field: "title",
+                            value: "Task",
+                        }],
+                    } as never)
+
+                const result = await service.parse({
+                    paths: [{
+                        relativePath: CLEAN_ARCHITECTURE_HEALTH_RELATIVE_PATH,
+                        orderIndex: 0,
+                        displayId: "clean-architecture-and-health",
+                    }],
+                    courseIndex: 0,
+                    milestoneIndex: 0,
+                    taskIndex: 0,
+                })
+
+                expect(result.weight).toBe(0)
+                expect(result.maxScore).toBe(0)
+                expect(result.type).toBe(PersonalProjectTaskType.Business)
+                expect(result.difficulty).toBeNull()
+                expect(result.translations).toEqual([
+                    expect.objectContaining({
+                        locale: Locale.Vi,
+                        field: "title",
+                    }),
+                ])
+            })
     },
 )

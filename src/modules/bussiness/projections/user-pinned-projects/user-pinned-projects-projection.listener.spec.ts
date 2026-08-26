@@ -63,4 +63,15 @@ projection as never)
                     userId: "u-4"
                 })
             })
+
+        it("ignores unrelated change topics without querying ownership tables",
+            async () => {
+                await expect(listener.derive({
+                    topic: "prefix.comments",
+                    row: {
+                        id: "comment-1",
+                    },
+                })).resolves.toEqual([])
+                expect(entityManager.query).not.toHaveBeenCalled()
+            })
     })

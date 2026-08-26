@@ -372,4 +372,15 @@ describe("TransactionReconcileQueryService",
                             })
                     })
             })
+
+        it("returns an unavailable result for an unsupported payment type",
+            async () => {
+                await expect(service.resolve(transaction("unknown" as PaymentType)))
+                    .resolves.toEqual({
+                        state: "unavailable",
+                        reason: "unsupported-provider",
+                    })
+                expect(payosGet).not.toHaveBeenCalled()
+                expect(stripeGet).not.toHaveBeenCalled()
+            })
     })

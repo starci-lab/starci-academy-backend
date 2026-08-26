@@ -355,6 +355,19 @@ describe("ModuleParserService",
                         ])
                         expect(winston.log).toHaveBeenCalledTimes(1)
                     })
+
+                it("rejects a module index when no matching path exists",
+                    async () => {
+                        await expect(service.parse({
+                            paths: [{
+                                relativePath: "course/0-only",
+                                orderIndex: 0,
+                                displayId: "only",
+                            }],
+                            moduleIndex: 4,
+                            courseIndex: 0,
+                        })).rejects.toThrow()
+                    })
             },
         )
     },

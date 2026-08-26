@@ -271,6 +271,19 @@ describe("MilestoneParserService",
                         expect(result.sortIndex).toBe(0)
                         expect(result.translations).toEqual([])
                     })
+
+                it("rejects a milestone index when its path is absent",
+                    async () => {
+                        await expect(service.parse({
+                            paths: [{
+                                relativePath: "course/0-only",
+                                orderIndex: 0,
+                                displayId: "only",
+                            }],
+                            courseIndex: 0,
+                            milestoneIndex: 3,
+                        })).rejects.toThrow()
+                    })
             },
         )
     },

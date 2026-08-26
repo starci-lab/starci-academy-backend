@@ -86,6 +86,13 @@ describe("FoundationParserService",
             expect(result.orderIndex).toBe(1)
             expect(result.sortIndex).toBe(2)
             expect(result.translations).toHaveLength(Object.values(Locale).length * 4)
+            const toSortIndex = (service as unknown as {
+                toSortIndex: (value: unknown, fallback: number) => number
+            }).toSortIndex.bind(service)
+            expect(toSortIndex("7",
+                2)).toBe(7)
+            expect(toSortIndex(undefined,
+                2)).toBe(3)
         })
 
     it("throws when the requested foundation is not discovered",

@@ -171,4 +171,52 @@ describe("CourseProcessorService",
             expect(entityManager.update).not.toHaveBeenCalled()
             expect(nested.process).toHaveBeenCalledTimes(6)
         })
+
+    it("uses EarlyBird when no pricing phase is configured for new metadata",
+        async () => {
+            jest.mocked(getAppConfig).mockReturnValue({
+                systemConfig: {
+                    course: {
+                    },
+                },
+            } as never)
+            const entityManager = {
+                findOne: jest.fn().mockResolvedValue(null),
+                create: jest.fn((_entity: unknown, value: unknown) => value),
+                save: jest.fn().mockResolvedValue(undefined),
+            }
+            const service = new CourseProcessorService(
+                entityManager as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+            )
+            const seedMetadata = (service as unknown as {
+                seedCourseMetadataIfMissing: (courseId: string) => Promise<void>
+            }).seedCourseMetadataIfMissing.bind(service)
+
+            await seedMetadata("course-new")
+
+            expect(entityManager.create).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({
+                    course: {
+                        id: "course-new"
+                    },
+                    currentPhase: PricingPhase.EarlyBird,
+                }),
+            )
+            expect(entityManager.save).toHaveBeenCalled()
+        })
     })

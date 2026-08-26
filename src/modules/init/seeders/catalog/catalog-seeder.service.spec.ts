@@ -181,4 +181,47 @@ scope as never)
                 await expect(service.seed()).rejects.toThrow("catalog unavailable")
                 expect(log).not.toHaveBeenCalled()
             })
+
+        it("reloads the key store only after a non-empty model catalog is persisted",
+            async () => {
+                const model = {
+                    id: "model-1",
+                }
+                const upsertMany = jest.fn().mockResolvedValue(undefined)
+                const invalidate = jest.fn().mockResolvedValue(undefined)
+                const reloadAll = jest.fn().mockResolvedValue(undefined)
+                const service = new CatalogSeederService(
+                    {
+                        parseManyWithTranslations: jest.fn().mockResolvedValue([model]),
+                    } as never,
+                    {
+                        parseMany: jest.fn().mockResolvedValue([]),
+                    } as never,
+                    {
+                        upsertMany,
+                    } as never,
+                    {
+                        invalidate,
+                    } as never,
+                    {
+                        applyAppConfig: jest.fn(),
+                    } as never,
+                    {
+                        reloadAll,
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                    {
+                        isAiModelsCatalogSeederEnabled: jest.fn().mockReturnValue(true),
+                        isSubscriptionsCatalogSeederEnabled: jest.fn().mockReturnValue(false),
+                    } as never,
+                )
+
+                await service.seed()
+
+                expect(upsertMany).toHaveBeenCalledWith([model])
+                expect(invalidate).toHaveBeenCalled()
+                expect(reloadAll).toHaveBeenCalled()
+            })
     })

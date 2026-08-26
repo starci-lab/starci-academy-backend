@@ -84,4 +84,24 @@ describe("UserSolvedChallengesProjectionService",
                     ["u"],
                 )
             })
+
+        it("returns zero percentile and no rank when a positive score has no numeric rank pool",
+            async () => {
+                const manager = {
+                    query: jest.fn().mockResolvedValue([{
+                        mine: "10",
+                        xp: "0",
+                        pool_size: 0,
+                        beaten: 0,
+                        rank: undefined,
+                    }]),
+                }
+
+                await expect(new UserSolvedChallengesProjectionService(manager as never)
+                    .getChallengeStrength("u")).resolves.toEqual({
+                    percentile: 0,
+                    rank: null,
+                    xp: 0,
+                })
+            })
     })

@@ -1,8 +1,8 @@
 import {
-    CourseResolverService 
+    CourseResolverService
 } from "./course-resolver.service"
 import {
-    Locale 
+    Locale
 } from "../enums/locale"
 
 describe("CourseResolverService",
@@ -13,7 +13,7 @@ describe("CourseResolverService",
                     resolve: jest.fn((params: { field: string }) => `translated-${params.field}`),
                 }
                 const make = {
-                    transform: jest.fn() 
+                    transform: jest.fn()
                 }
                 const service = new CourseResolverService(
       translate as never,
@@ -40,7 +40,7 @@ describe("CourseResolverService",
                         translations: {
                         }, contents: [{
                         }], previewContents: [{
-                        }] 
+                        }]
                     }],
                 } as unknown as Parameters<CourseResolverService["transform"]>[0]
                 expect(service.transform(course,
@@ -50,7 +50,7 @@ describe("CourseResolverService",
                     description: "translated-description",
                     modules: [
                         {
-                            title: "translated-title", description: "translated-description" 
+                            title: "translated-title", description: "translated-description"
                         },
                     ],
                 })
@@ -61,27 +61,27 @@ describe("CourseResolverService",
         it("leaves absent and empty relation collections safe",
             () => {
                 const translate = {
-                    resolve: jest.fn().mockReturnValue("value") 
+                    resolve: jest.fn().mockReturnValue("value")
                 }
                 const service = new CourseResolverService(
       translate as never,
       {
-          transform: jest.fn() 
+          transform: jest.fn()
       } as never,
       {
-          transform: jest.fn() 
+          transform: jest.fn()
       } as never,
       {
-          transform: jest.fn() 
+          transform: jest.fn()
       } as never,
       {
-          transform: jest.fn() 
+          transform: jest.fn()
       } as never,
       {
-          transform: jest.fn() 
+          transform: jest.fn()
       } as never,
       {
-          transform: jest.fn() 
+          transform: jest.fn()
       } as never,
                 )
                 const course = {
@@ -95,5 +95,54 @@ describe("CourseResolverService",
                 expect(service.transform(course,
                     Locale.En)).toBe(course)
                 expect(course.title).toBe("value")
+            })
+
+        it("keeps already translated values when no translation row exists",
+            () => {
+                const service = new CourseResolverService(
+                    {
+                        resolve: jest.fn().mockReturnValue(undefined),
+                    } as never,
+                    {
+                        transform: jest.fn(),
+                    } as never,
+                    {
+                        transform: jest.fn(),
+                    } as never,
+                    {
+                        transform: jest.fn(),
+                    } as never,
+                    {
+                        transform: jest.fn(),
+                    } as never,
+                    {
+                        transform: jest.fn(),
+                    } as never,
+                    {
+                        transform: jest.fn(),
+                    } as never,
+                )
+                const course = {
+                    defaultLocale: Locale.En,
+                    title: "Existing title",
+                    description: "Existing description",
+                    translations: [],
+                    prerequisites: [],
+                    valuePropositions: [],
+                    qnas: [],
+                    livestreamSessions: [],
+                    modules: [],
+                } as never
+
+                expect(service.transform(
+                    course,
+                    Locale.Vi,
+                )).toBe(course)
+                const translatedFields = course as unknown as {
+                    title?: string
+                    description?: string
+                }
+                expect(translatedFields.title).toBeUndefined()
+                expect(translatedFields.description).toBeUndefined()
             })
     })

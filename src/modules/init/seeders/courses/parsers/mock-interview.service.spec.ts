@@ -860,4 +860,29 @@ describe("MockInterviewParserService",
                         expect(row.data.moduleId).toBe("module-2")
                     })
             })
+
+        it("returns null for an absent scalar list and removes blank list values",
+            () => {
+                const toStringArray = (service as unknown as {
+                    toStringArray: (items: Array<{ value?: string }> | undefined) => Array<string> | null
+                }).toStringArray.bind(service)
+
+                expect(toStringArray(undefined)).toBeNull()
+                expect(toStringArray([])).toBeNull()
+                expect(toStringArray([
+                    {
+                        value: " first "
+                    },
+                    {
+                        value: " "
+                    },
+                    {
+                        value: undefined
+                    },
+                    {
+                        value: "second"
+                    },
+                ])).toEqual(["first",
+                    "second"])
+            })
     })

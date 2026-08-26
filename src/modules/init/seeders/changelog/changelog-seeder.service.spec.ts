@@ -136,4 +136,24 @@ describe("ChangelogSeederService",
                 expect(readFileSync).not.toHaveBeenCalled()
                 expect(upsert).not.toHaveBeenCalled()
             })
+
+        it("does not parse a changelog when the feature gate is disabled",
+            async () => {
+                const extract = jest.fn()
+                const service = new ChangelogSeederService({
+                    upsert: jest.fn(),
+                } as never,
+                {
+                    isChangelogSeederEnabled: jest.fn().mockReturnValue(false),
+                } as never,
+                {
+                    extract,
+                } as never,
+                {
+                } as never)
+
+                await service.seed()
+
+                expect(extract).not.toHaveBeenCalled()
+            })
     })

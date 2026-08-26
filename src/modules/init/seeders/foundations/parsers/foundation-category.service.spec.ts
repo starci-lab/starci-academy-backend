@@ -189,4 +189,34 @@ describe("FoundationCategoryParserService",
             ])
             expect(log).toHaveBeenCalledTimes(1)
         })
+
+    it("rejects a category index when no matching folder is available",
+        async () => {
+            const service = new FoundationCategoryParserService(
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                    log: jest.fn(),
+                } as never,
+                {
+                } as never,
+            )
+
+            await expect(service.parse({
+                paths: [{
+                    relativePath: "0-only",
+                    orderIndex: 0,
+                    displayId: "only",
+                }],
+                categoryIndex: 2,
+            })).rejects.toThrow(FoundationCategoryPathNotFoundException)
+        })
     })

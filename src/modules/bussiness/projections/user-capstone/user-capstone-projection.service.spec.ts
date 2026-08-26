@@ -96,4 +96,19 @@ describe("UserCapstoneProjectionService",
                 )
                 expect(manager.query).not.toHaveBeenCalled()
             })
+
+        it("returns an empty task list from a fresh row whose aggregate value is absent",
+            async () => {
+                const manager = {
+                    findOne: jest.fn().mockResolvedValue({
+                        updatedAt: new Date(),
+                        value: undefined,
+                    }),
+                    query: jest.fn(),
+                }
+
+                await expect(new UserCapstoneProjectionService(manager as never).getTasks("u"))
+                    .resolves.toEqual([])
+                expect(manager.query).not.toHaveBeenCalled()
+            })
     })

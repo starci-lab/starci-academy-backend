@@ -136,6 +136,13 @@ describe("PlaygroundParserService",
                     playgroundId: "playground-id",
                 })
                 expect(transform).not.toHaveBeenCalled()
+                const toSortIndex = (service as unknown as {
+                    toSortIndex: (value: unknown, fallback: number) => number
+                }).toSortIndex.bind(service)
+                expect(toSortIndex(" 9 ",
+                    4)).toBe(9)
+                expect(toSortIndex(undefined,
+                    4)).toBe(4)
             })
 
         it("rejects an unmounted playground ordinal",

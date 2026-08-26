@@ -320,5 +320,25 @@ describe("TransactionGrantService",
                             ),
                         ).rejects.toBeInstanceOf(UnsupportedTransactionActionException)
                     })
+
+                it("does not grant course access for a transaction without a course id",
+                    async () => {
+                        const transaction = buildTransaction({
+                            actionType: ActionType.Enroll,
+                            courseId: null,
+                        })
+                        enqueueEnrollJobService.enqueueForTransaction
+                            .mockResolvedValueOnce({
+                                enqueuedCount: 0,
+                            })
+
+                        await expect(service.grantForTransaction(
+                            transaction as never,
+                        )).rejects.toBeInstanceOf(TransactionCourseNotFoundException)
+                        expect(enqueueEnrollJobService.enqueueForTransaction)
+                            .toHaveBeenCalledWith({
+                                transaction,
+                            })
+                    })
             })
     })

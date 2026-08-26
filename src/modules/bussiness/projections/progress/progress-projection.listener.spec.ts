@@ -139,4 +139,29 @@ describe("ProgressProjectionListener",
                     userId: "u", courseId: "c",
                 })
             })
+
+        it("ignores unrelated CDC topics without performing parent queries",
+            async () => {
+                const query = jest.fn()
+                const service = new ProgressProjectionListener({
+                    query,
+                } as never,
+                {
+                    recompute: jest.fn(),
+                } as never,
+                {
+                } as never,
+                {
+                } as never)
+
+                await expect((service as unknown as {
+                    deriveTargets(message: unknown): Promise<Array<unknown>>
+                }).deriveTargets({
+                    topic: "prefix.unrelated",
+                    row: {
+                        user_id: "u",
+                    },
+                })).resolves.toEqual([])
+                expect(query).not.toHaveBeenCalled()
+            })
     })
