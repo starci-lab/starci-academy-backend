@@ -30,6 +30,8 @@ export interface DueFlashcard {
     front: string
     /** Card back / answer (localized), or empty string when the card has none. */
     back: string
+    /** Whether the viewer may read a meaningful answer for this card. */
+    answerAvailable: boolean
     /** Interview seniority level (junior/middle/senior/staff), or null -- drives the level chip. */
     level: string | null
     /** Technology tags for this card -- drives the tag chips (same as deck-review). */

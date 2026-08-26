@@ -54,6 +54,14 @@ export class DueFlashcardObject {
         back: string
 
     @Field(
+        () => Boolean,
+        {
+            description: "Whether this viewer may read a meaningful answer for the card.",
+        },
+    )
+        answerAvailable: boolean
+
+    @Field(
         () => String,
         {
             nullable: true,

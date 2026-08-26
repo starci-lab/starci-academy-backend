@@ -672,29 +672,36 @@ export class FlashcardReviewService {
                 },
             },
         )
-        // localize each card via its deck (the deck resolver localizes the deck
-        // title AND recurses into the card front/back). Localize once per distinct
-        // deck so a shared deck is not transformed twice.
+        // Group first, then localize every card in a deck in one resolver pass.
+        // Localizing only the first encountered card made later cards from the
+        // same deck silently retain the default language in a localized session.
         const localizedDeckTitleById = new Map<string, string>()
         const cardById = new Map<string, FlashcardCardEntity>()
+        const cardsByDeckId = new Map<string, Array<FlashcardCardEntity>>()
         for (const card of cards) {
             const deck = card.deck
-            if (deck && !localizedDeckTitleById.has(deck.id)) {
-                // clone-free in-place localize: load just THIS card under the deck so
-                // the resolver localizes both the deck title and the card text
-                deck.cards = [
-                    card,
-                ]
-                this.flashcardDeckResolver.transform(
-                    deck,
-                    locale,
-                    deck.defaultLocale ?? Locale.En,
-                )
-                localizedDeckTitleById.set(deck.id,
-                    deck.title)
+            if (deck) {
+                const groupedCards = cardsByDeckId.get(deck.id) ?? []
+                groupedCards.push(card)
+                cardsByDeckId.set(deck.id,
+                    groupedCards)
             }
             cardById.set(card.id,
                 card)
+        }
+        for (const groupedCards of cardsByDeckId.values()) {
+            const deck = groupedCards[0]?.deck
+            if (!deck) {
+                continue
+            }
+            deck.cards = groupedCards
+            this.flashcardDeckResolver.transform(
+                deck,
+                locale,
+                deck.defaultLocale ?? Locale.En,
+            )
+            localizedDeckTitleById.set(deck.id,
+                deck.title)
         }
         return {
             localizedDeckTitleById,
@@ -724,22 +731,24 @@ export class FlashcardReviewService {
         return cardIds
             .map((id) => cardById.get(id))
             .filter((card): card is FlashcardCardEntity => Boolean(card))
-            .map((card) => ({
-                cardId: card.id,
-                deckTitle: card.deck
-                    ? (localizedDeckTitleById.get(card.deck.id) ?? card.deck.title)
-                    : "",
-                front: card.question,
-                back: this.isEntitledToCard(card,
-                    entitledByCourseId)
-                    ? (card.answer ?? "")
-                    : "",
-                level: card.level ?? null,
-                tags: card.tags ?? [],
-                nextIntervals: this.previewIntervals(
-                    priorByCardId.get(card.id) ?? NEW_CARD_STATE,
-                ),
-            }))
+            .map((card) => {
+                const answerAvailable = this.isEntitledToCard(card,
+                    entitledByCourseId) && (card.answer?.trim().length ?? 0) > 0
+                return {
+                    cardId: card.id,
+                    deckTitle: card.deck
+                        ? (localizedDeckTitleById.get(card.deck.id) ?? card.deck.title)
+                        : "",
+                    front: card.question,
+                    back: answerAvailable ? (card.answer ?? "") : "",
+                    answerAvailable,
+                    level: card.level ?? null,
+                    tags: card.tags ?? [],
+                    nextIntervals: this.previewIntervals(
+                        priorByCardId.get(card.id) ?? NEW_CARD_STATE,
+                    ),
+                }
+            })
     }
 
     /**

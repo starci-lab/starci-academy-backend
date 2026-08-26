@@ -994,6 +994,60 @@ describe("FlashcardReviewService",
                         })
                     })
 
+                it("localizes every requested card when several cards share one deck",
+                    async () => {
+                        const deck = {
+                            id: "deck-1",
+                            title: "Default deck",
+                            courseId: null,
+                            defaultLocale: Locale.En,
+                            translations: [],
+                            cards: [],
+                        }
+                        const cards = [
+                            {
+                                id: "card-1",
+                                isPremium: false,
+                                question: "Question one",
+                                answer: "Answer one",
+                                tags: [],
+                                deck,
+                            },
+                            {
+                                id: "card-2",
+                                isPremium: false,
+                                question: "Question two",
+                                answer: "Answer two",
+                                tags: [],
+                                deck,
+                            },
+                        ]
+                        entityManager.find
+                            .mockResolvedValueOnce([])
+                            .mockResolvedValueOnce(cards)
+                        flashcardDeckResolver.transform.mockImplementationOnce(
+                            (loadedDeck) => {
+                                loadedDeck.title = "Bộ thẻ tiếng Việt" // vn-ok: expected localized runtime value.
+                                loadedDeck.cards[0].question = "Câu hỏi một" // vn-ok: expected localized runtime value.
+                                loadedDeck.cards[1].question = "Câu hỏi hai" // vn-ok: expected localized runtime value.
+                            },
+                        )
+
+                        const result = await service.listByIds({
+                            userId,
+                            cardIds: ["card-1",
+                                "card-2"],
+                            locale: Locale.Vi,
+                        })
+
+                        expect(flashcardDeckResolver.transform).toHaveBeenCalledTimes(1)
+                        expect(flashcardDeckResolver.transform.mock.calls[0][0].cards).toHaveLength(2)
+                        expect(result.map((card) => card.front)).toEqual(["Câu hỏi một", // vn-ok: expected localized runtime value.
+                            "Câu hỏi hai"]) // vn-ok: expected localized runtime value.
+                        expect(result.map((card) => card.deckTitle)).toEqual(["Bộ thẻ tiếng Việt", // vn-ok: expected localized runtime value.
+                            "Bộ thẻ tiếng Việt"]) // vn-ok: expected localized runtime value.
+                    })
+
                 it("maps a missing deck and optional card fields to safe response defaults",
                     () => {
                         const mapToDueFlashcards = (service as unknown as {
@@ -1023,6 +1077,7 @@ describe("FlashcardReviewService",
                             cardId,
                             deckTitle: "",
                             back: "",
+                            answerAvailable: false,
                             level: null,
                             tags: [],
                         })])

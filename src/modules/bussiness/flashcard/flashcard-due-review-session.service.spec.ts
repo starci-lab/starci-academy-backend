@@ -40,6 +40,7 @@ describe("FlashcardDueReviewSessionService",
         let entityManager: EntityManagerMock
         let userService: {
             resolveOrCreateTrialEnrollment: jest.Mock
+            checkEnrollment: jest.Mock
         }
 
         beforeEach(async () => {
@@ -47,6 +48,8 @@ describe("FlashcardDueReviewSessionService",
             userService = {
                 resolveOrCreateTrialEnrollment: jest.fn()
                     .mockResolvedValue(ENROLLMENT),
+                checkEnrollment: jest.fn()
+                    .mockResolvedValue(true),
             }
 
             testingModule = await Test.createTestingModule({
@@ -138,6 +141,35 @@ describe("FlashcardDueReviewSessionService",
                                 xpEarned: 0,
                                 status: "in_progress",
                             },
+                        )
+                    })
+
+                it("keeps only accessible cards for a trial due-review draw",
+                    async () => {
+                        entityManager.save.mockResolvedValue({
+                            id: "session-new",
+                        })
+                        userService.checkEnrollment.mockResolvedValueOnce(false)
+                        entityManager.find.mockResolvedValueOnce([{
+                            id: "card-free",
+                        }])
+
+                        await service.start({
+                            userId: USER_ID,
+                            courseId: COURSE_ID,
+                            cardIds: [
+                                "card-free",
+                                "card-premium",
+                            ],
+                        })
+
+                        expect(entityManager.save).toHaveBeenCalledWith(
+                            FlashcardDueReviewSessionEntity,
+                            expect.objectContaining({
+                                cardIds: [
+                                    "card-free",
+                                ],
+                            }),
                         )
                     })
             })

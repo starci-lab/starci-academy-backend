@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     EntityManager,
+    In,
     MoreThanOrEqual,
     Not,
 } from "typeorm"
@@ -10,8 +11,14 @@ import {
     FlashcardDueReviewSessionEntity,
 } from "@modules/databases/postgresql/primary/entities/flashcard-due-review-session.entity"
 import {
+    FlashcardCardEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    CourseReviewRequiresEnrollmentException,
+} from "@modules/platform/exceptions/errors/courses/course-review-requires-enrollment"
 import {
     UserService,
 } from "../user/user.service"
@@ -84,6 +91,41 @@ export class FlashcardDueReviewSessionService {
             userId,
             courseId,
         )
+        let effectiveCardIds = cardIds
+        const entitled = await this.userService.checkEnrollment(userId,
+            courseId)
+        if (!entitled) {
+            const accessibleCards = await this.entityManager.find(
+                FlashcardCardEntity,
+                {
+                    where: {
+                        id: In(cardIds),
+                        isPremium: false,
+                        deck: {
+                            course: {
+                                id: courseId,
+                            },
+                        },
+                    },
+                    select: {
+                        id: true,
+                    },
+                    relations: {
+                        deck: {
+                            course: true,
+                        },
+                    },
+                },
+            )
+            const accessibleIds = new Set(accessibleCards.map((card) => card.id))
+            effectiveCardIds = cardIds.filter((id) => accessibleIds.has(id))
+            if (effectiveCardIds.length === 0) {
+                throw new CourseReviewRequiresEnrollmentException({
+                    userId,
+                    courseId,
+                })
+            }
+        }
 
         // retire the enrollment's previous in-flight draw (if any) BEFORE
         // persisting the new one, so resume-lookup never has two candidates.
@@ -104,7 +146,7 @@ export class FlashcardDueReviewSessionService {
             FlashcardDueReviewSessionEntity,
             {
                 enrollment,
-                cardIds,
+                cardIds: effectiveCardIds,
                 currentIndex: 0,
                 reviewedCount: 0,
                 gradedIndexes: [],

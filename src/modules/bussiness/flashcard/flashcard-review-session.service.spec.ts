@@ -57,6 +57,7 @@ describe("FlashcardReviewSessionService",
         let entityManager: EntityManagerMock
         let userService: {
             resolveOrCreateTrialEnrollment: jest.Mock
+            checkEnrollment: jest.Mock
         }
 
         /**
@@ -81,6 +82,8 @@ describe("FlashcardReviewSessionService",
             userService = {
                 resolveOrCreateTrialEnrollment: jest.fn()
                     .mockResolvedValue(ENROLLMENT),
+                checkEnrollment: jest.fn()
+                    .mockResolvedValue(true),
             }
 
             testingModule = await Test.createTestingModule({
@@ -166,6 +169,35 @@ describe("FlashcardReviewSessionService",
                                 xpEarned: 0,
                                 status: "in_progress",
                             },
+                        )
+                    })
+
+                it("keeps only accessible cards for a trial review draw",
+                    async () => {
+                        programFindOne({
+                            [FlashcardDeckEntity.name]: DECK,
+                        })
+                        userService.checkEnrollment.mockResolvedValueOnce(false)
+                        entityManager.find.mockResolvedValueOnce([{
+                            id: "card-a",
+                        }])
+
+                        await service.start({
+                            userId: USER_ID,
+                            deckId: DECK_ID,
+                            cardIds: [
+                                "card-a",
+                                "card-premium",
+                            ],
+                        })
+
+                        expect(entityManager.save).toHaveBeenCalledWith(
+                            FlashcardReviewSessionEntity,
+                            expect.objectContaining({
+                                cardIds: [
+                                    "card-a",
+                                ],
+                            }),
                         )
                     })
 
@@ -477,6 +509,7 @@ describe("FlashcardReviewSessionService",
                             [FlashcardDeckEntity.name]: DECK,
                             [FlashcardReviewSessionEntity.name]: {
                                 id: "session-1",
+                                status: "in_progress",
                                 cardIds: [
                                     "card-a",
                                 ],
@@ -526,6 +559,7 @@ describe("FlashcardReviewSessionService",
                             [FlashcardDeckEntity.name]: DECK,
                             [FlashcardReviewSessionEntity.name]: {
                                 id: "session-1",
+                                status: "in_progress",
                                 cardIds: [],
                                 currentIndex: 0,
                                 reviewedCount: 0,
@@ -541,6 +575,74 @@ describe("FlashcardReviewSessionService",
                         })
 
                         expect(found?.gradedIndexes).toEqual([])
+                    })
+
+                it("repairs a legacy trial session so every returned card is learnable",
+                    async () => {
+                        const updatedAt = new Date("2026-08-19T10:00:00.000Z")
+                        programFindOne({
+                            [FlashcardReviewSessionEntity.name]: {
+                                id: "session-legacy",
+                                status: "in_progress",
+                                deckId: DECK_ID,
+                                deck: {
+                                    title: "SM-2 basics",
+                                    course: {
+                                        id: "course-1",
+                                    },
+                                },
+                                cardIds: [
+                                    "free-a",
+                                    "premium-a",
+                                    "free-b",
+                                ],
+                                currentIndex: 1,
+                                reviewedCount: 1,
+                                gradedIndexes: [
+                                    0,
+                                ],
+                                xpEarned: 3,
+                                updatedAt,
+                            },
+                        })
+                        userService.checkEnrollment.mockResolvedValueOnce(false)
+                        entityManager.find.mockResolvedValueOnce([{
+                            id: "free-a",
+                        },
+                        {
+                            id: "free-b",
+                        }])
+
+                        const found = await service.findById({
+                            userId: USER_ID,
+                            sessionId: "session-legacy",
+                        })
+
+                        expect(found).toEqual(expect.objectContaining({
+                            cardIds: [
+                                "free-a",
+                                "free-b",
+                            ],
+                            currentIndex: 1,
+                            reviewedCount: 1,
+                            gradedIndexes: [
+                                0,
+                            ],
+                        }))
+                        expect(entityManager.update).toHaveBeenCalledWith(
+                            FlashcardReviewSessionEntity,
+                            {
+                                id: "session-legacy",
+                            },
+                            expect.objectContaining({
+                                cardIds: [
+                                    "free-a",
+                                    "free-b",
+                                ],
+                                currentIndex: 1,
+                                status: "in_progress",
+                            }),
+                        )
                     })
 
                 it("rejects a lookup against a deck that does not exist",
@@ -578,6 +680,9 @@ describe("FlashcardReviewSessionService",
                                 deckId: DECK_ID,
                                 deck: {
                                     title: "SM-2 basics",
+                                    course: {
+                                        id: "course-1",
+                                    },
                                 },
                                 cardIds: [
                                     "card-a",
@@ -622,6 +727,9 @@ describe("FlashcardReviewSessionService",
                                 deckId: DECK_ID,
                                 deck: {
                                     title: "SM-2 basics",
+                                    course: {
+                                        id: "course-1",
+                                    },
                                 },
                                 cardIds: [],
                                 currentIndex: 0,

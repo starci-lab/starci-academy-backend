@@ -11,6 +11,9 @@ import {
     FlashcardDeckEntity,
 } from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
 import {
+    FlashcardCardEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     FlashcardReviewSessionEntity,
 } from "@modules/databases/postgresql/primary/entities/flashcard-review-session.entity"
 import {
@@ -22,6 +25,9 @@ import {
 import {
     FlashcardDeckNotFoundException,
 } from "@modules/platform/exceptions/errors/flashcard/flashcard-deck-not-found"
+import {
+    CourseReviewRequiresEnrollmentException,
+} from "@modules/platform/exceptions/errors/courses/course-review-requires-enrollment"
 import {
     UserService,
 } from "../user/user.service"
@@ -179,6 +185,36 @@ export class FlashcardReviewSessionService {
             userId,
             deck.course.id,
         )
+        const entitled = await this.userService.checkEnrollment(userId,
+            deck.course.id)
+        if (!entitled) {
+            const accessibleCards = await this.entityManager.find(
+                FlashcardCardEntity,
+                {
+                    where: {
+                        id: In(effectiveCardIds),
+                        isPremium: false,
+                        deck: {
+                            id: deckId,
+                        },
+                    },
+                    select: {
+                        id: true,
+                    },
+                    relations: {
+                        deck: true,
+                    },
+                },
+            )
+            const accessibleIds = new Set(accessibleCards.map((card) => card.id))
+            effectiveCardIds = effectiveCardIds.filter((id) => accessibleIds.has(id))
+            if (effectiveCardIds.length === 0) {
+                throw new CourseReviewRequiresEnrollmentException({
+                    userId,
+                    courseId: deck.course.id,
+                })
+            }
+        }
 
         // retire the enrollment+deck's previous in-flight draw (if any) BEFORE
         // persisting the new one, so resume-lookup never has two candidates.
@@ -430,6 +466,16 @@ export class FlashcardReviewSessionService {
             return null
         }
 
+        await this.reconcileTrialSessionSnapshot(
+            session,
+            userId,
+            deck.course.id,
+            deckId,
+        )
+        if (session.status !== "in_progress") {
+            return null
+        }
+
         return {
             sessionId: session.id,
             cardIds: session.cardIds,
@@ -474,7 +520,9 @@ export class FlashcardReviewSessionService {
                     },
                 },
                 relations: {
-                    deck: true,
+                    deck: {
+                        course: true,
+                    },
                 },
             },
         )
@@ -482,6 +530,13 @@ export class FlashcardReviewSessionService {
         if (!session) {
             return null
         }
+
+        await this.reconcileTrialSessionSnapshot(
+            session,
+            userId,
+            session.deck.course.id,
+            session.deckId,
+        )
 
         return {
             sessionId: session.id,
@@ -494,5 +549,94 @@ export class FlashcardReviewSessionService {
             xpEarned: session.xpEarned,
             updatedAt: session.updatedAt,
         }
+    }
+
+    /**
+     * Repair a legacy in-flight draw created before session start filtered
+     * premium cards for trial learners. A session is a learning boundary: once
+     * returned, every remaining card must have an answer the viewer may read.
+     * Keep the persisted snapshot and its indexes aligned so later sync calls
+     * cannot reintroduce removed cards or point at an inaccessible position.
+     */
+    private async reconcileTrialSessionSnapshot(
+        session: FlashcardReviewSessionEntity,
+        userId: string,
+        courseId: string,
+        deckId: string,
+    ): Promise<void> {
+        if (await this.userService.checkEnrollment(userId,
+            courseId)) {
+            return
+        }
+
+        const accessibleCards = await this.entityManager.find(
+            FlashcardCardEntity,
+            {
+                where: {
+                    id: In(session.cardIds),
+                    isPremium: false,
+                    deck: {
+                        id: deckId,
+                    },
+                },
+                select: {
+                    id: true,
+                },
+                relations: {
+                    deck: true,
+                },
+            },
+        )
+        const accessibleSet = new Set(accessibleCards.map((card) => card.id))
+        const cardIds = session.cardIds.filter((id) => accessibleSet.has(id))
+        if (cardIds.length === session.cardIds.length) {
+            return
+        }
+
+        const nextIndexByCardId = new Map(cardIds.map((id,
+            index) => [id,
+            index]))
+        const gradedIndexes = (session.gradedIndexes ?? []).flatMap((index) => {
+            const cardId = session.cardIds[index]
+            const nextIndex = cardId === undefined
+                ? undefined
+                : nextIndexByCardId.get(cardId)
+            return nextIndex === undefined ? [] : [nextIndex]
+        })
+        const gradedSet = new Set(gradedIndexes)
+        const currentCardId = session.cardIds[session.currentIndex]
+        const mappedCurrentIndex = currentCardId === undefined
+            ? undefined
+            : nextIndexByCardId.get(currentCardId)
+        const firstUngradedIndex = cardIds.findIndex((_id,
+            index) => !gradedSet.has(index))
+        const currentIndex = mappedCurrentIndex
+            ?? (firstUngradedIndex >= 0 ? firstUngradedIndex : Math.max(0,
+                cardIds.length - 1))
+        const status = cardIds.length === 0
+            ? "abandoned" as const
+            : gradedIndexes.length >= cardIds.length
+                ? "completed" as const
+                : session.status
+        const reviewedCount = gradedIndexes.length
+
+        await this.entityManager.update(
+            FlashcardReviewSessionEntity,
+            {
+                id: session.id,
+            },
+            {
+                cardIds,
+                currentIndex,
+                gradedIndexes,
+                reviewedCount,
+                status,
+            },
+        )
+        session.cardIds = cardIds
+        session.currentIndex = currentIndex
+        session.gradedIndexes = gradedIndexes
+        session.reviewedCount = reviewedCount
+        session.status = status
     }
 }
