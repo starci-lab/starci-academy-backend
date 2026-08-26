@@ -34,18 +34,18 @@
     },
     "course-learning": {
       "featureId": "course-learning",
-      "head": "4ec13502d10b87242c6d9cc983e2a6ae2d205f9650bc7323c4dcb80acfdf2e00",
-      "authorityStatus": "approved",
+      "head": "c325716e5b230f001b7ed2297be9524beecc96071ff68954241f34fde355bc51",
+      "authorityStatus": "implemented",
       "baseHead": "579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601",
-      "previousHead": "579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601",
+      "previousHead": "4ec13502d10b87242c6d9cc983e2a6ae2d205f9650bc7323c4dcb80acfdf2e00",
       "sources": [
         {
           "role": "fe",
-          "head": "595fd21545ad8f781cd465b4bd5e1a85302f6d42"
+          "head": "16d5692ce07fc2168f8f9ba350f543a1fd394bb7"
         },
         {
           "role": "be",
-          "head": "eccda3bd9df9abfdca22059ea88232fec3249af1"
+          "head": "451ac8583742bfdbc565e32070e756ab35aa9c1b"
         }
       ]
     },
@@ -423,6 +423,10 @@
     "4ec13502d10b87242c6d9cc983e2a6ae2d205f9650bc7323c4dcb80acfdf2e00": {
       "hash": "4ec13502d10b87242c6d9cc983e2a6ae2d205f9650bc7323c4dcb80acfdf2e00",
       "path": "objects/sha256/4ec13502d10b87242c6d9cc983e2a6ae2d205f9650bc7323c4dcb80acfdf2e00.json"
+    },
+    "c325716e5b230f001b7ed2297be9524beecc96071ff68954241f34fde355bc51": {
+      "hash": "c325716e5b230f001b7ed2297be9524beecc96071ff68954241f34fde355bc51",
+      "path": "objects/sha256/c325716e5b230f001b7ed2297be9524beecc96071ff68954241f34fde355bc51.json"
     },
     "421904174c1d4e477c5b547cdc9b2c88ed1e6efa5c7a28652f2228f0ee853fa9": {
       "hash": "421904174c1d4e477c5b547cdc9b2c88ed1e6efa5c7a28652f2228f0ee853fa9",

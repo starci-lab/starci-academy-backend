@@ -1,8 +1,8 @@
 # Course learning and discussion
 
-> Business identity: `starci-academy/course-learning@4ec13502d10b87242c6d9cc983e2a6ae2d205f9650bc7323c4dcb80acfdf2e00`
+> Business identity: `starci-academy/course-learning@c325716e5b230f001b7ed2297be9524beecc96071ff68954241f34fde355bc51`
 >
-> Source heads: authority `approved` · base `579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601` · `fe@595fd21545ad`, `be@eccda3bd9df9`
+> Source heads: authority `implemented` · base `579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601` · `fe@16d5692ce07f`, `be@451ac8583742`
 >
 > Load this file first. Load only the modules named by the current task.
 

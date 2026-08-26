@@ -33,5 +33,5 @@ Enrolled learners navigate course modules, use the shared module conversation an
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `595fd21545ad8f781cd465b4bd5e1a85302f6d42` |
-| be | https://github.com/starci-lab/starci-academy-backend | `eccda3bd9df9abfdca22059ea88232fec3249af1` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `16d5692ce07fc2168f8f9ba350f543a1fd394bb7` |
+| be | https://github.com/starci-lab/starci-academy-backend | `451ac8583742bfdbc565e32070e756ab35aa9c1b` |
