@@ -16,6 +16,7 @@ import type {
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     CommentForbiddenException,
+    CommentInvalidScopeException,
     CommentNotFoundException,
 } from "@modules/platform/exceptions/errors/discussion/comment"
 import {
@@ -396,6 +397,17 @@ describe("CommentService",
                             skip: number
                         }
                         expect(options.skip).toBe(0)
+                    })
+
+                it("rejects a list scope that does not identify exactly one parent or owner",
+                    async () => {
+                        await expect(
+                            service.listComments({
+                                page: 1,
+                                limit: 10,
+                            }),
+                        ).rejects.toBeInstanceOf(CommentInvalidScopeException)
+                        expect(entityManager.findAndCount).not.toHaveBeenCalled()
                     })
             })
 

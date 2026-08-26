@@ -156,6 +156,14 @@ describe("FlashcardDeckReadService",
                             },
                         )
                     })
+
+                it("returns an empty collection when the course has no decks",
+                    async () => {
+                        entityManager.find.mockResolvedValueOnce([])
+
+                        await expect(service.listByCourse(courseId)).resolves.toEqual([])
+                        expect(entityManager.find).toHaveBeenCalledTimes(1)
+                    })
             })
 
         describe("getById",

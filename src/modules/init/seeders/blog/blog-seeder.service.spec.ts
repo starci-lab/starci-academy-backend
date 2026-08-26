@@ -1,6 +1,9 @@
 import {
     BlogSeederService
 } from "./blog-seeder.service"
+import {
+    BlogCategory,
+} from "@modules/databases/postgresql/primary/enums/blog-category"
 describe("BlogSeederService",
     () => { it("honors the disabled seeder gate",
         async () => { const paths = jest.fn(); const service = new BlogSeederService({
@@ -33,4 +36,56 @@ describe("BlogSeederService",
 } as never,
 {
 } as never); await expect(service.seed()).resolves.toBeUndefined(); expect(paths).toHaveBeenCalledWith("blog",
-            ""); expect(loader).not.toHaveBeenCalled() }) })
+            ""); expect(loader).not.toHaveBeenCalled() })
+
+    it("upserts a single-language post with paired required fields and defaults",
+        async () => {
+            const upsert = jest.fn().mockResolvedValue(undefined)
+            const service = new BlogSeederService({
+                upsert
+            } as never,
+{
+    isBlogSeederEnabled: jest.fn().mockReturnValue(true),
+} as never,
+{
+    filePaths: jest.fn().mockResolvedValue([{
+        relativePath: "2-release-notes",
+        displayId: "release-notes",
+    }]),
+} as never,
+{
+    load: jest.fn().mockResolvedValue("markdown"),
+} as never,
+{
+    extract: jest.fn().mockReturnValue({
+        title: "Release notes",
+        body: "Highlights",
+    }),
+} as never,
+{
+    toNullableEnum: jest.fn().mockReturnValue(undefined),
+    toNullableStringColumn: jest.fn().mockReturnValue(null),
+    toNullableNumericColumn: jest.fn().mockReturnValue(null),
+    toNullableDate: jest.fn().mockReturnValue(null),
+    toRequiredBoolean: jest.fn().mockReturnValue(false),
+} as never)
+
+            await service.seed()
+            expect(upsert).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({
+                    slug: "release-notes",
+                    title: {
+                        en: "Release notes", vi: "Release notes"
+                    },
+                    body: {
+                        en: "Highlights", vi: "Highlights"
+                    },
+                    category: BlogCategory.DeepDive,
+                    excerpt: null,
+                    ctaLabel: null,
+                }),
+                ["slug"],
+            )
+        })
+    })

@@ -226,6 +226,19 @@ describe("ChallengeParserService",
 
         describe("parse",
             () => {
+                it("rejects a challenge ordinal that is not mounted",
+                    async () => {
+                        await expect(service.parse({
+                            paths: [],
+                            courseIndex: 0,
+                            moduleIndex: 0,
+                            contentIndex: 0,
+                            challengeIndex: 9,
+                        })).rejects.toMatchObject({
+                            code: "CHALLENGE_PATH_NOT_FOUND_EXCEPTION",
+                        })
+                    })
+
                 it(
                     "parses 0-order-inventory-cross-module-di-easy",
                     async () => {

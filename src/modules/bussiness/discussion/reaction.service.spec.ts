@@ -339,6 +339,14 @@ describe("ReactionService",
                             contentId,
                         })
                     })
+
+                it("propagates projection failures to the caller",
+                    async () => {
+                        const failure = new Error("projection unavailable")
+                        contentEngagementProjectionService.recompute.mockRejectedValueOnce(failure)
+
+                        await expect(service.invalidateViewCount(contentId)).rejects.toBe(failure)
+                    })
             })
 
         describe("summarizeContent",
@@ -445,4 +453,5 @@ describe("ReactionService",
                         expect(result.c2.myReaction).toBeNull()
                     })
             })
+
     })

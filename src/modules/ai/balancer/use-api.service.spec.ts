@@ -1244,5 +1244,23 @@ describe("UseApiService",
 
                         expect(usable.size).toBe(0)
                     })
+
+                it("excludes a configured provider whose key pool is empty",
+                    async () => {
+                        keyStoreService.listProviders.mockReturnValue([
+                            {
+                                provider: ModelProvider.OpenAI,
+                                keysFilePath: "openai.key",
+                            },
+                        ])
+                        keyStoreService.getPool.mockReturnValue([])
+
+                        const usable = await service.availableProviders()
+
+                        expect(usable).not.toContain(ModelProvider.OpenAI)
+                        expect(aiPingCacheService.getProviderMap).toHaveBeenCalledWith(
+                            ModelProvider.OpenAI,
+                        )
+                    })
             })
     })

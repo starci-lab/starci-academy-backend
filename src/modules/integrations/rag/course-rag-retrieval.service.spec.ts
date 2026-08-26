@@ -295,5 +295,23 @@ describe("CourseRagRetrievalService",
                         const filter = similaritySearch.mock.calls[0][2]
                         expect(filter.must_not).toBeUndefined()
                     })
+
+                it("keeps source ids empty when a hit has no content id metadata",
+                    async () => {
+                        const similaritySearch = jest.fn().mockResolvedValue([
+                            doc("course-only chunk"),
+                        ])
+                        fromExistingCollection.mockResolvedValue({
+                            similaritySearch,
+                        })
+
+                        const result = await service.retrieveCourseExcerpt({
+                            courseId: "course-1",
+                            query: "q",
+                        })
+
+                        expect(result.retrievedChunks).toBe(1)
+                        expect(result.matchedContentIds).toEqual([])
+                    })
             })
     })

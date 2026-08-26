@@ -153,6 +153,18 @@ describe("MilestoneTaskParserService",
 
         describe("parse",
             () => {
+                it("rejects a milestone task ordinal that is not mounted",
+                    async () => {
+                        await expect(service.parse({
+                            paths: [],
+                            courseIndex: 0,
+                            milestoneIndex: 0,
+                            taskIndex: 9,
+                        })).rejects.toMatchObject({
+                            code: "MILESTONE_TASK_PATH_NOT_FOUND_EXCEPTION",
+                        })
+                    })
+
                 it(
                     "pivots the SCHEMA V2 lang-first markdown into briefs + outcome/approach criteria",
                     async () => {

@@ -51,9 +51,9 @@ const makeToken = (sub: string): string => {
     const encode = (obj: Record<string, unknown>): string =>
         Buffer.from(JSON.stringify(obj)).toString("base64url")
     return `${encode({
-        alg: "none", typ: "JWT" 
+        alg: "none", typ: "JWT"
     })}.${encode({
-        sub 
+        sub
     })}.sig`
 }
 
@@ -359,6 +359,15 @@ describe("SessionService",
                             os: null,
                             browser: null,
                         })
+                    })
+
+                it("falls back to an unknown desktop profile for an unrecognized agent",
+                    () => {
+                        const info = parseUserAgent("ExampleBot/1.0")
+
+                        expect(info.os).toBeNull()
+                        expect(info.browser).toBeNull()
+                        expect(info.deviceType).toBe("desktop")
                     })
             })
     })
