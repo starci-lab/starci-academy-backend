@@ -34,18 +34,18 @@
     },
     "course-learning": {
       "featureId": "course-learning",
-      "head": "579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601",
-      "authorityStatus": "modeled",
-      "baseHead": "17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473",
-      "previousHead": "17b1d88700e40db815dc135b7b6fb8ebe85eea667dd867ff50bbf3c948d94473",
+      "head": "4ec13502d10b87242c6d9cc983e2a6ae2d205f9650bc7323c4dcb80acfdf2e00",
+      "authorityStatus": "approved",
+      "baseHead": "579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601",
+      "previousHead": "579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601",
       "sources": [
         {
           "role": "fe",
-          "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
+          "head": "595fd21545ad8f781cd465b4bd5e1a85302f6d42"
         },
         {
           "role": "be",
-          "head": "eeeaef30b60b823eb894fed410cc6742ed0bd08f"
+          "head": "eccda3bd9df9abfdca22059ea88232fec3249af1"
         }
       ]
     },
@@ -416,10 +416,14 @@
         "hash": "92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824",
         "path": "objects/sha256/92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824.json"
       },
-      "bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d": {
-        "hash": "bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d",
-        "path": "objects/sha256/bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d.json"
-      }
+    "bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d": {
+      "hash": "bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d",
+      "path": "objects/sha256/bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d.json"
+    },
+    "4ec13502d10b87242c6d9cc983e2a6ae2d205f9650bc7323c4dcb80acfdf2e00": {
+      "hash": "4ec13502d10b87242c6d9cc983e2a6ae2d205f9650bc7323c4dcb80acfdf2e00",
+      "path": "objects/sha256/4ec13502d10b87242c6d9cc983e2a6ae2d205f9650bc7323c4dcb80acfdf2e00.json"
+    }
     }
   }
 }

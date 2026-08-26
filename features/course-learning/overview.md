@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Enrolled learners navigate course modules with exactly one kind, use the shared module conversation, work in the kind-specific workbench, track progress, and complete learning activities.
+Enrolled learners navigate course modules, use the shared module conversation and kind-specific workbench, and prove applied knowledge through recoverable, trustworthy content Challenges.
 
 ## Included
 
@@ -15,6 +15,9 @@ Enrolled learners navigate course modules with exactly one kind, use the shared 
 - A generic learning-module aggregate with exactly one required kind
 - A shared conversation frame present in every module
 - An open set of kind-specific workbenches, with document, spreadsheet and calendar as examples
+- A recoverable Challenge journey across briefing, draft, submit, evaluation, result, retry and history
+- Deterministic validation, rubric-constrained AI evidence and server-authoritative finalization
+- Progressive hints and realistic post-fidelity AI-model UAT
 
 ## Excluded
 
@@ -22,10 +25,13 @@ Enrolled learners navigate course modules with exactly one kind, use the shared 
 - Course purchase and enrollment decisions
 - The persistence strategy used to implement module inheritance
 - Changing an existing module from one kind to another
+- Mock Interview, Flashcards/quick quiz, Playground and Global Chat journeys
+- Enrollment or purchase policy changes
+- AI provider, deployment topology and authoring-studio redesign
 
 ## Source heads
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `f14e3c24b4a087fb6d4bb09d73526964d3ecea3c` |
-| be | https://github.com/starci-lab/starci-academy-backend | `eeeaef30b60b823eb894fed410cc6742ed0bd08f` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `595fd21545ad8f781cd465b4bd5e1a85302f6d42` |
+| be | https://github.com/starci-lab/starci-academy-backend | `eccda3bd9df9abfdca22059ea88232fec3249af1` |

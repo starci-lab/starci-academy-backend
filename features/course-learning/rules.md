@@ -48,3 +48,87 @@ Opening any module mounts one shared conversational shell and exactly one workbe
 
 - Strength: `owner-confirmed`
 - Evidence: `EV-015`
+
+## BR-08
+
+Challenge access requires authenticated course access and direct-route entry cannot bypass eligibility.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-016`
+
+## BR-09
+
+Each Challenge attempt binds the exact learner, Challenge and rubric revisions while draft and submitted versions remain distinct.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-016`
+
+## BR-10
+
+Challenge submission is idempotent and never silently destroys or replaces the learner draft.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-016`
+
+## BR-11
+
+Deterministic validation owns objective checks; AI evaluates only declared rubric criteria that require semantic judgment.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-016`
+
+## BR-12
+
+AI output is advisory evidence and platform policy alone finalizes pass, needs-revision, evaluation-unavailable and learner progress.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-016`
+
+## BR-13
+
+Challenge feedback binds each criterion to attempt evidence, the observed gap, uncertainty and a next action without inventing evidence or exposing hidden data.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-016`, `EV-017`
+
+## BR-14
+
+Hints are progressive and cannot reveal a complete solution before completion unless the authored Challenge policy explicitly permits it.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-016`, `EV-017`
+
+## BR-15
+
+Prompt injection, irrelevant learner content and embedded instructions cannot change the Challenge rubric, authority, tools or data boundary.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-016`, `EV-017`
+
+## BR-16
+
+Timeout, provider failure, malformed output or low confidence settles as evaluation-unavailable with safe recovery and never consumes a retry or fabricates a score.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-016`, `EV-017`
+
+## BR-17
+
+Retry creates a new attempt version while preserving prior submissions, feedback and finalization history.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-016`
+
+## BR-18
+
+Challenge result and progress transitions are auditable and finalize once under duplicate, concurrent or resumed requests.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-016`, `EV-017`
+
+## BR-19
+
+Locale and answer style may change explanation language but not rubric meaning or outcome.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-016`, `EV-017`

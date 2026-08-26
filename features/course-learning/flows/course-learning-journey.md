@@ -7,7 +7,7 @@
 | 1 | `learner` | `course-home` | Review course progress, next actions and learning signals | The learner can continue into the relevant course destination |
 | 2 | `learner` | `lesson-workspace` | Choose a module from the course map and enter its shared conversation plus kind-specific workbench | The common conversation frame and exactly one registered workbench open for the module kind |
 | 3 | `learner` | `lesson-workspace` | Read, use source, react or discuss | Progress and discussion operations are submitted |
-| 4 | `learner` | `content-challenge` | Open an embedded challenge and submit an attempt | A challenge result surface becomes available |
+| 4 | `learner` | `content-challenge` | Open an embedded Challenge and submit an attempt | A Challenge result surface becomes available |
 
 ## Outcomes
 

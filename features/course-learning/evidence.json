@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "course-learning",
-  "head": "579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601",
+  "head": "4ec13502d10b87242c6d9cc983e2a6ae2d205f9650bc7323c4dcb80acfdf2e00",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "f14e3c24b4a087fb6d4bb09d73526964d3ecea3c"
+      "head": "595fd21545ad8f781cd465b4bd5e1a85302f6d42"
     },
     {
       "role": "be",
       "repository": "https://github.com/starci-lab/starci-academy-backend",
-      "head": "eeeaef30b60b823eb894fed410cc6742ed0bd08f"
+      "head": "eccda3bd9df9abfdca22059ea88232fec3249af1"
     }
   ],
   "evidence": [
@@ -144,6 +144,20 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "af23be552cece34ef04f8a091967b0c267488082d7cd63b48ecf1efa906c93ee"
+    },
+    {
+      "id": "EV-016",
+      "claim": "The owner approved Challenge revision f9032ac5841c61dcb4ce9a5013877945a2e8d9d630b92f95b2debc23d280e839: a recoverable course-content journey with revisioned drafts, immutable idempotent submissions, deterministic validation, rubric-constrained AI evidence, server-authoritative finalization, criterion feedback, retry and history.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "f9032ac5841c61dcb4ce9a5013877945a2e8d9d630b92f95b2debc23d280e839"
+    },
+    {
+      "id": "EV-017",
+      "claim": "The same approved Challenge revision requires realistic AI UAT across semantic correctness, partial and incorrect answers, malformed and unsupported input, multilingual equivalence, prompt injection, answer leakage, provider failure, low confidence, duplicate delivery, concurrency and recovery.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "f9032ac5841c61dcb4ce9a5013877945a2e8d9d630b92f95b2debc23d280e839"
     }
   ]
 }
