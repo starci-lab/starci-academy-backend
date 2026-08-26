@@ -120,4 +120,28 @@ describe("GlobalChatMutationResolver",
                 expect(setRole).toHaveBeenCalledWith(user,
                     request)
             })
+
+        it("forwards notification preference failures unchanged",
+            async () => {
+                const failure = new Error("preference update failed")
+                const notifications = jest.fn().mockRejectedValue(failure)
+                const resolver = new GlobalChatMutationResolver({
+                    notifications,
+                } as never)
+
+                await expect(resolver.notifications({
+                    enabled: true,
+                } as never,
+                {
+                    id: "user-1",
+                } as never)).rejects.toBe(failure)
+                expect(notifications).toHaveBeenCalledWith(
+                    {
+                        id: "user-1",
+                    },
+                    {
+                        enabled: true,
+                    },
+                )
+            })
     })

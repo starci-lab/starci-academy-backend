@@ -540,4 +540,20 @@ describe("ContentHandler",
                 expect(result.body.length).toBeLessThanOrEqual(4_000)
                 expect(result.codeImplementations).toEqual([])
             })
+
+        it("preserves an object-store read failure after resolving the content row",
+            async () => {
+                const failure = new Error("content object unavailable")
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "c1",
+                    isPremium: false,
+                })
+                s3ReadService.json.mockRejectedValueOnce(failure)
+
+                await expect(handler.execute(new ContentQuery({
+                    request: {
+                        id: "c1",
+                    },
+                }))).rejects.toBe(failure)
+            })
     })

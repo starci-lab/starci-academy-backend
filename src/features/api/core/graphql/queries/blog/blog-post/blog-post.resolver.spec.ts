@@ -124,4 +124,30 @@ describe("BlogPostResolver",
                 }))
                 expect(isActive).not.toHaveBeenCalled()
             })
+
+        it("returns an absent localized title as undefined",
+            async () => {
+                const resolver = new BlogPostResolver(
+                    {
+                        findOne: jest.fn().mockResolvedValue({
+                            ...post,
+                            title: {
+                                en: "Default title",
+                            },
+                        }),
+                    } as never,
+                    {
+                        isActive: jest.fn(),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                )
+
+                await expect(resolver.execute("vi" as never,
+                    undefined,
+                    "hello")).resolves.toEqual(expect.objectContaining({
+                    title: undefined,
+                }))
+            })
     })

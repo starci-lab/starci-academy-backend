@@ -284,5 +284,14 @@ describe("GenerateCvScoreStepService",
                             }),
                         )
                     })
+
+                it("marks the step failed when its database update rejects",
+                    async () => {
+                        const failure = new Error("score persistence unavailable")
+                        entityManager.update.mockRejectedValueOnce(failure)
+
+                        await expect(service.process(makeContext())).rejects.toBe(failure)
+                        expect(jobActionService.failJob).toHaveBeenCalled()
+                    })
             })
     })

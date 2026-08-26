@@ -84,4 +84,30 @@ jwtService as never)
                 })
                 expect(entityManager.create).not.toHaveBeenCalled()
             })
+        it("does not persist an account when the identity provider rejects registration",
+            async () => {
+                const failure = new Error("registration unavailable")
+                const tokenService = {
+                    registerUserWithPassword: jest.fn().mockRejectedValue(failure),
+                }
+                const entityManager = {
+                    findOne: jest.fn(),
+                    create: jest.fn(),
+                    save: jest.fn(),
+                }
+                const handler = new KeycloakRegisterHandler(tokenService as never,
+                    {
+                    } as never,
+entityManager as never,
+{
+} as never)
+
+                await expect(handler.execute(new KeycloakRegisterCommand({
+                    email: "failed@example.com",
+                    password: "password",
+                    firstName: "Failed",
+                    lastName: "User",
+                }))).rejects.toBe(failure)
+                expect(entityManager.save).not.toHaveBeenCalled()
+            })
     })

@@ -62,4 +62,19 @@ describe("LearnAiCompanionMutationResolver",
                     id: "user-1",
                 } as never)).rejects.toBe(failure)
             })
+
+        it("preserves resolve failures without converting the response",
+            async () => {
+                const failure = new Error("companion unavailable")
+                const resolveLearnAiCompanion = jest.fn().mockRejectedValue(failure)
+
+                await expect(new LearnAiCompanionMutationResolver({
+                    resolveLearnAiCompanion,
+                } as never).resolve({
+                    courseId: "course-1"
+                },
+{
+    id: "user-1",
+} as never)).rejects.toBe(failure)
+            })
     })

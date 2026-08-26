@@ -484,4 +484,20 @@ describe("SignInInitHandler",
                 expect(otpChallengeService.createActionChallenge).not.toHaveBeenCalled()
                 expect(enqueueSendMailJobService.enqueue).not.toHaveBeenCalled()
             })
+
+        it("propagates identity-provider password failures before creating an OTP challenge",
+            async () => {
+                const failure = new Error("identity provider unavailable")
+                keycloakTokenService.exchangePasswordForToken.mockRejectedValueOnce(failure)
+
+                await expect(handler.execute(new SignInInitCommand({
+                    request: {
+                        email: "new@example.com",
+                        password: "secret",
+                    },
+                }))).rejects.toBe(failure)
+
+                expect(otpChallengeService.createActionChallenge).not.toHaveBeenCalled()
+                expect(enqueueSendMailJobService.enqueue).not.toHaveBeenCalled()
+            })
     })

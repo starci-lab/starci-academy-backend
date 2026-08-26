@@ -88,4 +88,21 @@ statsService as never)
                     },
                 } as never)).resolves.toBe(false)
             })
+
+        it("propagates live-edge count failures for another viewer",
+            async () => {
+                const failure = new Error("follow lookup unavailable")
+                entityManager.count.mockRejectedValueOnce(failure)
+
+                await expect(resolver.isFollowedByMe({
+                    id: "profile"
+                } as never,
+                    {
+                        req: {
+                            user: {
+                                id: "viewer"
+                            }
+                        }
+                    } as never)).rejects.toBe(failure)
+            })
     })

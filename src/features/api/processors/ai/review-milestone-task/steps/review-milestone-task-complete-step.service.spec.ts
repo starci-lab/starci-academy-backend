@@ -938,5 +938,16 @@ describe("ReviewMilestoneTaskCompleteStepService",
                             }),
                         )
                     })
+
+                it("rethrows a transaction failure before sending learner notifications",
+                    async () => {
+                        const failure = new Error("transaction unavailable")
+                        entityManager.transaction.mockRejectedValueOnce(failure)
+
+                        await expect(service.process(makeContext() as never)).rejects.toBe(failure)
+
+                        expect(enqueueSendMailJobService.enqueue).not.toHaveBeenCalled()
+                        expect(eventEmitterService.emit).not.toHaveBeenCalled()
+                    })
             })
     })

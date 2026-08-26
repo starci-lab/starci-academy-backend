@@ -163,4 +163,18 @@ describe("GenerateCvCompleteStepService",
                 await expect(setup.service.process(context as never)).rejects.toBe(failure)
                 expect(setup.winstonService.log).not.toHaveBeenCalled()
             })
+
+        it("does not update the generation when the render result is absent",
+            async () => {
+                const setup = createSetup()
+                setup.jobActionService.loadExecutionResult.mockReset()
+                setup.jobActionService.loadExecutionResult
+                    .mockResolvedValueOnce(composed)
+                    .mockResolvedValueOnce(null)
+
+                await expect(setup.service.process(context as never)).rejects.toBeInstanceOf(
+                    CvGenerationStepResultMissingException,
+                )
+                expect(setup.entityManager.update).not.toHaveBeenCalled()
+            })
     })

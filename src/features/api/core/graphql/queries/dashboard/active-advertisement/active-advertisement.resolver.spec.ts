@@ -183,4 +183,15 @@ describe("ActiveAdvertisementResolver",
                 expect(h.userService.checkEnrollment).not.toHaveBeenCalled()
                 expect(h.entityManager.createQueryBuilder).toHaveBeenCalledTimes(1)
             })
+
+        it("returns null when the ranked query has no eligible advertisement",
+            async () => {
+                const h = make()
+                h.qb.getOne.mockResolvedValueOnce(null)
+
+                await expect(h.resolver.execute(Locale.En,
+                    undefined,
+                    AdvertisementPlacement.DashboardRight)).resolves.toBeNull()
+                expect(h.qb.getOne).toHaveBeenCalledTimes(1)
+            })
     })

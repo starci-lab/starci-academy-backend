@@ -344,4 +344,18 @@ describe("SignUpVerifyOtpHandler",
                 }))).rejects.toThrow()
                 expect(entityManager.findOne).not.toHaveBeenCalled()
             })
+
+        it("preserves OTP verification failures before decoding a token",
+            async () => {
+                const failure = new Error("otp store unavailable")
+                otpChallengeService.verifyActionChallenge.mockRejectedValueOnce(failure)
+
+                await expect(handler.execute(new SignUpVerifyOtpCommand({
+                    request: {
+                        challengeId: "chal-1",
+                        otp: "123456",
+                    },
+                }))).rejects.toBe(failure)
+                expect(jwtService.decode).not.toHaveBeenCalled()
+            })
     })

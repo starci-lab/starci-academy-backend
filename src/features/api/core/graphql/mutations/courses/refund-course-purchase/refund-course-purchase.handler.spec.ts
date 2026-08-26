@@ -215,4 +215,14 @@ describe("RefundCoursePurchaseHandler",
                 expect(entityManager.save).not.toHaveBeenCalled()
                 expect(userService.invalidateEnrolledCourses).not.toHaveBeenCalled()
             })
+
+        it("fails when the transaction disappears before the refund is evaluated",
+            async () => {
+                entityManager.findOne.mockResolvedValueOnce(null)
+
+                await expect(handler.execute(command())).rejects.toThrow()
+
+                expect(entityManager.save).not.toHaveBeenCalled()
+                expect(userService.invalidateEnrolledCourses).not.toHaveBeenCalled()
+            })
     })

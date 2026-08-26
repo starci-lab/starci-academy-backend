@@ -429,4 +429,15 @@ describe("ReviewMilestoneTaskGradeStepService",
                     emitChangeEvent: true,
                 }))
             })
+
+        it("fails the step when the grade service returns no evaluation",
+            async () => {
+                const { service, jobActionService, projectEvaluationParseService } = makeService(entityManager)
+                projectEvaluationParseService.parse.mockImplementationOnce(() => {
+                    throw new Error("evaluation unavailable")
+                })
+
+                await expect(service.process(makeContext())).rejects.toThrow("evaluation unavailable")
+                expect(jobActionService.failJob).toHaveBeenCalled()
+            })
     })

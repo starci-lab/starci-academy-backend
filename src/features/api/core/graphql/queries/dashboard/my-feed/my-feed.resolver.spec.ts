@@ -224,4 +224,33 @@ describe("MyFeedResolver",
                 expect(query.mock.calls[0][0]).toContain("LIMIT 2")
                 expect(query.mock.calls[0][0]).toContain("OFFSET 0")
             })
+
+        it("returns an empty page when the database has no activities",
+            async () => {
+                const query = jest.fn().mockResolvedValue([])
+                const resolveLabels = jest.fn().mockResolvedValue(new Map())
+                const resolver = new MyFeedResolver({
+                    query
+                } as never,
+                    {
+                        resolveLabels
+                    } as never)
+
+                await expect(resolver.execute({
+                    tab: MyFeedTab.ForYou,
+                    category: MyFeedCategory.All,
+                    limit: 10,
+                } as never,
+{
+    id: "user-1"
+} as never,
+Locale.En)).resolves.toEqual({
+                    items: [],
+                    nextCursor: null,
+                })
+                expect(resolveLabels).toHaveBeenCalledWith({
+                    refs: [],
+                    locale: Locale.En,
+                })
+            })
     })

@@ -132,4 +132,68 @@ describe("RagService",
                     models: [],
                 })
             })
+
+        it("selects generation models by preference and handles zero-norm vectors",
+            async () => {
+                const service = new RagService() as unknown as {
+                    pickGenModel: (models: Array<string>) => string
+                    cosineSimilarity: (left: Array<number>, right: Array<number>) => number
+                }
+
+                expect(service.pickGenModel(["nomic-embed-text"])).toBe("qwen2.5:3b")
+                expect(service.pickGenModel(["qwen2.5:7b",
+                    "llama3"])).toBe("qwen2.5:7b")
+                expect(service.pickGenModel(["llama3"])).toBe("llama3")
+                expect(service.pickGenModel([])).toBe("qwen2.5:3b")
+                expect(service.cosineSimilarity([0,
+                    0],
+                [1,
+                    2])).toBe(0)
+                expect(service.cosineSimilarity([1,
+                    0],
+                [1,
+                    0])).toBe(1)
+            })
+
+        it("uses unknown labels and preserves an index when a later embedding fails",
+            async () => {
+                const service = new RagService()
+                await expect(service.index({
+                    kind: "paste", code: "", fileName: "",
+                })).resolves.toMatchObject({
+                    chunkCount: 0, sourceLabel: "unknown (on-device indexing needs inline code for now)",
+                })
+                global.fetch = jest.fn()
+                    .mockResolvedValueOnce(new Response(JSON.stringify({
+                        embedding: [1,
+                            0],
+                    })))
+                    .mockRejectedValueOnce(new Error("second chunk failed"))
+                const code = Array.from({
+                    length: 40
+                },
+                (_, index) => `line ${index}`).join("\n")
+                await expect(service.index({
+                    kind: "paste", code,
+                })).resolves.toMatchObject({
+                    chunkCount: 1, sourceLabel: "pasted-code",
+                })
+            })
+
+        it("completes generation without a response body",
+            async () => {
+                global.fetch = jest.fn().mockResolvedValueOnce(new Response(null))
+                const chunks: Array<[string, boolean]> = []
+                const service = new RagService() as unknown as {
+                    streamGenerate: (prompt: string, model: string, onChunk: (text: string, done: boolean) => void) => Promise<void>
+                }
+                await service.streamGenerate("prompt",
+                    "model",
+                    (text, done) => {
+                        chunks.push([text,
+                            done])
+                    })
+                expect(chunks).toEqual([["",
+                    true]])
+            })
     })

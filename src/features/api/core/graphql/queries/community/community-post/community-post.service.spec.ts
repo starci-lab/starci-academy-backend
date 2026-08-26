@@ -129,4 +129,31 @@ describe("CommunityPostQueryService",
                     reactions,
                 }))
             })
+
+        it("propagates aggregate lookup failures after loading the post",
+            async () => {
+                const post = {
+                    id: "p3"
+                }
+                const summarizePosts = jest.fn().mockRejectedValue(new Error("aggregate down"))
+                const service = new CommunityPostQueryService({
+                    getPostOrThrow: jest.fn().mockResolvedValue(post),
+                } as never,
+{
+    summarizePosts
+} as never,
+{
+    countCommentsByPosts: jest.fn().mockResolvedValue({
+    }),
+} as never)
+
+                await expect(service.execute({
+                    request: {
+                        postId: "p3"
+                    }, user: undefined
+                })).rejects.toThrow(
+                    "aggregate down",
+                )
+                expect(summarizePosts).toHaveBeenCalled()
+            })
     })

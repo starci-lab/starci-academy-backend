@@ -201,4 +201,14 @@ describe("GenerateCvGatherStepService",
                 expect(saved.executionResult.sourceCvText).toBeNull()
                 expect(extractCvText).toHaveBeenCalled()
             })
+
+        it("propagates profile lookup failures without saving an execution result",
+            async () => {
+                const { entityManager, jobAction, service } = makeService()
+                const failure = new Error("profile unavailable")
+                entityManager.findOneOrFail.mockRejectedValueOnce(failure)
+
+                await expect(service.process(context())).rejects.toBe(failure)
+                expect(jobAction.saveExecutionResult).not.toHaveBeenCalled()
+            })
     })

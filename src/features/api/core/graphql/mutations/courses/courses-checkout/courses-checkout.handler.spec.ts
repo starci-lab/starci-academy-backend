@@ -1160,4 +1160,21 @@ describe("CoursesCheckoutHandler",
                 }))
                 expect(payos.paymentRequests.create).not.toHaveBeenCalled()
             })
+
+        it("propagates pricing failures before opening a provider order",
+            async () => {
+                const failure = new Error("pricing unavailable")
+                coursePriceQuoteService.quote.mockRejectedValueOnce(failure)
+
+                await expect(handler.execute(new CoursesCheckoutCommand({
+                    request: {
+                        courseIds: ["course-a"],
+                        paymentType: PaymentType.PayOS,
+                        returnUrl: "https://app/ok",
+                        cancelUrl: "https://app/cancel",
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBe(failure)
+                expect(payos.paymentRequests.create).not.toHaveBeenCalled()
+            })
     })

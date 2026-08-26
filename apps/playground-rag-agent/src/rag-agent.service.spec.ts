@@ -35,4 +35,50 @@ rag as never); (service as unknown as { socket: typeof socket; sendLog: jest.Moc
                         runId: "1", sources: ["doc"]
                     })
             })
+
+        it("ignores malformed events and polls Ollama once when paired",
+            async () => {
+                const handlers: Record<string, (payload: never) => void> = {
+                }
+                const socket = {
+                    on: jest.fn((event: string, cb: (payload: never) => void) => { handlers[event] = cb }),
+                    emit: jest.fn(),
+                }
+                const rag = {
+                    index: jest.fn(), ask: jest.fn(),
+                    probeOllama: jest.fn().mockResolvedValue({
+                        serving: true, models: ["qwen"]
+                    }),
+                }
+                const service = new RagAgentService({
+                    label: "rag"
+                } as never,
+{
+} as never,
+rag as never)
+                const internals = service as unknown as {
+                    socket: typeof socket
+                    sendLog: jest.Mock
+                    onSetup: () => void
+                    onPaired: () => void
+                    onShutdown: () => void
+                }
+                internals.socket = socket
+                internals.sendLog = jest.fn()
+                internals.onSetup()
+                handlers[EVENT.ragIndex](undefined as never)
+                handlers[EVENT.ragAsk]({
+                    runId: "", question: ""
+                } as never)
+                expect(rag.index).not.toHaveBeenCalled()
+                expect(rag.ask).not.toHaveBeenCalled()
+
+                const timer = setInterval(() => undefined,
+                    1000)
+                clearInterval(timer)
+                internals.onPaired()
+                await new Promise((resolve) => setImmediate(resolve))
+                expect(rag.probeOllama).toHaveBeenCalledTimes(1)
+                internals.onShutdown()
+            })
     })

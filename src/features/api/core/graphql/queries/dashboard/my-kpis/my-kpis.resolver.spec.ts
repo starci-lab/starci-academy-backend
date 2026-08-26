@@ -116,4 +116,22 @@ rewards as never)
                     claimed: false,
                 }))
             })
+
+        it("propagates projection failures before reading reward floors",
+            async () => {
+                const failure = new Error("stats unavailable")
+                const getStats = jest.fn().mockRejectedValue(failure)
+                const getFloorStates = jest.fn()
+                const resolver = new MyKpisResolver({
+                    getStats
+                } as never,
+                    {
+                        getFloorStates
+                    } as never)
+
+                await expect(resolver.execute({
+                    id: "u1"
+                } as never)).rejects.toBe(failure)
+                expect(getFloorStates).not.toHaveBeenCalled()
+            })
     })

@@ -314,4 +314,25 @@ describe("ReviewPersonalProjectTaskHandler",
                 expect(entityManager.save).not.toHaveBeenCalled()
                 expect(enqueueService.enqueue).not.toHaveBeenCalled()
             })
+
+        it("does not persist when the grading job cannot be enqueued",
+            async () => {
+                entityManager.findOneOrFail.mockResolvedValueOnce({
+                    id: "enroll-1",
+                    personalProjectGithubUrl: "https://github.com/me/repo",
+                    personalProjectGithubBranch: "main",
+                })
+                urlValidatorService.isParsable.mockResolvedValueOnce(undefined)
+                const failure = new Error("queue unavailable")
+                enqueueService.enqueue.mockRejectedValueOnce(failure)
+
+                await expect(handler.execute(new ReviewPersonalProjectTaskCommand({
+                    request: {
+                        courseId: "course-1",
+                        taskId: "task-1",
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBe(failure)
+                expect(entityManager.save).not.toHaveBeenCalled()
+            })
     })

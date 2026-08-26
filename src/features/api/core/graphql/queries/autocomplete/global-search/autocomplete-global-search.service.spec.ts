@@ -962,4 +962,17 @@ describe("AutocompleteGlobalSearchService",
                     expect(search).not.toHaveBeenCalled()
                 }
             })
+
+        it("propagates an indexed search failure instead of returning partial buckets",
+            async () => {
+                const failure = new Error("course index unavailable")
+                searches[CourseEntity.name].mockRejectedValueOnce(failure)
+
+                await expect(service.execute({
+                    request: {
+                        query: "typescript",
+                    },
+                    locale: Locale.En,
+                } as never)).rejects.toBe(failure)
+            })
     })

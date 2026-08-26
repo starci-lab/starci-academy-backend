@@ -696,4 +696,38 @@ describe("SubmitChallengeSubmissionHandler",
                 expect(entityManager.transaction).not.toHaveBeenCalled()
                 expect(enqueueGitV2.enqueue).not.toHaveBeenCalled()
             })
+
+        it("propagates grading-lane validation failures before queueing work",
+            async () => {
+                const failure = new Error("grading lane unavailable")
+                gradingLaneValidationService.validate.mockRejectedValueOnce(failure)
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-1",
+                        challengeId: "chal-1",
+                        type: SubmissionType.GithubUrl,
+                    })
+                    .mockResolvedValueOnce({
+                        id: "chal-1"
+                    })
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce({
+                        id: "ucs-1",
+                        submissionUrl: "https://github.com/me/repo",
+                    })
+                    .mockResolvedValueOnce({
+                        id: "ucs-1",
+                        submissionUrl: "https://github.com/me/repo",
+                    })
+
+                await expect(handler.execute(new SubmitChallengeSubmissionCommand({
+                    request: {
+                        challengeSubmissionId: "sub-1",
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBe(failure)
+                expect(enqueueGitV2.enqueue).not.toHaveBeenCalled()
+                expect(enqueueDocsV2.enqueue).not.toHaveBeenCalled()
+            })
     })

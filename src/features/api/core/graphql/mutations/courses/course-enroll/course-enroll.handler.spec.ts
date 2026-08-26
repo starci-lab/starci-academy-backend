@@ -383,4 +383,19 @@ describe("CourseEnrollHandler",
                 }))).rejects.toBeInstanceOf(VoucherNotSupportedForGatewayException)
                 expect(entityManager.exists).not.toHaveBeenCalled()
             })
+
+        it("propagates quote failures without creating a payment transaction",
+            async () => {
+                const failure = new Error("quote unavailable")
+                priceQuotes.quote.mockRejectedValueOnce(failure)
+
+                await expect(handler.execute(new CourseEnrollCommand({
+                    request: {
+                        courseId: "course-1",
+                        paymentType: PaymentType.Stripe,
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBe(failure)
+                expect(entityManager.create).not.toHaveBeenCalled()
+            })
     })

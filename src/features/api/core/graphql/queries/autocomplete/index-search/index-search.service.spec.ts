@@ -55,4 +55,24 @@ describe("IndexSearchService",
                     locale: "en",
                 } as never)).rejects.toBe(failure)
             })
+
+        it("returns an empty result without reshaping the query response",
+            async () => {
+                const queryBus = {
+                    execute: jest.fn().mockResolvedValue({
+                        items: []
+                    }),
+                }
+                const service = new IndexSearchService(queryBus as unknown as QueryBus)
+
+                await expect(service.execute({
+                    request: {
+                        query: "",
+                    },
+                    locale: "vi",
+                } as never)).resolves.toEqual({
+                    items: []
+                })
+                expect(queryBus.execute).toHaveBeenCalledTimes(1)
+            })
     })

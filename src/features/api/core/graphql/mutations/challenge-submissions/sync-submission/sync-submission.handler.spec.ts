@@ -348,4 +348,19 @@ describe("SyncSubmissionHandler",
                 expect(existing.submissionUrl).toBe("https://github.com/new/repo")
                 expect(entityManager.create).not.toHaveBeenCalled()
             })
+
+        it("rejects an unknown challenge submission before URL validation",
+            async () => {
+                const failure = new Error("submission missing")
+                entityManager.findOne.mockRejectedValueOnce(failure)
+
+                await expect(handler.execute(new SyncSubmissionCommand({
+                    request: {
+                        id: "missing",
+                        url: "https://github.com/new/repo",
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBe(failure)
+                expect(urlValidatorService.isValid).not.toHaveBeenCalled()
+            })
     })

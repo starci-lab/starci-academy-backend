@@ -302,4 +302,18 @@ describe("ForgotPasswordVerifyOtpHandler",
                 }))).rejects.toThrow()
                 expect(entityManager.findOne).not.toHaveBeenCalled()
             })
+
+        it("preserves OTP backend failures before token decoding",
+            async () => {
+                const failure = new Error("otp backend unavailable")
+                otpChallengeService.verifyActionChallenge.mockRejectedValueOnce(failure)
+
+                await expect(handler.execute(new ForgotPasswordVerifyOtpCommand({
+                    request: {
+                        challengeId: "chal-1",
+                        otp: "123456",
+                    },
+                }))).rejects.toBe(failure)
+                expect(jwtService.decode).not.toHaveBeenCalled()
+            })
     })

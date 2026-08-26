@@ -39,4 +39,20 @@ describe("TalentCandidatesResolver",
                     offset: 0,
                 })
             })
+        it("preserves ranking-service failures for callers",
+            async () => {
+                const failure = new Error("ranking unavailable")
+                const rankByTrack = jest.fn().mockRejectedValue(failure)
+
+                await expect(new TalentCandidatesResolver({
+                    rankByTrack,
+                } as never).execute("course-1",
+                    10,
+                    2)).rejects.toBe(failure)
+                expect(rankByTrack).toHaveBeenCalledWith({
+                    courseId: "course-1",
+                    limit: 10,
+                    offset: 2,
+                })
+            })
     })
