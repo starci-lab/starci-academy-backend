@@ -705,5 +705,38 @@ describe("AiInvokeService",
                             cost: 0,
                         }))
                     })
+
+                it("keeps stream totals unchanged for empty chunks without usage metadata",
+                    () => {
+                        const fold = (service as unknown as {
+                            foldStreamChunk: (chunk: unknown, totals: {
+                                text: string
+                                deltas: Array<string>
+                                promptTokens: number
+                                completionTokens: number
+                                cachedTokens: number
+                            }) => void
+                        }).foldStreamChunk.bind(service)
+                        const totals = {
+                            text: "prior",
+                            deltas: ["prior"],
+                            promptTokens: 3,
+                            completionTokens: 4,
+                            cachedTokens: 1,
+                        }
+
+                        fold({
+                            content: []
+                        },
+                        totals)
+
+                        expect(totals).toEqual({
+                            text: "prior",
+                            deltas: ["prior"],
+                            promptTokens: 3,
+                            completionTokens: 4,
+                            cachedTokens: 1,
+                        })
+                    })
             })
     })

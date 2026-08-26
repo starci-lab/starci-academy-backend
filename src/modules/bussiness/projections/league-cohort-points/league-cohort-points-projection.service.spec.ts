@@ -29,4 +29,42 @@ describe("LeagueCohortPointsProjectionService",
                 expect(manager.query).toHaveBeenCalledWith(expect.stringContaining("ON CONFLICT"),
                     ["cohort-1"])
             })
+
+        it("refreshes a stale cohort and normalizes missing point values",
+            async () => {
+                manager.findOne
+                    .mockResolvedValueOnce({
+                        updatedAt: new Date("2020-01-01"),
+                        value: {
+                            members: [{
+                                userId: "u1",
+                                username: "A",
+                                avatar: null,
+                                weekPoints: null,
+                            }],
+                        },
+                    })
+                    .mockResolvedValueOnce({
+                        updatedAt: new Date(),
+                        value: {
+                            members: [{
+                                userId: "u1",
+                                username: "A",
+                                avatar: null,
+                                weekPoints: null,
+                            }],
+                        },
+                    })
+
+                await expect(service.getMembers("cohort-2")).resolves.toEqual([{
+                    userId: "u1",
+                    username: "A",
+                    avatar: null,
+                    weekPoints: 0,
+                    rank: 1,
+                    rankDelta: null,
+                }])
+                expect(manager.query).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO"),
+                    ["cohort-2"])
+            })
     })

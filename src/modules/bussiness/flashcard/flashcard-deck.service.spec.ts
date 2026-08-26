@@ -164,6 +164,14 @@ describe("FlashcardDeckReadService",
                         await expect(service.listByCourse(courseId)).resolves.toEqual([])
                         expect(entityManager.find).toHaveBeenCalledTimes(1)
                     })
+
+                it("propagates database failures while listing course decks",
+                    async () => {
+                        const failure = new Error("database unavailable")
+                        entityManager.find.mockRejectedValueOnce(failure)
+
+                        await expect(service.listByCourse(courseId)).rejects.toBe(failure)
+                    })
             })
 
         describe("getById",

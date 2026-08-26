@@ -420,4 +420,30 @@ describe("LeagueService",
                         lastWeekRank: 11,
                     }))
             })
+        it("falls back to a rank after the visible entries when the viewer row is absent",
+            async () => {
+                entityManager.query
+                    .mockResolvedValueOnce([{
+                        id: "leader",
+                        username: "leader",
+                        avatar: null,
+                        points: "7",
+                        is_following: false,
+                    }])
+                    .mockResolvedValueOnce([])
+
+                await expect(service.getGlobalLeaderboard(userId,
+                    1)).resolves.toEqual({
+                    entries: [{
+                        userId: "leader",
+                        username: "leader",
+                        avatar: null,
+                        points: 7,
+                        rank: 1,
+                        isFollowing: false,
+                    }],
+                    myRank: 2,
+                    myPoints: 0,
+                })
+            })
     })

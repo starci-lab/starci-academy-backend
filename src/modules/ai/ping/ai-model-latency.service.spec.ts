@@ -442,5 +442,23 @@ describe("AiModelLatencyService",
 
                         expect(aiModelCatalogService.enabledModels).toHaveBeenCalled()
                     })
+
+                it("cancels staggered probes when the service is destroyed",
+                    async () => {
+                        setEnv({
+                            enabled: true,
+                        })
+                        aiModelCatalogService.enabledModels.mockResolvedValue([
+                            makeModel("pending-model",
+                                ModelProvider.OpenAI,
+                                AiModelCategory.High),
+                        ])
+
+                        await service.runCycle()
+                        service.onModuleDestroy()
+                        await jest.runAllTimersAsync()
+
+                        expect(useApiService.probeModel).not.toHaveBeenCalled()
+                    })
             })
     })

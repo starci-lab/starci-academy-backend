@@ -257,4 +257,17 @@ describe("CoursePriceQuoteService",
                     })],
                 }))
             })
+
+        it("propagates a pricing calculator failure for a non-empty quote",
+            async () => {
+                entityManager.find.mockRejectedValueOnce(
+                    new Error("pricing configuration missing"),
+                )
+
+                await expect(service.quote({
+                    userId: "user-1",
+                    courseIds: ["a"],
+                    intent: CoursePriceQuoteIntent.Discovery,
+                })).rejects.toThrow("pricing configuration missing")
+            })
     })

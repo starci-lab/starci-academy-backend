@@ -138,4 +138,18 @@ describe("VideoEncoderWorker",
                     error: "encoder unavailable",
                 })
             })
+
+        it("reports malformed queue data without starting a step",
+            async () => {
+                const h = make()
+                h.superJson.parse.mockImplementation(() => {
+                    throw new Error("invalid encoder payload")
+                })
+
+                await expect(h.worker.process(bull())).rejects.toThrow(
+                    "invalid encoder payload",
+                )
+                expect(h.step.process).not.toHaveBeenCalled()
+                expect(h.jobActionService.completeJob).not.toHaveBeenCalled()
+            })
     })

@@ -1195,6 +1195,44 @@ describe("UseApiService",
                             "eco-lo",
                         ])
                     })
+
+                it("orders chatting models by fresh latency and preserves ties by catalog order",
+                    async () => {
+                        const slow = row("slow",
+                            AiModelCategory.Low,
+                            ModelProvider.OpenAI)
+                        const fast = row("fast",
+                            AiModelCategory.Low,
+                            ModelProvider.OpenAI)
+                        const tie = row("tie",
+                            AiModelCategory.Low,
+                            ModelProvider.OpenAI)
+                        aiModelLatencyCacheService.getAll.mockResolvedValue(snapshot({
+                            slow: {
+                                ok: true, latencyMs: 200
+                            },
+                            fast: {
+                                ok: true, latencyMs: 20
+                            },
+                            tie: {
+                                ok: true, latencyMs: 20
+                            },
+                        }))
+
+                        const ordered = await reorder(
+                            [slow,
+                                fast,
+                                tie],
+                            [AiModelCategory.Low],
+                            AiModelTask.Chatting,
+                        )
+
+                        expect(ordered.map((model) => model.name)).toEqual([
+                            "fast",
+                            "tie",
+                            "slow",
+                        ])
+                    })
             })
 
         describe("availableProviders",
@@ -1279,6 +1317,27 @@ describe("UseApiService",
                         expect(aiPingCacheService.getProviderMap).toHaveBeenCalledWith(
                             ModelProvider.OpenAI,
                         )
+                    })
+
+                it("rejects an unsupported provider while building an action context",
+                    () => {
+                        const buildContext = (service as unknown as {
+                            buildContext: (provider: ModelProvider | string, key: string, model: string) => unknown
+                        }).buildContext.bind(service)
+
+                        for (const provider of Object.values(ModelProvider)) {
+                            expect(buildContext(provider,
+                                "key",
+                                "model")).toEqual(expect.objectContaining({
+                                provider,
+                                model: "model",
+                            }))
+                        }
+
+                        expect(() => buildContext("unsupported",
+                            "key",
+                            "model"))
+                            .toThrow(UnsupportedAiProviderException)
                     })
             })
     })

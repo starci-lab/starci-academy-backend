@@ -421,5 +421,21 @@ describe("CommunityPostService",
                             createdAt: "DESC",
                         })
                     })
+
+                it("returns an empty page when the feed has no matching rows",
+                    async () => {
+                        entityManager.findAndCount.mockResolvedValueOnce([
+                            [],
+                            0,
+                        ])
+
+                        await expect(service.listFeed({
+                            offset: 20,
+                            limit: 10,
+                        })).resolves.toEqual({
+                            posts: [],
+                            total: 0,
+                        })
+                    })
             })
     })

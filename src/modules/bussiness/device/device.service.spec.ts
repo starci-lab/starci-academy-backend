@@ -68,6 +68,19 @@ describe("DeviceService",
                         expect(entityManager.save).not.toHaveBeenCalled()
                     })
 
+                it("also skips whitespace-free empty fingerprints without a lookup",
+                    async () => {
+                        await service.recordDevice({
+                            userId,
+                            fingerprint: "",
+                            ipAddress: null,
+                            userAgent: null,
+                        })
+
+                        expect(entityManager.findOne).not.toHaveBeenCalled()
+                        expect(entityManager.save).not.toHaveBeenCalled()
+                    })
+
                 it("inserts a fresh device row on first sighting",
                     async () => {
                         // findOne default resolves null -> no existing row for this user+device

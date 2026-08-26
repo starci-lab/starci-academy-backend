@@ -201,6 +201,33 @@ describe("CommunityReactionService",
                         )
                     })
 
+                it("returns a zero summary when the post is changed but its bucket is unavailable",
+                    async () => {
+                        entityManager.count.mockResolvedValueOnce(1)
+                        jest.spyOn(service,
+                            "summarizePosts").mockResolvedValue({
+                        })
+
+                        await expect(service.reactToPost({
+                            postId,
+                            user,
+                            type: null,
+                        })).resolves.toEqual({
+                            counts: [],
+                            total: 0,
+                            myReaction: null,
+                            viewCount: 0,
+                            shareCount: 0,
+                        })
+                        expect(entityManager.delete).toHaveBeenCalled()
+                        expect(eventEmitterService.emit).toHaveBeenCalledWith({
+                            event: EventName.CommunityPostReactionChanged,
+                            payload: {
+                                postId
+                            },
+                        })
+                    })
+
                 it("uses the same atomic write when switching emotion",
                     async () => {
                         entityManager.count.mockResolvedValueOnce(1)
@@ -375,6 +402,41 @@ describe("CommunityReactionService",
                             viewCount: 0,
                             shareCount: 0,
                         })
+                    })
+
+                it("groups multiple reaction types into one post bucket for anonymous viewers",
+                    async () => {
+                        queryBuilder.getRawMany.mockResolvedValueOnce([
+                            {
+                                postId: "post-a",
+                                type: ReactionType.Like,
+                                count: "2",
+                            },
+                            {
+                                postId: "post-a",
+                                type: ReactionType.Love,
+                                count: "3",
+                            },
+                        ])
+
+                        const result = await service.summarizePosts({
+                            postIds: ["post-a"],
+                            userId: "",
+                        })
+
+                        expect(result["post-a"]).toEqual(expect.objectContaining({
+                            counts: [
+                                {
+                                    type: ReactionType.Like, count: 2
+                                },
+                                {
+                                    type: ReactionType.Love, count: 3
+                                },
+                            ],
+                            total: 5,
+                            myReaction: null,
+                        }))
+                        expect(entityManager.createQueryBuilder).toHaveBeenCalledTimes(1)
                     })
             })
 

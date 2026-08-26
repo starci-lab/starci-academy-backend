@@ -320,6 +320,7 @@ describe("MockInterviewGateway streaming policy",
                 gateway.afterInit()
 
                 expect(use).toHaveBeenCalledTimes(1)
+                expect(use.mock.calls[0][0]).toEqual(expect.any(Function))
             })
 
         it("normalizes transcript roles and flushes buffered chunks after charging",

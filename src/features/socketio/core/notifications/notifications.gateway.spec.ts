@@ -1,6 +1,9 @@
 import {
     NotificationsGateway
 } from "./notifications.gateway"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 
 describe("NotificationsGateway",
     () => {
@@ -73,5 +76,66 @@ response as never,
 
                 expect(response.error).toHaveBeenCalled()
                 expect(client.join).not.toHaveBeenCalled()
+            })
+
+        it("installs auth middleware and forwards created notifications to the recipient room",
+            () => {
+                const response = {
+                    error: jest.fn(),
+                    successToRoom: jest.fn(),
+                }
+                const on = jest.fn()
+                const gateway = new NotificationsGateway(
+                    {
+                        getUserByKeycloakId: jest.fn(),
+                    } as never,
+                    {
+                        name: jest.fn((id: string) => `notifications:${id}`),
+                    } as never,
+                    response as never,
+                    {
+                        on,
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                )
+                const middleware = jest.fn()
+                Object.assign(gateway,
+                    {
+                        server: {
+                            use: middleware,
+                        },
+                    })
+
+                gateway.afterInit()
+                gateway.onModuleInit()
+
+                expect(middleware).toHaveBeenCalled()
+                expect(on).toHaveBeenCalledWith(expect.objectContaining({
+                    event: EventName.NotificationCreated,
+                    listener: expect.any(Function),
+                }))
+                const listener = on.mock.calls[0][0].listener as (payload: {
+                    userId: string
+                    notification: {
+                        id: string
+                    }
+                }) => void
+                listener({
+                    userId: "u1",
+                    notification: {
+                        id: "n1",
+                    },
+                })
+
+                expect(response.successToRoom).toHaveBeenCalledWith(expect.objectContaining({
+                    room: "notifications:u1",
+                    data: {
+                        notification: {
+                            id: "n1",
+                        },
+                    },
+                }))
             })
     })

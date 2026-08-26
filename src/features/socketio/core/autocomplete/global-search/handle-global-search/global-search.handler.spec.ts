@@ -149,4 +149,29 @@ describe("GlobalSearchHandler",
                     entities[0],
                 )
             })
+
+        it("propagates a selected search failure instead of returning partial groups",
+            async () => {
+                const searchError = new Error("search index unavailable")
+                services.contentSearch.execute.mockRejectedValueOnce(searchError)
+
+                await expect(
+                    handler.execute(
+                        new GlobalSearchQuery({
+                            payload: {
+                                data: {
+                                    query: "api",
+                                    entities: [ContentEntity.name],
+                                },
+                                locale: "en",
+                            },
+                        } as never),
+                    ),
+                ).rejects.toBe(searchError)
+                expect(services.contentSearch.execute).toHaveBeenCalledWith({
+                    term: "api",
+                    size: 5,
+                    locale: "en",
+                })
+            })
     })

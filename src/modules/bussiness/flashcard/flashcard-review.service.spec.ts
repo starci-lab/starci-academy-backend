@@ -899,5 +899,46 @@ describe("FlashcardReviewService",
                         expect(result).toEqual([])
                         expect(entityManager.find).not.toHaveBeenCalled()
                     })
+
+                it("checks each premium course once and fails closed when its deck has no course",
+                    async () => {
+                        userService.checkEnrollment.mockResolvedValueOnce(true)
+                        const resolveEntitlement = (service as unknown as {
+                            resolveEntitlementByCourseId: (cards: Array<FlashcardCardEntity>, userId: string) => Promise<Map<string, boolean>>
+                        }).resolveEntitlementByCourseId.bind(service)
+                        const cards = [{
+                            id: "premium-1",
+                            isPremium: true,
+                            deck: {
+                                courseId
+                            },
+                        },
+                        {
+                            id: "premium-2",
+                            isPremium: true,
+                            deck: {
+                                courseId
+                            },
+                        },
+                        {
+                            id: "premium-no-course",
+                            isPremium: true,
+                            deck: null,
+                        },
+                        {
+                            id: "free",
+                            isPremium: false,
+                            deck: {
+                                courseId: "free-course"
+                            },
+                        }] as unknown as Array<FlashcardCardEntity>
+
+                        await expect(resolveEntitlement(cards,
+                            userId)).resolves.toEqual(new Map([[courseId,
+                            true]]))
+                        expect(userService.checkEnrollment).toHaveBeenCalledTimes(1)
+                        expect(userService.checkEnrollment).toHaveBeenCalledWith(userId,
+                            courseId)
+                    })
             })
     })

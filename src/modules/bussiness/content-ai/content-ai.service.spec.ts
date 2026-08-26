@@ -1,8 +1,8 @@
 import {
-    Test, TestingModule 
+    Test, TestingModule
 } from "@nestjs/testing"
 import {
-    getEntityManagerToken 
+    getEntityManagerToken
 } from "@nestjs/typeorm"
 import {
     AIMessage,
@@ -10,37 +10,37 @@ import {
     SystemMessage,
 } from "@langchain/core/messages"
 import {
-    ContentAiService 
+    ContentAiService
 } from "./content-ai.service"
 import {
-    S3NameResolverService 
+    S3NameResolverService
 } from "@modules/integrations/s3/s3-name-resolver.service"
 import {
-    S3ReadService 
+    S3ReadService
 } from "@modules/integrations/s3/s3-read.service"
 import {
-    CourseRagRetrievalService 
+    CourseRagRetrievalService
 } from "@modules/integrations/rag/course-rag-retrieval.service"
 import {
-    UserService 
+    UserService
 } from "../user/user.service"
 import {
-    Locale 
+    Locale
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    ContentAiSessionTitleTooLongException 
+    ContentAiSessionTitleTooLongException
 } from "@modules/platform/exceptions/errors/courses/content-ai-session-title-too-long"
 import {
-    ContentNotFoundException 
+    ContentNotFoundException
 } from "@modules/platform/exceptions/errors/courses/content-not-found"
 import {
-    PremiumContentAiAccessDeniedException 
+    PremiumContentAiAccessDeniedException
 } from "@modules/platform/exceptions/errors/courses/premium-content-ai-access-denied"
 import {
-    makeEntityManagerMock 
+    makeEntityManagerMock
 } from "@tests/mocks/entity-manager.mock"
 import type {
-    EntityManagerMock 
+    EntityManagerMock
 } from "@tests/mocks/entity-manager.mock"
 
 // Control the hybrid stuff-vs-RAG threshold deterministically while keeping the
@@ -2660,6 +2660,12 @@ describe("ContentAiService",
                                 })
 
                                 expect(entityManager.query).toHaveBeenCalledTimes(1)
+                                expect(entityManager.query.mock.calls[0][0]).toContain(
+                                    "WHERE s.id = $1",
+                                )
+                                expect(entityManager.query.mock.calls[0][0]).toContain(
+                                    "e.user_id = $2 OR s.user_id = $2",
+                                )
                             })
                     })
             })

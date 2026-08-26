@@ -48,4 +48,32 @@ describe("RestTransformInterceptor",
                     }
                 })
             })
+
+        it("uses Axios status and scalar response messages for non-Nest errors",
+            async () => {
+                const interceptor = new RestTransformInterceptor({
+                    get: jest.fn(),
+                } as never)
+                const promise = firstValueFrom(interceptor.intercept(context,
+                    {
+                        handle: () => throwError(() => ({
+                            response: {
+                                status: 429,
+                                data: {
+                                    message: "Too many requests",
+                                    error: "RateLimited",
+                                },
+                            },
+                        })),
+                    } as never))
+
+                await expect(promise).rejects.toMatchObject({
+                    status: 429,
+                    response: {
+                        success: false,
+                        message: "Too many requests",
+                        error: "RateLimited",
+                    },
+                })
+            })
     })

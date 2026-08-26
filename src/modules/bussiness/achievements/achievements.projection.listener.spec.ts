@@ -70,4 +70,23 @@ describe("AchievementProjectionListener",
                 invalidate.mockRejectedValueOnce(failure)
                 await expect(listener.recomputeTarget("user-2")).rejects.toBe(failure)
             })
+
+        it("deduplicates targets when a CDC row carries the same actor and owner",
+            () => {
+                const { listener } = makeListener()
+
+                expect(listener.deriveTargets({
+                    topic: "cdc.content_comments",
+                    row: {
+                        user_id: "same-user",
+                        owner_id: "same-user",
+                    },
+                })).toEqual(["same-user"])
+                expect(listener.deriveTargets({
+                    topic: "cdc.xp_histories",
+                    row: {
+                        user_id: "ignored",
+                    },
+                })).toEqual(["ignored"])
+            })
     })

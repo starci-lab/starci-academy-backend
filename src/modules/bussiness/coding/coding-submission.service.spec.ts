@@ -413,5 +413,27 @@ describe("CodingSubmissionService",
                             firstSolvedAt: solvedAt,
                         })
                     })
+
+                it("defaults missing numeric aggregates while retaining the accepted timestamp",
+                    async () => {
+                        const solvedAt = "2026-08-26T01:00:00.000Z"
+                        entityManager.query.mockResolvedValueOnce([{
+                            languages: [],
+                            passed_count: null,
+                            total_count: undefined,
+                            first_solved_at: solvedAt,
+                        }])
+
+                        await expect(service.getAcceptedSummary({
+                            userId,
+                            problemId: "problem-1",
+                        })).resolves.toEqual({
+                            languages: [],
+                            verdict: CodingVerdict.Accepted,
+                            passedCount: 0,
+                            totalCount: 0,
+                            firstSolvedAt: solvedAt,
+                        })
+                    })
             })
     })

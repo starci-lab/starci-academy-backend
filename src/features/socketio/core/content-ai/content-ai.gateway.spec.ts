@@ -1,23 +1,23 @@
 import {
-    HumanMessage 
+    HumanMessage
 } from "@langchain/core/messages"
 import {
-    ContentAiService 
+    ContentAiService
 } from "@modules/bussiness/content-ai/content-ai.service"
 import {
-    ContentAiTurnEntity 
+    ContentAiTurnEntity
 } from "@modules/databases/postgresql/primary/entities/content-ai-turn.entity"
 import {
-    ModelProvider 
+    ModelProvider
 } from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
-    AddDurableContentAiTurns1787600000000 
+    AddDurableContentAiTurns1787600000000
 } from "@modules/databases/postgresql/primary/migrations/1787600000000-AddDurableContentAiTurns"
 import {
-    SubscriptionEvent 
+    SubscriptionEvent
 } from "../enums/subscription-event"
 import {
-    ContentAiGateway 
+    ContentAiGateway
 } from "./content-ai.gateway"
 
 const CLIENT = {
@@ -555,6 +555,30 @@ PAYLOAD as never)
         } as never,
                     ),
                 ).not.toThrow()
+            })
+
+        it("rejects a missing socket identity before claiming a durable turn",
+            async () => {
+                const harness = createHarness()
+                const client = {
+                    id: "socket-2",
+                    data: {
+                    },
+                }
+
+                await harness.gateway.handleAskContentAi(
+                    client as never,
+                    PAYLOAD as never,
+                )
+
+                expect(harness.contentAiService.acquireTurn).not.toHaveBeenCalled()
+                expect(harness.wsResponseService.success).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        data: expect.objectContaining({
+                            error: expect.any(String),
+                        }),
+                    }),
+                )
             })
     })
 

@@ -64,4 +64,40 @@ describe("ReconnectionGateway",
                 expect(emit).toHaveBeenCalledWith("chat",
                     message)
             })
+
+        it("uses an anonymous identity when chat arrives before a join",
+            () => {
+                const emit = jest.fn()
+                const message = {
+                    seq: 1,
+                    text: "hello",
+                }
+                const store = {
+                    append: jest.fn().mockReturnValue(message),
+                }
+                const gateway = new ReconnectionGateway(store as never)
+                Object.assign(gateway,
+                    {
+                        server: {
+                            to: jest.fn().mockReturnValue({
+                                emit,
+                            }),
+                        },
+                    })
+
+                expect(gateway.handleChat({
+                    data: {
+                    },
+                } as never,
+                {
+                    roomId: "r",
+                    text: "hello",
+                })).toEqual({
+                    ok: true,
+                    seq: 1,
+                })
+                expect(store.append).toHaveBeenCalledWith("r",
+                    "anon",
+                    "hello")
+            })
     })

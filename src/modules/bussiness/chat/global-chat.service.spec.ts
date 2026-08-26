@@ -352,6 +352,25 @@ describe("GlobalChatService",
                 })
             })
 
+        it("defaults room state for a member without participation or read state",
+            async () => {
+                manager.findOne
+                    .mockResolvedValueOnce(room)
+                    .mockResolvedValueOnce(null)
+                policy.assertCanRead.mockResolvedValueOnce(null)
+                manager.count.mockResolvedValueOnce(0)
+
+                await expect(service.roomState(user)).resolves.toEqual({
+                    conversationId: room.id,
+                    accessState: "active",
+                    canWrite: true,
+                    notificationsMuted: false,
+                    unreadCount: 0,
+                    mentionCount: 0,
+                    lastReadMessageId: null,
+                })
+            })
+
         it("projects reactions, mentions and removed-message state from history",
             async () => {
                 const createdAt = new Date("2026-08-25T12:00:00.000Z")
@@ -550,6 +569,17 @@ describe("GlobalChatService",
                         version: 3,
                     }),
                 )
+                const builders = manager.createQueryBuilder.mock.results
+                    .map((result) => result.value as ReturnType<typeof queryBuilder>)
+                const versionExpressions = builders
+                    .flatMap((builder) => builder.set.mock.calls)
+                    .map((call) => (call[0] as { version?: () => string }).version)
+                    .filter((version): version is () => string => typeof version === "function")
+                expect(versionExpressions).toHaveLength(2)
+                expect(versionExpressions.map((version) => version())).toEqual([
+                    "\"version\" + 1",
+                    "\"version\" + 1",
+                ])
             })
 
         it("advances read state only when the selected message is newer",
@@ -703,6 +733,34 @@ describe("GlobalChatService",
                         reason: "repeated abuse",
                     }),
                 )
+                await expect(service.moderate({
+                    user,
+                    commandId: "moderate-remove-1",
+                    caseId: "case-1",
+                    action: "remove",
+                    reason: "remove content",
+                    expectedVersion: 2,
+                })).resolves.toEqual(expect.objectContaining({
+                    status: "actioned",
+                    version: 3,
+                }))
+                await expect(service.moderate({
+                    user,
+                    commandId: "moderate-restore-1",
+                    caseId: "case-1",
+                    action: "restore",
+                    reason: "reviewed",
+                    expectedVersion: 3,
+                })).resolves.toEqual(expect.objectContaining({
+                    status: "actioned",
+                    version: 4,
+                }))
+                const updateCalls = manager.update.mock.calls
+                expect(updateCalls.length).toBeGreaterThanOrEqual(1)
+                const restoreUpdate = updateCalls.at(-1)?.[2] as {
+                    version?: () => string
+                }
+                expect(restoreUpdate.version?.()).toBe("\"version\" + 1")
             })
 
         it("updates role and notification preference through canonical participation",
@@ -753,6 +811,15 @@ describe("GlobalChatService",
                     }),
                 ).rejects.toMatchObject({
                     code: "GLOBAL_CHAT_MESSAGE_BODY_INVALID",
+                })
+                await expect(
+                    service.sendMessage({
+                        user,
+                        commandId: "send-unsafe-link",
+                        body: "See http://[bad",
+                    }),
+                ).rejects.toMatchObject({
+                    code: "GLOBAL_CHAT_MESSAGE_LINK_INVALID",
                 })
                 await expect(
                     service.sendMessage({
@@ -854,6 +921,65 @@ describe("GlobalChatService",
                     }),
                 ).rejects.toMatchObject({
                     code: "GLOBAL_CHAT_REMOVE_VERSION_CONFLICT",
+                })
+            })
+
+        it("rejects missing reply, read target, report message, and moderation case",
+            async () => {
+                manager.findOne.mockImplementation(async (target: { name?: string }) =>
+                    target.name === "ChatConversationEntity" ? room : null)
+
+                await expect(service.sendMessage({
+                    user,
+                    commandId: "missing-reply",
+                    body: "hello",
+                    replyToId: "reply-missing",
+                })).rejects.toMatchObject({
+                    code: "GLOBAL_CHAT_REPLY_TARGET_INVALID",
+                })
+
+                await expect(service.markRead({
+                    user,
+                    commandId: "missing-read",
+                    messageId: "message-missing",
+                })).rejects.toMatchObject({
+                    code: "GLOBAL_CHAT_MESSAGE_NOT_FOUND",
+                })
+
+                await expect(service.report({
+                    user,
+                    commandId: "missing-report",
+                    messageId: "message-missing",
+                    category: "spam",
+                })).rejects.toMatchObject({
+                    code: "GLOBAL_CHAT_MESSAGE_NOT_FOUND",
+                })
+
+                await expect(service.moderate({
+                    user,
+                    commandId: "missing-moderation",
+                    caseId: "case-missing",
+                    action: "dismiss",
+                    reason: "reviewed",
+                    expectedVersion: 1,
+                })).rejects.toMatchObject({
+                    code: "GLOBAL_CHAT_MODERATION_CASE_NOT_FOUND",
+                })
+                await expect(service.report({
+                    user,
+                    commandId: "missing-category",
+                    reportedUserId: "member-2",
+                    category: " ",
+                })).rejects.toMatchObject({
+                    code: "GLOBAL_CHAT_REPORT_CATEGORY_REQUIRED",
+                })
+
+                await expect(service.setNotificationsMuted({
+                    user,
+                    commandId: "missing-participation",
+                    muted: true,
+                })).rejects.toMatchObject({
+                    code: "GLOBAL_CHAT_PARTICIPATION_NOT_FOUND",
                 })
             })
 
