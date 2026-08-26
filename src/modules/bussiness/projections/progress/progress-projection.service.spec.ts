@@ -243,6 +243,23 @@ describe("ProgressProjectionService",
 
                         expect(result).toBeNull()
                     })
+
+                it("normalizes missing leaderboard metrics to zero for a positive-XP row",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([{
+                            total_xp: 10,
+                        }])
+
+                        await expect(service.getMyRank(courseId,
+                            userId)).resolves.toEqual({
+                            rank: 1,
+                            totalScore: 0,
+                            completedChallenges: 0,
+                            lessonsRead: 0,
+                            milestoneProgress: 0,
+                            totalXp: 10,
+                        })
+                    })
             })
 
         describe("recompute paths",

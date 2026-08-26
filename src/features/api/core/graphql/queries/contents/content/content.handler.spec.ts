@@ -55,6 +55,12 @@ import type {
     ContentEntity,
 } from "@modules/databases/postgresql/primary/entities/content.entity"
 import type {
+    ContentBodyEntity,
+} from "@modules/databases/postgresql/primary/entities/content-body.entity"
+import type {
+    ContentBodyTranslationEntity,
+} from "@modules/databases/postgresql/primary/entities/content-body-translation.entity"
+import type {
     ContentLearningOutcomeEntity,
 } from "@modules/databases/postgresql/primary/entities/content-learning-outcome.entity"
 import type {
@@ -75,7 +81,13 @@ const fakeUser = (
  * Build the S3 content document the read service hands back. The body carries a
  * testing-section heading so the premium-lock truncation has a cut point.
  */
-type ContentSnapshotOverrides = Partial<Omit<ContentEntity, "outcomes">> & {
+type ContentBodySnapshotOverrides = Omit<Partial<ContentBodyEntity>, "translations"> & {
+    translations?: Array<Partial<ContentBodyTranslationEntity>>
+}
+
+type ContentSnapshotOverrides = Partial<Omit<ContentEntity, "outcomes" | "body" | "bodies">> & {
+    body?: ContentEntity["body"] | null
+    bodies?: Array<ContentBodySnapshotOverrides>
     outcomes?: Array<Pick<ContentLearningOutcomeEntity, "id" | "text">>
 }
 
@@ -472,5 +484,60 @@ describe("ContentHandler",
                 expect(result.body).not.toContain("secret answer")
                 // no user id -> entitlement is denied without an enrollment check
                 expect(userService.checkEnrollment).not.toHaveBeenCalled()
+            })
+
+        it("locks null and translated bodies with safe teaser fallbacks",
+            async () => {
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "c1",
+                    isPremium: true,
+                })
+                s3ReadService.json.mockResolvedValueOnce(buildS3Content({
+                    isPremium: true,
+                    body: null,
+                    bodies: [
+                        {
+                            body: "```typescript\nconst value = 1",
+                            translations: [
+                                {
+                                    body: null,
+                                },
+                            ],
+                        },
+                    ],
+                }))
+
+                const result = await handler.execute(new ContentQuery({
+                    request: {
+                        id: "c1",
+                    },
+                }))
+
+                expect(result.body).toBe("")
+                expect(result.bodies[0].body).toBe("```typescript\nconst value = 1")
+                expect(result.bodies[0].translations[0].body).toBe("")
+                expect(result.codeExplainings).toEqual([])
+            })
+
+        it("truncates a long premium body without a testing heading",
+            async () => {
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "c1",
+                    isPremium: true,
+                })
+                const longBody = "intro ".repeat(700) + "\n`````"
+                s3ReadService.json.mockResolvedValueOnce(buildS3Content({
+                    isPremium: true,
+                    body: longBody,
+                }))
+
+                const result = await handler.execute(new ContentQuery({
+                    request: {
+                        id: "c1",
+                    },
+                }))
+
+                expect(result.body.length).toBeLessThanOrEqual(4_000)
+                expect(result.codeImplementations).toEqual([])
             })
     })

@@ -246,6 +246,19 @@ describe("CourseRagRetrievalService",
                 expect(fromExistingCollection).not.toHaveBeenCalled()
             })
 
+        it("degrades a non-Error course-search failure to an empty result",
+            async () => {
+                embeddingModelService.getViaBalancer.mockRejectedValueOnce("qdrant offline")
+
+                await expect(service.searchCourse({
+                    courseId: "course-failed",
+                    query: "hooks",
+                })).resolves.toEqual({
+                    hits: [],
+                })
+                expect(embeddingModelService.getViaBalancer).toHaveBeenCalled()
+            })
+
         it("collapses course search chunks to the best score per source",
             async () => {
                 const similaritySearchWithScore = jest.fn().mockResolvedValue([

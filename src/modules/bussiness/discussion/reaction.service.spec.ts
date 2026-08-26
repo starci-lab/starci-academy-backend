@@ -313,6 +313,27 @@ describe("ReactionService",
                         expect(result.total).toBe(0)
                         expect(result.myReaction).toBeNull()
                     })
+
+                it("removes a course-general comment reaction without emitting a content event",
+                    async () => {
+                        entityManager.findOne
+                            .mockResolvedValueOnce({
+                                id: commentId,
+                                contentId: null,
+                            })
+                            .mockResolvedValueOnce(null)
+
+                        await expect(service.reactToComment({
+                            commentId,
+                            user,
+                            type: null,
+                        })).resolves.toEqual(expect.objectContaining({
+                            total: 0,
+                            myReaction: null,
+                        }))
+                        expect(entityManager.remove).not.toHaveBeenCalled()
+                        expect(eventEmitterService.emit).not.toHaveBeenCalled()
+                    })
             })
 
         describe("reactToActivity",
@@ -327,6 +348,23 @@ describe("ReactionService",
                             type: ReactionType.Like,
                         })).rejects.toBeInstanceOf(ActivityNotFoundException)
                         expect(entityManager.findOne).not.toHaveBeenCalled()
+                    })
+
+                it("rejects a self-owned activity before reading or writing a reaction",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([{
+                            userId: user.id,
+                        }])
+
+                        await expect(service.reactToActivity({
+                            activityId: "activity-1",
+                            user,
+                            type: ReactionType.Like,
+                        })).rejects.toMatchObject({
+                            code: "ACTIVITY_SELF_REACTION_EXCEPTION",
+                        })
+                        expect(entityManager.findOne).not.toHaveBeenCalled()
+                        expect(entityManager.save).not.toHaveBeenCalled()
                     })
 
                 it("creates an activity reaction and maps grouped counts plus mine",

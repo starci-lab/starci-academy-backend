@@ -370,5 +370,20 @@ describe("ModuleParserService",
                     })
             },
         )
+
+        it("coerces module premium and content tier values with safe defaults",
+            () => {
+                const parser = service as unknown as {
+                    toBoolean: (value: unknown) => boolean
+                    toContentTier: (value: unknown) => CourseContentTier
+                }
+                expect(parser.toBoolean(true)).toBe(true)
+                expect(parser.toBoolean(" TRUE ")).toBe(true)
+                expect(parser.toBoolean("false")).toBe(false)
+                expect(parser.toBoolean(undefined)).toBe(false)
+                expect(parser.toContentTier(" ADVANCED ")).toBe(CourseContentTier.Advanced)
+                expect(parser.toContentTier("unrecognised")).toBe(CourseContentTier.Foundation)
+                expect(parser.toContentTier(null)).toBe(CourseContentTier.Foundation)
+            })
     },
 )

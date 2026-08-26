@@ -717,5 +717,29 @@ describe("ChallengeParserService",
                 expect(parser.toSortIndex(undefined,
                     1)).toBe(1)
             })
+
+        it("returns an empty rubric when criteria are absent rather than malformed",
+            () => {
+                const parser = service as unknown as {
+                    parseCriteria: (params: Record<string, unknown>) => {
+                        rows: Array<unknown>
+                        totalScore: number
+                    }
+                }
+
+                expect(parser.parseCriteria({
+                    criteria: undefined,
+                    kind: "outcome",
+                    challengeSubmissionId: "submission-id",
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                    challengeIndex: 0,
+                    submissionIndex: 0,
+                })).toEqual({
+                    rows: [],
+                    totalScore: 0,
+                })
+            })
     },
 )

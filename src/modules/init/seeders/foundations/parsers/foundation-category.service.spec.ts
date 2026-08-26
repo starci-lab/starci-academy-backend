@@ -219,4 +219,39 @@ describe("FoundationCategoryParserService",
                 categoryIndex: 2,
             })).rejects.toThrow(FoundationCategoryPathNotFoundException)
         })
+
+    it("resolves a relative thumbnail key without altering an absolute URL",
+        () => {
+            const buildPublicObjectUrl = jest.fn().mockReturnValue("https://minio.test/thumb.png")
+            const service = new FoundationCategoryParserService(
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                    log: jest.fn(),
+                } as never,
+                {
+                    buildPublicObjectUrl,
+                } as never,
+            )
+            const resolveThumbnailUrl = (service as unknown as {
+                resolveThumbnailUrl: (value: string | null) => string | null
+            }).resolveThumbnailUrl.bind(service)
+
+            expect(resolveThumbnailUrl("https://cdn.test/thumb.png"))
+                .toBe("https://cdn.test/thumb.png")
+            expect(resolveThumbnailUrl("/assets/thumb.png"))
+                .toBe("https://minio.test/thumb.png")
+            expect(resolveThumbnailUrl(null)).toBeNull()
+            expect(buildPublicObjectUrl).toHaveBeenCalledWith(expect.objectContaining({
+                key: "assets/thumb.png",
+            }))
+        })
     })

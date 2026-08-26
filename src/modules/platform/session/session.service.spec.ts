@@ -559,4 +559,43 @@ describe("SessionService",
                         expect(info.deviceType).toBe("desktop")
                     })
             })
+
+        it("treats missing and corrupt Redis records as absent and decodes valid subjects",
+            () => {
+                const helpers = service as unknown as {
+                    parseRecord: (raw: string | undefined) => unknown
+                    extractSubject: (token: string) => string | undefined
+                }
+
+                expect(helpers.parseRecord(undefined)).toBeNull()
+                expect(helpers.parseRecord("not-json")).toBeNull()
+                expect(helpers.parseRecord(JSON.stringify({
+                    sessionId: "session-1",
+                }))).toEqual({
+                    sessionId: "session-1",
+                })
+                expect(helpers.extractSubject("not-a-token")).toBeUndefined()
+                expect(helpers.extractSubject(makeToken("user-1"))).toBe("user-1")
+            })
+
+        it("heals WRONGTYPE hash reads while propagating unrelated Redis failures",
+            async () => {
+                const helpers = service as unknown as {
+                    readActiveCount: (key: string) => Promise<number>
+                    readSessionMap: (key: string) => Promise<Record<string, string>>
+                    readSessionIds: (key: string) => Promise<Array<string>>
+                }
+                redis.hlen.mockRejectedValueOnce(new Error("WRONGTYPE legacy"))
+                await expect(helpers.readActiveCount("sessions:user-1")).resolves.toBe(0)
+                expect(redis.del).toHaveBeenCalledWith("sessions:user-1")
+
+                redis.hgetall.mockRejectedValueOnce(new Error("WRONGTYPE legacy"))
+                await expect(helpers.readSessionMap("sessions:user-1")).resolves.toEqual({
+                })
+                redis.hkeys.mockRejectedValueOnce(new Error("WRONGTYPE legacy"))
+                await expect(helpers.readSessionIds("sessions:user-1")).resolves.toEqual([])
+
+                redis.hlen.mockRejectedValueOnce(new Error("redis unavailable"))
+                await expect(helpers.readActiveCount("sessions:user-1")).rejects.toThrow("redis unavailable")
+            })
     })

@@ -580,6 +580,31 @@ PAYLOAD as never)
                     }),
                 )
             })
+
+        it("passes a complete pinned model selection through to the invoke boundary",
+            async () => {
+                const harness = createHarness()
+                const payload = {
+                    locale: "en",
+                    data: {
+                        ...PAYLOAD.data,
+                        model: "gpt-pinned",
+                        provider: ModelProvider.Local,
+                    },
+                }
+
+                await harness.gateway.handleAskContentAi(CLIENT as never,
+                    payload as never)
+
+                expect(harness.aiInvokeService.run).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        selection: {
+                            model: "gpt-pinned",
+                            provider: ModelProvider.Local,
+                        },
+                    }),
+                )
+            })
     })
 
 describe("ContentAiService durable turn journal",

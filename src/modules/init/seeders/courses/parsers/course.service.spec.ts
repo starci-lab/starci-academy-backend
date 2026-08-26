@@ -866,5 +866,21 @@ describe("CourseParserService",
                             courseIndex: 5,
                         })).resolves.toBeNull()
                     })
+
+                it("resolves cover keys through MinIO while preserving absolute and empty values",
+                    () => {
+                        const resolver = service as unknown as {
+                            resolveCoverImageUrl: (value: string | null | undefined) => string | undefined
+                        }
+
+                        expect(resolver.resolveCoverImageUrl("https://cdn.test/course.png"))
+                            .toBe("https://cdn.test/course.png")
+                        expect(resolver.resolveCoverImageUrl("///assets/course.png"))
+                            .toBe("https://minio.test/public/assets/course.png")
+                        expect(resolver.resolveCoverImageUrl("   ")).toBeUndefined()
+                        expect(buildPublicObjectUrl).toHaveBeenCalledWith(expect.objectContaining({
+                            key: "assets/course.png",
+                        }))
+                    })
             })
     })

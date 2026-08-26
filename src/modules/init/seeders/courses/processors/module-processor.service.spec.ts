@@ -255,4 +255,59 @@ describe("ModuleProcessorService",
 
                 expect(processContent).not.toHaveBeenCalled()
             })
+
+        it("removes deleted modules from the content-processing follow-up",
+            async () => {
+                const processContent = jest.fn().mockResolvedValue(undefined)
+                const persist = jest.fn().mockResolvedValue(undefined)
+                const service = new ModuleProcessorService(
+                    {
+                        parse: jest.fn().mockResolvedValue({
+                            id: "module-1",
+                            orderIndex: 0,
+                        }),
+                    } as never,
+                    {
+                        paths: jest.fn().mockResolvedValue([{
+                            orderIndex: 0,
+                            relativePath: "module-1",
+                            displayId: "module-1",
+                        }]),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                    {
+                        partitionUuidSync: jest.fn().mockResolvedValue({
+                            createEntities: [],
+                            updateEntities: [],
+                            deleteEntities: [{
+                                id: "module-1",
+                                orderIndex: 0,
+                            }],
+                        }),
+                    } as never,
+                    {
+                        process: persist,
+                    } as never,
+                    {
+                        process: processContent,
+                    } as never,
+                )
+
+                await service.process({
+                    courseResult,
+                    moduleIndexFilterByDisplayId: null,
+                })
+
+                expect(persist).toHaveBeenCalledWith(expect.objectContaining({
+                    partition: expect.objectContaining({
+                        deleteEntities: [{
+                            id: "module-1",
+                            orderIndex: 0,
+                        }],
+                    }),
+                }))
+                expect(processContent).not.toHaveBeenCalled()
+            })
     })

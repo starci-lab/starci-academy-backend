@@ -442,5 +442,18 @@ describe("MilestoneTaskParserService",
                     }),
                 ])
             })
+
+        it("uses the task ordinal when sortIndex is missing or not finite",
+            () => {
+                const parser = service as unknown as {
+                    toSortIndex: (value: unknown, fallback: number) => number
+                }
+                expect(parser.toSortIndex(undefined,
+                    4)).toBe(4)
+                expect(parser.toSortIndex("NaN",
+                    4)).toBe(4)
+                expect(parser.toSortIndex(" 6 ",
+                    4)).toBe(6)
+            })
     },
 )

@@ -738,5 +738,64 @@ describe("AiInvokeService",
                             cachedTokens: 1,
                         })
                     })
+
+                it("handles absent, pre-aborted, and live caller signals",
+                    () => {
+                        const linkCallerAbort = (service as unknown as {
+                            linkCallerAbort: (signal: AbortSignal | undefined, controller: AbortController, onAbort: () => void) => void
+                        }).linkCallerAbort
+                        const noSignalController = new AbortController()
+                        linkCallerAbort(undefined,
+                            noSignalController,
+                            jest.fn())
+                        expect(noSignalController.signal.aborted).toBe(false)
+
+                        const preAbortedController = new AbortController()
+                        const preAborted = new AbortController()
+                        preAborted.abort()
+                        linkCallerAbort(preAborted.signal,
+                            preAbortedController,
+                            jest.fn())
+                        expect(preAbortedController.signal.aborted).toBe(true)
+
+                        const liveController = new AbortController()
+                        const onAbort = jest.fn(() => liveController.abort())
+                        linkCallerAbort(new AbortController().signal,
+                            liveController,
+                            onAbort)
+                        expect(liveController.signal.aborted).toBe(false)
+                    })
+
+                it("classifies timeout, caller abort, and provider failures distinctly",
+                    () => {
+                        const classify = (service as unknown as {
+                            classifyStreamFailure: (params: {
+                                error: unknown
+                                timedOut: boolean
+                                signal?: AbortSignal
+                            }) => unknown
+                        }).classifyStreamFailure.bind(service)
+                        const original = new Error("provider")
+                        const aborted = new AbortController()
+                        aborted.abort()
+
+                        expect(classify({
+                            error: original,
+                            timedOut: true,
+                        })).toMatchObject({
+                            message: expect.stringContaining("timed out"),
+                        })
+                        expect(classify({
+                            error: original,
+                            timedOut: false,
+                            signal: aborted.signal,
+                        })).toMatchObject({
+                            name: "AbortError",
+                        })
+                        expect(classify({
+                            error: original,
+                            timedOut: false,
+                        })).toBe(original)
+                    })
             })
     })

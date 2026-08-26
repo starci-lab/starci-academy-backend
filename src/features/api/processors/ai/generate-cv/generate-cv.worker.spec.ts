@@ -189,4 +189,23 @@ describe("GenerateCvWorker",
                 expect(h.step.process).not.toHaveBeenCalled()
                 expect(h.jobActionService.completeJob).not.toHaveBeenCalled()
             })
+
+        it("completes an already-finished generation without dispatching steps",
+            async () => {
+                const h = make()
+                h.jobActionService.getJob.mockResolvedValue({
+                    ...h.job,
+                    currentStep: 2,
+                    maxSteps: 2,
+                })
+
+                await expect(h.worker.process({
+                    ...bull(),
+                    id: undefined,
+                } as never)).resolves.toBeUndefined()
+
+                expect(h.step.process).not.toHaveBeenCalled()
+                expect(h.jobActionService.completeJob).toHaveBeenCalled()
+                expect(h.winstonService.log).toHaveBeenCalled()
+            })
     })

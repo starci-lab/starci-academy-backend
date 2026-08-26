@@ -322,4 +322,30 @@ describe("SyncSubmissionHandler",
                     existing,
                 )
             })
+
+        it("updates an existing row when a non-empty URL is synced",
+            async () => {
+                const existing = {
+                    id: "ucs-3",
+                    submissionUrl: "https://github.com/old/repo",
+                }
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-3",
+                        type: "githubUrl",
+                    })
+                    .mockResolvedValueOnce(existing)
+
+                await handler.execute(new SyncSubmissionCommand({
+                    request: {
+                        id: "sub-3",
+                        url: "https://github.com/new/repo",
+                    },
+                    user: fakeUser("user-1"),
+                }))
+
+                expect(urlValidatorService.isValid).toHaveBeenCalled()
+                expect(existing.submissionUrl).toBe("https://github.com/new/repo")
+                expect(entityManager.create).not.toHaveBeenCalled()
+            })
     })

@@ -191,6 +191,19 @@ describe("RewardsService",
                 expect(service.getReward(STREAK_FREEZE_REWARD_KEY)?.key).toBe(STREAK_FREEZE_REWARD_KEY)
             })
 
+        it("localizes catalog titles and descriptions for English learners",
+            () => {
+                const catalog = service.getCatalog(Locale.En)
+                const vietnameseTitle = service.getCatalog(Locale.Vi)
+                    .find((reward) => reward.key === STREAK_FREEZE_REWARD_KEY)?.title
+
+                expect(catalog.length).toBeGreaterThan(0)
+                expect(catalog.every((reward) => reward.title.length > 0 && reward.description.length > 0)).toBe(true)
+                expect(catalog.find((reward) => reward.key === STREAK_FREEZE_REWARD_KEY)?.title).not.toBe(
+                    vietnameseTitle,
+                )
+            })
+
         it("defaults an absent spent aggregate and empty redemption history",
             async () => {
                 entityManager.findOneOrFail.mockResolvedValueOnce({

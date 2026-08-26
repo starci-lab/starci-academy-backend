@@ -419,5 +419,18 @@ describe("FlashcardDeckParserService",
                 ])
                 expect(merge).toHaveBeenCalledTimes(2)
             })
+
+        it("normalizes finite and malformed card sort indexes consistently",
+            () => {
+                const parser = service as unknown as {
+                    toSortIndex: (value: unknown, fallback: number) => number
+                }
+                expect(parser.toSortIndex(" 8 ",
+                    2)).toBe(8)
+                expect(parser.toSortIndex(Number.POSITIVE_INFINITY,
+                    2)).toBe(2)
+                expect(parser.toSortIndex(null,
+                    2)).toBe(0)
+            })
     },
 )

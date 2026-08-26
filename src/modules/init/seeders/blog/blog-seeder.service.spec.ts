@@ -210,4 +210,42 @@ describe("BlogSeederService",
 
             expect(load).not.toHaveBeenCalled()
         })
+
+    it("pairs trimmed bilingual values and returns null only when both sides are empty",
+        () => {
+            const service = new BlogSeederService({
+            } as never,
+            {
+            } as never,
+            {
+            } as never,
+            {
+            } as never,
+            {
+            } as never,
+            {
+            } as never)
+            const internals = service as unknown as {
+                pair: (en: string | undefined, vi: string | undefined) => { en: string; vi: string } | null
+                pairNullable: (en: string | undefined, vi: string | undefined) => { en: string; vi: string } | null
+            }
+
+            expect(internals.pair("  English ",
+                undefined)).toEqual({
+                en: "English",
+                vi: "English",
+            })
+            expect(internals.pair(undefined,
+                " Vietnamese ")).toEqual({
+                en: "Vietnamese",
+                vi: "Vietnamese",
+            })
+            expect(internals.pair(" ",
+                undefined)).toBeNull()
+            expect(internals.pairNullable("English",
+                "Tiếng Việt")).toEqual({
+                en: "English",
+                vi: "Tiếng Việt",
+            })
+        })
     })

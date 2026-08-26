@@ -325,4 +325,23 @@ describe("SignUpVerifyOtpHandler",
                     ),
                 ).rejects.toBeInstanceOf(KeycloakJwtInvalidPayloadException)
             })
+
+        it.each([
+            "not-an-object",
+            {
+                email: "new@example.com",
+            },
+        ])("rejects decoded claims without a subject (%s)",
+            async (decoded) => {
+                otpChallengeService.verifyActionChallenge.mockResolvedValueOnce(validVerifyResult as never)
+                jwtService.decode.mockReturnValueOnce(decoded as never)
+
+                await expect(handler.execute(new SignUpVerifyOtpCommand({
+                    request: {
+                        challengeId: "chal-1",
+                        otp: "123456",
+                    },
+                }))).rejects.toThrow()
+                expect(entityManager.findOne).not.toHaveBeenCalled()
+            })
     })

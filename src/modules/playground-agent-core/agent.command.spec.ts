@@ -47,4 +47,59 @@ installer as never).run([],
 
                 expect(command.parseServer("https://api.example/")).toBe("https://api.example/")
             })
+
+        it("installs with a normalized server URL when a pairing code is supplied",
+            async () => {
+                const installer = {
+                    install: jest.fn(),
+                    uninstall: jest.fn(),
+                }
+                const command = new AgentCommand({
+                    cliName: "agent",
+                    packageName: "agent",
+                } as never,
+                {
+                } as never,
+                installer as never)
+
+                await command.run(["pair-1"],
+                    {
+                        installService: true,
+                        server: "https://api.example///",
+                    })
+
+                expect(installer.install).toHaveBeenCalledWith(
+                    "pair-1",
+                    "https://api.example",
+                )
+                expect(installer.uninstall).not.toHaveBeenCalled()
+            })
+
+        it("reports missing pairing code before installing a service",
+            async () => {
+                const installer = {
+                    install: jest.fn(),
+                    uninstall: jest.fn(),
+                }
+                const command = new AgentCommand({
+                    cliName: "agent",
+                    packageName: "agent",
+                } as never,
+                {
+                } as never,
+                installer as never)
+                const exit = jest.spyOn(process,
+                    "exit").mockImplementation((() => {
+                        throw new Error("exit")
+                    }) as never)
+
+                await expect(command.run([],
+                    {
+                        installService: true,
+                    })).rejects.toThrow("exit")
+
+                expect(installer.install).not.toHaveBeenCalled()
+                expect(exit).toHaveBeenCalledWith(1)
+                exit.mockRestore()
+            })
     })

@@ -457,5 +457,59 @@ describe("AchievementsService",
                             },
                         )
                     })
+
+                it("returns no rarity rows when the user population is empty",
+                    async () => {
+                        const service = await build({
+                            badges: [],
+                            definitions: [],
+                            values: [],
+                        })
+                        entityManager.query.mockResolvedValueOnce([{
+                            c: 0,
+                        }])
+
+                        const rarity = await (service as unknown as {
+                            computeRarity: (manager: EntityManagerMock) => Promise<Map<string, number>>
+                        }).computeRarity(entityManager)
+
+                        expect(rarity).toEqual(new Map())
+                        expect(entityManager.query).toHaveBeenCalledTimes(1)
+                    })
+
+                it("keeps the earliest award time and highest tier when indexing duplicates",
+                    async () => {
+                        const service = await build({
+                            badges: [],
+                            definitions: [],
+                            values: [],
+                        })
+                        const indexEarned = (service as unknown as {
+                            indexEarned: (rows: Array<UserAchievementEntity>) => Map<string, {
+                                earnedAt: Date
+                                tier: number | null
+                            }>
+                        }).indexEarned
+                        const earliest = new Date("2026-01-01T00:00:00.000Z")
+                        const latest = new Date("2026-02-01T00:00:00.000Z")
+
+                        const indexed = indexEarned([
+                            {
+                                achievementId: "achievement-1",
+                                earnedAt: latest,
+                                tier: 1,
+                            },
+                            {
+                                achievementId: "achievement-1",
+                                earnedAt: earliest,
+                                tier: 3,
+                            },
+                        ] as Array<UserAchievementEntity>)
+
+                        expect(indexed.get("achievement-1")).toEqual({
+                            earnedAt: earliest,
+                            tier: 3,
+                        })
+                    })
             })
     })

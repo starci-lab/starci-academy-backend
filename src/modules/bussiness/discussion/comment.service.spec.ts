@@ -497,6 +497,36 @@ describe("CommentService",
                                 },
                             }))
                     })
+
+                it("uses default pagination for a valid course scope",
+                    async () => {
+                        entityManager.findAndCount.mockResolvedValueOnce([[],
+                            0])
+
+                        await expect(service.listComments({
+                            courseId: "course-1",
+                        })).resolves.toEqual({
+                            comments: [],
+                            total: 0,
+                        })
+
+                        expect(entityManager.findAndCount).toHaveBeenCalledWith(
+                            ContentCommentEntity,
+                            expect.objectContaining({
+                                skip: 0,
+                                take: 20,
+                            }),
+                        )
+                    })
+
+                it("rejects a top-level scope that supplies both content and course",
+                    async () => {
+                        await expect(service.listComments({
+                            contentId: "content-1",
+                            courseId: "course-1",
+                        })).rejects.toBeInstanceOf(CommentInvalidScopeException)
+                        expect(entityManager.findAndCount).not.toHaveBeenCalled()
+                    })
             })
 
         describe("listCourseQuestions",

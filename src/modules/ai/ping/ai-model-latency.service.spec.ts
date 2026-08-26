@@ -345,6 +345,32 @@ describe("AiModelLatencyService",
                         expect(eventEmitterService.emit).toHaveBeenCalledTimes(1)
                     })
 
+                it("records and logs a completed probe that reports the model down",
+                    async () => {
+                        const model = makeModel("down-model",
+                            ModelProvider.OpenAI,
+                            AiModelCategory.High)
+                        useApiService.probeModel.mockResolvedValueOnce({
+                            ok: false,
+                            latencyMs: 250,
+                            errorMessage: null,
+                        })
+
+                        await (service as unknown as {
+                            probeScheduledModel: (value: AiModelEntity, last: boolean) => Promise<void>
+                        }).probeScheduledModel(model,
+                            true)
+
+                        expect(aiModelLatencyCacheService.recordModelLatency).toHaveBeenCalledWith({
+                            model: "down-model",
+                            provider: ModelProvider.OpenAI,
+                            ok: false,
+                            latencyMs: 250,
+                            errorMessage: null,
+                        })
+                        expect(eventEmitterService.emit).toHaveBeenCalled()
+                    })
+
                 it("does nothing when no models are in scope (empty catalog)",
                     async () => {
                         aiModelCatalogService.enabledModels.mockResolvedValue([])

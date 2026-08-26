@@ -351,5 +351,43 @@ describe("FlashcardDeckReadService",
                         expect(card.answer).toBeNull()
                         expect(card.explanation).toBeNull()
                     })
+
+                it("keeps free cards visible while locking only premium cards for anonymous viewers",
+                    async () => {
+                        const freeCard = {
+                            id: "free-card",
+                            isPremium: false,
+                            answer: "free answer",
+                            explanation: "free explanation",
+                        }
+                        const premiumCard = {
+                            id: "premium-card",
+                            isPremium: true,
+                            answer: "premium answer",
+                            explanation: "premium explanation",
+                        }
+                        const deck = {
+                            id: flashcardDeckId,
+                            defaultLocale: Locale.En,
+                            cards: [freeCard,
+                                premiumCard],
+                        }
+                        entityManager.find.mockResolvedValueOnce([deck])
+
+                        const result = await service.listByCourse(courseId,
+                            Locale.En)
+
+                        expect(result[0].cards).toEqual([
+                            expect.objectContaining({
+                                id: "free-card",
+                                answer: "free answer",
+                            }),
+                            expect.objectContaining({
+                                id: "premium-card",
+                                answer: null,
+                                explanation: null,
+                            }),
+                        ])
+                    })
             })
     })

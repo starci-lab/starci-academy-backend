@@ -252,6 +252,21 @@ describe("TransactionGrantService",
                         expect(notificationService.createNotification).toHaveBeenCalled()
                     })
 
+                it("keeps a granted tier successful when notification rejects with a non-Error",
+                    async () => {
+                        aiEntitlementService.grantTier.mockResolvedValueOnce(true)
+                        notificationService.createNotification.mockRejectedValueOnce("notification unavailable")
+
+                        await expect(service.grantForTransaction(
+                            buildTransaction({
+                                actionType: ActionType.AiSubscriptionPurchase,
+                                aiSubTier: AiSubTier.Plus,
+                                courseId: null,
+                            }) as never,
+                        )).resolves.toBeUndefined()
+                        expect(notificationService.createNotification).toHaveBeenCalled()
+                    })
+
                 it("skips the notification when grantTier reports no fresh grant",
                     async () => {
                         aiEntitlementService.grantTier.mockResolvedValueOnce(false)

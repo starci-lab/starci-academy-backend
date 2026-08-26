@@ -149,4 +149,38 @@ describe("ActiveAdvertisementResolver",
                     ctaText: undefined,
                 }))
             })
+
+        it("maps an advertisement without a call-to-action to a null ctaText",
+            async () => {
+                const h = make()
+                h.qb.getOne.mockResolvedValueOnce({
+                    ...ad,
+                    ctaText: undefined,
+                })
+
+                await expect(h.resolver.execute(
+                    Locale.En,
+                    undefined,
+                    AdvertisementPlacement.DashboardRight,
+                )).resolves.toEqual(expect.objectContaining({
+                    title: "Sale",
+                    ctaText: null,
+                }))
+            })
+
+        it("checks enrollment only when a course context is supplied",
+            async () => {
+                const h = make()
+
+                await h.resolver.execute(
+                    Locale.En,
+                    {
+                        id: "u1",
+                    } as never,
+                    AdvertisementPlacement.DashboardRight,
+                )
+
+                expect(h.userService.checkEnrollment).not.toHaveBeenCalled()
+                expect(h.entityManager.createQueryBuilder).toHaveBeenCalledTimes(1)
+            })
     })

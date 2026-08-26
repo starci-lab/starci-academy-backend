@@ -940,5 +940,53 @@ describe("FlashcardReviewService",
                         expect(userService.checkEnrollment).toHaveBeenCalledWith(userId,
                             courseId)
                     })
+
+                it("skips review lookup when a course has no enrollment",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(null)
+                        entityManager.find.mockResolvedValueOnce([])
+
+                        await expect(service.listByIds({
+                            userId,
+                            courseId,
+                            cardIds: [cardId],
+                            locale: Locale.En,
+                        })).resolves.toEqual([])
+                        expect(entityManager.find).toHaveBeenCalledTimes(1)
+                    })
+
+                it("maps a missing deck and optional card fields to safe response defaults",
+                    () => {
+                        const mapToDueFlashcards = (service as unknown as {
+                            mapToDueFlashcards: (...args: unknown[]) => Array<Record<string, unknown>>
+                        }).mapToDueFlashcards.bind(service)
+                        const card = {
+                            id: cardId,
+                            question: "front",
+                            answer: undefined,
+                            level: undefined,
+                            tags: undefined,
+                            isPremium: false,
+                            deck: null,
+                        } as never
+
+                        const result = mapToDueFlashcards(
+                            [cardId,
+                                "missing"],
+                            new Map([[cardId,
+                                card]]),
+                            new Map(),
+                            new Map(),
+                            new Map(),
+                        )
+
+                        expect(result).toEqual([expect.objectContaining({
+                            cardId,
+                            deckTitle: "",
+                            back: "",
+                            level: null,
+                            tags: [],
+                        })])
+                    })
             })
     })

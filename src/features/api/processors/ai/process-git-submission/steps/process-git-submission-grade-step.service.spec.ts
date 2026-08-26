@@ -355,4 +355,58 @@ describe("ProcessGitSubmissionGradeStepService",
                     }),
                 )
             })
+
+        it.each([
+            ["404 repository",
+                "repository not found: 404"],
+            ["403 repository",
+                "repository access denied: 403"],
+            ["unexpected loader failure",
+                "connection reset"],
+        ])("maps %s to a failed job",
+            async (_label, message) => {
+                const ctx = makeService(entityManager)
+                loaderLoadMock.mockRejectedValueOnce(new Error(message))
+
+                await expect(ctx.service.process(makeContext())).rejects.toThrow(message)
+                expect(ctx.jobActionService.failJob).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        error: expect.stringContaining(message),
+                    }),
+                )
+                expect(ctx.gradingRetrievalService.retrieveGradingExcerpt).not.toHaveBeenCalled()
+            })
+
+        it("passes an empty repository through the retrieval boundary",
+            async () => {
+                const ctx = makeService(entityManager)
+                loaderLoadMock.mockResolvedValueOnce([])
+
+                await expect(ctx.service.process(makeContext())).resolves.toBeUndefined()
+                expect(ctx.gradingRetrievalService.retrieveGradingExcerpt).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        documents: [],
+                    }),
+                )
+                expect(ctx.aiInvokeService.run).toHaveBeenCalled()
+            })
+
+        it("uses empty optional challenge fields without changing the grading flow",
+            async () => {
+                const ctx = makeService(entityManager)
+                const baseContext = makeContext() as Record<string, unknown>
+                const context = {
+                    ...baseContext,
+                    extended: undefined,
+                }
+
+                await ctx.service.process(context as never)
+
+                expect(ctx.challengeEvaluationPromptService.build).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        challengeTitle: "",
+                    }),
+                )
+                expect(ctx.aiInvokeService.run).toHaveBeenCalled()
+            })
     })

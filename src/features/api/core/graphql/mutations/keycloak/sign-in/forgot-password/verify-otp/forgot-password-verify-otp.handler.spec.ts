@@ -25,7 +25,10 @@ import {
     EnqueueSendMailJobService,
 } from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
+    ChallengeEmailNotFoundException,
+    ChallengeOtpNotFoundException,
     ChallengeOtpMismatchException,
+    ChallengeTokensNotFoundException,
 } from "@modules/platform/exceptions/errors/users/otp"
 import {
     UserNotFoundException,
@@ -243,5 +246,60 @@ describe("ForgotPasswordVerifyOtpHandler",
                     "brand-new",
                 )
                 expect(enqueueSendMailJobService.enqueue).not.toHaveBeenCalled()
+            })
+
+        it.each([
+            ["missing challenge",
+                {
+                    notFound: true,
+                },
+                ChallengeOtpNotFoundException],
+            ["missing email",
+                {
+                    notFound: false,
+                    mismatch: false,
+                    email: "",
+                    payload: validVerifyResult.payload,
+                },
+                ChallengeEmailNotFoundException],
+            ["missing payload",
+                {
+                    notFound: false,
+                    mismatch: false,
+                    email: validVerifyResult.email,
+                    payload: undefined,
+                },
+                ChallengeTokensNotFoundException],
+        ])("rejects a %s verification result before password reset",
+            async (_label, verification, exception) => {
+                otpChallengeService.verifyActionChallenge.mockResolvedValueOnce(verification as never)
+
+                await expect(handler.execute(new ForgotPasswordVerifyOtpCommand({
+                    request: {
+                        challengeId: "chal-1",
+                        otp: "123456",
+                    },
+                }))).rejects.toBeInstanceOf(exception)
+                expect(keycloakUserService.resetUserPassword).not.toHaveBeenCalled()
+            })
+
+        it.each([
+            null,
+            "invalid-token-claims",
+            {
+                email: "user@example.com",
+            },
+        ])("rejects an invalid decoded token payload (%s)",
+            async (decoded) => {
+                otpChallengeService.verifyActionChallenge.mockResolvedValueOnce(validVerifyResult as never)
+                jwtService.decode.mockReturnValueOnce(decoded as never)
+
+                await expect(handler.execute(new ForgotPasswordVerifyOtpCommand({
+                    request: {
+                        challengeId: "chal-1",
+                        otp: "123456",
+                    },
+                }))).rejects.toThrow()
+                expect(entityManager.findOne).not.toHaveBeenCalled()
             })
     })

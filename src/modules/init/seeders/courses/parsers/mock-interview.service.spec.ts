@@ -885,4 +885,38 @@ describe("MockInterviewParserService",
                 ])).toEqual(["first",
                     "second"])
             })
+
+        it("normalizes checklist and language rows while handling absent sections",
+            () => {
+                const internals = service as unknown as {
+                    toChecklists: (items: Array<{ text?: string; dimension?: string; critical?: unknown; scoreBand?: unknown }> | undefined, courseIndex: number, bankIndex: number, questionIndex: number, mockInterviewId: string) => Array<Record<string, unknown>>
+                    toLangs: (items: Array<{ lang?: string; givenCode?: string; translations?: Array<unknown> }> | undefined, courseIndex: number, bankIndex: number, questionIndex: number, mockInterviewId: string) => Array<Record<string, unknown>>
+                }
+                expect(internals.toChecklists(undefined,
+                    0,
+                    0,
+                    0,
+                    "interview-1")).toEqual([])
+                expect(internals.toChecklists([{
+                    text: "criterion",
+                    dimension: undefined,
+                    critical: true,
+                    scoreBand: 7,
+                }],
+                0,
+                0,
+                0,
+                "interview-1")).toEqual([expect.objectContaining({
+                    text: "criterion",
+                    dimension: null,
+                    critical: true,
+                    scoreBand: 7,
+                    orderIndex: 0,
+                })])
+                expect(internals.toLangs(undefined,
+                    0,
+                    0,
+                    0,
+                    "interview-1")).toEqual([])
+            })
     })

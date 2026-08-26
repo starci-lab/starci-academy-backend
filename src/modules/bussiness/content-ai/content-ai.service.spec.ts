@@ -2667,6 +2667,191 @@ describe("ContentAiService",
                                     "e.user_id = $2 OR s.user_id = $2",
                                 )
                             })
+
+                        it("guards empty answers and reports whether a charging turn was claimed",
+                            async () => {
+                                await expect(service.markTurnCharging({
+                                    userId,
+                                    sessionId: "session-1",
+                                    streamId: "stream-1",
+                                    requestHash: "hash-1",
+                                    answer: "   ",
+                                } as never)).resolves.toBe(false)
+                                expect(entityManager.query).not.toHaveBeenCalled()
+
+                                entityManager.query.mockResolvedValueOnce([])
+                                await expect(service.markTurnCharging({
+                                    userId,
+                                    sessionId: "session-1",
+                                    streamId: "stream-1",
+                                    requestHash: "hash-1",
+                                    answer: "answer",
+                                } as never)).resolves.toBe(false)
+
+                                entityManager.query.mockResolvedValueOnce([{
+                                    id: "turn-1",
+                                }])
+                                await expect(service.markTurnCharging({
+                                    userId,
+                                    sessionId: "session-1",
+                                    streamId: "stream-1",
+                                    requestHash: "hash-1",
+                                    answer: "answer",
+                                } as never)).resolves.toBe(true)
+                            })
+
+                        it("completes only a matching charged turn and marks terminal failures",
+                            async () => {
+                                const params = {
+                                    userId,
+                                    sessionId: "session-1",
+                                    streamId: "stream-1",
+                                    requestHash: "hash-1",
+                                    contentId,
+                                    question: "Question",
+                                    answer: "Answer",
+                                }
+                                await expect(service.completeTurn({
+                                    ...params,
+                                    question: " ",
+                                })).resolves.toBe(false)
+
+                                entityManager.query.mockResolvedValueOnce([])
+                                await expect(service.completeTurn(params)).resolves.toBe(false)
+
+                                entityManager.query.mockResolvedValueOnce([{
+                                    id: "turn-1",
+                                    enrollmentId: null,
+                                    userId,
+                                    response: "Other answer",
+                                }])
+                                await expect(service.completeTurn(params)).resolves.toBe(false)
+
+                                entityManager.query.mockResolvedValueOnce([{
+                                    id: "turn-1",
+                                    enrollmentId: null,
+                                    userId,
+                                    response: "Answer",
+                                }])
+                                const managerWithInsert = entityManager as unknown as {
+                            insert: jest.Mock
+                        }
+                                managerWithInsert.insert = jest.fn().mockResolvedValue(undefined)
+                                entityManager.query
+                                    .mockResolvedValueOnce([])
+                                    .mockResolvedValueOnce([])
+                                await expect(service.completeTurn(params)).resolves.toBe(true)
+
+                                entityManager.query.mockResolvedValueOnce([])
+                                await expect(service.markTurnTerminal({
+                                    userId,
+                                    sessionId: "session-1",
+                                    streamId: "stream-1",
+                                    requestHash: "hash-1",
+                                    state: "failed",
+                                    errorCode: " ",
+                                } as never)).resolves.toBe(false)
+                                entityManager.query.mockResolvedValueOnce([{
+                                    id: "turn-1",
+                                }])
+                                await expect(service.markTurnTerminal({
+                                    userId,
+                                    sessionId: "session-1",
+                                    streamId: "stream-1",
+                                    requestHash: "hash-1",
+                                    state: "cancelled",
+                                    errorCode: "provider failed",
+                                } as never)).resolves.toBe(true)
+                            })
+                    })
+
+                it("classifies acquired, replayed, active, conflicting, and recoverable turns",
+                    async () => {
+                        const acquire = (overrides: Record<string, unknown> = {
+                        }) => service.acquireTurn({
+                            userId,
+                            sessionId: "session-1",
+                            streamId: "stream-1",
+                            requestHash: "hash-1",
+                            courseId: "course-1",
+                            ...overrides,
+                        } as never)
+                        const turn = {
+                            id: "turn-1",
+                            requestHash: "hash-1",
+                            state: "processing",
+                            response: null,
+                            courseId: "course-1",
+                        }
+
+                        entityManager.query
+                            .mockResolvedValueOnce([{
+                                id: "turn-1"
+                            }])
+                            .mockResolvedValueOnce([turn])
+                        await expect(acquire()).resolves.toEqual({
+                            outcome: "acquired",
+                            courseId: "course-1",
+                        })
+
+                        entityManager.query
+                            .mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([{
+                                ...turn,
+                                state: "completed",
+                                response: "done",
+                            }])
+                        await expect(acquire()).resolves.toEqual({
+                            outcome: "replay",
+                            answer: "done",
+                            courseId: "course-1",
+                        })
+
+                        entityManager.query
+                            .mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([{
+                                ...turn,
+                                requestHash: "other-hash",
+                            }])
+                        await expect(acquire()).resolves.toEqual({
+                            outcome: "conflict",
+                        })
+
+                        entityManager.query
+                            .mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([turn])
+                        await expect(acquire()).resolves.toEqual({
+                            outcome: "in-progress",
+                        })
+
+                        entityManager.query
+                            .mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([{
+                                ...turn,
+                                state: "charging",
+                            }])
+                        await expect(acquire()).resolves.toEqual({
+                            outcome: "recovery-required",
+                        })
+
+                        entityManager.query
+                            .mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([{
+                                ...turn,
+                                state: "failed",
+                            }])
+                            .mockResolvedValueOnce([])
+                        await expect(acquire()).resolves.toEqual({
+                            outcome: "acquired",
+                            courseId: "course-1",
+                        })
+
+                        entityManager.query
+                            .mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([])
+                        await expect(acquire()).resolves.toEqual({
+                            outcome: "not-owned",
+                        })
                     })
             })
     })

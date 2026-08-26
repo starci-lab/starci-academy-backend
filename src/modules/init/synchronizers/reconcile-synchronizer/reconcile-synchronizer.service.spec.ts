@@ -260,4 +260,56 @@ logger as never)
             ).reconcile()).rejects.toBe(failure)
             expect(deleteObjects).not.toHaveBeenCalled()
         })
+
+    it("collects only present identifiers and display identifiers from live rows",
+        async () => {
+            const find = jest.fn().mockResolvedValue([
+                {
+                    id: "course-1",
+                    displayId: "intro",
+                },
+                {
+                    id: null,
+                    displayId: "",
+                },
+                {
+                    id: "course-2",
+                },
+            ])
+            const service = new ReconcileSynchronizerService(
+                {
+                    getRepository: jest.fn().mockReturnValue({
+                        find,
+                    }),
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                    log: jest.fn(),
+                } as never,
+            )
+            const internal = service as unknown as {
+                liveColumns: (entity: unknown, withDisplayId: boolean) => Promise<{
+                    ids: Array<string>
+                    displayIds: Array<string>
+                }>
+            }
+
+            await expect(internal.liveColumns("CourseEntity",
+                true)).resolves.toEqual({
+                ids: ["course-1",
+                    "course-2"],
+                displayIds: ["intro"],
+            })
+            expect(find).toHaveBeenCalledWith({
+                select: {
+                    id: true,
+                    displayId: true,
+                },
+            })
+        })
     })

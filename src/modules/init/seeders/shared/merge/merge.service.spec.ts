@@ -730,5 +730,34 @@ describe("MergeJsonService",
                             ]
                         })
                     })
+
+                it("coerces translation leaves without object stringification loss",
+                    () => {
+                        const internals = service as unknown as {
+                            coerceTranslationValue: (value: unknown) => string
+                            isPlainObject: (value: unknown) => boolean
+                            getValueAtPath: (root: unknown, fieldPath: string) => unknown
+                        }
+                        expect(internals.coerceTranslationValue("text")).toBe("text")
+                        expect(internals.coerceTranslationValue(null)).toBe("")
+                        expect(internals.coerceTranslationValue(7)).toBe("7")
+                        expect(internals.coerceTranslationValue({
+                            source: "seed",
+                        })).toBe("{\"source\":\"seed\"}")
+                        expect(internals.isPlainObject({
+                        })).toBe(true)
+                        expect(internals.isPlainObject([])).toBe(false)
+                        expect(internals.isPlainObject(null)).toBe(false)
+                        expect(internals.getValueAtPath({
+                            nested: {
+                                value: "ok",
+                            },
+                        },
+                        "nested.value")).toBe("ok")
+                        expect(internals.getValueAtPath({
+                            nested: "scalar",
+                        },
+                        "nested.value")).toBeUndefined()
+                    })
             })
     })

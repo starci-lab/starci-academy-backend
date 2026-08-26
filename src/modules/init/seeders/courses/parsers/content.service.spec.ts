@@ -615,4 +615,25 @@ describe("ContentParserService",
                 expect(parser.toSortIndex(undefined,
                     2)).toBe(2)
             })
+
+        it("derives pending status and filename title when a flow has no heading",
+            async () => {
+                const loader = module.get(ContextLoaderService)
+                jest.mocked(loader.load).mockResolvedValueOnce("plain proof text")
+                const parser = service as unknown as {
+                    parseFlowFile: (root: string, lang: string, file: string) => Promise<Record<string, unknown> | null>
+                }
+
+                await expect(parser.parseFlowFile(
+                    "course/content/.e2e",
+                    "typescript",
+                    "flow-7-awaiting-require-creds.md",
+                )).resolves.toEqual({
+                    id: "flow-7-awaiting-require-creds",
+                    lang: "typescript",
+                    title: "flow-7-awaiting-require-creds",
+                    status: "pending",
+                    markdown: "plain proof text",
+                })
+            })
     })

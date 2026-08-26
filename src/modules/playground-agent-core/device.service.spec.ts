@@ -93,4 +93,93 @@ describe("DeviceService",
                     3000,
                 )
             })
+
+        it("returns no GPU when Linux has no display controller line",
+            async () => {
+                const originalPlatform = process.platform
+                Object.defineProperty(process,
+                    "platform",
+                    {
+                        value: "linux",
+                        configurable: true,
+                    })
+                try {
+                    probe.run = jest.fn()
+                        .mockRejectedValueOnce(new Error("nvidia-smi missing"))
+                        .mockResolvedValueOnce("01:00.0 Ethernet controller: adapter")
+
+                    const info = await new DeviceService(probe).collect()
+
+                    expect(info.gpu).toBeNull()
+                    expect(probe.run).toHaveBeenNthCalledWith(2,
+                        "lspci",
+                        [],
+                        3000)
+                } finally {
+                    Object.defineProperty(process,
+                        "platform",
+                        {
+                            value: originalPlatform,
+                            configurable: true,
+                        })
+                }
+            })
+
+        it("reads the chipset model from macOS system profiler output",
+            async () => {
+                const originalPlatform = process.platform
+                Object.defineProperty(process,
+                    "platform",
+                    {
+                        value: "darwin",
+                        configurable: true,
+                    })
+                try {
+                    probe.run = jest.fn()
+                        .mockRejectedValueOnce(new Error("nvidia-smi missing"))
+                        .mockResolvedValueOnce("Chipset Model: Apple M3 Pro")
+
+                    const info = await new DeviceService(probe).collect()
+
+                    expect(info.gpu).toBe("Apple M3 Pro")
+                    expect(probe.run).toHaveBeenNthCalledWith(2,
+                        "system_profiler",
+                        ["SPDisplaysDataType"],
+                        3000)
+                } finally {
+                    Object.defineProperty(process,
+                        "platform",
+                        {
+                            value: originalPlatform,
+                            configurable: true,
+                        })
+                }
+            })
+
+        it("returns no chipset when macOS output has no model line",
+            async () => {
+                const originalPlatform = process.platform
+                Object.defineProperty(process,
+                    "platform",
+                    {
+                        value: "darwin",
+                        configurable: true,
+                    })
+                try {
+                    probe.run = jest.fn()
+                        .mockRejectedValueOnce(new Error("nvidia-smi missing"))
+                        .mockResolvedValueOnce("Graphics/Displays:")
+
+                    const info = await new DeviceService(probe).collect()
+
+                    expect(info.gpu).toBeNull()
+                } finally {
+                    Object.defineProperty(process,
+                        "platform",
+                        {
+                            value: originalPlatform,
+                            configurable: true,
+                        })
+                }
+            })
     })

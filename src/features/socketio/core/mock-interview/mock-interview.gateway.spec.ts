@@ -461,4 +461,57 @@ describe("MockInterviewGateway streaming policy",
                     } as never,
                 )).not.toThrow()
             })
+
+        it("surfaces non-Error preparation failures as terminal text",
+            async () => {
+                const success = jest.fn()
+                const gateway = new MockInterviewGateway(
+                    {
+                        prepareTurn: jest.fn().mockRejectedValue("prompt unavailable"),
+                    } as never,
+                    {
+                        getUserByKeycloakId: jest.fn().mockResolvedValue({
+                            id: "user-1",
+                        }),
+                    } as never,
+                    {
+                        run: jest.fn(),
+                    } as never,
+                    {
+                        consume: jest.fn(),
+                    } as never,
+                    {
+                        success,
+                    } as never,
+                    {
+                        findOne: jest.fn().mockResolvedValue({
+                            id: "session-1",
+                            createdAt: new Date(),
+                        }),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                )
+
+                await gateway.handleAskMockInterviewTurn({
+                    id: "socket-1",
+                    data: {
+                        userId: "kc-user-1",
+                    },
+                } as never,
+                {
+                    data: {
+                        streamId: "stream-error",
+                        sessionId: "session-1",
+                    },
+                } as never)
+
+                expect(success).toHaveBeenCalledWith(expect.objectContaining({
+                    data: expect.objectContaining({
+                        streamId: "stream-error",
+                        error: "prompt unavailable",
+                    }),
+                }))
+            })
     })

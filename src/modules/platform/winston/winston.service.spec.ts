@@ -114,4 +114,34 @@ combinedLogger as never)
                     },
                 )
             })
+
+        it("selects each transport combination, including the disabled combination",
+            () => {
+                const getLogger = (config: {
+                    console?: boolean
+                    loki?: boolean
+                }): unknown => (service as unknown as {
+                    getLogger: (value: {
+                        console?: boolean
+                        loki?: boolean
+                    }) => unknown
+                }).getLogger(config)
+
+                expect(getLogger({
+                    console: true,
+                    loki: true,
+                })).toBe(combinedLogger)
+                expect(getLogger({
+                    console: true,
+                    loki: false,
+                })).toBe(consoleLogger)
+                expect(getLogger({
+                    console: false,
+                    loki: true,
+                })).toBe(lokiLogger)
+                expect(getLogger({
+                    console: false,
+                    loki: false,
+                })).toBeNull()
+            })
     })

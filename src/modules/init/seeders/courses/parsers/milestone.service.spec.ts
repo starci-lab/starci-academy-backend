@@ -284,6 +284,17 @@ describe("MilestoneParserService",
                             milestoneIndex: 3,
                         })).rejects.toThrow()
                     })
+
+                it("uses the ordinal when an authored sort index is invalid",
+                    () => {
+                        const parser = service as unknown as {
+                            toSortIndex: (value: unknown, fallback: number) => number
+                        }
+                        expect(parser.toSortIndex(" 3 ",
+                            1)).toBe(3)
+                        expect(parser.toSortIndex(Number.NaN,
+                            1)).toBe(1)
+                    })
             },
         )
     },

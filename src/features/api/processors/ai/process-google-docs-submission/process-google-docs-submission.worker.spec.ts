@@ -220,4 +220,22 @@ describe("ProcessGoogleDocsSubmissionWorker",
                 await expect(harness.worker.process(bullJob())).rejects.toThrow("invalid payload")
                 expect(harness.stepProcess).not.toHaveBeenCalled()
             })
+
+        it("completes a job with no remaining steps without dispatching a step",
+            async () => {
+                const harness = makeWorker()
+                harness.jobActionService.getJob.mockResolvedValue(job(1,
+                    1))
+
+                await expect(harness.worker.process({
+                    ...bullJob(),
+                    id: undefined,
+                } as never)).resolves.toBeUndefined()
+
+                expect(harness.stepProcess).not.toHaveBeenCalled()
+                expect(harness.jobActionService.completeJob).toHaveBeenCalledWith({
+                    job: job(1,
+                        1),
+                })
+            })
     })

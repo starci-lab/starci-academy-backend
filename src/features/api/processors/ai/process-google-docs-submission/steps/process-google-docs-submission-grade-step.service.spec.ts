@@ -292,4 +292,33 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
                     }),
                 )
             })
+
+        it("uses empty optional challenge and document fields without skipping grading",
+            async () => {
+                const baseContext = makeContext() as Record<string, unknown>
+                await service.process({
+                    ...baseContext,
+                    extended: undefined,
+                } as never)
+
+                expect(googleDriverApiService.fetchGoogleDocsText).toHaveBeenCalledWith({
+                    urlOrId: "",
+                })
+                expect(challengeEvaluationPromptService.build).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        challengeTitle: "",
+                    }),
+                )
+                expect(aiInvokeService.run).toHaveBeenCalled()
+            })
+
+        it("surfaces document fetch failures before invoking the grader",
+            async () => {
+                const failure = new Error("document unavailable")
+                googleDriverApiService.fetchGoogleDocsText.mockRejectedValueOnce(failure)
+
+                await expect(service.process(makeContext())).rejects.toBe(failure)
+                expect(aiInvokeService.run).not.toHaveBeenCalled()
+                expect(jobActionService.failJob).toHaveBeenCalledTimes(1)
+            })
     })

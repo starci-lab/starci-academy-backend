@@ -191,4 +191,33 @@ describe("ConsultantParserService",
                 companyIndex: 0,
             })).rejects.toThrow(ConsultantPathNotFoundException)
         })
+
+    it("falls back to the next stable order for malformed sort values",
+        () => {
+            const service = new ConsultantParserService(
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                    log: jest.fn(),
+                } as never,
+            )
+            const toSortIndex = (service as unknown as {
+                toSortIndex: (value: unknown, fallback: number) => number
+            }).toSortIndex.bind(service)
+
+            expect(toSortIndex("bad",
+                4)).toBe(5)
+            expect(toSortIndex(" 7 ",
+                4)).toBe(7)
+        })
     })

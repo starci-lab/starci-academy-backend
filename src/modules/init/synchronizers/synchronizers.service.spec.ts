@@ -119,4 +119,58 @@ describe("SynchronizersService",
                         durationMs: 9,
                     }))
             })
+
+        it("contains an Error-valued user reindex failure and still completes later stages",
+            async () => {
+                const winston = {
+                    log: jest.fn(),
+                }
+                const reindexError = new Error("user index timeout")
+                const stages = Array.from({
+                    length: 5,
+                },
+                () => ({
+                    sync: jest.fn().mockResolvedValue(undefined),
+                }))
+                const service = new SynchronizersService(
+                    {
+                        now: jest.fn().mockReturnValue({
+                            diff: jest.fn().mockReturnValue(2),
+                        }),
+                    } as never,
+                    winston as never,
+                    stages[0] as never,
+                    stages[1] as never,
+                    stages[2] as never,
+                    stages[3] as never,
+                    stages[4] as never,
+                    {
+                        reconcile: jest.fn().mockResolvedValue(undefined),
+                    } as never,
+                    {
+                        resetIndices: jest.fn().mockResolvedValue(undefined),
+                    } as never,
+                    {
+                        reindexAll: jest.fn().mockRejectedValue(reindexError),
+                    } as never,
+                    {
+                        buildCdnScope: jest.fn().mockReturnValue({
+                        }),
+                        buildElasticsearchScope: jest.fn().mockReturnValue({
+                        }),
+                        buildRepoScope: jest.fn().mockReturnValue({
+                        }),
+                        reindexEntities: jest.fn().mockReturnValue([]),
+                    } as never,
+                )
+
+                await service.init()
+
+                expect(stages.every((stage) => stage.sync.mock.calls.length === 1)).toBe(true)
+                expect(winston.log).toHaveBeenCalledWith(expect.anything(),
+                    expect.objectContaining({
+                        op: "init.synchronizers.user-es-reindex-failed",
+                        error: "user index timeout",
+                    }))
+            })
     })

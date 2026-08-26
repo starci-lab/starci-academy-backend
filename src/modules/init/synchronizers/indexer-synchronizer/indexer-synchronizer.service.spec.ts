@@ -554,5 +554,18 @@ describe("IndexerSynchronizerService",
                             }),
                         )
                     })
+
+                it("ignores an unsupported entity kind without invoking a builder",
+                    async () => {
+                        const internal = service as unknown as {
+                            syncEntityKind: (scope: SynchronizerSyncScope, entityKind: string) => Promise<void>
+                        }
+
+                        await expect(internal.syncEntityKind(fullScope(),
+                            "UnsupportedEntity")).resolves.toBeUndefined()
+                        for (const builder of Object.values(builders)) {
+                            expect(builder.buildIndexerById).not.toHaveBeenCalled()
+                        }
+                    })
             })
     })

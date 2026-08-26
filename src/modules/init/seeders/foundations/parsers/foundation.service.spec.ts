@@ -122,4 +122,35 @@ describe("FoundationParserService",
                 categoryIndex: 1,
             })).rejects.toBeInstanceOf(FoundationPathNotFoundException)
         })
+
+    it("uses the fallback order when sortIndex is non-finite numeric input",
+        () => {
+            const service = new FoundationParserService(
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                    log: jest.fn(),
+                } as never,
+            )
+            const toSortIndex = (service as unknown as {
+                toSortIndex: (value: unknown, fallback: number) => number
+            }).toSortIndex.bind(service)
+
+            expect(toSortIndex(Number.POSITIVE_INFINITY,
+                3)).toBe(4)
+            expect(toSortIndex(5,
+                3)).toBe(5)
+        })
     })

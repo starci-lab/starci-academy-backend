@@ -983,6 +983,69 @@ describe("GlobalChatService",
                 })
             })
 
+        it("creates a member-only report with no message snapshot",
+            async () => {
+                manager.findOne
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce(room)
+                policy.assertCanRead.mockResolvedValueOnce(null)
+
+                const result = await service.report({
+                    user,
+                    commandId: "member-report",
+                    reportedUserId: "member-2",
+                    category: " harassment ",
+                    details: "  repeated abuse  ",
+                })
+
+                expect(result).toEqual(expect.objectContaining({
+                    commandId: "member-report",
+                    status: "open",
+                    messageId: undefined,
+                }))
+                const reportPayload = manager.create.mock.calls
+                    .map((call) => call[1] as Record<string, unknown>)
+                    .find((payload) => payload.category === "harassment")
+                expect(reportPayload).toEqual(expect.objectContaining({
+                    message: null,
+                    reportedUser: {
+                        id: "member-2",
+                    },
+                    reporterHidden: false,
+                    details: "repeated abuse",
+                }))
+            })
+
+        it("passes forward only mentions for other users and deduplicates them",
+            async () => {
+                manager.findOne
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce(room)
+                manager.find.mockResolvedValueOnce([
+                    {
+                        id: "member-2",
+                    },
+                    {
+                        id: "member-3",
+                    },
+                ])
+                const result = await service.sendMessage({
+                    user,
+                    commandId: "mention-message",
+                    body: "hello",
+                    mentionUserIds: [user.id,
+                        "member-2",
+                        "member-2",
+                        "member-3"],
+                })
+
+                expect(result.messageId).toBe("message-1")
+                expect(manager.find).toHaveBeenCalled()
+                expect(manager.save).toHaveBeenCalledTimes(4)
+            })
+
         it("adds a new reaction and applies remove then restore moderation outcomes",
             async () => {
                 const moderationCase = {
