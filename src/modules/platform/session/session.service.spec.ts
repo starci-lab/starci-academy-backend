@@ -140,6 +140,19 @@ describe("SessionService",
 
         describe("startSession",
             () => {
+                it("does nothing when the access token has no subject",
+                    async () => {
+                        await service.startSession({
+                            res: {
+                            } as Response,
+                            req: buildRequest(),
+                            accessToken: makeToken(""),
+                        })
+
+                        expect(redis.hgetall).not.toHaveBeenCalled()
+                        expect(cookieService.attachHttpOnlyCookie).not.toHaveBeenCalled()
+                    })
+
                 it("evicts the oldest session when the account is already at the device limit",
                     async () => {
                         // the account already has two devices (limit is 2)

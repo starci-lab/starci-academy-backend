@@ -409,6 +409,33 @@ describe("CommentService",
                         ).rejects.toBeInstanceOf(CommentInvalidScopeException)
                         expect(entityManager.findAndCount).not.toHaveBeenCalled()
                     })
+
+                it("lists replies by parent scope without requiring a content or course id",
+                    async () => {
+                        entityManager.findAndCount.mockResolvedValueOnce([[{
+                            id: "reply-1"
+                        }],
+                        1])
+
+                        await expect(service.listComments({
+                            parentCommentId: "parent-1",
+                            page: 1,
+                            limit: 5,
+                        })).resolves.toEqual({
+                            comments: [{
+                                id: "reply-1"
+                            }], total: 1
+                        })
+
+                        expect(entityManager.findAndCount).toHaveBeenCalledWith(ContentCommentEntity,
+                            expect.objectContaining({
+                                where: {
+                                    parentComment: {
+                                        id: "parent-1"
+                                    }
+                                },
+                            }))
+                    })
             })
 
         describe("countReplies",

@@ -102,7 +102,7 @@ describe("FlashcardDeckParserService",
                                     "cards")
                                 const entries = await fs.readdir(cardsDir,
                                     {
-                                        withFileTypes: true 
+                                        withFileTypes: true
                                     })
                                 return entries
                                     .filter((entry) => entry.isDirectory())
@@ -147,6 +147,16 @@ describe("FlashcardDeckParserService",
 
         describe("parse",
             () => {
+                it("rejects a deck ordinal that is not present in the mount",
+                    async () => {
+                        await expect(service.parse({
+                            paths: [],
+                            courseIndex: 0,
+                            courseId: "course-1",
+                            flashcardDeckIndex: 99,
+                        })).rejects.toThrow("Flashcard deck path not found")
+                    })
+
                 it(
                     "parses the nestjs-core-interview-warmup-easy deck with Q&A cards + i18n",
                     async () => {

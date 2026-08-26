@@ -28,4 +28,29 @@ describe("UserCapstoneProjectionService",
                 await expect(new UserCapstoneProjectionService(manager as never).getProgress("u")).resolves.toEqual([])
                 expect(manager.query).toHaveBeenCalled()
             })
+        it("recomputes stale rows and maps empty/default task values",
+            async () => {
+                const manager = {
+                    findOne: jest.fn()
+                        .mockResolvedValueOnce({
+                            updatedAt: new Date("2020-01-01"), value: {
+                                tasks: []
+                            }
+                        })
+                        .mockResolvedValueOnce({
+                            updatedAt: new Date(), value: {
+                                tasks: [{
+                                    courseId: "c", courseTitle: "Course", milestoneTitle: "M", taskTitle: "T", score: "bad", passedAt: null,
+                                }]
+                            }
+                        }),
+                    query: jest.fn(),
+                }
+                const service = new UserCapstoneProjectionService(manager as never)
+
+                await expect(service.getTasks("u")).resolves.toEqual([expect.objectContaining({
+                    score: 0, passedAt: null
+                })])
+                expect(manager.query).toHaveBeenCalledTimes(1)
+            })
     })

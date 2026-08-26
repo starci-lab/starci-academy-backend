@@ -198,6 +198,83 @@ describe("CourseRagRetrievalService",
                 expect(fromExistingCollection).not.toHaveBeenCalled()
             })
 
+        it("returns empty structured results for a blank course search",
+            async () => {
+                const result = await service.searchCourse({
+                    courseId: "course-1",
+                    query: "   ",
+                })
+
+                expect(result).toEqual({
+                    hits: []
+                })
+                expect(fromExistingCollection).not.toHaveBeenCalled()
+            })
+
+        it("collapses course search chunks to the best score per source",
+            async () => {
+                const similaritySearchWithScore = jest.fn().mockResolvedValue([
+                    {
+                        pageContent: "low", metadata: {
+                            contentId: "content-1", kind: "content", lang: "en"
+                        }
+                    },
+                    {
+                        pageContent: "best", metadata: {
+                            contentId: "content-1", kind: "content", lang: "en"
+                        }
+                    },
+                    {
+                        pageContent: "other", metadata: {
+                            contentId: "content-2"
+                        }
+                    },
+                    {
+                        pageContent: "ignored", metadata: {
+                        }
+                    },
+                ].map((document, index) => [document,
+                    [0.2,
+                        0.9,
+                        0.5,
+                        0.8][index]]))
+                fromExistingCollection.mockResolvedValue({
+                    similaritySearchWithScore
+                })
+
+                const result = await service.searchCourse({
+                    courseId: "course-1",
+                    query: "hooks",
+                    kinds: ["content"],
+                    topK: 2,
+                })
+
+                expect(result.hits).toEqual([
+                    expect.objectContaining({
+                        contentId: "content-1", score: 0.9, snippet: "best"
+                    }),
+                    expect.objectContaining({
+                        contentId: "content-2", score: 0.5, kind: "content"
+                    }),
+                ])
+                expect(similaritySearchWithScore).toHaveBeenCalledWith("hooks",
+                    8,
+                    {
+                        must: [
+                            {
+                                key: "metadata.courseId", match: {
+                                    value: "course-1"
+                                }
+                            },
+                            {
+                                key: "metadata.kind", match: {
+                                    any: ["content"]
+                                }
+                            },
+                        ],
+                    })
+            })
+
         // ── retrieveCourseExcerpt - excludeContentIds (must_not) ─────────────────
         // The app-wide chat's premium-exclusion path: a non-enrolled viewer's
         // whole-course BASE grounding passes `excludeContentIds` so the RAG never
