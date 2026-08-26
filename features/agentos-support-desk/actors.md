@@ -28,3 +28,4 @@ Identity: `customer`
 - Send a support message
 - Receive only policy-eligible responses
 - Request or receive human handoff
+- Receive a policy-safe acknowledgement, clarification, approved informational answer or deterministic fallback for every accepted live turn

@@ -21,8 +21,8 @@
 
 - Identity: `support-workbench`
 - Kind: `workbench`
-- Summary: Queue, customer conversation, customer, ticket, SLA, suggested reply, sources and controls.
-- Items: `conversation` (Customer conversation), `ticket` (Ticket), `sla` (SLA), `sources` (Sources)
-- Actions: `approve-reply` (Approve reply), `takeover` (Take over), `resolve-ticket` (Resolve)
-- States: `ticket-active`, `human-takeover`, `ticket-resolved`, `support-degraded`
-- Evidence: `EV-SD-001`, `EV-SD-003`
+- Summary: Customer queue, durable channel transcript, mutable display identity, ticket, SLA, important facts, suggested reply, delivery evidence, sources and controls.
+- Items: `conversation` (Customer conversation), `customer-identity` (Customer and channel identity), `message-history` (Inbound and outbound history), `delivery-state` (Delivery state), `important-facts` (Important facts and source messages), `ticket` (Ticket), `sla` (SLA), `sources` (Sources)
+- Actions: `approve-reply` (Approve reply), `send-approved-reply` (Approve and send), `takeover` (Take over), `resolve-ticket` (Resolve)
+- States: `ticket-active`, `human-takeover`, `ticket-resolved`, `support-degraded`, `response-pending`, `response-sent`, `delivery-failed`
+- Evidence: `EV-SD-001`, `EV-SD-003`, `EV-SD-007`

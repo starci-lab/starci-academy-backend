@@ -22,11 +22,12 @@
 | `support-live` | `ready` | Support Desk is accepting live work | `inbound-received`, `support-paused`, `support-degraded` |
 | `inbound-received` | `pending` | Inbound customer event is accepted | `ai-evaluating`, `human-takeover` |
 | `ai-evaluating` | `pending` | AI is proposing a governed support action | `response-pending`, `human-takeover`, `support-degraded` |
-| `response-pending` | `pending` | A response awaits policy or human decision | `response-sent`, `human-takeover`, `support-degraded` |
-| `response-sent` | `ready` | A customer response was sent | `ticket-active`, `ticket-resolved` |
+| `response-pending` | `pending` | A response awaits policy or human decision | `response-sent`, `human-takeover`, `support-degraded`, `delivery-failed` |
+| `response-sent` | `ready` | A customer response was sent | `ticket-active`, `ticket-resolved`, `delivery-failed` |
 | `human-takeover` | `ready` | A human controls the customer conversation | `ticket-active`, `ai-evaluating` |
 | `ticket-active` | `ready` | A support ticket is active | `ticket-resolved`, `human-takeover` |
 | `ticket-resolved` | `ready` | A support ticket is resolved | `ticket-active` |
 | `ops-session-active` | `ready` | Primary internal operations chat is active | `ops-notice-ready` |
 | `ops-notice-ready` | `ready` | A proactive internal notice is ready | `ops-session-active` |
 | `support-degraded` | `refused` | One support readiness axis is degraded | `support-live`, `support-paused` |
+| `delivery-failed` | `refused` | An outbound customer response could not be delivered | `response-pending`, `human-takeover`, `support-degraded` |

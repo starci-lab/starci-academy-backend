@@ -121,10 +121,10 @@ Workspace AI readiness is a prerequisite and not a Support Desk credential.
 
 ## BR-SD-18
 
-The production default is Assist; constrained Autopilot requires explicit enablement and an approved eligible-intent policy.
+The production default is Assist for risky business actions, while trusted policy automatically allows acknowledgement, clarification, approved-knowledge informational answers, basic triage and deterministic fallback that make no prohibited commitment; broader Autopilot still requires explicit enablement and an approved eligible-intent policy.
 
-- Strength: `proposed`
-- Evidence: `EV-SD-001`, `EV-SD-002`, `EV-SD-003`
+- Strength: `confirmed`
+- Evidence: `EV-SD-001`, `EV-SD-002`, `EV-SD-003`, `EV-SD-007`
 
 ## BR-SD-19
 
@@ -244,3 +244,59 @@ Default UI uses business wording such as Business setup in use; prompt-prefix fi
 
 - Strength: `confirmed`
 - Evidence: `EV-SD-001`, `EV-SD-002`, `EV-SD-003`
+
+## BR-SD-36
+
+A verified inbound event is durably recorded before AI evaluation and is never silently discarded by an Assist or policy gate.
+
+- Strength: `confirmed`
+- Evidence: `EV-SD-007`
+
+## BR-SD-37
+
+Safe automatic responses are limited to acknowledgement, clarification, approved-knowledge informational answers, basic triage and deterministic fallback that make no price, discount, schedule, refund, remedy, legal or sensitive-data commitment.
+
+- Strength: `confirmed`
+- Evidence: `EV-SD-007`
+
+## BR-SD-38
+
+Pricing or discount decisions, schedule commitments, refunds or remedies, legal positions, sensitive-data disclosure and irreversible external mutations require explicit configured authority or human approval.
+
+- Strength: `confirmed`
+- Evidence: `EV-SD-007`
+
+## BR-SD-39
+
+When AI or retrieval fails but the channel remains send-capable, trusted code sends a deterministic non-committal fallback and queues internal follow-up; provider delivery failure is recorded and alerted without a false success claim.
+
+- Strength: `confirmed`
+- Evidence: `EV-SD-007`
+
+## BR-SD-40
+
+Every inbound and outbound customer message preserves provider identifiers, direction, content, sender attribution, active context version, policy decision, timestamps and delivery state as immutable conversation history.
+
+- Strength: `confirmed`
+- Evidence: `EV-SD-007`
+
+## BR-SD-41
+
+Important facts extracted from customer messages are non-authoritative operational claims with source-message evidence until a trusted actor or connector confirms them.
+
+- Strength: `confirmed`
+- Evidence: `EV-SD-007`
+
+## BR-SD-42
+
+Actionable signals create or update one deduplicated queue item per customer incident; repeated messages enrich the incident instead of multiplying tasks.
+
+- Strength: `confirmed`
+- Evidence: `EV-SD-007`
+
+## BR-SD-43
+
+A customer channel identity is scoped by workspace controller, provider and external user or chat identifier; a mutable handle such as starci183 is display metadata only.
+
+- Strength: `confirmed`
+- Evidence: `EV-SD-007`

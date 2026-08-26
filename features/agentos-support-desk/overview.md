@@ -1,6 +1,6 @@
 # AgentOS Support Desk business module
 
-Support Desk is one durable customer-support capability. A private AI-guided Setup revision combines versioned public-safe Nivo support knowledge with customer facts until explicit business-understanding gates are reviewable. Test binds the exact draft, Apply freezes the next immutable context version, and Enable Live is separate. Customer conversations and tickets live in the Support workbench while one designated collaborative operations chat receives internal collaboration and proactive notices. AI side effects pass trusted policy and fresh-state validation. Provider prompt/token caching reuses only an exact stable input prefix to reduce input-token cost and latency; it never caches outputs, credentials, dynamic customer state or authorization.
+Support Desk is a durable customer-support capability that learns one business through private Setup revisions, proves and applies immutable context, receives live channel messages, always produces a policy-safe response or explicit delivery failure, preserves attributable customer history, queues evidence-backed work, and collaborates with operators through a separate operations chat and workbench.
 
 ## Included
 
@@ -17,6 +17,9 @@ Support Desk is one durable customer-support capability. A private AI-guided Set
 - Reactive customer assistance and policy-governed proactive internal notices
 - Assist, constrained Autopilot, human takeover, paused and degraded operating modes
 - Provider AI prompt/token caching over deterministic stable input prefixes, with dynamic operational data after the cache boundary
+- Policy-safe automatic acknowledgement, clarification, approved-knowledge informational response and deterministic fallback so a verified customer turn is never silently discarded
+- Durable inbound and outbound customer message history with provider identity, delivery state, active context binding and attributable sender
+- Evidence-backed important-fact extraction and deduplicated support queue updates
 
 ## Excluded
 
@@ -29,6 +32,9 @@ Support Desk is one durable customer-support capability. A private AI-guided Set
 - Output or generated-reply caching across any customer turns
 - Treating an AI prompt-cache hit or miss as business readiness, correctness or authorization
 - Inventing production SLA, retention, autopilot-intent or notification policy before owner approval
+- Silently discarding an AI proposal because Assist or a policy gate requires approval
+- Treating a mutable channel handle as the durable customer identity
+- Claiming a provider send succeeded before durable outbox and delivery evidence exist
 
 ## Knowledge layers
 

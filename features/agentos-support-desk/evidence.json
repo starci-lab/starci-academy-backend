@@ -38,6 +38,12 @@
       "kind": "dependency",
       "authority": "business-head",
       "head": "01e0eec6f0da753e9526d8260812fdb0aeb3aa760c277cf5d157717f5a9a4cb7"
+    },
+    {
+      "id": "EV-SD-007",
+      "claim": "The owner approved that every accepted Telegram customer turn must receive a policy-safe reply or explicit delivery failure, appear as durable customer history in the Nivo web workbench under identities such as starci183, and create or update evidence-backed important-work queue items without allowing unrestricted Autopilot.",
+      "kind": "owner-decision",
+      "authority": "owner"
     }
   ]
 }

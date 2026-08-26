@@ -13,7 +13,7 @@
 - [ ] **AC-SD-11** Enable Live is a separate explicit action and cannot succeed until every declared readiness axis is ready. _Evidence: `EV-SD-001`, `EV-SD-002`, `EV-SD-003`._
 - [ ] **AC-SD-12** Telegram credentials are accepted only through write-only input, encrypted at rest and returned only as masked status. _Evidence: `EV-SD-001`, `EV-SD-004`._
 - [ ] **AC-SD-13** Workspace AI readiness is displayed as a prerequisite rather than collected as a module credential. _Evidence: `EV-SD-001`, `EV-SD-004`._
-- [ ] **AC-SD-14** Assist is the proposed production default; Autopilot cannot operate without explicit mode and eligible-intent policy. _Evidence: `EV-SD-001`, `EV-SD-002`, `EV-SD-003`._
+- [ ] **AC-SD-14** Assist is the production default for risky business actions, but policy-safe acknowledgement, clarification, approved informational answers, basic triage and deterministic fallback do not require a human click; broader Autopilot requires explicit mode and eligible-intent policy. _Evidence: `EV-SD-001`, `EV-SD-002`, `EV-SD-003`, `EV-SD-007`._
 - [ ] **AC-SD-15** A verified inbound customer event creates or resumes a customer conversation and ticket, never an Execute session. _Evidence: `EV-SD-001`, `EV-SD-003`._
 - [ ] **AC-SD-16** The language model can propose but cannot directly send customer messages or invoke external side effects. _Evidence: `EV-SD-001`, `EV-SD-003`._
 - [ ] **AC-SD-17** Every customer send freshly checks active context, permission, consent, takeover, credential and idempotency. _Evidence: `EV-SD-001`, `EV-SD-003`._
@@ -30,10 +30,17 @@
 - [ ] **AC-SD-28** A cache miss produces the same governed AI request and business outcome as a hit; only cached input-token count, latency and cost may differ. _Evidence: `EV-SD-001`, `EV-SD-005`._
 - [ ] **AC-SD-29** A failed readiness axis stops only unsafe automatic actions, emits one deduplicated internal notice and requires explicit current-state recovery. _Evidence: `EV-SD-001`, `EV-SD-002`, `EV-SD-003`._
 - [ ] **AC-SD-30** Default product wording says Business setup in use and keeps version ordinal, digest and cache identities in diagnostics. _Evidence: `EV-SD-001`, `EV-SD-002`, `EV-SD-003`._
+- [ ] **AC-SD-31** Every verified accepted inbound event is durably visible in the correct customer conversation before AI evaluation. _Evidence: `EV-SD-007`._
+- [ ] **AC-SD-32** An eligible low-risk customer turn receives a policy-safe automatic response; a risky turn preserves a visible draft and approval or handoff path instead of being silently dropped. _Evidence: `EV-SD-007`._
+- [ ] **AC-SD-33** If AI or retrieval fails while Telegram remains send-capable, the customer receives a deterministic non-committal fallback and operators receive one deduplicated urgent follow-up item. _Evidence: `EV-SD-007`._
+- [ ] **AC-SD-34** If provider send fails, the outbound message shows failed delivery and an internal alert; the system never represents it as delivered. _Evidence: `EV-SD-007`._
+- [ ] **AC-SD-35** The Support workbench can select the Telegram customer displayed as starci183 and render the ordered inbound and outbound transcript with context version, sender and delivery evidence. _Evidence: `EV-SD-007`._
+- [ ] **AC-SD-36** Important facts link to source messages and repeated messages for one incident update one queue item rather than create duplicates. _Evidence: `EV-SD-007`._
+- [ ] **AC-SD-37** Human takeover blocks subsequent automatic sends while retaining full customer history and drafts. _Evidence: `EV-SD-007`._
+- [ ] **AC-SD-38** Applying a later context changes future response evaluation only and never rewrites prior customer messages, delivery evidence or queue history. _Evidence: `EV-SD-007`._
 
 ## Unresolved owner decisions
 
-- **autopilot-eligible-intents:** Which exact customer intents may use constrained Autopilot? Only Assist and human approval are safe until an eligible-intent policy is approved.
 - **support-sla-policy:** What service hours, priority definitions and first-response or resolution targets apply? SLA timers and escalations cannot claim production correctness until approved.
 - **support-retention-policy:** How long are customer conversations, tickets, attachments, traces and test evidence retained? Production deletion and audit rules remain undecided.
 - **proactive-notification-policy:** Which events, recipients, quiet hours, acknowledgement deadlines and escalation ladder govern proactive notices? Only manually observed internal events are safe until approved.

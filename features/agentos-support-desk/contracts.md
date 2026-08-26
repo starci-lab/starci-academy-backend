@@ -80,6 +80,18 @@
 - Fields: `decisionId`, `conversationId`, `ticketId`, `proposal`, `policyResult`, `actorId`, `contextVersionId`, `idempotencyKey`, `createdAt`
 - Evidence: `EV-SD-001`, `EV-SD-003`
 
+### Immutable customer conversation message
+
+- Identity: `customer-message`
+- Fields: `messageId`, `conversationId`, `providerEventId`, `providerMessageId`, `direction`, `content`, `senderType`, `actorId`, `contextVersionId`, `policyDecisionId`, `deliveryState`, `receivedAt`, `sentAt`
+- Evidence: `EV-SD-007`
+
+### Evidence-backed operational fact extracted from a customer message
+
+- Identity: `support-important-fact`
+- Fields: `factId`, `conversationId`, `ticketId`, `sourceMessageId`, `factType`, `value`, `confidence`, `confirmationStatus`, `createdAt`
+- Evidence: `EV-SD-007`
+
 ## Operations
 
 ### open-initial-support-setup
@@ -178,7 +190,7 @@
 - Contract name: `acceptInboundSupportEvent`
 - Owner: `backend`
 - Inputs: `verified provider event`
-- Outputs: `conversation`, `message`, `ticket`
+- Outputs: `customer identity`, `conversation`, `immutable inbound message`, `deduplicated ticket or queue item`
 - Refusals: `signature invalid`, `duplicate event`, `module not live`
 
 ### evaluate-support-turn
@@ -187,7 +199,7 @@
 - Contract name: `evaluateSupportTurn`
 - Owner: `backend`
 - Inputs: `conversationId`, `messageId`
-- Outputs: `classification`, `retrieval evidence`, `proposed response`, `policy result`
+- Outputs: `classification`, `important facts with source evidence`, `retrieval evidence`, `proposed response`, `policy route`
 - Refusals: `context unavailable`, `knowledge unavailable`, `unsafe request`
 
 ### approve-support-reply
@@ -205,7 +217,7 @@
 - Contract name: `sendEligibleAutoReply`
 - Owner: `backend`
 - Inputs: `decisionId`, `idempotencyKey`
-- Outputs: `provider send evidence`
+- Outputs: `durable outbound message`, `outbox evidence`, `provider delivery state`
 - Refusals: `fresh validation refused`, `provider failure`
 
 ### take-over-conversation
@@ -252,3 +264,30 @@
 - Inputs: `registeredEventId`, `dedupeKey`, `notice`
 - Outputs: `primary ops message`
 - Refusals: `event unregistered`, `quiet-hour policy deferred`, `duplicate notice`
+
+### send-safe-support-fallback
+
+- Kind: `command`
+- Contract name: `sendSafeSupportFallback`
+- Owner: `backend`
+- Inputs: `conversationId`, `inboundMessageId`, `failureClass`, `idempotencyKey`
+- Outputs: `durable fallback message`, `outbox evidence`, `provider delivery state`, `internal follow-up item`
+- Refusals: `channel unavailable`, `fresh validation refused`, `provider failure`
+
+### list-customer-conversations
+
+- Kind: `query`
+- Contract name: `listCustomerConversations`
+- Owner: `backend`
+- Inputs: `moduleId`, `queue filter`, `cursor`
+- Outputs: `customer conversation summaries with handle, unread, priority and SLA`
+- Refusals: `permission refused`
+
+### list-customer-messages
+
+- Kind: `query`
+- Contract name: `listCustomerMessages`
+- Owner: `backend`
+- Inputs: `conversationId`, `cursor`
+- Outputs: `ordered immutable inbound and outbound messages with delivery and context evidence`
+- Refusals: `permission refused`, `conversation not found`
