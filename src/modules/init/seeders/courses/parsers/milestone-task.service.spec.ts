@@ -371,6 +371,46 @@ describe("MilestoneTaskParserService",
                 }))
             })
 
+        it("preserves explicit brief sort indexes and handles missing language buckets",
+            async () => {
+                const merge = module.get(MergeJsonService)
+                const extractor = module.get(ExtractJsonFromMdService)
+                jest.spyOn(extractor,
+                    "extract").mockReturnValue({
+                })
+                jest.spyOn(merge,
+                    "merge").mockReturnValue({
+                        criterias: [{
+                            lang: "typescript",
+                            sortIndex: 7,
+                            outcome: [{
+                                sortIndex: 4,
+                                score: 30,
+                            }],
+                            approach: [{
+                                sortIndex: 5,
+                                score: 40,
+                            }],
+                        },
+                        {
+                        }],
+                    } as never)
+                const result = await service.parse({
+                    paths: [{
+                        relativePath: CLEAN_ARCHITECTURE_HEALTH_RELATIVE_PATH,
+                        orderIndex: 0,
+                        displayId: "clean-architecture-and-health",
+                    }],
+                    courseIndex: 0,
+                    milestoneIndex: 0,
+                    taskIndex: 0,
+                })
+                expect(result.briefs?.map((brief) => brief.sortIndex)).toEqual([7,
+                    1])
+                expect(result.outcomeCriteria?.[0]?.langs?.[1]?.lang).toBe("")
+                expect(result.approachCriteria?.[0]?.langs?.[1]?.lang).toBe("")
+            })
+
         it("loads persisted tasks by the deterministic milestone id",
             async () => {
                 const rows = [{

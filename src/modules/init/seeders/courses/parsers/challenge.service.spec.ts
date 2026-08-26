@@ -85,6 +85,69 @@ import {
     ChallengeParserService,
 } from "./challenge.service"
 
+describe("ChallengeParserService criteria normalization",
+    () => {
+        it("normalizes sparse criteria and language rows while summing scores",
+            () => {
+                const parseCriteria = (ChallengeParserService.prototype as unknown as {
+                    parseCriteria: (params: unknown) => unknown
+                }).parseCriteria
+                const service = {
+                    coerceMdScalarService: {
+                        toRequiredNumber: jest.fn((value: unknown, fallback: number) =>
+                            typeof value === "number" ? value : fallback),
+                        toRequiredString: jest.fn((value: unknown, fallback: string) =>
+                            typeof value === "string" ? value : fallback),
+                        toNullableStringColumn: jest.fn((value: unknown) =>
+                            typeof value === "string" ? value : null),
+                        toRequiredBoolean: jest.fn((value: unknown, fallback: boolean) =>
+                            typeof value === "boolean" ? value : fallback),
+                    },
+                    challengeSubmissionCriteriaIdFactoryService: {
+                        generate: jest.fn().mockReturnValue("criterion-id"),
+                        generateLang: jest.fn().mockReturnValue("criterion-lang-id"),
+                    },
+                    toSortIndex: (value: unknown, fallback: number) =>
+                        typeof value === "number" && Number.isFinite(value) ? value : fallback,
+                }
+                const result = parseCriteria.call(service,
+                    {
+                        criteria: [
+                            {
+                                orderIndex: 2,
+                                score: 5,
+                                body: [{
+                                    lang: undefined,
+                                    body: "Body",
+                                }],
+                            },
+                            {
+                                orderIndex: undefined,
+                                score: undefined,
+                                body: "malformed",
+                            },
+                        ],
+                        kind: "approach",
+                        challengeSubmissionId: "submission-id",
+                        courseIndex: 1,
+                        moduleIndex: 2,
+                        contentIndex: 3,
+                        challengeIndex: 4,
+                        submissionIndex: 5,
+                    }) as {
+                        rows: Array<{ orderIndex: number; sortIndex: number }>
+                        totalScore: number
+                    }
+
+                expect(result.totalScore).toBe(5)
+                expect(result.rows).toHaveLength(2)
+                expect(result.rows.map((row) => row.orderIndex)).toEqual([2,
+                    0])
+                expect(result.rows.map((row) => row.sortIndex)).toEqual([2,
+                    0])
+            })
+    })
+
 /** Relative path to both SCHEMA V2 challenges under frameworks-in-backend. */
 const FRAMEWORKS_CHALLENGES_RELATIVE_PATH =
     "0-fullstack-mastery/modules/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend/challenges"
@@ -229,6 +292,88 @@ describe("ChallengeParserService",
 
         describe("parse",
             () => {
+                it("normalizes sparse nested requirement, step, output, and prerequisite rows",
+                    async () => {
+                        const merge = jest.spyOn(MergeJsonService.prototype,
+                            "merge").mockReturnValue({
+                                title: "Sparse challenge",
+                                description: "",
+                                requirements: [{
+                                    orderIndex: undefined,
+                                    sortIndex: undefined,
+                                    langs: [{
+                                        orderIndex: undefined,
+                                        sortIndex: undefined,
+                                        lang: undefined,
+                                        translations: undefined,
+                                    }],
+                                }],
+                                steps: [{
+                                    orderIndex: undefined,
+                                    sortIndex: undefined,
+                                    langs: [{
+                                        orderIndex: undefined,
+                                        sortIndex: undefined,
+                                        lang: undefined,
+                                        translations: undefined,
+                                    }],
+                                }],
+                                outputs: [{
+                                    orderIndex: undefined,
+                                    sortIndex: undefined,
+                                    langs: [{
+                                        orderIndex: undefined,
+                                        sortIndex: undefined,
+                                        lang: undefined,
+                                        text: undefined,
+                                        translations: undefined,
+                                    }],
+                                }],
+                                prerequisites: [{
+                                    orderIndex: undefined,
+                                    sortIndex: undefined,
+                                    langs: [{
+                                        orderIndex: undefined,
+                                        sortIndex: undefined,
+                                        lang: undefined,
+                                        text: undefined,
+                                        translations: undefined,
+                                    }],
+                                }],
+                                approachCriterias: undefined,
+                                outcomeCriterias: undefined,
+                                translations: undefined,
+                            } as never)
+                        const resolver = module.get(PathResolverService) as unknown as {
+                            filePaths: jest.Mock
+                        }
+                        resolver.filePaths.mockResolvedValue([{
+                            relativePath: "missing-submission",
+                            orderIndex: 0,
+                            displayId: "0",
+                        }])
+
+                        const result = await service.parse({
+                            paths: [{
+                                relativePath: challengePaths[0]!.relativePath,
+                                orderIndex: 0,
+                                displayId: "sparse",
+                            }],
+                            courseIndex: 0,
+                            moduleIndex: 0,
+                            contentIndex: 0,
+                            challengeIndex: 0,
+                        })
+
+                        expect(result.requirements?.[0]?.sortIndex).toBe(0)
+                        expect(result.requirements?.[0]?.langs?.[0]?.sortIndex).toBe(0)
+                        expect(result.steps?.[0]?.langs?.[0]?.lang).toBe("text")
+                        expect(result.outputs?.[0]?.langs?.[0]?.text).toBeNull()
+                        expect(result.prerequisites?.[0]?.langs?.[0]?.text).toBeNull()
+                        expect(result.translations).toEqual([])
+                        expect(result.submissions).toHaveLength(1)
+                        merge.mockRestore()
+                    })
                 it("rejects a challenge ordinal that is not mounted",
                     async () => {
                         await expect(service.parse({

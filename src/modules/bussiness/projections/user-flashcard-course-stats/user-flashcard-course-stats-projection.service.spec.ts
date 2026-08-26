@@ -1295,6 +1295,75 @@ describe("UserFlashcardCourseStatsProjectionService",
                             retention: 90,
                         })
                     })
+
+                it("guards concept coverage and hard-card folds against absent or malformed source rows",
+                    async () => {
+                        const service = await build()
+                        const methods = service as unknown as {
+                            computeConceptCoverage: (manager: EntityManager, enrollmentId: string, attemptedTags: Set<string>) => Promise<unknown>
+                            computeQuizHardCards: (sessions: unknown[], cards: Map<string, unknown>) => Array<Record<string, unknown>>
+                            computeByTag: (sessions: unknown[], cards: Map<string, unknown>) => Array<Record<string, unknown>>
+                        }
+
+                        entityManager.query.mockResolvedValueOnce([])
+                        await expect(methods.computeConceptCoverage(entityManager as unknown as EntityManager,
+                            ENROLLMENT_ID,
+                            new Set(["typescript"]))).resolves.toBeNull()
+
+                        entityManager.query.mockResolvedValueOnce([{
+                            total: "4",
+                        }])
+                        await expect(methods.computeConceptCoverage(entityManager as unknown as EntityManager,
+                            ENROLLMENT_ID,
+                            new Set(["typescript"]))).resolves.toEqual({
+                            covered: 1,
+                            total: 4,
+                        })
+
+                        const sessions = [
+                            {
+                                results: [
+                                    {
+                                        cardId: "card-1",
+                                        totalBlanks: 0,
+                                        correctBlanks: 2,
+                                    },
+                                    {
+                                        cardId: "card-1",
+                                        totalBlanks: 0,
+                                        correctBlanks: 0,
+                                    },
+                                    {
+                                        cardId: "deleted-card",
+                                        totalBlanks: 4,
+                                        correctBlanks: 1,
+                                    },
+                                ],
+                            },
+                        ]
+                        const cards = new Map<string, unknown>([
+                            ["card-1",
+                                {
+                                    tags: [],
+                                }],
+                        ])
+
+                        expect(methods.computeQuizHardCards(sessions,
+                            cards)).toEqual([
+                            expect.objectContaining({
+                                cardId: "card-1",
+                                attempts: 2,
+                                wrongCount: 0,
+                                coverage: 0,
+                                question: "",
+                                deckId: "",
+                                deckTitle: "",
+                            }),
+                        ])
+                        expect(methods.computeByTag.call(service,
+                            sessions,
+                            cards)).toEqual([])
+                    })
             })
 
         describe("getStats",

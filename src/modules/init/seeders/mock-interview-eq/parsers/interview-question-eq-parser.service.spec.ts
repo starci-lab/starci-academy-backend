@@ -94,4 +94,21 @@ describe("InterviewQuestionEqParserService",
                 await expect(service.parseMany()).resolves.toEqual([])
                 expect(d.winston.log).toHaveBeenCalled()
             })
+        it("returns no questions when a valid bank has no question folders",
+            async () => {
+                const d = dependencies()
+                d.path.questionPaths.mockResolvedValue([])
+                const service = new InterviewQuestionEqParserService(
+                    d.path as never,
+                    d.loader as never,
+                    d.extract as never,
+                    d.scalar as never,
+                    d.fields as never,
+                    d.ids as never,
+                    d.winston as never,
+                )
+
+                await expect(service.parseMany()).resolves.toEqual([])
+                expect(d.ids.generate).not.toHaveBeenCalled()
+            })
     })

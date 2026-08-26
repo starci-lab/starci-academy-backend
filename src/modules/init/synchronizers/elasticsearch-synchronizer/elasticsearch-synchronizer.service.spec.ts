@@ -307,6 +307,13 @@ describe("ElasticsearchSynchronizerService",
                     codingProblems: true,
                 })
 
+                const dispatch = service as unknown as {
+                    syncEntityKind: (scope: unknown, entityKind: string) => Promise<void>
+                }
+                await dispatch.syncEntityKind({
+                },
+                "UnsupportedEntity")
+
                 expect(ensureIndexForEntity).toHaveBeenCalledTimes(24)
                 expect(builders.course.buildIndexById).toHaveBeenCalledWith("course")
                 expect(builders.module.buildIndexById).toHaveBeenCalledWith("module")

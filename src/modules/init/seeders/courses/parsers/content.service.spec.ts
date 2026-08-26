@@ -70,6 +70,71 @@ import {
     ContentParserService
 } from "./content.service"
 
+describe("ContentParserService scalar boundaries",
+    () => {
+        it("accepts known difficulty values and falls back for malformed order values",
+            () => {
+                const methods = ContentParserService.prototype as unknown as {
+                    toDifficulty: (value: unknown) => unknown
+                    toSortIndex: (value: unknown, fallback: number) => number
+                }
+                expect(methods.toDifficulty("beginner")).toBe("beginner")
+                expect(methods.toDifficulty("not-a-difficulty")).toBeNull()
+                expect(methods.toDifficulty(null)).toBeNull()
+                expect(methods.toSortIndex(" 8 ",
+                    4)).toBe(8)
+                expect(methods.toSortIndex("invalid",
+                    4)).toBe(4)
+            })
+
+    })
+
+describe("ContentParserService outcome boundaries",
+    () => {
+        it("maps sparse outcomes and filters translations to the text field",
+            () => {
+                const buildOutcomes = (ContentParserService.prototype as unknown as {
+                    buildOutcomes: (items: Array<Record<string, unknown>>, params: Record<string, unknown>) => Array<Record<string, unknown>>
+                }).buildOutcomes
+                const result = buildOutcomes.call({
+                    contentLearningOutcomeIdFactoryService: {
+                        generate: jest.fn().mockReturnValue("outcome-id"),
+                    },
+                },
+                [{
+                    orderIndex: undefined,
+                    text: undefined,
+                    translations: [{
+                        field: "other",
+                        locale: Locale.En,
+                        value: "ignored",
+                    },
+                    {
+                        field: "text",
+                        locale: Locale.Vi,
+                        value: "translated",
+                    }],
+                }],
+                {
+                    courseIndex: 1,
+                    moduleIndex: 2,
+                    contentIndex: 3,
+                    contentId: "content-id",
+                })
+                expect(result).toEqual([expect.objectContaining({
+                    id: "outcome-id",
+                    text: "",
+                    orderIndex: 0,
+                    translations: [{
+                        contentLearningOutcomeId: "outcome-id",
+                        locale: Locale.Vi,
+                        field: "text",
+                        value: "translated",
+                    }],
+                })])
+            })
+    })
+
 /** Fixture folder for the NestJS "frameworks in backend" lesson (SCHEMA V2 sample). */
 const FRAMEWORKS_IN_BACKEND_FIXTURE_DIR = path.join(
     COURSE_PARSER_FIXTURE_ROOT,
@@ -635,5 +700,108 @@ describe("ContentParserService",
                     status: "pending",
                     markdown: "plain proof text",
                 })
+            })
+
+        it("uses the empty translation fallback for sparse body and outcome rows",
+            async () => {
+                const paths = module.get(PathResolverService)
+                const loader = module.get(ContextLoaderService)
+                const merge = module.get(MergeJsonService)
+                jest.mocked(paths.filePaths).mockResolvedValue([{
+                    relativePath: "course/content/bodies/0-typescript",
+                    orderIndex: 0,
+                    displayId: "typescript",
+                }])
+                jest.mocked(loader.load).mockRejectedValue(new Error("body unavailable"))
+                jest.spyOn(merge,
+                    "merge").mockReturnValue({
+                        body: "Body",
+                    } as never)
+                const parser = service as unknown as {
+                    parseBodies: (params: {
+                        contentRelativePath: string
+                        courseIndex: number
+                        moduleIndex: number
+                        contentIndex: number
+                        contentId: string
+                    }) => Promise<Array<{ translations?: Array<unknown> }>>
+                    buildOutcomes: (items: Array<{ text?: string }>, params: {
+                        courseIndex: number
+                        moduleIndex: number
+                        contentIndex: number
+                        contentId: string
+                    }) => Array<{ text?: string; translations?: Array<unknown> }>
+                }
+                const bodies = await parser.parseBodies({
+                    contentRelativePath: "course/content",
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                    contentId: "content-id",
+                })
+                expect(bodies[0]?.translations).toEqual([])
+                expect(parser.buildOutcomes([{
+                }],
+                {
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                    contentId: "content-id",
+                })).toEqual([expect.objectContaining({
+                    text: "",
+                    translations: [],
+                })])
+            })
+
+        it("orders tied flow numbers by filename for deterministic proof output",
+            async () => {
+                const paths = module.get(PathResolverService)
+                jest.mocked(paths.listRaw).mockResolvedValue([
+                    "flow-1-z.md",
+                    "flow-1-a.md",
+                    "summary.md",
+                ])
+                const parser = service as unknown as {
+                    listOrderedFlowFiles: (root: string, lang: string) => Promise<Array<string>>
+                }
+                await expect(parser.listOrderedFlowFiles("course/content/.e2e",
+                    "typescript")).resolves.toEqual(["flow-1-a.md",
+                    "flow-1-z.md"])
+            })
+
+        it("defaults sparse content scalars and translations when merge is empty",
+            async () => {
+                const paths = module.get(PathResolverService)
+                const loader = module.get(ContextLoaderService)
+                const extractor = module.get(ExtractJsonFromMdService)
+                const merge = module.get(MergeJsonService)
+                jest.mocked(paths.filePaths).mockResolvedValue([])
+                jest.mocked(paths.listRaw).mockResolvedValue([])
+                jest.mocked(loader.load).mockImplementation(async (_base,
+                    relativePath) => {
+                    if (relativePath.endsWith("e2e.json")) {
+                        throw new Error("legacy proof absent")
+                    }
+                    return "markdown"
+                })
+                jest.spyOn(extractor,
+                    "extract").mockReturnValue({
+                })
+                jest.spyOn(merge,
+                    "merge").mockReturnValue({
+                    } as never)
+                const parsed = await service.parse({
+                    paths: [{
+                        relativePath: "course/content/0-empty",
+                        orderIndex: 0,
+                        displayId: "empty",
+                    }],
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                })
+                expect(parsed.title).toBe("")
+                expect(parsed.translations).toEqual([])
+                expect(parsed.outcomes).toEqual([])
             })
     })

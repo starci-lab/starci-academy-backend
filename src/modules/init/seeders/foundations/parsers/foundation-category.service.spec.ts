@@ -254,4 +254,52 @@ describe("FoundationCategoryParserService",
                 key: "assets/thumb.png",
             }))
         })
+    it("keeps empty category metadata nullable and uses the ordinal sort fallback",
+        async () => {
+            const service = new FoundationCategoryParserService(
+                    {
+                        extract: jest.fn().mockReturnValue({
+                        }),
+                    } as never,
+                    {
+                        toNullableStringColumn: jest.fn().mockReturnValue(null),
+                    } as never,
+                    {
+                    } as never,
+                    {
+                        load: jest.fn().mockResolvedValue("markdown"),
+                    } as never,
+                    {
+                        generate: jest.fn().mockReturnValue("category-empty"),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                    {
+                    } as never,
+            )
+
+            const result = await service.parse({
+                paths: [{
+                    relativePath: "empty",
+                    orderIndex: 3,
+                    displayId: "empty",
+                }],
+                categoryIndex: 3,
+            })
+
+            expect(result).toEqual(expect.objectContaining({
+                id: "category-empty",
+                title: "",
+                description: null,
+                thumbnailUrl: null,
+                sortIndex: 4,
+            }))
+            expect(result.translations).toEqual(expect.arrayContaining([{
+                categoryId: "category-empty",
+                locale: "en",
+                field: "title",
+                value: "",
+            }]))
+        })
     })

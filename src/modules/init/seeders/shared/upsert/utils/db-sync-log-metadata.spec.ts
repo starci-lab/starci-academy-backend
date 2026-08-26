@@ -125,4 +125,24 @@ describe("buildDbSyncLogDisplayFields",
                     displayId: "unknown", relativeDisplayIds: []
                 })
             })
+        it("does not synthesize ancestry from null or scalar relations",
+            () => {
+                expect(buildDbSyncLogDisplayFields(ContentEntity.name,
+                    {
+                        displayId: "content-null",
+                        module: null,
+                        verified: false,
+                    } as never)).toEqual({
+                    displayId: "content-null",
+                    relativeDisplayIds: [],
+                })
+                expect(buildDbSyncLogDisplayFields(MilestoneTaskEntity.name,
+                    {
+                        orderIndex: 0,
+                        milestone: "unresolved",
+                    } as never)).toEqual({
+                    displayId: "0",
+                    relativeDisplayIds: [],
+                })
+            })
     })

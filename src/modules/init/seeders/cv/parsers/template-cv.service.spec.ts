@@ -163,4 +163,67 @@ describe("TemplateCvParserService",
                 expect(log).toHaveBeenCalled()
                 parse.mockRestore()
             })
+        it("omits empty localized fields while retaining localized descriptions",
+            async () => {
+                const load = jest.fn()
+                    .mockResolvedValueOnce(["# title",
+                        "English"].join(String.fromCharCode(10)))
+                    .mockResolvedValueOnce(["# description",
+                        "Vietnamese description"].join(String.fromCharCode(10)))
+                const service = new TemplateCvParserService(
+                    {
+                        paths: jest.fn(),
+                    } as never,
+                    {
+                        load,
+                    } as never,
+                    {
+                        generate: jest.fn().mockReturnValue("template-localized"),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                )
+
+                const result = await service.parse({
+                    paths: [{
+                        relativePath: "localized",
+                    }] as never,
+                    templateIndex: 0,
+                })
+
+                expect(result?.translations).toEqual([{
+                    templateCVId: "template-localized",
+                    locale: Locale.Vi,
+                    field: "description",
+                    value: "Vietnamese description",
+                }])
+            })
+
+        it("skips a parseMany entry when parsing returns no template",
+            async () => {
+                const paths = jest.fn().mockResolvedValue([{
+                    relativePath: "empty",
+                    orderIndex: 0,
+                }])
+                const parse = jest.spyOn(TemplateCvParserService.prototype,
+                    "parse").mockResolvedValue(null)
+                const service = new TemplateCvParserService(
+                    {
+                        paths
+                    } as never,
+                    {
+                        load: jest.fn()
+                    } as never,
+                    {
+                        generate: jest.fn()
+                    } as never,
+                    {
+                        log: jest.fn()
+                    } as never,
+                )
+                await expect(service.parseMany()).resolves.toEqual([])
+                expect(parse).toHaveBeenCalledTimes(1)
+                parse.mockRestore()
+            })
     })

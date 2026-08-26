@@ -16,6 +16,145 @@ import {
     MergeJsonService,
 } from "./merge.service"
 
+describe("MergeJsonService internal path contracts",
+    () => {
+        it("handles root, nested, scalar, and unmatched array paths deterministically",
+            () => {
+                const service = new MergeJsonService() as unknown as {
+                    immediateItemLeafFields: (fields: Array<string>, path: string) => Array<string>
+                    nestedArrayKeysUnderPrefix: (fields: Array<string>, path: string) => Array<string>
+                    arrayKeysUnderPrefix: (fields: Array<string>, path: string, node: Record<string, unknown>) => Array<string>
+                    pathTraversesArray: (root: unknown, field: string) => boolean
+                    resolveLeafArray: (root: unknown, segments: Array<string>, trail: Array<{ key: string; orderIndex: unknown }>) => unknown
+                    coerceTranslationValue: (value: unknown) => string
+                }
+                expect(service.immediateItemLeafFields(["title"],
+                    "")).toEqual([])
+                expect(service.immediateItemLeafFields(["items.title",
+                    "items.meta.value"],
+                "items")).toEqual(["title"])
+                expect(service.nestedArrayKeysUnderPrefix(["items.title",
+                    "items.meta.value",
+                    "other"],
+                "items")).toEqual(["meta"])
+                expect(service.arrayKeysUnderPrefix(["items.title",
+                    "missing.value"],
+                "",
+                {
+                    items: [],
+                    missing: "scalar",
+                })).toEqual(["items"])
+                expect(service.pathTraversesArray({
+                    items: []
+                },
+                "items.title")).toBe(true)
+                expect(service.pathTraversesArray({
+                    items: "scalar"
+                },
+                "items.title")).toBe(false)
+                expect(service.resolveLeafArray({
+                    groups: [{
+                        orderIndex: 1, items: [{
+                            orderIndex: 2, title: "ok"
+                        }]
+                    }],
+                },
+                ["groups",
+                    "items"],
+                [{
+                    key: "groups", orderIndex: 99
+                }])).toBeUndefined()
+                expect(service.coerceTranslationValue(false)).toBe("false")
+            })
+
+        it("handles scalar nested buckets and each resolve traversal exit",
+            () => {
+                const service = new MergeJsonService() as unknown as {
+                    merge: (params: {
+                        jsons: Array<{ locale: Locale; json: Record<string, unknown> }>
+                        translateFields: Array<string>
+                    }) => { groups?: Array<Record<string, unknown>> }
+                    nestedArrayKeysUnderPrefix: (fields: Array<string>, path: string) => Array<string>
+                    immediateItemLeafFields: (fields: Array<string>, path: string) => Array<string>
+                    resolveLeafArray: (root: unknown, segments: Array<string>, trail: Array<{ key: string; orderIndex: unknown }>) => unknown
+                    arrayKeysUnderPrefix: (fields: Array<string>, path: string, node: Record<string, unknown>) => Array<string>
+                }
+                const merged = service.merge({
+                    jsons: [{
+                        locale: Locale.En,
+                        json: {
+                            groups: [{
+                                orderIndex: 1, items: "scalar"
+                            }],
+                        },
+                    }],
+                    translateFields: ["groups.items.title",
+                        "groups.missing.title"],
+                })
+                expect(merged.groups?.[0]?.items).toBe("scalar")
+                const rootArrayResult = service.merge({
+                    jsons: [{
+                        locale: Locale.En,
+                        json: [{
+                            orderIndex: 1,
+                            items: [{
+                                orderIndex: 1,
+                                title: "root item",
+                            }],
+                        }] as never,
+                    }],
+                    translateFields: ["items.title"],
+                }) as unknown as Array<Record<string, unknown>>
+                expect(rootArrayResult[0]?.items).toEqual([expect.objectContaining({
+                    title: "root item",
+                })])
+                expect(service.resolveLeafArray({
+                    groups: [{
+                        orderIndex: 1
+                    }]
+                },
+                ["groups",
+                    "items"],
+                [])).toBeUndefined()
+                expect(service.resolveLeafArray({
+                    groups: {
+                        items: [{
+                            orderIndex: 1
+                        }]
+                    }
+                },
+                ["groups",
+                    "items"],
+                [])).toEqual([{
+                    orderIndex: 1
+                }])
+                expect(service.arrayKeysUnderPrefix(["groups",
+                    "other.title"],
+                "",
+                {
+                    groups: []
+                })).toEqual(["groups"])
+                expect(service.nestedArrayKeysUnderPrefix(["items.title"],
+                    "")).toEqual(["items"])
+                expect(service.immediateItemLeafFields(["items.title",
+                    "other"],
+                "items")).toEqual(["title"])
+                expect(service.arrayKeysUnderPrefix(["other.value"],
+                    "groups",
+                    {
+                        other: []
+                    })).toEqual([])
+                expect(service.resolveLeafArray({
+                    meta: {
+                        value: "scalar"
+                    }
+                },
+                ["meta",
+                    "value"],
+                [])).toBe("scalar")
+            })
+    })
+
 /** Fixture extracts for `1-custom-provider-dynamic-module-medium` (M0 challenge). */
 const CHALLENGE_MEDIUM_EN_JSON = path.join(
     __dirname,

@@ -277,4 +277,52 @@ describe("PlaygroundParserService",
                 ])
                 expect(log).toHaveBeenCalledTimes(1)
             })
+
+        it("defaults optional playground fields when all locale content is sparse",
+            async () => {
+                const service = new PlaygroundParserService(
+                    {
+                        paths: jest.fn(),
+                    } as never,
+                    {
+                        parseMany: jest.fn().mockResolvedValue([]),
+                    } as never,
+                    {
+                        load: jest.fn().mockResolvedValue("markdown"),
+                    } as never,
+                    {
+                        extract: jest.fn().mockReturnValue({
+                        }),
+                    } as never,
+                    new CoerceMdScalarService(),
+                    {
+                        merge: jest.fn().mockReturnValue({
+                        }),
+                    } as never,
+                    {
+                        generate: jest.fn().mockReturnValue("playground-id"),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                    {
+                        generate: jest.fn().mockReturnValue("course-id"),
+                    } as never,
+                    {
+                    } as never,
+                )
+                const result = await service.parse({
+                    paths: [{
+                        relativePath: "course/playgrounds/0-empty",
+                        orderIndex: 0,
+                        displayId: "empty",
+                    }],
+                    courseIndex: 0,
+                    courseId: "course-id",
+                    playgroundIndex: 0,
+                })
+                expect(result.slug).toBe("")
+                expect(result.kind).toBe("terminal")
+                expect(result.translations).toEqual([])
+            })
     })

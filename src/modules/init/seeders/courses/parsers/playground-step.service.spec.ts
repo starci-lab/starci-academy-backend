@@ -5,6 +5,22 @@ import {
     PlaygroundStepParserService,
 } from "./playground-step.service"
 
+describe("PlaygroundStepParserService scalar boundaries",
+    () => {
+        it("uses folder order for null, empty, and non-finite sort values",
+            () => {
+                const methods = PlaygroundStepParserService.prototype as unknown as {
+                    toSortIndex: (value: unknown, fallback: number) => number
+                }
+                expect(methods.toSortIndex(" 6 ",
+                    2)).toBe(6)
+                expect(methods.toSortIndex(Number.NaN,
+                    2)).toBe(2)
+                expect(methods.toSortIndex(Number.POSITIVE_INFINITY,
+                    2)).toBe(2)
+            })
+    })
+
 describe("PlaygroundStepParserService",
     () => {
         const createDependencies = () => {

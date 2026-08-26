@@ -24,4 +24,12 @@ describe("mount-seed runtime overrides",
                 clearRuntimeSeedConfig()
                 expect(getRuntimeContextRoot()).toBeUndefined()
             })
+        it("returns the fully disabled config after runtime overrides are cleared",
+            () => {
+                clearRuntimeSeedConfig()
+                const config = getSeedConfig()
+                expect(config.seeders.enabled).toBe(false)
+                expect(config.synchronizers.enabled).toBe(false)
+                expect(config.seeders.courses.flashcard.enabled).toBe(false)
+            })
     })

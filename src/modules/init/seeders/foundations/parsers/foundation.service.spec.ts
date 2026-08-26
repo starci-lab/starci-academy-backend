@@ -153,4 +153,61 @@ describe("FoundationParserService",
             expect(toSortIndex(5,
                 3)).toBe(5)
         })
+    it("builds a safe default graph when localized metadata is empty",
+        async () => {
+            const service = new FoundationParserService(
+                {
+                    extract: jest.fn().mockReturnValue({
+                    }),
+                } as never,
+                {
+                    toNullableStringColumn: jest.fn().mockReturnValue(null),
+                    toRequiredString: jest.fn().mockReturnValue(FoundationKind.Document),
+                    toRequiredBoolean: jest.fn().mockReturnValue(false),
+                } as never,
+                {
+                } as never,
+                {
+                    load: jest.fn().mockResolvedValue("markdown"),
+                } as never,
+                {
+                    generate: jest.fn().mockReturnValue("foundation-empty"),
+                } as never,
+                {
+                    generate: jest.fn().mockReturnValue("category-empty"),
+                } as never,
+                {
+                    parse: jest.fn().mockReturnValue([]),
+                } as never,
+                {
+                    log: jest.fn(),
+                } as never,
+            )
+
+            const result = await service.parse({
+                paths: [{
+                    relativePath: "empty",
+                    orderIndex: 0,
+                    displayId: "empty",
+                }],
+                foundationIndex: 0,
+                categoryIndex: 0,
+            })
+
+            expect(result).toEqual(expect.objectContaining({
+                id: "foundation-empty",
+                displayId: "empty",
+                title: "",
+                description: null,
+                kind: FoundationKind.Document,
+                isRecommended: false,
+                sortIndex: 1,
+            }))
+            expect(result.translations).toEqual(expect.arrayContaining([{
+                foundationId: "foundation-empty",
+                locale: Locale.En,
+                field: "title",
+                value: "",
+            }]))
+        })
     })

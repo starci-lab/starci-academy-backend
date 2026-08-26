@@ -204,6 +204,12 @@ describe("RewardsService",
                 )
             })
 
+        it("falls back to the stored key when a redemption is no longer in the catalog",
+            () => {
+                expect(service.titleFor("retired-reward",
+                    Locale.En)).toBe("retired-reward")
+            })
+
         it("defaults an absent spent aggregate and empty redemption history",
             async () => {
                 entityManager.findOneOrFail.mockResolvedValueOnce({
@@ -343,6 +349,35 @@ describe("RewardsService",
                         )
                         // no inventory side-effect for a non-streak-freeze reward
                         expect(entityManager.update).not.toHaveBeenCalled()
+                    })
+
+                it("preserves optional shipping fields in physical reward metadata",
+                    async () => {
+                        entityManager.findOneOrFail.mockResolvedValueOnce({
+                            id: userId,
+                            coinBalance: 1000,
+                            streakFreezes: 0,
+                        } as UserEntity)
+                        setSpent(0)
+
+                        await service.redeem({
+                            userId,
+                            rewardKey: "sticker",
+                            shipping: {
+                                address: "1 Example Street",
+                            },
+                        })
+
+                        expect(entityManager.insert).toHaveBeenCalledWith(
+                            RewardRedemptionEntity,
+                            expect.objectContaining({
+                                metadata: {
+                                    recipientName: "",
+                                    phone: "",
+                                    address: "1 Example Street",
+                                },
+                            }),
+                        )
                     })
 
                 it("mints a voucher and echoes its code for a voucher-kind reward",

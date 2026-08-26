@@ -111,4 +111,117 @@ describe("PaypalClient",
                     approveUrl: "",
                 })
             })
+
+        it("uses an empty purchase-unit list when retrieving an order",
+            async () => {
+                const h = setup()
+                h.post.mockResolvedValueOnce({
+                    data: {
+                        access_token: "token",
+                    },
+                })
+                h.get.mockResolvedValueOnce({
+                    data: {
+                        id: "o3",
+                        status: "CREATED",
+                    },
+                })
+
+                await expect(h.client.retrieveOrder({
+                    orderId: "o3"
+                })).resolves.toEqual({
+                    id: "o3",
+                    status: "CREATED",
+                    referenceId: undefined,
+                })
+            })
+
+        it("reports a non-completed capture as not captured",
+            async () => {
+                const h = setup()
+                h.post.mockResolvedValueOnce({
+                    data: {
+                        access_token: "token",
+                    },
+                }).mockResolvedValueOnce({
+                    data: {
+                        id: "o4",
+                        status: "PENDING",
+                        purchase_units: [],
+                    },
+                })
+
+                await expect(h.client.captureOrder({
+                    orderId: "o4"
+                })).resolves.toEqual({
+                    id: "o4",
+                    status: "PENDING",
+                    referenceId: undefined,
+                    captured: false,
+                })
+            })
+
+        it("handles a capture response with no purchase units",
+            async () => {
+                const h = setup()
+                h.post.mockResolvedValueOnce({
+                    data: {
+                        access_token: "token",
+                    },
+                }).mockResolvedValueOnce({
+                    data: {
+                        id: "o-no-units",
+                        status: "COMPLETED",
+                    },
+                })
+
+                await expect(h.client.captureOrder({
+                    orderId: "o-no-units",
+                })).resolves.toEqual({
+                    id: "o-no-units",
+                    status: "COMPLETED",
+                    referenceId: undefined,
+                    captured: true,
+                })
+            })
+
+        it("accepts an order response with no links collection",
+            async () => {
+                const h = setup()
+                h.post.mockResolvedValueOnce({
+                    data: {
+                        access_token: "token",
+                    },
+                }).mockResolvedValueOnce({
+                    data: {
+                        id: "o-no-links",
+                    },
+                })
+
+                await expect(h.client.createOrder({
+                    amount: 2,
+                    referenceId: "r-no-links",
+                    description: "Course",
+                    returnUrl: "ok",
+                    cancelUrl: "no",
+                })).resolves.toEqual({
+                    orderId: "o-no-links",
+                    approveUrl: "",
+                })
+            })
+
+        it("propagates capture errors that are not already-captured responses",
+            async () => {
+                const h = setup()
+                const failure = new Error("capture unavailable")
+                h.post.mockResolvedValueOnce({
+                    data: {
+                        access_token: "token",
+                    },
+                }).mockRejectedValueOnce(failure)
+
+                await expect(h.client.captureOrder({
+                    orderId: "o5"
+                })).rejects.toBe(failure)
+            })
     })

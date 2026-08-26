@@ -118,6 +118,26 @@ describe("TransactionReconcileQueryService",
                     })
             })
 
+        it("normalizes malformed provider responses as unavailable",
+            async () => {
+                stripeGet.mockResolvedValueOnce({
+                    payment_status: "unpaid",
+                    status: "unknown",
+                })
+                await expect(service.resolve(transaction(PaymentType.Stripe)))
+                    .resolves.toEqual({
+                        state: "unavailable", reason: "invalid-response"
+                    })
+
+                paypalRetrieve.mockResolvedValueOnce({
+                    status: "UNKNOWN"
+                })
+                await expect(service.resolve(transaction(PaymentType.Paypal)))
+                    .resolves.toEqual({
+                        state: "unavailable", reason: "invalid-response"
+                    })
+            })
+
         describe("PayOS",
             () => {
                 it("returns paid evidence with amount",

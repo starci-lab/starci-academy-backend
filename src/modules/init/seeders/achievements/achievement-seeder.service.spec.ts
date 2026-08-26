@@ -156,4 +156,52 @@ describe("AchievementSeederService",
                 expect(readFileSync).not.toHaveBeenCalled()
                 expect(upsert).not.toHaveBeenCalled()
             })
+        it("normalizes absent and wholly invalid tier thresholds to null",
+            () => {
+                const service = new AchievementSeederService({
+                } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never) as unknown as {
+                        parseTierThresholds: (value?: string) => Array<number> | null
+                    }
+                expect(service.parseTierThresholds()).toBeNull()
+                expect(service.parseTierThresholds("invalid, NaN")).toBeNull()
+                expect(service.parseTierThresholds("1, 2")).toEqual([1,
+                    2])
+            })
+
+        it("handles a readable file with no achievement data without upserting",
+            async () => {
+                jest.mocked(envConfig).mockReturnValue({
+                    mountPath: {
+                        data: {
+                            achievements: "C:/mount/data/achievements",
+                        },
+                    },
+                } as ReturnType<typeof envConfig>)
+                jest.mocked(getRuntimeContextRoot).mockReturnValue(undefined)
+                jest.mocked(existsSync).mockReturnValue(true)
+                jest.mocked(readFileSync).mockReturnValue("# empty" as never)
+                const upsert = jest.fn()
+                const service = new AchievementSeederService(
+                    {
+                        upsert
+                    } as never,
+                    {
+                        isAchievementsSeederEnabled: jest.fn().mockReturnValue(true)
+                    } as never,
+                    {
+                        extract: jest.fn().mockReturnValue({
+                        })
+                    } as never,
+                    {
+                    } as never,
+                )
+                await service.seed()
+                expect(upsert).not.toHaveBeenCalled()
+            })
     })

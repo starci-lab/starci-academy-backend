@@ -260,6 +260,26 @@ describe("ProgressProjectionService",
                             totalXp: 10,
                         })
                     })
+
+                it("normalizes missing totals and entry metrics while ranking a learner",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([{
+                        }])
+                            .mockResolvedValueOnce([{
+                                enrollment_id: "enrollment-1",
+                                user_id: userId,
+                                username: "alice",
+                                total_xp: 8,
+                            }])
+                        const result = await service.getLeaderboard(courseId)
+                        expect(result.totalChallenges).toBe(0)
+                        expect(result.maxPossibleScore).toBe(0)
+                        expect(result.entries[0]).toEqual(expect.objectContaining({
+                            totalXp: 8,
+                            totalScore: 0,
+                            completedChallenges: 0,
+                        }))
+                    })
             })
 
         describe("recompute paths",

@@ -389,8 +389,6 @@ describe("FlashcardDeckParserService",
                 jest.spyOn(internals.extractJsonFromMdService,
                     "extract")
                     .mockReturnValue({
-                        tags: [{
-                        }]
                     })
 
                 const result = await setup.service.parse({

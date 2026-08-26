@@ -224,4 +224,42 @@ scope as never)
                 expect(invalidate).toHaveBeenCalled()
                 expect(reloadAll).toHaveBeenCalled()
             })
+
+        it("skips model work and config writes when subscriptions are enabled but empty",
+            async () => {
+                const parseManyWithTranslations = jest.fn().mockResolvedValue([])
+                const parseMany = jest.fn().mockResolvedValue([])
+                const applyAppConfig = jest.fn()
+                const service = new CatalogSeederService(
+                    {
+                        parseManyWithTranslations
+                    } as never,
+                    {
+                        parseMany
+                    } as never,
+                    {
+                        upsertMany: jest.fn()
+                    } as never,
+                    {
+                        invalidate: jest.fn()
+                    } as never,
+                    {
+                        applyAppConfig
+                    } as never,
+                    {
+                        reloadAll: jest.fn()
+                    } as never,
+                    {
+                        log: jest.fn()
+                    } as never,
+                    {
+                        isAiModelsCatalogSeederEnabled: jest.fn().mockReturnValue(false),
+                        isSubscriptionsCatalogSeederEnabled: jest.fn().mockReturnValue(true),
+                    } as never,
+                )
+                await service.seed()
+                expect(parseManyWithTranslations).not.toHaveBeenCalled()
+                expect(parseMany).toHaveBeenCalledTimes(1)
+                expect(applyAppConfig).not.toHaveBeenCalled()
+            })
     })

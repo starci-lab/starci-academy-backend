@@ -42,7 +42,7 @@ describe("ConsultantParserService",
                 .mockReturnValueOnce({
                     fullName: "Alice localized",
                     jobTitle: null,
-                    description: "Builds systems localized",
+                    description: null,
                 })
                 .mockReturnValueOnce({
                     fullName: "Alice",
@@ -106,6 +106,11 @@ describe("ConsultantParserService",
                     value: "Alice localized",
                 }),
             ]))
+            expect(result.translations).toEqual(expect.arrayContaining([expect.objectContaining({
+                locale: Locale.Vi,
+                field: "description",
+                value: "",
+            })]))
             expect(load).toHaveBeenNthCalledWith(1,
                 "headhuntings",
                 "4-alice/vi.md")

@@ -59,6 +59,29 @@ import {
     MockInterviewParserService,
 } from "./mock-interview.service"
 
+describe("MockInterviewParserService list normalization",
+    () => {
+        it("drops blank entries while preserving trimmed prompt labels",
+            () => {
+                const methods = MockInterviewParserService.prototype as unknown as {
+                    toStringArray: (items?: Array<{ value?: string }>) => Array<string> | null
+                }
+                expect(methods.toStringArray()).toBeNull()
+                expect(methods.toStringArray([])).toBeNull()
+                expect(methods.toStringArray([
+                    {
+                        value: "  first "
+                    },
+                    {
+                        value: " "
+                    },
+                    {
+                        value: undefined
+                    },
+                ])).toEqual(["first"])
+            })
+    })
+
 /** Mount folder of the course whose banks are parsed. */
 const COURSE_RELATIVE_PATH = "0-fullstack-mastery"
 /** Mount folder of the single bank under test. */
