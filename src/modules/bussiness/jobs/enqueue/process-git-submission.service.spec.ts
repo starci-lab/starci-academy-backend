@@ -1,50 +1,50 @@
 import {
-    Test,
+    Test
 } from "@nestjs/testing"
 import type {
-    TestingModule,
+    TestingModule
 } from "@nestjs/testing"
 import {
-    getQueueToken,
+    getQueueToken
 } from "@nestjs/bullmq"
 import type {
-    Queue,
+    Queue
 } from "bullmq"
 import {
-    ActionType,
+    ActionType
 } from "@modules/databases/postgresql/primary/enums/action-type"
 import {
-    JobCategory,
+    JobCategory
 } from "@modules/databases/postgresql/primary/enums/job-category"
 import {
-    Locale,
+    Locale
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    ModelProvider,
+    ModelProvider
 } from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
-    bullData,
+    bullData
 } from "@modules/integrations/bullmq/constants/queue"
 import {
-    BullQueueName,
+    BullQueueName
 } from "@modules/integrations/bullmq/enums/queue-name"
 import {
-    SUPERJSON,
+    SUPERJSON
 } from "@modules/lib/mixin/constants/superjson"
 import {
-    envConfig,
+    envConfig
 } from "@modules/platform/env/config"
 import type {
-    AiJobSelection,
+    AiJobSelection
 } from "@modules/ai/types/ai-job-selection"
 import {
-    JobActionService,
+    JobActionService
 } from "../atomic/job-action.service"
 import {
-    JobStalledService,
+    JobStalledService
 } from "../atomic/job-stalled.service"
 import {
-    EnqueueProcessGitSubmissionJobService,
+    EnqueueProcessGitSubmissionJobService
 } from "./process-git-submission.service"
 
 // the UX delay is a real timer in production; stub it so the fire-and-forget
@@ -62,24 +62,25 @@ describe("EnqueueProcessGitSubmissionJobService",
         let testingModule: TestingModule
         let service: EnqueueProcessGitSubmissionJobService
         let queue: {
-            add: jest.Mock
-        }
+    add: jest.Mock;
+  }
         let jobActionService: {
-            createJob: jest.Mock
-            failJob: jest.Mock
-        }
+    createJob: jest.Mock;
+    failJob: jest.Mock;
+  }
         let jobStalledService: {
-            requeueJob: jest.Mock
-        }
+    requeueJob: jest.Mock;
+  }
         let superJson: {
-            stringify: jest.Mock
-            parse: jest.Mock
-        }
+    stringify: jest.Mock;
+    parse: jest.Mock;
+  }
 
         /** The persisted jobs row both the create and requeue paths hand back. */
         const job = {
             id: "job-1",
             payload: "serialized-payload",
+            fencingToken: 0,
         }
 
         /** The minimum submit request; individual tests widen it. */
@@ -92,9 +93,9 @@ describe("EnqueueProcessGitSubmissionJobService",
         }
 
         /**
-         * Let the fire-and-forget `sleepEnqueueUxDelay().then(...)` chain settle.
-         * A macrotask tick, not a wait: the stubbed delay is already resolved.
-         */
+   * Let the fire-and-forget `sleepEnqueueUxDelay().then(...)` chain settle.
+   * A macrotask tick, not a wait: the stubbed delay is already resolved.
+   */
         const settleBrokerPush = async (): Promise<void> =>
             new Promise<void>((resolve) => {
                 setImmediate(resolve)
@@ -150,9 +151,7 @@ describe("EnqueueProcessGitSubmissionJobService",
                 const created = await service.enqueue(baseParams)
 
                 expect(created).toBe(job)
-                const [
-                    createArgs,
-                ] = jobActionService.createJob.mock.calls[0]
+                const [createArgs] = jobActionService.createJob.mock.calls[0]
                 expect(createArgs).toEqual({
                     id: expect.any(String),
                     userId: "user-1",
@@ -185,9 +184,7 @@ describe("EnqueueProcessGitSubmissionJobService",
                     lang: "typescript",
                 })
 
-                const [
-                    createArgs,
-                ] = jobActionService.createJob.mock.calls[0]
+                const [createArgs] = jobActionService.createJob.mock.calls[0]
                 expect(superJson.stringify).toHaveBeenCalledWith({
                     jobId: createArgs.id,
                     enrollmentId: "enrollment-1",
@@ -220,14 +217,26 @@ describe("EnqueueProcessGitSubmissionJobService",
                 await service.enqueue(baseParams)
                 await settleBrokerPush()
 
-                expect(queue.add).toHaveBeenCalledWith(
-                    "job-1",
+                expect(queue.add).toHaveBeenCalledWith("job-1",
                     "serialized-payload",
                     {
                         jobId: "job-1",
-                    },
-                )
+                    })
                 expect(jobActionService.failJob).not.toHaveBeenCalled()
+            })
+
+        it("uses the fencing token as a new broker dispatch identity on retry",
+            async () => {
+                await service.publish({
+                    ...job,
+                    fencingToken: 2,
+                } as never)
+
+                expect(queue.add).toHaveBeenCalledWith("job-1",
+                    "serialized-payload",
+                    {
+                        jobId: "job-1-2",
+                    })
             })
 
         it("marks the job failed when the broker push rejects",
@@ -258,8 +267,7 @@ describe("EnqueueProcessGitSubmissionJobService",
 
         it("returns without waiting for the broker push to settle",
             async () => {
-                queue.add.mockReturnValue(new Promise<void>(() => {
-                }))
+                queue.add.mockReturnValue(new Promise<void>(() => {}))
 
                 await expect(service.enqueue(baseParams)).resolves.toBe(job)
             })

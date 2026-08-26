@@ -52,6 +52,7 @@ const makeWorker = () => {
     }
     const superJson = {
         parse: jest.fn().mockReturnValue({
+            jobId: "job-1",
             userChallengeSubmissionId: "user-submission-1"
         }),
     }
@@ -152,6 +153,7 @@ describe("ProcessGoogleDocsSubmissionWorker",
                 expect(harness.superJson.parse).toHaveBeenCalledWith("serialized")
                 expect(harness.stepProcess).toHaveBeenCalledWith(expect.objectContaining({
                     payload: {
+                        jobId: "job-1",
                         userChallengeSubmissionId: "user-submission-1"
                     },
                     extended: {

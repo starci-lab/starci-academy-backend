@@ -111,15 +111,15 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
         let payload: ProcessGitSubmissionPayload | undefined
         let job: JobEntity | undefined
         try {
+            payload = this.superJson.parse<ProcessGitSubmissionPayload>(bullmqJob.data)
             job = await this.jobActionService.getJob(
                 {
-                    id: bullmqJob.id ?? "",
+                    id: payload.jobId,
                 },
             )
             await this.jobActionService.processingJob({
                 job,
             })
-            payload = this.superJson.parse<ProcessGitSubmissionPayload>(bullmqJob.data)
             const stepMap = this.stepMappingService.getStepMap()
             const userChallengeSubmission = await this.entityManager.findOne(
                 UserChallengeSubmissionEntity,

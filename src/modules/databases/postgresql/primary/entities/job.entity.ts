@@ -38,6 +38,8 @@ export interface JobRefs {
     challengeSubmissionId?: string
     /** The specific user submission being graded. */
     userChallengeSubmissionId?: string
+    /** Immutable learner attempt evaluated by this job. */
+    challengeAttemptId?: string
     /** Enrollment the job runs under. */
     enrollmentId?: string
     /** Milestone task being reviewed. */

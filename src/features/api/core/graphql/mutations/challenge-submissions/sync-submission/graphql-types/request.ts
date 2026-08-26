@@ -1,6 +1,7 @@
 import {
     Field,
     ID,
+    Int,
     InputType,
 } from "@nestjs/graphql"
 import {
@@ -50,4 +51,13 @@ export class SyncSubmissionRequest {
         },
     )
         selectedModelProvider?: ModelProvider
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Last draft revision observed by the caller; stale values are rejected instead of overwriting newer work.",
+        },
+    )
+        expectedDraftRevision?: number
 }

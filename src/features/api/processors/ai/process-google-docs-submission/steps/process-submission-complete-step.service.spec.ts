@@ -363,8 +363,16 @@ describe("ProcessGoogleDocsSubmissionCompleteStepService",
                                 },
                                 submissionUrl: "https://docs.google.com/document/d/abc",
                                 processedAt: PROCESSED_AT,
+                                submittedAt: PROCESSED_AT,
                                 score: 82,
                                 shortFeedback: "solid write-up",
+                                status: "passed",
+                                platformDecision: "passed",
+                                confidence: 1,
+                                uncertainty: null,
+                                nextAction: "Continue to the next course activity.",
+                                finalizationRevision: 1,
+                                draftRevision: 0,
                                 // 2 existing attempts -> this is the third
                                 attemptNumber: 3,
                                 servedModel: "gemini-2.5-pro",
@@ -399,6 +407,39 @@ describe("ProcessGoogleDocsSubmissionCompleteStepService",
                                         defaultLocale: Locale.En,
                                     },
                                 ],
+                                aiAdvisoryEvidence: {
+                                    score: 82,
+                                    servedModel: "gemini-2.5-pro",
+                                    servedProvider: "google",
+                                    details: [
+                                        {
+                                            feedbacks: [
+                                                {
+                                                    message: "missing sequence diagram",
+                                                    severity: "major",
+                                                    location: "section 2",
+                                                    suggestion: "add one",
+                                                },
+                                                {
+                                                    message: "typo",
+                                                    severity: "minor",
+                                                    location: "section 3",
+                                                    suggestion: "fix it",
+                                                },
+                                            ],
+                                        },
+                                        {
+                                            feedbacks: [
+                                                {
+                                                    message: "no failure modes",
+                                                    severity: "major",
+                                                    location: "section 5",
+                                                    suggestion: "list them",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
                             },
                         )
                     })

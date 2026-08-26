@@ -105,6 +105,8 @@ export interface AbstractSubmissionCompletionPayload {
     enrollmentId: string
     /** `user_challenge_submissions.id`. */
     userChallengeSubmissionId: string
+    /** Immutable attempt prepared before queue publication. */
+    attemptId?: string
     /** Locale hint for the persisted attempt/feedbacks and the result email. */
     locale?: Locale
 }
@@ -307,12 +309,13 @@ export abstract class AbstractSubmissionCompleteStepService<
                 where: {
                     idempotencyKey: job.id,
                 },
-                select: {
-                    id: true,
-                },
             },
         )
-        if (existing) {
+        if (existing && (
+            payload.attemptId === undefined
+            || existing.processedAt
+            || (existing.finalizationRevision ?? 0) > 0
+        )) {
             return {
                 createdNewAttempt: false,
                 chargedUserId: undefined,
@@ -350,29 +353,49 @@ export abstract class AbstractSubmissionCompleteStepService<
                 }
             }
         )
-        /** Persist the attempt, keyed by the job id for idempotency. */
-        const attempt = await entityManager.save(
-            UserChallengeSubmissionAttemptEntity,
-            {
-                idempotencyKey: job.id,
-                userChallengeSubmission: {
-                    id: payload.userChallengeSubmissionId,
-                },
-                submissionUrl:
-                    extended?.userChallengeSubmission.submissionUrl ?? "",
-                processedAt: this.dayjsService.now().toDate(),
+        const finalization = {
+            submissionUrl:
+                extended?.userChallengeSubmission.submissionUrl ?? existing?.submissionUrl ?? "",
+            processedAt: this.dayjsService.now().toDate(),
+            score: grade.evaluation.score,
+            shortFeedback: grade.evaluation.shortFeedback,
+            servedModel: grade.aiUsage?.model ?? null,
+            servedProvider: grade.aiUsage?.provider ?? null,
+            promptTokens: grade.aiUsage?.promptTokens ?? null,
+            completionTokens: grade.aiUsage?.completionTokens ?? null,
+            defaultLocale: payload.locale ?? Locale.En,
+            feedbacks,
+            status: grade.passed ? "passed" as const : "needs_revision" as const,
+            platformDecision: grade.passed ? "passed" as const : "needs_revision" as const,
+            confidence: grade.evaluation.confidence ?? 1,
+            uncertainty: null,
+            nextAction: grade.passed
+                ? "Continue to the next course activity."
+                : "Review the criterion feedback and create a new draft revision.",
+            finalizationRevision: 1,
+            aiAdvisoryEvidence: {
                 score: grade.evaluation.score,
-                shortFeedback: grade.evaluation.shortFeedback,
-                attemptNumber: numAttempts + 1,
-                // Record WHICH AI model actually graded this attempt (Auto is
-                // load-balanced) so the submission result page can attribute it.
+                details: grade.evaluation.details,
                 servedModel: grade.aiUsage?.model ?? null,
                 servedProvider: grade.aiUsage?.provider ?? null,
-                promptTokens: grade.aiUsage?.promptTokens ?? null,
-                completionTokens: grade.aiUsage?.completionTokens ?? null,
-                defaultLocale: payload.locale ?? Locale.En,
-                feedbacks,
-            }
+            },
+        }
+        /** Finalize the prepared attempt, or create one for a legacy queued job. */
+        const attempt = await entityManager.save(
+            UserChallengeSubmissionAttemptEntity,
+            existing
+                ? Object.assign(existing,
+                    finalization)
+                : {
+                    idempotencyKey: job.id,
+                    userChallengeSubmission: {
+                        id: payload.userChallengeSubmissionId,
+                    },
+                    attemptNumber: numAttempts + 1,
+                    draftRevision: 0,
+                    submittedAt: this.dayjsService.now().toDate(),
+                    ...finalization,
+                },
         )
         /** Resolve who is being charged (the credit debit + history row are
          * written by the after-commit fallback below, via the SAME

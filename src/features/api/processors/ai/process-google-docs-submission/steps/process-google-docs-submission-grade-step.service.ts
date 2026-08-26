@@ -73,6 +73,11 @@ import {
 import {
     AbstractSubmissionGradeStepService,
 } from "../../shared/challenge-submission/abstract-submission-grade-step.service"
+import {
+    ChallengeEvaluationLowConfidenceException,
+} from "@modules/platform/exceptions/errors/ai/challenge-evaluation-low-confidence"
+
+const MIN_EVALUATION_CONFIDENCE = 0.75
 
 @Injectable()
 /**
@@ -214,7 +219,17 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractSubmiss
             attempts,
         })
 
-        const parsed = this.challengeEvaluationParseService.parse(raw)
+        const parsed = this.challengeEvaluationParseService.parse(raw,
+            {
+                criteria,
+                source: "document",
+            })
+        if (parsed.confidence !== undefined && parsed.confidence < MIN_EVALUATION_CONFIDENCE) {
+            throw new ChallengeEvaluationLowConfidenceException({
+                confidence: parsed.confidence ?? 0,
+                threshold: MIN_EVALUATION_CONFIDENCE,
+            })
+        }
         const passThreshold = this.mountStorageService.appConfig.systemConfig.challenge.passThreshold
         const passed = parsed.score >= maxScore * passThreshold
         return {

@@ -9,6 +9,24 @@ import {
 } from "@modules/databases/postgresql/primary/enums/model-provider"
 
 @InputType({
+    description: "One immutable deliverable included in a whole-Challenge submit.",
+})
+/** Identifies one saved draft and its stable job identity inside an aggregate submit. */
+export class SubmitChallengeDeliverableRequest {
+    @Field(() => ID,
+        {
+            description: "Authored challenge deliverable identity.",
+        })
+        challengeSubmissionId: string
+
+    @Field(() => String,
+        {
+            description: "Client-stable grading job identity for this deliverable.",
+        })
+        idempotencyKey: string
+}
+
+@InputType({
     description: "Enqueue grading for one challenge submission; pass `githubUrl` on first submit to create the user row.",
 })
 /**
@@ -24,6 +42,15 @@ export class SubmitChallengeSubmissionRequest {
         },
     )
         challengeSubmissionId: string
+
+    @Field(
+        () => [SubmitChallengeDeliverableRequest],
+        {
+            nullable: true,
+            description: "Complete authored deliverable collection committed as one whole-Challenge attempt.",
+        },
+    )
+        deliverables?: Array<SubmitChallengeDeliverableRequest>
 
     /**
      * Submission URL (GitHub repo, Google Doc, etc.).
@@ -70,5 +97,23 @@ export class SubmitChallengeSubmissionRequest {
         },
     )
         lang?: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Client-stable idempotency key; replays return the same durable attempt and job.",
+        },
+    )
+        idempotencyKey?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Client-stable identity shared by every deliverable in one whole-Challenge attempt.",
+        },
+    )
+        attemptGroupId?: string
 
 }

@@ -195,7 +195,12 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
                     }),
                 )
                 // 4. parsed the raw LLM output
-                expect(challengeEvaluationParseService.parse).toHaveBeenCalledWith("{\"score\":10}")
+                expect(challengeEvaluationParseService.parse).toHaveBeenCalledWith(
+                    "{\"score\":10}",
+                    expect.objectContaining({
+                        source: "document",
+                    }),
+                )
                 // 5. advanced the step + persisted the evaluation under the "grade" key
                 expect(jobActionService.increaseJob).toHaveBeenCalled()
                 expect(jobActionService.saveExecutionResult).toHaveBeenCalledWith(

@@ -14,6 +14,8 @@ import type {
 export interface ProcessGoogleDocsSubmissionPayload {
     /** Tracked job row id (`jobs.id`). */
     jobId: string
+    /** Immutable attempt prepared before this job was published. */
+    attemptId?: string
     /** `enrollments.id`. */
     enrollmentId: string
     /** `user_challenge_submissions.id`. */

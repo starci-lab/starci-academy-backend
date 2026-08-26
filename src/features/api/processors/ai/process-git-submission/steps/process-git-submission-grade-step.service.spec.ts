@@ -3,13 +3,13 @@ import {
     EntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
 import {
-    AiCeilSurface,
+    AiCeilSurface
 } from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
 import {
-    AiModelTask,
+    AiModelTask
 } from "@modules/databases/postgresql/primary/enums/ai-model-task"
 import {
-    Locale,
+    Locale
 } from "@modules/databases/postgresql/primary/enums/locale"
 
 /**
@@ -17,17 +17,22 @@ import {
  * `.load()` resolves the docs the test programs via `loaderLoadMock`.
  */
 const loaderLoadMock = jest.fn()
-jest.mock(
-    "@langchain/community/document_loaders/web/github",
+const githubMetadataFetchMock = jest.spyOn(global,
+    "fetch").mockResolvedValue({
+        ok: true,
+        json: async () => ({
+            default_branch: "master",
+        }),
+    } as Response)
+jest.mock("@langchain/community/document_loaders/web/github",
     () => ({
         GithubRepoLoader: jest.fn().mockImplementation(() => ({
             load: loaderLoadMock,
         })),
-    }),
-)
+    }))
 
 import {
-    ProcessGitSubmissionGradeStepService,
+    ProcessGitSubmissionGradeStepService
 } from "./process-git-submission-grade-step.service"
 
 /** A loaded doc the GithubRepoLoader stub returns. */
@@ -102,18 +107,18 @@ const makeService = (entityManager: EntityManagerMock) => {
     }
 
     const service = new ProcessGitSubmissionGradeStepService(
-        entityManager as never,
-        jobActionService as never,
-        {
-            log: jest.fn(),
-        } as never,
-        mountStorageService as never,
-        aiInvokeService as never,
-        aiEntitlementService as never,
-        challengeEvaluationParseService as never,
-        challengeEvaluationPromptService as never,
-        gradingRetrievalService as never,
-        encryptionService as never,
+    entityManager as never,
+    jobActionService as never,
+    {
+        log: jest.fn(),
+    } as never,
+    mountStorageService as never,
+    aiInvokeService as never,
+    aiEntitlementService as never,
+    challengeEvaluationParseService as never,
+    challengeEvaluationPromptService as never,
+    gradingRetrievalService as never,
+    encryptionService as never,
     )
 
     return {
@@ -129,59 +134,61 @@ const makeService = (entityManager: EntityManagerMock) => {
 
 /** Minimal job + payload + extended context the grade step reads. */
 const makeContext = (overrides: Record<string, unknown> = {
-}) => ({
-    job: {
-        id: "job-1",
-        fencingToken: 7,
-    },
-    queueName: "process-git-submission",
-    payload: {
-        userChallengeSubmissionId: "ucs-1",
-        enrollmentId: "enroll-1",
-        branch: "main",
-        locale: Locale.En,
-        lang: "typescript",
-        ai: {
-        },
-        ...overrides,
-    },
-    extended: {
-        challenge: {
-            title: "Build the API",
-        },
-        challengeSubmission: {
-            outcomeScore: 30,
-            approachScore: 70,
-            outcomeCriteria: [
-                {
-                    orderIndex: 0,
-                    critical: true,
-                    langs: [
-                        {
-                            lang: "typescript",
-                            body: "OUTCOME-TS",
-                        },
-                    ],
-                },
-            ],
-            approachCriteria: [
-                {
-                    orderIndex: 0,
-                    critical: false,
-                    langs: [
-                        {
-                            lang: "typescript",
-                            body: "APPROACH-TS",
-                        },
-                    ],
-                },
-            ],
-        },
-        userChallengeSubmission: {
-            submissionUrl: "https://github.com/me/repo",
-        },
-    },
-}) as never
+}) =>
+  ({
+      job: {
+          id: "job-1",
+          fencingToken: 7,
+      },
+      queueName: "process-git-submission",
+      payload: {
+          attemptId: "attempt-1",
+          userChallengeSubmissionId: "ucs-1",
+          enrollmentId: "enroll-1",
+          branch: "main",
+          locale: Locale.En,
+          lang: "typescript",
+          ai: {
+          },
+          ...overrides,
+      },
+      extended: {
+          challenge: {
+              title: "Build the API",
+          },
+          challengeSubmission: {
+              outcomeScore: 30,
+              approachScore: 70,
+              outcomeCriteria: [
+                  {
+                      orderIndex: 0,
+                      critical: true,
+                      langs: [
+                          {
+                              lang: "typescript",
+                              body: "OUTCOME-TS",
+                          },
+                      ],
+                  },
+              ],
+              approachCriteria: [
+                  {
+                      orderIndex: 0,
+                      critical: false,
+                      langs: [
+                          {
+                              lang: "typescript",
+                              body: "APPROACH-TS",
+                          },
+                      ],
+                  },
+              ],
+          },
+          userChallengeSubmission: {
+              submissionUrl: "https://github.com/me/repo",
+          },
+      },
+  }) as never
 
 describe("ProcessGitSubmissionGradeStepService",
     () => {
@@ -189,6 +196,12 @@ describe("ProcessGitSubmissionGradeStepService",
 
         beforeEach(() => {
             jest.clearAllMocks()
+            githubMetadataFetchMock.mockResolvedValue({
+                ok: true,
+                json: async () => ({
+                    default_branch: "master",
+                }),
+            } as Response)
             entityManager = makeEntityManagerMock()
             loaderLoadMock.mockResolvedValue([docFixture])
             // token-lookup findOne (EnrollmentEntity) -> no stored token -> org token path
@@ -214,8 +227,11 @@ describe("ProcessGitSubmissionGradeStepService",
                 await service.process(makeContext())
 
                 // retrieval invoked once with the resolved per-language criteria
-                expect(gradingRetrievalService.retrieveGradingExcerpt).toHaveBeenCalledTimes(1)
-                const call = gradingRetrievalService.retrieveGradingExcerpt.mock.calls[0][0]
+                expect(
+                    gradingRetrievalService.retrieveGradingExcerpt,
+                ).toHaveBeenCalledTimes(1)
+                const call =
+      gradingRetrievalService.retrieveGradingExcerpt.mock.calls[0][0]
                 expect(call.criteria).toEqual([
                     expect.objectContaining({
                         body: "OUTCOME-TS",
@@ -253,7 +269,12 @@ describe("ProcessGitSubmissionGradeStepService",
                 )
 
                 // parse called on the raw model text
-                expect(challengeEvaluationParseService.parse).toHaveBeenCalledWith("{\"score\":80}")
+                expect(challengeEvaluationParseService.parse).toHaveBeenCalledWith(
+                    "{\"score\":80}",
+                    expect.objectContaining({
+                        source: "code",
+                    }),
+                )
 
                 // grade execution result persisted for the complete step (heavy persistence tail)
                 expect(jobActionService.saveExecutionResult).toHaveBeenCalledWith(
@@ -273,11 +294,8 @@ describe("ProcessGitSubmissionGradeStepService",
 
         it("charges the AI usage once before parsing (debit + history row), then marks the job",
             async () => {
-                const {
-                    service,
-                    aiEntitlementService,
-                    jobActionService,
-                } = makeService(entityManager)
+                const { service, aiEntitlementService, jobActionService } =
+      makeService(entityManager)
 
                 await service.process(makeContext())
 
@@ -324,7 +342,9 @@ describe("ProcessGitSubmissionGradeStepService",
                 const ctx = makeService(entityManager)
                 ctx.aiInvokeService.run.mockRejectedValue(new Error("LLM exploded"))
 
-                await expect(ctx.service.process(makeContext())).rejects.toThrow("LLM exploded")
+                await expect(ctx.service.process(makeContext())).rejects.toThrow(
+                    "LLM exploded",
+                )
 
                 // job marked failed; no grade result persisted, no credit consumed
                 expect(ctx.jobActionService.failJob).toHaveBeenCalledTimes(1)
@@ -336,22 +356,32 @@ describe("ProcessGitSubmissionGradeStepService",
                 )
             })
 
-        it("uses main and configured embedding defaults when optional payload fields are absent",
+        it("resolves the repository default branch and uses configured embedding defaults when payload fields are absent",
             async () => {
                 const ctx = makeService(entityManager)
 
-                await ctx.service.process(makeContext({
-                    branch: undefined,
-                    embeddingModel: undefined,
-                    embeddingProvider: undefined,
-                }))
+                await ctx.service.process(
+                    makeContext({
+                        branch: undefined,
+                        embeddingModel: undefined,
+                        embeddingProvider: undefined,
+                    }),
+                )
 
-                expect(ctx.gradingRetrievalService.retrieveGradingExcerpt).toHaveBeenCalledWith(
+                expect(
+                    ctx.gradingRetrievalService.retrieveGradingExcerpt,
+                ).toHaveBeenCalledWith(
                     expect.objectContaining({
                         embedding: expect.objectContaining({
                             model: expect.any(String),
                             provider: expect.any(String),
                         }),
+                    }),
+                )
+                expect(githubMetadataFetchMock).toHaveBeenCalledWith(
+                    "https://api.github.com/repos/me/repo",
+                    expect.objectContaining({
+                        headers: expect.any(Object),
                     }),
                 )
             })
@@ -374,7 +404,18 @@ describe("ProcessGitSubmissionGradeStepService",
                         error: expect.stringContaining(message),
                     }),
                 )
-                expect(ctx.gradingRetrievalService.retrieveGradingExcerpt).not.toHaveBeenCalled()
+                expect(entityManager.update).toHaveBeenCalledWith(
+                    expect.anything(),
+                    {
+                        id: "attempt-1",
+                    },
+                    expect.objectContaining({
+                        status: "evaluation_unavailable",
+                    }),
+                )
+                expect(
+                    ctx.gradingRetrievalService.retrieveGradingExcerpt,
+                ).not.toHaveBeenCalled()
             })
 
         it("passes an empty repository through the retrieval boundary",
@@ -383,7 +424,9 @@ describe("ProcessGitSubmissionGradeStepService",
                 loaderLoadMock.mockResolvedValueOnce([])
 
                 await expect(ctx.service.process(makeContext())).resolves.toBeUndefined()
-                expect(ctx.gradingRetrievalService.retrieveGradingExcerpt).toHaveBeenCalledWith(
+                expect(
+                    ctx.gradingRetrievalService.retrieveGradingExcerpt,
+                ).toHaveBeenCalledWith(
                     expect.objectContaining({
                         documents: [],
                     }),

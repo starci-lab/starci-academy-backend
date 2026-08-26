@@ -1,5 +1,6 @@
 import {
     Field,
+    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
@@ -201,6 +202,35 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
         nullable: true,
     })
         selectedLang: string | null
+
+    /** Monotonic optimistic-concurrency revision for the recoverable draft. */
+    @Field(
+        () => Int,
+        {
+            description: "Current recoverable draft revision.",
+        },
+    )
+    @Column({
+        name: "draft_revision",
+        type: "int",
+        default: 0,
+    })
+        draftRevision: number
+
+    /** Last time learner-authored draft evidence changed. */
+    @Field(
+        () => Date,
+        {
+            nullable: true,
+            description: "When the current recoverable draft revision was saved.",
+        },
+    )
+    @Column({
+        name: "draft_updated_at",
+        type: "timestamptz",
+        nullable: true,
+    })
+        draftUpdatedAt: Date | null
 
     // --- Anti-cheat capture (internal; intentionally NOT exposed via @Field) ---
 

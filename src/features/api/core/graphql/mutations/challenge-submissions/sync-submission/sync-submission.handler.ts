@@ -35,6 +35,7 @@ import {
 import type {
     ApplySelectedGradingLaneParams,
     ResolveOrCreateUserChallengeSubmissionParams,
+    SyncSubmissionResult,
     UpsertSubmissionParams,
 } from "./types/sync-submission"
 import {
@@ -46,13 +47,16 @@ import {
 import {
     UserService,
 } from "@modules/bussiness/user/user.service"
+import {
+    ChallengeDraftRevisionConflictException,
+} from "@modules/platform/exceptions/errors/courses/challenge-draft-revision-conflict"
 
 @CommandHandler(SyncSubmissionCommand)
 @Injectable()
 /** Handler for `SyncSubmissionCommand`. */
 export class SyncSubmissionHandler
-    extends ICQRSHandler<SyncSubmissionCommand, void>
-    implements ICommandHandler<SyncSubmissionCommand, void> {
+    extends ICQRSHandler<SyncSubmissionCommand, SyncSubmissionResult>
+    implements ICommandHandler<SyncSubmissionCommand, SyncSubmissionResult> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -67,7 +71,7 @@ export class SyncSubmissionHandler
     /** Process the command. */
     protected override async process(
         command: SyncSubmissionCommand,
-    ): Promise<void> {
+    ): Promise<SyncSubmissionResult> {
         const {
             request,
             user,
@@ -81,20 +85,22 @@ export class SyncSubmissionHandler
             url,
             selectedModel,
             selectedModelProvider,
+            expectedDraftRevision,
         } = request
-        await this.entityManager.transaction(async (entityManager) => {
+        return this.entityManager.transaction(async (entityManager) => {
             await this.postgreSqlAdvisoryLockService.acquireUserChallengeSubmissionXactLock(
                 entityManager,
                 user.id,
                 id,
             )
-            await this.upsertOne({
+            return this.upsertOne({
                 entityManager,
                 user,
                 challengeSubmissionId: id,
                 url,
                 selectedModel,
                 selectedModelProvider,
+                expectedDraftRevision,
             })
         })
     }
@@ -108,8 +114,9 @@ export class SyncSubmissionHandler
             url,
             selectedModel,
             selectedModelProvider,
+            expectedDraftRevision,
         }: UpsertSubmissionParams,
-    ): Promise<void> {
+    ): Promise<SyncSubmissionResult> {
         const challengeSubmission = await entityManager.findOne(
             ChallengeSubmissionEntity,
             {
@@ -167,6 +174,19 @@ export class SyncSubmissionHandler
                 enrollment,
             },
         )
+        const currentRevision = userChallengeSubmission.draftRevision ?? 0
+        if (expectedDraftRevision !== undefined && expectedDraftRevision !== currentRevision) {
+            throw new ChallengeDraftRevisionConflictException({
+                submissionId: challengeSubmissionId,
+                expectedRevision: expectedDraftRevision,
+                currentRevision,
+            })
+        }
+        if (hasUrl) {
+            userChallengeSubmission.submissionUrl = url as string
+            userChallengeSubmission.draftRevision = currentRevision + 1
+            userChallengeSubmission.draftUpdatedAt = new Date()
+        }
         // backfill enrollment on a pre-existing row that predates the re-key
         if (enrollment && !userChallengeSubmission.enrollmentId) {
             userChallengeSubmission.enrollment = enrollment
@@ -182,6 +202,10 @@ export class SyncSubmissionHandler
             UserChallengeSubmissionEntity,
             userChallengeSubmission,
         )
+        return {
+            draftRevision: userChallengeSubmission.draftRevision ?? 0,
+            savedAt: userChallengeSubmission.draftUpdatedAt ?? null,
+        }
     }
 
     /**
@@ -214,9 +238,6 @@ export class SyncSubmissionHandler
             },
         )
         if (existing) {
-            if (hasUrl) {
-                existing.submissionUrl = url as string
-            }
             return existing
         }
         return entityManager.create(
@@ -231,6 +252,8 @@ export class SyncSubmissionHandler
                 // empty until the user pastes a link on a selection-only sync
                 submissionUrl: hasUrl ? (url as string) : "",
                 processed: false,
+                draftRevision: 0,
+                draftUpdatedAt: null,
                 ...(enrollment
                     ? {
                         enrollment,

@@ -21,6 +21,12 @@ import type {
 export type SyncSubmissionParams =
     ExecuteParams<SyncSubmissionRequest>
 
+/** Revision returned after a recoverable draft sync. */
+export interface SyncSubmissionResult {
+    draftRevision: number
+    savedAt: Date | null
+}
+
 /** Params for upserting one user challenge submission row. */
 export interface UpsertSubmissionParams {
     /** Transaction-scoped entity manager. */
@@ -35,6 +41,8 @@ export interface UpsertSubmissionParams {
     selectedModel?: string
     /** Provider serving the persisted model; omit to leave untouched. */
     selectedModelProvider?: ModelProvider
+    /** Last revision observed by the caller. */
+    expectedDraftRevision?: number
 }
 
 /** Params to resolve-or-create the user challenge submission row being synced. */

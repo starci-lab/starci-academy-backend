@@ -51,6 +51,7 @@ const make = () => {
         },
         superJson: {
             parse: jest.fn().mockReturnValue({
+                jobId: "j1",
                 userChallengeSubmissionId: "u1"
             }),
         },

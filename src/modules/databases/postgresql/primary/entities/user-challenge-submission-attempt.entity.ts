@@ -38,6 +38,21 @@ import {
  * score / XP.
  */
 export class UserChallengeSubmissionAttemptEntity extends UuidAbstractEntity {
+    /** Logical whole-attempt identity shared by every authored deliverable snapshot. */
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Logical whole-Challenge attempt identity shared by its deliverables.",
+        },
+    )
+    @Column({
+        name: "attempt_group_id",
+        type: "uuid",
+        nullable: true,
+    })
+        attemptGroupId: string | null
+
     /**
      * Idempotency key (= grading job id) -- one attempt per grading job. A retried
      * job re-inserting with the same key hits this unique constraint, so the
@@ -50,6 +65,144 @@ export class UserChallengeSubmissionAttemptEntity extends UuidAbstractEntity {
         nullable: true,
     })
         idempotencyKey: string | null
+
+    /** Public evaluation job identity used to resume a queued or failed evaluation. */
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Durable grading job identity for this attempt.",
+        },
+    )
+    get evaluationJobId(): string | null {
+        return this.idempotencyKey
+    }
+
+    /** Platform-owned lifecycle; AI output cannot write this field directly. */
+    @Field(
+        () => String,
+        {
+            description: "Platform-owned attempt lifecycle status.",
+        },
+    )
+    @Column({
+        name: "status",
+        type: "varchar",
+        length: 32,
+        default: "evaluating",
+    })
+        status: "evaluating" | "passed" | "needs_revision" | "evaluation_unavailable" | "completed"
+
+    /** Draft revision snapshotted by this immutable attempt. */
+    @Field(
+        () => Int,
+        {
+            description: "Draft revision snapshotted at submission time.",
+        },
+    )
+    @Column({
+        name: "draft_revision",
+        type: "int",
+        default: 0,
+    })
+        draftRevision: number
+
+    /** Time the immutable attempt entered evaluation. */
+    @Field(
+        () => Date,
+        {
+            description: "When the attempt was submitted for evaluation.",
+        },
+    )
+    @Column({
+        name: "submitted_at",
+        type: "timestamptz",
+        default: () => "CURRENT_TIMESTAMP",
+    })
+        submittedAt: Date
+
+    /** Server-authoritative result, absent while evaluating or unavailable. */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Platform decision derived from validated evidence.",
+        },
+    )
+    @Column({
+        name: "platform_decision",
+        type: "varchar",
+        length: 32,
+        nullable: true,
+    })
+        platformDecision: "passed" | "needs_revision" | null
+
+    /** Confidence of the validated advisory evidence, not of the final platform policy. */
+    @Field(
+        () => Number,
+        {
+            nullable: true,
+            description: "Confidence assigned to the validated advisory evidence.",
+        },
+    )
+    @Column({
+        name: "confidence",
+        type: "double precision",
+        nullable: true,
+    })
+        confidence: number | null
+
+    /** Learner-safe explanation when evidence is incomplete or evaluation is unavailable. */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Learner-safe uncertainty or unavailability explanation.",
+        },
+    )
+    @Column({
+        name: "uncertainty",
+        type: "text",
+        nullable: true,
+    })
+        uncertainty: string | null
+
+    /** Concrete next learning action owned by platform policy. */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Concrete next action for the learner.",
+        },
+    )
+    @Column({
+        name: "next_action",
+        type: "text",
+        nullable: true,
+    })
+        nextAction: string | null
+
+    /** Monotonic once-only finalization revision. */
+    @Field(
+        () => Int,
+        {
+            description: "Monotonic result finalization revision.",
+        },
+    )
+    @Column({
+        name: "finalization_revision",
+        type: "int",
+        default: 0,
+    })
+        finalizationRevision: number
+
+    /** Structured advisory evidence retained for audit; intentionally not exposed wholesale. */
+    @Column({
+        name: "ai_advisory_evidence",
+        type: "jsonb",
+        nullable: true,
+    })
+        aiAdvisoryEvidence: Record<string, unknown> | null
 
     @Field(
         () => Int,

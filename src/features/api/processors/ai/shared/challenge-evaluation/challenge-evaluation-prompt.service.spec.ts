@@ -44,7 +44,7 @@ describe("ChallengeEvaluationPromptService",
                     "human",
                 ])
                 expect(sha256(String(result.messages[0].content))).toBe(
-                    "86150c5f2ef8c7cdd3ac5a261c8249a3e584be36b3a0ce7d972f0fa92c71a365",
+                    "02ac894c251d892dba7367c218dbdb697062f62e97f561d55ee1e295928de18a",
                 )
                 expect(String(result.messages[1].content)).toBe([
                     "Below is an excerpt of files loaded from the submitted GitHub repository (may be truncated):",
@@ -72,7 +72,7 @@ describe("ChallengeEvaluationPromptService",
                 expect(systemText).toContain("\"criteriaId\"")
                 expect(systemText).toContain("Vietnamese (Tiếng Việt)")
                 expect(sha256(systemText)).toBe(
-                    "6e63ca63e76d5ff05a5e0297a2962bbeb61166a156c7d6d88c1c16b9923fe1e1",
+                    "60a208d4667d48af51dd746bc1b25c10cb7c8bca151346c494379f721d9adff9",
                 )
                 expect(String(result.messages[1].content)).toBe([
                     "Below is the content loaded from the submitted document (may be truncated):",

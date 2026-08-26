@@ -41,6 +41,7 @@ import {
 } from "./graphql-types/request"
 import {
     SyncSubmissionResponse,
+    SyncSubmissionResponseData,
 } from "./graphql-types/response"
 import {
     SyncSubmissionService,
@@ -96,8 +97,8 @@ export class SyncSubmissionResolver {
             locale: Locale,
         @Context()
             context: GraphQLEnrollmentContextParams,
-    ): Promise<void> {
-        await this.syncSubmissionService.execute(
+    ): Promise<SyncSubmissionResponseData> {
+        return this.syncSubmissionService.execute(
             {
                 request,
                 locale,

@@ -79,6 +79,10 @@ export class EnqueueProcessGitSubmissionJobService {
             userChallengeSubmissionId,
             challengeSubmissionId,
             jobId,
+            reservedJobId,
+            attemptId,
+            entityManager,
+            deferPublish = false,
             branch,
             embeddingModel,
             embeddingProvider,
@@ -92,12 +96,20 @@ export class EnqueueProcessGitSubmissionJobService {
             job = await this.jobStalledService.requeueJob(
                 {
                     id: jobId,
+                    ...(entityManager !== undefined ? {
+                        entityManager,
+                    } : {
+                    }),
                 },
             )
         } else {
-            const id = uuidv4()
+            const id = reservedJobId ?? uuidv4()
             const payloadBody: ProcessGitSubmissionPayload = {
                 jobId: id,
+                ...(attemptId !== undefined ? {
+                    attemptId,
+                } : {
+                }),
                 enrollmentId,
                 userChallengeSubmissionId,
                 ...(branch !== undefined ? {
@@ -134,23 +146,45 @@ export class EnqueueProcessGitSubmissionJobService {
                     maxSteps: envConfig().job.processGitSubmission.maxSteps,
                     payload: this.superJson.stringify(payloadBody),
                     challengeSubmissionId,
+                    ...(entityManager !== undefined ? {
+                        entityManager,
+                    } : {
+                    }),
+                    ...(attemptId !== undefined ? {
+                        refs: {
+                            userChallengeSubmissionId,
+                            enrollmentId,
+                            challengeAttemptId: attemptId,
+                        },
+                    } : {
+                    }),
                 },
             )
         }
-        void sleepEnqueueUxDelay().then(() =>
-            this.processGitSubmissionV2Queue.add(
+        if (!deferPublish) void this.publish(job).catch(() => undefined)
+        return job
+    }
+
+    /** Publish a previously persisted job after its owning database transaction commits. */
+    async publish(job: JobEntity): Promise<void> {
+        try {
+            await sleepEnqueueUxDelay()
+            const dispatchId = job.fencingToken > 0
+                ? `${job.id}-${job.fencingToken}`
+                : job.id
+            await this.processGitSubmissionV2Queue.add(
                 job.id,
                 job.payload,
                 {
-                    jobId: job.id,
+                    jobId: dispatchId,
                 },
-            ),
-        ).catch((error) =>
-            this.jobActionService.failJob({
+            )
+        } catch (error) {
+            await this.jobActionService.failJob({
                 job,
-                error: `Failed to enqueue job to broker: ${error?.message ?? "unknown error"}`,
-            }),
-        )
-        return job
+                error: `Failed to enqueue job to broker: ${error instanceof Error ? error.message : "unknown error"}`,
+            })
+            throw error
+        }
     }
 }

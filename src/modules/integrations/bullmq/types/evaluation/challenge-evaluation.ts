@@ -22,6 +22,8 @@ export interface ChallengeFeedbackDetail {
 export interface ChallengeRequirementResult {
     /** Unique identifier (UUID) for the requirement */
     criteriaId: string
+    /** Advisory yes/no answer. The platform recomputes score from this value and the frozen rubric. */
+    met?: boolean
     /** List of individual feedback points for this requirement */
     feedbacks: Array<ChallengeFeedbackDetail>
 }
@@ -36,4 +38,6 @@ export interface ChallengeEvaluation {
     score: number
     /** Detailed breakdown of results per requirement */
     details: Array<ChallengeRequirementResult>
+    /** Deterministic evidence-completeness confidence computed by the platform. */
+    confidence?: number
 }

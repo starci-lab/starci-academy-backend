@@ -11,6 +11,9 @@ import type {
     AiJobSelection,
 } from "@modules/ai/types/ai-job-selection"
 import type {
+    EntityManager,
+} from "typeorm"
+import type {
     SendMailPayload,
 } from "@modules/integrations/bullmq/types/payloads/send-mail"
 import type {
@@ -78,6 +81,14 @@ export interface EnqueueProcessGitSubmissionJobParams {
     userChallengeSubmissionId: string
     /** Existing `jobs.id` to requeue (optional). */
     jobId?: string
+    /** Reserved id for a new job created with its attempt in one transaction. */
+    reservedJobId?: string
+    /** Immutable attempt the job evaluates. */
+    attemptId?: string
+    /** Transaction manager used while preparing the durable job row. */
+    entityManager?: EntityManager
+    /** Skip broker publication until the owning transaction commits. */
+    deferPublish?: boolean
     /** Git branch override for repo loader. */
     branch?: string
     /** Embedding model id override. */
@@ -106,6 +117,14 @@ export interface EnqueueProcessGoogleDocsSubmissionJobParams {
     challengeSubmissionId: string
     /** Existing `jobs.id` to requeue (optional). */
     jobId?: string
+    /** Reserved id for a new job created with its attempt in one transaction. */
+    reservedJobId?: string
+    /** Immutable attempt the job evaluates. */
+    attemptId?: string
+    /** Transaction manager used while preparing the durable job row. */
+    entityManager?: EntityManager
+    /** Skip broker publication until the owning transaction commits. */
+    deferPublish?: boolean
     /** Embedding model id override. */
     embeddingModel?: string
     /** Embedding model provider override. */

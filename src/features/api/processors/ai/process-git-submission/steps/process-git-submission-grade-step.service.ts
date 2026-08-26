@@ -1,84 +1,92 @@
 import type {
-    ProcessGitSubmissionPayload,
+    ProcessGitSubmissionPayload
 } from "@modules/integrations/bullmq/types/payloads/process-git-submission"
 import {
-    JobActionService,
+    JobActionService
 } from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
-    JobExtendedContext,
+    JobExtendedContext
 } from "@modules/bussiness/jobs/types/context"
 import {
-    AiCeilSurface,
+    AiCeilSurface
 } from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
 import {
-    AiModelCategory,
+    AiModelCategory
 } from "@modules/databases/postgresql/primary/enums/ai-model-category"
 import {
-    AiModelTask,
+    AiModelTask
 } from "@modules/databases/postgresql/primary/enums/ai-model-task"
 import {
-    ModelProvider,
+    ModelProvider
 } from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
+    InjectPrimaryPostgreSQLEntityManager
 } from "@modules/databases/postgresql/primary/primary.decorators"
 import {
-    Injectable,
+    Injectable
 } from "@nestjs/common"
 import {
-    type EntityManager,
+    type EntityManager
 } from "typeorm"
 import {
-    WinstonService,
+    WinstonService
 } from "@modules/platform/winston/winston.service"
 import {
-    envConfig,
+    envConfig
 } from "@modules/platform/env/config"
 import {
-    GithubRepoLoader,
+    GithubRepoLoader
 } from "@langchain/community/document_loaders/web/github"
 import {
-    MountStorageService,
+    MountStorageService
 } from "@modules/filesystem/mount-storage.service"
 import {
-    EncryptionService,
+    EncryptionService
 } from "@modules/crypto/encryption.service"
 import {
-    Document,
+    Document
 } from "@langchain/core/documents"
 import {
-    AiEntitlementService,
+    AiEntitlementService
 } from "@modules/ai/ai-entitlement.service"
 import {
-    AiInvokeService,
+    AiInvokeService
 } from "@modules/ai/ai-invoke.service"
 import {
-    ChallengeEvaluationParseService,
+    ChallengeEvaluationParseService
 } from "../../shared/challenge-evaluation/challenge-evaluation-parse.service"
 import {
-    ChallengeEvaluationPromptService,
+    ChallengeEvaluationPromptService
 } from "../../shared/challenge-evaluation/challenge-evaluation-prompt.service"
 import type {
-    ProcessGitSubmissionGradeStepExecuteResult,
+    ProcessGitSubmissionGradeStepExecuteResult
 } from "../types/execute"
 import type {
-    ExtendedProcessGitSubmissionContext,
+    ExtendedProcessGitSubmissionContext
 } from "../types/extended"
 import {
-    collectSubmissionCriteria,
+    collectSubmissionCriteria
 } from "../../shared/challenge-submission/utils/collect-submission-criteria"
 import {
-    resolveTargetLanguage,
+    resolveTargetLanguage
 } from "../../shared/challenge-submission/utils/resolve-target-language"
 import {
-    resolveGithubAccessToken,
+    resolveGithubAccessToken
 } from "../../shared/challenge-submission/utils/resolve-github-access-token"
 import {
-    GradingRetrievalService,
+    GradingRetrievalService
 } from "@modules/integrations/rag/grading-rag-retrieval.service"
 import {
-    AbstractSubmissionGradeStepService,
+    AbstractSubmissionGradeStepService
 } from "../../shared/challenge-submission/abstract-submission-grade-step.service"
+import {
+    ChallengeEvaluationLowConfidenceException
+} from "@modules/platform/exceptions/errors/ai/challenge-evaluation-low-confidence"
+import {
+    GitRepositoryLoadFailedException
+} from "@modules/platform/exceptions/errors/submission-review/git-repository-load-failed"
+
+const MIN_EVALUATION_CONFIDENCE = 0.75
 
 @Injectable()
 /**
@@ -93,41 +101,38 @@ import {
  * cloning the submitted repo and grading it at the code-grading AI floor.
  */
 export class ProcessGitSubmissionGradeStepService extends AbstractSubmissionGradeStepService<
-    ProcessGitSubmissionPayload,
-    ExtendedProcessGitSubmissionContext,
-    ProcessGitSubmissionGradeStepExecuteResult
+  ProcessGitSubmissionPayload,
+  ExtendedProcessGitSubmissionContext,
+  ProcessGitSubmissionGradeStepExecuteResult
 > {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-            entityManager: EntityManager,
-            jobActionService: JobActionService,
-            winstonService: WinstonService,
-        private readonly mountStorageService: MountStorageService,
-        private readonly aiInvokeService: AiInvokeService,
-        private readonly aiEntitlementService: AiEntitlementService,
-        private readonly challengeEvaluationParseService: ChallengeEvaluationParseService,
-        private readonly challengeEvaluationPromptService: ChallengeEvaluationPromptService,
-        private readonly gradingRetrievalService: GradingRetrievalService,
-        private readonly encryptionService: EncryptionService,
+    @InjectPrimaryPostgreSQLEntityManager()
+        entityManager: EntityManager,
+        jobActionService: JobActionService,
+        winstonService: WinstonService,
+    private readonly mountStorageService: MountStorageService,
+    private readonly aiInvokeService: AiInvokeService,
+    private readonly aiEntitlementService: AiEntitlementService,
+    private readonly challengeEvaluationParseService: ChallengeEvaluationParseService,
+    private readonly challengeEvaluationPromptService: ChallengeEvaluationPromptService,
+    private readonly gradingRetrievalService: GradingRetrievalService,
+    private readonly encryptionService: EncryptionService,
     ) {
-        super(
-            entityManager,
+        super(entityManager,
             jobActionService,
-            winstonService,
-        )
+            winstonService)
     }
 
     /**
-     * Execute the grade step: load repo -> similarity search on criteria -> LLM grades each criterion.
-     */
+   * Execute the grade step: load repo -> similarity search on criteria -> LLM grades each criterion.
+   */
     protected async execute(
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload,
-            ExtendedProcessGitSubmissionContext
-        >,
+      ProcessGitSubmissionPayload,
+      ExtendedProcessGitSubmissionContext
+    >,
     ): Promise<ProcessGitSubmissionGradeStepExecuteResult> {
         const { payload } = context
-        const branch = payload.branch ?? "main"
 
         const targetLanguage = resolveTargetLanguage(payload.locale)
 
@@ -139,7 +144,8 @@ export class ProcessGitSubmissionGradeStepService extends AbstractSubmissionGrad
             context.extended?.challengeSubmission,
             payload.lang,
         )
-        const repoUrl = context.extended?.userChallengeSubmission.submissionUrl ?? ""
+        const repoUrl =
+      context.extended?.userChallengeSubmission.submissionUrl ?? ""
         // private student repos need the learner's own token (org token can't read a
         // user's private repo); falls back to the org token for public/org repos
         const accessToken = await resolveGithubAccessToken({
@@ -148,23 +154,22 @@ export class ProcessGitSubmissionGradeStepService extends AbstractSubmissionGrad
             fallbackAccessToken: this.mountStorageService.githubAccessToken,
             enrollmentId: payload.enrollmentId,
         })
+        const branch =
+      payload.branch ?? (await this.resolveDefaultBranch(repoUrl,
+          accessToken))
 
         /** Load GitHub repo */
-        const gitLoader = new GithubRepoLoader(
-            repoUrl,
+        const gitLoader = new GithubRepoLoader(repoUrl,
             {
                 branch,
                 recursive: true,
                 accessToken,
                 verbose: true,
-                ignorePaths: [
-                    "package-lock.json",
+                ignorePaths: ["package-lock.json",
                     "dist",
                     "node_modules",
-                    ".git",
-                ],
-            },
-        )
+                    ".git"],
+            })
         const loadedDocs = await gitLoader.load()
         const docs = loadedDocs.map(
             (doc) =>
@@ -179,27 +184,25 @@ export class ProcessGitSubmissionGradeStepService extends AbstractSubmissionGrad
             a stalled re-dispatch: a zombie worker carries a different fencing token -> a
             different collection, so it can never corrupt the live owner's vectors. */
         const gradingCfg = envConfig().services.githubWorker.processGitSubmission
-        const { excerpt: sourceExcerpt } = await this.gradingRetrievalService.retrieveGradingExcerpt(
-            {
-                runKey: `${payload.userChallengeSubmissionId}-${context.job.fencingToken}`,
-                documents: docs,
-                criteria,
-                chunkSize: gradingCfg.chunkSize,
-                chunkOverlap: gradingCfg.chunkOverlap,
-                embedding: {
-                    model: payload.embeddingModel ?? gradingCfg.embedding.model,
-                    provider: payload.embeddingProvider ?? (gradingCfg.embedding.provider as ModelProvider),
-                },
-                maxChars: gradingCfg.gradingMaxSourceChars,
-                perCriterionTopK: gradingCfg.gradingPerCriterionTopK,
-                jobId: context.job.id ?? "",
-            },
-        )
+        const { excerpt: sourceExcerpt } =
+      await this.gradingRetrievalService.retrieveGradingExcerpt({
+          runKey: `${payload.userChallengeSubmissionId}-${context.job.fencingToken}`,
+          documents: docs,
+          criteria,
+          chunkSize: gradingCfg.chunkSize,
+          chunkOverlap: gradingCfg.chunkOverlap,
+          embedding: {
+              model: payload.embeddingModel ?? gradingCfg.embedding.model,
+              provider:
+            payload.embeddingProvider ??
+            (gradingCfg.embedding.provider as ModelProvider),
+          },
+          maxChars: gradingCfg.gradingMaxSourceChars,
+          perCriterionTopK: gradingCfg.gradingPerCriterionTopK,
+          jobId: context.job.id ?? "",
+      })
         // CACHE INVARIANT: the builder keeps submission-specific source in the HumanMessage.
-        const {
-            messages,
-            maxScore,
-        } = this.challengeEvaluationPromptService.build({
+        const { messages, maxScore } = this.challengeEvaluationPromptService.build({
             source: "code",
             challengeTitle,
             targetLanguage,
@@ -217,7 +220,14 @@ export class ProcessGitSubmissionGradeStepService extends AbstractSubmissionGrad
         // shallowly (miss subtle API-contract defects); text grading (googleDocs /
         // interview) stays at Economy. Climbs to the tier ceiling -> served + cost.
         const {
-            text: raw, model, provider, attempts, cost, promptTokens, completionTokens, cachedTokens,
+            text: raw,
+            model,
+            provider,
+            attempts,
+            cost,
+            promptTokens,
+            completionTokens,
+            cachedTokens,
         } = await this.aiInvokeService.run({
             userId: enrollment.userId,
             messages,
@@ -241,8 +251,22 @@ export class ProcessGitSubmissionGradeStepService extends AbstractSubmissionGrad
             attempts,
         })
 
-        const parsed = this.challengeEvaluationParseService.parse(raw)
-        const passThreshold = this.mountStorageService.appConfig.systemConfig.challenge.passThreshold
+        const parsed = this.challengeEvaluationParseService.parse(raw,
+            {
+                criteria,
+                source: "code",
+            })
+        if (
+            parsed.confidence !== undefined &&
+      parsed.confidence < MIN_EVALUATION_CONFIDENCE
+        ) {
+            throw new ChallengeEvaluationLowConfidenceException({
+                confidence: parsed.confidence ?? 0,
+                threshold: MIN_EVALUATION_CONFIDENCE,
+            })
+        }
+        const passThreshold =
+      this.mountStorageService.appConfig.systemConfig.challenge.passThreshold
         const passed = parsed.score >= maxScore * passThreshold
         return {
             evaluation: parsed,
@@ -256,5 +280,48 @@ export class ProcessGitSubmissionGradeStepService extends AbstractSubmissionGrad
                 cachedTokens,
             },
         }
+    }
+
+    /** Resolves the repository's declared default branch without trusting user input as a fetch target. */
+    private async resolveDefaultBranch(
+        repositoryUrl: string,
+        accessToken?: string,
+    ): Promise<string> {
+        const match =
+      /^https:\/\/github\.com\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+?)(?:\.git)?\/?$/.exec(
+          repositoryUrl.trim(),
+      )
+        if (!match) return "main"
+        const [, owner,
+            repository] = match
+        const response = await fetch(
+            `https://api.github.com/repos/${owner}/${repository}`,
+            {
+                headers: {
+                    Accept: "application/vnd.github+json",
+                    ...(accessToken
+                        ? {
+                            Authorization: `Bearer ${accessToken}`,
+                        }
+                        : {
+                        }),
+                    "X-GitHub-Api-Version": "2022-11-28",
+                },
+            },
+        )
+        if (!response.ok) {
+            throw new GitRepositoryLoadFailedException({
+                repoUrl: repositoryUrl,
+                branch: "default",
+                originalError: new Error(
+                    `GitHub repository metadata responded with status ${response.status}`,
+                ),
+            })
+        }
+        const metadata = (await response.json()) as { default_branch?: unknown }
+        return typeof metadata.default_branch === "string" &&
+      metadata.default_branch.trim() !== ""
+            ? metadata.default_branch
+            : "main"
     }
 }

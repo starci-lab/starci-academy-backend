@@ -18,6 +18,16 @@ export type SubmitChallengeSubmissionParams =
 /** Result of `SubmitChallengeSubmissionService.execute`. */
 export interface SubmitChallengeSubmissionResult {
     jobId: string
+    /** Immutable attempt created before broker publication. */
+    attemptId: string
+    /** Logical whole-Challenge attempt identity shared by all submitted deliverables. */
+    attemptGroupId?: string
+    /** Every child snapshot returned for an aggregate submit. */
+    items?: Array<{
+        challengeSubmissionId: string
+        jobId: string
+        attemptId: string
+    }>
 }
 
 /** Params to persist the caller's grading model/provider/lang selection on the submission row. */

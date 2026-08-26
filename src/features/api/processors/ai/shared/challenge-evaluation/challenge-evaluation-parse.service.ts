@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common"
 import {
     parseChallengeEvaluation,
+    type ParseChallengeEvaluationOptions,
 } from "./utils/parse-challenge-evaluation"
 
 @Injectable()
@@ -19,7 +20,9 @@ export class ChallengeEvaluationParseService {
      */
     parse(
         text: string,
+        options?: ParseChallengeEvaluationOptions,
     ): ChallengeEvaluation {
-        return parseChallengeEvaluation(text)
+        return parseChallengeEvaluation(text,
+            options)
     }
 }
