@@ -7,6 +7,9 @@ import {
 import {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
+import {
+    CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
 describe("AiModelCatalogParserService",
     () => {
         it("skips unreadable entries and returns an empty catalog",
@@ -175,5 +178,141 @@ describe("AiModelCatalogParserService",
                 ])
                 expect(log).toHaveBeenCalled()
                 expect(extract).toHaveBeenCalledTimes(3)
+            })
+
+        it("rejects each invalid model shape before loading translations",
+            async () => {
+                const valid = {
+                    name: "model",
+                    provider: ModelProvider.OpenAI,
+                    category: AiModelCategory.Low,
+                    keysFilePath: "keys/model",
+                    priority: 1,
+                    priceInUsdPerMTok: 1,
+                    priceOutUsdPerMTok: 1,
+                    contextWindowTokens: 100,
+                    enabled: true,
+                    complimentary: false,
+                    supportedTasks: "chatting",
+                }
+                const rows = [
+                    {
+                        ...valid, name: ""
+                    },
+                    {
+                        ...valid, provider: "unknown"
+                    },
+                    {
+                        ...valid, category: "unknown"
+                    },
+                    {
+                        ...valid, keysFilePath: ""
+                    },
+                    {
+                        ...valid, priority: Number.NaN
+                    },
+                    {
+                        ...valid, complimentary: "no"
+                    },
+                    {
+                        ...valid, enabled: "yes"
+                    },
+                ]
+                const load = jest.fn().mockResolvedValue("english")
+                const extract = jest.fn()
+                    .mockImplementation(() => rows.shift())
+                const log = jest.fn()
+                const service = new AiModelCatalogParserService(
+                    {
+                        paths: jest.fn().mockResolvedValue(rows.map((_row, index) => ({
+                            relativePath: `${index}-invalid`,
+                            displayId: `invalid-${index}`,
+                            orderIndex: index,
+                        }))),
+                    } as never,
+                    {
+                        load
+                    } as never,
+                    {
+                        extract
+                    } as never,
+                    {
+                        toRequiredString: jest.fn((value: unknown, fallback: string) =>
+                            typeof value === "string" ? value : fallback),
+                        toRequiredEnum: jest.fn((value: unknown, values: object) =>
+                            Object.values(values).includes(value) ? value : value),
+                        toRequiredNumber: jest.fn((value: unknown, fallback: number) =>
+                            typeof value === "number" ? value : fallback),
+                        toRequiredBoolean: jest.fn((value: unknown) => value),
+                    } as never,
+                    {
+                        log
+                    } as never,
+                )
+
+                await expect(service.parseManyWithTranslations()).resolves.toEqual([])
+                expect(load).toHaveBeenCalledTimes(7)
+                expect(log).toHaveBeenCalledTimes(7)
+            })
+
+        it("orders multiple valid models by their derived weight",
+            async () => {
+                const model = (name: string, price: number) => ({
+                    name,
+                    provider: ModelProvider.OpenAI,
+                    category: AiModelCategory.Low,
+                    keysFilePath: `keys/${name}`,
+                    priority: 1,
+                    priceInUsdPerMTok: price,
+                    priceOutUsdPerMTok: price,
+                    contextWindowTokens: 1000,
+                    enabled: true,
+                    complimentary: false,
+                    supportedTasks: "chatting",
+                    label: name,
+                    description: name,
+                })
+                const extract = jest.fn()
+                    .mockReturnValueOnce(model("expensive",
+                        2))
+                    .mockReturnValueOnce({
+                        label: "", description: ""
+                    })
+                    .mockReturnValueOnce(model("cheap",
+                        1))
+                    .mockReturnValueOnce({
+                        label: "", description: ""
+                    })
+                const service = new AiModelCatalogParserService(
+                    {
+                        paths: jest.fn().mockResolvedValue([
+                            {
+                                relativePath: "0-expensive", displayId: "expensive", orderIndex: 0
+                            },
+                            {
+                                relativePath: "1-cheap", displayId: "cheap", orderIndex: 1
+                            },
+                        ]),
+                    } as never,
+                    {
+                        load: jest.fn().mockResolvedValue("markdown")
+                    } as never,
+                    {
+                        extract
+                    } as never,
+                    new CoerceMdScalarService(),
+                    {
+                        log: jest.fn()
+                    } as never,
+                )
+
+                await expect(service.parseMany()).resolves.toEqual([
+                    expect.objectContaining({
+                        name: "cheap"
+                    }),
+                    expect.objectContaining({
+                        name: "expensive"
+                    }),
+                ])
             })
     })

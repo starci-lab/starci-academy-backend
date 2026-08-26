@@ -171,6 +171,18 @@ describe("TransactionReconcileQueryService",
                                 reason: "invalid-response",
                             })
                     })
+
+                it("maps a malformed PayOS response to a provider error",
+                    async () => {
+                        payosGet.mockResolvedValueOnce({
+                        })
+
+                        await expect(service.resolve(transaction(PaymentType.PayOS)))
+                            .resolves.toEqual({
+                                state: "unavailable",
+                                reason: "provider-error",
+                            })
+                    })
             })
 
         describe("SePay",

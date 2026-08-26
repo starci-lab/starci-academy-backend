@@ -226,4 +226,63 @@ describe("InstallmentPlanEnforcementCronService",
                 expect(mockWarningEmail).not.toHaveBeenCalled()
                 expect(mockDefaultedEmail).not.toHaveBeenCalled()
             })
+
+        it("does not repeat a defaulted plan or a reminder already recorded for this cycle",
+            async () => {
+                const defaulted = planAt(14)
+                defaulted.status = InstallmentPlanStatus.Defaulted
+                const warned = planAt(7)
+                warned.secondRemindedAt = NOW
+                entityManager.find.mockResolvedValue([
+                    defaulted,
+                    warned,
+                ])
+
+                await service.enforceOverduePlans()
+
+                expect(entityManager.update).not.toHaveBeenCalled()
+                expect(mockDueEmail).not.toHaveBeenCalled()
+                expect(mockWarningEmail).not.toHaveBeenCalled()
+                expect(mockDefaultedEmail).not.toHaveBeenCalled()
+            })
+
+        it("swallows a sweep query failure and logs the cron failure",
+            async () => {
+                const log = jest.fn()
+                entityManager.find.mockRejectedValueOnce(new Error("database unavailable"))
+                const failingService = new InstallmentPlanEnforcementCronService(
+                    entityManager as never,
+                    {
+                        now: () => dayjs(NOW),
+                        from: (value: Date) => dayjs(value),
+                    } as never,
+                    installmentPlanService as never,
+                    {
+                        enqueue: jest.fn(),
+                    } as never,
+                    {
+                        log,
+                    } as never,
+                )
+
+                await expect(failingService.enforceOverduePlans()).resolves.toBeUndefined()
+                expect(log).toHaveBeenCalledWith(expect.anything(),
+                    expect.objectContaining({
+                        op: "cron.installment-plan.failed",
+                        error: "database unavailable",
+                    }))
+            })
+
+        it("does not send the defaulted email when the status claim is lost",
+            async () => {
+                entityManager.find.mockResolvedValue([planAt(14)])
+                entityManager.update.mockResolvedValueOnce({
+                    affected: 0,
+                })
+
+                await service.enforceOverduePlans()
+
+                expect(installmentPlanService.lockGatedEnrollments).not.toHaveBeenCalled()
+                expect(mockDefaultedEmail).not.toHaveBeenCalled()
+            })
     })

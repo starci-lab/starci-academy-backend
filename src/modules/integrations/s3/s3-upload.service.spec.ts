@@ -1,26 +1,26 @@
 import {
-    PutObjectCommand, type S3Client 
+    PutObjectCommand, type S3Client
 } from "@aws-sdk/client-s3"
 import {
-    envConfig 
+    envConfig
 } from "@modules/platform/env/config"
 import {
-    AsyncService 
+    AsyncService
 } from "@modules/lib/mixin/async.service"
 import SuperJSON from "superjson"
 import {
-    Readable 
+    Readable
 } from "node:stream"
 import {
-    S3Provider 
+    S3Provider
 } from "./enums/s3"
 import {
-    S3UploadService 
+    S3UploadService
 } from "./s3-upload.service"
 
 jest.mock("@modules/platform/env/config",
     () => ({
-        envConfig: jest.fn() 
+        envConfig: jest.fn()
     }))
 
 describe("S3UploadService",
@@ -37,10 +37,10 @@ describe("S3UploadService",
             jest.mocked(envConfig).mockReturnValue({
                 s3: {
                     minio: {
-                        bucket: "academy" 
+                        bucket: "academy"
                     },
                     digitalOcean: {
-                        bucket: "production", accessKeyId: "do-key" 
+                        bucket: "production", accessKeyId: "do-key"
                     },
                 },
             } as ReturnType<typeof envConfig>)
@@ -50,13 +50,13 @@ describe("S3UploadService",
             })
             service = new S3UploadService(
       {
-          send: digitalOceanSend 
+          send: digitalOceanSend
       } as unknown as S3Client,
       {
-          send: minioSend 
+          send: minioSend
       } as unknown as S3Client,
       {
-          allMustDone 
+          allMustDone
       } as unknown as AsyncService,
       new SuperJSON(),
             )
@@ -67,7 +67,7 @@ describe("S3UploadService",
                 await service.json({
                     name: "lesson.json",
                     payload: {
-                        id: 7 
+                        id: 7
                     },
                     acl: "public-read",
                     providers: [S3Provider.Minio],
@@ -89,7 +89,7 @@ describe("S3UploadService",
                 await service.json({
                     name: "lesson.json",
                     payload: {
-                        id: 1 
+                        id: 1
                     },
                     acl: "public-read",
                     providers: [S3Provider.DigitalOcean,
@@ -100,7 +100,7 @@ describe("S3UploadService",
                 expect(
                     (digitalOceanSend.mock.calls[0][0] as PutObjectCommand).input,
                 ).toMatchObject({
-                    Bucket: "production", ACL: "public-read" 
+                    Bucket: "production", ACL: "public-read"
                 })
             })
 
@@ -111,10 +111,10 @@ describe("S3UploadService",
                     .mockReturnValue({
                         s3: {
                             minio: {
-                                bucket: "academy" 
+                                bucket: "academy"
                             },
                             digitalOcean: {
-                                bucket: "production", accessKeyId: "   " 
+                                bucket: "production", accessKeyId: "   "
                             },
                         },
                     } as ReturnType<typeof envConfig>)
@@ -147,7 +147,7 @@ describe("S3UploadService",
                         providers: [S3Provider.Minio],
                     }),
                 ).rejects.toMatchObject({
-                    code: "S3_UPLOAD_FAILED_EXCEPTION" 
+                    code: "S3_UPLOAD_FAILED_EXCEPTION"
                 })
             })
 
@@ -181,7 +181,25 @@ describe("S3UploadService",
                         provider: "other" as S3Provider,
                     }),
                 ).rejects.toMatchObject({
-                    code: "S3_PROVIDER_NOT_FOUND_EXCEPTION" 
+                    code: "S3_PROVIDER_NOT_FOUND_EXCEPTION"
+                })
+            })
+
+        it("wraps non-Error provider failures with provider and key context",
+            async () => {
+                minioSend.mockRejectedValueOnce("network down")
+
+                await expect(
+                    service.json({
+                        name: "failure.json",
+                        acl: "private",
+                        payload: {
+                            ok: true,
+                        },
+                        providers: [S3Provider.Minio],
+                    }),
+                ).rejects.toMatchObject({
+                    code: "S3_UPLOAD_FAILED_EXCEPTION",
                 })
             })
     })

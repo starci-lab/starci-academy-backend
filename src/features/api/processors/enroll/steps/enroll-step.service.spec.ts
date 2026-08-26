@@ -449,4 +449,25 @@ describe("EnrollStepService",
                 }))
                 expect(entityManager.save).toHaveBeenCalledWith(course)
             })
+
+        it("advances existing course metadata when the current phase sells out",
+            async () => {
+                const course = fakeCourse()
+                course.pricingPhases = [{
+                    phase: PricingPhase.EarlyBird,
+                    slotAvailable: 1,
+                }] as never
+                programFindOne(entityManager,
+                    {
+                        course,
+                        enrollment: null,
+                        user: null,
+                    })
+                entityManager.count.mockResolvedValueOnce(2)
+
+                await service.process(makeContext())
+
+                expect(course.metadata?.currentPhase).toBe(PricingPhase.Regular)
+                expect(entityManager.save).toHaveBeenCalledWith(course)
+            })
     })

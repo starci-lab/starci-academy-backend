@@ -377,6 +377,29 @@ describe("CvGenerationHandler",
                         })
                     })
 
+                it("maps a malformed feedback object to a safe empty feedback shape",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(makeGenerationRow({
+                            feedback: {
+                            },
+                        }))
+
+                        const result = await handler.execute(
+                            new CvGenerationQuery({
+                                request: {
+                                    id: "cv-gen-1",
+                                },
+                                user: fakeUser("user-1"),
+                            }),
+                        )
+
+                        expect(result.feedback).toEqual({
+                            shortFeedback: "",
+                            templateLevel: "",
+                            items: [],
+                        })
+                    })
+
                 it("resolves uploadedCvUrl via a presigned GET URL when source = Uploaded",
                     async () => {
                         entityManager.findOne.mockResolvedValueOnce(makeGenerationRow({

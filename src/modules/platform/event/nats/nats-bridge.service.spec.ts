@@ -73,18 +73,19 @@ describe("NatsBridgeService",
                     },
                 }),
             }
+            const messageFactory = {
+                parse: jest.fn().mockReturnValue({
+                    id: producerId,
+                    digest: `digest-${producerId}`,
+                    data: eventPayload,
+                }),
+            }
             const service = new NatsBridgeService(
                 {
                     subjects: [EventName.ChatMessageCreated],
                 },
                 eventEmitter as unknown as EventEmitter2,
-                {
-                    parse: jest.fn().mockReturnValue({
-                        id: producerId,
-                        digest: `digest-${producerId}`,
-                        data: eventPayload,
-                    }),
-                } as unknown as NatsMessageFactoryService,
+                messageFactory as unknown as NatsMessageFactoryService,
                 cacheService as unknown as CacheService,
                 {
                     getId: jest.fn().mockReturnValue(localInstanceId),
@@ -103,6 +104,7 @@ describe("NatsBridgeService",
                 eventEmitter,
                 cacheService,
                 streamAsyncIteratorService,
+                messageFactory,
                 retryService,
                 runConsumer: async () => {
                     await service.bridgeEvents()
@@ -198,5 +200,26 @@ describe("NatsBridgeService",
                 expect(world.cacheService.get).toHaveBeenCalledTimes(1)
                 expect(world.cacheService.set).not.toHaveBeenCalled()
                 expect(world.eventEmitter.emit).not.toHaveBeenCalled()
+            })
+
+        it("parses an empty payload as an empty envelope and still emits foreign events",
+            async () => {
+                const world = createService("instance-b")
+                world.streamAsyncIteratorService.createStream.mockResolvedValueOnce({
+                    async *[Symbol.asyncIterator]() {
+                        yield {
+                            subject: EventName.ChatMessageCreated,
+                            data: new Uint8Array(),
+                        }
+                    },
+                })
+
+                await world.runConsumer()
+
+                expect(world.messageFactory.parse).toHaveBeenCalledWith("{}")
+                expect(world.eventEmitter.emit).toHaveBeenCalledWith(
+                    EventName.ChatMessageCreated,
+                    eventPayload,
+                )
             })
     })

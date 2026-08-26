@@ -216,6 +216,23 @@ describe("KpiRewardService",
                     })
             })
 
+        it("falls back to a positive current target when this week's floor row is absent",
+            async () => {
+                entityManager.query.mockResolvedValueOnce([])
+
+                const result = await service.getFloorStates({
+                    userId,
+                    currentTargets: {
+                        [key]: 12,
+                    },
+                })
+
+                expect(result[key]).toEqual({
+                    floorTarget: 12,
+                    claimed: false,
+                })
+            })
+
         describe("claimReward",
             () => {
                 it("grants the reward and marks the existing floor row claimed",

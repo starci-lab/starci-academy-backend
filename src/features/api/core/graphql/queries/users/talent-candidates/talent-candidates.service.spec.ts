@@ -290,6 +290,41 @@ describe("TalentCandidatesService",
                         expect(entityManager.query).not.toHaveBeenCalled()
                     })
 
+                it("marks a candidate with no scored pillars as needsWork and unqualified",
+                    async () => {
+                        entityManager.find.mockResolvedValueOnce([{
+                            id: "enrollment-empty",
+                            courseId: "course-empty",
+                            userId: "user-empty",
+                            isEnrolled: true,
+                            course: {
+                                title: "Empty Track",
+                                displayId: "empty-track",
+                            },
+                            user: {
+                                id: "user-empty",
+                                openToWork: true,
+                            },
+                        }])
+                        entityManager.query.mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([])
+
+                        const result = await service.rankByTrack({
+                            courseId: "course-empty",
+                            limit: 24,
+                            offset: 0,
+                        })
+
+                        expect(result[0].track).toEqual(expect.objectContaining({
+                            depthScore: null,
+                            band: "needsWork",
+                            isQualified: false,
+                        }))
+                        expect(result[0].verificationLevel).toBe(CvVerificationLevel.SelfReported)
+                    })
+
                 // With IDENTICAL track depth, the stronger StarCi verification tier
                 // breaks the tie -- a capstone-verified candidate surfaces above a
                 // self-reported one. Depth stays the primary key; verification only

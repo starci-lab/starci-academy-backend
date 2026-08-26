@@ -1027,6 +1027,16 @@ describe("GlobalChatService",
                     expect.anything(),
                 )
             })
+
+        it("rejects a missing global room after the idempotent initialization attempt",
+            async () => {
+                manager.findOne.mockResolvedValueOnce(null)
+
+                await expect(service.getOrCreateRoom()).rejects.toMatchObject({
+                    code: "GLOBAL_CHAT_ROOM_NOT_FOUND",
+                })
+                expect(manager.createQueryBuilder).toHaveBeenCalledTimes(1)
+            })
     })
 
 describe("GlobalChatPolicyService",

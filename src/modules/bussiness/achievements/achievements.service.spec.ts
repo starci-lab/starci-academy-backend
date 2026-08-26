@@ -415,6 +415,31 @@ describe("AchievementsService",
                         expect(entityManager.query).not.toHaveBeenCalled()
                     })
 
+                it("recomputes an expired cached projection instead of serving stale data",
+                    async () => {
+                        const service = await build({
+                            badges: [],
+                            definitions: [],
+                            values: [],
+                        })
+                        entityManager.findOne.mockResolvedValueOnce({
+                            updatedAt: new Date(0),
+                            value: {
+                                data: [],
+                                count: 9,
+                            },
+                        })
+
+                        const result = await service.getMyAchievements(USER_ID)
+
+                        expect(result).toEqual(expect.objectContaining({
+                            data: [],
+                            count: 0,
+                            newAchievements: [],
+                        }))
+                        expect(entityManager.query).toHaveBeenCalled()
+                    })
+
                 it("invalidates the user's cached projection through the entity manager",
                     async () => {
                         const service = await build({

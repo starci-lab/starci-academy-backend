@@ -409,4 +409,24 @@ describe("ReviewMilestoneTaskGradeStepService",
                 await expect(service.process(makeContext())).rejects.toBeInstanceOf(GitRepositoryEmptyException)
                 expect(gradingRetrievalService.retrieveGradingExcerpt).not.toHaveBeenCalled()
             })
+
+        it("wraps a non-Error Github loader failure and marks the job failed",
+            async () => {
+                programTask({
+                    id: "task-1",
+                    title: "loader failure",
+                    verified: null,
+                    maxScore: 10,
+                    criterias: [],
+                })
+                loaderLoadMock.mockRejectedValueOnce("repository unavailable")
+                const { service, jobActionService } = makeService(entityManager)
+
+                await expect(service.process(makeContext())).rejects.toBeInstanceOf(
+                    GitRepositoryLoadFailedException,
+                )
+                expect(jobActionService.failJob).toHaveBeenCalledWith(expect.objectContaining({
+                    emitChangeEvent: true,
+                }))
+            })
     })

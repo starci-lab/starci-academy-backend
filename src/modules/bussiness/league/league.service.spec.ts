@@ -347,6 +347,34 @@ describe("LeagueService",
                 })).toBe(LeagueTier.Gold)
             })
 
+        it("leaves rank movement unset when the viewer has no prior-week baseline",
+            async () => {
+                const cohort = {
+                    id: "cohort-no-baseline",
+                    tier: LeagueTier.Bronze,
+                    weekEndAt: new Date("2026-08-09T17:00:00.000Z"),
+                } as LeagueCohortEntity
+                entityManager.findOne.mockResolvedValueOnce({
+                    userId,
+                    tier: LeagueTier.Bronze,
+                    cohort,
+                })
+                leagueCohortPointsProjectionService.getMembers.mockResolvedValueOnce([
+                    {
+                        userId,
+                        username: "viewer",
+                        avatar: null,
+                        points: 0,
+                        rank: 1,
+                    },
+                ] as never)
+                entityManager.query.mockResolvedValueOnce([])
+
+                const result = await service.getMyStanding(userId)
+
+                expect(result.members[0].rankDelta).toBeNull()
+            })
+
         it("settles cohort members into promoted and demoted tiers",
             async () => {
                 const endingCohort = {

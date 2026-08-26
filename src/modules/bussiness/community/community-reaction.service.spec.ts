@@ -174,15 +174,31 @@ describe("CommunityReactionService",
                         entityManager.count.mockResolvedValueOnce(1)
 
                         // unlike feed activities, community reactions do not block self-targets
-                        await expect(
-                            service.reactToPost({
-                                postId,
-                                // the reacting user IS the post's own author from the caller's
-                                // point of view -- the service has no author check at all here
-                                user,
+                        const result = await service.reactToPost({
+                            postId,
+                            // the reacting user IS the post's own author from the caller's
+                            // point of view -- the service has no author check at all here
+                            user,
+                            type: ReactionType.Love,
+                        })
+
+                        expect(result).toEqual({
+                            counts: [],
+                            total: 0,
+                            myReaction: null,
+                            viewCount: 0,
+                            shareCount: 0,
+                        })
+                        expect(entityManager.upsert).toHaveBeenCalledWith(
+                            expect.any(Function),
+                            expect.objectContaining({
                                 type: ReactionType.Love,
                             }),
-                        ).resolves.toBeDefined()
+                            [
+                                "post",
+                                "user",
+                            ],
+                        )
                     })
 
                 it("uses the same atomic write when switching emotion",
@@ -375,5 +391,22 @@ describe("CommunityReactionService",
                         })
                         expect(entityManager.createQueryBuilder).not.toHaveBeenCalled()
                     })
+            })
+
+        it("skips the anonymous mine query while still returning an empty post bucket",
+            async () => {
+                const result = await service.summarizePosts({
+                    postIds: ["post-anonymous"],
+                    userId: "",
+                })
+
+                expect(result["post-anonymous"]).toEqual({
+                    counts: [],
+                    total: 0,
+                    myReaction: null,
+                    viewCount: 0,
+                    shareCount: 0,
+                })
+                expect(entityManager.createQueryBuilder).toHaveBeenCalledTimes(1)
             })
     })

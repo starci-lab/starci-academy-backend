@@ -91,6 +91,25 @@ describe("CourseRagRetrievalService",
                 expect(embeddingModelService.getViaBalancer).not.toHaveBeenCalled()
             })
 
+        it("degrades a non-Error content-index failure to an empty excerpt",
+            async () => {
+                const similaritySearch = jest.fn().mockRejectedValue("qdrant offline")
+                embeddingModelService.getViaBalancer.mockResolvedValueOnce({
+                })
+                fromExistingCollection.mockResolvedValueOnce({
+                    similaritySearch,
+                })
+
+                await expect(service.retrieveContentExcerpt({
+                    contentId: "content-1",
+                    query: "how does this work?",
+                })).resolves.toEqual({
+                    excerpt: "",
+                    retrievedChunks: 0,
+                })
+                expect(similaritySearch).toHaveBeenCalled()
+            })
+
         it("searches FILTERED to metadata.contentId and assembles the hits",
             async () => {
                 const similaritySearch = jest.fn().mockResolvedValue([

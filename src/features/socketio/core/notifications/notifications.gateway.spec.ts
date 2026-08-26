@@ -1,5 +1,5 @@
 import {
-    NotificationsGateway 
+    NotificationsGateway
 } from "./notifications.gateway"
 
 describe("NotificationsGateway",
@@ -7,36 +7,71 @@ describe("NotificationsGateway",
         it("rejects unauthenticated subscriptions and joins the resolved user room",
             async () => {
                 const response = {
-                    error: jest.fn(), successToRoom: jest.fn() 
+                    error: jest.fn(), successToRoom: jest.fn()
                 }
                 const users = {
                     getUserByKeycloakId: jest.fn().mockResolvedValue({
-                        id: "u1" 
-                    }) 
+                        id: "u1"
+                    })
                 }
                 const rooms = {
-                    name: jest.fn((id) => `notifications:${id}`) 
+                    name: jest.fn((id) => `notifications:${id}`)
                 }
                 const gateway = new NotificationsGateway(users as never,
 rooms as never,
 response as never,
 {
-    on: jest.fn() 
+    on: jest.fn()
 } as never,
 {
-    log: jest.fn() 
+    log: jest.fn()
 } as never)
                 await gateway.handleSubscribeNotifications({
                     data: {
-                    }, id: "s1" 
+                    }, id: "s1"
                 } as never)
                 expect(response.error).toHaveBeenCalled()
                 const client = {
                     data: {
-                        userId: "kc1" 
-                    }, join: jest.fn() 
+                        userId: "kc1"
+                    }, join: jest.fn()
                 }
                 await gateway.handleSubscribeNotifications(client as never)
                 expect(client.join).toHaveBeenCalledWith("notifications:u1")
+            })
+
+        it("reports lookup failures without joining a notification room",
+            async () => {
+                const response = {
+                    error: jest.fn(),
+                    successToRoom: jest.fn(),
+                }
+                const gateway = new NotificationsGateway(
+                    {
+                        getUserByKeycloakId: jest.fn().mockRejectedValue("user lookup failed"),
+                    } as never,
+                    {
+                        name: jest.fn(),
+                    } as never,
+                    response as never,
+                    {
+                        on: jest.fn(),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                )
+                const client = {
+                    id: "socket-failure",
+                    data: {
+                        userId: "kc-missing",
+                    },
+                    join: jest.fn(),
+                }
+
+                await gateway.handleSubscribeNotifications(client as never)
+
+                expect(response.error).toHaveBeenCalled()
+                expect(client.join).not.toHaveBeenCalled()
             })
     })

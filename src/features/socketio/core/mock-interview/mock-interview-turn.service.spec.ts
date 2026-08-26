@@ -1,17 +1,17 @@
 import {
-    MockInterviewTurnService 
+    MockInterviewTurnService
 } from "./mock-interview-turn.service"
 import {
-    Locale 
+    Locale
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    MockInterviewMode 
+    MockInterviewMode
 } from "@modules/databases/postgresql/primary/enums/mock-interview-mode"
 import {
-    MockInterviewPhase 
+    MockInterviewPhase
 } from "@modules/databases/postgresql/primary/enums/mock-interview-phase"
 import {
-    MockInterviewKind 
+    MockInterviewKind
 } from "@modules/databases/postgresql/primary/enums/mock-interview-kind"
 const base = (mode: MockInterviewMode) => ({
     courseId: "c1",
@@ -30,7 +30,7 @@ describe("MockInterviewTurnService",
                     retrieveCourseExcerpt: jest
                         .fn()
                         .mockResolvedValue({
-                            excerpt: "CAP theorem" 
+                            excerpt: "CAP theorem"
                         }),
                 }
                 const result = await new MockInterviewTurnService(rag as never).prepareTurn(
@@ -48,7 +48,7 @@ describe("MockInterviewTurnService",
             async () => {
                 const rag = {
                     retrieveCourseExcerpt: jest.fn().mockResolvedValue({
-                        excerpt: "queues" 
+                        excerpt: "queues"
                     }),
                 }
                 const p = {
@@ -74,7 +74,7 @@ describe("MockInterviewTurnService",
             async () => {
                 const rag = {
                     retrieveCourseExcerpt: jest.fn().mockResolvedValue({
-                        excerpt: "" 
+                        excerpt: ""
                     }),
                 }
                 const authored =
@@ -89,5 +89,59 @@ describe("MockInterviewTurnService",
                 )
                 expect(result.messages[0].content).toContain("Preserve EVERY code block")
                 expect(result.messages[0].content).toContain(authored)
+            })
+
+        it("grounds a design follow-up on the latest answer and degrades to a generic prompt",
+            async () => {
+                const rag = {
+                    retrieveCourseExcerpt: jest.fn().mockResolvedValue({
+                        excerpt: "",
+                    }),
+                }
+                const result = await new MockInterviewTurnService(rag as never).prepareTurn({
+                    ...base(MockInterviewMode.Design),
+                    locale: Locale.Vi,
+                    latestAnswer: "I would partition by tenant",
+                    history: [{
+                        role: "candidate",
+                        content: "I would partition by tenant",
+                    }],
+                    level: "staff",
+                } as never)
+
+                expect(rag.retrieveCourseExcerpt).toHaveBeenCalledWith({
+                    courseId: "c1",
+                    query: "I would partition by tenant",
+                    topK: 8,
+                })
+                expect(result.messages[0].content).toContain("Vietnamese")
+                expect(result.messages[0].content).toContain("Staff / Architect")
+                expect(result.messages[0].content).toContain("excerpt below is EMPTY")
+                expect(result.messages[1].content).toContain("candidate: I would partition by tenant")
+            })
+
+        it("falls back to an English theory opening for an empty seed and unknown options",
+            async () => {
+                const rag = {
+                    retrieveCourseExcerpt: jest.fn().mockResolvedValue({
+                        excerpt: "queues",
+                    }),
+                }
+                const result = await new MockInterviewTurnService(rag as never).prepareTurn({
+                    ...base(MockInterviewMode.Qna),
+                    currentSeed: "   ",
+                    kind: "unrecognized",
+                    level: "principal",
+                } as never)
+
+                expect(rag.retrieveCourseExcerpt).toHaveBeenCalledWith({
+                    courseId: "c1",
+                    query: "Distributed systems",
+                    topK: 5,
+                })
+                expect(result.messages[0].content).toContain("in **English**")
+                expect(result.messages[0].content).toContain("THEORY")
+                expect(result.messages[0].content).toContain("OPENING ask")
+                expect(result.messages[1].content).toContain("no turns yet")
             })
     })

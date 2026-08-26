@@ -213,6 +213,64 @@ describe("MilestoneParserService",
                         })).resolves.toEqual([])
                         expect(find).toHaveBeenCalled()
                     })
+
+                it("keeps readable milestones when a sibling parse fails",
+                    async () => {
+                        const pathService = module.get(MilestonePathService)
+                        const winston = module.get(WinstonService)
+                        jest.mocked(pathService.paths).mockResolvedValue([
+                            {
+                                relativePath: "course/0-good",
+                                orderIndex: 0,
+                                displayId: "good",
+                            },
+                            {
+                                relativePath: "course/1-bad",
+                                orderIndex: 1,
+                                displayId: "bad",
+                            },
+                        ])
+                        jest.spyOn(service,
+                            "parse")
+                            .mockResolvedValueOnce({
+                                id: "milestone-0"
+                            } as never)
+                            .mockRejectedValueOnce(new Error("invalid milestone"))
+
+                        await expect(service.parseMany({
+                            courseRelativePath: "course",
+                            courseIndex: 0,
+                        })).resolves.toEqual([
+                            expect.objectContaining({
+                                index: 0,
+                                relativePath: "course/0-good",
+                            }),
+                        ])
+                        expect(winston.log).toHaveBeenCalledTimes(1)
+                    })
+
+                it("uses empty scalar and translation defaults for an otherwise blank mount",
+                    async () => {
+                        const merge = module.get(MergeJsonService)
+                        jest.spyOn(merge,
+                            "merge").mockReturnValue({
+                            } as never)
+
+                        const result = await service.parse({
+                            paths: [{
+                                relativePath: PROJECT_INIT_RELATIVE_PATH,
+                                orderIndex: 0,
+                                displayId: "project-foundation",
+                            }],
+                            courseIndex: 0,
+                            milestoneIndex: 0,
+                        })
+
+                        expect(result.title).toBe("")
+                        expect(result.description).toBe("")
+                        expect(result.sortIndex).toBe(0)
+                        expect(result.translations).toEqual([])
+                    })
             },
         )
     },

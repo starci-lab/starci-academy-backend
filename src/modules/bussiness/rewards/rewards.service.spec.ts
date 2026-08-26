@@ -191,6 +191,22 @@ describe("RewardsService",
                 expect(service.getReward(STREAK_FREEZE_REWARD_KEY)?.key).toBe(STREAK_FREEZE_REWARD_KEY)
             })
 
+        it("defaults an absent spent aggregate and empty redemption history",
+            async () => {
+                entityManager.findOneOrFail.mockResolvedValueOnce({
+                    id: userId,
+                    coinBalance: 75,
+                })
+                setSpent(undefined)
+                entityManager.find.mockResolvedValueOnce([])
+
+                await expect(service.getWallet(userId)).resolves.toEqual(expect.objectContaining({
+                    balance: 75,
+                    spent: 0,
+                    redemptions: [],
+                }))
+            })
+
         describe("redeem",
             () => {
                 it("derives balance as coinBalance minus the non-cancelled spent sum",

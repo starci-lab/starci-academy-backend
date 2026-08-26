@@ -161,6 +161,53 @@ describe("MockInterviewGateway streaming policy",
                 }))
             })
 
+        it("treats a resolved Keycloak subject without a local id as unauthenticated",
+            async () => {
+                const success = jest.fn()
+                const gateway = new MockInterviewGateway(
+                    {
+                        prepareTurn: jest.fn(),
+                    } as never,
+                    {
+                        getUserByKeycloakId: jest.fn().mockResolvedValue(undefined),
+                    } as never,
+                    {
+                        run: jest.fn(),
+                    } as never,
+                    {
+                        consume: jest.fn(),
+                    } as never,
+                    {
+                        success,
+                    } as never,
+                    {
+                        findOne: jest.fn(),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                )
+                const client = {
+                    id: "socket-empty-user",
+                    data: {
+                        userId: "subject-without-row",
+                    },
+                }
+
+                await gateway.handleAskMockInterviewTurn(client as never,
+                    {
+                        data: {
+                            streamId: "stream-empty-user",
+                        },
+                    } as never)
+
+                expect(success).toHaveBeenCalledWith(expect.objectContaining({
+                    data: expect.objectContaining({
+                        error: "not authenticated",
+                    }),
+                }))
+            })
+
         it("rejects an unresolved or expired session before preparing a prompt",
             async () => {
                 const prepareTurn = jest.fn()

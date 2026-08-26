@@ -81,4 +81,23 @@ describe("PrometheusMetricsService",
                 expect(result.has("api")).toBe(false)
                 fetchMock.mockRestore()
             })
+
+        it("returns an empty map when Prometheus responds with a non-success status",
+            async () => {
+                const fetchMock = jest.spyOn(
+                    global,
+                    "fetch",
+                ).mockResolvedValue({
+                    ok: false,
+                    json: jest.fn(),
+                } as unknown as Response)
+
+                const result = await new PrometheusMetricsService({
+                    log: jest.fn(),
+                } as never).containerMetricsByName()
+
+                expect(result).toEqual(new Map())
+                expect(fetchMock).toHaveBeenCalledTimes(5)
+                fetchMock.mockRestore()
+            })
     })

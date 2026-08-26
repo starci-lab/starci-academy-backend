@@ -207,4 +207,23 @@ describe("IndexSearchHandler",
                     }),
                 )
             })
+
+        it("returns no items when Elasticsearch reports no hits",
+            async () => {
+                search.mockResolvedValueOnce(buildSearchResponse([]))
+
+                const result = await handler.execute(
+                    new IndexSearchQuery({
+                        request: {
+                            type: IndexSearchType.CourseIndex,
+                            query: "unknown",
+                        },
+                        locale: Locale.En,
+                    }),
+                )
+
+                expect(result).toEqual(expect.objectContaining({
+                    items: [],
+                }))
+            })
     })

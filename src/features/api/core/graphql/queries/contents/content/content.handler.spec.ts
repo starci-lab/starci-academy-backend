@@ -22,6 +22,9 @@ import {
     ContentNotFoundException,
 } from "@modules/platform/exceptions/errors/courses/content-not-found"
 import {
+    ContentScrapeRateLimitException,
+} from "@modules/platform/exceptions/errors/courses/content-scrape-rate-limit"
+import {
     S3NameResolverService,
 } from "@modules/integrations/s3/s3-name-resolver.service"
 import {
@@ -177,6 +180,48 @@ describe("ContentHandler",
                 ).rejects.toBeInstanceOf(ContentContextNotFoundException)
 
                 expect(s3ReadService.json).not.toHaveBeenCalled()
+            })
+
+        it("rejects a user after the content access limit and records the first breach",
+            async () => {
+                redis.incr.mockResolvedValue(201)
+                redis.ttl.mockResolvedValue(3600)
+
+                await expect(
+                    handler.execute(
+                        new ContentQuery({
+                            request: {
+                                id: "c1",
+                            },
+                            locale: Locale.En,
+                            user: fakeUser("scraper"),
+                        }),
+                    ),
+                ).rejects.toBeInstanceOf(ContentScrapeRateLimitException)
+
+                expect(s3ReadService.json).not.toHaveBeenCalled()
+                expect(redis.expire).not.toHaveBeenCalled()
+            })
+
+        it("repairs a missing Redis TTL before continuing normal request validation",
+            async () => {
+                redis.incr.mockResolvedValue(2)
+                redis.ttl.mockResolvedValue(-1)
+
+                await expect(
+                    handler.execute(
+                        new ContentQuery({
+                            request: {
+                            },
+                            user: fakeUser("reader"),
+                        }),
+                    ),
+                ).rejects.toBeInstanceOf(ContentContextNotFoundException)
+
+                expect(redis.expire).toHaveBeenCalledWith(
+                    "content:access-rate:reader",
+                    3600,
+                )
             })
 
         it("resolves the id from displayId before reading the S3 document",

@@ -256,6 +256,105 @@ describe("ModuleParserService",
                         })).resolves.toEqual([])
                         expect(find).toHaveBeenCalled()
                     })
+
+                it("uses safe defaults and empty nested rows for a blank merged module",
+                    async () => {
+                        const merge = module.get(MergeJsonService)
+                        jest.spyOn(merge,
+                            "merge").mockReturnValue({
+                            } as never)
+
+                        const result = await service.parse({
+                            paths: [{
+                                relativePath: NESTJS_CORE_RELATIVE_PATH,
+                                orderIndex: 0,
+                                displayId: "nestjs-core",
+                            }],
+                            moduleIndex: 0,
+                            courseIndex: 0,
+                        })
+
+                        expect(result.title).toBe("")
+                        expect(result.description).toBe("")
+                        expect(result.sortIndex).toBe(1)
+                        expect(result.isPremium).toBe(false)
+                        expect(result.previewContents).toEqual([])
+                        expect(result.translations).toEqual([])
+                    })
+
+                it("maps sparse preview rows and preserves their translated text",
+                    async () => {
+                        const merge = module.get(MergeJsonService)
+                        jest.spyOn(merge,
+                            "merge").mockReturnValue({
+                                previewContents: [{
+                                },
+                                {
+                                    orderIndex: 2,
+                                    text: "Preview",
+                                    translations: [{
+                                        locale: Locale.Vi,
+                                        field: "text",
+                                        value: "Xem truoc",
+                                    }],
+                                }],
+                                translations: [],
+                            } as never)
+
+                        const result = await service.parse({
+                            paths: [{
+                                relativePath: NESTJS_CORE_RELATIVE_PATH,
+                                orderIndex: 0,
+                                displayId: "nestjs-core",
+                            }],
+                            moduleIndex: 0,
+                            courseIndex: 0,
+                        })
+
+                        expect(result.previewContents).toHaveLength(2)
+                        expect(result.previewContents?.[0]?.text).toBe("")
+                        expect(result.previewContents?.[1]?.translations).toEqual([{
+                            previewContentId: expect.any(String),
+                            locale: Locale.Vi,
+                            field: "text",
+                            value: "Xem truoc",
+                        }])
+                    })
+
+                it("keeps successful modules while logging an isolated parse failure",
+                    async () => {
+                        const pathService = module.get(ModulePathService)
+                        const winston = module.get(WinstonService)
+                        jest.mocked(pathService.paths).mockResolvedValue([
+                            {
+                                relativePath: "course/0-good",
+                                orderIndex: 0,
+                                displayId: "good",
+                            },
+                            {
+                                relativePath: "course/1-bad",
+                                orderIndex: 1,
+                                displayId: "bad",
+                            },
+                        ])
+                        jest.spyOn(service,
+                            "parse")
+                            .mockResolvedValueOnce({
+                                id: "module-0"
+                            } as never)
+                            .mockRejectedValueOnce(new Error("invalid module"))
+
+                        await expect(service.parseMany({
+                            courseRelativePath: "course",
+                            courseIndex: 0,
+                        })).resolves.toEqual([
+                            expect.objectContaining({
+                                index: 0,
+                                relativePath: "course/0-good",
+                            }),
+                        ])
+                        expect(winston.log).toHaveBeenCalledTimes(1)
+                    })
             },
         )
     },

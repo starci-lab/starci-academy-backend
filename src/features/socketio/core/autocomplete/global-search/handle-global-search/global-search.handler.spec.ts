@@ -1,20 +1,20 @@
 import {
-    ChallengeEntity 
+    ChallengeEntity
 } from "@modules/databases/postgresql/primary/entities/challenge.entity"
 import {
-    ContentEntity 
+    ContentEntity
 } from "@modules/databases/postgresql/primary/entities/content.entity"
 import {
-    CourseEntity 
+    CourseEntity
 } from "@modules/databases/postgresql/primary/entities/course.entity"
 import {
-    ModuleEntity 
+    ModuleEntity
 } from "@modules/databases/postgresql/primary/entities/module.entity"
 import {
-    GlobalSearchHandler 
+    GlobalSearchHandler
 } from "./global-search.handler"
 import {
-    GlobalSearchQuery 
+    GlobalSearchQuery
 } from "./global-search.query"
 
 describe("GlobalSearchHandler",
@@ -28,7 +28,7 @@ describe("GlobalSearchHandler",
         const services = Object.fromEntries(
             searches.map((name) => [name,
                 {
-                    execute: jest.fn() 
+                    execute: jest.fn()
                 }]),
         ) as Record<string, { execute: jest.Mock }>
         let handler: GlobalSearchHandler
@@ -53,8 +53,8 @@ describe("GlobalSearchHandler",
                         new GlobalSearchQuery({
                             payload: {
                                 data: {
-                                    query: "  " 
-                                }, locale: "en" 
+                                    query: "  "
+                                }, locale: "en"
                             },
                         } as never),
                     ),
@@ -67,22 +67,45 @@ describe("GlobalSearchHandler",
                 expect(services.courseSearch.execute).not.toHaveBeenCalled()
             })
 
+        it("ignores unknown requested entity names without invoking a search service",
+            async () => {
+                const result = await handler.execute(
+                    new GlobalSearchQuery({
+                        payload: {
+                            data: {
+                                query: "api",
+                                entities: ["UnknownEntity"],
+                            },
+                            locale: "en",
+                        },
+                    } as never),
+                )
+
+                expect(result).toEqual({
+                    courses: [],
+                    modules: [],
+                    challenges: [],
+                    contents: [],
+                })
+                expect(Object.values(services).every((service) => service.execute.mock.calls.length === 0)).toBe(true)
+            })
+
         it("queries all default entities, trims the term, and deduplicates by best text match",
             async () => {
                 services.courseSearch.execute.mockResolvedValue([
                     {
-                        id: "1", displayId: "course", title: "short", texts: ["x"] 
+                        id: "1", displayId: "course", title: "short", texts: ["x"]
                     },
                     {
                         id: "1", displayId: "course", title: "better", texts: ["x",
-                            "y"] 
+                            "y"]
                     },
                 ])
                 const query = new GlobalSearchQuery({
                     payload: {
                         data: {
-                            query: "  nest  ", size: 4 
-                        }, locale: "vi" 
+                            query: "  nest  ", size: 4
+                        }, locale: "vi"
                     },
                 } as never)
                 const result = await handler.execute(query)
@@ -94,7 +117,7 @@ describe("GlobalSearchHandler",
                 expect(result.courses).toEqual([
                     {
                         id: "1", displayId: "course", title: "better", texts: ["x",
-                            "y"] 
+                            "y"]
                     },
                 ])
                 expect(services.moduleSearch.execute).toHaveBeenCalled()
@@ -108,8 +131,8 @@ describe("GlobalSearchHandler",
                     new GlobalSearchQuery({
                         payload: {
                             data: {
-                                query: "api", entities 
-                            }, locale: "en" 
+                                query: "api", entities
+                            }, locale: "en"
                         },
                     } as never),
                 )

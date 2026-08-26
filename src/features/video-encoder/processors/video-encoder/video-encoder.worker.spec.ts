@@ -1,15 +1,15 @@
 import type {
-    Job 
+    Job
 } from "bullmq"
 jest.mock("./step-mapping.service",
     () => ({
         StepMappingService: class StepMappingService {},
     }))
 import {
-    VideoEncoderWorker 
+    VideoEncoderWorker
 } from "./video-encoder.worker"
 import {
-    StepNotFoundException 
+    StepNotFoundException
 } from "@modules/platform/exceptions/errors/job/not-found"
 const bull = (attemptsMade = 0, attempts = 1): Job<string> =>
   ({
@@ -18,12 +18,12 @@ const bull = (attemptsMade = 0, attempts = 1): Job<string> =>
       queueName: "video",
       attemptsMade,
       opts: {
-          attempts 
+          attempts
       },
   }) as unknown as Job<string>
 const make = () => {
     const job = {
-            id: "j1", currentStep: 0, maxSteps: 2 
+            id: "j1", currentStep: 0, maxSteps: 2
         },
         step = {
             process: jest
@@ -43,8 +43,8 @@ const make = () => {
         },
         superJson: {
             parse: jest.fn().mockReturnValue({
-                filename: "clip.mp4" 
-            }) 
+                filename: "clip.mp4"
+            })
         },
         stepMappingService: {
             getStepMap: jest.fn().mockReturnValue(
@@ -57,11 +57,11 @@ const make = () => {
             ),
         },
         winstonService: {
-            log: jest.fn() 
+            log: jest.fn()
         },
         dayjsService: {
             now: jest.fn().mockReturnValue({
-                diff: jest.fn().mockReturnValue(1) 
+                diff: jest.fn().mockReturnValue(1)
             }),
             from: jest.fn(),
         },
@@ -87,19 +87,19 @@ describe("VideoEncoderWorker",
                 h.jobActionService.getJob
                     .mockResolvedValueOnce(h.job)
                     .mockResolvedValueOnce({
-                        ...h.job, currentStep: 0 
+                        ...h.job, currentStep: 0
                     })
                     .mockResolvedValueOnce({
-                        ...h.job, currentStep: 1 
+                        ...h.job, currentStep: 1
                     })
                     .mockResolvedValueOnce({
-                        ...h.job, currentStep: 2 
+                        ...h.job, currentStep: 2
                     })
                 await expect(h.worker.process(bull())).resolves.toBeUndefined()
                 expect(h.step.process).toHaveBeenCalledTimes(2)
                 expect(h.jobActionService.completeJob).toHaveBeenCalledWith({
                     job: {
-                        ...h.job, currentStep: 2 
+                        ...h.job, currentStep: 2
                     },
                 })
             })
@@ -124,5 +124,18 @@ describe("VideoEncoderWorker",
                     StepNotFoundException,
                 )
                 expect(retry.jobActionService.failJob).not.toHaveBeenCalled()
+            })
+
+        it("maps a non-Error step failure to a stable failed-job message",
+            async () => {
+                const h = make()
+                h.jobActionService.getJob.mockResolvedValue(h.job)
+                h.step.process.mockRejectedValue("encoder unavailable")
+
+                await expect(h.worker.process(bull())).rejects.toBe("encoder unavailable")
+                expect(h.jobActionService.failJob).toHaveBeenCalledWith({
+                    job: h.job,
+                    error: "encoder unavailable",
+                })
             })
     })

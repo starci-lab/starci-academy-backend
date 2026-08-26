@@ -113,6 +113,21 @@ describe("ProgressProjectionService",
 
         describe("getLeaderboard (trials EXCLUDED)",
             () => {
+                it("defaults course totals and entries when both reads are empty",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([])
+
+                        const result = await service.getLeaderboard(courseId)
+
+                        expect(result).toEqual(expect.objectContaining({
+                            courseId,
+                            totalChallenges: 0,
+                            maxPossibleScore: 0,
+                            entries: [],
+                        }))
+                    })
+
                 it("joins enrollments with is_enrolled = true so trials never rank",
                     async () => {
                         // totals query first, then the ranked-entries query

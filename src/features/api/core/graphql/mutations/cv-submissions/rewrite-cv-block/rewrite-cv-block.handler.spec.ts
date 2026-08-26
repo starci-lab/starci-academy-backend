@@ -42,7 +42,7 @@ const makeHandler = (raw = JSON.stringify({
     }
     const aiInvokeService = {
         run: jest.fn().mockResolvedValue({
-            text: raw 
+            text: raw
         }),
     }
     const gradingLaneValidationService = {
@@ -93,7 +93,7 @@ describe("RewriteCvBlockHandler",
                         selectedModelProvider: ModelProvider.OpenAI,
                     },
                     user: {
-                        id: "user-1" 
+                        id: "user-1"
                     } as never,
                     locale: Locale.Vi,
                 }))
@@ -144,7 +144,7 @@ describe("RewriteCvBlockHandler",
                         instruction: "   ",
                     },
                     user: {
-                        id: "user-1" 
+                        id: "user-1"
                     } as never,
                 }))
 
@@ -166,36 +166,68 @@ describe("RewriteCvBlockHandler",
                 const harness = makeHandler()
                 await expect(harness.handler.execute(new RewriteCvBlockCommand({
                     request: {
-                        block 
+                        block
                     },
                 }))).rejects.toThrow(UserNotFoundException)
                 await expect(harness.handler.execute(new RewriteCvBlockCommand({
                     request: {
-                        block: null as never 
+                        block: null as never
                     },
                     user: {
-                        id: "user-1" 
+                        id: "user-1"
                     } as never,
                 }))).rejects.toThrow(CvBlockNotFoundException)
 
                 const badJson = makeHandler("not json")
                 await expect(badJson.handler.execute(new RewriteCvBlockCommand({
                     request: {
-                        block 
+                        block
                     },
                     user: {
-                        id: "user-1" 
+                        id: "user-1"
                     } as never,
                 }))).rejects.toThrow(CvModelOutputParseException)
 
                 const badShape = makeHandler("[]")
                 await expect(badShape.handler.execute(new RewriteCvBlockCommand({
                     request: {
-                        block 
+                        block
                     },
                     user: {
-                        id: "user-1" 
+                        id: "user-1"
                     } as never,
                 }))).rejects.toThrow(CvModelOutputShapeException)
+            })
+
+        it("preserves model identity when the original block omits it and filters non-array items",
+            async () => {
+                const harness = makeHandler(JSON.stringify({
+                    id: "generated-id",
+                    type: "summary",
+                    order: 4,
+                    title: 42,
+                    items: "not-an-array",
+                }))
+
+                const result = await harness.handler.execute(new RewriteCvBlockCommand({
+                    request: {
+                        block: {
+                        },
+                    },
+                    user: {
+                        id: "user-1",
+                    } as never,
+                }))
+
+                expect(result.block).toEqual({
+                    id: "generated-id",
+                    type: "summary",
+                    order: 4,
+                    title: "",
+                    items: [],
+                })
+                expect(harness.gradingLaneValidationService.validate).toHaveBeenCalledWith(expect.objectContaining({
+                    userId: "user-1",
+                }))
             })
     })

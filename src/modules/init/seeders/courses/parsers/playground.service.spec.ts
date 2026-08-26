@@ -5,6 +5,9 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
+    PlaygroundEntity,
+} from "@modules/databases/postgresql/primary/entities/playground.entity"
+import {
     PlaygroundParserService,
 } from "./playground.service"
 describe("PlaygroundParserService",
@@ -168,5 +171,103 @@ describe("PlaygroundParserService",
                 })).rejects.toMatchObject({
                     code: "PLAYGROUND_PATH_NOT_FOUND_EXCEPTION",
                 })
+            })
+        it("loads persisted playgrounds by the deterministic course id",
+            async () => {
+                const rows = [{
+                    id: "playground-1"
+                }] as never
+                const find = jest.fn().mockResolvedValue(rows)
+                const service = new PlaygroundParserService(
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    new CoerceMdScalarService(),
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                        generate: jest.fn().mockReturnValue("course-id")
+                    } as never,
+                    {
+                        find
+                    } as never,
+                )
+
+                await expect(service.playgroundsFromDatabase({
+                    courseIndex: 3,
+                })).resolves.toBe(rows)
+                expect(find).toHaveBeenCalledWith(
+                    PlaygroundEntity,
+                    {
+                        where: {
+                            course: {
+                                id: "course-id",
+                            },
+                        },
+                    },
+                )
+            })
+
+        it("keeps readable playgrounds when one mounted folder fails to parse",
+            async () => {
+                const parse = jest.fn()
+                    .mockResolvedValueOnce({
+                        id: "playground-0"
+                    })
+                    .mockRejectedValueOnce(new Error("invalid playground"))
+                const log = jest.fn()
+                const service = new PlaygroundParserService(
+                    {
+                        paths: jest.fn().mockResolvedValue([
+                            {
+                                relativePath: "course/0-good", orderIndex: 0, displayId: "good"
+                            },
+                            {
+                                relativePath: "course/1-bad", orderIndex: 1, displayId: "bad"
+                            },
+                        ]),
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    new CoerceMdScalarService(),
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                        log
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                )
+                jest.spyOn(service,
+                    "parse").mockImplementation(parse)
+
+                await expect(service.parseMany({
+                    courseRelativePath: "course",
+                    courseIndex: 0,
+                    courseId: "course-id",
+                })).resolves.toEqual([
+                    expect.objectContaining({
+                        index: 0,
+                        relativePath: "course/0-good",
+                    }),
+                ])
+                expect(log).toHaveBeenCalledTimes(1)
             })
     })

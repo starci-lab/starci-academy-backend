@@ -64,7 +64,7 @@ const makeWorker = (overrides: Record<string, unknown> = {
     }
     const superJson = {
         parse: jest.fn().mockReturnValue({
-            codingSubmissionId: "submission-1" 
+            codingSubmissionId: "submission-1"
         }),
     }
     const stepProcess = jest.fn().mockResolvedValue(undefined)
@@ -150,7 +150,7 @@ describe("JudgeCodingSubmissionWorker — process",
                 expect(harness.stepMappingService.getStepMap).toHaveBeenCalledTimes(1)
                 expect(harness.stepProcess).toHaveBeenCalledWith(expect.objectContaining({
                     payload: {
-                        codingSubmissionId: "submission-1" 
+                        codingSubmissionId: "submission-1"
                     },
                     extended: expect.objectContaining({
                         submission: harness.submission,
@@ -166,7 +166,7 @@ describe("JudgeCodingSubmissionWorker — process",
                     expect.objectContaining({
                         jobId: "job-1",
                         payload: {
-                            codingSubmissionId: "submission-1" 
+                            codingSubmissionId: "submission-1"
                         },
                         durationMs: 42,
                     }),
@@ -186,8 +186,8 @@ describe("JudgeCodingSubmissionWorker — process",
                     CodingSubmissionEntity,
                     expect.objectContaining({
                         where: {
-                            id: "submission-1" 
-                        } 
+                            id: "submission-1"
+                        }
                     }),
                 )
                 expect(harness.jobActionService.failJob).toHaveBeenCalledWith(expect.objectContaining({
@@ -227,6 +227,22 @@ describe("JudgeCodingSubmissionWorker — process",
                     },
                 })
                 expect(harness.jobActionService.failJob).toHaveBeenCalled()
+            })
+
+        it("completes cleanly when the current step has no registered processor",
+            async () => {
+                const harness = makeWorker()
+                harness.jobActionService.getJob
+                    .mockResolvedValueOnce(trackedJob(0))
+                    .mockResolvedValueOnce(trackedJob(1))
+                harness.stepMappingService.getStepMap.mockReturnValue(new Map())
+
+                await expect(harness.worker.process(bullJob())).resolves.toBeUndefined()
+
+                expect(harness.stepProcess).not.toHaveBeenCalled()
+                expect(harness.jobActionService.completeJob).toHaveBeenCalledWith({
+                    job: trackedJob(1),
+                })
             })
     })
 

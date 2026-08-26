@@ -110,6 +110,12 @@ describe("InstallmentPlanService",
 
         describe("computeMinPaymentVnd",
             () => {
+                it("offers no terms for a non-positive base amount",
+                    () => {
+                        expect(service.computeInstallmentOptions(0)).toEqual([])
+                        expect(service.computeInstallmentOptions(-1)).toEqual([])
+                    })
+
                 it("returns the fixed monthly snapshot for a Fixed plan",
                     () => {
                         const min = service.computeMinPaymentVnd(

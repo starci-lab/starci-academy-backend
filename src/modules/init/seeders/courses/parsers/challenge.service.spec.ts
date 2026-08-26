@@ -19,6 +19,9 @@ import {
     ChallengeDifficulty,
 } from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
 import {
+    ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
@@ -436,6 +439,215 @@ describe("ChallengeParserService",
                 expect(result).toHaveLength(1)
                 expect(result[0]?.relativePath).toBe("course/challenges/0-valid")
                 expect(winston.log).toHaveBeenCalledTimes(1)
+            })
+
+        it("loads persisted challenges by the deterministic content id",
+            async () => {
+                const rows = [{
+                    id: "challenge-1"
+                }] as never
+                const manager = module.get(getEntityManagerToken("primary"))
+                jest.mocked(manager.find).mockResolvedValue(rows)
+
+                await expect(service.challengesFromDatabase({
+                    courseIndex: 2,
+                    moduleIndex: 3,
+                    contentIndex: 4,
+                })).resolves.toBe(rows)
+                expect(manager.find).toHaveBeenCalledWith(
+                    ChallengeEntity,
+                    {
+                        where: {
+                            content: {
+                                id: expect.any(String),
+                            },
+                        },
+                    },
+                )
+            })
+
+        it("normalizes an absent rubric and preserves score totals for criteria rows",
+            () => {
+                const parser = service as unknown as {
+                    parseCriteria: (params: {
+                        criteria: unknown
+                        kind: "approach" | "outcome"
+                        challengeSubmissionId: string
+                        courseIndex: number
+                        moduleIndex: number
+                        contentIndex: number
+                        challengeIndex: number
+                        submissionIndex: number
+                    }) => { rows: Array<{ orderIndex: number; critical: boolean }>; totalScore: number }
+                }
+                expect(parser.parseCriteria({
+                    criteria: undefined,
+                    kind: "outcome",
+                    challengeSubmissionId: "submission-id",
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                    challengeIndex: 0,
+                    submissionIndex: 0,
+                })).toEqual({
+                    rows: [], totalScore: 0
+                })
+
+                const result = parser.parseCriteria({
+                    criteria: [{
+                        orderIndex: 2,
+                        score: 25,
+                        critical: true,
+                        body: [],
+                    },
+                    {
+                    }],
+                    kind: "approach",
+                    challengeSubmissionId: "submission-id",
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                    challengeIndex: 0,
+                    submissionIndex: 0,
+                })
+                expect(result.totalScore).toBe(25)
+                expect(result.rows).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        orderIndex: 2, critical: true
+                    }),
+                    expect.objectContaining({
+                        orderIndex: 0, critical: false,
+                    }),
+                ]))
+            })
+
+        it("keeps a submission row when either locale markdown cannot be read",
+            async () => {
+                const paths = module.get(PathResolverService)
+                const loader = module.get(ContextLoaderService)
+                const merge = module.get(MergeJsonService)
+                jest.mocked(paths.filePaths).mockResolvedValue([{
+                    relativePath: "course/challenges/0-demo/submissions/0",
+                    orderIndex: 0,
+                    displayId: "0",
+                }])
+                jest.mocked(loader.load).mockRejectedValue(new Error("missing submission"))
+                jest.spyOn(merge,
+                    "merge").mockReturnValue({
+                    } as never)
+                const parser = service as unknown as {
+                    parseSubmissions: (params: {
+                        challengeRelativePath: string
+                        courseIndex: number
+                        moduleIndex: number
+                        contentIndex: number
+                        challengeIndex: number
+                        challengeId: string
+                    }) => Promise<Array<{ challenge?: { id?: string }; translations?: Array<unknown> }>>
+                }
+
+                const result = await parser.parseSubmissions({
+                    challengeRelativePath: "course/challenges/0-demo",
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                    challengeIndex: 0,
+                    challengeId: "challenge-id",
+                })
+                expect(result).toHaveLength(1)
+                expect(result[0]?.challenge?.id).toBe("challenge-id")
+                expect(result[0]?.translations).toEqual([])
+            })
+
+        it("uses safe defaults when the merged challenge has no optional sections",
+            async () => {
+                const paths = module.get(PathResolverService)
+                const merge = module.get(MergeJsonService)
+                jest.mocked(paths.filePaths).mockResolvedValue([])
+                jest.spyOn(merge,
+                    "merge").mockReturnValue({
+                    } as never)
+
+                const result = await service.parse({
+                    paths: [challengePaths[0] as ResolvedFilePath],
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                    challengeIndex: 0,
+                })
+
+                expect(result.title).toBe("")
+                expect(result.description).toBe("")
+                expect(result.score).toBe(0)
+                expect(result.requirements).toEqual([])
+                expect(result.steps).toEqual([])
+                expect(result.outputs).toEqual([])
+                expect(result.prerequisites).toEqual([])
+                expect(result.submissions).toEqual([])
+            })
+
+        it("normalizes sparse requirement, step, output, and prerequisite rows",
+            async () => {
+                const paths = module.get(PathResolverService)
+                const merge = module.get(MergeJsonService)
+                jest.mocked(paths.filePaths).mockResolvedValue([])
+                jest.spyOn(merge,
+                    "merge").mockReturnValue({
+                        requirements: [{
+                        },
+                        {
+                            sortIndex: 1,
+                            langs: [{
+                                sortIndex: 1,
+                                orderIndex: 1,
+                            }],
+                        }],
+                        steps: [{
+                        },
+                        {
+                            sortIndex: 1,
+                            langs: [{
+                                sortIndex: 1,
+                                orderIndex: 1,
+                            }],
+                        }],
+                        outputs: [{
+                        },
+                        {
+                            sortIndex: 1,
+                            langs: [{
+                                sortIndex: 1,
+                                orderIndex: 1,
+                            }],
+                        }],
+                        prerequisites: [{
+                        },
+                        {
+                            sortIndex: 1,
+                            langs: [{
+                                sortIndex: 1,
+                                orderIndex: 1,
+                            }],
+                        }],
+                        translations: [],
+                    } as never)
+
+                const result = await service.parse({
+                    paths: [challengePaths[0] as ResolvedFilePath],
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                    challengeIndex: 0,
+                })
+
+                expect(result.requirements).toHaveLength(2)
+                expect(result.requirements?.[1]?.langs).toHaveLength(1)
+                expect(result.steps).toHaveLength(2)
+                expect(result.steps?.[1]?.langs).toHaveLength(1)
+                expect(result.outputs).toHaveLength(2)
+                expect(result.outputs?.[1]?.langs).toHaveLength(1)
+                expect(result.prerequisites).toHaveLength(2)
+                expect(result.prerequisites?.[1]?.langs).toHaveLength(1)
             })
     },
 )

@@ -348,4 +348,243 @@ describe("ContentParserService",
                 expect(manager.find).toHaveBeenCalledWith(ContentEntity,
                     expect.anything())
             })
+
+        it("parses ordered E2E flow proofs, ignores artifacts, and maps statuses",
+            async () => {
+                const paths = module.get(PathResolverService)
+                const loader = module.get(ContextLoaderService)
+                const extractor = module.get(ExtractJsonFromMdService)
+                jest.mocked(paths.filePaths).mockResolvedValue([])
+                jest.mocked(paths.listRaw)
+                    .mockResolvedValueOnce(["typescript"])
+                    .mockResolvedValueOnce([
+                        "flow-10-late-fail.md",
+                        "summary.txt",
+                        "flow-2-first-pass.md",
+                        "flow-3-pending-require-rerun.md",
+                        "flow-4-awaiting-require-creds.md",
+                        "flow-no-number.md",
+                        "notes.md",
+                    ])
+                jest.mocked(loader.load).mockImplementation(async (_base, relativePath) => {
+                    if (relativePath.includes("flow-10")) {
+                        return "# Late flow"
+                    }
+                    if (relativePath.includes("flow-2")) {
+                        return "No heading"
+                    }
+                    if (relativePath.includes("flow-3")) {
+                        throw new Error("proof not readable")
+                    }
+                    if (relativePath.includes("flow-4")) {
+                        return "# Awaiting proof"
+                    }
+                    if (relativePath.includes("flow-no-number")) {
+                        return "No heading"
+                    }
+                    return "# Lesson"
+                })
+                jest.spyOn(extractor,
+                    "extract").mockReturnValue({
+                    title: "Lesson",
+                })
+
+                const parsed = await service.parse({
+                    paths: [{
+                        relativePath: "course/content/0-lesson",
+                        orderIndex: 0,
+                        displayId: "lesson",
+                    }],
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                })
+
+                expect(parsed.e2eFlows).toEqual([
+                    expect.objectContaining({
+                        id: "flow-2-first-pass",
+                        title: "flow-2-first-pass",
+                        status: "passed",
+                    }),
+                    expect.objectContaining({
+                        id: "flow-4-awaiting-require-creds",
+                        status: "pending",
+                    }),
+                    expect.objectContaining({
+                        id: "flow-10-late-fail",
+                        title: "Late flow",
+                        status: "failed",
+                    }),
+                    expect.objectContaining({
+                        id: "flow-no-number",
+                        title: "flow-no-number",
+                        status: "passed",
+                    }),
+                ])
+            })
+
+        it("falls back to legacy E2E JSON and returns null for malformed legacy data",
+            async () => {
+                const paths = module.get(PathResolverService)
+                const loader = module.get(ContextLoaderService)
+                const extractor = module.get(ExtractJsonFromMdService)
+                jest.mocked(paths.filePaths).mockResolvedValue([])
+                jest.mocked(paths.listRaw).mockResolvedValue([])
+                jest.mocked(loader.load).mockImplementation(async (_base, relativePath) => {
+                    if (relativePath.endsWith("e2e.json")) {
+                        return JSON.stringify({
+                            flows: [{
+                                id: "legacy-flow"
+                            }]
+                        })
+                    }
+                    return "# Lesson"
+                })
+                jest.spyOn(extractor,
+                    "extract").mockReturnValue({
+                    title: "Lesson",
+                })
+
+                const parsed = await service.parse({
+                    paths: [{
+                        relativePath: "course/content/0-lesson",
+                        orderIndex: 0,
+                        displayId: "lesson",
+                    }],
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                })
+
+                expect(parsed.e2eFlows).toEqual([{
+                    id: "legacy-flow"
+                }])
+            })
+
+        it("maps only text outcome translations and defaults missing outcome order",
+            async () => {
+                const paths = module.get(PathResolverService)
+                const merge = module.get(MergeJsonService)
+                jest.mocked(paths.filePaths).mockResolvedValue([])
+                jest.mocked(paths.listRaw).mockResolvedValue([])
+                jest.spyOn(merge,
+                    "merge").mockReturnValue({
+                        title: "Lesson",
+                        outcomes: [{
+                            text: "Learn it",
+                            translations: [
+                                {
+                                    locale: Locale.Vi, field: "text", value: "Hoc"
+                                },
+                                {
+                                    locale: Locale.Vi, field: "other", value: "ignored"
+                                },
+                            ],
+                        }],
+                        translations: [],
+                    } as never)
+
+                const result = await service.parse({
+                    paths: [{
+                        relativePath: FRAMEWORKS_IN_BACKEND_RELATIVE_PATH,
+                        orderIndex: 0,
+                        displayId: "frameworks-in-backend",
+                    }],
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                })
+
+                expect(result.outcomes).toEqual([
+                    expect.objectContaining({
+                        text: "Learn it",
+                        orderIndex: 0,
+                        translations: [{
+                            contentLearningOutcomeId: expect.any(String),
+                            locale: Locale.Vi,
+                            field: "text",
+                            value: "Hoc",
+                        }],
+                    }),
+                ])
+            })
+
+        it("skips unreadable locale bodies gracefully while retaining the body bucket",
+            async () => {
+                const paths = module.get(PathResolverService)
+                const loader = module.get(ContextLoaderService)
+                const merge = module.get(MergeJsonService)
+                jest.mocked(paths.filePaths).mockResolvedValue([{
+                    relativePath: "course/content/bodies/0-typescript",
+                    orderIndex: 0,
+                    displayId: "typescript",
+                }])
+                jest.mocked(loader.load).mockRejectedValue(new Error("body unavailable"))
+                jest.spyOn(merge,
+                    "merge").mockReturnValue({
+                        body: "Body",
+                        translations: [],
+                    } as never)
+                const parser = service as unknown as {
+                    parseBodies: (params: {
+                        contentRelativePath: string
+                        courseIndex: number
+                        moduleIndex: number
+                        contentIndex: number
+                        contentId: string
+                    }) => Promise<Array<{ body?: string; lang?: string; translations?: Array<unknown> }>>
+                }
+
+                const result = await parser.parseBodies({
+                    contentRelativePath: "course/content",
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                    contentId: "content-id",
+                })
+
+                expect(result).toEqual([
+                    expect.objectContaining({
+                        body: "Body",
+                        lang: "typescript",
+                        translations: [],
+                    }),
+                ])
+            })
+
+        it("omits a body bucket when its deterministic id factory returns no id",
+            async () => {
+                const paths = module.get(PathResolverService)
+                const loader = module.get(ContextLoaderService)
+                const ids = service as unknown as {
+                    contentBodyIdFactoryService: {
+                        generate: (params: Record<string, number>) => string | null
+                    }
+                }
+                jest.mocked(paths.filePaths).mockResolvedValue([{
+                    relativePath: "course/content/bodies/0-typescript",
+                    orderIndex: 0,
+                    displayId: "typescript",
+                }])
+                jest.mocked(loader.load).mockRejectedValue(new Error("body unavailable"))
+                jest.spyOn(ids.contentBodyIdFactoryService,
+                    "generate").mockReturnValue(null)
+
+                const parser = service as unknown as {
+                    parseBodies: (params: {
+                        contentRelativePath: string
+                        courseIndex: number
+                        moduleIndex: number
+                        contentIndex: number
+                        contentId: string
+                    }) => Promise<Array<unknown>>
+                }
+                await expect(parser.parseBodies({
+                    contentRelativePath: "course/content",
+                    courseIndex: 0,
+                    moduleIndex: 0,
+                    contentIndex: 0,
+                    contentId: "content-id",
+                })).resolves.toEqual([])
+            })
     })

@@ -168,6 +168,19 @@ describe("CoursePriceQuoteService",
                 expect(loyalty.computeLoyaltyContext).not.toHaveBeenCalled()
             })
 
+        it("rejects with the typed not-found error when course lookup yields no rows",
+            async () => {
+                entityManager.find.mockResolvedValueOnce([])
+
+                await expect(service.quote({
+                    userId: "u",
+                    courseIds: ["missing"],
+                    intent: CoursePriceQuoteIntent.Discovery,
+                })).rejects.toMatchObject({
+                    code: "COURSE_NOT_FOUND_EXCEPTION",
+                })
+            })
+
         it("applies a single-course percent voucher to VND and USD totals",
             async () => {
                 entityManager.find.mockResolvedValueOnce([courses[0]])

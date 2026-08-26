@@ -715,6 +715,14 @@ describe("ReviewMilestoneTaskCompleteStepService",
 
                         await expect(service.process(makeContext() as never)).rejects.toBe(failure)
                     })
+
+                it("rethrows a non-Error transaction failure without emitting completion events",
+                    async () => {
+                        entityManager.transaction.mockRejectedValue("transaction unavailable")
+
+                        await expect(service.process(makeContext() as never)).rejects.toBe("transaction unavailable")
+                        expect(eventEmitterService.emit).not.toHaveBeenCalled()
+                    })
             })
 
         describe("after-commit side effects",

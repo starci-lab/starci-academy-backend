@@ -896,6 +896,24 @@ describe("UseApiService",
                         expect(fetchSpy).not.toHaveBeenCalled()
                     })
 
+                it("normalizes a non-Error network failure from a probe",
+                    async () => {
+                        stubAcquire()
+                        fetchSpy = jest.spyOn(global,
+                            "fetch").mockRejectedValue("socket reset")
+
+                        const result = await service.probeModel({
+                            provider: ModelProvider.OpenAI,
+                            model: "gpt-4o",
+                            timeoutMs: 5_000,
+                        })
+
+                        expect(result).toMatchObject({
+                            ok: false,
+                            errorMessage: "socket reset",
+                        })
+                    })
+
                 it("builds the OpenAI request with max_completion_tokens",
                     async () => {
                         stubAcquire()

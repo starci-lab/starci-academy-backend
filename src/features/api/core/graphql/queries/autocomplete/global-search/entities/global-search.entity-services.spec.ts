@@ -121,4 +121,75 @@ describe("global-search entity services",
                     size: 3,
                 }))
             })
+
+        it("uses each entity's best available source field when Elasticsearch has no highlights",
+            async () => {
+                const cases: Array<{
+                    Service: new (elasticsearch: never) => SearchableService
+                    source: Record<string, string>
+                    expected: string
+                }> = [
+                    {
+                        Service: ChallengeGlobalSearchService,
+                        source: {
+                            title: "Challenge fallback",
+                        },
+                        expected: "Challenge fallback",
+                    },
+                    {
+                        Service: ContentGlobalSearchService,
+                        source: {
+                            body: "Content fallback",
+                        },
+                        expected: "Content fallback",
+                    },
+                    {
+                        Service: FlashcardDeckGlobalSearchService,
+                        source: {
+                            description: "Deck fallback",
+                        },
+                        expected: "Deck fallback",
+                    },
+                    {
+                        Service: MilestoneTaskGlobalSearchService,
+                        source: {
+                            title: "Task fallback",
+                        },
+                        expected: "Task fallback",
+                    },
+                    {
+                        Service: MilestoneGlobalSearchService,
+                        source: {
+                            title: "Milestone fallback",
+                        },
+                        expected: "Milestone fallback",
+                    },
+                ]
+
+                for (const { Service, source, expected } of cases) {
+                    const service = new Service({
+                        indicateName: jest.fn().mockReturnValue("entity-en"),
+                        client: {
+                            search: jest.fn().mockResolvedValue({
+                                hits: {
+                                    hits: [{
+                                        _source: source,
+                                    }],
+                                },
+                            }),
+                        },
+                    } as never)
+
+                    await expect(service.execute({
+                        term: "fallback",
+                        size: 1,
+                        locale: "en" as never,
+                    })).resolves.toEqual([
+                        expect.objectContaining({
+                            title: source.title ?? "",
+                            texts: [expect.stringContaining(expected)],
+                        }),
+                    ])
+                }
+            })
     })

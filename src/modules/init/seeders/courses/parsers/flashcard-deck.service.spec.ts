@@ -58,12 +58,19 @@ const NESTJS_WARMUP_DECK_RELATIVE_PATH =
 
 describe("FlashcardDeckParserService",
     () => {
-        const createMinimalService = () => {
+        const createMinimalService = (cardPaths = jest.fn().mockResolvedValue([]),
+            merge = jest.fn().mockReturnValue({
+                title: "Deck title",
+                description: "Deck description",
+                difficulty: "senior",
+                sortIndex: "not-a-number",
+                translations: [],
+            })) => {
             const paths = jest.fn().mockResolvedValue([])
             const find = jest.fn().mockResolvedValue([])
             const service = new FlashcardDeckParserService(
                 {
-                    cardPaths: jest.fn().mockResolvedValue([]),
+                    cardPaths,
                     paths,
                 } as never,
                 {
@@ -75,13 +82,7 @@ describe("FlashcardDeckParserService",
                 } as never,
                 new CoerceMdScalarService(),
                 {
-                    merge: jest.fn().mockReturnValue({
-                        title: "Deck title",
-                        description: "Deck description",
-                        difficulty: "senior",
-                        sortIndex: "not-a-number",
-                        translations: [],
-                    }),
+                    merge
                 } as never,
                 {
                     generate: jest.fn().mockReturnValue("deck-id"),
@@ -367,6 +368,56 @@ describe("FlashcardDeckParserService",
                         },
                     }),
                 )
+            })
+
+        it("builds empty deck and card defaults when optional mount sections are absent",
+            async () => {
+                const cardPaths = jest.fn().mockResolvedValue([{
+                    relativePath: "course/deck/cards/0-card",
+                    orderIndex: 0,
+                    displayId: "card",
+                }])
+                const merge = jest.fn().mockReturnValue({
+                })
+                const setup = createMinimalService(cardPaths,
+                    merge)
+                const internals = setup.service as unknown as {
+                    extractJsonFromMdService: {
+                        extract: (raw: string) => Record<string, unknown>
+                    }
+                }
+                jest.spyOn(internals.extractJsonFromMdService,
+                    "extract")
+                    .mockReturnValue({
+                        tags: [{
+                        }]
+                    })
+
+                const result = await setup.service.parse({
+                    paths: [{
+                        relativePath: "course/deck",
+                        orderIndex: 2,
+                        displayId: "deck",
+                    }],
+                    courseIndex: 0,
+                    courseId: "course-id",
+                    flashcardDeckIndex: 2,
+                })
+
+                expect(result.title).toBe("")
+                expect(result.description).toBe("")
+                expect(result.translations).toEqual([])
+                expect(result.cards).toEqual([
+                    expect.objectContaining({
+                        question: "",
+                        answer: null,
+                        explanation: null,
+                        level: null,
+                        tags: [],
+                        isPremium: false,
+                    }),
+                ])
+                expect(merge).toHaveBeenCalledTimes(2)
             })
     },
 )

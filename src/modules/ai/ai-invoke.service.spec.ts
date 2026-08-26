@@ -155,6 +155,16 @@ describe("AiInvokeService",
                         })
                     })
 
+                it("propagates a balancer failure without manufacturing an invoke result",
+                    async () => {
+                        const failure = new Error("all models exhausted")
+                        useApiService.useApi.mockRejectedValueOnce(failure)
+
+                        await expect(service.invoke({
+                            messages,
+                        })).rejects.toBe(failure)
+                    })
+
                 it("routes a non-Economy category onto the Premium lane",
                     async () => {
                         // a Balanced category pins the Premium lane

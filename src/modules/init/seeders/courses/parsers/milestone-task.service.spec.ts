@@ -22,6 +22,9 @@ import {
     PersonalProjectTaskType,
 } from "@modules/databases/postgresql/primary/enums/personal-project-task-type"
 import {
+    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
     Sha256Service,
 } from "@modules/crypto/sha256.service"
 import {
@@ -264,6 +267,132 @@ describe("MilestoneTaskParserService",
                 expect(result).toHaveLength(1)
                 expect(result[0]?.relativePath).toBe("milestone/tasks/0-valid")
                 expect(winston.log).toHaveBeenCalledTimes(1)
+            })
+
+        it("uses safe defaults when the merged task has no criteria blocks",
+            async () => {
+                const merge = module.get(MergeJsonService)
+                jest.spyOn(merge,
+                    "merge").mockReturnValue({
+                    } as never)
+
+                const result = await service.parse({
+                    paths: [{
+                        relativePath: CLEAN_ARCHITECTURE_HEALTH_RELATIVE_PATH,
+                        orderIndex: 0,
+                        displayId: "clean-architecture-and-health",
+                    }],
+                    courseIndex: 0,
+                    milestoneIndex: 0,
+                    taskIndex: 0,
+                })
+
+                expect(result.title).toBe("")
+                expect(result.orderIndex).toBe(0)
+                expect(result.maxScore).toBe(100)
+                expect(result.type).toBe(PersonalProjectTaskType.Business)
+                expect(result.briefs).toEqual([])
+                expect(result.outcomeCriteria).toEqual([])
+                expect(result.approachCriteria).toEqual([])
+            })
+
+        it("maps sparse language blocks into brief and rubric defaults",
+            async () => {
+                const merge = module.get(MergeJsonService)
+                const extractor = module.get(ExtractJsonFromMdService)
+                jest.spyOn(extractor,
+                    "extract").mockReturnValue({
+                    criteria: [],
+                })
+                jest.spyOn(merge,
+                    "merge").mockReturnValue({
+                        criterias: [{
+                            lang: "typescript",
+                            outcome: [{
+                            },
+                            {
+                                sortIndex: 1,
+                                score: 20,
+                                critical: "true",
+                            }],
+                            approach: [{
+                            },
+                            {
+                                sortIndex: 1,
+                                score: 20,
+                                critical: "true",
+                            }],
+                            translations: [],
+                        }],
+                        translations: [],
+                    } as never)
+
+                const result = await service.parse({
+                    paths: [{
+                        relativePath: CLEAN_ARCHITECTURE_HEALTH_RELATIVE_PATH,
+                        orderIndex: 0,
+                        displayId: "clean-architecture-and-health",
+                    }],
+                    courseIndex: 0,
+                    milestoneIndex: 0,
+                    taskIndex: 0,
+                })
+
+                expect(result.briefs).toEqual([
+                    expect.objectContaining({
+                        lang: "typescript",
+                        body: "",
+                        translations: [],
+                    }),
+                ])
+                expect(result.outcomeCriteria).toHaveLength(2)
+                expect(result.outcomeCriteria?.[0]).toEqual(expect.objectContaining({
+                    score: 10,
+                    critical: false,
+                    langs: [expect.objectContaining({
+                        body: ""
+                    })],
+                }))
+                expect(result.outcomeCriteria?.[1]).toEqual(expect.objectContaining({
+                    score: 20,
+                    critical: true,
+                }))
+                expect(result.approachCriteria).toHaveLength(2)
+                expect(result.approachCriteria?.[0]).toEqual(expect.objectContaining({
+                    score: 10,
+                    critical: false,
+                    langs: [expect.objectContaining({
+                        body: ""
+                    })],
+                }))
+                expect(result.approachCriteria?.[1]).toEqual(expect.objectContaining({
+                    score: 20,
+                    critical: true,
+                }))
+            })
+
+        it("loads persisted tasks by the deterministic milestone id",
+            async () => {
+                const rows = [{
+                    id: "task-1"
+                }] as never
+                const manager = module.get(getEntityManagerToken("primary"))
+                jest.mocked(manager.find).mockResolvedValue(rows)
+
+                await expect(service.milestoneTasksFromDatabase({
+                    courseIndex: 2,
+                    milestoneIndex: 3,
+                })).resolves.toBe(rows)
+                expect(manager.find).toHaveBeenCalledWith(
+                    MilestoneTaskEntity,
+                    {
+                        where: {
+                            milestone: {
+                                id: expect.any(String),
+                            },
+                        },
+                    },
+                )
             })
     },
 )

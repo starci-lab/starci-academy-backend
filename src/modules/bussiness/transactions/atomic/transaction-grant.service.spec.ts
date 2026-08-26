@@ -297,6 +297,19 @@ describe("TransactionGrantService",
                         })
                     })
 
+                it("skips membership email side effects when membership was already active",
+                    async () => {
+                        membershipService.grantMembership.mockResolvedValueOnce(false)
+
+                        await expect(service.grantForTransaction(
+                            buildTransaction({
+                                actionType: ActionType.MembershipPurchase,
+                                courseId: null,
+                            }) as never,
+                        )).resolves.toBeUndefined()
+                        expect(membershipService.grantMembership).toHaveBeenCalled()
+                    })
+
                 it("throws UnsupportedTransactionActionException for an unsupported action type",
                     async () => {
                         await expect(

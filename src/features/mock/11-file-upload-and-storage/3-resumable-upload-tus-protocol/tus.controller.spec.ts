@@ -38,4 +38,25 @@ response as never)
                 expect(response.setHeader).not.toHaveBeenCalledWith("Upload-Metadata",
                     expect.anything())
             })
+
+        it("rejects creation when Upload-Length is absent before touching storage",
+            () => {
+                const createTusUpload = jest.fn()
+                const response = {
+                    setHeader: jest.fn(),
+                    status: jest.fn().mockReturnThis(),
+                    end: jest.fn(),
+                }
+
+                expect(() => new TusController({
+                    createTusUpload,
+                } as never).create({
+                    headers: {
+                    },
+                    protocol: "https",
+                    get: jest.fn(),
+                } as never,
+                response as never)).toThrow()
+                expect(createTusUpload).not.toHaveBeenCalled()
+            })
     })

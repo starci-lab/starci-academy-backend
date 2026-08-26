@@ -1,33 +1,33 @@
 import type {
-    Job 
+    Job
 } from "bullmq"
 import {
-    GenerateCvWorker 
+    GenerateCvWorker
 } from "./generate-cv.worker"
 import {
-    UserCvGenerationEntity 
+    UserCvGenerationEntity
 } from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
 import {
-    CvGenerationStatus 
+    CvGenerationStatus
 } from "@modules/databases/postgresql/primary/enums/cv-generation-status"
 import {
-    CvGenerationNotFoundException 
+    CvGenerationNotFoundException
 } from "@modules/platform/exceptions/errors/api/cv-generation-not-found"
 import {
-    StepNotFoundException 
+    StepNotFoundException
 } from "@modules/platform/exceptions/errors/job/not-found"
 const bull = (): Job<string> =>
   ({
-      id: "b1", data: "serialized", queueName: "cv" 
+      id: "b1", data: "serialized", queueName: "cv"
   }) as unknown as Job<string>
 const make = () => {
     const job = {
-            id: "j1", currentStep: 0, maxSteps: 2 
+            id: "j1", currentStep: 0, maxSteps: 2
         },
         generation = {
             id: "g1", user: {
-                id: "u1" 
-            } 
+                id: "u1"
+            }
         },
         step = {
             process: jest
@@ -46,8 +46,8 @@ const make = () => {
         },
         superJson: {
             parse: jest.fn().mockReturnValue({
-                cvGenerationId: "g1" 
-            }) 
+                cvGenerationId: "g1"
+            })
         },
         stepMappingService: {
             getStepMap: jest.fn().mockReturnValue(
@@ -60,7 +60,7 @@ const make = () => {
             ),
         },
         winstonService: {
-            log: jest.fn() 
+            log: jest.fn()
         },
         dayjsService: {
             now: jest
@@ -99,13 +99,13 @@ describe("GenerateCvWorker",
                 h.jobActionService.getJob
                     .mockResolvedValueOnce(h.job)
                     .mockResolvedValueOnce({
-                        ...h.job, currentStep: 0 
+                        ...h.job, currentStep: 0
                     })
                     .mockResolvedValueOnce({
-                        ...h.job, currentStep: 1 
+                        ...h.job, currentStep: 1
                     })
                     .mockResolvedValueOnce({
-                        ...h.job, currentStep: 2 
+                        ...h.job, currentStep: 2
                     })
                 await expect(h.worker.process(bull())).resolves.toBeUndefined()
                 expect(h.step.process).toHaveBeenCalledTimes(2)
@@ -122,7 +122,7 @@ describe("GenerateCvWorker",
                 expect(h.entityManager.update).toHaveBeenCalledWith(
                     UserCvGenerationEntity,
                     {
-                        id: "g1" 
+                        id: "g1"
                     },
                     expect.objectContaining({
                         status: CvGenerationStatus.Failed,
@@ -136,7 +136,7 @@ describe("GenerateCvWorker",
                 h.jobActionService.getJob
                     .mockResolvedValueOnce(h.job)
                     .mockResolvedValueOnce({
-                        ...h.job, currentStep: 4 
+                        ...h.job, currentStep: 4
                     })
                 h.stepMappingService.getStepMap.mockReturnValue(new Map())
                 await expect(h.worker.process(bull())).rejects.toThrow(
@@ -146,8 +146,34 @@ describe("GenerateCvWorker",
                     UserCvGenerationEntity,
                     expect.anything(),
                     expect.objectContaining({
-                        status: CvGenerationStatus.Failed 
+                        status: CvGenerationStatus.Failed
                     }),
                 )
+            })
+
+        it("keeps the generation error when the best-effort failure update also fails",
+            async () => {
+                const h = make()
+                h.jobActionService.getJob.mockResolvedValue(h.job)
+                h.entityManager.findOne.mockResolvedValue(null)
+                h.entityManager.update.mockRejectedValueOnce(new Error("database unavailable"))
+
+                await expect(h.worker.process(bull())).rejects.toThrow(
+                    CvGenerationNotFoundException,
+                )
+                expect(h.winstonService.log).toHaveBeenCalled()
+            })
+
+        it("does not write a failure row when payload parsing fails before an id is known",
+            async () => {
+                const h = make()
+                h.jobActionService.getJob.mockResolvedValue(h.job)
+                h.superJson.parse.mockImplementation(() => {
+                    throw new Error("malformed payload")
+                })
+
+                await expect(h.worker.process(bull())).rejects.toThrow("malformed payload")
+                expect(h.entityManager.update).not.toHaveBeenCalled()
+                expect(h.winstonService.log).toHaveBeenCalled()
             })
     })

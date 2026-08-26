@@ -24,4 +24,36 @@ manager as never)
                 })
                 expect(manager.count).toHaveBeenCalledTimes(4)
             })
+
+        it("formats every playground counter in the command summary order",
+            () => {
+                const command = new PlaygroundSeedTestCommand({
+                    log: jest.fn(),
+                } as never,
+                {
+                    process: jest.fn(),
+                } as never,
+                {
+                    generate: jest.fn(),
+                } as never,
+                {
+                    count: jest.fn(),
+                } as never)
+
+                const formatRowCounts = (command as unknown as {
+                    formatRowCounts: (counts: {
+                        playgrounds: number
+                        playgroundSteps: number
+                        playgroundTranslations: number
+                        playgroundStepTranslations: number
+                    }) => string
+                }).formatRowCounts
+
+                expect(formatRowCounts({
+                    playgrounds: 1,
+                    playgroundSteps: 2,
+                    playgroundTranslations: 3,
+                    playgroundStepTranslations: 4,
+                })).toBe("playgrounds=1, playgroundSteps=2, playgroundTranslations=3, playgroundStepTranslations=4")
+            })
     })

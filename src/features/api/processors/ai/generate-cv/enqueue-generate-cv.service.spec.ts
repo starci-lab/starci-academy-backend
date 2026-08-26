@@ -24,7 +24,7 @@ import {
 
 jest.mock("@modules/bussiness/jobs/utils/enqueue-ux-delay",
     () => ({
-        sleepEnqueueUxDelay: jest.fn() 
+        sleepEnqueueUxDelay: jest.fn()
     }))
 
 const snapshot = [{
@@ -61,12 +61,12 @@ describe("EnqueueGenerateCvJobService",
                     payload: input.payload,
                 }))
                 const queue = {
-                    add: jest.fn().mockResolvedValue(undefined) 
+                    add: jest.fn().mockResolvedValue(undefined)
                 }
                 const service = new EnqueueGenerateCvJobService(
                     asEntityManager(entityManager),
                     {
-                        createJob, failJob: jest.fn() 
+                        createJob, failJob: jest.fn()
                     } as never,
                     superJson,
                     queue as never,
@@ -98,7 +98,7 @@ describe("EnqueueGenerateCvJobService",
                 expect(queue.add).toHaveBeenCalledWith(call.id,
                     call.payload,
                     {
-                        jobId: call.id 
+                        jobId: call.id
                     })
             })
 
@@ -110,11 +110,11 @@ describe("EnqueueGenerateCvJobService",
                 const service = new EnqueueGenerateCvJobService(
                     asEntityManager(entityManager),
                     {
-                        createJob 
+                        createJob
                     } as never,
                     superJson,
                     {
-                        add: jest.fn() 
+                        add: jest.fn()
                     } as never,
                 )
 
@@ -143,11 +143,11 @@ describe("EnqueueGenerateCvJobService",
                 const service = new EnqueueGenerateCvJobService(
                     asEntityManager(entityManager),
                     {
-                        createJob, failJob 
+                        createJob, failJob
                     } as never,
                     superJson,
                     {
-                        add: jest.fn().mockRejectedValue(new Error("redis down")) 
+                        add: jest.fn().mockRejectedValue(new Error("redis down"))
                     } as never,
                 )
 
@@ -166,11 +166,49 @@ describe("EnqueueGenerateCvJobService",
                 expect(entityManager.update).toHaveBeenCalledWith(
                     expect.anything(),
                     {
-                        id: "cv-1" 
+                        id: "cv-1"
                     },
                     expect.objectContaining({
-                        status: CvGenerationStatus.Failed 
+                        status: CvGenerationStatus.Failed
                     }),
                 )
+            })
+
+        it("records an unknown broker failure when the rejection is not an Error",
+            async () => {
+                const entityManager = makeEntityManagerMock()
+                entityManager.save.mockImplementation(async (_entity, value) => ({
+                    ...value,
+                    id: "cv-1",
+                }))
+                const failJob = jest.fn().mockResolvedValue(undefined)
+                const createJob = jest.fn().mockResolvedValue({
+                    id: "job-1",
+                    payload: "serialized",
+                })
+                const service = new EnqueueGenerateCvJobService(
+                    asEntityManager(entityManager),
+                    {
+                        createJob,
+                        failJob,
+                    } as never,
+                    superJson,
+                    {
+                        add: jest.fn().mockRejectedValue("broker unavailable"),
+                    } as never,
+                )
+
+                await service.enqueue({
+                    userId: "user-1",
+                    mode: CvGenerationMode.Generate,
+                    language: Locale.En,
+                    targetLevel: CvTargetLevel.Mid,
+                    selectedEvidence: [],
+                })
+                await new Promise<void>((resolve) => setImmediate(resolve))
+
+                expect(failJob).toHaveBeenCalledWith(expect.objectContaining({
+                    error: expect.stringContaining("unknown error"),
+                }))
             })
     })

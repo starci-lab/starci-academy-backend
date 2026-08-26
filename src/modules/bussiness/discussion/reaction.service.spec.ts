@@ -27,6 +27,9 @@ import {
     CommentNotFoundException,
 } from "@modules/platform/exceptions/errors/discussion/comment"
 import {
+    ActivityNotFoundException,
+} from "@modules/platform/exceptions/errors/discussion/activity-reaction"
+import {
     EventName,
 } from "@modules/platform/event/enums/event-name"
 import {
@@ -314,6 +317,18 @@ describe("ReactionService",
 
         describe("reactToActivity",
             () => {
+                it("rejects an activity lookup with no owner before reading reactions",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([])
+
+                        await expect(service.reactToActivity({
+                            activityId: "missing-activity",
+                            user,
+                            type: ReactionType.Like,
+                        })).rejects.toBeInstanceOf(ActivityNotFoundException)
+                        expect(entityManager.findOne).not.toHaveBeenCalled()
+                    })
+
                 it("creates an activity reaction and maps grouped counts plus mine",
                     async () => {
                         entityManager.query.mockResolvedValueOnce([{

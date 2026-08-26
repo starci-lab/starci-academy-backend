@@ -165,6 +165,20 @@ describe("AiModelLatencyService",
 
         describe("runCycle",
             () => {
+                it("skips an overlapping cycle while the prior timers are still active",
+                    async () => {
+                        Object.defineProperty(service,
+                            "cycleInProgress",
+                            {
+                                value: true,
+                                writable: true,
+                            })
+
+                        await service.runCycle()
+
+                        expect(aiModelCatalogService.enabledModels).not.toHaveBeenCalled()
+                    })
+
                 it("schedules a staggered probe per in-scope model + records each snapshot",
                     async () => {
                         const models = [

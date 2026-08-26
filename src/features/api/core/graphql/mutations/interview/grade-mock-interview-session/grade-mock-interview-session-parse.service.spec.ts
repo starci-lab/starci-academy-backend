@@ -133,4 +133,15 @@ describe("GradeMockInterviewSessionParseService",
             () => {
                 expect(() => service.parse("not-json")).toThrow(ParsingCriteriaResultsFromModelTextException)
             })
+
+        it("normalizes an out-of-range numeric score to the bounded scale",
+            () => {
+                const result = service.parse(JSON.stringify({
+                    overallScore: 150,
+                    verdict: "pass",
+                }))
+
+                expect(result.overallScore).toBe(100)
+                expect(result.verdict).toBe(MockInterviewVerdict.Pass)
+            })
     })

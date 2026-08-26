@@ -46,4 +46,33 @@ describe("GlobalChatMutationResolver",
                 expect(service[serviceMethod]).toHaveBeenCalledWith(user,
                     request)
             })
+
+        it("preserves domain failures from the delegated operation",
+            async () => {
+                const failure = new Error("message is stale")
+                const service = {
+                    send: jest.fn().mockRejectedValue(failure),
+                }
+                const resolver = new GlobalChatMutationResolver(service as never)
+
+                await expect(
+                    resolver.send(
+                        {
+                            message: "hello",
+                        } as never,
+                        {
+                            id: "user-1",
+                        } as never,
+                    ),
+                )
+                    .rejects.toBe(failure)
+                expect(service.send).toHaveBeenCalledWith(
+                    {
+                        id: "user-1",
+                    },
+                    {
+                        message: "hello",
+                    },
+                )
+            })
     })

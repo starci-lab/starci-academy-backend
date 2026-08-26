@@ -299,4 +299,54 @@ describe("ContentsHandler",
                 // only the module lookup ran; the enrollment query was skipped
                 expect(entityManager.findOne).toHaveBeenCalledTimes(1)
             })
+
+        it("handles ES total objects and trims an unclosed fenced preview in every body translation",
+            async () => {
+                const fencedBody = `\`\`\`${"x".repeat(1300)}`
+                search.mockResolvedValueOnce({
+                    hits: {
+                        total: {
+                            value: 0,
+                            relation: "eq",
+                        },
+                        hits: [{
+                            _source: buildSource({
+                                isPremium: true,
+                                body: fencedBody,
+                                bodies: [{
+                                    body: "short body",
+                                    translations: [{
+                                        body: fencedBody,
+                                    }],
+                                }] as never,
+                            }),
+                        }],
+                    },
+                })
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "m1",
+                    course: undefined,
+                })
+
+                const result = await handler.execute(
+                    new ContentsQuery({
+                        request: {
+                            moduleId: "m1",
+                            filters: {
+                                limit: 1,
+                                pageNumber: 0,
+                                sorts: [],
+                            },
+                        },
+                        locale: Locale.En,
+                        user: fakeUser("u1"),
+                    }),
+                )
+
+                expect(result.count).toBe(0)
+                expect(result.data[0].body).toBe("\n\n...")
+                expect(result.data[0].bodies?.[0].body).toBe("short body")
+                expect(result.data[0].bodies?.[0].translations?.[0].body).toBe("\n\n...")
+                expect(result.data[0].codeExplainings).toEqual([])
+            })
     })

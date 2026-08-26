@@ -200,5 +200,63 @@ describe("ExtractJsonFromMdService",
                             enabled: "true", count: "42", ratio: "3.5", none: "null", code: "```\n# hidden\n```"
                         })
                     })
+
+                it("parses JSONB item fields with numeric and boolean coercion",
+                    () => {
+                        const parser = service as unknown as {
+                            parseJsonbItems: (inner: string) => Array<Record<string, unknown>>
+                        }
+                        const result = parser.parseJsonbItems([
+                            "# 0",
+                            "## label",
+                            "alpha",
+                            "## count",
+                            "5",
+                            "## enabled",
+                            "true",
+                            "## code",
+                            "```",
+                            "## hidden",
+                            "```",
+                            "# 2",
+                            "## label",
+                            "beta",
+                            "## enabled",
+                            "false",
+                        ].join("\n"))
+
+                        expect(result).toEqual([
+                            {
+                                orderIndex: 0,
+                                label: "alpha",
+                                count: 5,
+                                enabled: true,
+                                code: "```\n## hidden\n```",
+                            },
+                            {
+                                orderIndex: 2,
+                                label: "beta",
+                                enabled: false,
+                            },
+                        ])
+                    })
+
+                it("recognizes a complete JSONB wrapper and rejects an incomplete wrapper",
+                    () => {
+                        const parser = service as unknown as {
+                            tryParseJsonbLeaf: (content: string) => Array<Record<string, unknown>> | undefined
+                        }
+                        expect(parser.tryParseJsonbLeaf([
+                            "<!-- @starci/jsonb -->",
+                            "# 0",
+                            "## score",
+                            "7",
+                            "<!-- @starci/jsonb -->",
+                        ].join("\n"))).toEqual([{
+                            orderIndex: 0,
+                            score: 7,
+                        }])
+                        expect(parser.tryParseJsonbLeaf("<!-- @starci/jsonb -->\n# 0")).toBeUndefined()
+                    })
             })
     })
