@@ -23,7 +23,7 @@ import {
 
 jest.mock("./extract-cv-text",
     () => ({
-        extractCvText: jest.fn() 
+        extractCvText: jest.fn()
     }))
 
 const selectedEvidence = [{
@@ -41,7 +41,7 @@ const selectedEvidence = [{
 const context = (overrides: Record<string, unknown> = {
 }) => ({
     job: {
-        id: "job-1" 
+        id: "job-1"
     },
     queueName: "generate-cv",
     payload: {
@@ -56,8 +56,8 @@ const context = (overrides: Record<string, unknown> = {
     },
     extended: {
         cvGeneration: {
-            id: "cv-1" 
-        } 
+            id: "cv-1"
+        }
     },
 }) as never
 
@@ -82,18 +82,18 @@ describe("GenerateCvGatherStepService",
                 failJob: jest.fn(),
             }
             const s3 = {
-                buffer: jest.fn() 
+                buffer: jest.fn()
             }
             const service = new GenerateCvGatherStepService(
                 asEntityManager(entityManager),
                 jobAction as never,
                 {
-                    log: jest.fn() 
+                    log: jest.fn()
                 } as never,
                 s3 as never,
             )
             return {
-                entityManager, jobAction, s3, service 
+                entityManager, jobAction, s3, service
             }
         }
 
@@ -185,5 +185,20 @@ describe("GenerateCvGatherStepService",
 
                 const [[saved]] = jobAction.saveExecutionResult.mock.calls
                 expect(saved.executionResult.sourceCvText).toBe("Original experience")
+            })
+
+        it("preserves an empty uploaded CV extraction result",
+            async () => {
+                const { service, jobAction } = makeService()
+                jest.mocked(extractCvText).mockResolvedValueOnce("")
+
+                await service.process(context({
+                    mode: CvGenerationMode.Revise,
+                    source: CvSource.Uploaded,
+                }))
+
+                const [[saved]] = jobAction.saveExecutionResult.mock.calls
+                expect(saved.executionResult.sourceCvText).toBeNull()
+                expect(extractCvText).toHaveBeenCalled()
             })
     })

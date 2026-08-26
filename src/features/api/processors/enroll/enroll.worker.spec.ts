@@ -55,4 +55,34 @@ describe("EnrollWorker",
     now: jest.fn().mockReturnValue({
         diff: jest.fn()
     }), from: jest.fn()
-} as never); await expect(worker.process(bull())).rejects.toThrow(StepNotFoundException) }) })
+} as never); await expect(worker.process(bull())).rejects.toThrow(StepNotFoundException) })
+
+    it("rethrows payload decoding failures after claiming the job",
+        async () => {
+            const actions = {
+                getJob: jest.fn().mockResolvedValue({
+                    id: "j1", currentStep: 0, maxSteps: 0
+                }), processingJob: jest.fn(), completeJob: jest.fn()
+            }
+            const parseError = new Error("invalid serialized payload")
+            const worker = new EnrollWorker(actions as never,
+                {
+                    parse: jest.fn().mockImplementation(() => { throw parseError })
+                } as never,
+                {
+                    getStepMap: jest.fn().mockReturnValue(new Map())
+                } as never,
+                {
+                    log: jest.fn()
+                } as never,
+                {
+                    now: jest.fn().mockReturnValue({
+                        diff: jest.fn()
+                    }), from: jest.fn()
+                } as never)
+
+            await expect(worker.process(bull())).rejects.toBe(parseError)
+            expect(actions.processingJob).toHaveBeenCalled()
+            expect(actions.completeJob).not.toHaveBeenCalled()
+        })
+    })

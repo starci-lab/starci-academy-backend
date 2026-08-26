@@ -338,4 +338,34 @@ describe("JudgeCodingSubmissionWorker — terminal failure helpers",
                     },
                 }))
             })
+
+        it("swallows non-Error notification failures without a tracked job",
+            async () => {
+                const harness = makeWorker()
+                harness.entityManager.findOne.mockResolvedValue(null)
+                harness.notificationService.createNotification.mockRejectedValueOnce(
+                    "notification unavailable",
+                )
+                const notify = (harness.worker as unknown as {
+                    notifySubmissionGradedFailure: (params: {
+                        submission: CodingSubmissionEntity
+                        bullmqJob: Job<string>
+                        job: JobEntity | undefined
+                    }) => Promise<void>
+                }).notifySubmissionGradedFailure
+
+                await expect(notify.call(harness.worker,
+                    {
+                        submission: harness.submission,
+                        bullmqJob: bullJob(),
+                        job: undefined,
+                    })).resolves.toBeUndefined()
+                expect(harness.winstonService.log).toHaveBeenCalledWith(
+                    expect.anything(),
+                    expect.objectContaining({
+                        jobId: "",
+                        error: "notification unavailable",
+                    }),
+                )
+            })
     })

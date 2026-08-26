@@ -30,7 +30,7 @@ describe("CourseLearningHistoryResolver",
                     ]),
                 }
                 const winstonService = {
-                    log: jest.fn() 
+                    log: jest.fn()
                 }
                 const resolver = new CourseLearningHistoryResolver(entityManager as never,
             winstonService as never)
@@ -41,7 +41,7 @@ describe("CourseLearningHistoryResolver",
                     limit: 1,
                 } as never,
         {
-            id: "user-1" 
+            id: "user-1"
         } as never)
 
                 expect(entityManager.query).toHaveBeenCalledWith(
@@ -57,19 +57,19 @@ describe("CourseLearningHistoryResolver",
         it("fails closed and logs malformed course ids",
             async () => {
                 const entityManager = {
-                    query: jest.fn() 
+                    query: jest.fn()
                 }
                 const winstonService = {
-                    log: jest.fn() 
+                    log: jest.fn()
                 }
                 const resolver = new CourseLearningHistoryResolver(entityManager as never,
             winstonService as never)
 
                 await expect(resolver.execute({
-                    courseId: "bad-id" 
+                    courseId: "bad-id"
                 } as never,
             {
-                id: "user-1" 
+                id: "user-1"
             } as never)).rejects.toThrow(CourseLearningHistoryFailedException)
                 expect(winstonService.log).toHaveBeenCalledWith(
                     expect.anything(),
@@ -87,7 +87,7 @@ describe("CourseLearningHistoryResolver",
                     query: jest.fn().mockRejectedValue(new Error("database offline")),
                 }
                 const winstonService = {
-                    log: jest.fn() 
+                    log: jest.fn()
                 }
                 const resolver = new CourseLearningHistoryResolver(entityManager as never,
             winstonService as never)
@@ -102,7 +102,7 @@ describe("CourseLearningHistoryResolver",
                     limit: 50,
                 } as never,
         {
-            id: "user-1" 
+            id: "user-1"
         } as never)).rejects.toThrow(CourseLearningHistoryFailedException)
                 expect(entityManager.query.mock.calls[0][0]).toContain("OFFSET 3")
                 expect(winstonService.log).toHaveBeenCalledWith(
@@ -110,9 +110,63 @@ describe("CourseLearningHistoryResolver",
                     expect.objectContaining({
                         op: "course-learning-history.query",
                         meta: {
-                            courseId: "course-1" 
+                            courseId: "course-1"
                         },
                     }),
                 )
+            })
+
+        it("clamps invalid limits and treats malformed cursors as the first page",
+            async () => {
+                const entityManager = {
+                    query: jest.fn().mockResolvedValue([]),
+                }
+                const winstonService = {
+                    log: jest.fn(),
+                }
+                const resolver = new CourseLearningHistoryResolver(entityManager as never,
+                    winstonService as never)
+
+                await expect(resolver.execute({
+                    courseId: toGlobalId(
+                        "CourseEntity",
+                        "course-1",
+                    ),
+                    limit: 0,
+                    cursor: "not-base64-json",
+                } as never,
+                {
+                    id: "user-1",
+                } as never)).resolves.toEqual({
+                    items: [],
+                    nextCursor: null,
+                })
+                expect(entityManager.query.mock.calls[0][0]).toContain("OFFSET 0")
+                expect(entityManager.query.mock.calls[0][0]).toContain("LIMIT 2")
+            })
+
+        it("returns a terminal page when exactly one row is returned",
+            async () => {
+                const entityManager = {
+                    query: jest.fn().mockResolvedValue([historyRow("event-final")]),
+                }
+                const resolver = new CourseLearningHistoryResolver(
+                    entityManager as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                )
+
+                await expect(resolver.execute({
+                    courseId: toGlobalId("CourseEntity",
+                        "course-1"),
+                    limit: 2,
+                } as never,
+                {
+                    id: "user-1",
+                } as never)).resolves.toEqual({
+                    items: [historyRow("event-final")],
+                    nextCursor: null,
+                })
             })
     })

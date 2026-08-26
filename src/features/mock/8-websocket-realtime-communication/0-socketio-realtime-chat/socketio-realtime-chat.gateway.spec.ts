@@ -58,4 +58,36 @@ describe("SocketioRealtimeChatGateway",
                 expect(emit).not.toHaveBeenCalledWith("roomToClient",
                     expect.anything())
             })
+
+        it("ignores chat messages from a client that has not joined a room",
+            () => {
+                const emit = jest.fn()
+                const gateway = new SocketioRealtimeChatGateway()
+                Object.assign(gateway,
+                    {
+                        server: {
+                            to: jest.fn().mockReturnValue({
+                                emit,
+                            }),
+                        },
+                    })
+
+                gateway.handleChatToServer({
+                    data: {
+                    },
+                } as never,
+                {
+                    room: "room",
+                    text: "ignored",
+                })
+
+                expect(emit).toHaveBeenCalledWith(
+                    "chatToClient",
+                    expect.objectContaining({
+                        nickname: "anon",
+                        text: "ignored",
+                        room: "room",
+                    }),
+                )
+            })
     })

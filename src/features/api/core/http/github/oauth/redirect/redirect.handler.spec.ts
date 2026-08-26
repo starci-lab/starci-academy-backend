@@ -33,4 +33,9 @@ h as never), h
         }); expect(h.issue).toHaveBeenCalled() }); it("rejects missing redirect URI before token verification",
         async () => { const { handler, h } = make(); await expect(handler.execute(new GithubOauthRedirectCommand({
             refreshToken: "r", redirectUri: ""
-        }))).rejects.toThrow(MissingRequiredParameterException); expect(h.verifyRefreshToken).not.toHaveBeenCalled() }) })
+        }))).rejects.toThrow(MissingRequiredParameterException); expect(h.verifyRefreshToken).not.toHaveBeenCalled() }); it("rejects an inactive refresh token before reading the user",
+        async () => { const { handler, h } = make(); h.verifyRefreshToken.mockResolvedValueOnce({
+            active: false, sub: "kc1"
+        }); await expect(handler.execute(new GithubOauthRedirectCommand({
+            refreshToken: "r", redirectUri: "https://app"
+        }))).rejects.toThrow(); expect(h.getUserByKeycloakId).not.toHaveBeenCalled() }) })

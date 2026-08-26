@@ -39,4 +39,16 @@ describe("KeycloakAuthController",
                     ok: true
                 })
             })
+
+        it("does not swallow login failures from the authentication service",
+            async () => {
+                const failure = new Error("Keycloak unavailable")
+                const login = jest.fn().mockRejectedValue(failure)
+                await expect(new KeycloakAuthController({
+                    login,
+                } as never).login({
+                    username: "u",
+                    password: "p",
+                } as never)).rejects.toBe(failure)
+            })
     })

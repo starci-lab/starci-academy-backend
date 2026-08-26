@@ -196,4 +196,16 @@ describe("ProcessGitSubmissionWorker",
                 )
                 expect(h.winstonService.log).toHaveBeenCalled()
             })
+
+        it("does not touch persistence when the payload cannot be decoded",
+            async () => {
+                const h = make()
+                h.superJson.parse.mockImplementation(() => {
+                    throw new Error("invalid payload")
+                })
+
+                await expect(h.worker.process(bull())).rejects.toThrow("invalid payload")
+                expect(h.entityManager.findOne).not.toHaveBeenCalled()
+                expect(h.jobActionService.completeJob).not.toHaveBeenCalled()
+            })
     })

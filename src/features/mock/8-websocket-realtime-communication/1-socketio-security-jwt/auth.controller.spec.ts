@@ -54,4 +54,28 @@ describe("AuthController",
                     access_token: "login-token",
                 })
             })
+
+        it("preserves the registration payload when signing a second account",
+            () => {
+                const sign = jest.fn().mockReturnValue("second-token")
+                const register = jest.fn().mockReturnValue({
+                    sub: 11,
+                    username: "carol",
+                })
+                const controller = new AuthController({
+                    sign,
+                } as never,
+                {
+                    register,
+                } as never)
+
+                expect(controller.register({
+                    username: "carol",
+                    password: "different",
+                })).toEqual({
+                    access_token: "second-token",
+                })
+                expect(register).toHaveBeenCalledWith("carol",
+                    "different")
+            })
     })

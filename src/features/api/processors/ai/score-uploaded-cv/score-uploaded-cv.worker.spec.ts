@@ -276,5 +276,20 @@ describe("ScoreUploadedCvWorker",
                             error: "plain failure",
                         }))
                     })
+
+                it("does not score when the generation row is absent",
+                    async () => {
+                        const superJson = module.get(SUPERJSON) as unknown as {
+                            parse: jest.Mock
+                        }
+                        superJson.parse.mockImplementationOnce(() => {
+                            throw new Error("invalid payload")
+                        })
+
+                        await expect(worker.process(fakeBullJob("serialized-payload")))
+                            .rejects.toThrow()
+                        expect(scoreUploadedCvService.scoreUploadedCv)
+                            .not.toHaveBeenCalled()
+                    })
             })
     })

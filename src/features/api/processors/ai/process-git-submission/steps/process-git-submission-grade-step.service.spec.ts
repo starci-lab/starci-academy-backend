@@ -335,4 +335,24 @@ describe("ProcessGitSubmissionGradeStepService",
                     }),
                 )
             })
+
+        it("uses main and configured embedding defaults when optional payload fields are absent",
+            async () => {
+                const ctx = makeService(entityManager)
+
+                await ctx.service.process(makeContext({
+                    branch: undefined,
+                    embeddingModel: undefined,
+                    embeddingProvider: undefined,
+                }))
+
+                expect(ctx.gradingRetrievalService.retrieveGradingExcerpt).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        embedding: expect.objectContaining({
+                            model: expect.any(String),
+                            provider: expect.any(String),
+                        }),
+                    }),
+                )
+            })
     })

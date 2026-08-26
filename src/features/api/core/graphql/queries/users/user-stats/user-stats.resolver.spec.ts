@@ -73,4 +73,19 @@ statsService as never)
                         }
                     })
             })
+
+        it("returns false when the live edge count is zero",
+            async () => {
+                entityManager.count.mockResolvedValue(0)
+                await expect(resolver.isFollowedByMe({
+                    id: "profile",
+                } as never,
+                {
+                    req: {
+                        user: {
+                            id: "viewer",
+                        },
+                    },
+                } as never)).resolves.toBe(false)
+            })
     })

@@ -456,4 +456,18 @@ describe("PaypalWebhookHandler",
                 })
                 expect(entityManager.findOne).not.toHaveBeenCalled()
             })
+
+        it("surfaces a missing transaction after a failed capture status",
+            async () => {
+                await expect(handler.execute(new PaypalWebhookCommand(
+                    buildParams({
+                        event_type: "PAYMENT.CAPTURE.COMPLETED",
+                        resource: {
+                            custom_id: REFERENCE_ID,
+                            status: "DECLINED",
+                        },
+                    }),
+                ))).rejects.toThrow(TransactionNotFoundException)
+                expect(entityManager.findOne).toHaveBeenCalled()
+            })
     })

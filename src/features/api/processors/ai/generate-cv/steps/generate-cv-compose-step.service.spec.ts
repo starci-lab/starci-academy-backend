@@ -231,4 +231,44 @@ describe("GenerateCvComposeStepService",
                     job: expect.anything(),
                 }))
             })
+
+        it("maps missing profile fields and non-array model sections to safe defaults",
+            async () => {
+                const { jobAction, run, service } = makeService()
+                jobAction.loadExecutionResult.mockResolvedValueOnce({
+                    profile: {
+                    },
+                    selectedEvidence: [],
+                    sourceCvText: "",
+                })
+                run.mockResolvedValueOnce({
+                    text: JSON.stringify({
+                        fullName: null,
+                        headline: 7,
+                        summary: null,
+                        skillGroups: null,
+                        experiences: "not-an-array",
+                        education: {
+                        },
+                    }),
+                })
+
+                await service.process(context({
+                    targetRole: "",
+                }))
+
+                expect(jobAction.saveExecutionResult).toHaveBeenCalledWith(expect.objectContaining({
+                    executionResult: expect.objectContaining({
+                        fullName: "",
+                        headline: "",
+                        summary: "",
+                        skillGroups: [],
+                        experiences: [],
+                        education: [],
+                    }),
+                }))
+                expect(String(run.mock.calls[0][0].messages[1].content)).toContain(
+                    "Display name: (unknown)",
+                )
+            })
     })

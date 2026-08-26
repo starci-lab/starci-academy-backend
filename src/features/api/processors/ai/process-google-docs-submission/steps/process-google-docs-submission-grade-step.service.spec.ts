@@ -91,7 +91,7 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
                 failJob: jest.fn(),
             }
             winstonService = {
-                log: jest.fn() 
+                log: jest.fn()
             }
             mountStorageService = {
                 appConfig: {
@@ -276,6 +276,19 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
                 expect(jobActionService.saveExecutionResult).toHaveBeenCalledWith(
                     expect.objectContaining({
                         key: "grade",
+                    }),
+                )
+            })
+
+        it("passes the Vietnamese locale through to the grading prompt",
+            async () => {
+                await service.process(makeContext({
+                    locale: Locale.Vi
+                }))
+
+                expect(challengeEvaluationPromptService.build).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        targetLanguage: expect.stringMatching(/^Vietnamese/u),
                     }),
                 )
             })

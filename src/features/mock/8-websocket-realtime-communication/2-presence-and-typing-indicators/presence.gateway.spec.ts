@@ -64,4 +64,35 @@ describe("PresenceGateway",
                         userId: "u"
                     })
             })
+
+        it("does not announce a user whose tab was not the first one",
+            () => {
+                const emit = jest.fn()
+                const client = {
+                    id: "socket-2",
+                    data: {
+                    },
+                    join: jest.fn(),
+                    to: jest.fn().mockReturnValue({
+                        emit,
+                    }),
+                }
+                const result = new PresenceGateway({
+                    addTab: jest.fn().mockReturnValue({
+                        isFirstTab: false,
+                    }),
+                    members: jest.fn().mockReturnValue(["u"]),
+                } as never).handleJoin(client as never,
+                    {
+                        roomId: "room",
+                        userId: "u",
+                    })
+
+                expect(result).toEqual({
+                    ok: true,
+                    online: ["u"],
+                })
+                expect(emit).not.toHaveBeenCalledWith("user-joined",
+                    expect.anything())
+            })
     })

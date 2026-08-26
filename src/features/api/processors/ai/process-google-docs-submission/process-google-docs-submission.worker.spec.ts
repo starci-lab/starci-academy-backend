@@ -43,7 +43,7 @@ const bullJob = (): Job<string> => ({
 
 const makeWorker = () => {
     const now = {
-        diff: jest.fn().mockReturnValue(15) 
+        diff: jest.fn().mockReturnValue(15)
     }
     const jobActionService = {
         getJob: jest.fn(),
@@ -52,7 +52,7 @@ const makeWorker = () => {
     }
     const superJson = {
         parse: jest.fn().mockReturnValue({
-            userChallengeSubmissionId: "user-submission-1" 
+            userChallengeSubmissionId: "user-submission-1"
         }),
     }
     const stepProcess = jest.fn().mockResolvedValue(undefined)
@@ -73,7 +73,7 @@ const makeWorker = () => {
         ])),
     }
     const winstonService = {
-        log: jest.fn() 
+        log: jest.fn()
     }
     const dayjsService = {
         now: jest.fn().mockReturnValue(now),
@@ -147,12 +147,12 @@ describe("ProcessGoogleDocsSubmissionWorker",
                 await expect(harness.worker.process(bullJob())).resolves.toBeUndefined()
                 expect(harness.jobActionService.processingJob).toHaveBeenCalledWith({
                     job: job(0,
-                        2) 
+                        2)
                 })
                 expect(harness.superJson.parse).toHaveBeenCalledWith("serialized")
                 expect(harness.stepProcess).toHaveBeenCalledWith(expect.objectContaining({
                     payload: {
-                        userChallengeSubmissionId: "user-submission-1" 
+                        userChallengeSubmissionId: "user-submission-1"
                     },
                     extended: {
                         challengeSubmission: harness.challengeSubmission,
@@ -162,7 +162,7 @@ describe("ProcessGoogleDocsSubmissionWorker",
                 }))
                 expect(harness.jobActionService.completeJob).toHaveBeenCalledWith({
                     job: job(2,
-                        2) 
+                        2)
                 })
                 expect(harness.winstonService.log).toHaveBeenCalledWith(
                     expect.anything(),
@@ -207,5 +207,17 @@ describe("ProcessGoogleDocsSubmissionWorker",
                     .mockResolvedValueOnce(job(3))
                 missingStep.stepMappingService.getStepMap.mockReturnValue(new Map())
                 await expect(missingStep.worker.process(bullJob())).rejects.toThrow(StepNotFoundException)
+            })
+
+        it("does not execute a step when the queue payload is malformed",
+            async () => {
+                const harness = makeWorker()
+                harness.jobActionService.getJob.mockResolvedValue(job(0))
+                harness.superJson.parse.mockImplementation(() => {
+                    throw new Error("invalid payload")
+                })
+
+                await expect(harness.worker.process(bullJob())).rejects.toThrow("invalid payload")
+                expect(harness.stepProcess).not.toHaveBeenCalled()
             })
     })

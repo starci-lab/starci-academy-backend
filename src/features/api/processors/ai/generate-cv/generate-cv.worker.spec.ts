@@ -176,4 +176,17 @@ describe("GenerateCvWorker",
                 expect(h.entityManager.update).not.toHaveBeenCalled()
                 expect(h.winstonService.log).toHaveBeenCalled()
             })
+
+        it("keeps a failed lookup from invoking any pipeline step",
+            async () => {
+                const h = make()
+                h.jobActionService.getJob.mockResolvedValue(h.job)
+                h.entityManager.findOne.mockResolvedValue(null)
+
+                await expect(h.worker.process(bull())).rejects.toThrow(
+                    CvGenerationNotFoundException,
+                )
+                expect(h.step.process).not.toHaveBeenCalled()
+                expect(h.jobActionService.completeJob).not.toHaveBeenCalled()
+            })
     })

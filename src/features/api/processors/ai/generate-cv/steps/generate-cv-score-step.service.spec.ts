@@ -247,5 +247,42 @@ describe("GenerateCvScoreStepService",
                             }),
                         )
                     })
+
+                it("continues with a null score when the scorer returns no result",
+                    async () => {
+                        cvScoringService.score.mockResolvedValueOnce(null as never)
+
+                        await service.process(makeContext())
+
+                        expect(entityManager.update).toHaveBeenCalledWith(
+                            UserCvGenerationEntity,
+                            {
+                                id: "cv-gen-1",
+                            },
+                            expect.objectContaining({
+                                score: null,
+                                feedback: null,
+                            }),
+                        )
+                        expect(jobActionService.increaseJob).toHaveBeenCalled()
+                    })
+
+                it("forwards an explicit AI selection to the source-agnostic scorer",
+                    async () => {
+                        const selection = {
+                            model: "gpt-4.1-mini",
+                            provider: "openai",
+                        }
+
+                        await service.process(makeContext({
+                            ai: selection,
+                        }))
+
+                        expect(cvScoringService.score).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                selection,
+                            }),
+                        )
+                    })
             })
     })

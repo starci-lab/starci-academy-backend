@@ -400,4 +400,19 @@ describe("NowPaymentsWebhookHandler",
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
                 expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
+
+        it("rejects an underpaid finished IPN before granting access",
+            async () => {
+                await expect(handler.execute(new NowPaymentsWebhookCommand(
+                    buildParams({
+                        payment_status: "finished",
+                        order_id: REFERENCE_ID,
+                        pay_amount: "100",
+                        actually_paid: "99",
+                    }),
+                ))).resolves.toBeUndefined()
+                expect(entityManager.findOne).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction)
+                    .not.toHaveBeenCalled()
+            })
     })

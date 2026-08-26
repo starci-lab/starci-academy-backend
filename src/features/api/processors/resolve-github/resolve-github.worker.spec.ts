@@ -86,4 +86,51 @@ describe("ResolveGithubWorker retry lifecycle",
                 expect(trackedJob.status).toBe(expectedStatus)
                 expect(jobActionService.failJob).toHaveBeenCalledTimes(expectedFailures)
             })
+
+        it("records a terminal malformed-payload failure without invoking a step",
+            async () => {
+                const trackedJob = {
+                    id: "resolve-job",
+                    currentStep: 0,
+                    maxSteps: 1,
+                } as JobEntity
+                const failure = new Error("invalid payload")
+                const jobActionService = {
+                    getJob: jest.fn().mockResolvedValue(trackedJob),
+                    processingJob: jest.fn(),
+                    completeJob: jest.fn(),
+                    failJob: jest.fn(),
+                }
+                const step = jest.fn()
+                const worker = new ResolveGithubWorker(
+                    jobActionService as never,
+                    {
+                        parse: jest.fn().mockImplementation(() => {
+                            throw failure
+                        }),
+                    } as never,
+                    {
+                        getStepMap: jest.fn().mockReturnValue(new Map([[0,
+                            {
+                                process: step,
+                            }]])),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                    new DayjsService(),
+                )
+
+                await expect(worker.process({
+                    id: trackedJob.id,
+                    data: "bad",
+                    queueName: "resolve-github",
+                    attemptsMade: 1,
+                    opts: {
+                        attempts: 2,
+                    },
+                } as Job<string>)).rejects.toBe(failure)
+                expect(step).not.toHaveBeenCalled()
+                expect(jobActionService.failJob).toHaveBeenCalled()
+            })
     })

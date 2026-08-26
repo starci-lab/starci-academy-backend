@@ -86,4 +86,55 @@ describe("MyNotificationsResolver",
                     type: "system",
                 }))
             })
+
+        it("maps read notifications with body parameters and null optional fields",
+            async () => {
+                const service = {
+                    listNotifications: jest.fn().mockResolvedValue({
+                        total: 1,
+                        items: [{
+                            id: "n-read",
+                            type: "course",
+                            payload: {
+                                title: {
+                                    key: "title",
+                                    params: {
+                                        name: "Ada",
+                                    },
+                                },
+                                body: {
+                                    key: "body",
+                                    params: {
+                                        count: 2,
+                                    },
+                                },
+                            },
+                            readAt: new Date(0),
+                            createdAt: new Date(1),
+                        }],
+                    }),
+                    countUnread: jest.fn().mockResolvedValue(0),
+                }
+
+                const [item] = (await new MyNotificationsResolver(service as never).execute(
+                    {
+                        id: "u1",
+                    } as never,
+                    20,
+                    0,
+                    true,
+                    null,
+                )).items
+
+                expect(item).toEqual(expect.objectContaining({
+                    isRead: true,
+                    body: {
+                        key: "body",
+                        params: {
+                            count: 2,
+                        },
+                    },
+                    target: null,
+                }))
+            })
     })

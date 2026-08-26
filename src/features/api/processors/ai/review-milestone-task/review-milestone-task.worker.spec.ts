@@ -54,4 +54,35 @@ describe("ReviewMilestoneTaskWorker",
     now: jest.fn().mockReturnValue({
         diff: jest.fn()
     }), from: jest.fn()
-} as never); await expect(worker.process(bull())).rejects.toThrow(StepNotFoundException) }) })
+} as never); await expect(worker.process(bull())).rejects.toThrow(StepNotFoundException) })
+    it("rethrows malformed queue data without completing the job",
+        async () => {
+            const actions = {
+                getJob: jest.fn().mockResolvedValue({
+                    id: "j1", currentStep: 0, maxSteps: 1,
+                }),
+                processingJob: jest.fn(),
+                completeJob: jest.fn(),
+            }
+            const worker = new ReviewMilestoneTaskWorker(actions as never,
+{
+    parse: jest.fn().mockImplementation(() => {
+        throw new Error("invalid review payload")
+    }),
+} as never,
+{
+    getStepMap: jest.fn().mockReturnValue(new Map()),
+} as never,
+{
+    log: jest.fn(),
+} as never,
+{
+    now: jest.fn().mockReturnValue({
+        diff: jest.fn(),
+    }),
+    from: jest.fn(),
+} as never)
+
+            await expect(worker.process(bull())).rejects.toThrow("invalid review payload")
+            expect(actions.completeJob).not.toHaveBeenCalled()
+        }) })
