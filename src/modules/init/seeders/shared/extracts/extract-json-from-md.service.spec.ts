@@ -178,6 +178,27 @@ describe("ExtractJsonFromMdService",
                                 enabled: "true\n<!-- @starci/jsonb -->\n<!-- @starci/seperator -->",
                             },
                         })
+
+                    })
+
+                it("coerces scalar leaves and ignores fenced headings",
+                    () => {
+                        expect(service.extract([
+                            "# enabled",
+                            "true",
+                            "# count",
+                            "42",
+                            "# ratio",
+                            "3.5",
+                            "# none",
+                            "null",
+                            "# code",
+                            "```",
+                            "# hidden",
+                            "```",
+                        ].join("\n"))).toEqual({
+                            enabled: "true", count: "42", ratio: "3.5", none: "null", code: "```\n# hidden\n```"
+                        })
                     })
             })
     })
