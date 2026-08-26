@@ -77,4 +77,19 @@ describe("CookieService",
                         secure: true,
                     }))
             })
+        it("returns no values for an absent cookie header",
+            () => {
+                const service = new CookieService()
+
+                expect(service.getAllCookieValues({
+                    headers: {
+                    }
+                } as never,
+                "missing")).toEqual([])
+                expect(service.getCookie({
+                    headers: {
+                    }
+                } as never,
+                "missing")).toBeUndefined()
+            })
     })

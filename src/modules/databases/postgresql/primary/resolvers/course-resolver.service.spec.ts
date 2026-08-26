@@ -145,4 +145,40 @@ describe("CourseResolverService",
                 expect(translatedFields.title).toBeUndefined()
                 expect(translatedFields.description).toBeUndefined()
             })
+
+        it("does not invoke nested transformers for absent relations",
+            () => {
+                const transform = jest.fn()
+                const service = new CourseResolverService(
+                    {
+                        resolve: jest.fn().mockReturnValue("title"),
+                    } as never,
+                    {
+                        transform
+                    } as never,
+                    {
+                        transform
+                    } as never,
+                    {
+                        transform
+                    } as never,
+                    {
+                        transform
+                    } as never,
+                    {
+                        transform
+                    } as never,
+                    {
+                        transform
+                    } as never,
+                )
+                const course = {
+                    defaultLocale: Locale.En,
+                    translations: [],
+                } as never
+
+                expect(service.transform(course,
+                    Locale.En)).toBe(course)
+                expect(transform).not.toHaveBeenCalled()
+            })
     })

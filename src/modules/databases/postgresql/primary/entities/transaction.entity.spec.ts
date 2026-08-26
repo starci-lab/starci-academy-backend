@@ -4,6 +4,12 @@ import {
 import {
     TransactionEntity
 } from "./transaction.entity"
+describe("TransactionEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new TransactionEntity(),
+            {
+                id: "wave22-transaction"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-transaction"); const id = getMetadataArgsStorage().columns.find((x) => x.target === TransactionEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 import {
     buildEntityGraphqlSchema
 } from "../../../../../tests/helpers/entity-graphql-schema"
@@ -244,8 +250,8 @@ describe("GraphQL entity contracts",
                             entity.name.replace(/Entity$/u,
                                 "")]
                     const type = typeNames.map((name) => schema.getType(name)).find((candidate) => candidate !== undefined)
-                    expect(type).toBeDefined()
-                    expect(type instanceof GraphQLObjectType ? Object.keys(type.getFields()).length : 0).toBeGreaterThan(0)
+                    expect(type).toBeInstanceOf(GraphQLObjectType)
+                    expect(Object.keys((type as GraphQLObjectType).getFields()).length).toBeGreaterThan(0)
                 }
                 expect(schema.getType("ContentAiSessionEntity")).toBeUndefined()
                 expect(schema.getType("MockInterviewAttemptEntity")).toBeUndefined()

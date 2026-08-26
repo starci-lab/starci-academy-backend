@@ -114,4 +114,30 @@ describe("PrometheusMetricsService",
                 expect(fetchMock).toHaveBeenCalledTimes(5)
                 fetchMock.mockRestore()
             })
+
+        it("ignores samples with an invalid metric name while retaining valid zero values",
+            async () => {
+                const fetchMock = jest.spyOn(global,
+                    "fetch").mockResolvedValue({
+                        ok: true,
+                        json: async () => ({
+                            data: {
+                                result: [{
+                                    metric: {
+                                        name: "starci-api"
+                                    }, value: [1,
+                                        "0"]
+                                }],
+                            },
+                        }),
+                    } as unknown as Response)
+                const result = await new PrometheusMetricsService({
+                    log: jest.fn()
+                } as never)
+                    .containerMetricsByName()
+                expect(result.get("api")).toEqual(expect.objectContaining({
+                    cpuPercent: 0
+                }))
+                fetchMock.mockRestore()
+            })
     })

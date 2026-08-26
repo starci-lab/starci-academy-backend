@@ -21,4 +21,14 @@ enqueue as never)
                     syncAt: now
                 }))
             })
+        it("propagates interval queue failures",
+            async () => { const failure = new Error("challenge queue unavailable"); const enqueue = {
+                enqueue: jest.fn().mockRejectedValue(failure)
+            }; const service = new ChallengeIndexerSynchronizerService({
+                now: () => new Date()
+            } as never,
+            {
+                log: jest.fn()
+            } as never,
+            enqueue as never); await expect(service.handleInterval()).rejects.toBe(failure); expect(enqueue.enqueue).toHaveBeenCalledTimes(1) })
     })

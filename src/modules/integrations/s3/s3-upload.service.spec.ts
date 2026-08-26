@@ -241,4 +241,35 @@ describe("S3UploadService",
                 expect(digitalOceanSend).not.toHaveBeenCalled()
                 expect(minioSend).not.toHaveBeenCalled()
             })
+
+        it("uploads one JSON payload to every configured provider",
+            async () => {
+                jest.mocked(envConfig).mockReturnValue({
+                    s3: {
+                        minio: {
+                            bucket: "academy"
+                        },
+                        digitalOcean: {
+                            bucket: "production", accessKeyId: "key"
+                        },
+                    },
+                } as ReturnType<typeof envConfig>)
+
+                await service.json({
+                    name: "dual.json",
+                    payload: {
+                        value: true
+                    },
+                    acl: "private",
+                    providers: [S3Provider.Minio,
+                        S3Provider.DigitalOcean],
+                })
+
+                expect(minioSend).toHaveBeenCalledTimes(1)
+                expect(digitalOceanSend).toHaveBeenCalledTimes(1)
+                expect((minioSend.mock.calls[0][0] as PutObjectCommand).input).toMatchObject({
+                    Key: "dual.json",
+                    ContentType: "application/json",
+                })
+            })
     })

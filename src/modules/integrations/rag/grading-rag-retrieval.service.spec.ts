@@ -290,4 +290,22 @@ describe("GradingRetrievalService",
                     }),
                 )
             })
+
+        it("truncates within the character budget and reports the included count",
+            () => {
+                const methods = service as unknown as {
+                    assembleWithinBudget: (chunks: Array<Document>, maxChars: number) => {
+                        excerpt: string
+                        truncated: boolean
+                        count: number
+                    }
+                }
+                expect(methods.assembleWithinBudget([doc("1234"),
+                    doc("5678")],
+                6)).toEqual({
+                    excerpt: "1234",
+                    truncated: true,
+                    count: 1,
+                })
+            })
     })

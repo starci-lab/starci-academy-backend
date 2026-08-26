@@ -85,4 +85,36 @@ describe("socketIoKeycloakAuthMiddleware",
 
                 expect(next).toHaveBeenCalledWith(expect.any(SocketIoAccessTokenInvalidException))
             })
+
+        it("rejects an active token that has no subject claim",
+            async () => {
+                const app = {
+                    get: jest.fn().mockReturnValue({
+                        verifyAccessToken: jest.fn().mockResolvedValue({
+                            active: true
+                        }),
+                    }),
+                }
+                ;(globalThis as unknown as { __APP__: typeof app }).__APP__ = app
+                const next = jest.fn()
+
+                const socket = {
+                    handshake: {
+                        auth: {
+                            token: "token"
+                        }, query: {
+                        }
+                    },
+                    data: {
+                    } as {
+                        userId?: string
+                    },
+                }
+                socketIoKeycloakAuthMiddleware(socket as never,
+                    next)
+                await new Promise((resolve) => setImmediate(resolve))
+
+                expect(next).toHaveBeenCalledWith()
+                expect(socket.data.userId).toBe("")
+            })
     })

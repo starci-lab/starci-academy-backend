@@ -99,4 +99,15 @@ describe("PublicRagPlaygroundCleanupService",
                 const [[collectionName]] = deleteCollection.mock.calls
                 expect(collectionName).toBe("playground-session-public")
             })
+
+        it("logs a primitive database claim failure without touching Qdrant",
+            async () => {
+                entityManager.delete.mockRejectedValueOnce("database offline")
+                await expect((service as unknown as {
+                    dropSession: (session: { id: string; sessionId: string }) => Promise<void>
+                }).dropSession({
+                    id: "row", sessionId: "session"
+                })).resolves.toBeUndefined()
+                expect(deleteCollection).not.toHaveBeenCalled()
+            })
     })

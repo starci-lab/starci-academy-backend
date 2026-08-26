@@ -66,4 +66,19 @@ describe("NatsStreamConnection",
                     message: "handler failure",
                 }))
             })
+
+        it("closes cleanly when no subscriptions were opened",
+            async () => {
+                const connection = new NatsStreamConnection({
+                    nc: {
+                        subscribe: jest.fn()
+                    } as never,
+                    subjects: [],
+                })
+                const close = jest.fn()
+                connection.onClose(close)
+
+                await expect(connection.close()).resolves.toBeUndefined()
+                expect(close).toHaveBeenCalledTimes(1)
+            })
     })

@@ -238,4 +238,20 @@ describe("NatsBridgeService",
 
                 expect(world.eventEmitter.emit).not.toHaveBeenCalled()
             })
+
+        it("closes a stream that never opened without calculating a duration",
+            async () => {
+                const world = createService("producer-b")
+                world.streamAsyncIteratorService.createStream.mockImplementationOnce(async (options: {
+                    onClose: () => void
+                }) => {
+                    options.onClose()
+                    return {
+                        async *[Symbol.asyncIterator]() {
+                        },
+                    }
+                })
+                await world.runConsumer()
+                expect(world.eventEmitter.emit).not.toHaveBeenCalled()
+            })
     })

@@ -4,6 +4,12 @@ import {
 import {
     UserPinnedProjectEntity
 } from "./user-pinned-project.entity"
+describe("UserPinnedProjectEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new UserPinnedProjectEntity(),
+            {
+                id: "wave22-pinned-project"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-pinned-project"); const id = getMetadataArgsStorage().columns.find((x) => x.target === UserPinnedProjectEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("UserPinnedProjectEntity contract",
     () => {
         it("resolves table, columns, relations, indexes, and lazy callbacks",

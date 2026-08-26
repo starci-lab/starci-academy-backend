@@ -4,6 +4,12 @@ import {
 import {
     UserChallengeSubmissionEntity
 } from "./user-challenge-submission.entity"
+describe("UserChallengeSubmissionEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new UserChallengeSubmissionEntity(),
+            {
+                id: "wave22-user-submission"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-user-submission"); const id = getMetadataArgsStorage().columns.find((x) => x.target === UserChallengeSubmissionEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("UserChallengeSubmissionEntity contract",
     () => {
         it("resolves table, columns, relations, and lazy callbacks",

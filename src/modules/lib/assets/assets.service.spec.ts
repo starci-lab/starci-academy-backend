@@ -138,4 +138,32 @@ describe("AssetsService",
                         contentType: "application/octet-stream",
                     }))
             })
+
+        it("logs a completed initialization after a successful sync",
+            async () => {
+                const log = jest.fn()
+                const service = new AssetsService({
+                } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                        log
+                    } as never)
+                jest.spyOn(service,
+                    "sync").mockResolvedValue({
+                    assets: [{
+                        fileName: "logo.svg",
+                        key: "assets/logo.svg",
+                        url: "https://cdn/logo.svg",
+                    }],
+                })
+                await service.onModuleInit()
+                expect(log).toHaveBeenCalledWith(expect.anything(),
+                    {
+                        op: "init.assets.synced",
+                        count: 1,
+                    })
+            })
     })

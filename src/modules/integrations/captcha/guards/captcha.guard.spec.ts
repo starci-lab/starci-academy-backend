@@ -51,4 +51,19 @@ describe("CaptchaGuard",
                     remoteIp: "10.0.0.3",
                 })
             })
+
+        it("propagates verifier failures instead of treating them as valid captcha",
+            async () => {
+                const failure = new Error("captcha provider down")
+                const verify = jest.fn().mockRejectedValue(failure)
+
+                await expect(new CaptchaGuard({
+                    verify,
+                } as never).canActivate(context({
+                    headers: {
+                        "x-captcha-token": "token",
+                    },
+                    ip: "10.0.0.4",
+                }))).rejects.toBe(failure)
+            })
     })

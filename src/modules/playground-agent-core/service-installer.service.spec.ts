@@ -149,4 +149,16 @@ describe("ServiceInstallerService",
                 expect(existsSync).toHaveBeenCalled()
                 expect(rmSync).toHaveBeenCalled()
             })
+
+        it("escapes XML-sensitive pairing metadata in the Windows definition",
+            () => {
+                const service = new ServiceInstallerService(meta)
+                const definition = service.buildServiceDefinition({
+                    ...input("win32"),
+                    pairingCode: "A&B<1",
+                    server: "https://server.test/?x=\"y\"",
+                })
+                expect(definition.manifest.content).toContain("A&amp;B&lt;1")
+                expect(definition.manifest.content).toContain("&quot;y&quot;")
+            })
     })

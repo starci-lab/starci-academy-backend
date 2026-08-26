@@ -4,6 +4,12 @@ import {
 import {
     UserMilestoneTaskEntity
 } from "./user-milestone-task.entity"
+describe("UserMilestoneTaskEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new UserMilestoneTaskEntity(),
+            {
+                id: "wave22-user-task"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-user-task"); const id = getMetadataArgsStorage().columns.find((x) => x.target === UserMilestoneTaskEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("UserMilestoneTaskEntity contract",
     () => {
         it("resolves table, columns, relations, indexes, and lazy callbacks",

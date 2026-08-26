@@ -22,4 +22,14 @@ enqueue as never)
                     syncAt: now
                 }))
             })
+        it("propagates interval queue failures",
+            async () => { const failure = new Error("course CDN queue unavailable"); const enqueue = {
+                enqueue: jest.fn().mockRejectedValue(failure)
+            }; const service = new CourseCdnSynchronizerService({
+                now: () => new Date()
+            } as never,
+            {
+                log: jest.fn()
+            } as never,
+            enqueue as never); await expect(service.handleInterval()).rejects.toBe(failure); expect(enqueue.enqueue).toHaveBeenCalledTimes(1) })
     })
