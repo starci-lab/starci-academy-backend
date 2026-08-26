@@ -88,4 +88,99 @@ describe("BlogSeederService",
                 ["slug"],
             )
         })
+
+    it("falls back to Vietnamese metadata and required fields when English is absent",
+        async () => {
+            const upsert = jest.fn().mockResolvedValue(undefined)
+            const service = new BlogSeederService(
+                {
+                    upsert
+                } as never,
+                {
+                    isBlogSeederEnabled: jest.fn().mockReturnValue(true)
+                } as never,
+                {
+                    filePaths: jest.fn().mockResolvedValue([{
+                        relativePath: "3-vietnamese-post",
+                        displayId: "vietnamese-post",
+                    }])
+                } as never,
+                {
+                    load: jest.fn()
+                        .mockRejectedValueOnce(new Error("no en"))
+                        .mockResolvedValueOnce("vi markdown")
+                } as never,
+                {
+                    extract: jest.fn().mockReturnValue({
+                        title: "Vietnamese title",
+                        body: "Vietnamese body",
+                        category: BlogCategory.Career,
+                        isPublished: false,
+                    })
+                } as never,
+                {
+                    toNullableEnum: jest.fn().mockReturnValue(BlogCategory.Career),
+                    toNullableStringColumn: jest.fn().mockReturnValue(null),
+                    toNullableNumericColumn: jest.fn().mockReturnValue(null),
+                    toNullableDate: jest.fn().mockReturnValue(null),
+                    toRequiredBoolean: jest.fn((value: unknown, fallback: boolean) => value ?? fallback),
+                } as never,
+            )
+
+            await service.seed()
+
+            expect(upsert).toHaveBeenCalledWith(expect.anything(),
+                expect.objectContaining({
+                    slug: "vietnamese-post",
+                    title: {
+                        en: "Vietnamese title", vi: "Vietnamese title"
+                    },
+                    body: {
+                        en: "Vietnamese body", vi: "Vietnamese body"
+                    },
+                    category: BlogCategory.Career,
+                    isPublished: false,
+                }),
+                ["slug"])
+        })
+
+    it("skips folders with no usable language fields",
+        async () => {
+            const upsert = jest.fn()
+            const service = new BlogSeederService(
+            {
+                upsert
+            } as never,
+            {
+                isBlogSeederEnabled: jest.fn().mockReturnValue(true)
+            } as never,
+            {
+                filePaths: jest.fn().mockResolvedValue([
+                    {
+                        relativePath: "empty", displayId: "empty"
+                    },
+                    {
+                        relativePath: "metadata-only", displayId: "metadata-only"
+                    },
+                ])
+            } as never,
+            {
+                load: jest.fn()
+                    .mockResolvedValueOnce("")
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValue("markdown")
+            } as never,
+            {
+                extract: jest.fn().mockReturnValue({
+                    category: BlogCategory.Career
+                })
+            } as never,
+            {
+            } as never,
+            )
+
+            await service.seed()
+
+            expect(upsert).not.toHaveBeenCalled()
+        })
     })

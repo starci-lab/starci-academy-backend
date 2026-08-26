@@ -22,6 +22,9 @@ import {
     ChallengeSubmissionNotFoundException,
 } from "@modules/platform/exceptions/errors/courses/challenge-submission-not-found"
 import {
+    SubmissionUrlInvalidException,
+} from "@modules/platform/exceptions/errors/courses/submission-url-invalid"
+import {
     UserNotFoundException,
 } from "@modules/platform/exceptions/errors/users/user"
 import {
@@ -238,5 +241,50 @@ describe("SyncSubmissionHandler",
                 // the validated model pick is written onto the existing row + saved
                 expect(existing.selectedModel).toBe("gpt-4o")
                 expect(entityManager.save).toHaveBeenCalled()
+            })
+        it("creates a selection-only row with an empty URL without invoking URL validation",
+            async () => {
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-1",
+                        type: "githubUrl",
+                    })
+                    .mockResolvedValueOnce(null)
+
+                await handler.execute(new SyncSubmissionCommand({
+                    request: {
+                        id: "sub-1",
+                    },
+                    user: fakeUser("user-1"),
+                }))
+
+                expect(urlValidatorService.isValid).not.toHaveBeenCalled()
+                expect(entityManager.create).toHaveBeenCalledWith(expect.anything(),
+                    expect.objectContaining({
+                        submissionUrl: "",
+                        processed: false,
+                    }))
+            })
+        it("propagates an invalid URL result before creating or saving a row",
+            async () => {
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "sub-1",
+                    type: "githubUrl",
+                })
+                urlValidatorService.isValid.mockRejectedValueOnce(new SubmissionUrlInvalidException({
+                    id: "sub-1",
+                    submissionType: "githubUrl" as never,
+                    url: "not-a-url",
+                }))
+
+                await expect(handler.execute(new SyncSubmissionCommand({
+                    request: {
+                        id: "sub-1",
+                        url: "not-a-url",
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBeInstanceOf(SubmissionUrlInvalidException)
+                expect(entityManager.create).not.toHaveBeenCalled()
+                expect(entityManager.save).not.toHaveBeenCalled()
             })
     })

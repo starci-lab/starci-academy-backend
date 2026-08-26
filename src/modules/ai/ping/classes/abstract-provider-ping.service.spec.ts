@@ -5,6 +5,20 @@ import {
     ModelProvider
 } from "@modules/databases/postgresql/primary/enums/model-provider"
 
+const mockPingConfig = {
+    enabled: false,
+    cycleIntervalMs: 1000,
+    keyStaggerMs: 0,
+}
+jest.mock("@modules/platform/env/config",
+    () => ({
+        envConfig: () => ({
+            ai: {
+                ping: mockPingConfig,
+            },
+        }),
+    }))
+
 class TestPingService extends AbstractProviderPingService {
     protected readonly provider = ModelProvider.OpenAI
     execute = jest.fn().mockResolvedValue({
@@ -48,5 +62,49 @@ describe("AbstractProviderPingService",
                 service.keys = []
                 await service.runSweep()
                 expect(service.execute).not.toHaveBeenCalled()
+            })
+        it("records failed direct pings without emitting a success heartbeat",
+            async () => {
+                const service = make()
+                service.execute.mockResolvedValueOnce({
+                    success: false,
+                    errorMessage: "unauthorized",
+                })
+
+                await expect(service.ping("bad-key")).resolves.toEqual({
+                    success: false,
+                    errorMessage: "unauthorized",
+                })
+            })
+        it("schedules each key, emits success heartbeat, and clears timers on destroy",
+            async () => {
+                jest.useFakeTimers()
+                mockPingConfig.enabled = true
+                mockPingConfig.keyStaggerMs = 5
+                const eventEmitter = {
+                    emit: jest.fn().mockResolvedValue(undefined),
+                }
+                const logger = {
+                    log: jest.fn(),
+                }
+                const cache = {
+                    recordPingKeyStatus: jest.fn().mockResolvedValue(undefined),
+                }
+                const service = new TestPingService(eventEmitter as never,
+                    logger as never,
+                    cache as never)
+                service.keys = ["first",
+                    "second"]
+
+                service.onModuleInit()
+                expect(jest.getTimerCount()).toBe(3)
+                await jest.advanceTimersByTimeAsync(5)
+                expect(service.execute).toHaveBeenCalledWith("first")
+                expect(service.execute).toHaveBeenCalledWith("second")
+                expect(eventEmitter.emit).toHaveBeenCalled()
+                service.onModuleDestroy()
+                expect(jest.getTimerCount()).toBe(0)
+                mockPingConfig.enabled = false
+                jest.useRealTimers()
             })
     })

@@ -7,6 +7,9 @@ import {
 import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    FoundationPathNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/foundation-path-not-found"
 describe("FoundationParserService",
     () => { it("skips missing paths in parseMany",
         async () => { const service = new FoundationParserService({
@@ -83,5 +86,33 @@ describe("FoundationParserService",
             expect(result.orderIndex).toBe(1)
             expect(result.sortIndex).toBe(2)
             expect(result.translations).toHaveLength(Object.values(Locale).length * 4)
+        })
+
+    it("throws when the requested foundation is not discovered",
+        async () => {
+            const service = new FoundationParserService({
+                extract: jest.fn()
+            } as never,
+            {
+            } as never,
+            {
+                paths: jest.fn()
+            } as never,
+            {
+            } as never,
+            {
+            } as never,
+            {
+            } as never,
+            {
+            } as never,
+            {
+                log: jest.fn()
+            } as never)
+            await expect(service.parse({
+                paths: [],
+                foundationIndex: 2,
+                categoryIndex: 1,
+            })).rejects.toBeInstanceOf(FoundationPathNotFoundException)
         })
     })

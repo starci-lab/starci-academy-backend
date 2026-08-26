@@ -25,6 +25,9 @@ import {
     PricingPhase,
 } from "@modules/databases/postgresql/primary/enums/pricing-phase"
 import {
+    CourseNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
+import {
     TransactionStatus,
 } from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
@@ -404,5 +407,46 @@ describe("EnrollStepService",
                         githubUsername: "octocat",
                     }),
                 )
+            })
+        it("fails before writes when the course no longer exists",
+            async () => {
+                programFindOne(entityManager,
+                    {
+                        course: null,
+                        enrollment: null,
+                        user: null,
+                    })
+
+                await expect(service.process(makeContext())).rejects.toBeInstanceOf(CourseNotFoundException)
+                expect(entityManager.delete).not.toHaveBeenCalled()
+                expect(entityManager.save).not.toHaveBeenCalled()
+            })
+        it("creates missing metadata and advances the phase when the current phase has no slots",
+            async () => {
+                const course = {
+                    id: courseId,
+                    title: "Course One",
+                    metadata: null,
+                    pricingPhases: [],
+                } as unknown as CourseEntity
+                programFindOne(entityManager,
+                    {
+                        course,
+                        enrollment: null,
+                        user: null,
+                    })
+                entityManager.count.mockResolvedValueOnce(0)
+
+                await service.process(makeContext())
+
+                expect(entityManager.create).toHaveBeenCalledWith(expect.anything(),
+                    expect.objectContaining({
+                        currentPhase: PricingPhase.Regular,
+                        course,
+                    }))
+                expect(course.metadata).toEqual(expect.objectContaining({
+                    currentPhase: PricingPhase.Regular,
+                }))
+                expect(entityManager.save).toHaveBeenCalledWith(course)
             })
     })

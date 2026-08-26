@@ -1,23 +1,23 @@
 import {
-    Test, TestingModule 
+    Test, TestingModule
 } from "@nestjs/testing"
 import {
-    getEntityManagerToken 
+    getEntityManagerToken
 } from "@nestjs/typeorm"
 import {
-    ChatService 
+    ChatService
 } from "./chat.service"
 import {
-    GlobalChatPolicyService 
+    GlobalChatPolicyService
 } from "./global-chat-policy.service"
 import {
-    GlobalChatService 
+    GlobalChatService
 } from "./global-chat.service"
 import {
-    ChatConversationType 
+    ChatConversationType
 } from "@modules/databases/postgresql/primary/enums/chat-conversation-type"
 import type {
-    UserEntity 
+    UserEntity
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ChatConversationNotFoundException,
@@ -25,16 +25,19 @@ import {
     ChatMembershipRequiredException,
 } from "@modules/platform/exceptions/errors/community/chat"
 import {
-    EventEmitterService 
+    EventEmitterService
 } from "@modules/platform/event/event-emitter.service"
 import {
-    MembershipService 
+    EventName,
+} from "@modules/platform/event/enums/event-name"
+import {
+    MembershipService
 } from "@modules/membership/membership.service"
 import {
-    makeEntityManagerMock 
+    makeEntityManagerMock
 } from "@tests/mocks/entity-manager.mock"
 import type {
-    EntityManagerMock 
+    EntityManagerMock
 } from "@tests/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
@@ -423,6 +426,42 @@ describe("ChatService",
                     })
             })
 
+        it("excludes reporter-hidden messages while retaining reports without message ids",
+            async () => {
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: conversationId,
+                    type: ChatConversationType.Community,
+                })
+                entityManager.find.mockResolvedValueOnce([
+                    {
+                        messageId: "hidden-message",
+                    },
+                    {
+                        messageId: null,
+                    },
+                ])
+                entityManager.findAndCount.mockResolvedValueOnce([[],
+                    0])
+
+                await expect(service.listMessages({
+                    conversationId,
+                    user: member,
+                    offset: 0,
+                    limit: 20,
+                })).resolves.toEqual({
+                    messages: [],
+                    total: 0,
+                })
+                expect(entityManager.findAndCount).toHaveBeenCalledWith(
+                    expect.anything(),
+                    expect.objectContaining({
+                        where: expect.objectContaining({
+                            id: expect.anything(),
+                        }),
+                    }),
+                )
+            })
+
         describe("sendMessage",
             () => {
                 it("delegates community writes to the idempotent Global Chat command service",
@@ -485,6 +524,41 @@ describe("ChatService",
                                 user: member,
                             }),
                         ).rejects.toBeInstanceOf(ChatConversationNotFoundException)
+                    })
+
+                it("creates and broadcasts a founder DM message when no global room is involved",
+                    async () => {
+                        const conversation = {
+                            id: conversationId,
+                            type: ChatConversationType.FounderDm,
+                            memberId: member.id,
+                        }
+                        const draft = {
+                            id: "dm-message-1",
+                            body: "hello founder",
+                        }
+                        entityManager.findOne
+                            .mockResolvedValueOnce(conversation)
+                            .mockResolvedValueOnce(null)
+                        entityManager.create.mockReturnValueOnce(draft)
+                        entityManager.save.mockResolvedValueOnce(draft)
+
+                        const result = await service.sendMessage({
+                            conversationId,
+                            body: "hello founder",
+                            user: member,
+                        })
+
+                        expect(result).toBe(draft)
+                        expect(entityManager.create).toHaveBeenCalled()
+                        expect(eventEmitterService.emit).toHaveBeenCalledWith({
+                            event: EventName.ChatMessageCreated,
+                            payload: {
+                                conversationId,
+                                messageId: "dm-message-1",
+                                authorId: member.id,
+                            },
+                        })
                     })
             })
     })

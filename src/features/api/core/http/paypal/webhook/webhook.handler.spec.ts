@@ -39,6 +39,9 @@ import {
     InvalidPaypalWebhookSignatureException,
 } from "@modules/platform/exceptions/errors/payment/invalid-paypal-webhook-signature"
 import {
+    PaypalCaptureNotConfirmedException,
+} from "@modules/platform/exceptions/errors/payment/paypal-capture-not-confirmed"
+import {
     UnsupportedTransactionActionException,
 } from "@modules/platform/exceptions/errors/payment/unsupported-transaction-action"
 import {
@@ -427,5 +430,30 @@ describe("PaypalWebhookHandler",
 
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
                 expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
+            })
+
+        it("captures approved orders before granting and rejects an incomplete capture",
+            async () => {
+                const captureOrder = jest.fn().mockResolvedValue({
+                    captured: false,
+                    status: "PENDING",
+                })
+                Object.assign(paypalClient,
+                    {
+                        captureOrder,
+                    })
+
+                await expect(handler.execute(new PaypalWebhookCommand(buildParams({
+                    event_type: "CHECKOUT.ORDER.APPROVED",
+                    resource: {
+                        id: "order-1",
+                        custom_id: REFERENCE_ID,
+                    },
+                })))).rejects.toBeInstanceOf(PaypalCaptureNotConfirmedException)
+
+                expect(captureOrder).toHaveBeenCalledWith({
+                    orderId: "order-1",
+                })
+                expect(entityManager.findOne).not.toHaveBeenCalled()
             })
     })

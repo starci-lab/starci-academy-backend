@@ -71,4 +71,26 @@ describe("DeviceService",
                 expect(info.vramTotalMb).toBeUndefined()
                 expect(probe.run).toHaveBeenCalled()
             })
+
+        it("falls through NVIDIA-empty output to the secondary Windows display probe",
+            async () => {
+                probe.run = jest.fn()
+                    .mockResolvedValueOnce("")
+                    .mockResolvedValueOnce("Name\nVirtual Display Adapter")
+
+                const info = await new DeviceService(probe).collect()
+
+                expect(info.gpu).toBe("Virtual Display Adapter")
+                expect(probe.run).toHaveBeenNthCalledWith(
+                    2,
+                    "wmic",
+                    [
+                        "path",
+                        "win32_VideoController",
+                        "get",
+                        "name",
+                    ],
+                    3000,
+                )
+            })
     })

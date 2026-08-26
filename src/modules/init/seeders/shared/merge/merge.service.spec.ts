@@ -590,5 +590,145 @@ describe("MergeJsonService",
                         })
                         expect(merged.translations).toEqual([])
                     })
+
+                it("falls back to the first locale and stringifies primitive and object leaves",
+                    () => {
+                        const merged = service.merge({
+                            jsons: [
+                                {
+                                    locale: Locale.Vi,
+                                    json: {
+                                        title: null,
+                                        score: 7,
+                                        metadata: {
+                                            source: "seed"
+                                        },
+                                    },
+                                },
+                            ],
+                            translateFields: ["title",
+                                "score",
+                                "metadata"],
+                        })
+
+                        expect(merged.title).toBeNull()
+                        expect(merged.translations).toEqual([
+                            {
+                                locale: Locale.Vi, field: "title", value: ""
+                            },
+                            {
+                                locale: Locale.Vi, field: "score", value: "7"
+                            },
+                            {
+                                locale: Locale.Vi, field: "metadata", value: "{\"source\":\"seed\"}"
+                            },
+                        ])
+                    })
+
+                it("skips unmatched nested array parents and non-object entries",
+                    () => {
+                        const merged = service.merge({
+                            jsons: [
+                                {
+                                    locale: Locale.En,
+                                    json: {
+                                        groups: [{
+                                            orderIndex: 1,
+                                            items: [{
+                                                orderIndex: 2, label: "English"
+                                            }],
+                                        }],
+                                    },
+                                },
+                                {
+                                    locale: Locale.Vi,
+                                    json: {
+                                        groups: [{
+                                            orderIndex: 99,
+                                            items: ["not-an-item",
+                                                {
+                                                    orderIndex: 3, label: "Other"
+                                                }],
+                                        }],
+                                    },
+                                },
+                            ],
+                            translateFields: ["groups.items.label"],
+                        })
+
+                        expect(merged.groups?.[0]?.items?.[0]).toMatchObject({
+                            translations: [
+                                {
+                                    locale: Locale.En, field: "label", value: "English"
+                                },
+                            ]
+                        })
+                    })
+
+                it("ignores paths that traverse scalar values and missing leaves",
+                    () => {
+                        const merged = service.merge({
+                            jsons: [{
+                                locale: Locale.En,
+                                json: {
+                                    metadata: "not-an-object",
+                                    title: "Available",
+                                },
+                            }],
+                            translateFields: ["metadata.source",
+                                "missing",
+                                "title"],
+                        })
+
+                        expect(merged.translations).toEqual([{
+                            locale: Locale.En,
+                            field: "title",
+                            value: "Available",
+                        }])
+                    })
+
+                it("handles malformed locale trees and sparse array translations safely",
+                    () => {
+                        const merged = service.merge({
+                            jsons: [
+                                {
+                                    locale: Locale.En,
+                                    json: {
+                                        groups: [{
+                                            orderIndex: 1,
+                                            items: [{
+                                                orderIndex: 2, label: "English"
+                                            }],
+                                        }],
+                                        scalar: "value",
+                                    },
+                                },
+                                {
+                                    locale: Locale.Vi,
+                                    json: {
+                                        groups: [{
+                                            orderIndex: 1,
+                                            items: ["not-an-object"],
+                                        }],
+                                    },
+                                },
+                                {
+                                    locale: Locale.En,
+                                    json: ["malformed-root"] as never,
+                                },
+                            ],
+                            translateFields: ["groups.items.label",
+                                "scalar.source.leaf",
+                                ""],
+                        })
+
+                        expect(merged.groups?.[0]?.items?.[0]).toMatchObject({
+                            translations: [
+                                {
+                                    locale: Locale.En, field: "label", value: "English"
+                                },
+                            ]
+                        })
+                    })
             })
     })

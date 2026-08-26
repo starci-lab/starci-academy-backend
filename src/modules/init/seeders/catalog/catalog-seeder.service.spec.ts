@@ -2,6 +2,12 @@ import {
     CatalogSeederService
 } from "./catalog-seeder.service"
 
+jest.mock("@modules/filesystem/utils/mount-secrets",
+    () => ({
+        getAppConfig: jest.fn().mockReturnValue({
+        }),
+    }))
+
 describe("CatalogSeederService",
     () => {
         it("returns without parsing when both catalog gates are disabled",
@@ -82,5 +88,97 @@ scope as never)
                 expect(reloadAll).toHaveBeenCalled()
                 expect(applyAppConfig).not.toHaveBeenCalled()
                 expect(log).toHaveBeenCalledTimes(1)
+            })
+
+        it("updates app config for subscription tiers while leaving empty model catalogs untouched",
+            async () => {
+                const parser = {
+                    parseManyWithTranslations: jest.fn().mockResolvedValue([]),
+                    parseMany: jest.fn().mockResolvedValue([{
+                        id: "pro"
+                    }]),
+                }
+                const applyAppConfig = jest.fn()
+                const log = jest.fn()
+                const service = new CatalogSeederService(
+                    parser as never,
+                    parser as never,
+                    {
+                        upsertMany: jest.fn()
+                    } as never,
+                    {
+                        invalidate: jest.fn()
+                    } as never,
+                    {
+                        applyAppConfig
+                    } as never,
+                    {
+                        reloadAll: jest.fn()
+                    } as never,
+                    {
+                        log
+                    } as never,
+                    {
+                        isAiModelsCatalogSeederEnabled: jest.fn().mockReturnValue(true),
+                        isSubscriptionsCatalogSeederEnabled: jest.fn().mockReturnValue(true),
+                    } as never,
+                )
+
+                await service.seed()
+
+                expect(applyAppConfig).toHaveBeenCalledWith(expect.objectContaining({
+                    subscriptions: {
+                        tiers: [{
+                            id: "pro"
+                        }]
+                    },
+                }))
+                expect(log).toHaveBeenCalledTimes(2)
+                expect(log).toHaveBeenCalledWith(expect.anything(),
+                    {
+                        seeder: "ai-models",
+                        upserted: 0,
+                    })
+                expect(log).toHaveBeenCalledWith(expect.anything(),
+                    {
+                        seeder: "subscriptions",
+                        upserted: 1,
+                    })
+            })
+
+        it("propagates parser failures instead of logging a false completion",
+            async () => {
+                const failure = new Error("catalog unavailable")
+                const log = jest.fn()
+                const service = new CatalogSeederService(
+                    {
+                        parseManyWithTranslations: jest.fn().mockRejectedValue(failure)
+                    } as never,
+                    {
+                        parseMany: jest.fn()
+                    } as never,
+                    {
+                        upsertMany: jest.fn()
+                    } as never,
+                    {
+                        invalidate: jest.fn()
+                    } as never,
+                    {
+                        applyAppConfig: jest.fn()
+                    } as never,
+                    {
+                        reloadAll: jest.fn()
+                    } as never,
+                    {
+                        log
+                    } as never,
+                    {
+                        isAiModelsCatalogSeederEnabled: jest.fn().mockReturnValue(true),
+                        isSubscriptionsCatalogSeederEnabled: jest.fn().mockReturnValue(false),
+                    } as never,
+                )
+
+                await expect(service.seed()).rejects.toThrow("catalog unavailable")
+                expect(log).not.toHaveBeenCalled()
             })
     })

@@ -821,6 +821,34 @@ describe("FlashcardReviewService",
                         expect(userService.checkEnrollment).not.toHaveBeenCalled()
                         expect(result.cards[0].back).toBe("FREE ANSWER")
                     })
+                it("scopes the due query to a course and returns counts when no cards are due",
+                    async () => {
+                        const qb = makeQueryBuilderStub()
+                        entityManager.createQueryBuilder = jest.fn(() => qb) as never
+                        qb.getCount
+                            .mockResolvedValueOnce(0)
+                            .mockResolvedValueOnce(0)
+                        qb.getRawMany.mockResolvedValueOnce([])
+                        entityManager.findOne.mockResolvedValueOnce(null)
+
+                        await expect(service.listDue({
+                            userId,
+                            courseId,
+                            limit: 10,
+                            locale: Locale.En,
+                        })).resolves.toEqual({
+                            dueCount: 0,
+                            dueReviewCount: 0,
+                            newCount: 0,
+                            newTotalCount: 0,
+                            cards: [],
+                        })
+                        expect(qb.andWhere).toHaveBeenCalledWith("deck.course_id = :courseId",
+                            {
+                                courseId,
+                            })
+                        expect(entityManager.findOne).toHaveBeenCalled()
+                    })
             })
 
         describe("listByIds — premium content gate (id-based rehydrate)",
