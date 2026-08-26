@@ -58,6 +58,54 @@ const NESTJS_WARMUP_DECK_RELATIVE_PATH =
 
 describe("FlashcardDeckParserService",
     () => {
+        const createMinimalService = () => {
+            const paths = jest.fn().mockResolvedValue([])
+            const find = jest.fn().mockResolvedValue([])
+            const service = new FlashcardDeckParserService(
+                {
+                    cardPaths: jest.fn().mockResolvedValue([]),
+                    paths,
+                } as never,
+                {
+                    load: jest.fn().mockResolvedValue(""),
+                } as never,
+                {
+                    extract: jest.fn().mockReturnValue({
+                    }),
+                } as never,
+                new CoerceMdScalarService(),
+                {
+                    merge: jest.fn().mockReturnValue({
+                        title: "Deck title",
+                        description: "Deck description",
+                        difficulty: "senior",
+                        sortIndex: "not-a-number",
+                        translations: [],
+                    }),
+                } as never,
+                {
+                    generate: jest.fn().mockReturnValue("deck-id"),
+                } as never,
+                {
+                    generate: jest.fn().mockReturnValue("card-id"),
+                } as never,
+                {
+                    log: jest.fn(),
+                } as never,
+                {
+                    generate: jest.fn().mockReturnValue("course-id"),
+                } as never,
+                {
+                    find,
+                } as never,
+            )
+            return {
+                service,
+                paths,
+                find,
+            }
+        }
+
         let module: TestingModule
         let service: FlashcardDeckParserService
 
@@ -214,7 +262,111 @@ describe("FlashcardDeckParserService",
                         expect(parsed.cards?.[0]?.tags?.length ?? 0).toBeGreaterThan(0)
                     },
                 )
+
+                it("coerces invalid difficulty and sortIndex to safe defaults",
+                    async () => {
+                        const setup = createMinimalService()
+                        const parsed = await setup.service.parse({
+                            paths: [{
+                                relativePath: "course/deck",
+                                orderIndex: 4,
+                                displayId: "deck",
+                            }],
+                            courseIndex: 2,
+                            courseId: "course-id",
+                            flashcardDeckIndex: 4,
+                        })
+
+                        expect(parsed.difficulty).toBe(ChallengeDifficulty.Easy)
+                        expect(parsed.sortIndex).toBe(4)
+                        expect(parsed.cards).toEqual([])
+                    })
             },
         )
+
+        it("skips a malformed deck while retaining valid siblings",
+            async () => {
+                const paths = jest.fn().mockResolvedValue([
+                    {
+                        relativePath: "course/0-valid",
+                        orderIndex: 0,
+                        displayId: "valid",
+                    },
+                    {
+                        relativePath: "course/1-invalid",
+                        orderIndex: 1,
+                        displayId: "invalid",
+                    },
+                ])
+                const parse = jest.fn()
+                    .mockResolvedValueOnce({
+                        id: "deck-id"
+                    })
+                    .mockRejectedValueOnce(new Error("bad deck"))
+                const log = jest.fn()
+                const service = new FlashcardDeckParserService(
+                    {
+                        paths,
+                        cardPaths: jest.fn().mockResolvedValue([]),
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                        log,
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                )
+                jest.spyOn(service,
+                    "parse").mockImplementation(parse)
+
+                const result = await service.parseMany({
+                    courseRelativePath: "course",
+                    courseIndex: 2,
+                    courseId: "course-id",
+                })
+
+                expect(result).toHaveLength(1)
+                expect(result[0]?.relativePath).toBe("course/0-valid")
+                expect(log).toHaveBeenCalledTimes(1)
+            })
+
+        it("loads persisted decks using the deterministic course id",
+            async () => {
+                const setup = createMinimalService()
+                setup.find.mockResolvedValue([{
+                    id: "deck-id"
+                }])
+
+                const result = await setup.service.flashcardDecksFromDatabase({
+                    courseIndex: 3,
+                })
+
+                expect(result).toEqual([{
+                    id: "deck-id"
+                }])
+                expect(setup.find).toHaveBeenCalledWith(
+                    expect.anything(),
+                    expect.objectContaining({
+                        where: {
+                            course: {
+                                id: "course-id",
+                            },
+                        },
+                    }),
+                )
+            })
     },
 )

@@ -242,6 +242,69 @@ describe("SessionService",
                             }),
                         )
                     })
+
+                it("alerts a known local user for a new device and tolerates corrupt history",
+                    async () => {
+                        redis.hgetall
+                            .mockResolvedValueOnce({
+                                "corrupt-session": "not-json",
+                                "older-session": JSON.stringify({
+                                    sessionId: "older-session",
+                                    createdAt: 1000,
+                                }),
+                            })
+                            .mockResolvedValueOnce({
+                                "corrupt-session": "not-json",
+                                "older-session": JSON.stringify({
+                                    sessionId: "older-session",
+                                    createdAt: 1000,
+                                }),
+                            })
+                        entityManager.findOne
+                            .mockResolvedValueOnce({
+                                id: "local-user"
+                            } as never)
+                            .mockResolvedValueOnce({
+                                id: "local-user",
+                                email: "learner@example.test",
+                            } as never)
+
+                        await service.startSession({
+                            res: {
+                            } as Response,
+                            req: buildRequest(),
+                            accessToken: makeToken("user-1"),
+                        })
+
+                        expect(redis.hdel).toHaveBeenCalledWith("session:user-1",
+                            "corrupt-session")
+                        expect(enqueueSendMailJobService.enqueue).toHaveBeenCalledWith(expect.objectContaining({
+                            template: "new-device-signin",
+                            to: [
+                                {
+                                    address: "learner@example.test",
+                                },
+                            ],
+                        }))
+                    })
+
+                it("heals a legacy string while adding a session",
+                    async () => {
+                        redis.hgetall
+                            .mockResolvedValueOnce({
+                            })
+                            .mockRejectedValueOnce(new Error("WRONGTYPE legacy key"))
+
+                        await service.startSession({
+                            res: {
+                            } as Response,
+                            req: buildRequest(),
+                            accessToken: makeToken("user-1"),
+                        })
+
+                        expect(redis.del).toHaveBeenCalledWith("session:user-1")
+                        expect(redis.hset).toHaveBeenCalledTimes(1)
+                    })
             })
 
         describe("assertCurrent",
@@ -303,6 +366,108 @@ describe("SessionService",
                         ).resolves.toBeUndefined()
                         // the stale key is deleted so the next login writes a hash
                         expect(redis.del).toHaveBeenCalledWith("session:user-1")
+                    })
+
+                it("rejects a non-WRONGTYPE Redis failure and missing session ids",
+                    async () => {
+                        redis.hlen.mockResolvedValue(1)
+                        await expect(service.assertCurrent({
+                            userId: "user-1",
+                            sessionId: undefined,
+                        })).rejects.toBeInstanceOf(SessionSupersededException)
+                        redis.hlen.mockRejectedValue(new Error("redis offline"))
+                        await expect(service.assertCurrent({
+                            userId: "user-1",
+                            sessionId: "session-1",
+                        })).rejects.toThrow("redis offline")
+                    })
+            })
+
+        describe("endSession and listSessions",
+            () => {
+                it("clears the cookie, removes the current session, and marks it revoked",
+                    async () => {
+                        cookieService.getCookie.mockReturnValue("session-1")
+
+                        await service.endSession({
+                            res: {
+                            } as Response,
+                            req: {
+                            } as Request,
+                            refreshToken: makeToken("user-1"),
+                        })
+
+                        expect(cookieService.clearCookie).toHaveBeenCalled()
+                        expect(redis.hdel).toHaveBeenCalledWith("session:user-1",
+                            "session-1")
+                        expect(entityManager.update).toHaveBeenCalled()
+                    })
+
+                it("heals WRONGTYPE on sign-out and rethrows unrelated Redis errors",
+                    async () => {
+                        cookieService.getCookie.mockReturnValue("session-1")
+                        redis.hdel.mockRejectedValueOnce(new Error("WRONGTYPE legacy key"))
+
+                        await expect(service.endSession({
+                            res: {
+                            } as Response,
+                            req: {
+                            } as Request,
+                            refreshToken: makeToken("user-1"),
+                        })).resolves.toBeUndefined()
+                        expect(redis.del).toHaveBeenCalledWith("session:user-1")
+
+                        redis.hdel.mockRejectedValueOnce(new Error("redis offline"))
+                        await expect(service.endSession({
+                            res: {
+                            } as Response,
+                            req: {
+                            } as Request,
+                            refreshToken: makeToken("user-1"),
+                        })).rejects.toThrow("redis offline")
+                    })
+
+                it("returns active persisted rows and an empty list when none are active",
+                    async () => {
+                        redis.hkeys.mockResolvedValueOnce([])
+                        await expect(service.listSessions({
+                            keycloakId: "user-1",
+                            currentSessionId: "session-1",
+                        })).resolves.toEqual([])
+
+                        redis.hkeys.mockResolvedValueOnce(["session-1"])
+                        entityManager.find.mockResolvedValueOnce([{
+                            id: "row-1",
+                            sessionId: "session-1",
+                            deviceType: "desktop",
+                            os: "Windows",
+                            browser: "Chrome",
+                            ipAddress: "8.8.8.8",
+                            location: "US",
+                            lastSeenAt: 20,
+                            createdAt: 10,
+                        }] as never)
+                        await expect(service.listSessions({
+                            keycloakId: "user-1",
+                            currentSessionId: "session-1",
+                        })).resolves.toEqual([expect.objectContaining({
+                            id: "row-1",
+                            current: true,
+                        })])
+                    })
+
+                it("heals WRONGTYPE while listing and propagates other hash failures",
+                    async () => {
+                        redis.hkeys.mockRejectedValueOnce(new Error("WRONGTYPE legacy key"))
+                        await expect(service.listSessions({
+                            keycloakId: "user-1",
+                        })).resolves.toEqual([])
+                        expect(redis.del).toHaveBeenCalledWith("session:user-1")
+
+                        redis.hkeys.mockRejectedValueOnce(new Error("redis offline"))
+                        await expect(service.listSessions({
+                            keycloakId: "user-1",
+                        })).rejects.toThrow("redis offline")
                     })
             })
 

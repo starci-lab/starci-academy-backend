@@ -1,11 +1,32 @@
+jest.mock("node:child_process",
+    () => ({
+        spawnSync: jest.fn(),
+    }))
+jest.mock("node:fs",
+    () => ({
+        existsSync: jest.fn(),
+        mkdirSync: jest.fn(),
+        rmSync: jest.fn(),
+        writeFileSync: jest.fn(),
+    }))
+
 import {
-    ServiceInstallerService 
+    ServiceInstallerService
 } from "./service-installer.service"
+import {
+    spawnSync
+} from "node:child_process"
+import {
+    existsSync,
+    mkdirSync,
+    rmSync,
+    writeFileSync,
+} from "node:fs"
 import type {
-    AgentMeta 
+    AgentMeta
 } from "./agent-meta"
 import type {
-    ServiceInput 
+    ServiceInput
 } from "./types"
 
 const meta: AgentMeta = {
@@ -38,5 +59,94 @@ describe("ServiceInstallerService",
         it("rejects unsupported platforms before attempting installation",
             () => {
                 expect(() => new ServiceInstallerService(meta).buildServiceDefinition(input("freebsd" as NodeJS.Platform))).toThrow("Unsupported platform")
+            })
+
+        it("installs a resolved service definition and executes each command",
+            () => {
+                jest.mocked(spawnSync).mockReturnValue({
+                    status: 0,
+                    error: undefined,
+                } as never)
+                const service = new ServiceInstallerService(meta)
+
+                service.install("PAIR",
+                    "https://server.test")
+
+                expect(mkdirSync).toHaveBeenCalled()
+                expect(writeFileSync).toHaveBeenCalledWith(expect.any(String),
+                    expect.any(String),
+                    "utf8")
+                expect(spawnSync).toHaveBeenCalled()
+            })
+
+        it("stops installation after a required command fails",
+            () => {
+                jest.mocked(spawnSync).mockReturnValue({
+                    status: 1,
+                    error: undefined,
+                } as never)
+                const exit = jest.spyOn(process,
+                    "exit").mockImplementation((() => undefined) as never)
+                const service = new ServiceInstallerService(meta)
+
+                service.install("PAIR",
+                    "https://server.test")
+
+                expect(exit).toHaveBeenCalledWith(1)
+                exit.mockRestore()
+            })
+
+        it("treats optional command failures as non-fatal and exposes command statuses",
+            () => {
+                const service = new ServiceInstallerService(meta)
+                const runServiceCommand = service as unknown as {
+                runServiceCommand: (command: { file: string; args: Array<string> }, optional: boolean) => boolean
+            }
+                const command = {
+                    file: "systemctl",
+                    args: ["--user",
+                        "status"],
+                }
+                jest.mocked(spawnSync).mockReturnValueOnce({
+                    status: 1,
+                    error: undefined,
+                } as never)
+                expect(runServiceCommand.runServiceCommand(command,
+                    false)).toBe(false)
+                jest.mocked(spawnSync).mockReturnValueOnce({
+                    status: 1,
+                    error: undefined,
+                } as never)
+                expect(runServiceCommand.runServiceCommand(command,
+                    true)).toBe(true)
+                jest.mocked(spawnSync).mockReturnValueOnce({
+                    status: null,
+                    error: new Error("missing command"),
+                } as never)
+                expect(runServiceCommand.runServiceCommand(command,
+                    false)).toBe(false)
+                jest.mocked(spawnSync).mockReturnValueOnce({
+                    status: 0,
+                    error: undefined,
+                } as never)
+                expect(runServiceCommand.runServiceCommand(command,
+                    false)).toBe(true)
+            })
+
+        it("uninstalls best-effort and logs manifest removal errors",
+            () => {
+                jest.mocked(spawnSync).mockReturnValue({
+                    status: 1,
+                    error: new Error("not installed"),
+                } as never)
+                jest.mocked(existsSync).mockReturnValueOnce(true)
+                jest.mocked(rmSync).mockImplementationOnce(() => {
+                    throw new Error("locked")
+                })
+                const service = new ServiceInstallerService(meta)
+
+                expect(() => service.uninstall()).not.toThrow()
+                expect(existsSync).toHaveBeenCalled()
+                expect(rmSync).toHaveBeenCalled()
             })
     })
