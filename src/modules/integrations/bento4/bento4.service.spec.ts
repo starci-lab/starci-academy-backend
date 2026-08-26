@@ -1,29 +1,45 @@
 import {
-    Bento4Service 
+    execaCommand
+} from "execa"
+import {
+    Bento4Service
 } from "./bento4.service"
 import {
-    execaCommand 
-} from "execa"
+    Bento4NoMovieFoundException
+} from "@modules/platform/exceptions/errors/bento4/bento4-no-movie-found"
 jest.mock("execa",
     () => ({
-        execaCommand: jest.fn() 
+        execaCommand: jest.fn()
     }))
 describe("Bento4Service",
     () => {
-        it("detects fragmented and unfragmented files",
-            async () => { const run = jest.mocked(execaCommand); run.mockResolvedValueOnce({
-                stdout: "fragments:  yes", stderr: "" 
-            } as never); await expect(new Bento4Service().checkFragments("/tmp",
-                "a.mp4")).resolves.toBe(false); run.mockResolvedValueOnce({
-                    stdout: "fragments:  no", stderr: "" 
-                } as never); await expect(new Bento4Service().checkFragments("/tmp",
-                "a.mp4")).resolves.toBe(true) })
-        it("raises when Bento4 reports no movie or an encoding error",
-            async () => { const run = jest.mocked(execaCommand); run.mockResolvedValueOnce({
-                stdout: "No movie found in the file", stderr: "" 
-            } as never); await expect(new Bento4Service().checkFragments("/tmp",
-                "bad.mp4")).rejects.toThrow(); run.mockResolvedValueOnce({
-                    stdout: "ERROR failed", stderr: "" 
-                } as never); await expect(new Bento4Service().fragmentVideo("/tmp",
-                "bad.mp4")).rejects.toThrow() })
+        const exec = execaCommand as unknown as jest.Mock
+        const service = new Bento4Service()
+        beforeEach(() => jest.clearAllMocks())
+        it("detects already fragmented and unfragmented files",
+            async () => {
+                exec.mockResolvedValueOnce({
+                    stdout: "fragments:  yes", stderr: ""
+                })
+                await expect(service.checkFragments("task",
+                    "video.mp4")).resolves.toBe(false)
+                exec.mockResolvedValueOnce({
+                    stdout: "", stderr: "fragments:  no"
+                })
+                await expect(service.checkFragments("task",
+                    "video.mp4")).resolves.toBe(true)
+            })
+        it("maps missing movies and command errors",
+            async () => {
+                exec.mockResolvedValueOnce({
+                    stdout: "No movie found in the file", stderr: ""
+                })
+                await expect(service.checkFragments("task",
+                    "video.mp4")).rejects.toBeInstanceOf(Bento4NoMovieFoundException)
+                exec.mockResolvedValueOnce({
+                    stdout: "ERROR: bad", stderr: ""
+                })
+                await expect(service.fragmentVideo("task",
+                    "video.mp4")).rejects.toThrow()
+            })
     })
