@@ -445,4 +445,88 @@ describe("InstallmentPlanService",
                         expect(entityManager.save).not.toHaveBeenCalled()
                     })
             })
+
+        describe("plan creation",
+            () => {
+                it("creates a fixed plan with the first installment already paid",
+                    async () => {
+                        const created = await service.createFixedPlan({
+                            userId: "user-1",
+                            originTransactionId: "txn-1",
+                            lockedCourseIds: ["course-1"],
+                            totalAmountVnd: 1000000,
+                            months: 3,
+                            markupPercent: 10,
+                        })
+
+                        expect(created).toEqual(expect.objectContaining({
+                            planType: InstallmentPlanType.Fixed,
+                            status: InstallmentPlanStatus.Active,
+                            months: 3,
+                            monthlyAmountVnd: 333333,
+                            installmentsPaid: 1,
+                            totalAmountVnd: 1000000,
+                        }))
+                        expect(entityManager.save).toHaveBeenCalledWith(created)
+                    })
+
+                it("creates a flexible pool plan using configured defaults when omitted",
+                    async () => {
+                        const nextDueAt = new Date("2026-02-01T00:00:00Z")
+                        const created = await service.createFlexiblePoolPlan({
+                            userId: "user-1",
+                            lockedCourseIds: ["course-2"],
+                            remainingVnd: 2400000,
+                            nextDueAt,
+                        })
+
+                        expect(created).toEqual(expect.objectContaining({
+                            planType: InstallmentPlanType.FlexiblePool,
+                            status: InstallmentPlanStatus.Active,
+                            remainingVnd: 2400000,
+                            minPaymentPercent: expect.any(Number),
+                            minPaymentFloorVnd: expect.any(Number),
+                            nextDueAt,
+                            originTransaction: null,
+                        }))
+                        expect(entityManager.save).toHaveBeenCalledWith(created)
+                    })
+            })
+
+        describe("enrollment gates",
+            () => {
+                it("locks and unlocks each snapshotted enrollment, while empty snapshots are no-ops",
+                    async () => {
+                        await service.lockGatedEnrollments({
+                            userId: "user-1",
+                            lockedCourseIds: [
+                                "course-1",
+                                "course-2",
+                            ],
+                        })
+                        expect(entityManager.update).toHaveBeenCalledTimes(1)
+                        expect(entityManager.update.mock.calls[0][2]).toEqual({
+                            isEnrolled: false,
+                        })
+
+                        await service.unlockGatedEnrollments({
+                            userId: "user-1",
+                            lockedCourseIds: ["course-1"],
+                        })
+                        expect(entityManager.update).toHaveBeenCalledTimes(2)
+                        expect(entityManager.update.mock.calls[1][2]).toEqual({
+                            isEnrolled: true,
+                        })
+
+                        await service.lockGatedEnrollments({
+                            userId: "user-1",
+                            lockedCourseIds: [],
+                        })
+                        await service.unlockGatedEnrollments({
+                            userId: "user-1",
+                            lockedCourseIds: [],
+                        })
+                        expect(entityManager.update).toHaveBeenCalledTimes(2)
+                    })
+            })
     })

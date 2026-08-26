@@ -208,4 +208,52 @@ describe("GradingRetrievalService",
                 // the degradation is surfaced in logs
                 expect(winstonService.log).toHaveBeenCalled()
             })
+
+        it("owns chunking and embedding resolution for the high-level entry point",
+            async () => {
+                const result = await service.retrieveGradingExcerpt({
+                    runKey: "high-level",
+                    documents: [doc("source text")],
+                    criteria: [],
+                    chunkSize: 100,
+                    chunkOverlap: 0,
+                    embedding: {
+                        model: "embedding-model",
+                        provider: "openai",
+                    } as never,
+                    maxChars: 100,
+                    jobId: "job-high-level",
+                })
+
+                expect(result.excerpt).toContain("source text")
+                expect(embeddingModelService.get).toHaveBeenCalledWith({
+                    model: "embedding-model",
+                    provider: "openai",
+                })
+                expect(fromDocuments).not.toHaveBeenCalled()
+            })
+
+        it("swallows cleanup deletion failures after a successful retrieval",
+            async () => {
+                const similaritySearch = jest.fn().mockResolvedValue([doc("MATCH")])
+                fromDocuments.mockResolvedValue({
+                    similaritySearch
+                })
+                qdrantClient.deleteCollection.mockRejectedValue(new Error("already gone"))
+
+                const result = await service.retrieveSourceExcerpt({
+                    runKey: "cleanup-failure",
+                    chunks: [doc("MATCH")],
+                    criteria: [{
+                        body: "criterion"
+                    }],
+                    embeddingModel,
+                    maxChars: 100,
+                    jobId: "job-cleanup",
+                })
+
+                expect(result.degraded).toBe(false)
+                expect(result.excerpt).toBe("MATCH")
+                expect(qdrantClient.deleteCollection).toHaveBeenCalledTimes(2)
+            })
     })

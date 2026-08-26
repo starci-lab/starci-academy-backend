@@ -14,6 +14,18 @@ import {
 import {
     DayjsService,
 } from "@modules/lib/mixin/dayjs.service"
+import {
+    GitRepositoryAccessDeniedException,
+} from "@modules/platform/exceptions/errors/submission-review/git-repository-access-denied"
+import {
+    GitRepositoryEmptyException,
+} from "@modules/platform/exceptions/errors/submission-review/git-repository-empty"
+import {
+    GitRepositoryLoadFailedException,
+} from "@modules/platform/exceptions/errors/submission-review/git-repository-load-failed"
+import {
+    GitRepositoryNotFoundException,
+} from "@modules/platform/exceptions/errors/submission-review/git-repository-not-found"
 
 /**
  * Stub `GithubRepoLoader` so no real clone/network happens -- every instance's
@@ -46,7 +58,7 @@ jest.mock(
         ),
     }),
     {
-        virtual: true 
+        virtual: true
     },
 )
 
@@ -355,5 +367,46 @@ describe("ReviewMilestoneTaskGradeStepService",
 
                 expect(qdrantCtor).not.toHaveBeenCalled()
                 expect(gradingRetrievalService.retrieveGradingExcerpt).toHaveBeenCalledTimes(1)
+            })
+        it.each([
+            ["404",
+                GitRepositoryNotFoundException],
+            ["403",
+                GitRepositoryAccessDeniedException],
+            ["network timeout",
+                GitRepositoryLoadFailedException],
+        ])("maps Github loader failure `%s` and fails the job",
+            async (message, exception) => {
+                programTask({
+                    id: "task-1",
+                    title: "t",
+                    verified: null,
+                    maxScore: 10,
+                    criterias: [],
+                })
+                loaderLoadMock.mockRejectedValueOnce(new Error(message))
+                const { service, jobActionService } = makeService(entityManager)
+
+                await expect(service.process(makeContext({
+                    branch: undefined,
+                }))).rejects.toBeInstanceOf(exception)
+                expect(jobActionService.failJob).toHaveBeenCalledWith(expect.objectContaining({
+                    emitChangeEvent: true,
+                }))
+            })
+        it("rejects an empty repository as a domain error before retrieval",
+            async () => {
+                programTask({
+                    id: "task-1",
+                    title: "empty",
+                    verified: null,
+                    maxScore: 10,
+                    criterias: [],
+                })
+                loaderLoadMock.mockResolvedValueOnce([])
+                const { service, gradingRetrievalService } = makeService(entityManager)
+
+                await expect(service.process(makeContext())).rejects.toBeInstanceOf(GitRepositoryEmptyException)
+                expect(gradingRetrievalService.retrieveGradingExcerpt).not.toHaveBeenCalled()
             })
     })

@@ -233,5 +233,48 @@ describe("ScoreUploadedCvWorker",
                         )
                         expect(jobActionService.completeJob).not.toHaveBeenCalled()
                     })
+                it("forwards an explicitly selected AI lane to the shared scorer",
+                    async () => {
+                        const superJson = module.get(SUPERJSON) as unknown as {
+                            parse: jest.Mock
+                        }
+                        superJson.parse.mockReturnValueOnce({
+                            ...PAYLOAD,
+                            ai: {
+                                model: "gpt-4o",
+                                provider: "openai",
+                            },
+                        })
+
+                        await worker.process(fakeBullJob("serialized-payload"))
+
+                        expect(scoreUploadedCvService.scoreUploadedCv).toHaveBeenCalledWith(expect.objectContaining({
+                            selection: {
+                                model: "gpt-4o",
+                                provider: "openai",
+                            },
+                        }))
+                    })
+                it("logs and rethrows an early non-Error failure without a job or generation id",
+                    async () => {
+                        jobActionService.getJob.mockRejectedValueOnce("redis unavailable")
+
+                        await expect(worker.process(fakeBullJob("serialized-payload"))).rejects.toBe("redis unavailable")
+
+                        expect(jobActionService.processingJob).not.toHaveBeenCalled()
+                        expect(jobActionService.failJob).not.toHaveBeenCalled()
+                        expect(entityManager.update).not.toHaveBeenCalled()
+                    })
+                it("preserves the scoring error when marking the generation failed also errors",
+                    async () => {
+                        scoreUploadedCvService.scoreUploadedCv.mockRejectedValueOnce("plain failure")
+                        entityManager.update.mockRejectedValueOnce(new Error("database unavailable"))
+
+                        await expect(worker.process(fakeBullJob("serialized-payload"))).rejects.toBe("plain failure")
+
+                        expect(jobActionService.failJob).toHaveBeenCalledWith(expect.objectContaining({
+                            error: "plain failure",
+                        }))
+                    })
             })
     })

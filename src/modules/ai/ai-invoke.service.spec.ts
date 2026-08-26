@@ -10,8 +10,17 @@ import {
     ChatOpenAI,
 } from "@langchain/openai"
 import {
+    ChatAnthropic,
+} from "@langchain/anthropic"
+import {
+    ChatGoogleGenerativeAI,
+} from "@langchain/google-genai"
+import {
     AiModelCategory,
 } from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
+    AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
 import {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
@@ -55,7 +64,7 @@ describe("AiInvokeService",
         let service: AiInvokeService
         let useApiService: jest.Mocked<Pick<UseApiService, "useApi">>
         let aiEntitlementService: jest.Mocked<
-            Pick<AiEntitlementService, "resolveTierCategories" | "assertCanUsePaidModels">
+            Pick<AiEntitlementService, "resolveTierCategories" | "assertCanUsePaidModels" | "resolveCeil">
         >
 
         // real LangChain message instances -- `AiInvokeParams.messages` is
@@ -91,10 +100,11 @@ describe("AiInvokeService",
 
             aiEntitlementService = {
                 resolveTierCategories: jest.fn(async () => []),
+                resolveCeil: jest.fn(async () => AiModelCategory.Medium),
                 // happy-path default: paid/enrolled gate passes
                 assertCanUsePaidModels: jest.fn(async () => undefined),
             } as unknown as jest.Mocked<
-                Pick<AiEntitlementService, "resolveTierCategories" | "assertCanUsePaidModels">
+                Pick<AiEntitlementService, "resolveTierCategories" | "assertCanUsePaidModels" | "resolveCeil">
             >
 
             module = await Test.createTestingModule({
@@ -416,6 +426,34 @@ describe("AiInvokeService",
                             invokeSpy.mockRestore()
                         }
                     })
+
+                it("builds the concrete client for each supported provider",
+                    () => {
+                        const buildClient = (service as unknown as {
+                            buildClient: (params: {
+                                provider: ModelProvider
+                                model: string
+                                apiKey: string
+                            }) => unknown
+                        }).buildClient
+                        const base = {
+                            model: "model-1",
+                            apiKey: "key-1",
+                        }
+
+                        expect(buildClient({
+                            ...base,
+                            provider: ModelProvider.OpenAI,
+                        })).toBeInstanceOf(ChatOpenAI)
+                        expect(buildClient({
+                            ...base,
+                            provider: ModelProvider.Gemini,
+                        })).toBeInstanceOf(ChatGoogleGenerativeAI)
+                        expect(buildClient({
+                            ...base,
+                            provider: ModelProvider.Anthropic,
+                        })).toBeInstanceOf(ChatAnthropic)
+                    })
             })
 
         // stream() mirrors invoke() lane-for-lane; onChunk itself is exercised
@@ -633,6 +671,29 @@ describe("AiInvokeService",
                         ).rejects.toBeInstanceOf(AiModeNotEntitledException)
                         // the balancer must never be reached when the gate rejects
                         expect(useApiService.useApi).not.toHaveBeenCalled()
+                    })
+
+                it("derives the ceiling from a surface and streams through the cost mapper",
+                    async () => {
+                        const onChunk = jest.fn()
+                        const result = await service.run({
+                            userId: "user-1",
+                            messages,
+                            surface: AiCeilSurface.Chatbot,
+                            onChunk,
+                        })
+
+                        expect(aiEntitlementService.resolveCeil).toHaveBeenCalledWith({
+                            userId: "user-1",
+                            surface: AiCeilSurface.Chatbot,
+                        })
+                        expect(useApiService.useApi).toHaveBeenCalledWith(expect.objectContaining({
+                            lane: "chain",
+                        }))
+                        expect(result).toEqual(expect.objectContaining({
+                            text: "graded",
+                            cost: 0,
+                        }))
                     })
             })
     })

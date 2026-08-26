@@ -402,5 +402,40 @@ describe("ChallengeParserService",
                 )
             },
         )
+
+        it("keeps valid challenges when parseMany skips a malformed sibling",
+            async () => {
+                const pathService = module.get(ChallengePathService)
+                const winston = module.get(WinstonService)
+                jest.mocked(pathService.paths).mockResolvedValue([
+                    {
+                        relativePath: "course/challenges/0-valid",
+                        orderIndex: 0,
+                        displayId: "valid",
+                    },
+                    {
+                        relativePath: "course/challenges/1-invalid",
+                        orderIndex: 1,
+                        displayId: "invalid",
+                    },
+                ])
+                jest.spyOn(service,
+                    "parse")
+                    .mockResolvedValueOnce({
+                        id: "challenge-id"
+                    } as never)
+                    .mockRejectedValueOnce(new Error("bad challenge"))
+
+                const result = await service.parseMany({
+                    contentRelativePath: "course/content",
+                    courseIndex: 2,
+                    moduleIndex: 3,
+                    contentIndex: 4,
+                })
+
+                expect(result).toHaveLength(1)
+                expect(result[0]?.relativePath).toBe("course/challenges/0-valid")
+                expect(winston.log).toHaveBeenCalledTimes(1)
+            })
     },
 )

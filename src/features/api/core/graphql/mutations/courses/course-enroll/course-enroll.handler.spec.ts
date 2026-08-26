@@ -19,6 +19,15 @@ import {
     UnsupportedPaymentTypeException,
 } from "@modules/platform/exceptions/errors/payment/unsupported-payment-type"
 import {
+    InstallmentCurrencyNotSupportedException,
+} from "@modules/platform/exceptions/errors/payment/installment-currency-not-supported"
+import {
+    VoucherNotSupportedForGatewayException,
+} from "@modules/platform/exceptions/errors/payment/voucher-not-supported-for-gateway"
+import {
+    VoucherDiscountType,
+} from "@modules/databases/postgresql/primary/enums/voucher-discount-type"
+import {
     UserNotFoundException,
 } from "@modules/platform/exceptions/errors/users/user"
 import {
@@ -136,8 +145,8 @@ describe("CourseEnrollHandler",
                 quote: jest.fn().mockResolvedValue({
                     lines: [{
                         course: {
-                            id: "course-1" 
-                        } 
+                            id: "course-1"
+                        }
                     }],
                     totalChargedVnd: 1250000,
                     totalChargedUsd: 50,
@@ -246,7 +255,7 @@ describe("CourseEnrollHandler",
                 expect(payos.execute).toHaveBeenCalledWith(
                     expect.any(Object),
                     expect.objectContaining({
-                        totalChargedVnd: 1250000 
+                        totalChargedVnd: 1250000
                     }),
                 )
                 expect(sepay.execute).not.toHaveBeenCalled()
@@ -290,5 +299,88 @@ describe("CourseEnrollHandler",
                 // no provider matches an unknown payment type
                 expect(payos.execute).not.toHaveBeenCalled()
                 expect(crypto.execute).not.toHaveBeenCalled()
+            })
+        it("dispatches domestic and international gateway variants with the quoted price",
+            async () => {
+                const cases: Array<{ paymentType: PaymentType; service: ProviderServiceMock; result: string }> = [
+                    {
+                        paymentType: PaymentType.Sepay,
+                        service: sepay,
+                        result: "sepay-url",
+                    },
+                    {
+                        paymentType: PaymentType.Paypal,
+                        service: paypal,
+                        result: "paypal-url",
+                    },
+                    {
+                        paymentType: PaymentType.Crypto,
+                        service: crypto,
+                        result: "crypto-url",
+                    },
+                ]
+                for (const testCase of cases) {
+                    await expect(handler.execute(new CourseEnrollCommand({
+                        request: {
+                            courseId: "course-1",
+                            paymentType: testCase.paymentType,
+                        },
+                        user: fakeUser("user-1"),
+                    }))).resolves.toEqual({
+                        checkoutUrl: testCase.result,
+                    })
+                    expect(testCase.service.execute).toHaveBeenCalledTimes(1)
+                    testCase.service.execute.mockClear()
+                }
+            })
+        it("rejects installments on USD gateways before voucher or enrollment work",
+            async () => {
+                await expect(handler.execute(new CourseEnrollCommand({
+                    request: {
+                        courseId: "course-1",
+                        paymentType: PaymentType.Stripe,
+                        installmentMonths: 3,
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBeInstanceOf(InstallmentCurrencyNotSupportedException)
+                expect(entityManager.exists).not.toHaveBeenCalled()
+                expect(priceQuotes.quote).not.toHaveBeenCalled()
+            })
+        it("accepts percent vouchers on USD gateways and passes the code to quote",
+            async () => {
+                voucherService.previewDiscount.mockResolvedValueOnce({
+                    discountType: VoucherDiscountType.Percent,
+                })
+                await handler.execute(new CourseEnrollCommand({
+                    request: {
+                        courseId: "course-1",
+                        paymentType: PaymentType.Stripe,
+                        voucherCode: "PERCENT10",
+                    },
+                    user: fakeUser("user-1"),
+                }))
+                expect(voucherService.previewDiscount).toHaveBeenCalledWith({
+                    userId: "user-1",
+                    code: "PERCENT10",
+                    courseId: "course-1",
+                })
+                expect(priceQuotes.quote).toHaveBeenCalledWith(expect.objectContaining({
+                    voucherCode: "PERCENT10",
+                }))
+            })
+        it("rejects flat vouchers on USD gateways before checking enrollment",
+            async () => {
+                voucherService.previewDiscount.mockResolvedValueOnce({
+                    discountType: VoucherDiscountType.Flat,
+                })
+                await expect(handler.execute(new CourseEnrollCommand({
+                    request: {
+                        courseId: "course-1",
+                        paymentType: PaymentType.Paypal,
+                        voucherCode: "FLAT500",
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBeInstanceOf(VoucherNotSupportedForGatewayException)
+                expect(entityManager.exists).not.toHaveBeenCalled()
             })
     })

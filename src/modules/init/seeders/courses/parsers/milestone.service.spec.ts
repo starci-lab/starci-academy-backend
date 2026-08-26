@@ -148,6 +148,71 @@ describe("MilestoneParserService",
                         )
                     },
                 )
+
+                it("filters empty translations and falls back for invalid sortIndex",
+                    async () => {
+                        const find = jest.fn().mockResolvedValue([])
+                        const service = new MilestoneParserService(
+                            {
+                                extract: jest.fn().mockReturnValue({
+                                }),
+                            } as never,
+                            {
+                                generate: jest.fn().mockReturnValue("course-id"),
+                            } as never,
+                            {
+                                generate: jest.fn().mockReturnValue("milestone-id"),
+                            } as never,
+                            {
+                                load: jest.fn().mockResolvedValue("markdown"),
+                            } as never,
+                            {
+                            } as never,
+                            {
+                                merge: jest.fn().mockReturnValue({
+                                    title: "Milestone",
+                                    description: "Description",
+                                    sortIndex: "invalid",
+                                    translations: [
+                                        {
+                                            locale: Locale.Vi,
+                                            field: "title",
+                                            value: "Nền tảng", // vn-ok: vi-locale parser fixture assertion
+                                        },
+                                        {
+                                            locale: Locale.Vi,
+                                            field: "description",
+                                            value: "",
+                                        },
+                                    ],
+                                }),
+                            } as never,
+                            {
+                                log: jest.fn(),
+                            } as never,
+                            {
+                                find,
+                            } as never,
+                        )
+
+                        const result = await service.parse({
+                            paths: [{
+                                relativePath: "course/milestones/4-demo",
+                                orderIndex: 4,
+                                displayId: "demo",
+                            }],
+                            courseIndex: 2,
+                            milestoneIndex: 4,
+                        })
+
+                        expect(result.sortIndex).toBe(4)
+                        expect(result.translations).toHaveLength(1)
+                        expect(result.translations?.[0]?.value).toBe("Nền tảng") // vn-ok: vi-locale parser fixture assertion
+                        await expect(service.milestonesFromDatabase({
+                            courseIndex: 2,
+                        })).resolves.toEqual([])
+                        expect(find).toHaveBeenCalled()
+                    })
             },
         )
     },

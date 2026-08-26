@@ -7,6 +7,12 @@ import {
 import {
     Bento4NoMovieFoundException
 } from "@modules/platform/exceptions/errors/bento4/bento4-no-movie-found"
+import {
+    Bento4Mp4FragmentException,
+} from "@modules/platform/exceptions/errors/bento4/bento4-mp4-fragment"
+import {
+    Bento4Mp4DashException,
+} from "@modules/platform/exceptions/errors/bento4/bento4-mp4-dash"
 jest.mock("execa",
     () => ({
         execaCommand: jest.fn()
@@ -41,5 +47,49 @@ describe("Bento4Service",
                 })
                 await expect(service.fragmentVideo("task",
                     "video.mp4")).rejects.toThrow()
+            })
+
+        it("returns false when fragment metadata is absent",
+            async () => {
+                exec.mockResolvedValueOnce({
+                    stdout: "unrecognized metadata", stderr: "",
+                })
+
+                await expect(service.checkFragments("task",
+                    "video.mp4")).resolves.toBe(false)
+            })
+
+        it("completes fragmenting and DASH generation when commands emit no errors",
+            async () => {
+                exec.mockResolvedValue({
+                    stdout: "ok", stderr: "",
+                })
+
+                await expect(service.fragmentVideo("task",
+                    "video.mp4")).resolves.toBeUndefined()
+                await expect(service.generateMpegDashManifestFromFragments(
+                    "task",
+                    ["360.mp4",
+                        "720.mp4"],
+                )).resolves.toBeUndefined()
+                expect(exec).toHaveBeenCalledTimes(2)
+            })
+
+        it("surfaces fragment and DASH stderr error markers",
+            async () => {
+                exec.mockResolvedValueOnce({
+                    stdout: "", stderr: "ERROR: fragment failed",
+                })
+                await expect(service.fragmentVideo("task",
+                    "video.mp4"))
+                    .rejects.toBeInstanceOf(Bento4Mp4FragmentException)
+
+                exec.mockResolvedValueOnce({
+                    stdout: "ERROR: dash failed", stderr: "",
+                })
+                await expect(service.generateMpegDashManifestFromFragments(
+                    "task",
+                    ["video.mp4"],
+                )).rejects.toBeInstanceOf(Bento4Mp4DashException)
             })
     })

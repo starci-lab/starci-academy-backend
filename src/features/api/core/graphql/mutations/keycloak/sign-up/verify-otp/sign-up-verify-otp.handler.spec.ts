@@ -34,6 +34,11 @@ import {
     ChallengeOtpMismatchException,
 } from "@modules/platform/exceptions/errors/users/otp"
 import {
+    ChallengeOtpNotFoundException,
+    ChallengeEmailNotFoundException,
+    ChallengeTokensNotFoundException,
+} from "@modules/platform/exceptions/errors/users/otp"
+import {
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
 import type {
@@ -242,6 +247,40 @@ describe("SignUpVerifyOtpHandler",
                 ).rejects.toBeInstanceOf(ChallengeOtpMismatchException)
 
                 // the credentials are never exchanged when the OTP is wrong
+                expect(keycloakTokenService.exchangePasswordForToken).not.toHaveBeenCalled()
+            })
+        it.each([
+            ["missing challenge",
+                {
+                    notFound: true,
+                },
+                ChallengeOtpNotFoundException],
+            ["missing email",
+                {
+                    notFound: false,
+                    mismatch: false,
+                    email: "",
+                    payload: validVerifyResult.payload,
+                },
+                ChallengeEmailNotFoundException],
+            ["missing payload",
+                {
+                    notFound: false,
+                    mismatch: false,
+                    email: "new@example.com",
+                    payload: undefined,
+                },
+                ChallengeTokensNotFoundException],
+        ])("rejects a %s result before exchanging credentials",
+            async (_label, verification, exception) => {
+                otpChallengeService.verifyActionChallenge.mockResolvedValueOnce(verification as never)
+
+                await expect(handler.execute(new SignUpVerifyOtpCommand({
+                    request: {
+                        challengeId: "chal-1",
+                        otp: "123456",
+                    },
+                }))).rejects.toBeInstanceOf(exception)
                 expect(keycloakTokenService.exchangePasswordForToken).not.toHaveBeenCalled()
             })
 

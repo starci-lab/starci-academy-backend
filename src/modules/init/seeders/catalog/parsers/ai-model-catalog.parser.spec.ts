@@ -84,4 +84,96 @@ describe("AiModelCatalogParserService",
                     "ai-models",
                     "1-test/vi.md")
             })
+
+        it("skips invalid model rows and maps a partial Vietnamese translation",
+            async () => {
+                const paths = jest.fn().mockResolvedValue([
+                    {
+                        relativePath: "1-invalid",
+                        displayId: "invalid",
+                        orderIndex: 1,
+                    },
+                    {
+                        relativePath: "2-valid",
+                        displayId: "valid",
+                        orderIndex: 2,
+                    },
+                ])
+                const load = jest.fn()
+                    .mockResolvedValueOnce("invalid-en")
+                    .mockResolvedValueOnce("valid-en")
+                    .mockResolvedValueOnce("valid-vi")
+                const extract = jest.fn()
+                    .mockReturnValueOnce({
+                        name: "invalid",
+                        provider: ModelProvider.OpenAI,
+                        category: AiModelCategory.Low,
+                        keysFilePath: "keys/invalid",
+                        priority: 1,
+                        priceInUsdPerMTok: 1,
+                        priceOutUsdPerMTok: 1,
+                        contextWindowTokens: 1,
+                        enabled: "invalid",
+                        complimentary: false,
+                        supportedTasks: undefined,
+                        label: "Invalid",
+                        description: "Invalid",
+                    })
+                    .mockReturnValueOnce({
+                        name: "valid",
+                        provider: ModelProvider.OpenAI,
+                        category: AiModelCategory.Low,
+                        keysFilePath: "keys/valid",
+                        priority: 1,
+                        priceInUsdPerMTok: 1,
+                        priceOutUsdPerMTok: 1,
+                        contextWindowTokens: 0,
+                        enabled: true,
+                        complimentary: false,
+                        supportedTasks: "chatting\ngrading",
+                        label: "Valid",
+                        description: "English",
+                    })
+                    .mockReturnValueOnce({
+                        label: "",
+                        description: "Vietnamese description",
+                    })
+                const coerce = {
+                    toRequiredString: jest.fn((value: unknown, fallback: string) =>
+                        typeof value === "string" ? value : fallback),
+                    toRequiredEnum: jest.fn((value: unknown, values: object, fallback: unknown) =>
+                        Object.values(values).includes(value) ? value : fallback),
+                    toRequiredNumber: jest.fn((value: unknown, fallback: number) =>
+                        typeof value === "number" ? value : fallback),
+                    toRequiredBoolean: jest.fn((value: unknown, fallback: boolean) =>
+                        typeof value === "boolean" ? value : value ?? fallback),
+                }
+                const log = jest.fn()
+                const service = new AiModelCatalogParserService(
+                {
+                    paths,
+                } as never,
+                {
+                    load,
+                } as never,
+                {
+                    extract,
+                } as never,
+                coerce as never,
+                {
+                    log,
+                } as never,
+                )
+
+                await expect(service.parseMany()).resolves.toEqual([
+                    expect.objectContaining({
+                        name: "valid",
+                        contextWindowTokens: null,
+                        supportedTasks: ["chatting",
+                            "grading"],
+                    }),
+                ])
+                expect(log).toHaveBeenCalled()
+                expect(extract).toHaveBeenCalledTimes(3)
+            })
     })

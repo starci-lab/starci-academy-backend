@@ -57,4 +57,46 @@ combinedLogger as never)
                 )
                 expect(combinedLogger.info).not.toHaveBeenCalled()
             })
+
+        it("routes warning and verbose events to their matching logger methods",
+            () => {
+                service.log(WinstonLog.InitSeederEntitySkipped,
+                    {
+                        entity: "course",
+                        error: "invalid markdown",
+                    } as never)
+                service.log(WinstonLog.CoursesSeededSuccessfully,
+                    {
+                        count: 3,
+                    } as never)
+
+                expect(combinedLogger.warn).toHaveBeenCalledWith(
+                    WinstonLog.InitSeederEntitySkipped,
+                    {
+                        entity: "course",
+                        error: "invalid markdown",
+                    },
+                )
+                expect(combinedLogger.verbose).toHaveBeenCalledWith(
+                    WinstonLog.CoursesSeededSuccessfully,
+                    {
+                        count: 3,
+                    },
+                )
+            })
+
+        it("routes informational events to info",
+            () => {
+                service.log(WinstonLog.CdnSynchronizerCdnSyncStarted,
+                    {
+                        courseCount: 1,
+                    } as never)
+
+                expect(combinedLogger.info).toHaveBeenCalledWith(
+                    WinstonLog.CdnSynchronizerCdnSyncStarted,
+                    {
+                        courseCount: 1,
+                    },
+                )
+            })
     })

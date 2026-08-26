@@ -19,6 +19,9 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
+    CourseContentTier,
+} from "@modules/databases/postgresql/primary/enums/course-content-tier"
+import {
     Sha256Service,
 } from "@modules/crypto/sha256.service"
 import {
@@ -173,6 +176,86 @@ describe("ModuleParserService",
                         )
                     },
                 )
+
+                it("applies safe scalar defaults and maps preview translations",
+                    async () => {
+                        const find = jest.fn().mockResolvedValue([])
+                        const service = new ModuleParserService(
+                            {
+                                extract: jest.fn().mockReturnValue({
+                                }),
+                            } as never,
+                            {
+                                generate: jest.fn().mockReturnValue("preview-id"),
+                            } as never,
+                            {
+                                generate: jest.fn().mockReturnValue("module-id"),
+                            } as never,
+                            {
+                                load: jest.fn().mockResolvedValue("markdown"),
+                            } as never,
+                            {
+                                generate: jest.fn().mockReturnValue("course-id"),
+                            } as never,
+                            {
+                            } as never,
+                            {
+                                merge: jest.fn().mockReturnValue({
+                                    title: "Module",
+                                    description: "Description",
+                                    sortIndex: "invalid",
+                                    isPremium: "not-boolean",
+                                    contentType: "unknown",
+                                    previewContents: [{
+                                        orderIndex: 0,
+                                        text: "Preview",
+                                        translations: [{
+                                            locale: Locale.Vi,
+                                            field: "text",
+                                            value: "Xem trước", // vn-ok: vi-locale parser fixture assertion
+                                        }],
+                                    }],
+                                    translations: [],
+                                }),
+                            } as never,
+                            {
+                                log: jest.fn(),
+                            } as never,
+                            {
+                                find,
+                            } as never,
+                        )
+
+                        const result = await service.parse({
+                            paths: [{
+                                relativePath: "course/modules/3-module",
+                                orderIndex: 3,
+                                displayId: "module",
+                            }],
+                            moduleIndex: 3,
+                            courseIndex: 2,
+                        })
+
+                        expect(result.sortIndex).toBe(4)
+                        expect(result.isPremium).toBe(false)
+                        expect(result.contentTier).toBe(CourseContentTier.Foundation)
+                        expect(result.previewContents?.[0]).toEqual(expect.objectContaining({
+                            id: "preview-id",
+                            module: {
+                                id: "module-id",
+                            },
+                            translations: [{
+                                previewContentId: "preview-id",
+                                locale: Locale.Vi,
+                                field: "text",
+                                value: "Xem trước", // vn-ok: vi-locale parser fixture assertion
+                            }],
+                        }))
+                        await expect(service.modulesFromDatabase({
+                            courseIndex: 2,
+                        })).resolves.toEqual([])
+                        expect(find).toHaveBeenCalled()
+                    })
             },
         )
     },

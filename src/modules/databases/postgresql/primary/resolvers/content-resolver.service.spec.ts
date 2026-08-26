@@ -54,4 +54,39 @@ codeImplementationResolver as never)
                 expect(codeExplainingResolver.transform).toHaveBeenCalled()
                 expect(codeImplementationResolver.transform).toHaveBeenCalled()
             })
+
+        it("uses the caller fallback locale and tolerates absent nested collections",
+            () => {
+                const resolve = jest.fn().mockReturnValue("resolved")
+                const service = new ContentResolverService(
+                    {
+                        resolve
+                    } as never,
+                    {
+                        transform: jest.fn()
+                    } as never,
+                    {
+                        transform: jest.fn()
+                    } as never,
+                    {
+                        transform: jest.fn()
+                    } as never,
+                )
+                const content = {
+                    defaultLocale: undefined,
+                    translations: undefined,
+                    challenges: undefined,
+                    codeExplainings: undefined,
+                    codeImplementations: undefined,
+                }
+
+                expect(() => service.transform(content as never,
+                    Locale.Vi,
+                    Locale.En)).not.toThrow()
+                expect(resolve).toHaveBeenCalledWith(expect.objectContaining({
+                    locale: Locale.Vi,
+                    fallbackLocale: Locale.En,
+                }))
+                expect(content).not.toHaveProperty("translations")
+            })
     })

@@ -37,11 +37,20 @@ import {
     ChallengeNotFoundException,
 } from "@modules/platform/exceptions/errors/courses/challenge-not-found"
 import {
+    ChallengePremiumLockedException,
+} from "@modules/platform/exceptions/errors/courses/challenge-premium-locked"
+import {
     ChallengeSubmissionNotFoundException,
 } from "@modules/platform/exceptions/errors/courses/challenge-submission-not-found"
 import {
     SubmissionUrlInvalidException,
 } from "@modules/platform/exceptions/errors/courses/submission-url-invalid"
+import {
+    SubmissionQuotaExceededException,
+} from "@modules/platform/exceptions/errors/courses/submission-quota-exceeded"
+import {
+    UserChallengeSubmissionNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/user-challenge-submission-not-found"
 import {
     UserNotFoundException,
 } from "@modules/platform/exceptions/errors/users/user"
@@ -393,6 +402,283 @@ describe("SubmitChallengeSubmissionHandler",
                 ).rejects.toBeInstanceOf(SubmissionUrlInvalidException)
 
                 // nothing is enqueued without a url to grade
+                expect(enqueueGitV2.enqueue).not.toHaveBeenCalled()
+            })
+        it("blocks challenges owned by premium content before resolving a course",
+            async () => {
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-1",
+                        challengeId: "chal-1",
+                        type: SubmissionType.GithubUrl,
+                    })
+                    .mockResolvedValueOnce({
+                        id: "chal-1",
+                    })
+                    .mockResolvedValueOnce({
+                        id: "content-1",
+                        isPremium: true,
+                    })
+
+                await expect(handler.execute(new SubmitChallengeSubmissionCommand({
+                    request: {
+                        challengeSubmissionId: "sub-1",
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBeInstanceOf(ChallengePremiumLockedException)
+                expect(userService.resolveOrCreateTrialEnrollment).not.toHaveBeenCalled()
+            })
+        it("enqueues Google Docs submissions and trims an updated URL",
+            async () => {
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-1",
+                        challengeId: "chal-1",
+                        type: SubmissionType.GoogleDocsUrl,
+                    })
+                    .mockResolvedValueOnce({
+                        id: "chal-1",
+                    })
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce({
+                        id: "ucs-1",
+                        submissionUrl: "https://docs.google.com/old",
+                        enrollmentId: "enroll-1",
+                    })
+                    .mockResolvedValueOnce({
+                        id: "ucs-1",
+                        submissionUrl: "https://docs.google.com/new",
+                        selectedLang: null,
+                    })
+                entityManager.findOneOrFail.mockResolvedValueOnce({
+                    id: "ucs-1",
+                    submissionUrl: "https://docs.google.com/new",
+                    attempts: [],
+                })
+                const result = await handler.execute(new SubmitChallengeSubmissionCommand({
+                    request: {
+                        challengeSubmissionId: "sub-1",
+                        githubUrl: "  https://docs.google.com/new  ",
+                    },
+                    user: fakeUser("user-1"),
+                }))
+
+                expect(enqueueDocsV2.enqueue).toHaveBeenCalledWith(expect.objectContaining({
+                    userId: "user-1",
+                    challengeSubmissionId: "sub-1",
+                }))
+                expect(result).toEqual({
+                    jobId: "job-docs-v2",
+                })
+                expect(enqueueGitV2.enqueue).not.toHaveBeenCalled()
+            })
+        it("rejects when grading quota is exhausted and reports the weekly reset",
+            async () => {
+                const entitlement = module.get(AiEntitlementService) as unknown as {
+                    snapshot: jest.Mock
+                }
+                entitlement.snapshot.mockResolvedValueOnce({
+                    credit: {
+                        remaining5h: 5,
+                        remainingWeek: 0,
+                    },
+                    windowWeekResetAt: new Date("2030-01-02T03:04:00.000Z"),
+                    window5hResetAt: null,
+                })
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-1",
+                        challengeId: "chal-1",
+                        type: SubmissionType.GithubUrl,
+                    })
+                    .mockResolvedValueOnce({
+                        id: "chal-1",
+                    })
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce({
+                        id: "ucs-1",
+                        submissionUrl: "https://github.com/me/repo",
+                    })
+                    .mockResolvedValueOnce({
+                        id: "ucs-1",
+                        submissionUrl: "https://github.com/me/repo",
+                        selectedLang: null,
+                    })
+
+                await expect(handler.execute(new SubmitChallengeSubmissionCommand({
+                    request: {
+                        challengeSubmissionId: "sub-1",
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBeInstanceOf(SubmissionQuotaExceededException)
+                expect(enqueueGitV2.enqueue).not.toHaveBeenCalled()
+            })
+        it("creates a first-time submission with its trial enrollment and enqueues grading",
+            async () => {
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-1",
+                        challengeId: "chal-1",
+                        type: SubmissionType.GithubUrl,
+                    })
+                    .mockResolvedValueOnce({
+                        id: "chal-1",
+                    })
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce({
+                        id: "course-1",
+                    })
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce({
+                        id: "ucs-new",
+                        submissionUrl: "https://github.com/me/repo",
+                        selectedLang: null,
+                    })
+                entityManager.findOneOrFail.mockResolvedValueOnce({
+                    id: "ucs-new",
+                    submissionUrl: "https://github.com/me/repo",
+                    attempts: [],
+                })
+                userService.resolveOrCreateTrialEnrollment.mockResolvedValueOnce({
+                    id: "enroll-1",
+                } as never)
+
+                await expect(handler.execute(new SubmitChallengeSubmissionCommand({
+                    request: {
+                        challengeSubmissionId: "sub-1",
+                        githubUrl: " https://github.com/me/repo ",
+                    },
+                    user: fakeUser("user-1"),
+                }))).resolves.toEqual({
+                    jobId: "job-git-v2",
+                })
+                expect(entityManager.create).toHaveBeenCalledWith(expect.anything(),
+                    expect.objectContaining({
+                        submissionUrl: "https://github.com/me/repo",
+                        enrollment: {
+                            id: "enroll-1",
+                        },
+                    }))
+            })
+        it("backfills enrollment when an existing row receives a replacement URL",
+            async () => {
+                const existing: {
+                    id: string
+                    submissionUrl: string
+                    enrollmentId: string | null
+                    enrollment?: {
+                        id: string
+                    }
+                } = {
+                    id: "ucs-1",
+                    submissionUrl: "https://github.com/old/repo",
+                    enrollmentId: null,
+                }
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-1",
+                        challengeId: "chal-1",
+                        type: SubmissionType.GithubUrl,
+                    })
+                    .mockResolvedValueOnce({
+                        id: "chal-1",
+                    })
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce({
+                        id: "course-1",
+                    })
+                    .mockResolvedValueOnce(existing)
+                    .mockResolvedValueOnce({
+                        id: "ucs-1",
+                        submissionUrl: "https://github.com/new/repo",
+                        selectedLang: null,
+                    })
+                entityManager.findOneOrFail.mockResolvedValueOnce(existing)
+                userService.resolveOrCreateTrialEnrollment.mockResolvedValueOnce({
+                    id: "enroll-1",
+                } as never)
+
+                await handler.execute(new SubmitChallengeSubmissionCommand({
+                    request: {
+                        challengeSubmissionId: "sub-1",
+                        githubUrl: "https://github.com/new/repo",
+                    },
+                    user: fakeUser("user-1"),
+                }))
+
+                expect(existing.submissionUrl).toBe("https://github.com/new/repo")
+                expect(existing.enrollment).toEqual({
+                    id: "enroll-1",
+                })
+                expect(entityManager.save).toHaveBeenCalledWith(expect.anything(),
+                    existing)
+            })
+        it("fails when the transaction result disappears before the final reload",
+            async () => {
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-1",
+                        challengeId: "chal-1",
+                        type: SubmissionType.GithubUrl,
+                    })
+                    .mockResolvedValueOnce({
+                        id: "chal-1",
+                    })
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce({
+                        id: "ucs-1",
+                        submissionUrl: "https://github.com/me/repo",
+                    })
+                    .mockResolvedValueOnce(null)
+                entityManager.findOneOrFail.mockResolvedValueOnce({
+                    id: "ucs-1",
+                    submissionUrl: "https://github.com/me/repo",
+                })
+
+                await expect(handler.execute(new SubmitChallengeSubmissionCommand({
+                    request: {
+                        challengeSubmissionId: "sub-1",
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBeInstanceOf(UserChallengeSubmissionNotFoundException)
+                expect(enqueueGitV2.enqueue).not.toHaveBeenCalled()
+            })
+        it("rejects an existing row whose persisted URL is blank",
+            async () => {
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-1",
+                        challengeId: "chal-1",
+                        type: SubmissionType.GithubUrl,
+                    })
+                    .mockResolvedValueOnce({
+                        id: "chal-1",
+                    })
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce({
+                        id: "ucs-1",
+                        submissionUrl: "   ",
+                    })
+                    .mockResolvedValueOnce({
+                        id: "ucs-1",
+                        submissionUrl: "   ",
+                        selectedLang: null,
+                    })
+                entityManager.findOneOrFail.mockResolvedValueOnce({
+                    id: "ucs-1",
+                    submissionUrl: "   ",
+                })
+
+                await expect(handler.execute(new SubmitChallengeSubmissionCommand({
+                    request: {
+                        challengeSubmissionId: "sub-1",
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBeInstanceOf(SubmissionUrlInvalidException)
                 expect(enqueueGitV2.enqueue).not.toHaveBeenCalled()
             })
     })

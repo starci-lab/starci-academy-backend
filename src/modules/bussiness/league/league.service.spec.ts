@@ -295,4 +295,101 @@ describe("LeagueService",
                         expect(entityManager.save).not.toHaveBeenCalled()
                     })
             })
+
+        it("maps rank movement and clamps every tier shift at the ladder ends",
+            async () => {
+                const cohort = {
+                    id: "cohort-1",
+                    tier: LeagueTier.Gold,
+                    weekEndAt: new Date("2026-08-09T17:00:00.000Z"),
+                } as LeagueCohortEntity
+                entityManager.findOne.mockResolvedValueOnce({
+                    userId,
+                    tier: LeagueTier.Gold,
+                    cohort,
+                })
+                leagueCohortPointsProjectionService.getMembers.mockResolvedValueOnce([
+                    {
+                        userId,
+                        username: "viewer",
+                        avatar: null,
+                        points: 20,
+                        rank: 1,
+                    },
+                ] as never)
+                entityManager.query.mockResolvedValueOnce([{
+                    user_id: userId,
+                    last_week_rank: 3,
+                }])
+
+                const result = await service.getMyStanding(userId)
+
+                expect(result.members[0]).toEqual(expect.objectContaining({
+                    rankDelta: 2,
+                }))
+                const exposed = service as unknown as {
+                shiftTier: (params: { tier: LeagueTier; promote: boolean; demote: boolean }) => LeagueTier
+            }
+                expect(exposed.shiftTier({
+                    tier: LeagueTier.Bronze,
+                    promote: false,
+                    demote: true,
+                })).toBe(LeagueTier.Bronze)
+                expect(exposed.shiftTier({
+                    tier: LeagueTier.Legend,
+                    promote: true,
+                    demote: false,
+                })).toBe(LeagueTier.Legend)
+                expect(exposed.shiftTier({
+                    tier: LeagueTier.Gold,
+                    promote: false,
+                    demote: false,
+                })).toBe(LeagueTier.Gold)
+            })
+
+        it("settles cohort members into promoted and demoted tiers",
+            async () => {
+                const endingCohort = {
+                    id: "ending-cohort",
+                    tier: LeagueTier.Silver,
+                    weekStartAt: new Date("2026-08-02T17:00:00.000Z"),
+                    weekEndAt: new Date("2026-08-09T17:00:00.000Z"),
+                }
+                entityManager.find.mockResolvedValueOnce([endingCohort])
+                entityManager.query.mockResolvedValueOnce(Array.from({
+                    length: 11
+                },
+                (_, index) => ({
+                    user_id: index === 0 ? "top-user" : index === 10 ? "bottom-user" : `member-${index}`,
+                    week_points: 100 - index,
+                })))
+                const exposed = service as unknown as {
+                settleEndingCohorts: (params: { manager: unknown; endingWeekStart: Date }) => Promise<void>
+            }
+
+                await exposed.settleEndingCohorts({
+                    manager: entityManager,
+                    endingWeekStart: endingCohort.weekStartAt,
+                })
+
+                expect(entityManager.update).toHaveBeenCalledTimes(11)
+                expect(entityManager.update).toHaveBeenNthCalledWith(1,
+                    UserLeagueEntity,
+                    {
+                        userId: "top-user",
+                    },
+                    expect.objectContaining({
+                        tier: LeagueTier.Gold,
+                        lastWeekRank: 1,
+                    }))
+                expect(entityManager.update).toHaveBeenNthCalledWith(11,
+                    UserLeagueEntity,
+                    {
+                        userId: "bottom-user",
+                    },
+                    expect.objectContaining({
+                        tier: LeagueTier.Bronze,
+                        lastWeekRank: 11,
+                    }))
+            })
     })

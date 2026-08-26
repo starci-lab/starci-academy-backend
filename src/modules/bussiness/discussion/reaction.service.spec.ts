@@ -312,6 +312,72 @@ describe("ReactionService",
                     })
             })
 
+        describe("reactToActivity",
+            () => {
+                it("creates an activity reaction and maps grouped counts plus mine",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([{
+                            userId: "owner-1",
+                        }])
+                        entityManager.findOne
+                            .mockResolvedValueOnce(null)
+                            .mockResolvedValueOnce({
+                                type: ReactionType.Like,
+                            })
+                        queryBuilder.getRawMany.mockResolvedValueOnce([
+                            {
+                                type: ReactionType.Like,
+                                count: "2",
+                            },
+                            {
+                                type: ReactionType.Wow,
+                                count: 1,
+                            },
+                        ])
+
+                        const result = await service.reactToActivity({
+                            activityId: "activity-1",
+                            user,
+                            type: ReactionType.Love,
+                        })
+
+                        expect(entityManager.save).toHaveBeenCalledWith(expect.objectContaining({
+                            activity: {
+                                id: "activity-1",
+                            },
+                            type: ReactionType.Love,
+                        }))
+                        expect(result.total).toBe(3)
+                        expect(result.myReaction).toBe(ReactionType.Like)
+                    })
+
+                it("removes an activity reaction when the caller clears it",
+                    async () => {
+                        const existing = {
+                            type: ReactionType.Wow,
+                        }
+                        entityManager.query.mockResolvedValueOnce([{
+                            userId: "owner-1",
+                        }])
+                        entityManager.findOne
+                            .mockResolvedValueOnce(existing)
+                            .mockResolvedValueOnce(null)
+                        queryBuilder.getRawMany.mockResolvedValueOnce([])
+
+                        const result = await service.reactToActivity({
+                            activityId: "activity-1",
+                            user,
+                            type: null,
+                        })
+
+                        expect(entityManager.remove).toHaveBeenCalledWith(existing)
+                        expect(result).toEqual(expect.objectContaining({
+                            total: 0,
+                            myReaction: null,
+                        }))
+                    })
+            })
+
         describe("getViewCount",
             () => {
                 it("returns the view count from the engagement projection",
@@ -451,6 +517,48 @@ describe("ReactionService",
                         // every requested id is present, even with no reactions
                         expect(result.c2.total).toBe(0)
                         expect(result.c2.myReaction).toBeNull()
+                    })
+
+                it("normalizes grouped rows and ignores unrelated reaction types",
+                    async () => {
+                        queryBuilder.getRawMany
+                            .mockResolvedValueOnce([
+                                {
+                                    commentId: "c1",
+                                    type: ReactionType.Wow,
+                                    count: 4,
+                                },
+                                {
+                                    commentId: "unknown",
+                                    type: ReactionType.Like,
+                                    count: 9,
+                                },
+                            ])
+                            .mockResolvedValueOnce([
+                                {
+                                    commentId: "c2",
+                                    type: ReactionType.Wow,
+                                },
+                            ])
+
+                        const result = await service.summarizeComments({
+                            commentIds: [
+                                "c1",
+                                "c2",
+                            ],
+                            userId: user.id,
+                        })
+
+                        expect(result.c1).toEqual(expect.objectContaining({
+                            total: 4,
+                            counts: [{
+                                type: ReactionType.Wow,
+                                count: 4,
+                            }],
+                        }))
+                        expect(result.c2.myReaction).toBe(ReactionType.Wow)
+                        expect(result.c2.total).toBe(0)
+                        expect(result).not.toHaveProperty("unknown")
                     })
             })
 

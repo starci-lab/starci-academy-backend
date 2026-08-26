@@ -81,4 +81,54 @@ logger as never)
                 expect(listener.recomputeTarget).not.toHaveBeenCalled()
                 expect(logger.log).toHaveBeenCalledTimes(2)
             })
+
+        it("logs a disabled listener when Kafka bootstrap fails",
+            async () => {
+                const logger = {
+                    log: jest.fn(),
+                }
+                const listener = new ProbeListener({
+                    ensureTopics: jest.fn().mockRejectedValue(new Error("Kafka offline")),
+                } as never,
+logger as never)
+
+                await listener.onModuleInit()
+
+                expect(logger.log).toHaveBeenCalledWith(expect.anything(),
+                    expect.objectContaining({
+                        error: "Kafka offline",
+                    }))
+            })
+
+        it("supports flat CDC rows and invokes every derived target",
+            async () => {
+                let eachMessage: ((payload: never) => Promise<void>) | undefined
+                const consumer = {
+                    subscribe: jest.fn().mockResolvedValue(undefined),
+                    run: jest.fn(async ({ eachMessage: callback }: ConsumerRunOptions) => {
+                        eachMessage = callback
+                    }),
+                }
+                const listener = new ProbeListener({
+                    ensureTopics: jest.fn().mockResolvedValue(undefined),
+                    createConsumer: jest.fn().mockResolvedValue({
+                        consumer
+                    }),
+                } as never,
+{
+    log: jest.fn()
+} as never)
+
+                await listener.onModuleInit()
+                await eachMessage?.({
+                    topic: "cdc.probe",
+                    message: {
+                        value: Buffer.from(JSON.stringify({
+                            id: "flat-row"
+                        })),
+                    },
+                } as never)
+
+                expect(listener.recomputeTarget).toHaveBeenCalledWith("target")
+            })
     })

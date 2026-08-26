@@ -229,4 +229,51 @@ describe("ProgressProjectionService",
                         expect(result).toBeNull()
                     })
             })
+
+        describe("recompute paths",
+            () => {
+                it("uses the caller transaction manager for a scoped recompute",
+                    async () => {
+                        const transactionManager = {
+                            query: jest.fn().mockResolvedValue([]),
+                        }
+
+                        await service.recompute({
+                            userId,
+                            courseId,
+                            entityManager: transactionManager as never,
+                        })
+
+                        expect(transactionManager.query).toHaveBeenCalledWith(
+                            expect.stringContaining("AND e.user_id = $2"),
+                            [courseId,
+                                userId],
+                        )
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                    })
+
+                it("recomputes every enrolled user for a course",
+                    async () => {
+                        await service.recomputeCourse(courseId)
+
+                        expect(entityManager.query).toHaveBeenCalledWith(
+                            expect.not.stringContaining("AND e.user_id = $2"),
+                            [courseId],
+                        )
+                    })
+
+                it("uses its own manager when no transaction manager is supplied",
+                    async () => {
+                        await service.recompute({
+                            userId,
+                            courseId,
+                        })
+
+                        expect(entityManager.query).toHaveBeenCalledWith(
+                            expect.stringContaining("AND e.user_id = $2"),
+                            [courseId,
+                                userId],
+                        )
+                    })
+            })
     })

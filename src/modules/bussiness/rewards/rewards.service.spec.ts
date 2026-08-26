@@ -32,6 +32,9 @@ import {
     RewardRedemptionStatus,
 } from "@modules/databases/postgresql/primary/enums/reward-redemption-status"
 import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     InsufficientRewardPointsException,
 } from "@modules/platform/exceptions/errors/rewards/insufficient-reward-points"
 import {
@@ -147,6 +150,46 @@ describe("RewardsService",
         afterEach(async () => {
             await module.close()
         })
+
+        it("returns a wallet with a non-negative derived balance when spending exceeds coins",
+            async () => {
+                const redemption = {
+                    id: redemptionId,
+                    status: RewardRedemptionStatus.Pending,
+                }
+                entityManager.findOneOrFail.mockResolvedValueOnce({
+                    id: userId,
+                    coinBalance: 50,
+                })
+                setSpent(125)
+                entityManager.find.mockResolvedValueOnce([redemption])
+
+                const wallet = await service.getWallet(userId)
+
+                expect(wallet).toEqual({
+                    balance: 0,
+                    spent: 125,
+                    redemptions: [redemption],
+                })
+                expect(queryBuilder.getRawOne).toHaveBeenCalled()
+            })
+
+        it("falls back to an unknown reward key when localizing a stored title",
+            () => {
+                expect(service.titleFor(
+                    "not-in-catalog",
+                    Locale.En,
+                )).toBe("not-in-catalog")
+            })
+
+        it("localizes the complete reward catalog for Vietnamese learners",
+            () => {
+                const catalog = service.getCatalog(Locale.Vi)
+
+                expect(catalog.length).toBeGreaterThan(0)
+                expect(catalog.every((reward) => reward.title.length > 0)).toBe(true)
+                expect(service.getReward(STREAK_FREEZE_REWARD_KEY)?.key).toBe(STREAK_FREEZE_REWARD_KEY)
+            })
 
         describe("redeem",
             () => {

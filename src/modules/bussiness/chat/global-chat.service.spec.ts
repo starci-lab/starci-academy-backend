@@ -1,32 +1,32 @@
 import type {
-    EntityManager 
+    EntityManager
 } from "typeorm"
 import type {
-    UserEntity 
+    UserEntity
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
-    GlobalChatMetricsService 
+    GlobalChatMetricsService
 } from "./global-chat-metrics.service"
 import {
-    GlobalChatPolicyService 
+    GlobalChatPolicyService
 } from "./global-chat-policy.service"
 import {
-    GlobalChatService 
+    GlobalChatService
 } from "./global-chat.service"
 import {
-    GlobalChatMutationService 
+    GlobalChatMutationService
 } from "@features/api/core/graphql/mutations/chat/global-chat/global-chat.service"
 import {
-    GlobalChatMutationResolver 
+    GlobalChatMutationResolver
 } from "@features/api/core/graphql/mutations/chat/global-chat/global-chat.resolver"
 import {
-    GlobalChatQueryService 
+    GlobalChatQueryService
 } from "@features/api/core/graphql/queries/chat/global-chat/global-chat.service"
 import {
-    GlobalChatResolver 
+    GlobalChatResolver
 } from "@features/api/core/graphql/queries/chat/global-chat/global-chat.resolver"
 import {
-    AddGlobalChatRelationalOutbox1787700000000 
+    AddGlobalChatRelationalOutbox1787700000000
 } from "@modules/databases/postgresql/primary/migrations/1787700000000-AddGlobalChatRelationalOutbox"
 
 const user = {
@@ -210,6 +210,16 @@ describe("GlobalChatService",
                     code: "GLOBAL_CHAT_COMMAND_ID_CONFLICT",
                 })
                 expect(manager.transaction).not.toHaveBeenCalled()
+            })
+
+        it("fails room initialization when the idempotent insert leaves no room row",
+            async () => {
+                manager.findOne.mockResolvedValueOnce(null)
+
+                await expect(service.getOrCreateRoom()).rejects.toThrow(
+                    "Global Chat room could not be initialized",
+                )
+                expect(manager.createQueryBuilder).toHaveBeenCalled()
             })
 
         it("keeps reporter-local hiding inside the canonical history query",

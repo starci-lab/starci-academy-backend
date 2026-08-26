@@ -109,4 +109,308 @@ describe("MockInterviewGateway streaming policy",
                     },
                 })
             })
+
+        it("returns a terminal authentication error when the socket user cannot be resolved",
+            async () => {
+                const wsResponseService = {
+                    success: jest.fn(),
+                }
+                const gateway = new MockInterviewGateway(
+                    {
+                        prepareTurn: jest.fn(),
+                    } as never,
+                    {
+                        getUserByKeycloakId: jest.fn().mockRejectedValue(new Error("unknown subject")),
+                    } as never,
+                    {
+                        run: jest.fn(),
+                    } as never,
+                    {
+                        consume: jest.fn(),
+                    } as never,
+                    wsResponseService as never,
+                    {
+                        findOne: jest.fn(),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                )
+                const client = {
+                    id: "socket-auth",
+                    data: {
+                        userId: "missing-subject",
+                    },
+                }
+
+                await gateway.handleAskMockInterviewTurn(client as never,
+                    {
+                        data: {
+                            streamId: "stream-auth",
+                        },
+                    } as never)
+
+                expect(wsResponseService.success).toHaveBeenCalledWith(expect.objectContaining({
+                    client,
+                    data: {
+                        streamId: "stream-auth",
+                        delta: "",
+                        done: true,
+                        error: "not authenticated",
+                    },
+                }))
+            })
+
+        it("rejects an unresolved or expired session before preparing a prompt",
+            async () => {
+                const prepareTurn = jest.fn()
+                const run = jest.fn()
+                const success = jest.fn()
+                const findOne = jest.fn().mockResolvedValueOnce(null)
+                const gateway = new MockInterviewGateway(
+                    {
+                        prepareTurn,
+                    } as never,
+                    {
+                        getUserByKeycloakId: jest.fn().mockResolvedValue({
+                            id: "user-1",
+                        }),
+                    } as never,
+                    {
+                        run,
+                    } as never,
+                    {
+                        consume: jest.fn(),
+                    } as never,
+                    {
+                        success,
+                    } as never,
+                    {
+                        findOne,
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                )
+                const client = {
+                    id: "socket-session",
+                    data: {
+                        userId: "kc-user-1",
+                    },
+                }
+                const payload = {
+                    data: {
+                        streamId: "stream-session",
+                        sessionId: "missing-session",
+                    },
+                }
+
+                await gateway.handleAskMockInterviewTurn(
+                    client as never,
+                    payload as never,
+                )
+
+                expect(prepareTurn).not.toHaveBeenCalled()
+                expect(run).not.toHaveBeenCalled()
+                expect(success).toHaveBeenCalledWith(expect.objectContaining({
+                    data: expect.objectContaining({
+                        error: "session not found",
+                    }),
+                }))
+
+                findOne.mockResolvedValueOnce({
+                    id: "expired-session",
+                    createdAt: new Date(Date.now() - 3_600_001),
+                })
+                await gateway.handleAskMockInterviewTurn(client as never,
+                    {
+                        data: {
+                            ...payload.data,
+                            streamId: "stream-expired",
+                            sessionId: "expired-session",
+                        },
+                    } as never)
+
+                expect(prepareTurn).not.toHaveBeenCalled()
+                expect(success).toHaveBeenLastCalledWith(expect.objectContaining({
+                    data: expect.objectContaining({
+                        streamId: "stream-expired",
+                        error: "SESSION_EXPIRED",
+                    }),
+                }))
+            })
+
+        it("installs the auth middleware on initialization",
+            () => {
+                const use = jest.fn()
+                const gateway = new MockInterviewGateway(
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                )
+                Object.defineProperty(
+                    gateway,
+                    "server",
+                    {
+                        value: {
+                            use,
+                        },
+                        configurable: true,
+                    },
+                )
+
+                gateway.afterInit()
+
+                expect(use).toHaveBeenCalledTimes(1)
+            })
+
+        it("normalizes transcript roles and flushes buffered chunks after charging",
+            async () => {
+                const prepareTurn = jest.fn().mockResolvedValue({
+                    messages: [new HumanMessage("prepared")],
+                })
+                const success = jest.fn()
+                const gateway = new MockInterviewGateway(
+                    {
+                        prepareTurn,
+                    } as never,
+                    {
+                        getUserByKeycloakId: jest.fn().mockResolvedValue({
+                            id: "user-1",
+                        }),
+                    } as never,
+                    {
+                        run: jest.fn(async (params: { onChunk?: (delta: string) => void }) => {
+                            params.onChunk?.("first")
+                            params.onChunk?.("second")
+                            return {
+                                model: "model-1",
+                                provider: ModelProvider.Local,
+                                cost: 2,
+                                promptTokens: 4,
+                                completionTokens: 3,
+                                attempts: 1,
+                            }
+                        }),
+                    } as never,
+                    {
+                        consume: jest.fn().mockResolvedValue(undefined),
+                    } as never,
+                    {
+                        success,
+                    } as never,
+                    {
+                        findOne: jest.fn().mockResolvedValue({
+                            id: "session-1",
+                            createdAt: new Date(),
+                        }),
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                )
+                const client = {
+                    id: "socket-success",
+                    data: {
+                        userId: "kc-user-1",
+                    },
+                }
+
+                await gateway.handleAskMockInterviewTurn(client as never,
+                    {
+                        locale: "en",
+                        data: {
+                            streamId: "stream-success",
+                            sessionId: "session-1",
+                            courseId: "course-1",
+                            promptTitle: "Design a queue",
+                            phase: "requirements",
+                            history: [
+                                {
+                                    role: "interviewer",
+                                    content: "question",
+                                },
+                                {
+                                    role: "unexpected",
+                                    content: "answer",
+                                },
+                            ],
+                            latestAnswer: "answer",
+                            mode: "design",
+                        },
+                    } as never)
+
+                expect(prepareTurn).toHaveBeenCalledWith(expect.objectContaining({
+                    history: [
+                        {
+                            role: "interviewer",
+                            content: "question",
+                        },
+                        {
+                            role: "candidate",
+                            content: "answer",
+                        },
+                    ],
+                }))
+                expect(success).toHaveBeenCalledTimes(3)
+                expect(success.mock.calls.map((call) => call[0].data)).toEqual([
+                    {
+                        streamId: "stream-success",
+                        delta: "first",
+                        done: false,
+                    },
+                    {
+                        streamId: "stream-success",
+                        delta: "second",
+                        done: false,
+                    },
+                    {
+                        streamId: "stream-success",
+                        delta: "",
+                        done: true,
+                    },
+                ])
+            })
+
+        it("treats an abort for an unknown stream as a harmless no-op",
+            () => {
+                const gateway = new MockInterviewGateway(
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                )
+
+                expect(() => gateway.handleAbortMockInterviewTurn(
+                    {
+                        id: "socket-id",
+                    } as never,
+                    {
+                        data: {
+                            streamId: "not-running",
+                        },
+                    } as never,
+                )).not.toThrow()
+            })
     })

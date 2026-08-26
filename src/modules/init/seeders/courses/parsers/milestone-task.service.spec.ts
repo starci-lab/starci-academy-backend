@@ -231,5 +231,39 @@ describe("MilestoneTaskParserService",
                 )
             },
         )
+
+        it("retains valid tasks while parseMany logs malformed siblings",
+            async () => {
+                const pathService = module.get(MilestoneTaskPathService)
+                const winston = module.get(WinstonService)
+                jest.mocked(pathService.paths).mockResolvedValue([
+                    {
+                        relativePath: "milestone/tasks/0-valid",
+                        orderIndex: 0,
+                        displayId: "valid",
+                    },
+                    {
+                        relativePath: "milestone/tasks/1-invalid",
+                        orderIndex: 1,
+                        displayId: "invalid",
+                    },
+                ])
+                jest.spyOn(service,
+                    "parse")
+                    .mockResolvedValueOnce({
+                        id: "task-id"
+                    } as never)
+                    .mockRejectedValueOnce(new Error("bad task"))
+
+                const result = await service.parseMany({
+                    milestoneRelativePath: "course/milestones/0-milestone",
+                    courseIndex: 2,
+                    milestoneIndex: 0,
+                })
+
+                expect(result).toHaveLength(1)
+                expect(result[0]?.relativePath).toBe("milestone/tasks/0-valid")
+                expect(winston.log).toHaveBeenCalledTimes(1)
+            })
     },
 )

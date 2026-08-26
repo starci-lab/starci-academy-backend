@@ -26,6 +26,9 @@ import {
     EventEmitterService,
 } from "@modules/platform/event/event-emitter.service"
 import {
+    CourseQuestionFilter,
+} from "./types/comment"
+import {
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
 import type {
@@ -225,6 +228,34 @@ describe("CommentService",
                         })
                     })
 
+                it("creates a course-general question without emitting a content-room event",
+                    async () => {
+                        entityManager.save.mockResolvedValueOnce({
+                            id: commentId,
+                        })
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: commentId,
+                            courseId: "course-1",
+                            contentId: null,
+                            parentCommentId: null,
+                        })
+
+                        await service.createComment({
+                            courseId: "course-1",
+                            body: "course question",
+                            user: author,
+                        })
+
+                        expect(eventEmitterService.emit).not.toHaveBeenCalled()
+                        expect(entityManager.create).toHaveBeenCalledWith(ContentCommentEntity,
+                            expect.objectContaining({
+                                course: {
+                                    id: "course-1",
+                                },
+                                content: null,
+                            }))
+                    })
+
                 it("throws when replying to a non-existent parent",
                     async () => {
                         // parent existence check finds nothing
@@ -343,6 +374,36 @@ describe("CommentService",
                         ).rejects.toBeInstanceOf(CommentForbiddenException)
                         expect(entityManager.save).not.toHaveBeenCalled()
                     })
+
+                it("updates and deletes course-general comments without room events",
+                    async () => {
+                        const comment = {
+                            id: commentId,
+                            userId: author.id,
+                            contentId: null,
+                            parentCommentId: null,
+                            body: "old",
+                            editedAt: null as Date | null,
+                            isDeleted: false,
+                        }
+                        entityManager.findOne
+                            .mockResolvedValueOnce(comment)
+                            .mockResolvedValueOnce(comment)
+
+                        await service.updateComment({
+                            commentId,
+                            body: "edited",
+                            user: author,
+                        })
+                        await service.softDeleteComment({
+                            commentId,
+                            user: author,
+                        })
+
+                        expect(comment.body).toBe("edited")
+                        expect(comment.isDeleted).toBe(true)
+                        expect(eventEmitterService.emit).not.toHaveBeenCalled()
+                    })
             })
 
         describe("listComments",
@@ -435,6 +496,132 @@ describe("CommentService",
                                     }
                                 },
                             }))
+                    })
+            })
+
+        describe("listCourseQuestions",
+            () => {
+                const makeBuilder = () => {
+                    const builder = {
+                    } as Record<string, jest.Mock>
+                    for (const method of [
+                        "leftJoin",
+                        "leftJoinAndSelect",
+                        "where",
+                        "andWhere",
+                        "orderBy",
+                        "skip",
+                        "take",
+                        "innerJoin",
+                        "select",
+                        "addSelect",
+                        "groupBy",
+                        "addGroupBy",
+                    ]) {
+                        builder[method] = jest.fn(() => builder)
+                    }
+                    builder.getManyAndCount = jest.fn().mockResolvedValue([
+                        [{
+                            id: "question-1",
+                        }],
+                        1,
+                    ])
+                    builder.getRawMany = jest.fn().mockResolvedValue([])
+                    return builder
+                }
+
+                it("applies unanswered filtering, pagination, and zero aggregate fallbacks",
+                    async () => {
+                        const questionBuilder = makeBuilder()
+                        const countBuilder = makeBuilder()
+                        const founderBuilder = makeBuilder()
+                        entityManager.createQueryBuilder = jest.fn()
+                            .mockReturnValueOnce(questionBuilder)
+                            .mockReturnValueOnce(countBuilder)
+                            .mockReturnValueOnce(founderBuilder)
+
+                        const result = await service.listCourseQuestions({
+                            courseId: "course-1",
+                            filter: CourseQuestionFilter.Unanswered,
+                            search: "   ",
+                            page: 2,
+                            limit: 5,
+                            userId: author.id,
+                        })
+
+                        expect(result.questions[0]).toEqual(expect.objectContaining({
+                            replyCount: 0,
+                            answeredByFounder: false,
+                        }))
+                        expect(questionBuilder.andWhere).toHaveBeenCalledWith(expect.stringContaining("NOT EXISTS"))
+                        expect(questionBuilder.orderBy).toHaveBeenCalledWith("comment.created_at",
+                            "ASC")
+                        expect(questionBuilder.skip).toHaveBeenCalledWith(5)
+                    })
+
+                it("applies mine/search/answered filters and maps grouped aggregates",
+                    async () => {
+                        const questionBuilder = makeBuilder()
+                        const countBuilder = makeBuilder()
+                        const founderBuilder = makeBuilder()
+                        questionBuilder.getManyAndCount.mockResolvedValueOnce([
+                            [{
+                                id: "question-1",
+                            }],
+                            1,
+                        ])
+                        countBuilder.getRawMany.mockResolvedValueOnce([{
+                            parentId: "question-1",
+                            count: "2",
+                        }])
+                        founderBuilder.getRawMany.mockResolvedValueOnce([{
+                            parentId: "question-1",
+                        }])
+                        entityManager.createQueryBuilder = jest.fn()
+                            .mockReturnValueOnce(questionBuilder)
+                            .mockReturnValueOnce(countBuilder)
+                            .mockReturnValueOnce(founderBuilder)
+
+                        const result = await service.listCourseQuestions({
+                            courseId: "course-1",
+                            filter: CourseQuestionFilter.Answered,
+                            search: "billing",
+                            page: 1,
+                            limit: 10,
+                            userId: author.id,
+                        })
+
+                        expect(result.questions[0]).toEqual(expect.objectContaining({
+                            replyCount: 2,
+                            answeredByFounder: true,
+                        }))
+                        expect(questionBuilder.andWhere).toHaveBeenCalledWith("comment.body ILIKE :search",
+                            {
+                                search: "%billing%",
+                            })
+                        expect(questionBuilder.andWhere).toHaveBeenCalledWith(expect.stringContaining("EXISTS"))
+
+                        const mineBuilder = makeBuilder()
+                        mineBuilder.getManyAndCount.mockResolvedValueOnce([
+                            [],
+                            0,
+                        ])
+                        entityManager.createQueryBuilder = jest.fn()
+                            .mockReturnValueOnce(mineBuilder)
+                        await expect(service.listCourseQuestions({
+                            courseId: "course-1",
+                            filter: CourseQuestionFilter.Mine,
+                            page: 1,
+                            limit: 10,
+                            userId: author.id,
+                        })).resolves.toEqual({
+                            questions: [],
+                            total: 0,
+                        })
+                        expect(mineBuilder.andWhere).toHaveBeenCalledWith("comment.user_id = :userId",
+                            {
+                                userId: author.id,
+                            })
                     })
             })
 

@@ -58,7 +58,7 @@ const response = JSON.stringify({
 const context = (overrides: Record<string, unknown> = {
 }) => ({
     job: {
-        id: "job-1" 
+        id: "job-1"
     },
     queueName: "generate-cv",
     payload: {
@@ -74,8 +74,8 @@ const context = (overrides: Record<string, unknown> = {
     },
     extended: {
         cvGeneration: {
-            id: "cv-1" 
-        } 
+            id: "cv-1"
+        }
     },
 }) as never
 
@@ -91,26 +91,26 @@ describe("GenerateCvComposeStepService",
                 failJob: jest.fn(),
             }
             const run = jest.fn().mockResolvedValue({
-                text: response 
+                text: response
             })
             const retrieveCvContext = jest.fn().mockResolvedValue({
-                excerpt: "RAG evidence" 
+                excerpt: "RAG evidence"
             })
             const service = new GenerateCvComposeStepService(
                 asEntityManager(entityManager),
                 jobAction as never,
                 {
-                    log: jest.fn() 
+                    log: jest.fn()
                 } as never,
                 {
-                    run 
+                    run
                 } as never,
                 {
-                    retrieveCvContext 
+                    retrieveCvContext
                 } as never,
             )
             return {
-                jobAction, run, retrieveCvContext, service 
+                jobAction, run, retrieveCvContext, service
             }
         }
 
@@ -119,7 +119,7 @@ describe("GenerateCvComposeStepService",
                 const { jobAction, run, retrieveCvContext, service } = makeService()
 
                 await service.process(context({
-                    targetLevel, language: Locale.Vi 
+                    targetLevel, language: Locale.Vi
                 }))
 
                 expect(retrieveCvContext).toHaveBeenCalledWith(expect.objectContaining({
@@ -136,7 +136,7 @@ describe("GenerateCvComposeStepService",
                 expect(jobAction.saveExecutionResult).toHaveBeenCalledWith(expect.objectContaining({
                     key: "compose",
                     executionResult: expect.objectContaining({
-                        headline: "Backend Engineer" 
+                        headline: "Backend Engineer"
                     }),
                 }))
             })
@@ -146,7 +146,7 @@ describe("GenerateCvComposeStepService",
                 const { run, service } = makeService()
 
                 await service.process(context({
-                    targetRole: " " 
+                    targetRole: " "
                 }))
 
                 expect(String(run.mock.calls[0][0].messages[0].content)).toContain("mid Software Engineer")
@@ -172,5 +172,63 @@ describe("GenerateCvComposeStepService",
                 )
                 expect(run).not.toHaveBeenCalled()
                 expect(jobAction.failJob).toHaveBeenCalled()
+            })
+
+        it("normalizes structured model sections and includes revise context",
+            async () => {
+                const { jobAction, run, service } = makeService()
+                jobAction.loadExecutionResult.mockResolvedValueOnce({
+                    ...gathered,
+                    sourceCvText: "Original CV text",
+                })
+                run.mockResolvedValueOnce({
+                    text: JSON.stringify({
+                        fullName: 42,
+                        headline: "Engineer",
+                        summary: "Summary",
+                        skillGroups: [{
+                            category: "Languages",
+                            items: ["TypeScript",
+                                4],
+                        }],
+                        experiences: [{
+                            title: "Developer",
+                            org: "Acme",
+                            location: "Remote",
+                            dateRange: "2024",
+                            bullets: ["Built APIs",
+                                false],
+                        }],
+                        education: [{
+                            school: "University",
+                            degree: "BSc",
+                            dateRange: "2020",
+                        }],
+                    }),
+                })
+
+                await service.process(context({
+                    mode: CvGenerationMode.Revise,
+                    extraPrompts: "Focus on reliability",
+                }))
+
+                const invocation = run.mock.calls[0][0]
+                expect(String(invocation.messages[0].content)).toContain("Revise mode")
+                expect(String(invocation.messages[1].content)).toContain("Original CV text")
+            })
+
+        it("fails the job when the model returns invalid JSON",
+            async () => {
+                const { jobAction, run, service } = makeService()
+                run.mockResolvedValueOnce({
+                    text: "not-json"
+                })
+
+                await expect(service.process(context())).rejects.toThrow(
+                    "Failed to parse CV model output JSON.",
+                )
+                expect(jobAction.failJob).toHaveBeenCalledWith(expect.objectContaining({
+                    job: expect.anything(),
+                }))
             })
     })

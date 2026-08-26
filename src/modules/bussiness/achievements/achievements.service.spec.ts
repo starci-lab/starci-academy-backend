@@ -111,7 +111,7 @@ describe("AchievementsService",
                 String(value)]))
             entityManager.query.mockImplementation(async (sql: unknown) =>
                 (isAwardInsert(sql) ? (inserted ? [{
-                    id: "award-1" 
+                    id: "award-1"
                 }] : []) : [row]))
 
             const module: TestingModule = await Test.createTestingModule({
@@ -384,6 +384,53 @@ describe("AchievementsService",
                         // one earned achievement in the ledger -> count 1
                         expect(result.count).toBe(1)
                         expect(result.newAchievements).toEqual([])
+                    })
+
+                it("hydrates a fresh cached projection without recomputing awards",
+                    async () => {
+                        const service = await build({
+                            badges: [],
+                            definitions: [],
+                            values: [],
+                        })
+                        const cachedAt = new Date()
+                        const cached = {
+                            data: [{
+                                slug: "busy-bee",
+                                earnedAt: "2026-06-01T00:00:00.000Z",
+                                earned: true,
+                            }],
+                            count: 1,
+                        }
+                        entityManager.findOne.mockResolvedValueOnce({
+                            updatedAt: cachedAt,
+                            value: cached,
+                        })
+
+                        const result = await service.getMyAchievements(USER_ID)
+
+                        expect(result.count).toBe(1)
+                        expect(result.newAchievements).toEqual([])
+                        expect(result.data[0].earnedAt).toEqual(new Date("2026-06-01T00:00:00.000Z"))
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                    })
+
+                it("invalidates the user's cached projection through the entity manager",
+                    async () => {
+                        const service = await build({
+                            badges: [],
+                            definitions: [],
+                            values: [],
+                        })
+
+                        await service.invalidate(USER_ID)
+
+                        expect(entityManager.delete).toHaveBeenCalledWith(
+                            expect.anything(),
+                            {
+                                userId: USER_ID,
+                            },
+                        )
                     })
             })
     })

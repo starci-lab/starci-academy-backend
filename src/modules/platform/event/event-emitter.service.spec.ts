@@ -65,4 +65,23 @@ factory as never)
                 expect(local.off).toHaveBeenCalledWith(EventName.JobStatusUpdated,
                     listener)
             })
+
+        it("honors explicit transport opt-outs without serializing the payload",
+            async () => {
+                await service.emit({
+                    event: EventName.JobStatusUpdated,
+                    payload: {
+                        jobId: "job-2",
+                        status: JobStatus.Queued,
+                    },
+                    options: {
+                        useLocal: false,
+                        useNats: false,
+                    },
+                })
+
+                expect(local.emit).not.toHaveBeenCalled()
+                expect(factory.create).not.toHaveBeenCalled()
+                expect(producer.publish).not.toHaveBeenCalled()
+            })
     })
