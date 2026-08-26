@@ -1,23 +1,23 @@
 import {
-    ActiveAdvertisementResolver 
+    ActiveAdvertisementResolver
 } from "./active-advertisement.resolver"
 import {
-    AdvertisementPlacement 
+    AdvertisementPlacement
 } from "@modules/databases/postgresql/primary/enums/advertisement-placement"
 import {
-    Locale 
+    Locale
 } from "@modules/databases/postgresql/primary/enums/locale"
 const ad = {
     id: "a1",
     mediaType: "image",
     media: {
-        url: "x" 
+        url: "x"
     },
     title: {
-        en: "Sale", vi: "Promotion" 
+        en: "Sale", vi: "Promotion"
     },
     ctaText: {
-        en: "View", vi: "View" 
+        en: "View", vi: "View"
     },
     linkUrl: "https://x",
     sponsorName: "Acme",
@@ -32,16 +32,16 @@ const make = () => {
     }
     const h = {
         entityManager: {
-            createQueryBuilder: jest.fn().mockReturnValue(qb) 
+            createQueryBuilder: jest.fn().mockReturnValue(qb)
         },
         membershipService: {
-            isActive: jest.fn().mockResolvedValue(false) 
+            isActive: jest.fn().mockResolvedValue(false)
         },
         userService: {
-            checkEnrollment: jest.fn().mockResolvedValue(false) 
+            checkEnrollment: jest.fn().mockResolvedValue(false)
         },
         winstonService: {
-            log: jest.fn() 
+            log: jest.fn()
         },
     }
     return {
@@ -90,7 +90,7 @@ describe("ActiveAdvertisementResolver",
                     h.resolver.execute(
                         Locale.En,
         {
-            id: "u1" 
+            id: "u1"
         } as never,
         AdvertisementPlacement.DashboardRight,
                     ),
@@ -102,7 +102,7 @@ describe("ActiveAdvertisementResolver",
                     h2.resolver.execute(
                         Locale.En,
         {
-            id: "u1" 
+            id: "u1"
         } as never,
         AdvertisementPlacement.LessonInline,
         "c1",
@@ -118,12 +118,35 @@ describe("ActiveAdvertisementResolver",
                     h.resolver.execute(
                         Locale.En,
         {
-            id: "u1" 
+            id: "u1"
         } as never,
         AdvertisementPlacement.DashboardRight,
                     ),
                 ).resolves.toBeNull()
                 expect(h.winstonService.log).toHaveBeenCalled()
                 expect(h.qb.getOne).toHaveBeenCalled()
+            })
+
+        it("leaves localized copy empty when the requested locale is absent",
+            async () => {
+                const h = make()
+                h.qb.getOne.mockResolvedValueOnce({
+                    ...ad,
+                    title: {
+                        en: "English only",
+                    },
+                    ctaText: {
+                        en: "Open",
+                    },
+                })
+
+                await expect(h.resolver.execute(
+                    Locale.Vi,
+                    undefined,
+                    AdvertisementPlacement.DashboardRight,
+                )).resolves.toEqual(expect.objectContaining({
+                    title: undefined,
+                    ctaText: undefined,
+                }))
             })
     })

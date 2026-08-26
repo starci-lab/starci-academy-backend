@@ -55,6 +55,9 @@ import type {
     ContentEntity,
 } from "@modules/databases/postgresql/primary/entities/content.entity"
 import type {
+    ContentLearningOutcomeEntity,
+} from "@modules/databases/postgresql/primary/entities/content-learning-outcome.entity"
+import type {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 
@@ -72,8 +75,12 @@ const fakeUser = (
  * Build the S3 content document the read service hands back. The body carries a
  * testing-section heading so the premium-lock truncation has a cut point.
  */
+type ContentSnapshotOverrides = Partial<Omit<ContentEntity, "outcomes">> & {
+    outcomes?: Array<Pick<ContentLearningOutcomeEntity, "id" | "text">>
+}
+
 const buildS3Content = (
-    overrides: Partial<ContentEntity> = {
+    overrides: ContentSnapshotOverrides = {
     },
 ): ContentEntity => ({
     id: "c1",
@@ -330,6 +337,30 @@ describe("ContentHandler",
                 expect(result.codeExplainings).toHaveLength(1)
                 expect(result.codeImplementations).toHaveLength(1)
                 // free content never consults enrollment
+                expect(userService.checkEnrollment).not.toHaveBeenCalled()
+            })
+
+        it("skips the per-user rate counter for anonymous content reads",
+            async () => {
+                entityManager.findOne.mockResolvedValueOnce(null)
+                s3ReadService.json.mockResolvedValueOnce(buildS3Content({
+                    outcomes: [{
+                        id: "outcome-1", text: "Intro",
+                    }],
+                }))
+
+                const result = await handler.execute(
+                    new ContentQuery({
+                        request: {
+                            id: "c1"
+                        },
+                    }),
+                )
+
+                expect(result.outcomes).toEqual([{
+                    id: "outcome-1", text: "Intro"
+                }])
+                expect(redis.incr).not.toHaveBeenCalled()
                 expect(userService.checkEnrollment).not.toHaveBeenCalled()
             })
 

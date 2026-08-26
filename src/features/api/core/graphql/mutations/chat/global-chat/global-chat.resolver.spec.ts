@@ -75,4 +75,49 @@ describe("GlobalChatMutationResolver",
                     },
                 )
             })
+
+        it("forwards the authenticated user and exact request to moderation",
+            async () => {
+                const response = {
+                    ok: true,
+                    action: "removed",
+                }
+                const moderate = jest.fn().mockResolvedValue(response)
+                const resolver = new GlobalChatMutationResolver({
+                    moderate,
+                } as never)
+                const user = {
+                    id: "admin-1",
+                }
+                const request = {
+                    messageId: "message-9",
+                    decision: "remove",
+                }
+
+                await expect(resolver.moderate(request as never,
+                    user as never)).resolves.toBe(response)
+                expect(moderate).toHaveBeenCalledWith(user,
+                    request)
+            })
+
+        it("preserves a role-update failure and does not rewrite its domain error",
+            async () => {
+                const failure = new Error("role update denied")
+                const setRole = jest.fn().mockRejectedValue(failure)
+                const resolver = new GlobalChatMutationResolver({
+                    setRole
+                } as never)
+                const request = {
+                    targetUserId: "member-2",
+                    role: "moderator",
+                }
+                const user = {
+                    id: "admin-1"
+                }
+
+                await expect(resolver.setRole(request as never,
+                    user as never)).rejects.toBe(failure)
+                expect(setRole).toHaveBeenCalledWith(user,
+                    request)
+            })
     })

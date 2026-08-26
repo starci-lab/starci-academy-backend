@@ -226,4 +226,23 @@ describe("IndexSearchHandler",
                     items: [],
                 }))
             })
+
+        it("uses the default result size when the request omits size",
+            async () => {
+                search.mockResolvedValueOnce(buildSearchResponse([]))
+
+                await handler.execute(
+                    new IndexSearchQuery({
+                        request: {
+                            type: IndexSearchType.CourseIndex,
+                            query: "nestjs",
+                        },
+                        locale: Locale.En,
+                    }),
+                )
+
+                expect(search).toHaveBeenCalledWith(expect.objectContaining({
+                    size: 10,
+                }))
+            })
     })

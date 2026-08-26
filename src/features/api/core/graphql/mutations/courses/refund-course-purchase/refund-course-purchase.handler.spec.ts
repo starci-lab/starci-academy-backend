@@ -203,4 +203,16 @@ describe("RefundCoursePurchaseHandler",
                 expect(entityManager.save).not.toHaveBeenCalled()
                 expect(userService.invalidateEnrolledCourses).not.toHaveBeenCalled()
             })
+
+        it("rejects a settled transaction for a non-enrollment action",
+            async () => {
+                entityManager.findOne.mockResolvedValueOnce(transaction({
+                    actionType: ActionType.MembershipPurchase,
+                }))
+
+                await expect(handler.execute(command()))
+                    .rejects.toBeInstanceOf(TransactionNotRefundableException)
+                expect(entityManager.save).not.toHaveBeenCalled()
+                expect(userService.invalidateEnrolledCourses).not.toHaveBeenCalled()
+            })
     })

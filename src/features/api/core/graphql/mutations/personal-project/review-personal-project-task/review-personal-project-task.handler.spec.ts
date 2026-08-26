@@ -289,4 +289,29 @@ describe("ReviewPersonalProjectTaskHandler",
 
                 expect(enqueueService.enqueue).not.toHaveBeenCalled()
             })
+
+        it("propagates URL validation failures before persisting or enqueueing",
+            async () => {
+                entityManager.findOneOrFail.mockResolvedValueOnce({
+                    id: "enroll-1",
+                    personalProjectGithubUrl: "https://github.com/me/repo",
+                    personalProjectGithubBranch: "main",
+                })
+                const validationError = new Error("URL parser unavailable")
+                urlValidatorService.isParsable.mockRejectedValueOnce(validationError)
+
+                await expect(
+                    handler.execute(
+                        new ReviewPersonalProjectTaskCommand({
+                            request: {
+                                courseId: "course-1",
+                                taskId: "task-1",
+                            },
+                            user: fakeUser("user-1"),
+                        }),
+                    ),
+                ).rejects.toBe(validationError)
+                expect(entityManager.save).not.toHaveBeenCalled()
+                expect(enqueueService.enqueue).not.toHaveBeenCalled()
+            })
     })

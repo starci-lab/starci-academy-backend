@@ -91,4 +91,37 @@ describe("BlogPostResolver",
                         error: "membership down",
                     }))
             })
+
+        it("returns a non-premium post in full without checking membership",
+            async () => {
+                const freePost = {
+                    ...post,
+                    isPremium: false,
+                    body: {
+                        en: "free body",
+                    },
+                }
+                const isActive = jest.fn()
+                const resolver = new BlogPostResolver(
+                    {
+                        findOne: jest.fn().mockResolvedValue(freePost),
+                    } as never,
+                    {
+                        isActive,
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                )
+
+                await expect(resolver.execute(
+                    "en" as never,
+                    undefined,
+                    "hello",
+                )).resolves.toEqual(expect.objectContaining({
+                    body: "free body",
+                    isLocked: false,
+                }))
+                expect(isActive).not.toHaveBeenCalled()
+            })
     })

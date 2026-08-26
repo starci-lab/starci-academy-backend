@@ -681,4 +681,19 @@ describe("SubmitChallengeSubmissionHandler",
                 }))).rejects.toBeInstanceOf(SubmissionUrlInvalidException)
                 expect(enqueueGitV2.enqueue).not.toHaveBeenCalled()
             })
+
+        it("propagates a submission lookup failure before entering the grading transaction",
+            async () => {
+                const lookupError = new Error("database unavailable")
+                entityManager.findOne.mockRejectedValueOnce(lookupError)
+
+                await expect(handler.execute(new SubmitChallengeSubmissionCommand({
+                    request: {
+                        challengeSubmissionId: "sub-1",
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBe(lookupError)
+                expect(entityManager.transaction).not.toHaveBeenCalled()
+                expect(enqueueGitV2.enqueue).not.toHaveBeenCalled()
+            })
     })

@@ -1135,4 +1135,29 @@ describe("CoursesCheckoutHandler",
                 expect(result.transactionId).toBe("txn-1")
                 expect(result.checkoutUrl).toBe("https://payos/checkout")
             })
+
+        it("rejects an empty cart before pricing or provider calls",
+            async () => {
+                coursePriceQuoteService.quote.mockResolvedValueOnce({
+                    lines: [],
+                    totalChargedVnd: 0,
+                    totalChargedUsd: null,
+                    itemCount: 0,
+                    selectedInstallment: null,
+                })
+                await expect(handler.execute(new CoursesCheckoutCommand({
+                    request: {
+                        courseIds: [],
+                        paymentType: PaymentType.PayOS,
+                        returnUrl: "https://app/ok",
+                        cancelUrl: "https://app/cancel",
+                    },
+                    user: fakeUser("user-1"),
+                }))).rejects.toBeInstanceOf(CoursesCheckoutEmptyException)
+                expect(coursePriceQuoteService.quote).toHaveBeenCalledWith(expect.objectContaining({
+                    courseIds: [],
+                    userId: "user-1",
+                }))
+                expect(payos.paymentRequests.create).not.toHaveBeenCalled()
+            })
     })

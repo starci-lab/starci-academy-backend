@@ -79,4 +79,41 @@ rewards as never)
                 expect(result.composite.total).toBe(2)
                 expect(result.composite.completed).toBe(1)
             })
+
+        it("does not allow an unclaimed KPI below its floor to be claimed",
+            async () => {
+                const resolver = new MyKpisResolver({
+                    getStats: jest.fn().mockResolvedValue({
+                        weekResetAt: "2026-08-24T00:00:00.000Z",
+                        weeklyChallenges: 1,
+                        weeklyLessons: 0,
+                        weeklyStudyDays: 0,
+                        weeklyCoding: 0,
+                        weeklyFlashcards: 0,
+                        weeklyMilestones: 0,
+                    }),
+                } as never,
+                {
+                    getFloorStates: jest.fn().mockResolvedValue({
+                        challenges: {
+                            floorTarget: 3,
+                            claimed: false,
+                        },
+                    }),
+                } as never)
+
+                const result = await resolver.execute({
+                    id: "u1",
+                    weeklyKpiTargets: {
+                        challenges: 4,
+                    },
+                } as never)
+                const challenges = result.items.find((item) => item.key === "challenges")
+                expect(challenges).toEqual(expect.objectContaining({
+                    current: 1,
+                    target: 4,
+                    canClaim: false,
+                    claimed: false,
+                }))
+            })
     })

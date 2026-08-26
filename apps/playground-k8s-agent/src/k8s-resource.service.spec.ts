@@ -24,4 +24,24 @@ describe("K8sResourceService",
             async () => { const probe = {
                 run: jest.fn().mockResolvedValue(""), lines: jest.fn().mockReturnValue([])
             }; await expect(new K8sResourceService(probe as never).snapshot()).resolves.toEqual([]) })
+
+        it("filters malformed rows while preserving resource status mapping",
+            async () => {
+                const probe = {
+                    run: jest.fn().mockResolvedValue("default api Running\n"),
+                    lines: jest.fn().mockReturnValue(["default api Running",
+                        ""]),
+                }
+
+                await expect(new K8sResourceService(probe as never).snapshot())
+                    .resolves.toEqual(expect.arrayContaining([
+                        expect.objectContaining({
+                            kind: "Pod",
+                            name: "api",
+                            status: "",
+                        }),
+                    ]))
+                expect(probe.run).toHaveBeenCalledWith("kubectl",
+                    expect.any(Array))
+            })
     })

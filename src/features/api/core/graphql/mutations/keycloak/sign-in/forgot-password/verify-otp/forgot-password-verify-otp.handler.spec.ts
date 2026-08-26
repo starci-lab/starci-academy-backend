@@ -221,4 +221,27 @@ describe("ForgotPasswordVerifyOtpHandler",
                     ),
                 ).rejects.toBeInstanceOf(UserNotFoundException)
             })
+
+        it("propagates a token exchange failure without resetting the local account",
+            async () => {
+                otpChallengeService.verifyActionChallenge.mockResolvedValueOnce(validVerifyResult as never)
+                const exchangeError = new Error("identity provider unavailable")
+                keycloakTokenService.exchangePasswordForToken.mockRejectedValueOnce(exchangeError)
+
+                await expect(
+                    handler.execute(
+                        new ForgotPasswordVerifyOtpCommand({
+                            request: {
+                                challengeId: "chal-1",
+                                otp: "123456",
+                            },
+                        }),
+                    ),
+                ).rejects.toBe(exchangeError)
+                expect(keycloakUserService.resetUserPassword).toHaveBeenCalledWith(
+                    "kc-1",
+                    "brand-new",
+                )
+                expect(enqueueSendMailJobService.enqueue).not.toHaveBeenCalled()
+            })
     })

@@ -84,4 +84,57 @@ describe("MyUpcomingLivestreamsResolver",
                     Locale.En,
                 )
             })
+
+        it("skips overridable placeholders and supports a session without an end time",
+            async () => {
+                const transform = jest.fn((session: { note?: string }) => {
+                    session.note = "Open office hours"
+                })
+                const entityManager = {
+                    find: jest.fn().mockResolvedValue([{
+                        course: {
+                            id: "course-2",
+                            title: "Systems",
+                            displayId: "systems",
+                            defaultLocale: Locale.Vi,
+                            livestreamSessions: [
+                                {
+                                    dayOfWeek: 2,
+                                    startTime: "09:00",
+                                    expectedEndTime: null,
+                                    isOverridable: true,
+                                    note: "placeholder",
+                                },
+                                {
+                                    dayOfWeek: 3,
+                                    startTime: "09:00",
+                                    expectedEndTime: null,
+                                    isOverridable: false,
+                                    note: null,
+                                },
+                            ],
+                        },
+                    }]),
+                }
+
+                const resolver = new MyUpcomingLivestreamsResolver(
+                    entityManager as never,
+                    {
+                        transform,
+                    } as never,
+                )
+                const result = await resolver.execute({
+                    id: "u1",
+                } as never,
+                undefined as never,
+                undefined as never)
+
+                expect(result).toHaveLength(1)
+                expect(result[0].sessionTitle).toBe("Open office hours")
+                expect(result[0].nextEndAt).toBeNull()
+                expect(transform).toHaveBeenCalledTimes(1)
+                expect(transform).toHaveBeenCalledWith(expect.anything(),
+                    undefined,
+                    Locale.Vi)
+            })
     })

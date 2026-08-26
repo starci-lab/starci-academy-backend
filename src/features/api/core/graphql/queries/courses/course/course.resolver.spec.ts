@@ -54,4 +54,21 @@ service as never)
                     },
                 } as never)).toBe(PricingPhase.Regular)
             })
+
+        it("returns the projection count when the projection has no enrollments",
+            async () => {
+                const getStats = jest.fn().mockResolvedValue({
+                    enrollmentCount: 0,
+                })
+                const resolver = new CourseResolver({
+                    getStats,
+                } as never,
+                {
+                } as never)
+
+                await expect(resolver.enrollmentCount({
+                    id: "course-without-enrollments",
+                } as never)).resolves.toBe(0)
+                expect(getStats).toHaveBeenCalledWith("course-without-enrollments")
+            })
     })

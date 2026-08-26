@@ -15,17 +15,17 @@ describe("LearnAiCompanionMutationResolver",
                 await expect(resolver.resolve({
                     courseId: "course"
                 },
-{
-    id: "user"
-} as never)).resolves.toEqual({
+                {
+                    id: "user"
+                } as never)).resolves.toEqual({
                     sessionId: "session"
                 })
                 await expect(resolver.resolve({
                     courseId: "course"
                 },
-{
-    id: "user"
-} as never)).resolves.toEqual({
+                {
+                    id: "user"
+                } as never)).resolves.toEqual({
                     sessionId: null
                 })
                 expect(service.resolveLearnAiCompanion).toHaveBeenCalledWith({
@@ -46,5 +46,20 @@ describe("LearnAiCompanionMutationResolver",
 {
     id: "user"
 } as never)).resolves.toBe(response)
+            })
+
+        it("preserves reset failures from the companion service",
+            async () => {
+                const failure = new Error("reset unavailable")
+                const resetLearnAiCompanion = jest.fn().mockRejectedValue(failure)
+
+                await expect(new LearnAiCompanionMutationResolver({
+                    resetLearnAiCompanion,
+                } as never).reset({
+                    courseId: "course-1",
+                },
+                {
+                    id: "user-1",
+                } as never)).rejects.toBe(failure)
             })
     })

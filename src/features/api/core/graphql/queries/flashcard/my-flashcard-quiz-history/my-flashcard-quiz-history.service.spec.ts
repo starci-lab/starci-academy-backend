@@ -51,4 +51,57 @@ userService as never)
                     }]
                 })
             })
+
+        it("preserves weak tags and excludes zero-blank results from the correct count",
+            async () => {
+                const manager = {
+                    findAndCount: jest.fn().mockResolvedValue([[
+                        {
+                            id: "s-2",
+                            updatedAt: new Date(0),
+                            mode: "deep",
+                            level: null,
+                            cardIds: ["a"],
+                            results: [{
+                                totalBlanks: 0,
+                                correctBlanks: 0,
+                            }],
+                            coverage: null,
+                            xpEarned: 0,
+                            weakTags: [{
+                                tag: "arrays",
+                                coverage: 0.2,
+                            }],
+                            name: null,
+                        },
+                    ],
+                    1])
+                }
+                const service = new MyFlashcardQuizHistoryService(manager as never,
+                    {
+                        resolveOrCreateTrialEnrollment: jest.fn().mockResolvedValue({
+                            id: "e-2",
+                        }),
+                    } as never)
+
+                await expect(service.list({
+                    userId: "u",
+                    courseId: "c",
+                    limit: 5,
+                    offset: 3,
+                })).resolves.toMatchObject({
+                    items: [{
+                        correctCount: 0,
+                        weakTags: [{
+                            tag: "arrays",
+                        }],
+                        name: null,
+                    }],
+                })
+                expect(manager.findAndCount).toHaveBeenCalledWith(expect.anything(),
+                    expect.objectContaining({
+                        take: 5,
+                        skip: 3,
+                    }))
+            })
     })

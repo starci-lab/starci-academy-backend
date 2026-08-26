@@ -228,6 +228,30 @@ describe("SignUpVerifyOtpHandler",
                 expect(enqueueSendMailJobService.enqueue).not.toHaveBeenCalled()
             })
 
+        it("falls back to the stored username when token claims omit display fields",
+            async () => {
+                otpChallengeService.verifyActionChallenge.mockResolvedValueOnce(validVerifyResult as never)
+                jwtService.decode.mockReturnValueOnce({
+                    sub: "kc-1",
+                } as never)
+                entityManager.findOne.mockResolvedValueOnce(null)
+
+                await handler.execute(new SignUpVerifyOtpCommand({
+                    request: {
+                        challengeId: "chal-1",
+                        otp: "123456",
+                    },
+                }))
+
+                expect(entityManager.save).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        username: "new",
+                        email: "new@example.com",
+                    }),
+                )
+                expect(enqueueSendMailJobService.enqueue).toHaveBeenCalled()
+            })
+
         it("throws on an OTP mismatch (no token exchange)",
             async () => {
                 otpChallengeService.verifyActionChallenge.mockResolvedValueOnce({

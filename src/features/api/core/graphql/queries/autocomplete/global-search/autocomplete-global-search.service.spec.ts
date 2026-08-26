@@ -937,4 +937,29 @@ describe("AutocompleteGlobalSearchService",
                 expect(result.contents).toHaveLength(1)
                 expect(result.contents[0].isPremium).toBeUndefined()
             })
+
+        it("returns empty buckets without searching for a blank query",
+            async () => {
+                const result = await service.execute({
+                    request: {
+                        query: "   ",
+                    },
+                    locale: Locale.En,
+                    user: fakeUser("user-1"),
+                })
+
+                expect(result).toEqual({
+                    courses: [],
+                    modules: [],
+                    challenges: [],
+                    contents: [],
+                    flashcardDecks: [],
+                    milestones: [],
+                    milestoneTasks: [],
+                    foundations: [],
+                })
+                for (const search of Object.values(searches)) {
+                    expect(search).not.toHaveBeenCalled()
+                }
+            })
     })

@@ -253,4 +253,45 @@ describe("SyncPersonalProjectGithubHandler",
 
                 expect(entityManager.save).not.toHaveBeenCalled()
             })
+
+        it("encrypts and masks a supplied GitHub token while preserving the enrollment row",
+            async () => {
+                const enrollment = {
+                    id: "enroll-1",
+                    personalProjectGithubUrl: "https://github.com/me/repo",
+                    personalProjectGithubBranch: "main",
+                    personalProjectGithubTokenEncrypted: null,
+                    personalProjectGithubTokenLast4: null,
+                }
+                entityManager.findOneOrFail.mockResolvedValueOnce(enrollment)
+                encryptionService.encrypt.mockReturnValueOnce({
+                    ciphertext: "sealed",
+                    iv: "iv",
+                } as never)
+
+                await handler.execute(
+                    new SyncPersonalProjectGithubCommand({
+                        request: {
+                            courseId: "course-1",
+                            githubToken: "  token-1234  ",
+                        },
+                        user: fakeUser("user-1"),
+                    }),
+                )
+
+                expect(encryptionService.encrypt).toHaveBeenCalledWith({
+                    plainText: "token-1234",
+                })
+                expect(enrollment.personalProjectGithubTokenEncrypted).toBe(
+                    JSON.stringify({
+                        ciphertext: "sealed",
+                        iv: "iv",
+                    }),
+                )
+                expect(enrollment.personalProjectGithubTokenLast4).toBe("1234")
+                expect(entityManager.save).toHaveBeenCalledWith(
+                    expect.anything(),
+                    enrollment,
+                )
+            })
     })

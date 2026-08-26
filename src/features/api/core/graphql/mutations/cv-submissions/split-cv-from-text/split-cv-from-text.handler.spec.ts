@@ -183,18 +183,18 @@ describe("SplitCvFromTextHandler",
                         expect(blocks[0].items).toEqual([
                             {
                                 id: "item-0-0", fields: {
-                                    name: "TypeScript" 
-                                } 
+                                    name: "TypeScript"
+                                }
                             },
                             {
                                 id: "item-0-1", fields: {
-                                    name: "PostgreSQL" 
-                                } 
+                                    name: "PostgreSQL"
+                                }
                             },
                         ])
                         // experience string -> primary key `bullets`
                         expect(blocks[1].items[0].fields).toEqual({
-                            bullets: "Backend dev at X" 
+                            bullets: "Backend dev at X"
                         })
                         // never a raw string anywhere
                         for (const block of blocks) {
@@ -215,7 +215,7 @@ describe("SplitCvFromTextHandler",
                                 order: 0,
                                 items: [
                                     {
-                                        school: "HCMUS", degree: "CS", startDate: "2018", endDate: "2022" 
+                                        school: "HCMUS", degree: "CS", startDate: "2018", endDate: "2022"
                                     },
                                 ],
                             },
@@ -240,8 +240,8 @@ describe("SplitCvFromTextHandler",
                                     {
                                         fields: {
                                             role: "Dev", bullets: ["Line A",
-                                                "Line B"], startDate: 2022 
-                                        } 
+                                                "Line B"], startDate: 2022
+                                        }
                                     },
                                 ],
                             },
@@ -262,9 +262,9 @@ describe("SplitCvFromTextHandler",
                             {
                                 id: "x", type: "hobbies-and-pets", title: "?", order: 0, items: [{
                                     fields: {
-                                        text: "hi" 
-                                    } 
-                                }] 
+                                        text: "hi"
+                                    }
+                                }]
                             },
                         ]))
                         expect(blocks[0].type).toBe("summary")
@@ -281,20 +281,20 @@ describe("SplitCvFromTextHandler",
                                 items: [
                                     {
                                         fields: {
-                                            name: "A" 
-                                        } 
+                                            name: "A"
+                                        }
                                     },
                                     {
                                         fields: {
-                                            name: "B (should be dropped)" 
-                                        } 
+                                            name: "B (should be dropped)"
+                                        }
                                     },
                                 ],
                             },
                         ]))
                         expect(blocks[0].items).toHaveLength(1)
                         expect(blocks[0].items[0].fields).toEqual({
-                            name: "A" 
+                            name: "A"
                         })
                     })
 
@@ -304,13 +304,48 @@ describe("SplitCvFromTextHandler",
                             {
                                 type: "summary", items: [{
                                     fields: {
-                                        text: "hi" 
-                                    } 
-                                }] 
+                                        text: "hi"
+                                    }
+                                }]
                             },
                         ]))
                         expect(blocks[0].id).toBe("block-0")
                         expect(blocks[0].order).toBe(0)
+                    })
+
+                it("drops blank, array, and unsupported field values during salvage",
+                    async () => {
+                        const blocks = await runWith(JSON.stringify([{
+                            type: "experience",
+                            items: [
+                                "   ",
+                                ["not",
+                                    "an",
+                                    "object"],
+                                null,
+                                {
+                                    fields: {
+                                        title: "   ",
+                                        bullets: ["Built",
+                                            7,
+                                            " APIs"],
+                                        remote: true,
+                                        hidden: null,
+                                    },
+                                },
+                            ],
+                        }]))
+
+                        expect(blocks[0].items[0].fields).toEqual({
+                        })
+                        expect(blocks[0].items[1].fields).toEqual({
+                        })
+                        expect(blocks[0].items[2].fields).toEqual({
+                        })
+                        expect(blocks[0].items[3].fields).toEqual({
+                            bullets: "Built\n APIs",
+                            remote: "true",
+                        })
                     })
             })
 
@@ -324,7 +359,7 @@ describe("SplitCvFromTextHandler",
                 it("throws when the reply is a JSON object, not an array",
                     async () => {
                         await expect(runWith(JSON.stringify({
-                            blocks: [] 
+                            blocks: []
                         }))).rejects.toThrow()
                     })
 
@@ -332,7 +367,7 @@ describe("SplitCvFromTextHandler",
                     async () => {
                         const blocks = await runWith("```json\n[{\"type\":\"summary\",\"items\":[{\"fields\":{\"text\":\"hi\"}}]}]\n```")
                         expect(blocks[0].items[0].fields).toEqual({
-                            text: "hi" 
+                            text: "hi"
                         })
                     })
             })

@@ -74,7 +74,7 @@ describe("MyFeedResolver",
                     limit: 1,
                 } as never,
         {
-            id: "user-1" 
+            id: "user-1"
         } as UserEntity,
         Locale.En)
 
@@ -128,7 +128,7 @@ describe("MyFeedResolver",
                     }),
                 ])
                 const entityManager = {
-                    query 
+                    query
                 }
                 const labelResolverService = {
                     resolveLabels: jest.fn().mockResolvedValue(new Map()),
@@ -147,7 +147,7 @@ describe("MyFeedResolver",
                         17),
                 } as never,
         {
-            id: "user-1" 
+            id: "user-1"
         } as UserEntity,
         Locale.Vi)
 
@@ -185,7 +185,7 @@ describe("MyFeedResolver",
                     cursor: "not-base64-json",
                 } as never,
         {
-            id: "user-1" 
+            id: "user-1"
         } as UserEntity,
         Locale.En)
 
@@ -198,5 +198,30 @@ describe("MyFeedResolver",
                     targetGlobalId: null,
                     targetLabel: null,
                 }))
+            })
+
+        it("clamps a zero limit to one row and keeps a non-negative offset",
+            async () => {
+                const query = jest.fn().mockResolvedValue([])
+                const resolver = new MyFeedResolver({
+                    query,
+                } as never,
+                {
+                    resolveLabels: jest.fn().mockResolvedValue(new Map()),
+                } as never)
+
+                await resolver.execute({
+                    tab: MyFeedTab.ForYou,
+                    category: MyFeedCategory.All,
+                    limit: 0,
+                    offset: -10,
+                } as never,
+                {
+                    id: "user-1",
+                } as UserEntity,
+                Locale.En)
+
+                expect(query.mock.calls[0][0]).toContain("LIMIT 2")
+                expect(query.mock.calls[0][0]).toContain("OFFSET 0")
             })
     })

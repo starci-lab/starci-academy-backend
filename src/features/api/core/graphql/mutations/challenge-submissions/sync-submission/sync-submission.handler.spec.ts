@@ -287,4 +287,39 @@ describe("SyncSubmissionHandler",
                 expect(entityManager.create).not.toHaveBeenCalled()
                 expect(entityManager.save).not.toHaveBeenCalled()
             })
+
+        it("clears a supplied grading lane when validation returns no eligible pin",
+            async () => {
+                const existing = {
+                    id: "ucs-2",
+                    selectedModel: "old-model",
+                    selectedModelProvider: ModelProvider.OpenAI,
+                }
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-2",
+                        type: "githubUrl",
+                    })
+                    .mockResolvedValueOnce(existing)
+                gradingLaneValidationService.validate.mockResolvedValueOnce({
+                    gradingModel: undefined,
+                    gradingProvider: undefined,
+                } as never)
+
+                await handler.execute(new SyncSubmissionCommand({
+                    request: {
+                        id: "sub-2",
+                        selectedModel: "retired-model",
+                        selectedModelProvider: ModelProvider.Gemini,
+                    },
+                    user: fakeUser("user-1"),
+                }))
+
+                expect(existing.selectedModel).toBeNull()
+                expect(existing.selectedModelProvider).toBeNull()
+                expect(entityManager.save).toHaveBeenCalledWith(
+                    expect.anything(),
+                    existing,
+                )
+            })
     })

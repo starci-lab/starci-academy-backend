@@ -55,4 +55,46 @@ describe("MyMockInterviewAttemptsResolver",
                     userId: "user", courseId: "course", limit: 10, offset: 0, mode: undefined
                 })
             })
+
+        it("preserves nullable scorecard fields while mapping an attempt",
+            async () => {
+                const service = {
+                    list: jest.fn().mockResolvedValue({
+                        totalCount: 1,
+                        items: [{
+                            id: "attempt-2",
+                            sessionId: "session-2",
+                            promptId: "prompt-2",
+                            promptTitle: "Design",
+                            level: null,
+                            mode: "design",
+                            overallScore: null,
+                            verdict: null,
+                            phaseScores: [],
+                            attributeScores: [],
+                            strengths: [],
+                            gaps: [],
+                            followUpQuestion: null,
+                            matchedContentIds: [],
+                            questionReviews: [],
+                            createdAt: new Date(0),
+                            name: null,
+                        }],
+                    }),
+                }
+                const result = await new MyMockInterviewAttemptsResolver(service as never).execute({
+                    id: "user",
+                } as never,
+                "course",
+                1,
+                0,
+                "design" as never)
+
+                expect(result.items[0]).toEqual(expect.objectContaining({
+                    id: "attempt-2",
+                    overallScore: null,
+                    verdict: null,
+                    createdAt: new Date(0).toISOString(),
+                }))
+            })
     })
