@@ -1,0 +1,21 @@
+{
+  "$schema": "../../../.claude/readiness/initialization/workspaces/portable-route.schema.json",
+  "schemaVersion": 6,
+  "project": "miamia",
+  "role": "fe",
+  "repository": {
+    "kind": "sibling",
+    "directory": "miamia-fe",
+    "gitRepository": "https://github.com/starci-lab/miamia-fe2.git",
+    "branch": "main"
+  },
+  "context": {
+    "instructions": [],
+    "contract": "src/components/contracts/index.ts",
+    "contractSource": "discovered:src/components/contracts/index.ts",
+    "manifests": [
+      "package.json"
+    ],
+    "grammarId": "offset-pop"
+  }
+}
