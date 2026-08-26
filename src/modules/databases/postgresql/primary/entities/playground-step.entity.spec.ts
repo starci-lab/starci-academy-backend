@@ -4,6 +4,12 @@ import {
 import {
     PlaygroundStepEntity
 } from "./playground-step.entity"
+describe("PlaygroundStepEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new PlaygroundStepEntity(),
+            {
+                id: "wave22-playground-step"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-playground-step"); const id = getMetadataArgsStorage().columns.find((x) => x.target === PlaygroundStepEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("PlaygroundStepEntity contract",
     () => {
         it("resolves table, columns, relations, indexes, and lazy callbacks",

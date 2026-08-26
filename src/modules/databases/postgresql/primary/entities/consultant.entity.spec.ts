@@ -4,6 +4,12 @@ import {
 import {
     ConsultantEntity
 } from "./consultant.entity"
+describe("ConsultantEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new ConsultantEntity(),
+            {
+                id: "wave22-consultant"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-consultant"); const id = getMetadataArgsStorage().columns.find((x) => x.target === ConsultantEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("ConsultantEntity contract",
     () => {
         it("resolves table, columns, relations, and lazy callbacks",

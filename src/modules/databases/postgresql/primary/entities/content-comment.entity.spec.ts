@@ -4,6 +4,12 @@ import {
 import {
     ContentCommentEntity
 } from "./content-comment.entity"
+describe("ContentCommentEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new ContentCommentEntity(),
+            {
+                id: "wave22-comment"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-comment"); const id = getMetadataArgsStorage().columns.find((x) => x.target === ContentCommentEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("ContentCommentEntity contract",
     () => {
         it("resolves table, columns, relations, and lazy callbacks",

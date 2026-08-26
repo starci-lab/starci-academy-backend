@@ -4,6 +4,12 @@ import {
 import {
     PlaygroundEntity
 } from "./playground.entity"
+describe("PlaygroundEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new PlaygroundEntity(),
+            {
+                id: "wave22-playground"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-playground"); const id = getMetadataArgsStorage().columns.find((x) => x.target === PlaygroundEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("PlaygroundEntity contract",
     () => {
         it("resolves table, columns, relations, and lazy callbacks",

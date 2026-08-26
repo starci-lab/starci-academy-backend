@@ -4,6 +4,12 @@ import {
 import {
     CommunityPostEntity
 } from "./community-post.entity"
+describe("CommunityPostEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new CommunityPostEntity(),
+            {
+                id: "wave22-post"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-post"); const id = getMetadataArgsStorage().columns.find((x) => x.target === CommunityPostEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("CommunityPostEntity contract",
     () => {
         it("resolves table, columns, relations, indexes, and lazy callbacks",

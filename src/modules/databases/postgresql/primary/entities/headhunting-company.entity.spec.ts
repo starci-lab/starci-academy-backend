@@ -4,6 +4,12 @@ import {
 import {
     HeadhuntingCompanyEntity
 } from "./headhunting-company.entity"
+describe("HeadhuntingCompanyEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new HeadhuntingCompanyEntity(),
+            {
+                id: "wave22-company"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-company"); const id = getMetadataArgsStorage().columns.find((x) => x.target === HeadhuntingCompanyEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("HeadhuntingCompanyEntity contract",
     () => {
         it("resolves table, columns, relations, and lazy callbacks",

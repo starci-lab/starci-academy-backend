@@ -4,6 +4,12 @@ import {
 import {
     FoundationCategoryEntity
 } from "./foundation-category.entity"
+describe("FoundationCategoryEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new FoundationCategoryEntity(),
+            {
+                id: "wave22-category"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-category"); const id = getMetadataArgsStorage().columns.find((x) => x.target === FoundationCategoryEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("FoundationCategoryEntity contract",
     () => {
         it("resolves table, columns, relations, indexes, and lazy callbacks",

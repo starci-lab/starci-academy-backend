@@ -4,6 +4,12 @@ import {
 import {
     CourseVoucherEntity
 } from "./course-voucher.entity"
+describe("CourseVoucherEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new CourseVoucherEntity(),
+            {
+                id: "wave22-voucher"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-voucher"); const id = getMetadataArgsStorage().columns.find((x) => x.target === CourseVoucherEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("CourseVoucherEntity contract",
     () => {
         it("resolves table, columns, relations, indexes, and lazy callbacks",

@@ -4,6 +4,12 @@ import {
 import {
     CreditUsageHistoryEntity
 } from "./credit-usage-history.entity"
+describe("CreditUsageHistoryEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new CreditUsageHistoryEntity(),
+            {
+                id: "wave22-credit"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-credit"); const id = getMetadataArgsStorage().columns.find((x) => x.target === CreditUsageHistoryEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("CreditUsageHistoryEntity contract",
     () => {
         it("resolves table, columns, relations, indexes, and lazy callbacks",

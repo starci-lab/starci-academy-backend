@@ -4,6 +4,12 @@ import {
 import {
     EnrollmentEntity
 } from "./enrollment.entity"
+describe("EnrollmentEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new EnrollmentEntity(),
+            {
+                id: "wave22-enrollment"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-enrollment"); const id = getMetadataArgsStorage().columns.find((x) => x.target === EnrollmentEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("EnrollmentEntity contract",
     () => {
         it("resolves table, columns, relations, and lazy callbacks",

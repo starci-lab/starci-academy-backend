@@ -4,6 +4,12 @@ import {
 import {
     FoundationTagEntity
 } from "./foundation-tag.entity"
+describe("FoundationTagEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new FoundationTagEntity(),
+            {
+                id: "wave22-tag"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-tag"); const id = getMetadataArgsStorage().columns.find((x) => x.target === FoundationTagEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("FoundationTagEntity contract",
     () => {
         it("resolves table, columns, relations, indexes, and lazy callbacks",

@@ -31,4 +31,15 @@ describe("UserStatsProjectionService",
                 }))
                 expect(manager.query).toHaveBeenCalled()
             })
+
+        it("identifies stale and current projection timestamps",
+            () => {
+                const service = new UserStatsProjectionService({
+                    query: jest.fn()
+                } as never) as unknown as {
+                    isStale: (updatedAt: Date) => boolean
+                }
+                expect(service.isStale(new Date(Date.now() - 10 * 60 * 1000))).toBe(true)
+                expect(service.isStale(new Date())).toBe(false)
+            })
     })

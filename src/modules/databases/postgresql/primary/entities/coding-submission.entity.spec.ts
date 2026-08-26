@@ -4,6 +4,12 @@ import {
 import {
     CodingSubmissionEntity
 } from "./coding-submission.entity"
+describe("CodingSubmissionEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new CodingSubmissionEntity(),
+            {
+                id: "wave22-coding-submission"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-coding-submission"); const id = getMetadataArgsStorage().columns.find((x) => x.target === CodingSubmissionEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("CodingSubmissionEntity contract",
     () => {
         it("resolves table, columns, relations, and lazy callbacks",

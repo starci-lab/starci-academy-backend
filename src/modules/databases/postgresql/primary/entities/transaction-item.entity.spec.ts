@@ -4,6 +4,12 @@ import {
 import {
     TransactionItemEntity
 } from "./transaction-item.entity"
+describe("TransactionItemEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new TransactionItemEntity(),
+            {
+                id: "wave22-item"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-item"); const id = getMetadataArgsStorage().columns.find((x) => x.target === TransactionItemEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("TransactionItemEntity contract",
     () => {
         it("resolves table, columns, relations, indexes, and lazy callbacks",

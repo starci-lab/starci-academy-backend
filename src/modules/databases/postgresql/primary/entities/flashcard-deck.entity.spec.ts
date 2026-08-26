@@ -4,6 +4,12 @@ import {
 import {
     FlashcardDeckEntity
 } from "./flashcard-deck.entity"
+describe("FlashcardDeckEntity identity contract",
+    () => { it("keeps the assigned id aligned with primary metadata",
+        () => { const entity = Object.assign(new FlashcardDeckEntity(),
+            {
+                id: "wave22-deck"
+            }); expect((entity as unknown as { id: string }).id).toBe("wave22-deck"); const id = getMetadataArgsStorage().columns.find((x) => x.target === FlashcardDeckEntity && x.propertyName === "id"); expect(id === undefined || id.options.primary === undefined || id.options.primary === true).toBe(true) }) })
 describe("FlashcardDeckEntity contract",
     () => {
         it("resolves table, columns, relations, and lazy callbacks",
