@@ -217,6 +217,103 @@ describe("CodingSubmissionService",
                             userAgent: "ua",
                         })
                     })
+
+                it("logs device failures but still enqueues the pending submission",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: "problem-1",
+                        })
+                        entityManager.save.mockResolvedValueOnce({
+                            id: "submission-1",
+                        })
+                        const deviceError = new Error("device store unavailable")
+                        deviceService.recordDevice.mockRejectedValueOnce(deviceError)
+
+                        await expect(service.submit({
+                            userId,
+                            slug,
+                            language: CodingLanguage.Python,
+                            sourceCode: "print(1)",
+                        })).resolves.toEqual({
+                            submissionId: "submission-1",
+                            jobId: "job-1",
+                        })
+                        expect(enqueueService.enqueue).toHaveBeenCalledWith({
+                            userId,
+                            codingSubmissionId: "submission-1",
+                        })
+                        expect(winstonServiceMock.useValue.log).toHaveBeenCalledWith(
+                            expect.anything(),
+                            expect.objectContaining({
+                                op: "coding.device-record.failed",
+                                error: deviceError.message,
+                            }),
+                        )
+                    })
+            })
+
+        describe("recordSolutionReveal",
+            () => {
+                it("throws when the requested problem is unavailable",
+                    async () => {
+                        await expect(service.recordSolutionReveal({
+                            userId,
+                            slug,
+                        })).rejects.toBeInstanceOf(CodingProblemNotFoundException)
+                        expect(entityManager.save).not.toHaveBeenCalled()
+                    })
+
+                it("returns an idempotent result for an existing reveal",
+                    async () => {
+                        const solutions = [{
+                            id: "solution-1",
+                        }]
+                        entityManager.findOne
+                            .mockResolvedValueOnce({
+                                id: "problem-1",
+                                solutions,
+                            })
+                            .mockResolvedValueOnce({
+                                id: "reveal-1",
+                            })
+
+                        await expect(service.recordSolutionReveal({
+                            userId,
+                            slug,
+                        })).resolves.toEqual({
+                            revealed: false,
+                            solutions,
+                        })
+                        expect(entityManager.save).not.toHaveBeenCalled()
+                    })
+
+                it("persists the first reveal and tolerates an absent solution list",
+                    async () => {
+                        entityManager.findOne
+                            .mockResolvedValueOnce({
+                                id: "problem-1",
+                            })
+                            .mockResolvedValueOnce(null)
+
+                        await expect(service.recordSolutionReveal({
+                            userId,
+                            slug,
+                        })).resolves.toEqual({
+                            revealed: true,
+                            solutions: [],
+                        })
+                        expect(entityManager.save).toHaveBeenCalledWith(
+                            expect.anything(),
+                            {
+                                user: {
+                                    id: userId,
+                                },
+                                problem: {
+                                    id: "problem-1",
+                                },
+                            },
+                        )
+                    })
             })
 
         describe("listMine",
@@ -278,6 +375,43 @@ describe("CodingSubmissionService",
                                 take: 10,
                             },
                         )
+                    })
+            })
+
+        describe("getAcceptedSummary",
+            () => {
+                it("returns null when no accepted row exists",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([{
+                            first_solved_at: null,
+                        }])
+
+                        await expect(service.getAcceptedSummary({
+                            userId,
+                            problemId: "problem-1",
+                        })).resolves.toBeNull()
+                    })
+
+                it("maps the earliest accepted row and defaults nullable aggregates",
+                    async () => {
+                        const solvedAt = "2026-08-26T00:00:00.000Z"
+                        entityManager.query.mockResolvedValueOnce([{
+                            languages: null,
+                            passed_count: "3",
+                            total_count: "4",
+                            first_solved_at: solvedAt,
+                        }])
+
+                        await expect(service.getAcceptedSummary({
+                            userId,
+                            problemId: "problem-1",
+                        })).resolves.toEqual({
+                            languages: [],
+                            verdict: CodingVerdict.Accepted,
+                            passedCount: 3,
+                            totalCount: 4,
+                            firstSolvedAt: solvedAt,
+                        })
                     })
             })
     })

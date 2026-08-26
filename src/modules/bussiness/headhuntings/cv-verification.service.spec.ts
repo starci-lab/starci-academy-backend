@@ -51,9 +51,8 @@ describe("CvVerificationService",
             () => {
                 it("returns an empty map and hits no query for an empty batch",
                     async () => {
-                        // no users -> the service must short-circuit before any DB round-trip
                         const levels = await service.resolveLevels({
-                            userIds: [] 
+                            userIds: [],
                         })
 
                         expect(levels.size).toBe(0)
@@ -62,15 +61,14 @@ describe("CvVerificationService",
 
                 it("classifies a passed-capstone user as CapstoneVerified",
                     async () => {
-                        // probe order is capstone-first, challenge-second (Promise.all array order)
                         entityManager.query
                             .mockResolvedValueOnce([{
-                                user_id: "u1" 
+                                user_id: "u1",
                             }])
                             .mockResolvedValueOnce([])
 
                         const levels = await service.resolveLevels({
-                            userIds: ["u1"] 
+                            userIds: ["u1"],
                         })
 
                         expect(levels.get("u1")).toBe(CvVerificationLevel.CapstoneVerified)
@@ -78,15 +76,14 @@ describe("CvVerificationService",
 
                 it("classifies a graded-challenge-only user as ActivityBacked",
                     async () => {
-                        // absent from the capstone set, present in the challenge set
                         entityManager.query
                             .mockResolvedValueOnce([])
                             .mockResolvedValueOnce([{
-                                user_id: "u2" 
+                                user_id: "u2",
                             }])
 
                         const levels = await service.resolveLevels({
-                            userIds: ["u2"] 
+                            userIds: ["u2"],
                         })
 
                         expect(levels.get("u2")).toBe(CvVerificationLevel.ActivityBacked)
@@ -94,13 +91,12 @@ describe("CvVerificationService",
 
                 it("classifies a user with no graded StarCi work as SelfReported",
                     async () => {
-                        // absent from both probes -> the CV rests on self-reported claims only
                         entityManager.query
                             .mockResolvedValueOnce([])
                             .mockResolvedValueOnce([])
 
                         const levels = await service.resolveLevels({
-                            userIds: ["u3"] 
+                            userIds: ["u3"],
                         })
 
                         expect(levels.get("u3")).toBe(CvVerificationLevel.SelfReported)
@@ -108,17 +104,16 @@ describe("CvVerificationService",
 
                 it("lets a passed capstone win over graded challenge for the same user",
                     async () => {
-                        // user appears in BOTH sets -- capstone is the stronger, decisive signal
                         entityManager.query
                             .mockResolvedValueOnce([{
-                                user_id: "u4" 
+                                user_id: "u4",
                             }])
                             .mockResolvedValueOnce([{
-                                user_id: "u4" 
+                                user_id: "u4",
                             }])
 
                         const levels = await service.resolveLevels({
-                            userIds: ["u4"] 
+                            userIds: ["u4"],
                         })
 
                         expect(levels.get("u4")).toBe(CvVerificationLevel.CapstoneVerified)
@@ -126,19 +121,18 @@ describe("CvVerificationService",
 
                 it("classifies a mixed batch, defaulting the unmatched user to SelfReported",
                     async () => {
-                        // u1 passed a capstone, u2 has graded challenge work, u3 has neither
                         entityManager.query
                             .mockResolvedValueOnce([{
-                                user_id: "u1" 
+                                user_id: "u1",
                             }])
                             .mockResolvedValueOnce([{
-                                user_id: "u2" 
+                                user_id: "u2",
                             }])
 
                         const levels = await service.resolveLevels({
                             userIds: ["u1",
                                 "u2",
-                                "u3"] 
+                                "u3"],
                         })
 
                         expect(levels.get("u1")).toBe(CvVerificationLevel.CapstoneVerified)
@@ -153,7 +147,7 @@ describe("CvVerificationService",
                     async () => {
                         entityManager.query
                             .mockResolvedValueOnce([{
-                                user_id: "solo" 
+                                user_id: "solo",
                             }])
                             .mockResolvedValueOnce([])
 
@@ -163,17 +157,56 @@ describe("CvVerificationService",
                     })
             })
 
-        describe("rankOf",
+        describe("scoreOf and rankOf",
             () => {
-                it("orders capstone above activity above self-reported",
+                it("scores only capstones and orders every verification level",
                     () => {
-                        // the tiebreak comparator relies on this strict ordering
-                        expect(service.rankOf(CvVerificationLevel.CapstoneVerified)).toBeGreaterThan(
-                            service.rankOf(CvVerificationLevel.ActivityBacked),
-                        )
-                        expect(service.rankOf(CvVerificationLevel.ActivityBacked)).toBeGreaterThan(
-                            service.rankOf(CvVerificationLevel.SelfReported),
-                        )
+                        expect(service.scoreOf(CvVerificationLevel.CapstoneVerified)).toBe(100)
+                        expect(service.scoreOf(CvVerificationLevel.ActivityBacked)).toBe(0)
+                        expect(service.scoreOf(CvVerificationLevel.SelfReported)).toBe(0)
+                        expect(service.rankOf(CvVerificationLevel.CapstoneVerified)).toBe(2)
+                        expect(service.rankOf(CvVerificationLevel.ActivityBacked)).toBe(1)
+                        expect(service.rankOf(CvVerificationLevel.SelfReported)).toBe(0)
+                    })
+            })
+
+        describe("resolveLevelForCourse",
+            () => {
+                it("prioritizes a passed capstone within the requested course",
+                    async () => {
+                        entityManager.query
+                            .mockResolvedValueOnce([{
+                                user_id: "u1",
+                            }])
+                            .mockResolvedValueOnce([{
+                                user_id: "u1",
+                            }])
+
+                        await expect(service.resolveLevelForCourse({
+                            userId: "u1",
+                            courseId: "course-1",
+                        })).resolves.toBe(CvVerificationLevel.CapstoneVerified)
+                    })
+
+                it("returns activity-backed or self-reported when the course probes lack a capstone",
+                    async () => {
+                        entityManager.query
+                            .mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([{
+                                user_id: "u2",
+                            }])
+                        await expect(service.resolveLevelForCourse({
+                            userId: "u2",
+                            courseId: "course-2",
+                        })).resolves.toBe(CvVerificationLevel.ActivityBacked)
+
+                        entityManager.query
+                            .mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([])
+                        await expect(service.resolveLevelForCourse({
+                            userId: "u3",
+                            courseId: "course-3",
+                        })).resolves.toBe(CvVerificationLevel.SelfReported)
                     })
             })
     })

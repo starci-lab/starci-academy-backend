@@ -11,7 +11,18 @@ import {
     CoursePriceCalculatorService,
 } from "./course-price-calculator.service"
 
-const course = (overrides: Partial<CourseEntity> = {
+interface CourseFixtureOverrides extends Omit<Partial<CourseEntity>, "metadata" | "pricingPhases"> {
+    metadata?: {
+        currentPhase: PricingPhase
+    }
+    pricingPhases?: Array<{
+        phase: PricingPhase
+        price: number
+        priceUsd: number | null
+    }>
+}
+
+const course = (overrides: CourseFixtureOverrides = {
 }): CourseEntity => ({
     id: "course-1",
     originalPrice: 1500000,
@@ -36,13 +47,13 @@ describe("CoursePriceCalculatorService",
                 const input = course()
 
                 expect(service.resolveListAmountVnd({
-                    course: input 
+                    course: input
                 })).toBe(15000)
                 expect(service.resolveAmountVnd({
-                    course: input 
+                    course: input
                 })).toBe(12500)
                 expect(service.resolveAmountVnd({
-                    course: input, discountPercent: 5 
+                    course: input, discountPercent: 5
                 })).toBe(11875)
             })
 
@@ -66,20 +77,20 @@ describe("CoursePriceCalculatorService",
                 const input = course()
 
                 expect(service.resolveAmountUsd({
-                    course: input 
+                    course: input
                 })).toBe(49.99)
                 expect(service.resolveAmountUsd({
-                    course: input, discountPercent: -10 
+                    course: input, discountPercent: -10
                 })).toBe(49.99)
                 expect(service.resolveAmountUsd({
-                    course: input, discountPercent: 120 
+                    course: input, discountPercent: 120
                 })).toBe(.99)
             })
 
         it("falls back to Early Bird when course metadata is absent",
             () => {
                 expect(service.getCurrentPricingPhase(course({
-                    metadata: undefined 
+                    metadata: undefined
                 }))).toBe(
                     PricingPhase.EarlyBird,
                 )
@@ -88,13 +99,71 @@ describe("CoursePriceCalculatorService",
         it("rejects a non-regular phase without a configured price",
             () => {
                 const input = course({
-                    pricingPhases: [] 
+                    pricingPhases: []
                 })
 
                 expect(() => service.resolveAmountVnd({
-                    course: input 
+                    course: input
                 })).toThrow(
                     PricingPhaseNoPriceException,
                 )
+            })
+
+        it("handles regular pricing, explicit phases, and missing USD values",
+            () => {
+                const regular = course({
+                    originalPrice: 100,
+                    originalPriceUsd: undefined,
+                    metadata: {
+                        currentPhase: PricingPhase.Regular,
+                    },
+                    pricingPhases: [],
+                })
+                expect(service.resolveAmountVnd({
+                    course: regular,
+                })).toBe(1)
+                expect(service.resolveAmountUsd({
+                    course: regular,
+                })).toBeNull()
+                expect(service.resolveListAmountUsd({
+                    course: regular,
+                })).toBeNull()
+
+                const pioneer = course({
+                    metadata: {
+                        currentPhase: PricingPhase.Regular,
+                    },
+                    pricingPhases: [{
+                        phase: PricingPhase.Pioneer,
+                        price: 900,
+                        priceUsd: null,
+                    }],
+                })
+                expect(service.resolveAmountVnd({
+                    course: pioneer, phase: PricingPhase.Pioneer, discountPercent: 10,
+                })).toBe(8)
+                expect(service.resolveAmountUsd({
+                    course: pioneer, phase: PricingPhase.Pioneer,
+                })).toBeNull()
+            })
+
+        it("falls back to the active phase for a missing list price and charm-rounds USD",
+            () => {
+                const input = course({
+                    originalPrice: undefined,
+                    originalPriceUsd: .5,
+                })
+                expect(service.resolveDisplayListAmountVnd({
+                    course: input,
+                })).toBe(1250000)
+                expect(service.resolveListAmountVnd({
+                    course: input,
+                })).toBe(12500)
+                expect(service.resolveListAmountUsd({
+                    course: input,
+                })).toBe(.99)
+                expect(service.resolveAmountUsd({
+                    course: input, discountPercent: 100,
+                })).toBe(0.99)
             })
     })

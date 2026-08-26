@@ -1,26 +1,33 @@
 import {
-    PricingPhase 
+    PricingPhase
 } from "@modules/databases/postgresql/primary/enums/pricing-phase"
 import {
-    DiscountReason 
+    DiscountReason
 } from "@modules/databases/postgresql/primary/enums/discount-reason"
 import {
-    CoursePriceQuoteService 
+    VoucherDiscountType
+} from "@modules/databases/postgresql/primary/enums/voucher-discount-type"
+import {
+    CoursePriceQuoteService
 } from "./course-price-quote.service"
 import {
-    CoursePriceQuoteIntent 
+    CoursePriceQuoteIntent
 } from "./types"
+
+interface NextPhaseAmountParams {
+    phase?: PricingPhase
+}
 
 describe("CoursePriceQuoteService",
     () => {
         const courses = [
             {
                 id: "a", originalPrice: 1500, pricingPhases: [], metadata: {
-                } 
+                }
             },
             {
                 id: "b", originalPrice: 2000, pricingPhases: [], metadata: {
-                } 
+                }
             },
         ] as never
         const entityManager = {
@@ -38,7 +45,7 @@ describe("CoursePriceQuoteService",
         }
         const loyalty = {
             computeLoyaltyContext: jest.fn().mockResolvedValue({
-                ownedCount: 1, diligent: false 
+                ownedCount: 1, diligent: false
             }),
             computeBundleBonusPercent: jest.fn((count) => count >= 2 ? 5 : 0),
             resolveLoyaltyPercent: jest.fn(({ extraOwnedCount = 0 }) => ({
@@ -49,7 +56,7 @@ describe("CoursePriceQuoteService",
             applyBundleBonus: jest.fn(({ basePercent, itemCount }) => basePercent + (itemCount >= 2 ? 5 : 0)),
         }
         const vouchers = {
-            previewDiscount: jest.fn(), applyToAmount: jest.fn() 
+            previewDiscount: jest.fn(), applyToAmount: jest.fn()
         }
         const installments = {
             computeInstallmentOptions: jest.fn().mockReturnValue([]),
@@ -82,11 +89,11 @@ describe("CoursePriceQuoteService",
                 expect(result.bundleDiscountPercent).toBe(0)
                 expect(loyalty.resolveLoyaltyPercent).toHaveBeenNthCalledWith(1,
                     expect.objectContaining({
-                        extraOwnedCount: 0 
+                        extraOwnedCount: 0
                     }))
                 expect(loyalty.resolveLoyaltyPercent).toHaveBeenNthCalledWith(2,
                     expect.objectContaining({
-                        extraOwnedCount: 0 
+                        extraOwnedCount: 0
                     }))
                 expect(calculator.resolveDisplayAmountVnd).toHaveBeenCalled()
                 expect(calculator.resolveAmountVnd).not.toHaveBeenCalled()
@@ -129,7 +136,112 @@ describe("CoursePriceQuoteService",
                         "missing"],
                     intent: CoursePriceQuoteIntent.Discovery,
                 })).rejects.toMatchObject({
-                    code: "COURSE_NOT_FOUND_EXCEPTION" 
+                    code: "COURSE_NOT_FOUND_EXCEPTION"
                 })
+            })
+
+        it("returns the complete zero result without querying for empty input",
+            async () => {
+                await expect(service.quote({
+                    userId: "u", courseIds: [], intent: CoursePriceQuoteIntent.Discovery,
+                })).resolves.toEqual(expect.objectContaining({
+                    lines: [], totalListVnd: 0, totalPhaseVnd: 0, totalChargedVnd: 0,
+                    itemCount: 0, selectedInstallment: null,
+                }))
+                expect(entityManager.find).not.toHaveBeenCalled()
+                expect(loyalty.computeLoyaltyContext).not.toHaveBeenCalled()
+            })
+
+        it("returns zero when checkout excludes every owned course",
+            async () => {
+                entityManager.find
+                    .mockResolvedValueOnce([courses[0]])
+                    .mockResolvedValueOnce([{
+                        courseId: "a",
+                    }])
+                await expect(service.quote({
+                    userId: "u", courseIds: ["a",
+                        "a"], intent: CoursePriceQuoteIntent.Checkout,
+                })).resolves.toEqual(expect.objectContaining({
+                    lines: [], totalChargedVnd: 0, itemCount: 0,
+                }))
+                expect(loyalty.computeLoyaltyContext).not.toHaveBeenCalled()
+            })
+
+        it("applies a single-course percent voucher to VND and USD totals",
+            async () => {
+                entityManager.find.mockResolvedValueOnce([courses[0]])
+                calculator.resolveListAmountUsd.mockReturnValue(20)
+                calculator.resolveAmountUsd.mockReturnValue(10)
+                vouchers.previewDiscount.mockResolvedValue({
+                    discountType: VoucherDiscountType.Percent,
+                    percent: 10,
+                })
+                vouchers.applyToAmount.mockImplementation((amount: number) => amount * .9)
+                installments.computeInstallmentOptions.mockReturnValue([{
+                    months: 3,
+                }])
+                installments.computeInstallmentTotal.mockReturnValue({
+                    months: 3, totalAmountVnd: 1000,
+                })
+
+                const result = await service.quote({
+                    userId: "u", courseIds: ["a"], intent: CoursePriceQuoteIntent.Discovery,
+                    voucherCode: "SAVE10", installmentMonths: 3,
+                })
+                expect(vouchers.previewDiscount).toHaveBeenCalledWith({
+                    userId: "u", code: "SAVE10", courseId: "a",
+                })
+                expect(vouchers.applyToAmount).toHaveBeenCalledTimes(2)
+                expect(result.voucherDiscountedPriceUsd).toBe(9)
+                expect(result.totalChargedUsd).toBe(9)
+                expect(result.selectedInstallment).toEqual({
+                    months: 3, totalAmountVnd: 1000,
+                })
+            })
+
+        it("rejects vouchers for multi-course checkout and tolerates a missing next price",
+            async () => {
+                entityManager.find.mockResolvedValueOnce(courses)
+                await expect(service.quote({
+                    userId: "u", courseIds: ["a",
+                        "b"], intent: CoursePriceQuoteIntent.Discovery,
+                    voucherCode: "ONE-COURSE",
+                })).rejects.toMatchObject({
+                    code: "INVALID_VOUCHER_EXCEPTION",
+                })
+
+                const throwingCalculator = {
+                    getCurrentPricingPhase: jest.fn().mockReturnValue(PricingPhase.EarlyBird),
+                    resolveListAmountVnd: jest.fn().mockReturnValue(100),
+                    resolveAmountVnd: jest.fn(({ phase }: NextPhaseAmountParams) => {
+                        if (phase === PricingPhase.Regular) {
+                            throw new Error("next phase is not configured")
+                        }
+                        return 80
+                    }),
+                    resolveDisplayListAmountVnd: jest.fn().mockReturnValue(100),
+                    resolveDisplayAmountVnd: jest.fn().mockReturnValue(80),
+                    resolveListAmountUsd: jest.fn().mockReturnValue(null),
+                    resolveAmountUsd: jest.fn().mockReturnValue(null),
+                }
+                const fallbackService = new CoursePriceQuoteService(
+                    {
+                        find: jest.fn()
+                            .mockResolvedValueOnce([courses[0]])
+                            .mockResolvedValueOnce([]), count: jest.fn().mockResolvedValue(0),
+                    } as never,
+                    throwingCalculator as never,
+                    loyalty as never,
+                    vouchers as never,
+                    installments as never,
+                )
+                await expect(fallbackService.quote({
+                    userId: "u", courseIds: ["a"], intent: CoursePriceQuoteIntent.Checkout,
+                })).resolves.toEqual(expect.objectContaining({
+                    lines: [expect.objectContaining({
+                        nextPhase: PricingPhase.Regular, nextPhasePriceVnd: null,
+                    })],
+                }))
             })
     })

@@ -102,6 +102,8 @@ describe("NatsBridgeService",
                 service,
                 eventEmitter,
                 cacheService,
+                streamAsyncIteratorService,
+                retryService,
                 runConsumer: async () => {
                     await service.bridgeEvents()
                     await retryInvocation?.action()
@@ -136,6 +138,19 @@ describe("NatsBridgeService",
                 }))
             })
 
+        it("intersects configured subjects during module initialization",
+            async () => {
+                const world = createService("instance-b")
+
+                await world.service.onModuleInit()
+
+                expect(world.retryService.retry).toHaveBeenCalledWith(expect.objectContaining({
+                    options: {
+                        retries: Infinity,
+                    },
+                }))
+            })
+
         it("re-emits a foreign envelope under its event subject",
             async () => {
                 const world = createService("instance-b")
@@ -147,5 +162,41 @@ describe("NatsBridgeService",
                     eventPayload,
                 )
                 expect(world.cacheService.set).toHaveBeenCalledTimes(1)
+            })
+
+        it("skips duplicate and ping envelopes while reporting stream lifecycle callbacks",
+            async () => {
+                const world = createService("instance-b")
+                world.cacheService.get.mockResolvedValue({
+                    alreadySeen: true,
+                })
+                world.streamAsyncIteratorService.createStream.mockImplementation(
+                    async (callbacks: {
+                        onOpen: () => void
+                        onClose: () => void
+                        onError: (error: Error) => void
+                    }) => {
+                        callbacks.onOpen()
+                        callbacks.onError(new Error("stream failed"))
+                        callbacks.onClose()
+                        return {
+                            async *[Symbol.asyncIterator]() {
+                                yield {
+                                    subject: EventName.Ping,
+                                    data: new TextEncoder().encode("envelope"),
+                                }
+                                yield {
+                                    subject: EventName.ChatMessageCreated,
+                                    data: new TextEncoder().encode("envelope"),
+                                }
+                            },
+                        }
+                    })
+
+                await world.runConsumer()
+
+                expect(world.cacheService.get).toHaveBeenCalledTimes(1)
+                expect(world.cacheService.set).not.toHaveBeenCalled()
+                expect(world.eventEmitter.emit).not.toHaveBeenCalled()
             })
     })
