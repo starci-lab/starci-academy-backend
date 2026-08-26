@@ -70,4 +70,27 @@ filesystem as never)
                 await expect(service.load("blog",
                     "missing.md")).rejects.toBeInstanceOf(ContextFileNotFoundException)
             })
+
+        it("ignores disabled contexts and reports a miss when none are enabled",
+            async () => {
+                jest.mocked(envConfig).mockReturnValue({
+                    contexts: [{
+                        type: ContextType.Filesystem,
+                        index: 1,
+                        priority: 1,
+                        enabled: false,
+                    }],
+                } as never)
+                const filesystem = {
+                    load: jest.fn(),
+                }
+                const service = new ContextLoaderService({
+                    load: jest.fn(),
+                } as never,
+                filesystem as never)
+
+                await expect(service.load("course",
+                    "missing.md")).rejects.toBeInstanceOf(ContextFileNotFoundException)
+                expect(filesystem.load).not.toHaveBeenCalled()
+            })
     })

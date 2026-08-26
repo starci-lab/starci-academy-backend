@@ -29,6 +29,9 @@ import type {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
 import {
+    MoreThan,
+} from "typeorm"
+import {
     asEntityManager,
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
@@ -332,7 +335,9 @@ describe("IndexerSynchronizerService",
                         )
                         expect(contentCalls[0][1].where).toEqual({
                         })
-                        expect(contentCalls[1][1].where.id).toBeDefined()
+                        expect(contentCalls[1][1].where.id).toEqual(
+                            MoreThan("content-1"),
+                        )
                         expect(builtIds(ContentEntity.name)).toEqual([
                             "content-1",
                             "content-2",
@@ -509,6 +514,45 @@ describe("IndexerSynchronizerService",
                             expect(builder.buildIndexerById).not.toHaveBeenCalled()
                         }
                         expect(winstonService.log).toHaveBeenCalledTimes(1)
+                    })
+
+                it("continues indexing other rows when one builder rejects",
+                    async () => {
+                        programRows(
+                            CourseEntity.name,
+                            [
+                                {
+                                    id: "course-failing",
+                                    displayId: ENABLED_COURSE,
+                                },
+                                {
+                                    id: "course-ok",
+                                    displayId: ENABLED_COURSE,
+                                },
+                            ],
+                        )
+                        for (const entityName of entityNames.slice(1)) {
+                            programRows(
+                                entityName,
+                                [],
+                            )
+                        }
+                        builders[CourseEntity.name].buildIndexerById
+                            .mockRejectedValueOnce(new Error("index failed"))
+                            .mockResolvedValueOnce(undefined)
+
+                        await service.sync(fullScope())
+
+                        expect(builtIds(CourseEntity.name)).toEqual([
+                            "course-failing",
+                            "course-ok",
+                        ])
+                        expect(winstonService.log).toHaveBeenCalledWith(
+                            expect.anything(),
+                            expect.objectContaining({
+                                error: "index failed",
+                            }),
+                        )
                     })
             })
     })

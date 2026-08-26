@@ -77,4 +77,44 @@ describe("SeedersService",
                 await expect(service.init()).rejects.toBe(failure)
                 expect(later.seed).not.toHaveBeenCalled()
             })
+
+        it("runs earlier seeders before propagating a later failure",
+            async () => {
+                const calls: Array<string> = []
+                const makeSeeder = (name: string, failure?: Error) => ({
+                    seed: jest.fn(async () => {
+                        calls.push(name)
+                        if (failure) {
+                            throw failure
+                        }
+                    }),
+                })
+                const failure = new Error("course failed")
+                const catalog = makeSeeder("catalog")
+                const course = makeSeeder(
+                    "course",
+                    failure,
+                )
+                const later = makeSeeder("later")
+                const service = new SeedersService(
+                    course as never,
+                    later as never,
+                    later as never,
+                    later as never,
+                    catalog as never,
+                    later as never,
+                    later as never,
+                    later as never,
+                    later as never,
+                    later as never,
+                    later as never,
+                )
+
+                await expect(service.init()).rejects.toBe(failure)
+                expect(calls).toEqual([
+                    "catalog",
+                    "course",
+                ])
+                expect(later.seed).not.toHaveBeenCalled()
+            })
     })

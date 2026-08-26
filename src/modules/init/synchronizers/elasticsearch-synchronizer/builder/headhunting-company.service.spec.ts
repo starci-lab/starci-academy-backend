@@ -58,4 +58,34 @@ describe("ElasticsearchHeadhunterCompanyBuildService",
                     locale: Locale.En,
                 }))
             })
+
+        it("keeps an empty localized title out of completion inputs",
+            async () => {
+                const indexEntity = jest.fn().mockResolvedValue(undefined)
+                const service = new ElasticsearchHeadhunterCompanyBuildService(
+                    {
+                        loadById: jest.fn().mockResolvedValue({
+                            ...company,
+                            title: " ",
+                        }),
+                    } as never,
+                    {
+                        transform: jest.fn((value: { title: string }) => {
+                            value.title = " "
+                        }),
+                    } as never,
+                    {
+                        indexEntity,
+                    } as never,
+                )
+
+                const documents = await service.buildMultilingualByCompanyId("company-empty")
+
+                const firstEntity = documents[0]?.entity as unknown as {
+                    suggest: {
+                        input: Array<string>
+                    }
+                }
+                expect(firstEntity.suggest.input).toEqual([])
+            })
     })

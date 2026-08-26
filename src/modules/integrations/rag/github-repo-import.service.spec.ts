@@ -31,47 +31,58 @@ describe("GithubRepoImportService",
                 expect(fetchMock).not.toHaveBeenCalled()
             })
 
+        it("rejects a GitHub URL without both owner and repository segments",
+            async () => {
+                const fetchMock = jest.spyOn(globalThis,
+                    "fetch")
+                const service = new GithubRepoImportService()
+
+                await expect(service.importRepo("https://github.com/owner"))
+                    .rejects.toThrow(RagPlaygroundImportException)
+                expect(fetchMock).not.toHaveBeenCalled()
+            })
+
         it("filters a public tree, sorts small files first, fetches in batches, and skips failed files",
             async () => {
                 const entries = [
                     {
-                        path: "src/large.ts", type: "blob", size: 1000 
+                        path: "src/large.ts", type: "blob", size: 1000
                     },
                     {
-                        path: "README.md", type: "blob", size: 10 
+                        path: "README.md", type: "blob", size: 10
                     },
                     {
-                        path: "src/app.ts", type: "blob", size: 20 
+                        path: "src/app.ts", type: "blob", size: 20
                     },
                     {
-                        path: "src/module.ts", type: "blob", size: 30 
+                        path: "src/module.ts", type: "blob", size: 30
                     },
                     {
-                        path: "src/extra.ts", type: "blob", size: 40 
+                        path: "src/extra.ts", type: "blob", size: 40
                     },
                     {
-                        path: "src/fifth.ts", type: "blob", size: 50 
+                        path: "src/fifth.ts", type: "blob", size: 50
                     },
                     {
-                        path: "src/sixth.ts", type: "blob", size: 60 
+                        path: "src/sixth.ts", type: "blob", size: 60
                     },
                     {
-                        path: "src/seventh.ts", type: "blob", size: 70 
+                        path: "src/seventh.ts", type: "blob", size: 70
                     },
                     {
-                        path: "node_modules/skip.ts", type: "blob", size: 1 
+                        path: "node_modules/skip.ts", type: "blob", size: 1
                     },
                     {
-                        path: "image.png", type: "blob", size: 1 
+                        path: "image.png", type: "blob", size: 1
                     },
                     {
-                        path: "src/folder", type: "tree", size: 1 
+                        path: "src/folder", type: "tree", size: 1
                     },
                     {
-                        path: "dist/generated.ts", type: "blob", size: 1 
+                        path: "dist/generated.ts", type: "blob", size: 1
                     },
                     {
-                        path: "src/huge.ts", type: "blob", size: 25000 
+                        path: "src/huge.ts", type: "blob", size: 25000
                     },
                 ]
                 const fetchMock = jest.spyOn(globalThis,
@@ -87,7 +98,7 @@ describe("GithubRepoImportService",
                         }
                         if (url.includes("/git/trees/main")) {
                             return response({
-                                tree: entries 
+                                tree: entries
                             }) as never
                         }
                         if (url.endsWith("src/extra.ts")) {
@@ -107,7 +118,7 @@ describe("GithubRepoImportService",
                 expect(documents[0]).toEqual(expect.objectContaining({
                     pageContent: expect.stringContaining("README.md"),
                     metadata: {
-                        filePath: "README.md" 
+                        filePath: "README.md"
                     },
                 }))
                 expect(documents.some((document) => document.metadata.filePath === "node_modules/skip.ts")).toBe(false)
@@ -143,9 +154,9 @@ describe("GithubRepoImportService",
                     .mockResolvedValueOnce(response({
                         tree: [
                             {
-                                path: "README.exe", type: "blob", size: 1 
+                                path: "README.exe", type: "blob", size: 1
                             },
-                        ] 
+                        ]
                     }) as never)
                 await expect(service.importRepo("https://github.com/owner/empty"))
                     .rejects.toThrow(RagPlaygroundImportException)
@@ -171,12 +182,30 @@ describe("GithubRepoImportService",
                     .mockResolvedValueOnce(response({
                         tree: [
                             {
-                                path: "src/app.ts", type: "blob", size: 1 
+                                path: "src/app.ts", type: "blob", size: 1
                             },
-                        ] 
+                        ]
                     }) as never)
                     .mockRejectedValueOnce(new Error("raw unavailable"))
                 await expect(service.importRepo("https://github.com/owner/raw-down"))
                     .rejects.toThrow(RagPlaygroundImportException)
+            })
+
+        it("rejects a successful repository response whose tree has no importable entries",
+            async () => {
+                const fetchMock = jest.spyOn(globalThis,
+                    "fetch")
+                    .mockResolvedValueOnce(response({
+                        default_branch: "main",
+                        private: false,
+                        size: 1,
+                    }) as never)
+                    .mockResolvedValueOnce(response({
+                    }) as never)
+                const service = new GithubRepoImportService()
+
+                await expect(service.importRepo("https://github.com/owner/no-tree"))
+                    .rejects.toThrow(RagPlaygroundImportException)
+                expect(fetchMock).toHaveBeenCalledTimes(2)
             })
     })

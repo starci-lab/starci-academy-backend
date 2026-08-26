@@ -24,4 +24,33 @@ describe("InterviewQuestionFieldsService",
                         "true"], sortIndex: 4, isPremium: false
                 }))
             })
+
+        it("uses scalar fallbacks for absent optional question fields",
+            () => {
+                const coerce = {
+                    toRequiredString: jest.fn().mockReturnValue("fallback"),
+                    toNullableStringColumn: jest.fn().mockReturnValue(null),
+                    toRequiredBoolean: jest.fn().mockReturnValue(true),
+                    toNullableString: jest.fn().mockReturnValue(null),
+                }
+
+                const result = new InterviewQuestionFieldsService(
+                    coerce as never,
+                ).parseCommonFields(
+                    {
+                    },
+                    "behavioral",
+                    2,
+                )
+
+                expect(result).toEqual(expect.objectContaining({
+                    family: "fallback",
+                    kind: "fallback",
+                    prompt: "fallback",
+                    rubric: null,
+                    keywords: null,
+                    sortIndex: 2,
+                    isPremium: true,
+                }))
+            })
     })

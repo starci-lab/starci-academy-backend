@@ -141,4 +141,43 @@ describe("WsTransformInterceptor",
                     }
                 })
             })
+
+        it("falls back to English when accepted languages contain no supported locale",
+            (done) => {
+                const client = {
+                    emit: jest.fn(),
+                    data: {
+                    },
+                    handshake: {
+                        headers: {
+                            "accept-language": "fr,de;q=0.8",
+                        },
+                    },
+                }
+                const reflector = {
+                    get: jest.fn()
+                        .mockReturnValueOnce({
+                            en: "English",
+                            vi: "Vietnamese",
+                        })
+                        .mockReturnValueOnce("status.updated"),
+                }
+                const interceptor = new WsTransformInterceptor(reflector as never,
+                    {
+                        serialize: (value: unknown) => value,
+                    } as never)
+
+                interceptor.intercept(context(client),
+                    {
+                        handle: () => of("ready"),
+                    } as never).subscribe({
+                    complete: () => {
+                        expect(client.emit).toHaveBeenCalledWith("status.updated",
+                            expect.objectContaining({
+                                message: "English",
+                            }))
+                        done()
+                    },
+                })
+            })
     })

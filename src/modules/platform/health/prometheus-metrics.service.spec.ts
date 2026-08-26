@@ -100,4 +100,18 @@ describe("PrometheusMetricsService",
                 expect(fetchMock).toHaveBeenCalledTimes(5)
                 fetchMock.mockRestore()
             })
+
+        it("returns an empty map when every scrape rejects with a primitive failure",
+            async () => {
+                const fetchMock = jest.spyOn(
+                    global,
+                    "fetch",
+                ).mockRejectedValue("prometheus offline")
+
+                await expect(new PrometheusMetricsService({
+                    log: jest.fn(),
+                } as never).containerMetricsByName()).resolves.toEqual(new Map())
+                expect(fetchMock).toHaveBeenCalledTimes(5)
+                fetchMock.mockRestore()
+            })
     })

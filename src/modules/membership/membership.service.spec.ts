@@ -13,13 +13,13 @@ describe("MembershipService",
         }; const entityManager = {
             transaction: jest.fn(async (cb: (m: unknown) => Promise<boolean>) => cb(manager))
         }; const service = new MembershipService(entityManager as never,
-{
-    now: jest.fn().mockReturnValue({
-        add: jest.fn().mockReturnValue({
-            toDate: jest.fn().mockReturnValue(new Date())
-        })
-    }), from: jest.fn()
-} as never); await expect(service.grantMembership({
+    {
+        now: jest.fn().mockReturnValue({
+            add: jest.fn().mockReturnValue({
+                toDate: jest.fn().mockReturnValue(new Date())
+            })
+        }), from: jest.fn()
+    } as never); await expect(service.grantMembership({
             userId: "u1", transactionId: "t1"
         })).resolves.toBe(true); expect(manager.update).toHaveBeenCalled() }); it("returns false for absent or expired membership",
         async () => { const entityManager = {
@@ -29,4 +29,24 @@ describe("MembershipService",
         }; const service = new MembershipService(entityManager as never,
 {
     now: jest.fn(), from: jest.fn()
-} as never); await expect(service.isActive("u1")).resolves.toBe(false); await expect(service.isActive("u1")).resolves.toBe(false) }) })
+} as never); await expect(service.isActive("u1")).resolves.toBe(false); await expect(service.isActive("u1")).resolves.toBe(false) })
+    it("returns true for a currently active membership",
+        async () => {
+            const entityManager = {
+                findOne: jest.fn().mockResolvedValue({
+                    status: MembershipStatus.Active,
+                    currentPeriodEnd: new Date(Date.now() + 60_000),
+                }),
+            }
+            const service = new MembershipService(entityManager as never,
+{
+    now: jest.fn().mockReturnValue({
+    }),
+    from: jest.fn().mockReturnValue({
+        isAfter: jest.fn().mockReturnValue(true),
+    }),
+} as never)
+
+            await expect(service.isActive("u1")).resolves.toBe(true)
+            expect(entityManager.findOne).toHaveBeenCalled()
+        }) })

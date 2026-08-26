@@ -222,4 +222,42 @@ logger as never)
                 cdnDeleted: 0,
             })
         })
+
+    it("propagates an Elasticsearch count failure before deleting CDN objects",
+        async () => {
+            jest.mocked(envConfig).mockReturnValue({
+                services: {
+                    synchronizer: {
+                        pruneOrphans: true,
+                        pruneMaxRatio: 0.2,
+                    },
+                },
+            } as ReturnType<typeof envConfig>)
+            const failure = new Error("elasticsearch unavailable")
+            const manager = {
+                getRepository: jest.fn().mockReturnValue({
+                    find: jest.fn().mockResolvedValue([]),
+                }),
+            }
+            const elasticsearch = {
+                countDocs: jest.fn().mockRejectedValue(failure),
+                pruneOrphans: jest.fn(),
+            }
+            const deleteObjects = jest.fn()
+
+            await expect(new ReconcileSynchronizerService(
+                manager as never,
+                elasticsearch as never,
+                {
+                    listAll: jest.fn(),
+                } as never,
+                {
+                    deleteObjects,
+                } as never,
+                {
+                    log: jest.fn(),
+                } as never,
+            ).reconcile()).rejects.toBe(failure)
+            expect(deleteObjects).not.toHaveBeenCalled()
+        })
     })

@@ -40,7 +40,7 @@ describe("SynchronizersService",
                 resetIndices: jest.fn(async () => { order.push("reset") })
             } as never,
             {
-                reindexAll: jest.fn().mockRejectedValue(new Error("temporarily unavailable"))
+                reindexAll: jest.fn().mockRejectedValue("temporarily unavailable")
             } as never,
             scope as never,
                 )

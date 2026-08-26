@@ -33,4 +33,18 @@ installer as never).run([],
                     })
                 expect(installer.uninstall).toHaveBeenCalled()
             })
+
+        it("returns the server option without altering its value",
+            () => {
+                const command = new AgentCommand({
+                    cliName: "agent",
+                    packageName: "agent",
+                } as never,
+{
+} as never,
+{
+} as never)
+
+                expect(command.parseServer("https://api.example/")).toBe("https://api.example/")
+            })
     })

@@ -160,6 +160,13 @@ describe("S3UploadService",
                     provider: S3Provider.Minio,
                     contentType: "application/pdf",
                 })
+                await service.buffer({
+                    name: "a-do.pdf",
+                    buffer: Buffer.from("do-pdf"),
+                    acl: "public-read",
+                    provider: S3Provider.DigitalOcean,
+                    contentType: "application/pdf",
+                })
                 expect(
                     (minioSend.mock.calls[0][0] as PutObjectCommand).input,
                 ).toMatchObject({
@@ -173,6 +180,14 @@ describe("S3UploadService",
                     acl: "private",
                     provider: S3Provider.Minio,
                 })
+                await service.stream({
+                    name: "a-do.txt",
+                    stream: Readable.from(["do"]),
+                    acl: "private",
+                    provider: S3Provider.DigitalOcean,
+                })
+                expect(digitalOceanSend).toHaveBeenCalledTimes(2)
+                expect(minioSend).toHaveBeenCalledTimes(2)
                 await expect(
                     service.buffer({
                         name: "x",
@@ -201,5 +216,29 @@ describe("S3UploadService",
                 ).rejects.toMatchObject({
                     code: "S3_UPLOAD_FAILED_EXCEPTION",
                 })
+            })
+
+        it("skips a stream upload when DigitalOcean credentials are blank",
+            async () => {
+                jest.mocked(envConfig).mockReturnValue({
+                    s3: {
+                        minio: {
+                            bucket: "academy"
+                        },
+                        digitalOcean: {
+                            bucket: "production", accessKeyId: ""
+                        },
+                    },
+                } as ReturnType<typeof envConfig>)
+
+                await service.stream({
+                    name: "ignored.txt",
+                    stream: Readable.from(["ignored"]),
+                    acl: "private",
+                    provider: S3Provider.DigitalOcean,
+                })
+
+                expect(digitalOceanSend).not.toHaveBeenCalled()
+                expect(minioSend).not.toHaveBeenCalled()
             })
     })

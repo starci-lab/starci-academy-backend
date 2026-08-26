@@ -256,4 +256,38 @@ describe("GradingRetrievalService",
                 expect(result.excerpt).toBe("MATCH")
                 expect(qdrantClient.deleteCollection).toHaveBeenCalledTimes(2)
             })
+
+        it("treats whitespace-only criteria as absent and keeps raw chunks in order",
+            async () => {
+                const result = await service.retrieveSourceExcerpt({
+                    runKey: "blank-criteria",
+                    chunks: [
+                        doc("FIRST"),
+                        doc("SECOND"),
+                    ],
+                    criteria: [
+                        {
+                            body: "   ",
+                        },
+                    ],
+                    embeddingModel,
+                    maxChars: 100,
+                    jobId: "job-blank",
+                })
+
+                expect(result).toEqual({
+                    excerpt: "FIRST\n\nSECOND",
+                    truncated: false,
+                    retrievedChunks: 2,
+                    degraded: false,
+                })
+                expect(fromDocuments).not.toHaveBeenCalled()
+                expect(winstonService.log).toHaveBeenCalledWith(
+                    expect.anything(),
+                    expect.objectContaining({
+                        jobId: "job-blank",
+                        success: true,
+                    }),
+                )
+            })
     })

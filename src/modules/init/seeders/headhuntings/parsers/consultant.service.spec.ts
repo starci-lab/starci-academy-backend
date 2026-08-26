@@ -160,4 +160,35 @@ describe("ConsultantParserService",
             }])
             expect(parse).toHaveBeenCalledTimes(2)
         })
+
+    it("rejects a consultant path when the requested index is not present",
+        async () => {
+            const service = new ConsultantParserService(
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                } as never,
+                {
+                    log: jest.fn(),
+                } as never,
+            )
+
+            await expect(service.parse({
+                paths: [{
+                    orderIndex: 0,
+                    relativePath: "0-only",
+                    displayId: "only",
+                }],
+                consultantIndex: 2,
+                companyIndex: 0,
+            })).rejects.toThrow(ConsultantPathNotFoundException)
+        })
     })

@@ -222,4 +222,20 @@ describe("NatsBridgeService",
                     eventPayload,
                 )
             })
+
+        it("does not emit a ping as an application event",
+            async () => {
+                const world = createService("instance-a")
+                world.streamAsyncIteratorService.createStream.mockResolvedValueOnce({
+                    async *[Symbol.asyncIterator]() {
+                        yield {
+                            subject: EventName.Ping,
+                            data: new TextEncoder().encode("ping"),
+                        }
+                    },
+                })
+                await world.runConsumer()
+
+                expect(world.eventEmitter.emit).not.toHaveBeenCalled()
+            })
     })

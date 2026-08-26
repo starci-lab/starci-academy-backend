@@ -33,4 +33,37 @@ describe("NatsStreamConnection",
                 expect(sub.drain).toHaveBeenCalled()
                 expect(close).toHaveBeenCalled()
             })
+
+        it("subscribes without a queue and forwards handler failures to onError",
+            async () => {
+                const sub = {
+                    drain: jest.fn().mockResolvedValue(undefined),
+                    async *[Symbol.asyncIterator]() {
+                        yield {
+                            data: "message",
+                        }
+                    },
+                }
+                const nc = {
+                    subscribe: jest.fn().mockReturnValue(sub),
+                }
+                const onError = jest.fn()
+                const connection = new NatsStreamConnection({
+                    nc: nc as never,
+                    subjects: ["events"],
+                })
+                connection.onData(() => {
+                    throw "handler failure"
+                })
+                connection.onError(onError)
+
+                await connection.onOpen(jest.fn())
+                await new Promise((resolve) => setImmediate(resolve))
+                await connection.close()
+
+                expect(nc.subscribe).toHaveBeenCalledWith("events")
+                expect(onError).toHaveBeenCalledWith(expect.objectContaining({
+                    message: "handler failure",
+                }))
+            })
     })

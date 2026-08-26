@@ -63,4 +63,82 @@ describe("AiPingCacheService",
                     status: true, lastUsedAt: "2026-01-01T00:00:00.000Z"
                 }))
             })
+
+        it("routes ping outcomes to healthy and transient cooldown states",
+            async () => {
+                const cache = {
+                    get: jest.fn().mockResolvedValue({
+                    }),
+                    set: jest.fn().mockResolvedValue(undefined),
+                }
+                const now = {
+                    toISOString: () => "2026-01-01T00:00:00.000Z",
+                    add: () => now,
+                }
+                const service = new AiPingCacheService(cache as never,
+                    {
+                        now: () => now,
+                    } as never)
+
+                await service.recordPingKeyStatus({
+                    provider: ModelProvider.OpenAI,
+                    key: "healthy",
+                    success: true,
+                })
+                await service.recordPingKeyStatus({
+                    provider: ModelProvider.OpenAI,
+                    key: "flaky",
+                    success: false,
+                })
+
+                const map = await service.getProviderMap(ModelProvider.OpenAI)
+                expect(map.healthy).toEqual(expect.objectContaining({
+                    status: true,
+                }))
+                expect(map.flaky).toEqual(expect.objectContaining({
+                    status: false,
+                    failCount: 1,
+                }))
+            })
+
+        it("uses the disabled cooldown and increments an existing failure count",
+            async () => {
+                const map = {
+                    [ModelProvider.OpenAI]: {
+                        key: {
+                            status: false,
+                            lastPing: "old",
+                            failCount: 2,
+                            disabled: false,
+                        },
+                    },
+                }
+                const cache = {
+                    get: jest.fn().mockResolvedValue(map),
+                    set: jest.fn().mockResolvedValue(undefined),
+                }
+                const now = {
+                    toISOString: () => "2026-01-01T00:00:00.000Z",
+                    add: jest.fn().mockReturnThis(),
+                }
+                const service = new AiPingCacheService(cache as never,
+                    {
+                        now: () => now,
+                    } as never)
+
+                await service.recordKeyCooldown({
+                    provider: ModelProvider.OpenAI,
+                    key: "key",
+                    cooldownMs: 1000,
+                    disabled: true,
+                })
+
+                expect(now.add).toHaveBeenCalledWith(24 * 60 * 60 * 1000,
+                    "millisecond")
+                expect(map[ModelProvider.OpenAI].key).toEqual(expect.objectContaining({
+                    status: false,
+                    failCount: 3,
+                    disabled: true,
+                }))
+            })
     })

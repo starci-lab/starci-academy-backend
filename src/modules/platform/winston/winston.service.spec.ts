@@ -99,4 +99,19 @@ combinedLogger as never)
                     },
                 )
             })
+
+        it("removes undefined fields from informational events",
+            () => {
+                service.log(WinstonLog.CdnSynchronizerCdnSyncStarted,
+{
+    courseCount: 2,
+    optional: undefined,
+} as never)
+                expect(combinedLogger.info).toHaveBeenCalledWith(
+                    WinstonLog.CdnSynchronizerCdnSyncStarted,
+                    {
+                        courseCount: 2,
+                    },
+                )
+            })
     })

@@ -35,4 +35,20 @@ describe("CaptchaGuard",
                     }, ip: "5.6.7.8"
                 }))).rejects.toBeInstanceOf(CaptchaVerificationFailedException)
             })
+
+        it("uses an empty token and socket IP when the request has no captcha header",
+            async () => {
+                const verify = jest.fn().mockResolvedValue(true)
+                await expect(new CaptchaGuard({
+                    verify,
+                } as never).canActivate(context({
+                    headers: {
+                    },
+                    ip: "10.0.0.3",
+                }))).resolves.toBe(true)
+                expect(verify).toHaveBeenCalledWith({
+                    token: "",
+                    remoteIp: "10.0.0.3",
+                })
+            })
     })

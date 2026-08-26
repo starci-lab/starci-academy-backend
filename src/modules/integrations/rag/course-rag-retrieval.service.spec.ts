@@ -230,6 +230,22 @@ describe("CourseRagRetrievalService",
                 expect(fromExistingCollection).not.toHaveBeenCalled()
             })
 
+        it("degrades an embedding failure to an empty excerpt",
+            async () => {
+                embeddingModelService.getViaBalancer.mockRejectedValueOnce(
+                    new Error("embedding unavailable"),
+                )
+
+                await expect(service.retrieveContentExcerpt({
+                    contentId: "content-1",
+                    query: "how does this work?",
+                })).resolves.toEqual({
+                    excerpt: "",
+                    retrievedChunks: 0,
+                })
+                expect(fromExistingCollection).not.toHaveBeenCalled()
+            })
+
         it("collapses course search chunks to the best score per source",
             async () => {
                 const similaritySearchWithScore = jest.fn().mockResolvedValue([
