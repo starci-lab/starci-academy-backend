@@ -140,6 +140,13 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "4049c6ebea9b046b2495d236c76eb4f834216f690f368c43e0884b54abba728f"
+    },
+    {
+      "id": "EV-018",
+      "claim": "The owner confirmed that Execute is an operational conversation, not founder-only chat: configured channels and schedules may proactively notify the business, send files, create workspace tasks and render diverse MarkdownComponent-based trusted widgets linked to the right-side Workbench. The owner then directed Business, backend, frontend, UI/UX and UAT delivery and required each initial module kind to reply differently. The accepted visual direction showed channel or schedule provenance, a task widget in conversation and synchronized Workbench evidence.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "19086bbae7bdd10ce374d237d42a719553c6c5a9a24d73fbda7783f12d966086"
     }
   ]
 }

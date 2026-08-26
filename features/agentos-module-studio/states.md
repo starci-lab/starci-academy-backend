@@ -52,3 +52,9 @@
 | `module-test-passed` | Every required assertion passed | success | `module-test-ready`, `context-publishing`, `module-shell-loading` | `EV-017` |
 | `module-test-warning` | The test completed with owner-visible warnings | warning | `module-test-ready`, `setup-session-ready` | `EV-017` |
 | `module-test-failed` | One or more required assertions failed safely | refused | `module-test-ready`, `setup-session-ready` | `EV-017` |
+| `module-event-ingested` | Authenticated module event persisted once | ready | `module-task-queued`, `module-task-refused` | `EV-018` |
+| `module-task-queued` | Durable task awaiting a controller lease | ready | `module-task-processing`, `module-task-refused` | `EV-018` |
+| `module-task-processing` | Controller is applying the bound kind contract | loading | `module-task-action-required`, `module-task-completed`, `module-task-refused`, `module-task-queued` | `EV-018` |
+| `module-task-action-required` | Task requires an authorized collaborator decision | ready | `module-task-processing`, `module-task-completed`, `module-task-refused` | `EV-018` |
+| `module-task-completed` | Task and linked evidence completed consistently | success |  | `EV-018` |
+| `module-task-refused` | Task or action refused safely with recoverable evidence | refused | `module-task-queued`, `module-task-processing` | `EV-018` |

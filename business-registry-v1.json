@@ -195,9 +195,9 @@
     },
     "agentos-module-studio": {
       "featureId": "agentos-module-studio",
-      "head": "01e0eec6f0da753e9526d8260812fdb0aeb3aa760c277cf5d157717f5a9a4cb7",
+      "head": "1b6d4a3a1cdfbdf84397af3aca9d9d6e55f16865cff0fd6063b44703a2b32b42",
       "authorityStatus": "in-progress",
-      "previousHead": "a382ff502481d568de1f84fc72b26461b91d2b35c6cb1758fc791108c97bb5d0",
+      "previousHead": "01e0eec6f0da753e9526d8260812fdb0aeb3aa760c277cf5d157717f5a9a4cb7",
       "sources": [
         {
           "role": "fe",
@@ -488,6 +488,10 @@
         "hash": "c28e7abfd18e74b62eb05bf7237ea1a3538f5fce2e6ce36480870c3f73ce539c",
         "path": "objects/sha256/c28e7abfd18e74b62eb05bf7237ea1a3538f5fce2e6ce36480870c3f73ce539c.json"
       }
+    },
+    "1b6d4a3a1cdfbdf84397af3aca9d9d6e55f16865cff0fd6063b44703a2b32b42": {
+      "hash": "1b6d4a3a1cdfbdf84397af3aca9d9d6e55f16865cff0fd6063b44703a2b32b42",
+      "path": "objects/sha256/1b6d4a3a1cdfbdf84397af3aca9d9d6e55f16865cff0fd6063b44703a2b32b42.json"
     }
   }
 }

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-An authenticated workspace owner creates, installs, configures, tests and operates many module instances. Every module has exactly one kind, exactly one private resumable setup chat, a kind-resolved sandbox Test workbench, zero-to-many collaborative execute chat sessions and one kind-resolved adaptive operating workbench while versioned context, configuration and technical diagnostics remain progressively disclosed. The initial shipped catalogue contains Support Desk, Finance Copilot, Scheduling AI and Knowledge Hub while custom modules remain supported outside the initial seeded proof set.
+An authenticated workspace owner configures and operates many module instances through one shared durable Module Studio. Every module has exactly one kind, one private resumable Setup chat, one primary non-archivable Operations Execute session, zero-to-many additional collaborative Execute sessions, a kind-resolved sandbox Test workbench and a kind-resolved operating Workbench. Authenticated channel and schedule events become durable workspace tasks and proactive trusted message trees bound to immutable context versions. Support Desk, Finance Copilot, Scheduling AI and Knowledge Hub each apply an independent reply policy and widget contract while the registry-driven core, progressive settings and diagnostics remain shared.
 
 ## Included
 
@@ -19,6 +19,12 @@ An authenticated workspace owner creates, installs, configures, tests and operat
 - Nivo-owned public-safe manifests and bootstrap knowledge sourced from the versioned operational-data mount
 - One proof workspace seeded idempotently with two installations per initial kind and exactly eight initial-kind installations
 - One versioned kind-resolved sandbox Test workbench per module that proves a selected immutable context version without changing Execute history or external systems
+- One primary non-archivable Operations Execute session per operational module for proactive events plus zero-to-many additional collaborative Execute sessions
+- Authenticated channel and scheduled events normalized, deduplicated and persisted as workspace- and module-owned tasks before AI processing
+- Proactive assistant replies rendered as a versioned trusted MessageTree composed from sanitized MarkdownComponent content and registered typed widgets
+- Task widgets linked bidirectionally to the exact kind Workbench item and updated through attributed idempotent actions
+- Independent reply policies for customer-support, accounting, calendar-assistant and document-research
+- AI prompt-token caching for stable Nivo knowledge, kind policy, active context digest and tool schemas with workspace-safe isolation and explicit invalidation
 
 ## Excluded
 
@@ -28,6 +34,10 @@ An authenticated workspace owner creates, installs, configures, tests and operat
 - Rendering arbitrary untrusted HTML or scripts inside chat
 - Choosing STI, CTI, JSONB or physical plugin storage before an architecture decision
 - Returning reusable workspace, provider, storage or integration credentials
+- Using the legacy Telegram route, pod-only ephemeral queues or direct browser-to-provider calls as the Module Studio control plane
+- Allowing Markdown, widgets or attachments to introduce arbitrary HTML, script, raw JSX trees or undeclared executable actions
+- Letting external channel participants act as workspace owners or authorize privileged business actions
+- Applying a newer context version to historical events, tasks, messages or widget actions
 
 ## Source heads
 

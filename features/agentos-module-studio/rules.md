@@ -40,3 +40,19 @@
 | `BR-36` | A test cannot invoke a live external action, disclose a stored credential, mutate production data, apply a context version or authorize operation automatically. | confirmed | `EV-017` |
 | `BR-37` | A completed test exposes pass, warning or fail, assertion-level evidence, the selected context version and test-contract version so the owner can inspect why the result is trusted or refused. | confirmed | `EV-017` |
 | `BR-38` | Adding a new module kind and its test workbench does not require changing the shared shell, shared test-run identity, Setup contract or Execute contract. | confirmed | `EV-017` |
+| `BR-39` | Every operational module has exactly one primary non-archivable Operations Execute session; New chat creates only additional collaborative Execute sessions. | confirmed | `EV-018` |
+| `BR-40` | A channel or scheduled event becomes actionable only after provider authentication, exact workspace/module routing, normalization and durable idempotent persistence. | confirmed | `EV-018` |
+| `BR-41` | Every accepted event and derived task is permanently bound to the active context version and installed kind contract versions used at acceptance. | confirmed | `EV-018` |
+| `BR-42` | The workspace controller leases durable tasks; restart, timeout or retry cannot lose an accepted event or create duplicate business actions. | confirmed | `EV-018` |
+| `BR-43` | Every proactive assistant message is persisted in the primary Operations session and linked to the exact durable task and source event. | confirmed | `EV-018` |
+| `BR-44` | MessageTree permits sanitized MarkdownComponent nodes, registered typed widgets and safe attachment references only; arbitrary HTML, script, raw JSX and undeclared components are refused. | confirmed | `EV-018` |
+| `BR-45` | Widget and Workbench actions require registry validation, module authorization, attribution and an idempotency identity before state or external delivery changes. | confirmed | `EV-018` |
+| `BR-46` | Customer-support replies are concise and empathetic, preserve privacy and opt-out, expose SLA and escalation evidence, and never promise an unauthorized remedy. | confirmed | `EV-018` |
+| `BR-47` | Accounting replies are precise about amount, currency, source evidence and approval state; the AI may recommend but cannot grant an unowned financial approval. | confirmed | `EV-018` |
+| `BR-48` | Calendar-assistant replies state dates, times and time zones explicitly, detect conflicts, offer bounded options and require confirmation before external calendar mutation. | confirmed | `EV-018` |
+| `BR-49` | Document-research replies cite exact ingested sources, distinguish evidence from inference, expose conflicts and confidence, and refuse unsupported claims. | confirmed | `EV-018` |
+| `BR-50` | External channel identity never grants workspace ownership; privileged, destructive, financial or externally mutating actions require the configured owner/collaborator permission and confirmation policy. | confirmed | `EV-018` |
+| `BR-51` | AI token caching may reuse only the stable prefix identified by provider/model, Nivo knowledge digest, kind contract version, active context digest and tool schema digest; dynamic event content stays isolated by workspace/module and Apply or contract/model/tool changes invalidate the prefix. | confirmed | `EV-018` |
+| `BR-52` | Applying a later context version affects only future accepted events and messages; existing event, task, message, widget and action history is never rewritten. | confirmed | `EV-018` |
+| `BR-53` | Scheduled reminders, SLA deadlines and controller-generated alerts use the same durable task, reply-contract, trusted-tree and Workbench linkage as channel events. | confirmed | `EV-018` |
+| `BR-54` | Provider or outbound delivery failure preserves the task and internal Operations evidence and exposes an explicit safe retry or handoff without fabricating delivery success. | confirmed | `EV-018` |

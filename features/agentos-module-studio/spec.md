@@ -4,12 +4,12 @@
 
 - Status: `in-progress`
 - Basis: `owner-intent`
-- Previous head: `a382ff502481d568de1f84fc72b26461b91d2b35c6cb1758fc791108c97bb5d0`
+- Previous head: `01e0eec6f0da753e9526d8260812fdb0aeb3aa760c277cf5d157717f5a9a4cb7`
 - Required roles: `fe`, `be`
 
 ## Summary
 
-An authenticated workspace owner creates, installs, configures, tests and operates many module instances. Every module has exactly one kind, exactly one private resumable setup chat, a kind-resolved sandbox Test workbench, zero-to-many collaborative execute chat sessions and one kind-resolved adaptive operating workbench while versioned context, configuration and technical diagnostics remain progressively disclosed.
+An authenticated workspace owner configures and operates many module instances through one shared durable Module Studio. Every module has exactly one kind, one private resumable Setup chat, one primary non-archivable Operations Execute session, zero-to-many additional collaborative Execute sessions, a kind-resolved sandbox Test workbench and a kind-resolved operating Workbench. Authenticated channel and schedule events become durable workspace tasks and proactive trusted message trees bound to immutable context versions. The four initial kinds each apply an independent reply policy and widget contract.
 
 ## Scope
 
@@ -25,6 +25,10 @@ An authenticated workspace owner creates, installs, configures, tests and operat
 - Progressively disclosed lifecycle and technical diagnostics
 - Existing resumable custom-module interview, scanned attachments, write-only secrets, review and explicit publish transition
 - One versioned kind-resolved sandbox Test workbench per module that proves a selected immutable context version without changing Execute history or external systems
+- One primary non-archivable Operations Execute session per operational module plus zero-to-many additional collaborative Execute sessions
+- Durable authenticated channel and scheduled events, tasks, proactive MessageTrees and linked kind Workbench actions
+- Independent customer-support, accounting, calendar-assistant and document-research reply contracts
+- Workspace-safe AI prompt-token caching for stable Nivo knowledge, kind policy, active context and tool schemas
 
 ### Excluded
 
@@ -34,6 +38,10 @@ An authenticated workspace owner creates, installs, configures, tests and operat
 - Rendering arbitrary untrusted HTML or scripts inside chat
 - Choosing STI, CTI, JSONB or physical plugin storage before an architecture decision
 - Returning reusable workspace, provider, storage or integration credentials
+- Using the legacy Telegram route, pod-only ephemeral queues or direct browser-to-provider calls as Module Studio control plane
+- Arbitrary HTML, script, raw JSX, undeclared widget components or actions
+- Letting external channel identity authorize workspace-owned or privileged actions
+- Rebinding historical events, tasks or messages to a later context version
 
 ## Business rules
 
@@ -75,6 +83,12 @@ An authenticated workspace owner creates, installs, configures, tests and operat
 - **BR-36** — A test cannot invoke a live external action, disclose a stored credential, mutate production data, apply a context version or authorize operation automatically.
 - **BR-37** — A completed test exposes pass, warning or fail, assertion-level evidence, the selected context version and test-contract version so the owner can inspect why the result is trusted or refused.
 - **BR-38** — Adding a new module kind and its test workbench does not require changing the shared shell, shared test-run identity, Setup contract or Execute contract.
+- **BR-39..BR-45** — One durable primary Operations session receives authenticated, deduplicated, immutable-context-bound events and tasks; MessageTree/widget/Workbench actions remain validated, authorized, attributed and idempotent.
+- **BR-46** — Customer-support replies are concise and empathetic, expose SLA/escalation evidence, preserve privacy and opt-out, and never promise unauthorized remedies.
+- **BR-47** — Accounting replies state amount, currency, evidence and approval state precisely and never self-authorize financial action.
+- **BR-48** — Calendar replies state date, time and time zone, detect conflicts, offer bounded options and require confirmation before mutation.
+- **BR-49** — Document-research replies cite exact sources, separate evidence from inference, expose conflict/confidence and refuse unsupported claims.
+- **BR-50..BR-54** — External identity grants no owner authority; token cache is stable-prefix-only and isolated; Apply affects future events only; scheduled alerts share durable task semantics; delivery failure stays recoverable and truthful.
 
 ## Journeys
 
@@ -82,10 +96,11 @@ An authenticated workspace owner creates, installs, configures, tests and operat
 - `resume-and-manage-module` — Resume or manage one exact custom module
 - `review-and-publish-module` — Review and explicitly publish one complete custom module
 - `setup-and-activate-module-context` — Teach one module through its single private setup chat
-- `manage-module-chat-sessions` — Manage many execute chat sessions separately from Setup
+- `manage-module-chat-sessions` — Operate one primary Operations feed and additional collaborative chats separately from Setup
 - `operate-kind-module` — Operate one module through shared chat and its adaptive workbench
 - `configure-and-diagnose-module` — Configure a module without mixing workspace operations or runtime diagnostics
 - `test-module-before-operation` — Prove one configured module in its kind-specific sandbox
+- `ingest-and-operate-proactive-task` — Turn an external or scheduled event into a proactive module task
 
 ## Surfaces
 
@@ -140,6 +155,12 @@ An authenticated workspace owner creates, installs, configures, tests and operat
 - **AC-38** — Pass, warning and fail results expose assertion-level evidence, bound context version and test-contract version while all credentials remain undisclosed.
 - **AC-39** — A passing test does not apply a candidate context or authorize external mutations; the owner must still use the existing explicit context apply and confirmation boundaries.
 - **AC-40** — Registering another kind and its Test workbench requires no edit to shared Module Core, Setup Core or Execute Core.
+- **AC-41..AC-46** — Primary Operations identity, event dedupe, restart recovery, trusted MessageTree, task/Workbench synchronization and context immutability pass end to end.
+- **AC-47** — Support Desk proves empathetic SLA-aware reply, file handling, opt-out and safe escalation.
+- **AC-48** — Finance Copilot proves evidence-precise approval behavior without self-authorization.
+- **AC-49** — Scheduling AI proves explicit time zones, conflicts, reminders and confirmation before mutation.
+- **AC-50** — Knowledge Hub proves citations, evidence conflict, confidence and refusal to invent facts.
+- **AC-51..AC-55** — Unsafe rendering/actions are rejected, cache isolation is proven, delivery failure is truthful, responsive identity is preserved and four signed-in kind journeys produce distinct replies and widgets.
 
 ## Unknowns and architecture handoff
 
@@ -153,3 +174,7 @@ An authenticated workspace owner creates, installs, configures, tests and operat
   - Impact: Architecture must decide storage without weakening exactly-one-kind, shared-chat or kind-workbench business invariants.
 - **trusted-widget-contract** — Which widget schemas, action permissions, sandbox and version-compatibility rules form the initial trusted registry?
   - Impact: Implementation may not render arbitrary HTML while this security contract remains unresolved.
+- **channel-provider-entitlements** — Which providers, rate limits, retention and premium entitlements follow the first Telegram proof?
+  - Impact: Generic durable ingress can ship with Telegram proof; further adapters and plan gating require explicit product policy.
+- **kind-autonomy-thresholds** — Which customer-specific actions may later move from assist mode to autopilot for each kind?
+  - Impact: The first delivery defaults privileged or externally mutating actions to explicit confirmation and exposes policy through Settings.

@@ -3,8 +3,8 @@
 - Project: `nivo`
 - Feature: `agentos-module-studio`
 - Authority: `in-progress`
-- Previous head: `a382ff502481d568de1f84fc72b26461b91d2b35c6cb1758fc791108c97bb5d0`
-- Current head: `01e0eec6f0da753e9526d8260812fdb0aeb3aa760c277cf5d157717f5a9a4cb7`
+- Previous head: `01e0eec6f0da753e9526d8260812fdb0aeb3aa760c277cf5d157717f5a9a4cb7`
+- Current head: `1b6d4a3a1cdfbdf84397af3aca9d9d6e55f16865cff0fd6063b44703a2b32b42`
 
 ## Durable authority
 

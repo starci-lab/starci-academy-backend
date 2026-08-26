@@ -122,6 +122,46 @@ Fields: `moduleId`, `kindId`, `displayName`, `status`, `activeSessionId`, `activ
 
 Evidence: `EV-011`, `EV-012`, `EV-013`
 
+### Normalized durable event accepted for one exact module
+
+> ID: `module-channel-event`
+
+Fields: `eventId`, `workspaceId`, `moduleId`, `sourceKind`, `providerAccountId`, `providerEventId`, `occurredAt`, `receivedAt`, `payloadRef`, `attachmentRefs`, `dedupeKey`, `contextVersionId`, `kindContractVersion`, `status`
+
+Evidence: `EV-018`
+
+### Durable workspace task produced from a module event or schedule
+
+> ID: `module-task`
+
+Fields: `taskId`, `workspaceId`, `moduleId`, `sourceEventId`, `kindId`, `status`, `priority`, `title`, `dueAt`, `assigneeId`, `contextVersionId`, `replyContractVersion`, `leaseOwner`, `leaseExpiresAt`, `lastActionId`
+
+Evidence: `EV-018`
+
+### Versioned trusted render tree attached to one module message
+
+> ID: `module-message-tree`
+
+Fields: `messageTreeId`, `messageId`, `schemaVersion`, `rootComponent`, `markdownNodes`, `widgetInstanceIds`, `attachmentRefs`, `validationStatus`
+
+Evidence: `EV-018`
+
+### Versioned kind-owned reply, widget and action policy
+
+> ID: `module-kind-reply-contract`
+
+Fields: `kindId`, `contractVersion`, `tonePolicy`, `requiredFacts`, `prohibitedClaims`, `escalationRules`, `widgetTypes`, `actionTypes`, `confirmationRules`, `channelCapabilities`
+
+Evidence: `EV-018`
+
+### Workspace-safe token-cache identity for one stable AI prefix
+
+> ID: `module-ai-cache-binding`
+
+Fields: `workspaceId`, `moduleId`, `provider`, `model`, `nivoKnowledgeDigest`, `kindContractVersion`, `contextDigest`, `toolSchemaDigest`, `cacheKey`, `createdAt`, `invalidatedAt`
+
+Evidence: `EV-018`
+
 ## Operations
 
 | ID | Contract | Owner / actor | Inputs / from | Outputs / to | Failures / idempotency | Evidence |
@@ -152,3 +192,9 @@ Evidence: `EV-011`, `EV-012`, `EV-013`
 | `read-module-diagnostics` | owner action · Read advanced module diagnostics | `workspace-owner` | `module-shell-ready` | `module-diagnostics-ready` | operation-specific | `EV-011`, `EV-014` |
 | `open-module-test` | owner action · Open the kind-specific sandbox test workbench | `workspace-owner` | `context-review-ready` | `module-test-ready` | installation-and-context-version | `EV-017` |
 | `run-module-test` | owner action · Run one isolated kind-specific test contract | `workspace-owner` | `module-test-ready` | `module-test-running` | test-run-key | `EV-017` |
+| `ingest-module-event` | controller action · Authenticate and persist one routed module event | `workspace-controller` | `module-shell-ready` | `module-event-ingested` | provider-account-plus-provider-event-id | `EV-018` |
+| `queue-module-task` | controller action · Create or restore the durable task for one accepted event | `workspace-controller` | `module-event-ingested` | `module-task-queued` | module-event-task-key | `EV-018` |
+| `lease-module-task` | controller action · Lease and process one durable module task | `workspace-controller` | `module-task-queued` | `module-task-processing` | task-lease-attempt | `EV-018` |
+| `append-proactive-message` | controller action · Append one trusted proactive message to Operations | `workspace-controller` | `module-task-processing` | `module-task-action-required` | task-message-purpose-key | `EV-018` |
+| `invoke-module-task-action` | collaborator action · Invoke one allowed task or widget action | `workspace-collaborator` | `module-task-action-required` | `module-task-processing` | task-action-key | `EV-018` |
+| `complete-module-task` | controller action · Persist consistent task, message and Workbench completion evidence | `workspace-controller` | `module-task-processing` | `module-task-completed` | task-completion-key | `EV-018` |
