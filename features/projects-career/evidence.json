@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "project": "starci-academy",
   "featureId": "projects-career",
-  "head": "05229e6d47d376406d216ad7386fa2b4ef68be0fa0fd990473d696046f53fd85",
+  "head": "fbdd3a27f504677664c5457af29d396bdd8e7d2de882e0e520a84a2ed02f6429",
   "sources": [
     {
       "role": "fe",
       "repository": "https://github.com/starci-lab/starci-academy-fe.git",
-      "head": "50fb6aa814bac632edea972ade928046254f40a9"
+      "head": "16d5692ce07fc2168f8f9ba350f543a1fd394bb7"
     },
     {
       "role": "be",
       "repository": "https://github.com/starci-lab/starci-academy-backend",
-      "head": "88a3959084772f9eaa0f5dcbc4e480d4356210f0"
+      "head": "451ac8583742bfdbc565e32070e756ab35aa9c1b"
     }
   ],
   "evidence": [
@@ -94,6 +94,67 @@
       "kind": "owner-decision",
       "authority": "owner",
       "decisionId": "fc6e8b32908010e9fb6b9959c5bf2e0d96cafffbc958404a478d7b9809f95075"
+    },
+    {
+      "id": "EV-010",
+      "claim": "The owner approves the complete Personal Project branch from roadmap through task, settings, asynchronous grading, result, history, revision and next-task handoff, followed by joint UAT with Challenge.",
+      "kind": "owner-decision",
+      "authority": "owner",
+      "decisionId": "2ae6be3fcc3222442c8e2c6b15bf5fbb6e18946e183e6a546ee15e48f3edd2ec"
+    },
+    {
+      "id": "EV-011",
+      "role": "fe",
+      "path": "src/components/blocks/learn/PersonalProjectGradingSettingsBlock/index.tsx",
+      "startLine": 17,
+      "endLine": 47,
+      "claim": "Current UI exposes language and model choices, but the model choice remains local to the settings block.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-012",
+      "role": "be",
+      "path": "src/features/api/core/graphql/mutations/personal-project/review-personal-project-task/graphql-types/request.ts",
+      "startLine": 45,
+      "endLine": 79,
+      "claim": "The review request accepts selectedModel, selectedModelProvider and lang, and the handler validates that grading lane before enqueue.",
+      "kind": "api"
+    },
+    {
+      "id": "EV-013",
+      "role": "fe",
+      "path": "src/components/blocks/learn/PersonalProjectResult/index.tsx",
+      "startLine": 38,
+      "endLine": 104,
+      "claim": "The result selects immutable newest-first attempts and binds score, verdict, served model and structured feedback to the selected attempt.",
+      "kind": "ui"
+    },
+    {
+      "id": "EV-014",
+      "role": "fe",
+      "path": "legacy:src/hooks/zustand/personalProjectGithub/usePersonalProjectGithubForm.ts",
+      "startLine": 357,
+      "endLine": 370,
+      "claim": "Legacy precedent forwards the learner-selected model and provider with the review request.",
+      "kind": "precedent"
+    },
+    {
+      "id": "EV-015",
+      "role": "fe",
+      "path": "src/modules/api/graphql/queries/types/course-personal-project.ts",
+      "startLine": 43,
+      "endLine": 64,
+      "claim": "The current contract exposes enrollment repository URL, branch and token last-four without returning the secret token.",
+      "kind": "contract"
+    },
+    {
+      "id": "EV-016",
+      "role": "be",
+      "path": "src/modules/bussiness/jobs/enqueue/review-personal-project-task.service.ts",
+      "startLine": 39,
+      "endLine": 92,
+      "claim": "The backend persists a review job identity and enqueues the selected grading payload asynchronously.",
+      "kind": "api"
     }
   ]
 }
