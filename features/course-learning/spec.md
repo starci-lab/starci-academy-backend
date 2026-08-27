@@ -1,6 +1,6 @@
 # Course learning and discussion
 
-> Business head: `c325716e5b230f001b7ed2297be9524beecc96071ff68954241f34fde355bc51`
+> Business head: `520ee161425c790cbefb31385ba792211ec6a7135292bb0826ce099a4d286e86`
 >
 > This document is generated from the immutable business model. Update the model through `starci-business-analyze`; do not hand-edit this view.
 
@@ -35,8 +35,8 @@ Excluded:
 
 | Role | Repository | Head |
 |---|---|---|
-| fe | https://github.com/starci-lab/starci-academy-fe.git | `16d5692ce07fc2168f8f9ba350f543a1fd394bb7` |
-| be | https://github.com/starci-lab/starci-academy-backend | `451ac8583742bfdbc565e32070e756ab35aa9c1b` |
+| fe | https://github.com/starci-lab/starci-academy-fe.git | `82832eff5971a65f248bb18e53768d41f645c6b2` |
+| be | https://github.com/starci-lab/starci-academy-backend | `d72bab2782df96485d616b832746d25e4eea22a0` |
 
 ## 3. Actors and access
 
@@ -304,3 +304,36 @@ Strength: **owner-confirmed** · Evidence: `EV-016`, `EV-017`
 | EV-015 | owner | `decision:af23be552cece34ef04f8a091967b0c267488082d7cd63b48ecf1efa906c93ee` | owner-decision | The owner clarified that every learning module includes the shared chat frame, while the module kind selects an additional workbench; accounting or spreadsheet, scheduling or calendar, document and future workbenches are open-set examples. |
 | EV-016 | owner | `decision:f9032ac5841c61dcb4ce9a5013877945a2e8d9d630b92f95b2debc23d280e839` | owner-decision | The owner approved the recoverable hybrid Challenge journey and server-owned finalization authority. |
 | EV-017 | owner | `decision:f9032ac5841c61dcb4ce9a5013877945a2e8d9d630b92f95b2debc23d280e839` | owner-decision | The approved revision requires the realistic AI-model UAT matrix and safety/failure coverage. |
+
+## Challenge fidelity revision
+
+- Authored Challenge taxonomy with prerequisites, scored requirements, guided steps, expected outputs, progressive hint and one or more typed deliverables
+- Learner-owned grading-model selection from the eligible catalog, bound to the immutable attempt without changing rubric authority
+- Exact-revision UI fidelity and signed-in desktop/mobile journey UAT before delivery can be declared complete
+
+- `BR-08` — Challenge access requires authenticated course access and direct-route entry cannot bypass eligibility.
+- `BR-09` — Each challenge attempt binds the exact learner, challenge and rubric revisions while draft and submitted versions remain distinct.
+- `BR-10` — Challenge submission is idempotent and never silently destroys or replaces the learner draft.
+- `BR-11` — Deterministic validation owns objective checks; AI evaluates only declared rubric criteria that require semantic judgment.
+- `BR-12` — AI output is advisory evidence and platform policy alone finalizes pass, needs-revision, evaluation-unavailable and learner progress.
+- `BR-13` — Challenge feedback binds each criterion to attempt evidence, the observed gap, uncertainty and a next action without inventing evidence or exposing hidden data.
+- `BR-14` — Hints are progressive and cannot reveal a complete solution before completion unless the authored challenge policy explicitly permits it.
+- `BR-15` — Prompt injection, irrelevant learner content and embedded instructions cannot change the challenge rubric, authority, tools or data boundary.
+- `BR-16` — Timeout, provider failure, malformed output or low confidence settles as evaluation-unavailable with safe recovery and never consumes a retry or fabricates a score.
+- `BR-17` — Retry creates a new attempt version while preserving prior submissions, feedback and finalization history.
+- `BR-18` — Challenge result and progress transitions are auditable and finalize once under duplicate, concurrent or resumed requests.
+- `BR-19` — Locale and answer style may change explanation language but not rubric meaning or outcome.
+- `BR-20` — A Challenge definition preserves prerequisites, scored requirements, guided steps, expected outputs, hint policy and one or more typed deliverables as distinct authored groups; absent optional groups are omitted rather than duplicated from the description.
+- `BR-21` — The learner chooses a grading model from the currently eligible catalog; the platform may recommend Automatic but cannot silently replace an explicit learner choice.
+- `BR-22` — The selected grading model and eligible-catalog revision bind the immutable attempt but cannot alter the Challenge rubric, deterministic checks, finalization policy or progress authority.
+- `BR-23` — If the selected model becomes unavailable before evaluation, the attempt is preserved and settles as evaluation-unavailable with an explicit resume or choose-another-model action; no silent provider fallback is allowed.
+- `BR-24` — The Challenge surface exposes one course-context breadcrumb and one exit action per action region; task copy is not repeated as briefing or deliverable guidance.
+- `BR-25` — Challenge delivery remains incomplete until semantic interaction tests, exact-revision visual fidelity and signed-in desktop/mobile learner-flow UAT all pass.
+
+- `AC-19` — The Challenge brief renders authored prerequisites, scored requirements, guided steps, expected outputs and hint policy as distinct groups, omits absent optional groups and never manufactures them by repeating the description.
+- `AC-20` — Every authored deliverable renders once with its own input, validation, draft state and score contribution; a Challenge may contain more than one deliverable.
+- `AC-21` — The learner can choose an eligible grading model, review that choice with the exact deliverables and confirm one immutable submission; Automatic is a recommendation, not a forced or silent substitution.
+- `AC-22` — A selected-model outage preserves the attempt and offers explicit recovery without consuming a retry or silently changing models.
+- `AC-23` — The Challenge route shows the full course breadcrumb, one exit affordance per action region, no unapproved header model control and no repeated task copy across header, brief and deliverables.
+- `AC-24` — Unit and integration tests prove authored-group mapping, multi-deliverable editing, model ownership, review confirmation, idempotent submission, async status, result history and recovery semantics.
+- `AC-25` — Delivery cannot report ready or complete until exact-revision visual fidelity and signed-in desktop/mobile UAT complete lesson entry, rich brief inspection, evidence editing, model selection, review, immutable confirmation, grading or recovery, result, history and return to course.

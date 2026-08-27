@@ -1,8 +1,8 @@
 # Course learning and discussion
 
-> Business identity: `starci-academy/course-learning@c325716e5b230f001b7ed2297be9524beecc96071ff68954241f34fde355bc51`
+> Business identity: `starci-academy/course-learning@520ee161425c790cbefb31385ba792211ec6a7135292bb0826ce099a4d286e86`
 >
-> Source heads: authority `implemented` · base `579d8899ae412ffd21567a2a6ac6033674d3ecf3eac3dab77c7aec0ceb787601` · `fe@16d5692ce07f`, `be@451ac8583742`
+> Source heads: authority `approved` · base `c325716e5b230f001b7ed2297be9524beecc96071ff68954241f34fde355bc51` · `fe@82832eff5971`, `be@d72bab2782df`
 >
 > Load this file first. Load only the modules named by the current task.
 
@@ -28,13 +28,14 @@
 - `BR-08`–`BR-10` — Challenge access, revision binding, drafts and idempotent immutable submission remain server-enforced.
 - `BR-11`–`BR-12` — Deterministic checks and rubric-constrained AI produce evidence; platform policy alone finalizes result and progress.
 - `BR-13`–`BR-19` — Feedback is evidence-linked, hints do not leak solutions, injections cannot change authority, failures recover safely, retries preserve history and locale does not alter rubric meaning.
+- `BR-20`–`BR-25` — Authored content groups stay distinct, multiple deliverables and learner model choice bind the reviewed attempt, unavailable models recover explicitly, and exact-revision fidelity plus full UAT are mandatory.
 
 ## Primary flow
 
 ```text
 course-home-ready → lesson-ready → lesson-pending → lesson-ready
 
-challenge-ready → challenge-draft → challenge-submitting → challenge-evaluating → challenge-result
+challenge-ready → challenge-draft → challenge-review → challenge-submitting → challenge-evaluating → challenge-result
                                                         ↘ challenge-evaluation-unavailable
 ```
 

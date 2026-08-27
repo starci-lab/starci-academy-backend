@@ -58,7 +58,7 @@ Challenge access requires authenticated course access and direct-route entry can
 
 ## BR-09
 
-Each Challenge attempt binds the exact learner, Challenge and rubric revisions while draft and submitted versions remain distinct.
+Each challenge attempt binds the exact learner, challenge and rubric revisions while draft and submitted versions remain distinct.
 
 - Strength: `owner-confirmed`
 - Evidence: `EV-016`
@@ -93,14 +93,14 @@ Challenge feedback binds each criterion to attempt evidence, the observed gap, u
 
 ## BR-14
 
-Hints are progressive and cannot reveal a complete solution before completion unless the authored Challenge policy explicitly permits it.
+Hints are progressive and cannot reveal a complete solution before completion unless the authored challenge policy explicitly permits it.
 
 - Strength: `owner-confirmed`
 - Evidence: `EV-016`, `EV-017`
 
 ## BR-15
 
-Prompt injection, irrelevant learner content and embedded instructions cannot change the Challenge rubric, authority, tools or data boundary.
+Prompt injection, irrelevant learner content and embedded instructions cannot change the challenge rubric, authority, tools or data boundary.
 
 - Strength: `owner-confirmed`
 - Evidence: `EV-016`, `EV-017`
@@ -132,3 +132,45 @@ Locale and answer style may change explanation language but not rubric meaning o
 
 - Strength: `owner-confirmed`
 - Evidence: `EV-016`, `EV-017`
+
+## BR-20
+
+A Challenge definition preserves prerequisites, scored requirements, guided steps, expected outputs, hint policy and one or more typed deliverables as distinct authored groups; absent optional groups are omitted rather than duplicated from the description.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-018`, `EV-019`, `EV-020`
+
+## BR-21
+
+The learner chooses a grading model from the currently eligible catalog; the platform may recommend Automatic but cannot silently replace an explicit learner choice.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-018`, `EV-020`
+
+## BR-22
+
+The selected grading model and eligible-catalog revision bind the immutable attempt but cannot alter the Challenge rubric, deterministic checks, finalization policy or progress authority.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-016`, `EV-018`, `EV-020`
+
+## BR-23
+
+If the selected model becomes unavailable before evaluation, the attempt is preserved and settles as evaluation-unavailable with an explicit resume or choose-another-model action; no silent provider fallback is allowed.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-017`, `EV-018`, `EV-020`
+
+## BR-24
+
+The Challenge surface exposes one course-context breadcrumb and one exit action per action region; task copy is not repeated as briefing or deliverable guidance.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-019`, `EV-020`
+
+## BR-25
+
+Challenge delivery remains incomplete until semantic interaction tests, exact-revision visual fidelity and signed-in desktop/mobile learner-flow UAT all pass.
+
+- Strength: `owner-confirmed`
+- Evidence: `EV-020`
