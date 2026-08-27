@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "featureId": "academy-ai-engine",
+  "facts": [
+    {
+      "kind": "owner-intent",
+      "owner": "product-owner",
+      "source": "request:academy-ai-engine",
+      "revision": "sha256:e9c11f3b7e9c3c6fcb5a8f1928018bc25fd2cbbcf6a880c330525459a3615627",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "Create one coherent AI product contract across StarCi Academy and complete the related capabilities."
+    },
+    {
+      "kind": "owner-sequencing",
+      "owner": "product-owner",
+      "source": "request:code-first-e2e-proof",
+      "revision": "sha256:e9c11f3b7e9c3c6fcb5a8f1928018bc25fd2cbbcf6a880c330525459a3615627",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "Prefer code-first delivery, retain minimum resolver E2E and model-case proof, and defer the broader harness."
+    },
+    {
+      "kind": "business-baseline",
+      "owner": "starci-academy-business-authority",
+      "source": "objects/sha256/92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824.json",
+      "revision": "sha256:92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "Learn AI Assistant owns course-scoped conversational continuity and selected-context help."
+    },
+    {
+      "kind": "business-baseline",
+      "owner": "starci-academy-business-authority",
+      "source": "objects/sha256/421904174c1d4e477c5b547cdc9b2c88ed1e6efa5c7a28652f2228f0ee853fa9.json",
+      "revision": "sha256:421904174c1d4e477c5b547cdc9b2c88ed1e6efa5c7a28652f2228f0ee853fa9",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "Practice and assessment owns Mock Interview and its evidence-based grading journey."
+    },
+    {
+      "kind": "business-baseline",
+      "owner": "starci-academy-business-authority",
+      "source": "objects/sha256/bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d.json",
+      "revision": "sha256:bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "Study Library owns flashcard, cloze and quiz study journeys."
+    },
+    {
+      "kind": "business-baseline",
+      "owner": "starci-academy-business-authority",
+      "source": "objects/sha256/97b2978cc5705323a692a1839e6ee51ad9d189aa90cbd943a61b9f9305670860.json",
+      "revision": "sha256:97b2978cc5705323a692a1839e6ee51ad9d189aa90cbd943a61b9f9305670860",
+      "confidence": "high",
+      "conflict": "boundary-preserved",
+      "finding": "Global Chat remains a separate communication product; AI may augment it without importing Learn memory."
+    },
+    {
+      "kind": "owner-approval",
+      "owner": "product-owner",
+      "source": "session://tasks/academy-ai-engine-20260827/approval/e9c11f3b7e9c3c6fcb5a8f1928018bc25fd2cbbcf6a880c330525459a3615627",
+      "revision": "sha256:e9c11f3b7e9c3c6fcb5a8f1928018bc25fd2cbbcf6a880c330525459a3615627",
+      "confidence": "high",
+      "conflict": "none",
+      "finding": "The exact Academy AI Engine business revision was approved."
+    }
+  ]
+}

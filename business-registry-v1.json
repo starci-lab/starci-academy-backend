@@ -167,6 +167,23 @@
           "head": "b3af7fa540893667febf893b1e01fb991d5f6caf"
         }
       ]
+    },
+    "academy-ai-engine": {
+      "featureId": "academy-ai-engine",
+      "head": "e9c11f3b7e9c3c6fcb5a8f1928018bc25fd2cbbcf6a880c330525459a3615627",
+      "authorityStatus": "modeled",
+      "baseHead": null,
+      "previousHead": null,
+      "sources": [
+        {
+          "role": "fe",
+          "head": "595fd21545ad8f781cd465b4bd5e1a85302f6d42"
+        },
+        {
+          "role": "be",
+          "head": "451ac8583742bfdbc565e32070e756ab35aa9c1b"
+        }
+      ]
     }
   },
   "objects": {
@@ -415,6 +432,10 @@
       "92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824": {
         "hash": "92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824",
         "path": "objects/sha256/92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824.json"
+      },
+      "e9c11f3b7e9c3c6fcb5a8f1928018bc25fd2cbbcf6a880c330525459a3615627": {
+        "hash": "e9c11f3b7e9c3c6fcb5a8f1928018bc25fd2cbbcf6a880c330525459a3615627",
+        "path": "objects/sha256/e9c11f3b7e9c3c6fcb5a8f1928018bc25fd2cbbcf6a880c330525459a3615627.json"
       },
     "bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d": {
       "hash": "bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d",

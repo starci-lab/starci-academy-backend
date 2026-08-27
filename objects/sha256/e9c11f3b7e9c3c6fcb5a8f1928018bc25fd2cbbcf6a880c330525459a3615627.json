@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "project": "starci-academy",
+  "featureId": "academy-ai-engine",
+  "title": "Academy AI Engine",
+  "lifecycle": {
+    "status": "modeled",
+    "baseHead": null,
+    "previousHead": null
+  },
+  "intent": "Provide one coherent, governable AI product contract across StarCi Academy while preserving the authorization, context, integrity, lifecycle and outcome authority of every capability that uses it.",
+  "businessValue": [
+    "deliver consistent AI behavior across learning, practice, assessment and communication journeys",
+    "reduce duplicated provider, policy, retry, cost and observability behavior",
+    "prevent cross-course, cross-capability and assessment-context leakage",
+    "make AI quality, cost, safety and learning outcomes measurable per capability"
+  ],
+  "actors": [
+    { "id": "learner", "goal": "receive useful AI assistance without losing work, privacy or learning integrity" },
+    { "id": "course-owner", "goal": "preserve course meaning, assessment policy and authorized content use" },
+    { "id": "community-participant", "goal": "use communication surfaces without private learning context leaking into them" },
+    { "id": "platform-operator", "goal": "control providers, quality, safety, availability, abuse and unit cost" },
+    { "id": "support-and-compliance", "goal": "investigate outcomes from durable, privacy-bounded provenance" }
+  ],
+  "capabilities": [
+    { "id": "learn-companion", "owns": "course-scoped conversation continuity, explanations, translation and selected-context help" },
+    { "id": "challenge-coach", "owns": "progressive hints and debugging guidance without submission or grading authority" },
+    { "id": "mock-interviewer", "owns": "interview conduct, rubric-bound assessment, retry and result evidence" },
+    { "id": "study-engine", "owns": "generation of study material such as cloze, flashcards and quizzes while deterministic session logic owns scoring" },
+    { "id": "project-reviewer", "owns": "typed review of authorized repository evidence and bounded learning feedback" },
+    { "id": "global-chat-ai-augmentation", "owns": "bounded moderation, classification or summary assistance without importing Learn memory" },
+    { "id": "operator-evaluation", "owns": "capability-specific quality, safety, cost and regression evaluation" }
+  ],
+  "sharedContract": [
+    "actor identity and authorization scope",
+    "explicit capability and context manifest",
+    "policy and learning-integrity decision",
+    "model and provider route with budget",
+    "idempotency identity and retry semantics",
+    "typed output or declared streaming contract",
+    "privacy-bounded provenance and revision metadata",
+    "latency, usage, cost, failure and quality observation"
+  ],
+  "executionModes": ["streaming", "request-response", "asynchronous"],
+  "states": {
+    "request": ["accepted", "preparing", "queued", "running", "completed", "retryable-failed", "terminal-failed", "cancelled", "superseded"],
+    "authorization": ["eligible", "expired", "revoked"],
+    "context": ["ready", "stale", "insufficient", "rejected"],
+    "evaluation": ["not-evaluated", "passed", "failed", "quarantined"]
+  },
+  "operations": [
+    "authorize-capability-request",
+    "prepare-context-manifest",
+    "apply-integrity-and-safety-policy",
+    "route-model-within-budget",
+    "execute-or-stream-capability-output",
+    "retry-idempotently",
+    "cancel-request",
+    "record-bounded-provenance",
+    "evaluate-capability-case",
+    "quarantine-regressed-route"
+  ],
+  "rules": [
+    "The shared engine is a product contract, not a universal conversation, memory, grading authority or retention boundary.",
+    "Every request declares exactly one capability owner before context preparation or model execution.",
+    "Authorization is rechecked for the context used by the request; revoked or expired access cannot be hidden by cached context.",
+    "Course, enrollment, assessment, conversation and capability boundaries must not be merged implicitly.",
+    "Challenge Coach never submits learner work and never decides canonical completion or grade.",
+    "Mock Interviewer may assess only under its declared rubric and must preserve answer-linked evidence and retry identity.",
+    "Study generation may be probabilistic, but delivered session rules, accepted answers, scoring and completion are deterministic and versioned.",
+    "Global Chat remains a communication product and cannot consume private Learn conversation memory by default.",
+    "Repository, course and user-provided content are untrusted model input and cannot override platform policy or reveal hidden instructions.",
+    "A retry must not duplicate a successfully completed output, attempt, grade, usage charge or learner-visible turn.",
+    "Model and provider changes are evaluated per capability; success in one capability does not authorize rollout to another.",
+    "Fingerprint or hash metadata supplements provenance but never replaces template, rubric, context and model revisions.",
+    "AI-generated outputs disclose their nature and uncertainty where evidence or grounding is insufficient."
+  ],
+  "failures": [
+    { "case": "authorization changes during execution", "outcome": "stop new context use, preserve safe status and do not expose revoked content" },
+    { "case": "provider fails before or during output", "outcome": "preserve accepted input and retry identity without duplicating completed work" },
+    { "case": "concurrent requests target one logical action", "outcome": "resolve through the declared idempotency owner and return one authoritative result" },
+    { "case": "prompt injection appears in retrieved or submitted content", "outcome": "treat the content as data, enforce platform policy and record the bounded safety outcome" },
+    { "case": "grounding or rubric is stale", "outcome": "reject, refresh or supersede the request rather than silently evaluating against mixed revisions" },
+    { "case": "a model route regresses on a capability case", "outcome": "quarantine that route for the affected capability and retain the last accepted route" },
+    { "case": "cost or abuse limit is reached", "outcome": "deny or degrade explicitly without manufacturing a successful AI result" }
+  ],
+  "acceptance": [
+    "Every AI request identifies one capability, actor, authorization scope, context manifest and idempotency identity.",
+    "Learn Companion preserves course continuity without leaking context when courses change.",
+    "Challenge Coach supplies bounded progressive help and cannot submit or grade the challenge.",
+    "Mock Interview retry and recovery cannot create duplicate grading attempts or provider charges for one logical completion.",
+    "Study sessions score against a versioned deterministic contract even when AI generated the source material.",
+    "Global Chat AI augmentation cannot read private Learn conversation memory by default.",
+    "Outputs expose capability-appropriate provenance including context, policy, model and template or rubric revisions.",
+    "At least one resolver-level E2E path and the representative model-case matrix pass before release for each changed capability.",
+    "A broader test harness may be deferred only when the minimum release proof, authorization isolation and integrity cases remain green."
+  ],
+  "nonGoals": [
+    "one universal user conversation across Academy",
+    "cross-course or cross-capability memory by default",
+    "one model or provider for every capability",
+    "AI authority over canonical enrollment, completion, score or payment state",
+    "automatic submission of learner assessments",
+    "using prompt fingerprints as security, idempotency or reproducibility proof",
+    "shipping an AI capability without a capability-specific evaluation boundary"
+  ],
+  "kpis": [
+    "helpful outcome rate by capability",
+    "learner continuation after assisted interaction",
+    "assessment-integrity incident rate",
+    "cross-boundary context incident rate",
+    "retry duplication rate",
+    "p50 and p95 completion latency by execution mode",
+    "provider failure and fallback rate",
+    "AI cost per successful capability outcome",
+    "model regression escape rate"
+  ],
+  "launchGates": [
+    "authorization and context-isolation proof",
+    "capability-specific integrity and safety policy",
+    "idempotency and concurrent retry proof",
+    "provider data-processing and retention approval",
+    "budget, rate-limit and abuse controls",
+    "minimum resolver E2E proof for changed stateful journeys",
+    "representative model-case evaluation matrix",
+    "failure, cost, latency and quality observability"
+  ],
+  "openDecisions": [
+    "physical runtime and deployment decomposition",
+    "ownership and retention store for each capability artifact",
+    "provider and model routing policy per capability",
+    "context snapshot and citation contract",
+    "exact idempotency and concurrency mechanism",
+    "evaluation dataset ownership and promotion thresholds",
+    "which existing AI paths migrate first and how compatibility is preserved"
+  ],
+  "challengeSummary": {
+    "stance": "falsification-first",
+    "verdict": "ready",
+    "assumptionIds": ["one-provider-fit", "shared-memory-benefit", "ai-always-improves"],
+    "counterexampleIds": ["graded-answer-request", "access-revoked-mid-request", "duplicate-grading-retry", "content-prompt-injection", "global-chat-context-leak"],
+    "alternativeIds": ["keep-siloed", "shared-sdk-only", "central-monolith"],
+    "failureModeIds": ["quality-regression", "cost-runaway", "support-opacity", "privacy-leak", "integrity-breach"],
+    "falsificationTestIds": ["capability-eval-separation", "authorization-revocation", "concurrent-idempotency", "prompt-injection-resistance", "cross-boundary-isolation"],
+    "stakeholderConflictIds": ["helpfulness-vs-integrity", "quality-vs-cost", "provenance-vs-privacy"],
+    "unresolvedCriticalIds": [],
+    "recommendationChanged": true,
+    "recommendation": "shared governance and execution contract with bounded capability-owned products instead of a universal AI brain"
+  },
+  "evidence": [
+    { "kind": "owner-approval", "ref": "request:academy-ai-engine", "revision": "sha256:e9c11f3b7e9c3c6fcb5a8f1928018bc25fd2cbbcf6a880c330525459a3615627", "confidence": "high", "conflict": "none" },
+    { "kind": "business-baseline", "ref": "objects/sha256/92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824.json", "revision": "sha256:92e52fe3558372dd1abcd13d1ba3e54e1d2159949f1fc44cb7e1c3ec546a0824", "confidence": "high", "conflict": "none" },
+    { "kind": "business-baseline", "ref": "objects/sha256/421904174c1d4e477c5b547cdc9b2c88ed1e6efa5c7a28652f2228f0ee853fa9.json", "revision": "sha256:421904174c1d4e477c5b547cdc9b2c88ed1e6efa5c7a28652f2228f0ee853fa9", "confidence": "high", "conflict": "none" },
+    { "kind": "business-baseline", "ref": "objects/sha256/bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d.json", "revision": "sha256:bc22cf3ec1eb3f07ddeac2ec5fa7999398e5849736188daacc5a09436dc9562d", "confidence": "high", "conflict": "none" },
+    { "kind": "business-baseline", "ref": "objects/sha256/97b2978cc5705323a692a1839e6ee51ad9d189aa90cbd943a61b9f9305670860.json", "revision": "sha256:97b2978cc5705323a692a1839e6ee51ad9d189aa90cbd943a61b9f9305670860", "confidence": "high", "conflict": "boundary-preserved" }
+  ]
+}
+
