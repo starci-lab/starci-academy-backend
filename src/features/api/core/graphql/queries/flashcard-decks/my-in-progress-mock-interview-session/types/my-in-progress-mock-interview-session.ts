@@ -75,4 +75,20 @@ export interface MyInProgressMockInterviewSessionResult {
     createdAt: Date
     /** Optional user-chosen name for this practice session; null when the learner didn't name it (FE renders a time-based fallback). */
     name: string | null
+    /** Durable state used to route resume, grading progress, retry, or history. */
+    status: string
+    /** Current optimistic concurrency token. */
+    revision: number
+    /** Rubric identity frozen by this session. */
+    rubricVersion: string
+    /** Durable grading job identity once completion has been requested. */
+    gradingJobId: string | null
+    /** Current durable grading job state. */
+    gradingJobStatus: string | null
+    /** Number of grading executions already claimed. */
+    gradingAttemptCount: number
+    /** Bounded maximum grading executions. */
+    gradingMaxAttempts: number
+    /** Last persisted grading failure, if any. */
+    gradingLastError: string | null
 }

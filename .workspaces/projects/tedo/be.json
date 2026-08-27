@@ -1,0 +1,21 @@
+{
+  "$schema": "../../../.claude/readiness/initialization/workspaces/portable-route.schema.json",
+  "schemaVersion": 6,
+  "project": "tedo",
+  "role": "be",
+  "repository": {
+    "kind": "sibling",
+    "directory": "tedo-backend",
+    "gitRepository": "https://github.com/starci-lab/tedo-backend.git",
+    "branch": "main"
+  },
+  "context": {
+    "instructions": [],
+    "contract": null,
+    "contractSource": null,
+    "manifests": [
+      "package.json"
+    ],
+    "grammarId": null
+  }
+}

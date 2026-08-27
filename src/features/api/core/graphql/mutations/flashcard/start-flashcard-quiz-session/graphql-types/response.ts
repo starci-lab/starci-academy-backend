@@ -1,56 +1,102 @@
 import {
-    Field,
-    ID,
-    ObjectType,
+    Field, ID, Int, ObjectType
 } from "@nestjs/graphql"
 import {
-    AbstractGraphQLResponse,
+    AbstractGraphQLResponse
 } from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
 import {
-    IAbstractGraphQLResponse,
+    IAbstractGraphQLResponse
 } from "@modules/api/apollo/server/types/graphql-response"
 
-@ObjectType({
-    description: "A newly-persisted resumable flashcard quick-quiz session.",
-})
-/** The newly-persisted resumable flashcard quick-quiz session. */
-export class StartFlashcardQuizSessionData {
-    @Field(
-        () => ID,
-        {
-            description: "Id of the persisted session — pass this to syncFlashcardQuizSessionProgress / completeFlashcardQuizSession.",
-        },
-    )
-        sessionId: string
+@ObjectType()
+/** One public cloze drop target. */
+export class ClozeQuizBlankData {
+    @Field(() => ID)
+        blankId: string
 
-    @Field(
-        () => String,
+    @Field(() => String,
         {
-            description: "ISO timestamp of the session's resumable-window deadline (createdAt + duration).",
-        },
-    )
-        deadlineAt: string
+            nullable: true
+        })
+        hint?: string
+}
+
+@ObjectType()
+/** One opaque single-use word-bank token. */
+export class ClozeQuizTokenData {
+    @Field(() => ID)
+        tokenId: string
+
+    @Field(() => String)
+        label: string
+}
+
+@ObjectType()
+/** One persisted blank-to-token assignment. */
+export class ClozeQuizSelectionData {
+    @Field(() => ID)
+        blankId: string
+
+    @Field(() => ID)
+        tokenId: string
+}
+
+@ObjectType()
+/** Playable item projection that deliberately omits its hidden answer key. */
+export class ClozeQuizItemData {
+    @Field(() => ID)
+        cardId: string
+
+    @Field(() => String)
+        question: string
+
+    @Field(() => String)
+        clozeText: string
+
+    @Field(() => [ClozeQuizBlankData])
+        blanks: Array<ClozeQuizBlankData>
+
+    @Field(() => [ClozeQuizTokenData])
+        tokens: Array<ClozeQuizTokenData>
 }
 
 @ObjectType({
-    description: "Response wrapper for the startFlashcardQuizSession mutation.",
+    description: "A playable server-owned cloze quiz session."
 })
-/**
-     * ISO timestamp of when this run stops being resumable (server
-     * `createdAt + FLASHCARD_QUIZ_SESSION_DURATION_MS`) -- the FE derives its
-     * countdown from THIS, never a local clock start. Mirrors
-     * `StartMockInterviewSessionData.deadlineAt`.
-     */
-export class StartFlashcardQuizSessionResponse
-    extends AbstractGraphQLResponse
-    implements IAbstractGraphQLResponse<StartFlashcardQuizSessionData>
-{
-    @Field(
-        () => StartFlashcardQuizSessionData,
+/** Newly created or idempotently replayed v1 session. */
+export class StartFlashcardQuizSessionData {
+    @Field(() => ID)
+        sessionId: string
+
+    @Field(() => Int)
+        contractVersion: number
+
+    @Field(() => [ClozeQuizItemData])
+        items: Array<ClozeQuizItemData>
+
+    @Field(() => Int)
+        currentIndex: number
+
+    @Field(() => [ClozeQuizSelectionData])
+        answerState: Array<ClozeQuizSelectionData>
+
+    @Field(() => Int)
+        answerVersion: number
+
+    @Field(() => String)
+        status: string
+
+    @Field(() => String)
+        deadlineAt: string
+}
+
+@ObjectType()
+/** GraphQL envelope for a v1 cloze session start. */
+export class StartFlashcardQuizSessionResponse extends AbstractGraphQLResponse
+    implements IAbstractGraphQLResponse<StartFlashcardQuizSessionData> {
+    @Field(() => StartFlashcardQuizSessionData,
         {
-            nullable: true,
-            description: "The newly-persisted session.",
-        },
-    )
+            nullable: true
+        })
         data: StartFlashcardQuizSessionData
 }

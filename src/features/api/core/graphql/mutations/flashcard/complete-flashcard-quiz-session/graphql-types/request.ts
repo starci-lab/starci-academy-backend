@@ -1,101 +1,45 @@
 import {
-    Field,
-    ID,
-    InputType,
-    Int,
+    Field, ID, InputType, Int
 } from "@nestjs/graphql"
 import {
-    ArrayMaxSize,
-    IsArray,
-    IsInt,
-    Min,
-    ValidateNested,
+    ArrayMaxSize, IsArray, IsInt, IsString, IsUUID, Min, ValidateNested
 } from "class-validator"
 import {
-    Type,
+    Type
 } from "class-transformer"
 
-/** Upper bound on the answers array accepted in one complete call -- mirrors the service's MAX_ANSWERED_CARDS ceiling. */
-const MAX_ANSWERS = 10
+@InputType()
+/** One final session-bound blank-to-token assignment. */
+export class CompleteClozeQuizSelectionRequest {
+    @Field(() => ID)
+    @IsString()
+        blankId: string
 
-@InputType({
-    description: "One card's cloze outcome within a finished flashcard quick-quiz session.",
-})
-/**
- * One card's outcome within the finished session, as reported by the client.
- * The server re-derives the session's aggregate coverage from this
- * per-card breakdown -- it never trusts a client-sent aggregate score.
- */
-export class QuizSessionAnswerRequest {
-    @Field(
-        () => ID,
-        {
-            description: "The flashcard this answer belongs to.",
-        },
-    )
-        cardId: string
-
-    @Field(
-        () => Int,
-        {
-            description: "How many cloze blanks on this card the learner filled correctly.",
-        },
-    )
-    // a card cannot have a negative number of correct blanks
-    @IsInt()
-    @Min(0)
-        correctBlanks: number
-
-    @Field(
-        () => Int,
-        {
-            description: "Total cloze blanks on this card (the denominator for this card's coverage).",
-        },
-    )
-    // a card cannot have a negative number of total blanks
-    @IsInt()
-    @Min(0)
-        totalBlanks: number
+    @Field(() => ID)
+    @IsUUID()
+        tokenId: string
 }
 
 @InputType({
-    description: "Request to record a finished flashcard quick-quiz session.",
+    description: "Finalize a v1 cloze session; the server grades opaque token identities."
 })
-/**
- * Request to record a finished flashcard quick-quiz session and
- * grant its capped XP reward. Carries the PER-CARD answer breakdown so the
- * server can re-derive coverage itself (never trusting a client-sent
- * aggregate score) and compute per-tag weak spots for the recap.
- */
+/** Completion input containing no client-authored score or denominator. */
 export class CompleteFlashcardQuizSessionRequest {
-    @Field(
-        () => ID,
-        {
-            description: "Session id (idempotency key → xp_history refId) — the SERVER-ISSUED id from startFlashcardQuizSession's sessionId when resuming a persisted draft; a client-generated uuid is still accepted for a one-shot session that never called startFlashcardQuizSession.",
-        },
-    )
+    @Field(() => ID)
+    @IsUUID()
         sessionId: string
 
-    @Field(
-        () => ID,
-        {
-            description: "Course the session belongs to (scopes the xp_history course + daily cap).",
-        },
-    )
-        courseId: string
+    @Field(() => Int)
+    @IsInt()
+    @Min(0)
+        expectedVersion: number
 
-    @Field(
-        () => [QuizSessionAnswerRequest],
-        {
-            description: "Per-card breakdown this session answered — the source of truth for scoring.",
-        },
-    )
-    // bounded per-card breakdown; each element is itself validated (ValidateNested + Type)
+    @Field(() => [CompleteClozeQuizSelectionRequest])
     @IsArray()
-    @ArrayMaxSize(MAX_ANSWERS)
+    @ArrayMaxSize(100)
     @ValidateNested({
-        each: true,
+        each: true
     })
-    @Type(() => QuizSessionAnswerRequest)
-        answers: Array<QuizSessionAnswerRequest>
+    @Type(() => CompleteClozeQuizSelectionRequest)
+        selections: Array<CompleteClozeQuizSelectionRequest>
 }

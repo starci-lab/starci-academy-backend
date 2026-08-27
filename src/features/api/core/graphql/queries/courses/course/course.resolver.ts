@@ -9,10 +9,17 @@ import {
 import {
     Injectable,
     UseInterceptors,
+    UseGuards,
 } from "@nestjs/common"
 import {
     CourseEntity,
 } from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    UserService,
+} from "@modules/bussiness/user/user.service"
 import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
@@ -37,6 +44,12 @@ import {
     UseThrottler,
 } from "@modules/platform/throttler/throttler.decorators"
 import {
+    KeycloakOptionalAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-optional-auth-graphql.guard"
+import {
+    KeycloakGraphQLUser,
+} from "@modules/integrations/keycloak/keycloak.decorators"
+import {
     CourseRequest,
 } from "./graphql-types/request"
 import {
@@ -56,6 +69,7 @@ export class CourseResolver {
     constructor(
         private readonly courseStatsProjectionService: CourseStatsProjectionService,
         private readonly courseService: CourseService,
+        private readonly userService: UserService,
     ) {}
 
     /**
@@ -105,12 +119,15 @@ export class CourseResolver {
         [Locale.Vi]: "Lấy khóa học thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
+    @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @Query(() => CourseResponse,
         {
             name: "course",
             description: "Returns a single course by id.",
         })
     async execute(
+        @KeycloakGraphQLUser()
+            user: UserEntity,
         @Args("request",
             {
                 description: "Course lookup request.",
@@ -120,11 +137,18 @@ export class CourseResolver {
         @GraphQLLocale()
             locale: Locale,
     ): Promise<CourseEntity> {
-        return this.courseService.execute(
+        const course = await this.courseService.execute(
             {
                 request,
                 locale,
             },
         )
+        if (!user) {
+            course.isEnrolled = null
+            return course
+        }
+        course.isEnrolled = await this.userService.checkEnrollment(user.id,
+            course.id)
+        return course
     }
 }

@@ -42,6 +42,9 @@ const STALE_AFTER_MS = 5 * 60 * 1000
 /** The zeroed shape the SUT returns / persists whenever the sample is too small. */
 const EMPTY_RESULT: UserMockInterviewCourseStatsResult = {
     insufficientData: true,
+    comparisonMode: null,
+    comparisonLevel: null,
+    comparisonRubricVersion: null,
     modeSplit: {
         qnaCount: 0,
         designCount: 0,
@@ -97,6 +100,7 @@ describe("UserMockInterviewCourseStatsProjectionService",
             promptTitle: "Design a URL shortener",
             level: null,
             mode: "design",
+            rubricVersion: "mock-interview-v1",
             overallScore: 80,
             verdict: "pass",
             phaseScores: [],
@@ -224,7 +228,11 @@ describe("UserMockInterviewCourseStatsProjectionService",
                             enrollmentId: ENROLLMENT_ID,
                         })
 
-                        expect(persistedValue(entityManager)).toEqual(EMPTY_RESULT)
+                        expect(persistedValue(entityManager)).toEqual({
+                            ...EMPTY_RESULT,
+                            comparisonMode: "qna",
+                            comparisonRubricVersion: "mock-interview-v1",
+                        })
                         expect(entityManager.find).toHaveBeenCalledTimes(1)
                     })
 
@@ -286,7 +294,7 @@ describe("UserMockInterviewCourseStatsProjectionService",
                                     createdAt: new Date("2026-03-03T00:00:00.000Z"),
                                     overallScore: 65,
                                     verdict: "borderline",
-                                    level: "middle",
+                                    level: "junior",
                                     matchedContentIds: [
                                         "content-3",
                                     ],
@@ -315,7 +323,7 @@ describe("UserMockInterviewCourseStatsProjectionService",
                                     createdAt: new Date("2026-03-02T00:00:00.000Z"),
                                     overallScore: 50,
                                     verdict: "fail",
-                                    level: "senior",
+                                    level: "junior",
                                     // no matched content on this attempt -- the deep-link candidate is null
                                     matchedContentIds: [],
                                     gaps: [
@@ -346,8 +354,7 @@ describe("UserMockInterviewCourseStatsProjectionService",
                                     overallScore: 88,
                                     // an unrecognised verdict is not tallied into any band
                                     verdict: "unknown",
-                                    // a legacy null level is dropped, never bucketed
-                                    level: null,
+                                    level: "junior",
                                     matchedContentIds: [
                                         "content-1",
                                     ],
@@ -480,11 +487,7 @@ describe("UserMockInterviewCourseStatsProjectionService",
                                 attemptCount: 3,
                             },
                         ])
-                        expect(value.byLevel.map((item) => item.key)).toEqual([
-                            "senior",
-                            "middle",
-                            "junior",
-                        ])
+                        expect(value.byLevel.map((item) => item.key)).toEqual(["junior"])
                         expect(value.byKind).toEqual([])
                         expect(value.byLanguage).toEqual([])
                         expect(value.verdictCounts).toEqual({
@@ -978,6 +981,9 @@ describe("UserMockInterviewCourseStatsProjectionService",
                         const service = await build()
                         const stored = {
                             insufficientData: false,
+                            comparisonMode: "design",
+                            comparisonLevel: "middle",
+                            comparisonRubricVersion: "mock-interview-v1",
                             modeSplit: {
                                 qnaCount: 2,
                                 designCount: 3,

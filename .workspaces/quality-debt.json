@@ -1,0 +1,16 @@
+{
+  "$schema": "../.claude/readiness/initialization/workspaces/quality-debt.schema.json",
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "id": "nivo-be-unit-tests-before-business-approval",
+      "project": "nivo",
+      "role": "be",
+      "gate": "unit",
+      "scope": "All Nivo backend unit-test execution and unit-coverage expansion",
+      "reason": "The owner explicitly deferred Nivo backend unit tests while the business contract is still being finalized.",
+      "owner": "nivo/backend",
+      "resumeWhen": "The owner explicitly confirms the applicable Nivo business revision and asks to resume backend unit tests."
+    }
+  ]
+}

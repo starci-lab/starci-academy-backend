@@ -81,8 +81,8 @@ export class CompleteFlashcardQuizSessionResolver {
         return this.flashcardQuizSessionService.complete({
             userId: user.id,
             sessionId: request.sessionId,
-            courseId: request.courseId,
-            answers: request.answers,
+            expectedVersion: request.expectedVersion,
+            selections: request.selections,
         })
     }
 }

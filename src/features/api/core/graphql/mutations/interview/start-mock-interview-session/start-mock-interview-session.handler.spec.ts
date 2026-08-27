@@ -34,6 +34,8 @@ describe("StartMockInterviewSessionHandler",
                 const createdAt = new Date("2026-02-01T12:00:00.000Z")
                 const draw = jest.fn().mockResolvedValue({
                     sessionId: "session-1",
+                    revision: 0,
+                    status: "in_progress",
                     promptId: "prompt-1",
                     promptTitle: "Design a queue",
                     difficulty: "hard",
@@ -72,6 +74,8 @@ describe("StartMockInterviewSessionHandler",
 
                 await expect(handler.execute(command)).resolves.toEqual({
                     sessionId: "session-1",
+                    revision: 0,
+                    status: "in_progress",
                     promptId: "prompt-1",
                     promptTitle: "Design a queue",
                     difficulty: "hard",
@@ -120,6 +124,8 @@ describe("StartMockInterviewSessionHandler",
 
                 draw.mockResolvedValueOnce({
                     sessionId: "session-2",
+                    revision: 0,
+                    status: "in_progress",
                     promptId: "prompt-2",
                     promptTitle: "Q&A",
                     difficulty: "medium",

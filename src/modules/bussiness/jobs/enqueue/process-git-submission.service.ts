@@ -73,25 +73,14 @@ export class EnqueueProcessGitSubmissionJobService {
      * @returns The persisted job row and queued BullMQ job.
      */
     async enqueue(
-        {
-            userId,
-            enrollmentId,
-            userChallengeSubmissionId,
-            challengeSubmissionId,
+        params: EnqueueProcessGitSubmissionJobParams,
+    ): Promise<JobEntity> {
+        const {
             jobId,
-            reservedJobId,
-            attemptId,
             entityManager,
             deferPublish = false,
-            branch,
-            embeddingModel,
-            embeddingProvider,
-            locale,
-            ai,
-            lang,
-        }: EnqueueProcessGitSubmissionJobParams,
-    ): Promise<JobEntity> {
-        let job: JobEntity | null = null
+        } = params
+        let job: JobEntity
         if (jobId) {
             job = await this.jobStalledService.requeueJob(
                 {
@@ -103,66 +92,82 @@ export class EnqueueProcessGitSubmissionJobService {
                 },
             )
         } else {
-            const id = reservedJobId ?? uuidv4()
-            const payloadBody: ProcessGitSubmissionPayload = {
-                jobId: id,
-                ...(attemptId !== undefined ? {
-                    attemptId,
-                } : {
-                }),
-                enrollmentId,
-                userChallengeSubmissionId,
-                ...(branch !== undefined ? {
-                    branch,
-                } : {
-                }),
-                ...(embeddingModel !== undefined ? {
-                    embeddingModel,
-                } : {
-                }),
-                ...(embeddingProvider !== undefined ? {
-                    embeddingProvider,
-                } : {
-                }),
-                ...(locale !== undefined ? {
-                    locale: locale as Locale,
-                } : {
-                }),
-                ...(ai !== undefined ? {
-                    ai,
-                } : {
-                }),
-                ...(lang !== undefined ? {
-                    lang,
-                } : {
-                }),
-            }
-            job = await this.jobActionService.createJob(
-                {
-                    id,
-                    userId,
-                    actionType: ActionType.ProcessGitSubmission,
-                    category: JobCategory.SubmitChallenge,
-                    maxSteps: envConfig().job.processGitSubmission.maxSteps,
-                    payload: this.superJson.stringify(payloadBody),
-                    challengeSubmissionId,
-                    ...(entityManager !== undefined ? {
-                        entityManager,
-                    } : {
-                    }),
-                    ...(attemptId !== undefined ? {
-                        refs: {
-                            userChallengeSubmissionId,
-                            enrollmentId,
-                            challengeAttemptId: attemptId,
-                        },
-                    } : {
-                    }),
-                },
-            )
+            job = await this.createNewJob(params)
         }
         if (!deferPublish) void this.publish(job).catch(() => undefined)
         return job
+    }
+
+    private async createNewJob({
+        userId,
+        enrollmentId,
+        userChallengeSubmissionId,
+        challengeSubmissionId,
+        reservedJobId,
+        attemptId,
+        entityManager,
+        branch,
+        embeddingModel,
+        embeddingProvider,
+        locale,
+        ai,
+        lang,
+    }: EnqueueProcessGitSubmissionJobParams): Promise<JobEntity> {
+        const id = reservedJobId ?? uuidv4()
+        const payloadBody: ProcessGitSubmissionPayload = {
+            jobId: id,
+            ...(attemptId !== undefined ? {
+                attemptId,
+            } : {
+            }),
+            enrollmentId,
+            userChallengeSubmissionId,
+            ...(branch !== undefined ? {
+                branch,
+            } : {
+            }),
+            ...(embeddingModel !== undefined ? {
+                embeddingModel,
+            } : {
+            }),
+            ...(embeddingProvider !== undefined ? {
+                embeddingProvider,
+            } : {
+            }),
+            ...(locale !== undefined ? {
+                locale: locale as Locale,
+            } : {
+            }),
+            ...(ai !== undefined ? {
+                ai,
+            } : {
+            }),
+            ...(lang !== undefined ? {
+                lang,
+            } : {
+            }),
+        }
+        return this.jobActionService.createJob({
+            id,
+            userId,
+            actionType: ActionType.ProcessGitSubmission,
+            category: JobCategory.SubmitChallenge,
+            maxSteps: envConfig().job.processGitSubmission.maxSteps,
+            payload: this.superJson.stringify(payloadBody),
+            challengeSubmissionId,
+            ...(entityManager !== undefined ? {
+                entityManager,
+            } : {
+            }),
+            ...(attemptId !== undefined ? {
+                refs: {
+                    userChallengeSubmissionId,
+                    enrollmentId,
+                    challengeAttemptId: attemptId,
+                },
+            } : {
+            }),
+        })
     }
 
     /** Publish a previously persisted job after its owning database transaction commits. */

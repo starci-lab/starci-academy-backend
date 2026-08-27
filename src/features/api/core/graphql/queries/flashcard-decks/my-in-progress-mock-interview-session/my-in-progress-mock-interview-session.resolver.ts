@@ -90,6 +90,14 @@ export class MyInProgressMockInterviewSessionResolver {
         }
         return {
             sessionId: result.sessionId,
+            status: result.status,
+            revision: result.revision,
+            rubricVersion: result.rubricVersion,
+            gradingJobId: result.gradingJobId,
+            gradingJobStatus: result.gradingJobStatus,
+            gradingAttemptCount: result.gradingAttemptCount,
+            gradingMaxAttempts: result.gradingMaxAttempts,
+            gradingLastError: result.gradingLastError,
             promptId: result.promptId,
             promptTitle: result.promptTitle,
             level: result.level,

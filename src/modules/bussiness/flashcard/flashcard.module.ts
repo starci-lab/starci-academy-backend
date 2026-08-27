@@ -11,6 +11,9 @@ import {
     FlashcardQuizSessionService,
 } from "./flashcard-quiz-session.service"
 import {
+    ClozeParserService,
+} from "./cloze/cloze-parser.service"
+import {
     FlashcardReviewService,
 } from "./flashcard-review.service"
 import {
@@ -24,6 +27,7 @@ import {
     providers: [
         FlashcardDeckReadService,
         FlashcardQuizSessionService,
+        ClozeParserService,
         FlashcardReviewService,
         FlashcardReviewSessionService,
         FlashcardDueReviewSessionService,
@@ -31,6 +35,7 @@ import {
     exports: [
         FlashcardDeckReadService,
         FlashcardQuizSessionService,
+        ClozeParserService,
         FlashcardReviewService,
         FlashcardReviewSessionService,
         FlashcardDueReviewSessionService,

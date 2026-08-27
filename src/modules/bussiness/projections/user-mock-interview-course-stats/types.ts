@@ -111,6 +111,12 @@ export interface UserMockInterviewCourseStatsResult {
      * when this is true (HONEST gate).
      */
     insufficientData: boolean
+    /** Mode of the latest-attempt cohort used for every comparison. */
+    comparisonMode: string | null
+    /** Seniority level of the latest-attempt cohort. */
+    comparisonLevel: string | null
+    /** Rubric version of the latest-attempt cohort. */
+    comparisonRubricVersion: string | null
     /** Mode split across the scanned window. */
     modeSplit: MockInterviewCourseStatsModeSplitData
     /** Overall-score trend across the most recent attempts (bounded, oldest of the window first). */

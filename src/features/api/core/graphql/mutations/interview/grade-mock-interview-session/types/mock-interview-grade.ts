@@ -210,6 +210,8 @@ export interface ResolveTrustedPromptIdentityResult {
     countsToReadiness: boolean
     /** The session's user-chosen display name, or null. */
     name: string | null
+    /** Rubric identity frozen when the session was drawn. */
+    rubricVersion: string
 }
 
 /** Params for {@link MockInterviewGradingService.buildQuestionReviews}. */
@@ -248,6 +250,10 @@ export interface PersistMockInterviewAttemptParams {
     countsToReadiness: boolean
     /** The session's user-chosen display name, copied verbatim onto the attempt row. */
     name: string | null
+    /** Rubric identity copied from the source session. */
+    rubricVersion: string
+    /** Durable meaning of the advisory recommendation lookup. */
+    recommendationStatus: "available" | "no_match" | "unavailable"
 }
 
 /** Params for {@link MockInterviewGradingService.grade}. */

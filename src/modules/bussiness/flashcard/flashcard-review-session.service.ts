@@ -613,11 +613,12 @@ export class FlashcardReviewSessionService {
         const currentIndex = mappedCurrentIndex
             ?? (firstUngradedIndex >= 0 ? firstUngradedIndex : Math.max(0,
                 cardIds.length - 1))
-        const status = cardIds.length === 0
-            ? "abandoned" as const
-            : gradedIndexes.length >= cardIds.length
-                ? "completed" as const
-                : session.status
+        let status = session.status
+        if (cardIds.length === 0) {
+            status = "abandoned"
+        } else if (gradedIndexes.length >= cardIds.length) {
+            status = "completed"
+        }
         const reviewedCount = gradedIndexes.length
 
         await this.entityManager.update(

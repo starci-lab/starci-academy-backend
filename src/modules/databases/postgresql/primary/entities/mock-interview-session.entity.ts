@@ -26,6 +26,18 @@ import {
  */
 export const MOCK_INTERVIEW_SESSION_DURATION_MS = 60 * 60 * 1000
 
+/** Version of the scoring rubric snapshotted by newly-created sessions. */
+export const CURRENT_MOCK_INTERVIEW_RUBRIC_VERSION = "mock-interview-v1"
+
+/** Durable lifecycle states for one mock-interview practice session. */
+export type MockInterviewSessionStatus =
+    | "in_progress"
+    | "grading"
+    | "grading_failed"
+    | "completed"
+    | "abandoned"
+    | "expired"
+
 /** One authored programming-language variant of a seed question's GIVEN code. */
 export interface MockInterviewSeedQuestionGivenCode {
     lang: string
@@ -96,6 +108,14 @@ export interface MockInterviewSessionTurn {
     [
         "enrollmentId",
     ])
+@Index("uq_mock_interview_sessions_unfinished_enrollment",
+    [
+        "enrollmentId",
+    ],
+    {
+        unique: true,
+        where: "\"status\" IN ('in_progress', 'grading', 'grading_failed')",
+    })
 /**
  * One SERVER-PICKED mock-interview prompt draw -- created by
  * `startMockInterviewSession` at the moment the learner starts a session, so
@@ -285,7 +305,54 @@ export class MockInterviewSessionEntity extends UuidAbstractEntity {
         type: "varchar",
         default: "in_progress",
     })
-        status: "in_progress" | "completed" | "abandoned"
+        status: MockInterviewSessionStatus
+
+    /** Optimistic concurrency token used by transcript and lifecycle mutations. */
+    @Column({
+        name: "revision",
+        type: "int",
+        default: 0,
+    })
+        revision: number
+
+    /** Immutable rubric identity used to keep cross-session comparisons valid. */
+    @Column({
+        name: "rubric_version",
+        type: "varchar",
+        default: CURRENT_MOCK_INTERVIEW_RUBRIC_VERSION,
+    })
+        rubricVersion: string
+
+    /** Server-owned deadline for the live question loop. */
+    @Column({
+        name: "expires_at",
+        type: "timestamptz",
+    })
+        expiresAt: Date
+
+    /** When completion atomically handed the session to durable grading. */
+    @Column({
+        name: "grading_requested_at",
+        type: "timestamptz",
+        nullable: true,
+    })
+        gradingRequestedAt: Date | null
+
+    /** When a durable grade was committed. */
+    @Column({
+        name: "completed_at",
+        type: "timestamptz",
+        nullable: true,
+    })
+        completedAt: Date | null
+
+    /** When the learner explicitly abandoned this session. */
+    @Column({
+        name: "abandoned_at",
+        type: "timestamptz",
+        nullable: true,
+    })
+        abandonedAt: Date | null
 
     /**
      * Snapshot of the in-flight transcript, periodically overwritten by

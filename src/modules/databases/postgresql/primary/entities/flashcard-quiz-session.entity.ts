@@ -1,4 +1,5 @@
 import {
+    Check,
     Column,
     Entity,
     Index,
@@ -12,6 +13,11 @@ import {
 import {
     EnrollmentEntity,
 } from "./enrollment.entity"
+import type {
+    ClozeQuizItemSnapshot,
+    ClozeQuizScoreSnapshot,
+    ClozeQuizSelection,
+} from "@modules/bussiness/flashcard/cloze/cloze-contract"
 
 /**
  * Max wall-clock duration ONE flashcard quick-quiz session may
@@ -66,6 +72,36 @@ export interface FlashcardQuizSessionWeakTag {
 }
 
 @Entity("flashcard_quiz_sessions")
+@Check("chk_flashcard_quiz_v1_shape",
+    `"contract_version" IS DISTINCT FROM 1 OR (
+        "start_request_id" IS NOT NULL
+        AND "start_request_fingerprint" ~ '^[0-9a-f]{64}$'
+        AND jsonb_typeof("quiz_items") = 'array'
+        AND jsonb_array_length("quiz_items") > 0
+        AND jsonb_typeof("answer_state") = 'array'
+        AND "answer_version" >= 0
+    )`)
+@Check("chk_flashcard_quiz_v1_completed_score",
+    `"contract_version" IS DISTINCT FROM 1
+        OR "status" <> 'completed'
+        OR "score_snapshot" IS NOT NULL`)
+@Index("uq_flashcard_quiz_active_enrollment",
+    [
+        "enrollmentId",
+    ],
+    {
+        unique: true,
+        where: "status = 'in_progress'",
+    })
+@Index("uq_flashcard_quiz_start_request",
+    [
+        "enrollmentId",
+        "startRequestId",
+    ],
+    {
+        unique: true,
+        where: "start_request_id IS NOT NULL",
+    })
 // fast per-enrollment session lookup (mirrors mock_interview_sessions' own
 // index) -- not the primary lookup path (that's by `id`), but useful for
 // cleanup/debug queries scoped to one enrollment
@@ -86,6 +122,62 @@ export interface FlashcardQuizSessionWeakTag {
  * grant succeeds.
  */
 export class FlashcardQuizSessionEntity extends UuidAbstractEntity {
+    @Column({
+        name: "contract_version",
+        type: "int",
+        nullable: true,
+    })
+        contractVersion: number | null
+
+    @Column({
+        name: "start_request_id",
+        type: "uuid",
+        nullable: true,
+    })
+        startRequestId: string | null
+
+    @Column({
+        name: "start_request_fingerprint",
+        type: "char",
+        length: 64,
+        nullable: true,
+    })
+        startRequestFingerprint: string | null
+
+    @Column({
+        name: "quiz_items",
+        type: "jsonb",
+        nullable: true,
+    })
+        quizItems: Array<ClozeQuizItemSnapshot> | null
+
+    @Column({
+        name: "answer_state",
+        type: "jsonb",
+        default: () => "'[]'",
+    })
+        answerState: Array<ClozeQuizSelection>
+
+    @Column({
+        name: "answer_version",
+        type: "int",
+        default: 0,
+    })
+        answerVersion: number
+
+    @Column({
+        name: "score_snapshot",
+        type: "jsonb",
+        nullable: true,
+    })
+        scoreSnapshot: ClozeQuizScoreSnapshot | null
+
+    @Column({
+        name: "invalid_reason",
+        type: "varchar",
+        nullable: true,
+    })
+        invalidReason: string | null
     /**
      * Enrollment this quiz draw belongs to (user x course) -- the anchor every
      * ownership-scoped lookup (`syncFlashcardQuizSessionProgress`,

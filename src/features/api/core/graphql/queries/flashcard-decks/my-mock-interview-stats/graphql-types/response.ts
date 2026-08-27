@@ -111,6 +111,24 @@ export class MyMockInterviewStatsData {
     )
         insufficientData: boolean
 
+    @Field(() => String,
+        {
+            nullable: true, description: "Mode of the comparable latest-attempt cohort."
+        })
+        comparisonMode: string | null
+
+    @Field(() => String,
+        {
+            nullable: true, description: "Level of the comparable latest-attempt cohort."
+        })
+        comparisonLevel: string | null
+
+    @Field(() => String,
+        {
+            nullable: true, description: "Rubric version of the comparable latest-attempt cohort."
+        })
+        comparisonRubricVersion: string | null
+
     @Field(
         () => MockInterviewStatsModeSplit,
         {

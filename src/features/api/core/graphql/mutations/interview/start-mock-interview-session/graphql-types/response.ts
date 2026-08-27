@@ -1,6 +1,7 @@
 import {
     Field,
     ID,
+    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
@@ -115,6 +116,18 @@ export class StartMockInterviewSessionData {
         },
     )
         sessionId: string
+
+    @Field(() => Int,
+        {
+            description: "Optimistic concurrency token for the first transcript sync."
+        })
+        revision: number
+
+    @Field(() => String,
+        {
+            description: "Durable lifecycle state; initially in_progress."
+        })
+        status: string
 
     @Field(
         () => ID,

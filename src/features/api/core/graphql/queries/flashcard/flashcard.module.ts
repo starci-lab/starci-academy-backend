@@ -8,6 +8,9 @@ import {
     MyInProgressFlashcardQuizSessionSingleQueryModule,
 } from "./my-in-progress-flashcard-quiz-session/my-in-progress-flashcard-quiz-session.module"
 import {
+    FlashcardQuizEligibilitySingleQueryModule,
+} from "./flashcard-quiz-eligibility/flashcard-quiz-eligibility.module"
+import {
     MyFlashcardQuizHistorySingleQueryModule,
 } from "./my-flashcard-quiz-history/my-flashcard-quiz-history.module"
 import {
@@ -37,6 +40,9 @@ import {
 
 @Module({
     imports: [
+        FlashcardQuizEligibilitySingleQueryModule.register({
+            isGlobal: true,
+        }),
         MyInProgressFlashcardQuizSessionSingleQueryModule.register({
             isGlobal: true,
         }),

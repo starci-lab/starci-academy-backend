@@ -132,4 +132,8 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "score-uploaded-cv",
     },
+    [BullQueueName.GradeMockInterviewSession]: {
+        prefix: formatWithBraces("grade-mock-interview-session"),
+        name: "grade-mock-interview-session",
+    },
 }

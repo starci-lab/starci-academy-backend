@@ -1,0 +1,21 @@
+{
+  "$schema": "../../../.claude/readiness/initialization/workspaces/portable-route.schema.json",
+  "schemaVersion": 6,
+  "project": "tedo",
+  "role": "fe",
+  "repository": {
+    "kind": "sibling",
+    "directory": "tedo-landing",
+    "gitRepository": "https://github.com/starci-lab/tedo-landingpage.git",
+    "branch": "feat/landing-conversion-rewrite"
+  },
+  "context": {
+    "instructions": [],
+    "contract": "src/components/contracts/index.ts",
+    "contractSource": "discovered:src/components/contracts/index.ts — exports CONTRACTS built through buildContracts",
+    "manifests": [
+      "package.json"
+    ],
+    "grammarId": "grammars/tedo"
+  }
+}

@@ -2,11 +2,35 @@ import {execFileSync} from "node:child_process"
 import {existsSync, readFileSync, writeFileSync} from "node:fs"
 import {relative, resolve} from "node:path"
 import {fileURLToPath} from "node:url"
+import ts from "typescript"
 
 const normalize = (file, cwd) => relative(cwd, file).replaceAll("\\", "/")
 const production = (file) => /^(?:apps|src)\/.+\.(?:ts|tsx|js|jsx)$/.test(file)
+    && !/^src\/tests\//.test(file)
     && !/\.(?:test|spec|int-spec|e2e-spec|harness-spec)\.[cm]?[jt]sx?$/.test(file)
 export const resolveBase = (env, args) => env.COVERAGE_BASE_SHA ?? (args.includes("--base") ? args[args.indexOf("--base") + 1] : undefined)
+
+const emptyModuleMarker = (statement) => ts.isExportDeclaration(statement)
+    && statement.moduleSpecifier === undefined
+    && ts.isNamedExports(statement.exportClause)
+    && statement.exportClause.elements.length === 0
+
+const erasedTypeScriptModule = (file, cwd) => {
+    if (!/\.tsx?$/.test(file)) return false
+    const sourcePath = resolve(cwd, file)
+    if (!existsSync(sourcePath)) return false
+    const output = ts.transpileModule(readFileSync(sourcePath, "utf8"), {
+        compilerOptions: {
+            importsNotUsedAsValues: ts.ImportsNotUsedAsValues.Remove,
+            jsx: ts.JsxEmit.ReactJSX,
+            module: ts.ModuleKind.ESNext,
+            target: ts.ScriptTarget.ES2022,
+        },
+        fileName: sourcePath,
+    }).outputText
+    const emitted = ts.createSourceFile("patch-coverage-emitted.js", output, ts.ScriptTarget.ES2022, false, ts.ScriptKind.JS)
+    return emitted.statements.every((statement) => ts.isEmptyStatement(statement) || emptyModuleMarker(statement))
+}
 
 export const lineCounts = (data) => {
     const lines = new Map()
@@ -27,9 +51,11 @@ export const buildPatchSummary = (report, changedFiles, cwd = process.cwd()) => 
     const changed = [...new Set(changedFiles.map((file) => normalize(resolve(cwd, file), cwd)).filter(production))]
     if (changed.length === 0) return {notApplicable: true, reason: "no changed production files"}
     const entries = new Map(Object.entries(report).map(([file, data]) => [normalize(file, cwd), data]))
-    const missing = changed.filter((file) => !entries.has(file))
+    const executable = changed.filter((file) => entries.has(file) || !erasedTypeScriptModule(file, cwd))
+    if (executable.length === 0) return {notApplicable: true, reason: "no changed executable production files"}
+    const missing = executable.filter((file) => !entries.has(file))
     if (missing.length) throw new Error(`Changed production files missing from coverage-final.json: ${missing.join(", ")}`)
-    const files = changed.map((file) => entries.get(file))
+    const files = executable.map((file) => entries.get(file))
     return {total: {
         statements: metric(files.flatMap((data) => Object.values(data.s ?? {}))),
         lines: metric(files.flatMap(lineCounts)),

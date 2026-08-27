@@ -330,6 +330,13 @@ interface DrawFixture {
 const makeDrawHarness = (
     fixture: Partial<DrawFixture>,
 ) => {
+    const unfinishedQuery = {
+        setLock: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue(null),
+    }
     const entityManager = {
         find: jest.fn(async (
             entity: unknown,
@@ -375,6 +382,8 @@ const makeDrawHarness = (
             id: SESSION_ID,
             createdAt: CREATED_AT,
         })),
+        createQueryBuilder: jest.fn(() => unfinishedQuery),
+        transaction: jest.fn(async (callback: (manager: unknown) => Promise<unknown>) => callback(entityManager)),
     }
     const personalProjectProgressService = {
         getProgress: jest.fn(async () => fixture.progress ?? {
@@ -694,7 +703,7 @@ describe("MockInterviewSessionDrawService — design mode draw",
                 )
             })
 
-        it("retires the enrollment's previous in-flight draw before persisting the new one",
+        it("checks for an unfinished enrollment session before persisting the new one",
             async () => {
                 const harness = makeDrawHarness({
                 })
@@ -703,20 +712,11 @@ describe("MockInterviewSessionDrawService — design mode draw",
                     mode: "design",
                 }))
 
-                expect(harness.entityManager.update).toHaveBeenCalledWith(
+                expect(harness.entityManager.createQueryBuilder).toHaveBeenCalledWith(
                     MockInterviewSessionEntity,
-                    {
-                        enrollment: {
-                            id: ENROLLMENT.id,
-                        },
-                        status: "in_progress",
-                    },
-                    {
-                        status: "abandoned",
-                    },
+                    "session",
                 )
-                expect(harness.entityManager.update.mock.invocationCallOrder[0])
-                    .toBeLessThan(harness.entityManager.save.mock.invocationCallOrder[0])
+                expect(harness.entityManager.update).not.toHaveBeenCalled()
             })
 
         it("anchors the draw to the trial enrollment resolved once for the user and course",

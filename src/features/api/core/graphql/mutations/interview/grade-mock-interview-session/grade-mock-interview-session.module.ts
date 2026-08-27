@@ -40,6 +40,7 @@ import {
     ],
     exports: [
         GradeMockInterviewSessionService,
+        MockInterviewGradingService,
     ],
 })
 /** Wires grade + prompt helpers so this mutation can score without pulling the whole interview feature. */

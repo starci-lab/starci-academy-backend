@@ -1,7 +1,33 @@
 import {
     Field,
+    Int,
     ObjectType,
 } from "@nestjs/graphql"
+
+@ObjectType()
+/** One authoritative transcript turn returned on sync success or conflict. */
+export class MockInterviewSyncTurnSnapshot {
+    @Field(() => String)
+        role: string
+
+    @Field(() => String)
+        phase: string
+
+    @Field(() => String)
+        content: string
+
+    @Field(() => Int,
+        {
+            nullable: true
+        })
+        questionIndex?: number
+
+    @Field(() => String,
+        {
+            nullable: true
+        })
+        artifactHint?: string
+}
 import {
     AbstractGraphQLResponse,
 } from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
@@ -28,6 +54,30 @@ export class SyncMockInterviewSessionTurnsData {
         },
     )
         success: boolean
+
+    @Field(() => Boolean,
+        {
+            description: "True when the write lost an optimistic-concurrency race."
+        })
+        conflict: boolean
+
+    @Field(() => Int,
+        {
+            description: "Current server revision after this operation."
+        })
+        revision: number
+
+    @Field(() => [MockInterviewSyncTurnSnapshot],
+        {
+            description: "Authoritative server transcript snapshot."
+        })
+        turns: Array<MockInterviewSyncTurnSnapshot>
+
+    @Field(() => Int)
+        questionIndex: number
+
+    @Field(() => Int)
+        phaseIndex: number
 }
 
 @ObjectType({

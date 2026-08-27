@@ -378,6 +378,11 @@ const makeGradingHarness = (
         release: jest.fn(async () => undefined),
     }
     const transactionManager = {
+        findOne: jest.fn(async (entity: unknown) => entity === MockInterviewSessionEntity
+            ? fixture.session ?? null
+            : null),
+        findOneBy: jest.fn(async () => null),
+        create: jest.fn((_entity: unknown, data: Record<string, unknown>) => data),
         save: jest.fn(async (
             _entity: unknown,
             data: Record<string, unknown>,
@@ -412,6 +417,9 @@ const makeGradingHarness = (
             }
             return []
         }),
+        update: jest.fn(async () => ({
+            affected: 1
+        })),
         transaction: jest.fn(async (
             callback: (manager: unknown) => Promise<unknown>,
         ) => callback(transactionManager)),
@@ -636,7 +644,7 @@ describe("MockInterviewGradingService — replay under the session lock",
                 })
                 expect(harness.aiInvokeService.run).not.toHaveBeenCalled()
                 expect(harness.aiEntitlementService.consume).not.toHaveBeenCalled()
-                expect(harness.entityManager.transaction).not.toHaveBeenCalled()
+                expect(harness.entityManager.transaction).toHaveBeenCalledTimes(1)
             })
 
         it("takes and releases the session advisory lock around the replay check",
@@ -1427,7 +1435,10 @@ describe("MockInterviewGradingService — grounding, quota and charge",
                     completionTokens: 340,
                     attempts: 2,
                 })
-                expect(harness.transactionManager.save).not.toHaveBeenCalled()
+                expect(harness.transactionManager.save).not.toHaveBeenCalledWith(
+                    MockInterviewAttemptEntity,
+                    expect.anything(),
+                )
             })
 
         it("rejects a near-empty transcript before quota, lane, retrieval, invoke or charge",
@@ -1871,7 +1882,7 @@ describe("MockInterviewGradingService — persisted attempt",
 
                 const result = await harness.service.grade(gradeParams())
 
-                expect(harness.entityManager.transaction).toHaveBeenCalledTimes(1)
+                expect(harness.entityManager.transaction).toHaveBeenCalledTimes(2)
                 expect(harness.transactionManager.save).toHaveBeenCalledWith(
                     MockInterviewAttemptEntity,
                     expect.objectContaining({
@@ -1906,9 +1917,11 @@ describe("MockInterviewGradingService — persisted attempt",
                             id: GRADE_ENROLLMENT.id,
                         },
                     },
-                    {
+                    expect.objectContaining({
                         status: "completed",
-                    },
+                        completedAt: expect.any(Date),
+                        revision: expect.any(Function),
+                    }),
                 )
             })
     })

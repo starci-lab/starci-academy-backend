@@ -85,6 +85,9 @@ export class MyMockInterviewStatsResolver {
         })
         return {
             insufficientData: result.insufficientData,
+            comparisonMode: result.comparisonMode,
+            comparisonLevel: result.comparisonLevel,
+            comparisonRubricVersion: result.comparisonRubricVersion,
             modeSplit: result.modeSplit,
             trend: result.trend.map((point) => ({
                 overallScore: point.overallScore,

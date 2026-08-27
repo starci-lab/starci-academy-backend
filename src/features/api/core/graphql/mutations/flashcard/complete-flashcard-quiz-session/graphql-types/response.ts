@@ -102,6 +102,24 @@ export class QuizSessionReadinessData {
  * and the AI Mock Interview readiness signal.
  */
 export class CompleteFlashcardQuizSessionData {
+    @Field(() => ID)
+        sessionId: string
+
+    @Field(() => String)
+        status: string
+
+    @Field(() => Int)
+        answerVersion: number
+
+    @Field(() => Int)
+        correctBlanks: number
+
+    @Field(() => Int)
+        totalBlanks: number
+
+    @Field(() => Int)
+        scorePercent: number
+
     @Field(
         () => Int,
         {

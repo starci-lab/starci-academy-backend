@@ -88,6 +88,8 @@ export class StartMockInterviewSessionHandler
         // map the domain result 1:1 onto the GraphQL data shape
         return {
             sessionId: result.sessionId,
+            revision: result.revision,
+            status: result.status,
             promptId: result.promptId,
             promptTitle: result.promptTitle,
             difficulty: result.difficulty,

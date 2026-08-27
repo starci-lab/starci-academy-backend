@@ -24,8 +24,36 @@ test("fails when a changed production file is absent", () => {
     assert.throws(() => buildPatchSummary({}, ["src/missing.ts"], "C:/repo"), /missing from coverage-final/)
 })
 
+test("ignores a changed TypeScript module that emits no executable JavaScript", () => {
+    const cwd = mkdtempSync(join(tmpdir(), "starci-patch-types-"))
+    mkdirSync(join(cwd, "src"))
+    writeFileSync(join(cwd, "src", "types.ts"), [
+        "import type {Stats} from './stats'",
+        "export interface Result { stats: Stats }",
+        "export type Status = 'ready' | 'blocked'",
+    ].join("\n"))
+    assert.deepEqual(buildPatchSummary({}, ["src/types.ts"], cwd), {
+        notApplicable: true,
+        reason: "no changed executable production files",
+    })
+})
+
+test("still fails when a missing changed TypeScript module emits runtime code", () => {
+    const cwd = mkdtempSync(join(tmpdir(), "starci-patch-runtime-"))
+    mkdirSync(join(cwd, "src"))
+    writeFileSync(join(cwd, "src", "runtime.ts"), "export const answer = 42\n")
+    assert.throws(() => buildPatchSummary({}, ["src/runtime.ts"], cwd), /missing from coverage-final/)
+})
+
 test("marks zero changed production files not applicable", () => {
     assert.deepEqual(buildPatchSummary({}, ["README.md", "src/example.spec.ts"], "C:/repo"), {
+        notApplicable: true,
+        reason: "no changed production files",
+    })
+})
+
+test("excludes test-lane helpers from the production patch boundary", () => {
+    assert.deepEqual(buildPatchSummary({}, ["src/tests/helpers/runtime.module.ts"], "C:/repo"), {
         notApplicable: true,
         reason: "no changed production files",
     })

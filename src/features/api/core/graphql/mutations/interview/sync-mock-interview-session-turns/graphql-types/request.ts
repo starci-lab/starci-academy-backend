@@ -31,6 +31,13 @@ export class SyncMockInterviewSessionTurnsRequest {
     )
         sessionId: string
 
+    @Field(() => Int,
+        {
+            nullable: true,
+            description: "Last server revision observed by the client. Omission is supported only for the legacy monotonic-prefix cutover.",
+        })
+        expectedRevision?: number
+
     @Field(
         () => [MockInterviewTurnInput],
         {

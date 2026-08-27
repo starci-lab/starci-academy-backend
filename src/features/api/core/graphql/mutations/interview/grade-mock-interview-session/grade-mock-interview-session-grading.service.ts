@@ -2,6 +2,12 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
+    createHash,
+} from "node:crypto"
+import {
+    MockInterviewSessionConflictException,
+} from "@modules/platform/exceptions/errors/ai/mock-interview-session-conflict"
+import {
     WinstonLog,
 } from "@modules/platform/winston/enums/winston-log"
 import {
@@ -17,6 +23,9 @@ import {
 import {
     MockInterviewAttemptEntity,
 } from "@modules/databases/postgresql/primary/entities/mock-interview-attempt.entity"
+import {
+    MockInterviewGradingJobEntity,
+} from "@modules/databases/postgresql/primary/entities/mock-interview-grading-job.entity"
 import {
     MockInterviewSeedQuestion,
     MockInterviewSessionEntity,
@@ -160,6 +169,7 @@ export class MockInterviewGradingService {
     async grade(
         params: GradeMockInterviewSessionParams,
     ): Promise<MockInterviewGradeSessionResult> {
+        await this.ensureDurableGradingJob(params)
         return withMockInterviewGradeAdvisoryLock(
             this.entityManager,
             `mock-interview-grade:${params.sessionId}`,
@@ -168,6 +178,57 @@ export class MockInterviewGradingService {
                 return completed ?? this.gradeOnce(params)
             },
         )
+    }
+
+    /** One-release synchronous facade: hand the session to the same durable job authority before grading inline. */
+    private async ensureDurableGradingJob(params: GradeMockInterviewSessionParams): Promise<void> {
+        const enrollment = await this.userService.resolveOrCreateTrialEnrollment(params.userId,
+            params.courseId)
+        await this.entityManager.transaction(async (manager) => {
+            const session = await manager.findOne(MockInterviewSessionEntity,
+                {
+                    where: {
+                        id: params.sessionId, enrollment: {
+                            id: enrollment.id
+                        }
+                    },
+                    lock: {
+                        mode: "pessimistic_write"
+                    },
+                })
+            if (!session) {
+                return
+            }
+            if (["abandoned",
+                "expired"].includes(session.status)) {
+                throw new MockInterviewSessionConflictException({
+                    reason: "session_not_gradable",
+                    sessionId: session.id,
+                    status: session.status,
+                    revision: session.revision,
+                })
+            }
+            if (session.status === "in_progress") {
+                session.status = "grading"
+                session.gradingRequestedAt = new Date()
+                session.revision += 1
+                await manager.save(session)
+            }
+            const existing = await manager.findOneBy(MockInterviewGradingJobEntity,
+                {
+                    sessionId: session.id
+                })
+            if (!existing && session.status !== "completed") {
+                await manager.save(MockInterviewGradingJobEntity,
+                    manager.create(MockInterviewGradingJobEntity,
+                        {
+                            session,
+                            status: "queued",
+                            selectedModel: params.selectedModel ?? null,
+                            selectedModelProvider: params.selectedModelProvider ?? null,
+                        }))
+            }
+        })
     }
 
     /** Execute the model-backed grading path after replay has been ruled out under the session lock. */
@@ -207,6 +268,7 @@ export class MockInterviewGradingService {
             lang: sessionLang,
             countsToReadiness,
             name,
+            rubricVersion,
         } = await this.resolveTrustedPromptIdentity({
             userId,
             courseId,
@@ -272,17 +334,33 @@ export class MockInterviewGradingService {
         // AUTHORED answer/rubric -- the authored answer IS the ground truth, so NO
         // content RAG (cheaper + more precise + immune to retrieval miss). `design`
         // has no per-question reference, so it still grounds in course material.
-        const { excerpt: courseExcerpt, matchedContentIds } = mode === MockInterviewMode.Qna
-            ? {
-                excerpt: "",
-                matchedContentIds: [] as Array<string>,
+        let courseExcerpt = ""
+        let matchedContentIds: Array<string> = []
+        let recommendationStatus: "available" | "no_match" | "unavailable" = "no_match"
+        if (mode !== MockInterviewMode.Qna) {
+            try {
+                const retrieval = await this.contentRagRetrievalService.retrieveCourseExcerpt({
+                    courseId,
+                    query: candidateAnswerText.slice(0,
+                        RAG_QUERY_MAX_CHARS),
+                    topK: 10,
+                })
+                courseExcerpt = retrieval.excerpt
+                matchedContentIds = retrieval.matchedContentIds
+                recommendationStatus = matchedContentIds.length > 0 ? "available" : "no_match"
+            } catch (error) {
+                recommendationStatus = "unavailable"
+                this.winstonService.log(WinstonLog.BestEffortOperationFailed,
+                    {
+                        op: "mock-interview.course-recommendations",
+                        userId,
+                        error: error instanceof Error ? error.message : String(error),
+                        meta: {
+                            courseId, sessionId
+                        },
+                    })
             }
-            : await this.contentRagRetrievalService.retrieveCourseExcerpt({
-                courseId,
-                query: candidateAnswerText.slice(0,
-                    RAG_QUERY_MAX_CHARS),
-                topK: 10,
-            })
+        }
 
         // build the grading messages -- the design's 5-phase rubric or the qna
         // mode's per-question rubric (each question graded by ITS OWN kind:
@@ -297,6 +375,12 @@ export class MockInterviewGradingService {
             courseExcerpt,
             locale,
         })
+        const promptFingerprint = createHash("sha256")
+            .update(JSON.stringify(messages.map((message) => ({
+                type: message.getType(),
+                content: message.content,
+            }))))
+            .digest("hex")
 
         // ONE shared entry (temperature defaults to 0 -> deterministic grading)
         const {
@@ -307,6 +391,22 @@ export class MockInterviewGradingService {
             selection,
             surface: AiCeilSurface.Interview,
         })
+
+        await this.entityManager.update(MockInterviewGradingJobEntity,
+            {
+                sessionId
+            },
+            {
+                promptFingerprint,
+                usage: {
+                    model,
+                    provider,
+                    cost,
+                    promptTokens,
+                    completionTokens,
+                    attempts,
+                },
+            })
 
         // charge NOW -- before parsing -- so a malformed model response can never leak a
         // free grading call. Billed by the model that served, matching the
@@ -396,6 +496,8 @@ export class MockInterviewGradingService {
             result,
             countsToReadiness,
             name,
+            rubricVersion,
+            recommendationStatus,
         })
         return result
     }
@@ -509,6 +611,7 @@ export class MockInterviewGradingService {
                     seedQuestions: true,
                     countsToReadiness: true,
                     name: true,
+                    rubricVersion: true,
                 },
             },
         )
@@ -541,6 +644,7 @@ export class MockInterviewGradingService {
                 countsToReadiness: true,
                 // no session row -> no user-chosen name to copy
                 name: null,
+                rubricVersion: "mock-interview-v1",
             }
         }
 
@@ -553,6 +657,7 @@ export class MockInterviewGradingService {
             lang: session.lang,
             countsToReadiness: session.countsToReadiness,
             name: session.name,
+            rubricVersion: session.rubricVersion,
         }
     }
 
@@ -750,6 +855,8 @@ export class MockInterviewGradingService {
             result,
             countsToReadiness,
             name,
+            rubricVersion,
+            recommendationStatus,
         } = params
         const enrollment = await this.userService.resolveOrCreateTrialEnrollment(
             userId,
@@ -765,6 +872,8 @@ export class MockInterviewGradingService {
                     promptTitle,
                     level,
                     mode,
+                    rubricVersion,
+                    recommendationStatus,
                     overallScore: result.overallScore,
                     verdict: result.verdict,
                     // jsonb columns are typed as Array<Record<string, unknown>> on the
@@ -799,8 +908,21 @@ export class MockInterviewGradingService {
                 },
                 {
                     status: "completed",
+                    completedAt: new Date(),
+                    revision: () => "\"revision\" + 1",
                 },
             )
+            await manager.update(MockInterviewGradingJobEntity,
+                {
+                    sessionId
+                },
+                {
+                    status: "completed",
+                    completedAt: new Date(),
+                    leaseToken: null,
+                    leaseExpiresAt: null,
+                    lastError: null,
+                })
         })
     }
 

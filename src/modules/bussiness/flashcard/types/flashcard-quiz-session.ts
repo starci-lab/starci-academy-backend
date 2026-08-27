@@ -32,9 +32,28 @@ export interface CompleteFlashcardQuizSessionParams {
      */
     sessionId: string
     /** Course the session belongs to (scopes the xp_history course + daily cap). */
-    courseId: string
-    /** Per-card breakdown this session answered -- the source of truth for scoring. */
-    answers: Array<QuizSessionAnswerParams>
+    expectedVersion: number
+    selections: Array<import("../cloze/cloze-contract").ClozeQuizSelection>
+}
+
+/** Versioned partial-state replacement owned by one authenticated session. */
+export interface SyncFlashcardQuizSessionParams {
+    userId: string
+    sessionId: string
+    currentIndex: number
+    expectedVersion: number
+    selections: Array<import("../cloze/cloze-contract").ClozeQuizSelection>
+}
+
+/** Safe active-session projection with no hidden answer mapping. */
+export interface ActiveFlashcardQuizSessionResult {
+    sessionId: string
+    contractVersion: 1
+    items: Array<import("../cloze/cloze-contract").ClozeQuizPublicItem>
+    currentIndex: number
+    answerState: Array<import("../cloze/cloze-contract").ClozeQuizSelection>
+    answerVersion: number
+    status: "in_progress"
 }
 
 /**
@@ -91,6 +110,12 @@ export interface QuizXpSumRow {
  * Result of recording a finished flashcard quick-quiz session.
  */
 export interface CompleteFlashcardQuizSessionResult {
+    sessionId: string
+    status: "completed"
+    answerVersion: number
+    correctBlanks: number
+    totalBlanks: number
+    scorePercent: number
     /** XP granted this call -- 0 on an idempotent replay (already recorded) or a fully-capped day. */
     xpEarned: number
     /** True when the daily XP cap for this (user, course, FlashcardQuiz) was already reached before this grant. */

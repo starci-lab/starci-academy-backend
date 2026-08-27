@@ -1,119 +1,43 @@
 import {
-    ICQRSHandler,
-} from "@modules/platform/cqrs/icqrs-handler"
-import {
-    UserNotFoundException,
-} from "@modules/platform/exceptions/errors/users/user"
-import {
-    EntityManager,
-} from "typeorm"
-import {
-    FlashcardQuizSessionEntity,
-    FlashcardQuizSessionResult,
-} from "@modules/databases/postgresql/primary/entities/flashcard-quiz-session.entity"
-import {
-    InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases/postgresql/primary/primary.decorators"
-import {
-    Injectable,
+    Injectable
 } from "@nestjs/common"
 import {
-    CommandHandler,
-    ICommandHandler,
+    CommandHandler, ICommandHandler
 } from "@nestjs/cqrs"
 import {
-    SyncFlashcardQuizSessionProgressCommand,
+    FlashcardQuizSessionService
+} from "@modules/bussiness/flashcard/flashcard-quiz-session.service"
+import {
+    ICQRSHandler
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    UserNotFoundException
+} from "@modules/platform/exceptions/errors/users/user"
+import {
+    SyncFlashcardQuizSessionProgressCommand
 } from "./sync-flashcard-quiz-session-progress.command"
 import {
-    SyncFlashcardQuizSessionProgressData,
+    SyncFlashcardQuizSessionProgressData
 } from "./graphql-types/response"
 
 @CommandHandler(SyncFlashcardQuizSessionProgressCommand)
 @Injectable()
-/**
- * Applies one `syncFlashcardQuizSessionProgress` sync -- small enough (a
- * single ownership-scoped lookup + guard + update) that, like
- * `SyncMockInterviewSessionTurnsHandler`, it does not warrant a separate
- * domain service; the logic lives directly in the handler.
- */
+/** Delegates an authenticated versioned progress replacement to the session authority. */
 export class SyncFlashcardQuizSessionProgressHandler
     extends ICQRSHandler<SyncFlashcardQuizSessionProgressCommand, SyncFlashcardQuizSessionProgressData>
     implements ICommandHandler<SyncFlashcardQuizSessionProgressCommand, SyncFlashcardQuizSessionProgressData> {
-    constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-    ) {
-        super()
-    }
+    constructor(private readonly sessionService: FlashcardQuizSessionService) { super() }
 
-    protected override async process(
-        command: SyncFlashcardQuizSessionProgressCommand,
-    ): Promise<SyncFlashcardQuizSessionProgressData> {
-        const {
-            request: {
-                sessionId,
-                currentIndex,
-                results,
-            },
-            user,
-        } = command.params
-
-        if (!user) {
-            throw new UserNotFoundException({
-            })
-        }
-
-        // ownership check mirrors `SyncMockInterviewSessionTurnsHandler` -- a
-        // session can never be synced on behalf of a different learner's
-        // draw. Scoped through the relation (`enrollment: { user: { id } }`),
-        // NOT the virtual `enrollment.userId` @RelationId column, which
-        // TypeORM cannot filter on directly.
-        const session = await this.entityManager.findOne(
-            FlashcardQuizSessionEntity,
-            {
-                where: {
-                    id: sessionId,
-                    enrollment: {
-                        user: {
-                            id: user.id,
-                        },
-                    },
-                },
-                select: {
-                    id: true,
-                    status: true,
-                },
-            },
-        )
-
-        // not found/not owned, or no longer resumable (already completed by
-        // completeFlashcardQuizSession, or abandoned by a fresh
-        // startFlashcardQuizSession draw) -- a late/stale sync must silently
-        // no-op rather than throw, so a background periodic sync never
-        // surfaces an error toast mid-quiz.
-        if (session?.status !== "in_progress") {
-            return {
-                success: false,
-            }
-        }
-
-        await this.entityManager.update(
-            FlashcardQuizSessionEntity,
-            {
-                id: session.id,
-            },
-            {
-                currentIndex,
-                results: results.map((result): FlashcardQuizSessionResult => ({
-                    cardId: result.cardId,
-                    correctBlanks: result.correctBlanks,
-                    totalBlanks: result.totalBlanks,
-                })),
-            },
-        )
-
-        return {
-            success: true,
-        }
+    protected override async process(command: SyncFlashcardQuizSessionProgressCommand) {
+        const { request, user } = command.params
+        if (!user) throw new UserNotFoundException({
+        })
+        return this.sessionService.sync({
+            userId: user.id,
+            sessionId: request.sessionId,
+            currentIndex: request.currentIndex,
+            expectedVersion: request.expectedVersion,
+            selections: request.selections,
+        })
     }
 }

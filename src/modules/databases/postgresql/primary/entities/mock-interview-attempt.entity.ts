@@ -119,6 +119,22 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
     })
         mode: string | null
 
+    /** Rubric identity copied from the source session for comparable stats. */
+    @Column({
+        name: "rubric_version",
+        type: "varchar",
+        default: "mock-interview-v1",
+    })
+        rubricVersion: string
+
+    /** Whether course recommendations were resolved, absent, or unavailable. */
+    @Column({
+        name: "recommendation_status",
+        type: "varchar",
+        default: "no_match",
+    })
+        recommendationStatus: "available" | "no_match" | "unavailable"
+
     /** Integer 0-100 overall score the model assigned to the whole session. */
     @Column({
         name: "overall_score",

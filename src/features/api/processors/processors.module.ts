@@ -37,6 +37,9 @@ import {
 import {
     ScoreUploadedCvModule,
 } from "./ai/score-uploaded-cv/score-uploaded-cv.module"
+import {
+    GradeMockInterviewSessionProcessorModule,
+} from "./ai/grade-mock-interview-session/grade-mock-interview-session.module"
 
 @Module({
     imports: [
@@ -76,6 +79,7 @@ import {
         ScoreUploadedCvModule.register({
             isGlobal: true,
         }),
+        GradeMockInterviewSessionProcessorModule,
     ],
 })
 /**

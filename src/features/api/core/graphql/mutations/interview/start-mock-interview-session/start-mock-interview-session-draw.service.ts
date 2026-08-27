@@ -5,6 +5,9 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
+    MockInterviewSessionConflictException,
+} from "@modules/platform/exceptions/errors/ai/mock-interview-session-conflict"
+import {
     EntityManager,
     In,
 } from "typeorm"
@@ -18,6 +21,8 @@ import {
     MilestoneTaskEntity,
 } from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
 import {
+    CURRENT_MOCK_INTERVIEW_RUBRIC_VERSION,
+    MOCK_INTERVIEW_SESSION_DURATION_MS,
     MockInterviewSessionEntity,
 } from "@modules/databases/postgresql/primary/entities/mock-interview-session.entity"
 import {
@@ -559,6 +564,8 @@ export class MockInterviewSessionDrawService {
 
         return {
             sessionId: session.id,
+            revision: session.revision,
+            status: session.status,
             promptId: drawn.id,
             promptTitle: drawn.title,
             difficulty: drawn.difficulty,
@@ -742,6 +749,8 @@ export class MockInterviewSessionDrawService {
 
         return {
             sessionId: session.id,
+            revision: session.revision,
+            status: session.status,
             promptId,
             promptTitle,
             difficulty,
@@ -1089,7 +1098,7 @@ export class MockInterviewSessionDrawService {
                     // deliver ONLY the randomly-chosen language's given code -- snapshotted
                     // per-question so grade time re-resolves THIS body (not session.lang)
                     givenCodes: [{
-                        lang: chosenBody.lang, code: chosenBody.givenCode 
+                        lang: chosenBody.lang, code: chosenBody.givenCode
                     }],
                 }]
             }
@@ -1103,7 +1112,7 @@ export class MockInterviewSessionDrawService {
             }
             const langVariants: Array<MockInterviewGivenCodeVariant> = question.givenCode
                 ? [{
-                    lang: question.givenLang ?? "agnostic", code: question.givenCode 
+                    lang: question.givenLang ?? "agnostic", code: question.givenCode
                 }]
                 : []
             return [{
@@ -1382,43 +1391,73 @@ export class MockInterviewSessionDrawService {
             name,
         } = params
 
-        // retire the enrollment's previous in-flight draw (if any) BEFORE
-        // persisting the new one, so resume-lookup never has two candidates --
-        // "resume mock interview session" (2026-07-08).
-        await this.entityManager.update(
-            MockInterviewSessionEntity,
-            {
-                enrollment: {
-                    id: enrollment.id,
-                },
-                status: "in_progress",
-            },
-            {
-                status: "abandoned",
-            },
-        )
+        return this.entityManager.transaction(async (manager) => {
+            const unfinished = await manager.createQueryBuilder(MockInterviewSessionEntity,
+                "session")
+                .setLock("pessimistic_write")
+                .where("session.enrollment_id = :enrollmentId",
+                    {
+                        enrollmentId: enrollment.id
+                    })
+                .andWhere("session.status IN (:...statuses)",
+                    {
+                        statuses: ["in_progress",
+                            "grading",
+                            "grading_failed"],
+                    })
+                .orderBy("session.created_at",
+                    "DESC")
+                .getOne()
 
-        return this.entityManager.save(
-            MockInterviewSessionEntity,
-            {
-                enrollment,
-                promptId,
-                promptTitle,
-                level,
-                lang: params.lang ?? null,
-                mode,
-                difficulty,
-                source,
-                seedQuestions,
-                countsToReadiness,
-                status: "in_progress",
-                turns: null,
-                questionIndex: 0,
-                phaseIndex: 0,
-                // stored verbatim -- omitted/blank stays null, never
-                // server-generated (the FE renders a time-based fallback)
-                name: name?.trim() || null,
-            },
-        )
+            if (unfinished) {
+                const deadline = unfinished.expiresAt
+                    ?? new Date(unfinished.createdAt.getTime() + MOCK_INTERVIEW_SESSION_DURATION_MS)
+                if (unfinished.status === "in_progress" && deadline.getTime() <= Date.now()) {
+                    await manager.update(MockInterviewSessionEntity,
+                        {
+                            id: unfinished.id, revision: unfinished.revision
+                        },
+                        {
+                            status: "expired",
+                            revision: () => "\"revision\" + 1",
+                        })
+                } else {
+                    throw new MockInterviewSessionConflictException({
+                        reason: "active_session_exists",
+                        sessionId: unfinished.id,
+                        status: unfinished.status,
+                        revision: unfinished.revision,
+                    })
+                }
+            }
+
+            const now = new Date()
+            return manager.save(MockInterviewSessionEntity,
+                {
+                    enrollment,
+                    promptId,
+                    promptTitle,
+                    level,
+                    lang: params.lang ?? null,
+                    mode,
+                    difficulty,
+                    source,
+                    seedQuestions,
+                    countsToReadiness,
+                    status: "in_progress",
+                    revision: 0,
+                    rubricVersion: CURRENT_MOCK_INTERVIEW_RUBRIC_VERSION,
+                    expiresAt: new Date(now.getTime() + MOCK_INTERVIEW_SESSION_DURATION_MS),
+                    gradingRequestedAt: null,
+                    completedAt: null,
+                    abandonedAt: null,
+                    turns: null,
+                    questionIndex: 0,
+                    phaseIndex: 0,
+                    // stored verbatim -- omitted/blank stays null, never
+                    // server-generated (the FE renders a time-based fallback)
+                    name: name?.trim() || null,
+                })
+        })
     }
 }

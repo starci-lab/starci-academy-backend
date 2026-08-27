@@ -139,6 +139,48 @@ export class MyInProgressMockInterviewSessionData {
     )
         sessionId: string
 
+    @Field(() => String,
+        {
+            description: "Durable state used to route resume, grading progress, retry, or history."
+        })
+        status: string
+
+    @Field(() => Int,
+        {
+            description: "Current optimistic concurrency token."
+        })
+        revision: number
+
+    @Field(() => String,
+        {
+            description: "Rubric identity frozen by this session."
+        })
+        rubricVersion: string
+
+    @Field(() => ID,
+        {
+            nullable: true, description: "Durable grading-job identity after completion."
+        })
+        gradingJobId: string | null
+
+    @Field(() => String,
+        {
+            nullable: true, description: "Current durable grading-job state."
+        })
+        gradingJobStatus: string | null
+
+    @Field(() => Int)
+        gradingAttemptCount: number
+
+    @Field(() => Int)
+        gradingMaxAttempts: number
+
+    @Field(() => String,
+        {
+            nullable: true
+        })
+        gradingLastError: string | null
+
     @Field(
         () => ID,
         {

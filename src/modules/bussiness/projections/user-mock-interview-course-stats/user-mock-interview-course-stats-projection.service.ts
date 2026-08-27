@@ -99,6 +99,9 @@ interface RecurringGapAccumulator {
 /** Empty/zeroed result shape for `insufficientData: true`. */
 const EMPTY_RESULT: UserMockInterviewCourseStatsResult = {
     insufficientData: true,
+    comparisonMode: null,
+    comparisonLevel: null,
+    comparisonRubricVersion: null,
     modeSplit: {
         qnaCount: 0,
         designCount: 0,
@@ -207,6 +210,9 @@ export class UserMockInterviewCourseStatsProjectionService {
         }
         return {
             insufficientData: value.insufficientData ?? true,
+            comparisonMode: value.comparisonMode ?? null,
+            comparisonLevel: value.comparisonLevel ?? null,
+            comparisonRubricVersion: value.comparisonRubricVersion ?? null,
             modeSplit: value.modeSplit ?? EMPTY_RESULT.modeSplit,
             trend: value.trend ?? [],
             byPhase: value.byPhase ?? [],
@@ -230,7 +236,7 @@ export class UserMockInterviewCourseStatsProjectionService {
         enrollmentId: string,
     ): Promise<UserMockInterviewCourseStatsResult> {
         // attempts are keyed by enrollment directly (no user/course join needed)
-        const attempts = await manager.find(
+        const allAttempts = await manager.find(
             MockInterviewAttemptEntity,
             {
                 where: {
@@ -245,8 +251,25 @@ export class UserMockInterviewCourseStatsProjectionService {
             },
         )
 
-        if (attempts.length < MIN_ATTEMPTS_FOR_STATS) {
+        const latest = allAttempts[0]
+        if (!latest) {
             return EMPTY_RESULT
+        }
+        const comparisonMode = latest.mode ?? "design"
+        const comparisonLevel = latest.level
+        const comparisonRubricVersion = latest.rubricVersion ?? "mock-interview-v1"
+        const attempts = allAttempts.filter((attempt) =>
+            (attempt.mode ?? "design") === comparisonMode
+            && attempt.level === comparisonLevel
+            && (attempt.rubricVersion ?? "mock-interview-v1") === comparisonRubricVersion)
+
+        if (attempts.length < MIN_ATTEMPTS_FOR_STATS) {
+            return {
+                ...EMPTY_RESULT,
+                comparisonMode,
+                comparisonLevel,
+                comparisonRubricVersion,
+            }
         }
 
         // `byLanguage` needs each qna attempt's DRAWN session (the language
@@ -365,6 +388,9 @@ export class UserMockInterviewCourseStatsProjectionService {
 
         return {
             insufficientData: false,
+            comparisonMode,
+            comparisonLevel,
+            comparisonRubricVersion,
             modeSplit: {
                 qnaCount,
                 designCount,

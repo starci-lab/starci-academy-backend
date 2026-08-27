@@ -3,10 +3,9 @@ import {
 } from "@nestjs/common"
 import {
     EntityManager,
-    MoreThanOrEqual,
+    In,
 } from "typeorm"
 import {
-    MOCK_INTERVIEW_SESSION_DURATION_MS,
     MockInterviewSessionEntity,
 } from "@modules/databases/postgresql/primary/entities/mock-interview-session.entity"
 import {
@@ -15,6 +14,9 @@ import {
 import {
     UserService,
 } from "@modules/bussiness/user/user.service"
+import {
+    MockInterviewGradingJobEntity,
+} from "@modules/databases/postgresql/primary/entities/mock-interview-grading-job.entity"
 import type {
     FindMyInProgressMockInterviewSessionParams,
     MyInProgressMockInterviewSessionResult,
@@ -29,8 +31,6 @@ import type {
  * NEW draw) -- this keeps a months-old forgotten "in_progress" row from
  * popping back up as a resume prompt indefinitely.
  */
-const RESUME_WINDOW_HOURS = 24
-
 @Injectable()
 /**
  * Reads back the learner's most recent RESUMABLE mock-interview session for
@@ -67,19 +67,6 @@ export class MyInProgressMockInterviewSessionService {
             courseId,
         )
 
-        const resumeWindowStart = new Date(
-            Date.now() - RESUME_WINDOW_HOURS * 60 * 60 * 1000,
-        )
-        // lazy-expiry, no cron (2026-07-11): a session drawn longer ago than
-        // its own 1h ask-loop duration has expired even if it was synced
-        // more recently than the resume window above -- both gates apply,
-        // whichever is stricter wins (MoreThanOrEqual on createdAt = "not yet
-        // expired"). Mirrors `MyInProgressFlashcardQuizSessionService`'s same
-        // addition.
-        const notExpiredSince = new Date(
-            Date.now() - MOCK_INTERVIEW_SESSION_DURATION_MS,
-        )
-
         const session = await this.entityManager.findOne(
             MockInterviewSessionEntity,
             {
@@ -87,9 +74,9 @@ export class MyInProgressMockInterviewSessionService {
                     enrollment: {
                         id: enrollment.id,
                     },
-                    status: "in_progress",
-                    updatedAt: MoreThanOrEqual(resumeWindowStart),
-                    createdAt: MoreThanOrEqual(notExpiredSince),
+                    status: In(["in_progress",
+                        "grading",
+                        "grading_failed"]),
                 },
                 order: {
                     updatedAt: "DESC",
@@ -100,6 +87,27 @@ export class MyInProgressMockInterviewSessionService {
         if (!session) {
             return null
         }
+
+        if (session.status === "in_progress" && session.expiresAt.getTime() <= Date.now()) {
+            await this.entityManager.createQueryBuilder()
+                .update(MockInterviewSessionEntity)
+                .set({
+                    status: "expired", revision: () => "\"revision\" + 1"
+                })
+                .where("id = :id AND revision = :revision",
+                    {
+                        id: session.id, revision: session.revision
+                    })
+                .execute()
+            return null
+        }
+
+        const gradingJob = session.status === "in_progress"
+            ? null
+            : await this.entityManager.findOneBy(MockInterviewGradingJobEntity,
+                {
+                    sessionId: session.id
+                })
 
         return {
             sessionId: session.id,
@@ -116,6 +124,14 @@ export class MyInProgressMockInterviewSessionService {
             updatedAt: session.updatedAt,
             createdAt: session.createdAt,
             name: session.name,
+            status: session.status,
+            revision: session.revision,
+            rubricVersion: session.rubricVersion,
+            gradingJobId: gradingJob?.id ?? null,
+            gradingJobStatus: gradingJob?.status ?? null,
+            gradingAttemptCount: gradingJob?.attemptCount ?? 0,
+            gradingMaxAttempts: gradingJob?.maxAttempts ?? 0,
+            gradingLastError: gradingJob?.lastError ?? null,
         }
     }
 }

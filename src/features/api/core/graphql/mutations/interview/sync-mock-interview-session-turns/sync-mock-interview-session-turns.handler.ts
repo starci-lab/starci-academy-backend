@@ -55,6 +55,7 @@ export class SyncMockInterviewSessionTurnsHandler
                 turns,
                 questionIndex,
                 phaseIndex,
+                expectedRevision,
             },
             user,
         } = command.params
@@ -83,6 +84,11 @@ export class SyncMockInterviewSessionTurnsHandler
                 select: {
                     id: true,
                     status: true,
+                    revision: true,
+                    turns: true,
+                    questionIndex: true,
+                    phaseIndex: true,
+                    expiresAt: true,
                 },
             },
         )
@@ -95,29 +101,104 @@ export class SyncMockInterviewSessionTurnsHandler
         if (session?.status !== "in_progress") {
             return {
                 success: false,
+                conflict: false,
+                revision: session?.revision ?? 0,
+                turns: session?.turns ?? [],
+                questionIndex: session?.questionIndex ?? 0,
+                phaseIndex: session?.phaseIndex ?? 0,
             }
         }
 
-        await this.entityManager.update(
-            MockInterviewSessionEntity,
-            {
-                id: session.id,
-            },
-            {
-                turns: turns.map((turn): MockInterviewSessionTurn => ({
-                    role: turn.role,
-                    phase: turn.phase,
-                    content: turn.content,
-                    questionIndex: turn.questionIndex,
-                    artifactHint: turn.artifactHint === "code" ? "code" : undefined,
-                })),
+        if (session.expiresAt.getTime() <= Date.now()) {
+            await this.entityManager.createQueryBuilder()
+                .update(MockInterviewSessionEntity)
+                .set({
+                    status: "expired", revision: () => "\"revision\" + 1"
+                })
+                .where("id = :id",
+                    {
+                        id: session.id
+                    })
+                .andWhere("revision = :revision",
+                    {
+                        revision: session.revision
+                    })
+                .execute()
+            return {
+                success: false,
+                conflict: false,
+                revision: session.revision + 1,
+                turns: session.turns ?? [],
+                questionIndex: session.questionIndex,
+                phaseIndex: session.phaseIndex,
+            }
+        }
+
+        const nextTurns = turns.map((turn): MockInterviewSessionTurn => ({
+            role: turn.role,
+            phase: turn.phase,
+            content: turn.content,
+            questionIndex: turn.questionIndex,
+            artifactHint: turn.artifactHint === "code" ? "code" : undefined,
+        }))
+        const currentTurns = session.turns ?? []
+        const legacyPrefixValid = expectedRevision === undefined
+            && questionIndex >= session.questionIndex
+            && phaseIndex >= session.phaseIndex
+            && currentTurns.every((turn, index) => JSON.stringify(turn) === JSON.stringify(nextTurns[index]))
+        const revisionMatches = expectedRevision === session.revision
+        if (!revisionMatches && !legacyPrefixValid) {
+            return {
+                success: false,
+                conflict: true,
+                revision: session.revision,
+                turns: currentTurns,
+                questionIndex: session.questionIndex,
+                phaseIndex: session.phaseIndex,
+            }
+        }
+
+        const updated = await this.entityManager.createQueryBuilder()
+            .update(MockInterviewSessionEntity)
+            .set({
+                turns: nextTurns,
                 questionIndex,
                 phaseIndex,
-            },
-        )
+                revision: () => "\"revision\" + 1",
+            })
+            .where("id = :id",
+                {
+                    id: session.id
+                })
+            .andWhere("status = 'in_progress'")
+            .andWhere("revision = :revision",
+                {
+                    revision: session.revision
+                })
+            .execute()
+
+        if (updated.affected !== 1) {
+            const current = await this.entityManager.findOneByOrFail(MockInterviewSessionEntity,
+                {
+                    id: session.id
+                })
+            return {
+                success: false,
+                conflict: true,
+                revision: current.revision,
+                turns: current.turns ?? [],
+                questionIndex: current.questionIndex,
+                phaseIndex: current.phaseIndex,
+            }
+        }
 
         return {
             success: true,
+            conflict: false,
+            revision: session.revision + 1,
+            turns: nextTurns,
+            questionIndex,
+            phaseIndex,
         }
     }
 }

@@ -88,14 +88,20 @@ export class MyInProgressFlashcardQuizSessionResolver {
         if (!result) {
             return null
         }
+        if (result.kind === "RECOVER_TO_SETUP") {
+            return result
+        }
         return {
+            kind: result.kind,
             sessionId: result.sessionId,
-            cardIds: result.cardIds,
+            contractVersion: result.contractVersion,
+            items: result.items,
             currentIndex: result.currentIndex,
-            results: result.results,
+            answerState: result.answerState,
+            answerVersion: result.answerVersion,
+            status: result.status,
             updatedAt: result.updatedAt.toISOString(),
             deadlineAt: new Date(result.createdAt.getTime() + FLASHCARD_QUIZ_SESSION_DURATION_MS).toISOString(),
-            name: result.name,
         }
     }
 }

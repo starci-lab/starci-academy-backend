@@ -13,6 +13,18 @@ import {
 import {
     ConfigurableModuleClass,
 } from "./interview.module-definition"
+import {
+    AbandonMockInterviewSessionResolver,
+    AbandonMockInterviewSessionService,
+} from "./abandon-mock-interview-session"
+import {
+    CompleteMockInterviewSessionResolver,
+    CompleteMockInterviewSessionService,
+} from "./complete-mock-interview-session"
+import {
+    RetryMockInterviewSessionGradingResolver,
+    RetryMockInterviewSessionGradingService,
+} from "./retry-mock-interview-session-grading"
 
 @Module({
     imports: [
@@ -25,6 +37,14 @@ import {
         SyncMockInterviewSessionTurnsSingleMutationModule.register({
             isGlobal: true,
         }),
+    ],
+    providers: [
+        AbandonMockInterviewSessionResolver,
+        AbandonMockInterviewSessionService,
+        CompleteMockInterviewSessionResolver,
+        CompleteMockInterviewSessionService,
+        RetryMockInterviewSessionGradingResolver,
+        RetryMockInterviewSessionGradingService,
     ],
 })
 /**

@@ -21,6 +21,9 @@ import type {
 /** Empty/zeroed result shape when the viewer has no enrollment (nothing to aggregate) at all. */
 const EMPTY_RESULT: MyMockInterviewStatsResultData = {
     insufficientData: true,
+    comparisonMode: null,
+    comparisonLevel: null,
+    comparisonRubricVersion: null,
     modeSplit: {
         qnaCount: 0,
         designCount: 0,

@@ -1,94 +1,40 @@
 import {
-    Field,
-    ID,
-    InputType,
+    Field, ID, InputType, Int
 } from "@nestjs/graphql"
 import {
-    ArrayMaxSize,
-    ArrayMinSize,
-    IsArray,
-    IsIn,
-    IsOptional,
-    IsString,
+    ArrayMaxSize, ArrayUnique, IsArray, IsInt, IsOptional, IsUUID, Max, Min
 } from "class-validator"
 
-/** Upper bound on the card set a single quick-quiz session may draw -- mirrors `completeFlashcardQuizSession`'s MAX_ANSWERS ceiling so a session can never outgrow what it can eventually be scored on. */
-const MAX_CARD_IDS = 10
-
 @InputType({
-    description: "Start a resumable flashcard quick-quiz session for one course + drawn card set.",
+    description: "Start a server-owned cloze assessment for one course scope."
 })
-/**
- * Request to start (or resume-replace) ONE resumable flashcard quick-quiz
- * session -- "resume flashcard quiz session" (2026-07-08),
- * mirroring `startMockInterviewSession`'s server-persisted-draw shape. Unlike
- * the mock-interview draw, the SERVER does not pick the cards here (the FE's
- * existing client-side deck/level selection is unchanged) -- this mutation
- * only PERSISTS the drawn set so the session becomes resumable and so
- * `completeFlashcardQuizSession` has a real server-issued `sessionId` to
- * anchor its idempotency + status flip to.
- */
+/** Versioned input that asks the server to select and snapshot eligible cloze cards. */
 export class StartFlashcardQuizSessionRequest {
-    @Field(
-        () => ID,
-        {
-            description: "Course this session belongs to — resolves/creates the enrollment the session is anchored to.",
-        },
-    )
+    @Field(() => ID)
+    @IsUUID()
         courseId: string
 
-    @Field(
-        () => [ID],
+    @Field(() => [ID],
         {
-            description: "The flashcard_cards.id set drawn for this session, in the order they will be asked.",
-        },
-    )
+            nullable: true, defaultValue: []
+        })
+    @IsOptional()
     @IsArray()
-    @ArrayMinSize(1)
-    @ArrayMaxSize(MAX_CARD_IDS)
-    @IsString({
-        each: true,
-    })
-        cardIds: Array<string>
-
-    @Field(
-        () => String,
+    @ArrayMaxSize(50)
+    @ArrayUnique()
+    @IsUUID("all",
         {
-            description: "Practice mode chosen at setup (\"quick\"|\"deep\") — persisted so history/stats can show it.",
-        },
-    )
-    @IsIn([
-        "quick",
-        "deep",
-    ])
-        mode: string
+            each: true
+        })
+        deckIds?: Array<string>
 
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Seniority level filter chosen at setup, or null for \"all levels\" — persisted so history/stats can show it.",
-        },
-    )
-    @IsOptional()
-    @IsString()
-        level: string | null
+    @Field(() => Int)
+    @IsInt()
+    @Min(1)
+    @Max(10)
+        requestedItemCount: number
 
-    /**
-     * Optional user-chosen name for this practice session (e.g. "NestJS prep before
-     * interview"), set at the setup screen. Stored verbatim --
-     * omitted/blank stays null, and the server never generates one on the
-     * caller's behalf; the FRONTEND renders a time-based fallback label when
-     * null.
-     */
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Optional user-chosen name for this practice session; omitted stays null (FE renders a time-based fallback).",
-        },
-    )
-    @IsOptional()
-    @IsString()
-        name?: string
+    @Field(() => ID)
+    @IsUUID()
+        startRequestId: string
 }

@@ -63,6 +63,10 @@ export interface DrawMockInterviewSeedTopic {
 export interface DrawMockInterviewSessionResult {
     /** Id of the persisted {@link import("@modules/databases").MockInterviewSessionEntity} row. */
     sessionId: string
+    /** Optimistic concurrency token for the first transcript sync. */
+    revision: number
+    /** Durable lifecycle state; always in_progress for a successful draw. */
+    status: string
     /** The drawn prompt's id (a milestone-task id for capstone, or a classic-prompt slug) -- for mode="qna", a synthetic id summarizing the draw (there is no single prompt). */
     promptId: string
     /** The drawn prompt's localized title -- for mode="qna", a summary like "5 questions - Random draw". */

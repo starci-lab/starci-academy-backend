@@ -352,46 +352,49 @@ export class SubmitChallengeSubmissionHandler
             })
         }
         const userChallengeSubmissionId = userChallengeSubmission.id
-        if (attemptGroupId !== undefined) {
-            const authoredDeliverables = await this.entityManager.find(
-                ChallengeSubmissionEntity,
-                {
-                    where: {
-                        challenge: {
-                            id: challenge.id,
+        const assertAttemptGroupComplete = async (): Promise<void> => {
+            if (attemptGroupId !== undefined) {
+                const authoredDeliverables = await this.entityManager.find(
+                    ChallengeSubmissionEntity,
+                    {
+                        where: {
+                            challenge: {
+                                id: challenge.id,
+                            },
+                        },
+                        select: {
+                            id: true,
                         },
                     },
-                    select: {
-                        id: true,
-                    },
-                },
-            )
-            const authoredIds = authoredDeliverables.map((item) => item.id)
-            const savedDeliverables =
-        authoredIds.length === 0
-            ? []
-            : await this.entityManager.find(UserChallengeSubmissionEntity,
-                {
-                    where: {
-                        user: {
-                            id: user.id,
-                        },
-                        submission: {
-                            id: In(authoredIds),
-                        },
-                    },
-                })
-            const completeCount = savedDeliverables.filter(
-                (item) => (item.submissionUrl ?? "").trim().length > 0,
-            ).length
-            if (authoredIds.length === 0 || completeCount !== authoredIds.length) {
-                throw new ChallengeSubmissionCollectionIncompleteException({
-                    challengeId: challenge.id,
-                    expectedCount: authoredIds.length,
-                    completeCount,
-                })
+                )
+                const authoredIds = authoredDeliverables.map((item) => item.id)
+                const savedDeliverables =
+                    authoredIds.length === 0
+                        ? []
+                        : await this.entityManager.find(UserChallengeSubmissionEntity,
+                            {
+                                where: {
+                                    user: {
+                                        id: user.id,
+                                    },
+                                    submission: {
+                                        id: In(authoredIds),
+                                    },
+                                },
+                            })
+                const completeCount = savedDeliverables.filter(
+                    (item) => (item.submissionUrl ?? "").trim().length > 0,
+                ).length
+                if (authoredIds.length === 0 || completeCount !== authoredIds.length) {
+                    throw new ChallengeSubmissionCollectionIncompleteException({
+                        challengeId: challenge.id,
+                        expectedCount: authoredIds.length,
+                        completeCount,
+                    })
+                }
             }
         }
+        await assertAttemptGroupComplete()
         const validatedLane = await this.gradingLaneValidationService.validate({
             userId: user.id,
             model: selectedModel,
@@ -443,7 +446,7 @@ export class SubmitChallengeSubmissionHandler
             reservedJobId: evaluationJobId,
             deferPublish: true,
         }
-        let prepared = await this.entityManager.transaction(
+        const createOrReplayAttempt = async () => this.entityManager.transaction(
             async (entityManager) => {
                 await this.postgreSqlAdvisoryLockService.acquireUserChallengeSubmissionXactLock(
                     entityManager,
@@ -542,7 +545,12 @@ export class SubmitChallengeSubmissionHandler
                 }
             },
         )
-        const staleJob =
+        let prepared = await createOrReplayAttempt()
+        const requeueIfStale = async (
+            currentPrepared: Awaited<ReturnType<typeof createOrReplayAttempt>>,
+        ): Promise<Awaited<ReturnType<typeof createOrReplayAttempt>>> => {
+            let prepared = currentPrepared
+            const staleJob =
       prepared.replayed &&
       prepared.attempt.status === "evaluating" &&
       (prepared.job.status === JobStatus.Failed ||
@@ -551,31 +559,31 @@ export class SubmitChallengeSubmissionHandler
             prepared.job.status,
         ) &&
           Date.now() - prepared.job.updatedAt.getTime() >= 5 * 60 * 1000))
-        if (
-            prepared.replayed &&
+            if (
+                prepared.replayed &&
       (prepared.attempt.status === "evaluation_unavailable" || staleJob)
-        ) {
-            prepared = await this.entityManager.transaction(async (entityManager) => {
-                await this.postgreSqlAdvisoryLockService.acquireUserChallengeSubmissionXactLock(
-                    entityManager,
-                    user.id,
-                    challengeSubmissionId,
-                )
-                const currentAttempt = await entityManager.findOneOrFail(
-                    UserChallengeSubmissionAttemptEntity,
-                    {
-                        where: {
-                            id: prepared.attempt.id,
+            ) {
+                prepared = await this.entityManager.transaction(async (entityManager) => {
+                    await this.postgreSqlAdvisoryLockService.acquireUserChallengeSubmissionXactLock(
+                        entityManager,
+                        user.id,
+                        challengeSubmissionId,
+                    )
+                    const currentAttempt = await entityManager.findOneOrFail(
+                        UserChallengeSubmissionAttemptEntity,
+                        {
+                            where: {
+                                id: prepared.attempt.id,
+                            },
                         },
-                    },
-                )
-                const currentJob = await entityManager.findOneOrFail(JobEntity,
-                    {
-                        where: {
-                            id: evaluationJobId,
-                        },
-                    })
-                const currentJobIsStale =
+                    )
+                    const currentJob = await entityManager.findOneOrFail(JobEntity,
+                        {
+                            where: {
+                                id: evaluationJobId,
+                            },
+                        })
+                    const currentJobIsStale =
           currentAttempt.status === "evaluating" &&
           (currentJob.status === JobStatus.Failed ||
             ([JobStatus.Queued,
@@ -583,106 +591,115 @@ export class SubmitChallengeSubmissionHandler
                 currentJob.status,
             ) &&
               Date.now() - currentJob.updatedAt.getTime() >= 5 * 60 * 1000))
-                if (
-                    currentAttempt.status !== "evaluation_unavailable" &&
+                    if (
+                        currentAttempt.status !== "evaluation_unavailable" &&
           !currentJobIsStale
-                ) {
-                    return {
-                        attempt: currentAttempt,
-                        job: currentJob,
-                        replayed: true,
+                    ) {
+                        return {
+                            attempt: currentAttempt,
+                            job: currentJob,
+                            replayed: true,
+                        }
                     }
-                }
-                const retryParams = {
-                    ...enqueueParams,
-                    jobId: evaluationJobId,
-                    attemptId: currentAttempt.id,
-                    entityManager,
-                    deferPublish: true,
-                }
-                let requeuedJob: JobEntity
-                switch (challengeSubmission.type) {
-                case SubmissionType.GithubUrl:
-                    requeuedJob =
+                    const retryParams = {
+                        ...enqueueParams,
+                        jobId: evaluationJobId,
+                        attemptId: currentAttempt.id,
+                        entityManager,
+                        deferPublish: true,
+                    }
+                    let requeuedJob: JobEntity
+                    switch (challengeSubmission.type) {
+                    case SubmissionType.GithubUrl:
+                        requeuedJob =
               await this.enqueueProcessGitSubmissionJobService.enqueue({
                   ...retryParams,
                   lang: effectiveLang,
               })
-                    break
-                case SubmissionType.GoogleDocsUrl:
-                    requeuedJob =
+                        break
+                    case SubmissionType.GoogleDocsUrl:
+                        requeuedJob =
               await this.enqueueProcessGoogleDocsSubmissionJobService.enqueue(
                   retryParams,
               )
-                    break
-                default:
-                    throw new SubmissionUrlInvalidException({
-                        id: challengeSubmission.id,
-                        submissionType: challengeSubmission.type,
-                        url,
-                    })
-                }
-                currentAttempt.status = "evaluating"
-                currentAttempt.uncertainty = null
-                currentAttempt.nextAction = null
-                await entityManager.save(
-                    UserChallengeSubmissionAttemptEntity,
-                    currentAttempt,
-                )
-                return {
-                    attempt: currentAttempt,
-                    job: requeuedJob,
-                    replayed: false,
-                }
-            })
-        }
-        if (!prepared.replayed) {
-            const settleUnavailable = async (
-                publication: Promise<void>,
-            ): Promise<void> => {
-                try {
-                    await publication
-                } catch {
-                    await this.entityManager.update(
+                        break
+                    default:
+                        throw new SubmissionUrlInvalidException({
+                            id: challengeSubmission.id,
+                            submissionType: challengeSubmission.type,
+                            url,
+                        })
+                    }
+                    currentAttempt.status = "evaluating"
+                    currentAttempt.uncertainty = null
+                    currentAttempt.nextAction = null
+                    await entityManager.save(
                         UserChallengeSubmissionAttemptEntity,
-                        {
-                            id: prepared.attempt.id,
-                            status: "evaluating",
-                        },
-                        {
-                            status: "evaluation_unavailable",
-                            uncertainty:
-                "Evaluation could not be queued. Your submitted attempt is preserved.",
-                            nextAction: "Retry evaluation for this same attempt.",
-                        },
+                        currentAttempt,
                     )
-                }
+                    return {
+                        attempt: currentAttempt,
+                        job: requeuedJob,
+                        replayed: false,
+                    }
+                })
             }
-            switch (challengeSubmission.type) {
-            case SubmissionType.GithubUrl:
-                if (
-                    typeof this.enqueueProcessGitSubmissionJobService.publish ===
-            "function"
-                ) {
-                    void settleUnavailable(
-                        this.enqueueProcessGitSubmissionJobService.publish(prepared.job),
-                    )
+            return prepared
+        }
+        prepared = await requeueIfStale(prepared)
+        const publishPrepared = (
+            currentPrepared: Awaited<ReturnType<typeof createOrReplayAttempt>>,
+        ): void => {
+            const prepared = currentPrepared
+            if (!prepared.replayed) {
+                const settleUnavailable = async (
+                    publication: Promise<void>,
+                ): Promise<void> => {
+                    try {
+                        await publication
+                    } catch {
+                        await this.entityManager.update(
+                            UserChallengeSubmissionAttemptEntity,
+                            {
+                                id: prepared.attempt.id,
+                                status: "evaluating",
+                            },
+                            {
+                                status: "evaluation_unavailable",
+                                uncertainty:
+                "Evaluation could not be queued. Your submitted attempt is preserved.",
+                                nextAction: "Retry evaluation for this same attempt.",
+                            },
+                        )
+                    }
                 }
-                break
-            case SubmissionType.GoogleDocsUrl:
-                if (
-                    typeof this.enqueueProcessGoogleDocsSubmissionJobService.publish ===
+                switch (challengeSubmission.type) {
+                case SubmissionType.GithubUrl:
+                    if (
+                        typeof this.enqueueProcessGitSubmissionJobService.publish ===
             "function"
-                ) {
-                    void settleUnavailable(
-                        this.enqueueProcessGoogleDocsSubmissionJobService.publish(
-                            prepared.job,
-                        ),
-                    )
+                    ) {
+                        void settleUnavailable(
+                            this.enqueueProcessGitSubmissionJobService.publish(prepared.job),
+                        )
+                    }
+                    break
+                case SubmissionType.GoogleDocsUrl:
+                    if (
+                        typeof this.enqueueProcessGoogleDocsSubmissionJobService.publish ===
+            "function"
+                    ) {
+                        void settleUnavailable(
+                            this.enqueueProcessGoogleDocsSubmissionJobService.publish(
+                                prepared.job,
+                            ),
+                        )
+                    }
+                    break
                 }
-                break
             }
         }
+        publishPrepared(prepared)
         return {
             jobId: prepared.job.id,
             attemptId: prepared.attempt.id,
@@ -756,8 +773,10 @@ export class SubmitChallengeSubmissionHandler
                 },
             },
         )
-        const expectedIds = allAuthored.map((item) => item.id).sort()
-        const actualIds = [...submissionIds].sort()
+        const expectedIds = allAuthored.map((item) => item.id)
+            .sort((left, right) => left.localeCompare(right))
+        const actualIds = [...submissionIds]
+            .sort((left, right) => left.localeCompare(right))
         if (
             expectedIds.length === 0 ||
       expectedIds.length !== actualIds.length ||
@@ -834,14 +853,18 @@ export class SubmitChallengeSubmissionHandler
           job: JobEntity;
           replayed: boolean;
         }> = []
-                for (const submissionId of [...submissionIds].sort()) {
+                for (const submissionId of [...submissionIds]
+                    .sort((left, right) => left.localeCompare(right))) {
                     await this.postgreSqlAdvisoryLockService.acquireUserChallengeSubmissionXactLock(
                         entityManager,
                         user.id,
                         submissionId,
                     )
                 }
-                for (const deliverable of deliverables) {
+                const prepareDeliverable = async (
+                    deliverable: typeof deliverables[number],
+                    completeCount: number,
+                ) => {
                     const submission = authored.find(
                         (item) => item.id === deliverable.challengeSubmissionId,
                     )
@@ -868,7 +891,7 @@ export class SubmitChallengeSubmissionHandler
                         throw new ChallengeSubmissionCollectionIncompleteException({
                             challengeId,
                             expectedCount: expectedIds.length,
-                            completeCount: records.length,
+                            completeCount,
                         })
                     }
                     if (enrollment && !userSubmission.enrollmentId) {
@@ -902,7 +925,7 @@ export class SubmitChallengeSubmissionHandler
                         },
                     )
                     if (replay) {
-                        records.push({
+                        return {
                             submission,
                             attempt: replay,
                             job: await entityManager.findOneOrFail(JobEntity,
@@ -912,8 +935,7 @@ export class SubmitChallengeSubmissionHandler
                                     },
                                 }),
                             replayed: true,
-                        })
-                        continue
+                        }
                     }
                     const attemptNumber =
             (await entityManager.count(UserChallengeSubmissionAttemptEntity,
@@ -984,12 +1006,16 @@ export class SubmitChallengeSubmissionHandler
                             url,
                         })
                     }
-                    records.push({
+                    return {
                         submission,
                         attempt,
                         job,
                         replayed: false,
-                    })
+                    }
+                }
+                for (const deliverable of deliverables) {
+                    records.push(await prepareDeliverable(deliverable,
+                        records.length))
                 }
                 return records
             },

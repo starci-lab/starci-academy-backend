@@ -41,4 +41,6 @@ export enum BullQueueName {
     GenerateCv = "generate-cv",
     /** Queue for scoring a user-UPLOADED CV row (`cv_generations.source = uploaded`) via the shared rubric. */
     ScoreUploadedCv = "score-uploaded-cv",
+    /** Transport queue for PostgreSQL-authoritative mock-interview grading jobs. */
+    GradeMockInterviewSession = "grade-mock-interview-session",
 }

@@ -43,6 +43,12 @@ export interface MyMockInterviewStatsResultData {
      * from too small a sample).
      */
     insufficientData: boolean
+    /** Mode of the comparable latest-attempt cohort. */
+    comparisonMode: string | null
+    /** Level of the comparable latest-attempt cohort. */
+    comparisonLevel: string | null
+    /** Rubric version of the comparable latest-attempt cohort. */
+    comparisonRubricVersion: string | null
     /** Mode split across the scanned window. */
     modeSplit: MockInterviewStatsModeSplitData
     /** Overall-score trend across the most recent attempts (bounded, oldest of the window first). */
