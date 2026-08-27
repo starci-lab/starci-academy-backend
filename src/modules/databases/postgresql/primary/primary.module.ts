@@ -30,20 +30,11 @@ import {
     AdvertisementEntity
 } from "./entities/advertisement.entity"
 import {
-    AiExecutionEntity
-} from "./entities/ai-execution.entity"
-import {
     AiModelTranslationEntity
 } from "./entities/ai-model-translation.entity"
 import {
     AiModelEntity
 } from "./entities/ai-model.entity"
-import {
-    AiRuntimeControlEntity
-} from "./entities/ai-runtime-control.entity"
-import {
-    AiRuntimeIncarnationEntity
-} from "./entities/ai-runtime-incarnation.entity"
 import {
     AiSubscriptionEntity
 } from "./entities/ai-subscription.entity"
@@ -743,9 +734,6 @@ const PRIMARY_ENTITIES = [
     UserFlashcardStatsProjectionEntity,
     TemplateCVEntity,
     TemplateCVTranslationEntity,
-    AiRuntimeIncarnationEntity,
-    AiRuntimeControlEntity,
-    AiExecutionEntity,
     FoundationCategoryEntity,
     FoundationCategoryTranslationEntity,
     FoundationEntity,
@@ -848,9 +836,6 @@ const ENTITIES_WITHOUT_FEATURE_REPOSITORY: Set<
     ChallengeSubmissionOutcomeCriteriaEntity,
     ChallengeSubmissionOutcomeCriteriaLangEntity,
     NotificationEntity,
-    AiRuntimeIncarnationEntity,
-    AiRuntimeControlEntity,
-    AiExecutionEntity,
 ])
 
 /** {@link PRIMARY_ENTITIES} minus {@link ENTITIES_WITHOUT_FEATURE_REPOSITORY}. */
