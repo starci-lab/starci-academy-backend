@@ -113,6 +113,10 @@ export class MonolithicApolloServerModule extends ConfigurableModuleClass {
                             originalError?: unknown
                         })?.originalError ?? error
                         if (original instanceof AbstractException) {
+                            const retryAfterSeconds = original.code === "RATE_LIMIT_EXCEEDED_EXCEPTION"
+                                && typeof original.metadata?.retryAfterSeconds === "number"
+                                ? original.metadata.retryAfterSeconds
+                                : undefined
                             return {
                                 ...formattedError,
                                 extensions: {
@@ -121,6 +125,10 @@ export class MonolithicApolloServerModule extends ConfigurableModuleClass {
                                     http: {
                                         status: original.httpStatus ?? 500,
                                     },
+                                    ...(retryAfterSeconds === undefined ? {
+                                    } : {
+                                        retryAfterSeconds
+                                    }),
                                 },
                             }
                         }

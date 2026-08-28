@@ -29,4 +29,6 @@ export interface ThrottlerTrackedParams {
     ip?: string
     /** Proxied IP chain (first hop = real client) when behind a reverse proxy. */
     ips?: Array<string>
+    /** Request headers used only to isolate trusted local UAT origins in non-production. */
+    headers?: Record<string, string | ReadonlyArray<string> | undefined>
 }

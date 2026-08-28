@@ -224,6 +224,17 @@ export class UserEntity extends UuidAbstractEntity {
         isDeleted: boolean
 
     /**
+     * Marks a disposable account owned by the UAT harness.
+     * Internal fixture metadata; deliberately not exposed through GraphQL.
+     */
+    @Column({
+        name: "is_uat",
+        type: "boolean",
+        default: false,
+    })
+        isUat: boolean
+
+    /**
      * The user's spendable Coin balance -- the account currency that funds the
      * reward store (voucher + AI-credit top-up + streak-freeze + physical
      * rewards) and ranks the global leaderboard. Credited by the flat per-event

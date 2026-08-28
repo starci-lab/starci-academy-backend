@@ -2,11 +2,17 @@ import {
     Injectable 
 } from "@nestjs/common"
 import {
+    HttpStatus,
+} from "@nestjs/common"
+import {
     AxiosService,
 } from "@modules/integrations/axios/axios.service"
 import axios, {
     AxiosInstance 
 } from "axios"
+import {
+    KeycloakLoginFailedException,
+} from "@modules/platform/exceptions/errors/keycloak/keycloak-login-failed"
 import {
     envConfig,
 } from "@modules/platform/env/config"
@@ -105,24 +111,36 @@ export class KeycloakTokenService {
     async exchangePasswordForToken(
         params: KeycloakPasswordLoginParams,
     ): Promise<KeycloakExchangeCodeForTokenResponse> {
-        const response = await this.axiosInstance.post<KeycloakExchangeCodeForTokenResponse>(
-            `/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token`,
-            new URLSearchParams({
-                grant_type: "password",
-                client_id: envConfig().keycloak.clientId,
-                client_secret: this.mountStorageService.keycloakClientSecret,
-                username: params.username,
-                password: params.password,
-                scope: "openid profile email",
-            }),
-            {
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
+        try {
+            const response = await this.axiosInstance.post<KeycloakExchangeCodeForTokenResponse>(
+                `/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token`,
+                new URLSearchParams({
+                    grant_type: "password",
+                    client_id: envConfig().keycloak.clientId,
+                    client_secret: this.mountStorageService.keycloakClientSecret,
+                    username: params.username,
+                    password: params.password,
+                    scope: "openid profile email",
+                }),
+                {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
                 },
-            },
-        )
+            )
 
-        return response.data
+            return response.data
+        } catch (error) {
+            // Keycloak deliberately uses 401 for bad, absent, and disabled users.
+            // Keep infrastructure/network failures distinguishable while giving the
+            // GraphQL/REST clients one stable authentication contract.
+            if (axios.isAxiosError(error) && error.response?.status === HttpStatus.UNAUTHORIZED) {
+                throw new KeycloakLoginFailedException({
+                    originalError: error,
+                })
+            }
+            throw error
+        }
     }
 
     /**

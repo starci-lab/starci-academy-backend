@@ -7,6 +7,9 @@ import {
 import {
     MonolithicApolloServerModule,
 } from "./monolithic-apollo-server.module"
+import {
+    RateLimitExceededException,
+} from "@modules/platform/exceptions/errors/guards/rate-limit-exceeded"
 
 type ApolloOptions = {
     formatError: (formatted: GraphQLFormattedError, error: unknown) => GraphQLFormattedError
@@ -50,6 +53,22 @@ describe("MonolithicApolloServerModule",
                     code: "S3_PROVIDER_NOT_FOUND_EXCEPTION",
                     http: {
                         status: 400,
+                    },
+                }))
+
+                const throttled = formatError({
+                    message: "ignored",
+                },
+                {
+                    originalError: new RateLimitExceededException({
+                        retryAfterSeconds: 28,
+                    }),
+                })
+                expect(throttled.extensions).toEqual(expect.objectContaining({
+                    code: "RATE_LIMIT_EXCEEDED_EXCEPTION",
+                    retryAfterSeconds: 28,
+                    http: {
+                        status: 429,
                     },
                 }))
 

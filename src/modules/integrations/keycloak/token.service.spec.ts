@@ -4,6 +4,10 @@ import {
 import {
     KeycloakUserIdResolutionFailedException
 } from "@modules/platform/exceptions/errors/keycloak/keycloak-user-id-resolution-failed"
+import {
+    KeycloakLoginFailedException,
+} from "@modules/platform/exceptions/errors/keycloak/keycloak-login-failed"
+import axios from "axios"
 
 describe("KeycloakTokenService",
     () => {
@@ -83,6 +87,32 @@ describe("KeycloakTokenService",
                 await expect(service.registerUserWithPassword({
                     username: "u", email: "e", password: "p"
                 } as never)).rejects.toBeInstanceOf(KeycloakUserIdResolutionFailedException)
+            })
+        it("normalizes a Keycloak 401 credential rejection",
+            async () => {
+                const { service, client } = make()
+                client.post.mockRejectedValueOnce(new axios.AxiosError(
+                    "Request failed with status code 401",
+                    "ERR_BAD_REQUEST",
+                    undefined,
+                    undefined,
+                    {
+                        status: 401,
+                        statusText: "Unauthorized",
+                        headers: {
+                        },
+                        config: {
+                        } as never,
+                        data: {
+                            error: "invalid_grant",
+                        },
+                    },
+                ))
+                await expect(service.exchangePasswordForToken(
+                    {
+                        username: "u", password: "wrong",
+                    } as never,
+                )).rejects.toBeInstanceOf(KeycloakLoginFailedException)
             })
         it("delegates access verification and sends verify-email action",
             async () => {

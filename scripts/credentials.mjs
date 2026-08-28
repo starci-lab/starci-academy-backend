@@ -161,6 +161,14 @@ export const CREDENTIALS = [
         kind: "token",
     },
     {
+        /** Shared random secret used only to provision disposable local UAT identities. */
+        file: "uat-account-password.key",
+        env: null,
+        composeVar: null,
+        kind: "password",
+        requireSpecial: true,
+    },
+    {
         /** Dedicated PostgreSQL password for the local SonarQube database. */
         file: "sonarqube-db-password.txt",
         env: null,
