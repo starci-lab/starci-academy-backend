@@ -40,6 +40,10 @@ export interface JobRefs {
     userChallengeSubmissionId?: string
     /** Immutable learner attempt evaluated by this job. */
     challengeAttemptId?: string
+    /** Typed learner-visible result published by the completed job. */
+    resultKind?: "personal-task-attempt" | "challenge-submission-attempt"
+    /** Exact result row id paired with {@link JobRefs.resultKind}. */
+    resultId?: string
     /** Enrollment the job runs under. */
     enrollmentId?: string
     /** Milestone task being reviewed. */

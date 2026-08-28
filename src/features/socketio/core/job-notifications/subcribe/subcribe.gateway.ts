@@ -46,6 +46,9 @@ import type {
 import {
     JobStatusUpdatedSocketIoMessage,
 } from "../types/job-status-message"
+import {
+    JobStatusReadService,
+} from "@modules/bussiness/jobs/atomic/job-status-read.service"
 
 @JobNotificationsWebSocketGateway()
 /**
@@ -60,6 +63,7 @@ export class SubcribeJobNotificationGateway implements OnModuleInit {
         private readonly wsResponseService: WsResponseService,
         private readonly jobRoomService: JobRoomService,
         private readonly eventEmitterService: EventEmitterService,
+        private readonly jobStatusReadService: JobStatusReadService,
     ) {}
 
     /**
@@ -88,18 +92,24 @@ export class SubcribeJobNotificationGateway implements OnModuleInit {
     onModuleInit(): void {
         this.eventEmitterService.on({
             event: EventName.JobStatusUpdated,
-            listener: (payload: JobStatusUpdatedEventPayload) => {
+            listener: async (payload: JobStatusUpdatedEventPayload) => {
+                const status = await this.jobStatusReadService.getForPublication(payload.jobId)
+                if (!status) {
+                    return
+                }
+                // A worker can emit from inside the transaction that persists the
+                // terminal state. The publication listener then races that commit
+                // and may read the previous `processing` row. Preserve all safe
+                // fields from the shared read model, but let the event's own
+                // transaction-authoritative status win for this notification.
+                const publication = {
+                    ...status,
+                    status: payload.status,
+                }
                 this.wsResponseService.successToRoom<JobStatusUpdatedSocketIoMessage>(
                     {
                         message: "Job status updated",
-                        data: {
-                            jobId: payload.jobId,
-                            challengeSubmissionId: payload.challengeSubmissionId,
-                            // the event payload carries null for a job row with no category; the socket message omits it instead
-                            category: payload.category ?? undefined,
-                            status: payload.status,
-                            error: payload.error,
-                        },
+                        data: publication,
                         room: this.jobRoomService.name(payload.jobId),
                         namespace: this.server,
                         eventName: SubscriptionEvent.JobStatusUpdated,

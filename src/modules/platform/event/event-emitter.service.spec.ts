@@ -50,6 +50,26 @@ factory as never)
                 })
             })
 
+        it("fans job status out locally and through NATS by default",
+            async () => {
+                const payload = {
+                    jobId: "job-live",
+                    status: JobStatus.Completed,
+                }
+
+                await service.emit({
+                    event: EventName.JobStatusUpdated,
+                    payload,
+                })
+
+                expect(local.emit).toHaveBeenCalledWith(EventName.JobStatusUpdated,
+                    payload)
+                expect(producer.publish).toHaveBeenCalledWith({
+                    subject: EventName.JobStatusUpdated,
+                    payload: "serialized",
+                })
+            })
+
         it("registers and removes listeners using the resolved event name",
             () => {
                 const listener = jest.fn()

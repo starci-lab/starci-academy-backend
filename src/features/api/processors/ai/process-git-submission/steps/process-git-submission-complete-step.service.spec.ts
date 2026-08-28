@@ -75,6 +75,7 @@ describe("ProcessGitSubmissionCompleteStepService",
             loadExecutionResult: jest.Mock
             increaseJob: jest.Mock
             saveExecutionResult: jest.Mock
+            saveResultRef: jest.Mock
         }
         let aiEntitlementService: { consume: jest.Mock }
         let eventEmitterService: { emit: jest.Mock }
@@ -89,6 +90,7 @@ describe("ProcessGitSubmissionCompleteStepService",
                 ),
                 increaseJob: jest.fn(),
                 saveExecutionResult: jest.fn(),
+                saveResultRef: jest.fn(),
             }
             aiEntitlementService = {
                 consume: jest.fn(),

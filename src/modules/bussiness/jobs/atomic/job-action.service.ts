@@ -24,6 +24,7 @@ import type {
     FailJobParams,
     IncreaseJobParams,
     SaveExecutionResultParams,
+    SaveJobResultRefParams,
     LoadExecutionResultParams,
     ProcessingJobParams,
 } from "../types/job"
@@ -358,6 +359,32 @@ export class JobActionService {
         }
         executionResults[key] = executionResult
         job.executionResults = this.superJson.stringify(executionResults)
+        await manager.save(
+            JobEntity,
+            job,
+        )
+    }
+
+    /**
+     * Publish the exact learner-visible result in the caller's transaction.
+     * The terminal status lands atomically with that result reference; the
+     * worker's later `completeJob` call remains responsible for realtime emit.
+     */
+    async saveResultRef({
+        entityManager,
+        job,
+        kind,
+        id,
+    }: SaveJobResultRefParams): Promise<void> {
+        const manager = entityManager ?? this.primaryEntityManager
+        job.refs = {
+            ...(job.refs ?? {
+            }),
+            resultKind: kind,
+            resultId: id,
+        }
+        job.status = JobStatus.Completed
+        job.error = null
         await manager.save(
             JobEntity,
             job,

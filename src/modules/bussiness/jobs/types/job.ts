@@ -117,3 +117,36 @@ export interface ProcessingJobParams extends JobTargetParams {
     /** The entity manager to use. */
     entityManager?: EntityManager
 }
+
+/** Params for atomically publishing the exact learner-visible result. */
+export interface SaveJobResultRefParams extends JobTargetParams {
+    /** Result domain understood by the frontend adapter. */
+    kind: NonNullable<JobRefs["resultKind"]>
+    /** Exact persisted result row id. */
+    id: string
+}
+
+/** Owner-authorized selector for one durable job status. */
+export interface GetOwnedJobStatusParams {
+    /** Durable job id returned by an asynchronous mutation. */
+    jobId: string
+    /** Authenticated owner id. */
+    userId: string
+}
+
+/** Safe shared read model for GraphQL polling and Socket.IO publication. */
+export interface JobStatusReadModel {
+    jobId: string
+    status: import("@modules/databases/postgresql/primary/enums/job-status").JobStatus
+    category: JobEntity["category"]
+    actionType: JobEntity["actionType"]
+    currentStep: number
+    maxSteps: number
+    updatedAt: Date
+    retryable: boolean
+    failureReason: string | null
+    result: null | {
+        kind: NonNullable<JobRefs["resultKind"]>
+        id: string
+    }
+}

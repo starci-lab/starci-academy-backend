@@ -93,6 +93,10 @@ export class EnqueueReviewPersonalProjectTaskJobService {
             category: JobCategory.ReviewTask,
             maxSteps: 2,
             payload: this.superJson.stringify(payload),
+            refs: {
+                enrollmentId,
+                taskId,
+            },
         })
         void sleepEnqueueUxDelay().then(() =>
             this.queue.add(

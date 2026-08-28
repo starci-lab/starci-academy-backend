@@ -39,8 +39,12 @@ import {
 export const configMap = {
     /** Event name: job status updated. */
     [EventName.JobStatusUpdated]: {
+        // The publishing pod owns the learner's live socket most of the time,
+        // so it must fan out locally. NATS carries the same event to other pods;
+        // the bridge filters the producer instance and therefore does not
+        // duplicate this local publication.
         useNats: true,
-        useLocal: false,
+        useLocal: true,
         eventPayload: {
         } as JobStatusUpdatedEventPayload,
     },

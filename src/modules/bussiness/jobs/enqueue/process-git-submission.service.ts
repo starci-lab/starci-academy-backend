@@ -159,14 +159,14 @@ export class EnqueueProcessGitSubmissionJobService {
                 entityManager,
             } : {
             }),
-            ...(attemptId !== undefined ? {
-                refs: {
-                    userChallengeSubmissionId,
-                    enrollmentId,
+            refs: {
+                userChallengeSubmissionId,
+                enrollmentId,
+                ...(attemptId !== undefined ? {
                     challengeAttemptId: attemptId,
-                },
-            } : {
-            }),
+                } : {
+                }),
+            },
         })
     }
 

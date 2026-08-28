@@ -293,6 +293,12 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
             },
         )
         if (existing) {
+            await this.jobActionService.saveResultRef({
+                job,
+                kind: "personal-task-attempt",
+                id: existing.id,
+                entityManager,
+            })
             return false
         }
         /** Find or create the user milestone task. */
@@ -356,7 +362,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
             }
         )
         /** Persist the attempt, keyed by the job id for idempotency. */
-        await entityManager.save(
+        const attempt = await entityManager.save(
             UserMilestoneTaskAttemptEntity,
             {
                 idempotencyKey: job.id,
@@ -378,6 +384,12 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                 defaultLocale: payload.locale ?? Locale.En,
             }
         )
+        await this.jobActionService.saveResultRef({
+            job,
+            kind: "personal-task-attempt",
+            id: attempt.id,
+            entityManager,
+        })
         /**
          * Debit AFTER the attempt write to preserve the natural domain order, but
          * on this SAME transaction. If debit throws, the attempt and every reward

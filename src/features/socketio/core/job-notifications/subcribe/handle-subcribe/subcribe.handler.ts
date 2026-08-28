@@ -24,11 +24,11 @@ import {
     SubscriptionEvent,
 } from "../../../enums/subscription-event"
 import {
-    JobNotFoundException,
-} from "@modules/platform/exceptions/errors/job/not-found"
+    JobStatusReadService,
+} from "@modules/bussiness/jobs/atomic/job-status-read.service"
 import {
-    JobActionService,
-} from "@modules/bussiness/jobs/atomic/job-action.service"
+    UserService,
+} from "@modules/bussiness/user/user.service"
 
 @QueryHandler(SubcribeJobNotificationQuery)
 @Injectable()
@@ -44,7 +44,8 @@ export class SubcribeJobNotificationHandler
     constructor(
         private readonly jobRoomService: JobRoomService,
         private readonly wsResponseService: WsResponseService,
-        private readonly jobActionService: JobActionService,
+        private readonly jobStatusReadService: JobStatusReadService,
+        private readonly userService: UserService,
     ) {
         super()
     }
@@ -59,33 +60,24 @@ export class SubcribeJobNotificationHandler
         // JobNotFoundException, same as a genuinely missing row, so the room
         // is never joined and the status/error payload is never returned to
         // a client who does not own this job.
-        const job = await this.jobActionService.getJob({
-            id: payload.data.jobId,
-            userId: client.data.userId,
+        // Socket auth stamps the verified Keycloak subject, while jobs.user_id
+        // stores the internal UserEntity id. Resolve that identity boundary
+        // before checking ownership; comparing the two directly silently left
+        // every valid learner outside the job room.
+        const user = await this.userService.getUserByKeycloakId(client.data.userId)
+        const job = await this.jobStatusReadService.getOwned({
+            jobId: payload.data.jobId,
+            userId: user.id,
         })
-        // join job room by job id -- only after ownership is verified
-        client.join(this.jobRoomService.name(payload.data.jobId))
         if (!job) {
-            this.wsResponseService.error({
-                client,
-                error: new JobNotFoundException({
-                    id: payload.data.jobId,
-                }),
-                eventName: SubscriptionEvent.JobStatusUpdated,
-            })
             return
         }
+        // join job room by job id -- only after ownership is verified
+        client.join(this.jobRoomService.name(payload.data.jobId))
         this.wsResponseService.success<JobStatusUpdatedSocketIoMessage>(
             {
                 message: "Job status updated",
-                data: {
-                    jobId: job.id,
-                    challengeSubmissionId: job.refs?.challengeSubmissionId ?? "",
-                    category: job.category ?? undefined,
-                    actionType: job.actionType,
-                    status: job.status,
-                    error: job.error ?? undefined,
-                },
+                data: job,
                 client,
                 eventName: SubscriptionEvent.JobStatusUpdated,
             }

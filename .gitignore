@@ -143,6 +143,11 @@ scratch/
 !.stacks/**/KEYS.md
 !.stacks/**/*.enc
 !.stacks/*/infra/compose/**
+# Reusable, credential-free development seed recipes.
+!.stacks/*/seeds/**/*.md
+!.stacks/*/seeds/**/*.ps1
+!.stacks/*/seeds/**/*.sql
+!.stacks/*/seeds/**/*.yaml
 # ...but never the env file compose.mjs renders (ports + datastore passwords)
 .stacks/**/.env.generated
 # Decrypted plaintext twins. These are what the ignore above exists for: every

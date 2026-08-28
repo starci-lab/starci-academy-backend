@@ -61,6 +61,9 @@ import {
     JobStalledService,
 } from "./atomic/job-stalled.service"
 import {
+    JobStatusReadService,
+} from "./atomic/job-status-read.service"
+import {
     InstallmentPlanModule,
 } from "../installment-plan/installment-plan.module"
 
@@ -84,6 +87,7 @@ export class JobsModule extends ConfigurableModuleClass {
                 ...(dynamicModule.providers ?? []),
                 JobActionService,
                 JobStalledService,
+                JobStatusReadService,
                 EnqueueEnrollJobService,
                 EnqueueProcessGitSubmissionJobService,
                 EnqueueProcessGoogleDocsSubmissionJobService,
@@ -104,6 +108,7 @@ export class JobsModule extends ConfigurableModuleClass {
             exports: [
                 JobActionService,
                 JobStalledService,
+                JobStatusReadService,
                 EnqueueEnrollJobService,
                 EnqueueProcessGitSubmissionJobService,
                 EnqueueProcessGoogleDocsSubmissionJobService,

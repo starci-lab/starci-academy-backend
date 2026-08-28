@@ -316,6 +316,12 @@ export abstract class AbstractSubmissionCompleteStepService<
             || existing.processedAt
             || (existing.finalizationRevision ?? 0) > 0
         )) {
+            await this.jobActionService.saveResultRef({
+                job,
+                kind: "challenge-submission-attempt",
+                id: existing.id,
+                entityManager,
+            })
             return {
                 createdNewAttempt: false,
                 chargedUserId: undefined,
@@ -397,6 +403,12 @@ export abstract class AbstractSubmissionCompleteStepService<
                     ...finalization,
                 },
         )
+        await this.jobActionService.saveResultRef({
+            job,
+            kind: "challenge-submission-attempt",
+            id: attempt.id,
+            entityManager,
+        })
         /** Resolve who is being charged (the credit debit + history row are
          * written by the after-commit fallback below, via the SAME
          * `AiEntitlementService.consume` every other grading surface uses --

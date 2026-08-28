@@ -699,6 +699,32 @@ describe("JobActionService",
 
         describe("execution results",
             () => {
+                it("publishes an exact result reference and terminal status through the caller transaction",
+                    async () => {
+                        const job = buildJob({
+                            status: JobStatus.Processing,
+                        })
+
+                        await service.saveResultRef({
+                            job,
+                            kind: "personal-task-attempt",
+                            id: "attempt-21",
+                            entityManager: transactionalEntityManager as never,
+                        })
+
+                        expect(job).toMatchObject({
+                            status: JobStatus.Completed,
+                            error: null,
+                            refs: {
+                                resultKind: "personal-task-attempt",
+                                resultId: "attempt-21",
+                            },
+                        })
+                        expect(transactionalEntityManager.save).toHaveBeenCalledWith(JobEntity,
+                            job)
+                        expect(primaryEntityManager.save).not.toHaveBeenCalled()
+                    })
+
                 it("stores the first result under its key and persists the serialized map",
                     async () => {
                         const job = buildJob({

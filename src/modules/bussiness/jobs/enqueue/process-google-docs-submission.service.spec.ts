@@ -160,6 +160,10 @@ describe("EnqueueProcessGoogleDocsSubmissionJobService",
                     maxSteps: envConfig().job.processGoogleDocsSubmission.maxSteps,
                     payload: "serialized-payload",
                     challengeSubmissionId: "challenge-submission-1",
+                    refs: {
+                        enrollmentId: "enrollment-1",
+                        userChallengeSubmissionId: "user-challenge-submission-1",
+                    },
                 })
                 expect(superJson.stringify).toHaveBeenCalledWith({
                     jobId: createArgs.id,

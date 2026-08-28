@@ -13,6 +13,9 @@ import {
 import type {
     ResolvedChallengeCriterion,
 } from "../../challenge-submission/types/criteria"
+import {
+    SubmissionFeedbackSeverity,
+} from "@modules/databases/postgresql/primary/enums/submission-feedback-severity"
 
 /** Frozen rubric and source medium used to validate and canonicalize AI evidence. */
 export interface ParseChallengeEvaluationOptions {
@@ -52,27 +55,49 @@ function validateAndCanonicalize(
                 text: JSON.stringify(parsed),
             })
         }
-        for (const feedback of detail.feedbacks) {
-            if (!VALID_SEVERITIES.has(feedback.severity)
+        const feedbacks = detail.feedbacks.map((feedback) => {
+            // Models commonly mirror the rubric's CRITICAL marker as a feedback
+            // severity. Product feedback has only three presentation levels, so
+            // canonicalize that provider variation at the model boundary instead
+            // of discarding an otherwise complete evaluation.
+            const rawSeverity = feedback.severity as string
+            const severity = rawSeverity === "critical"
+                ? SubmissionFeedbackSeverity.High
+                : feedback.severity
+            if (!VALID_SEVERITIES.has(severity)
                 || typeof feedback.message !== "string"
                 || feedback.message.trim().length === 0) {
                 throw new ParsingCriteriaResultsFromModelTextException({
                     text: JSON.stringify(parsed),
                 })
             }
-        }
+            return {
+                ...feedback,
+                severity,
+            }
+        })
         const criterion = options.criteria[index]
         if (detail.met) {
             canonicalScore += criterion.score
         } else if (criterion.critical) {
             failedCritical = true
         }
-        const hasConcreteEvidence = detail.feedbacks.some((feedback) =>
+        const hasConcreteEvidence = feedbacks.some((feedback) =>
             typeof feedback.location === "string" && feedback.location.trim().length > 0)
-        const hasRecoveryAdvice = detail.met || detail.feedbacks.some((feedback) =>
+        // A negative finding can legitimately prove absence (for example an empty
+        // repository), where a file:line location cannot exist. Its explicit
+        // explanatory message is evidence; positive claims still require a
+        // concrete source location.
+        const hasEvaluativeEvidence = hasConcreteEvidence || (!detail.met && feedbacks.some(
+            (feedback) => feedback.message.trim().length > 0,
+        ))
+        const hasRecoveryAdvice = detail.met || feedbacks.some((feedback) =>
             typeof feedback.suggestion === "string" && feedback.suggestion.trim().length > 0)
-        evidencePoints += Number(hasConcreteEvidence) + Number(hasRecoveryAdvice)
-        return detail
+        evidencePoints += Number(hasEvaluativeEvidence) + Number(hasRecoveryAdvice)
+        return {
+            ...detail,
+            feedbacks,
+        }
     })
     if (failedCritical) canonicalScore = 0
     const confidence = options.criteria.length === 0

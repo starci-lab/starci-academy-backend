@@ -145,6 +145,10 @@ describe("EnqueueReviewPersonalProjectTaskJobService",
                     category: JobCategory.ReviewTask,
                     maxSteps: 2,
                     payload: "serialized-payload",
+                    refs: {
+                        enrollmentId: "enrollment-1",
+                        taskId: "task-1",
+                    },
                 })
             })
 

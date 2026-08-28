@@ -217,6 +217,48 @@ describe("parseChallengeEvaluation strict platform finalization",
                         source: "code",
                     },
                 )
-                expect(result.confidence).toBe(0.25)
+                expect(result.confidence).toBe(0.5)
+            })
+
+        it("canonicalizes a model critical severity and accepts explained absence as evidence",
+            () => {
+                const result = parseChallengeEvaluation(
+                    evaluation({
+                        details: [
+                            {
+                                criteriaId: "0",
+                                met: false,
+                                feedbacks: [
+                                    {
+                                        severity: "critical",
+                                        message: "No implementation exists to cite.",
+                                        location: null,
+                                        suggestion: "Implement the required guard.",
+                                    },
+                                ],
+                            },
+                            {
+                                criteriaId: "1",
+                                met: false,
+                                feedbacks: [
+                                    {
+                                        severity: "high",
+                                        message: "No observable outcome exists.",
+                                        location: null,
+                                        suggestion: "Add an end-to-end example.",
+                                    },
+                                ],
+                            },
+                        ],
+                    }),
+                    {
+                        criteria,
+                        source: "code",
+                    },
+                )
+
+                expect(result.details[0].feedbacks[0].severity).toBe("high")
+                expect(result.confidence).toBe(1)
+                expect(result.score).toBe(0)
             })
     })

@@ -7,10 +7,16 @@ import {
 import {
     IncompletedJobsSingleQueryModule,
 } from "./incompleted-jobs/incompleted-jobs.module"
+import {
+    JobStatusSingleQueryModule,
+} from "./job-status/job-status.module"
 
 @Module({
     imports: [
         IncompletedJobsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        JobStatusSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

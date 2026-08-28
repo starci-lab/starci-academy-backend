@@ -151,6 +151,7 @@ describe("ProcessGoogleDocsSubmissionCompleteStepService",
             loadExecutionResult: jest.Mock
             increaseJob: jest.Mock
             saveExecutionResult: jest.Mock
+            saveResultRef: jest.Mock
         }
         let winstonService: { log: jest.Mock }
         let eventEmitterService: { emit: jest.Mock }
@@ -247,6 +248,7 @@ describe("ProcessGoogleDocsSubmissionCompleteStepService",
                 ),
                 increaseJob: jest.fn(),
                 saveExecutionResult: jest.fn(),
+                saveResultRef: jest.fn(),
             }
             winstonService = {
                 log: jest.fn(),

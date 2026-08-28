@@ -11,8 +11,8 @@
   },
   "context": {
     "instructions": [],
-    "contract": "src/components/contracts/index.ts",
-    "contractSource": "discovered:src/components/contracts/index.ts",
+    "contract": null,
+    "contractSource": null,
     "manifests": [
       "package.json"
     ],
