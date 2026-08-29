@@ -267,6 +267,7 @@ export class ProgressProjectionService {
         const rows = await this.entityManager.query<Array<MyCourseProgressRow>>(
             `
             SELECT e.course_id AS course_id,
+                   c.display_id AS display_id,
                    c.title     AS title,
                    c.thumbnail_url AS thumbnail_url,
                    -- content (lessons): read from projection / total contents in course
@@ -320,6 +321,7 @@ export class ProgressProjectionService {
         // normalise the jsonb/bigint text columns into numbers
         return rows.map((row) => ({
             courseId: row.course_id,
+            path: `/courses/${encodeURIComponent(row.display_id)}`,
             title: row.title,
             thumbnailUrl: row.thumbnail_url ?? null,
             contentCompleted: Number(row.content_completed) || 0,

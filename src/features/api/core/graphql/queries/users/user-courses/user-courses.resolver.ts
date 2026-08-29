@@ -91,6 +91,7 @@ export class UserCoursesResolver {
         return rows.map((row) => ({
             globalId: toGlobalId(CourseEntity.name,
                 row.courseId),
+            path: row.path,
             label: row.title,
             thumbnailUrl: row.thumbnailUrl,
             contentCompleted: row.contentCompleted,

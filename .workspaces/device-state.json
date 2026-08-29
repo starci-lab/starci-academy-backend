@@ -13,14 +13,12 @@
       { "name": "starci-academy-backend_nats-data" },
       { "name": "starci-academy-backend_pg-data" },
       { "name": "starci-academy-backend_prometheus-data" },
-      { "name": "starci-academy-backend_qdrant-data" },
       { "name": "starci-academy-backend_redis-data" },
       { "name": "starci-academy-backend_sonarqube-data" },
       { "name": "starci-academy-backend_sonarqube-extensions" },
       { "name": "starci-academy-backend_sonarqube-logs" },
       { "name": "starci-academy-backend_sonarqube-postgres-data" },
-      { "name": "starci-academy-backend_sonarqube-temp" },
-      { "name": "starci-source-context_qdrant-context-data" }
+      { "name": "starci-academy-backend_sonarqube-temp" }
     ]
   },
   "encryption": {

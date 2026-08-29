@@ -71,6 +71,7 @@ describe("ProgressProjectionService",
                         entityManager.query.mockResolvedValueOnce([
                             {
                                 course_id: courseId,
+                                display_id: "fullstack-mastery",
                                 title: "Trial Course",
                                 thumbnail_url: null,
                                 content_completed: 0,
@@ -102,6 +103,7 @@ describe("ProgressProjectionService",
                         expect(result).toEqual([
                             expect.objectContaining({
                                 courseId,
+                                path: "/courses/fullstack-mastery",
                                 title: "Trial Course",
                                 contentTotal: 10,
                                 total: 5,

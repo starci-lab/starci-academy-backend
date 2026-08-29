@@ -1,19 +1,19 @@
 {
   "$schema": "../../../.claude/readiness/initialization/workspaces/portable-route.schema.json",
   "schemaVersion": 6,
-  "project": "nivo",
-  "role": "be",
+  "project": "tayson",
+  "role": "fe",
   "repository": {
     "kind": "sibling",
-    "directory": "nivo-backend",
-    "gitRepository": "https://github.com/starci-lab/nivo-backend.git",
-    "branch": "main"
+    "directory": "tayson-fe",
+    "gitRepository": "https://github.com/starci183/tayson.git",
+    "branch": "contract-legacy"
   },
   "context": {
     "instructions": [],
     "manifests": [
       "package.json"
     ],
-    "grammarId": null
+    "grammarId": "core"
   }
 }

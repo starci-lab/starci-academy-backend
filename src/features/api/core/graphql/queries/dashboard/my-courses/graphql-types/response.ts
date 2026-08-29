@@ -22,10 +22,18 @@ export class MyCourseItemData {
     @Field(
         () => String,
         {
-            description: "Opaque global id of the course — pass to resolveRoute on click.",
+            description: "Opaque global id of the course; action-driven consumers may pass it to resolveRoute while native-link consumers use path.",
         },
     )
         globalId: string
+
+    @Field(
+        () => String,
+        {
+            description: "Canonical locale-free course URL, ready for a native link.",
+        },
+    )
+        path: string
 
     @Field(
         () => String,

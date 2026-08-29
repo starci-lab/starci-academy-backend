@@ -11,11 +11,9 @@
   },
   "context": {
     "instructions": [],
-    "contract": "src/components/contracts/index.ts",
-    "contractSource": "discovered:src/components/contracts/index.ts — exports CONTRACTS built through buildContracts",
     "manifests": [
       "package.json"
     ],
-    "grammarId": "grammars/tedo"
+    "grammarId": null
   }
 }

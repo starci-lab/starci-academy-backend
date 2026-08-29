@@ -4,6 +4,7 @@ import {
 
 const row = (overrides: Record<string, number>) => ({
     courseId: "course-1",
+    path: "/courses/course-1",
     title: "Course",
     thumbnailUrl: null,
     contentCompleted: 0,

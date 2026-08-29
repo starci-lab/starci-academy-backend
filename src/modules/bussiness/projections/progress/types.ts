@@ -152,6 +152,8 @@ export interface MilestoneAttemptTargetRow {
 export interface MyCourseProgressRow {
     /** `courses.id` of the enrolled course. */
     course_id: string
+    /** Public route token used by `/courses/[displayId]`. */
+    display_id: string
     /** Course title (the rail token label). */
     title: string
     /** Course thumbnail URL (`courses.thumbnail_url`); null when unset. */
@@ -179,6 +181,8 @@ export interface MyCourseProgressRow {
 export interface MyCourseProgressResult {
     /** `courses.id` of the enrolled course. */
     courseId: string
+    /** Canonical locale-free public destination. */
+    path: string
     /** Course title (the rail token label). */
     title: string
     /** Course thumbnail URL; null when unset. */
