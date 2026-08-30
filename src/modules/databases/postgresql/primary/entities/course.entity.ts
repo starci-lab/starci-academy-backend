@@ -191,6 +191,25 @@ export class CourseEntity extends UuidAbstractEntity {
         nullable: true,
     })
         coverImageUrl: string | null
+
+    /**
+     * Optional preview image for the course-owned Playground hub.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Preview image URL for the course-owned Playground hub.",
+        },
+    )
+    @Column({
+        name: "playground_preview_image_url",
+        type: "varchar",
+        length: 2048,
+        nullable: true,
+    })
+        playgroundPreviewImageUrl: string | null
+
     /**
      * Original list price of the course before pricing phase discounts.
      */
