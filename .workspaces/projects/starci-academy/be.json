@@ -14,6 +14,8 @@
       "AGENTS.md",
       "CLAUDE.md"
     ],
+    "contract": null,
+    "contractSource": null,
     "manifests": [
       "package.json"
     ],

@@ -11,6 +11,8 @@
   },
   "context": {
     "instructions": [],
+    "contract": null,
+    "contractSource": null,
     "manifests": [
       "package.json"
     ],
