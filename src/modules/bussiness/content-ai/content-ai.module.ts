@@ -7,13 +7,18 @@ import {
 import {
     ContentAiService,
 } from "./content-ai.service"
+import {
+    CourseAdvisorService,
+} from "./course-advisor.service"
 
 @Module({
     providers: [
         ContentAiService,
+        CourseAdvisorService,
     ],
     exports: [
         ContentAiService,
+        CourseAdvisorService,
     ],
 })
 /**

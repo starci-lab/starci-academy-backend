@@ -1,6 +1,9 @@
 import type {
     TypedSocket,
 } from "@modules/platform/socketio/types/socket"
+import type {
+    CourseAdvisorMetadata,
+} from "@modules/bussiness/content-ai/course-advisor.service"
 
 /**
  * Server -> client message carrying one streamed token delta for a content-AI
@@ -19,6 +22,8 @@ export interface ContentAiChunkSocketIoMessage {
     done: boolean
     /** Error message when the stream failed (present only on a failed terminal chunk). */
     error?: string
+    /** Validated model-owned fit evidence; course facts and actions still require marketplace hydration. */
+    courseAdvisor?: CourseAdvisorMetadata
 }
 
 /** Params for {@link import("../content-ai.gateway").ContentAiGateway.emitChunk}. */

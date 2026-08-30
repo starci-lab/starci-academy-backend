@@ -1,9 +1,15 @@
+import type {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+
 /** Params for {@link import("../my-flashcard-review-stats.service").MyFlashcardReviewStatsService.compute}. */
 export interface ComputeMyFlashcardReviewStatsParams {
     /** Viewer whose review stats are being aggregated. */
     userId: string
     /** Course to scope the aggregation to (resolves the same enrollment `startFlashcardReviewSession` draws against). */
     courseId: string
+    /** Locale used to resolve projected deck/card snapshots at read time. */
+    locale: Locale
 }
 
 /** One tag's full review-retention breakdown, worst-first. */

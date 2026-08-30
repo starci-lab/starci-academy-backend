@@ -42,7 +42,7 @@ interface AiInvokeMockParams {
   signal?: AbortSignal;
 }
 
-const createHarness = () => {
+const createHarness = (courseAdvisorService?: Record<string, jest.Mock>) => {
     const contentAiService = {
         resolveUserIdByKeycloakId: jest.fn().mockResolvedValue("user-1"),
         acquireTurn: jest.fn().mockResolvedValue({
@@ -84,6 +84,7 @@ const createHarness = () => {
     {
         log: jest.fn(),
     } as never,
+    courseAdvisorService as never,
     )
     return {
         gateway,
@@ -91,6 +92,7 @@ const createHarness = () => {
         aiInvokeService,
         aiEntitlementService,
         wsResponseService,
+        courseAdvisorService,
     }
 }
 
@@ -139,6 +141,80 @@ const TURN_PARAMS = {
 
 describe("ContentAiGateway durable streaming policy",
     () => {
+        it("persists the hidden advisor envelope but emits only validated fit metadata",
+            async () => {
+                const rawAnswer = "Helpful answer\n<!--starci-course-advisor:{}-->"
+                const courseAdvisorService = {
+                    prepareMessages: jest.fn().mockResolvedValue({
+                        messages: [new HumanMessage("advisor question")],
+                        candidateDisplayIds: ["fullstack-mastery"],
+                    }),
+                    parseResponse: jest.fn().mockReturnValue({
+                        answer: "Helpful answer",
+                        persistedAnswer: rawAnswer,
+                        metadata: {
+                            intent: "recommend",
+                            recommendations: [
+                                {
+                                    courseDisplayId: "fullstack-mastery",
+                                    reason: "Matches the goal",
+                                    confidence: "high",
+                                },
+                            ],
+                        },
+                    }),
+                }
+                const harness = createHarness(courseAdvisorService)
+                harness.aiInvokeService.run.mockResolvedValue({
+                    text: rawAnswer,
+                    model: "served-model",
+                    provider: ModelProvider.Local,
+                    cost: 1,
+                    promptTokens: 10,
+                    completionTokens: 2,
+                    attempts: 1,
+                })
+
+                await harness.gateway.handleAskContentAi(CLIENT as never,
+                    {
+                        ...PAYLOAD,
+                        data: {
+                            ...PAYLOAD.data,
+                            experience: "course_advisor",
+                        },
+                    } as never)
+
+                expect(courseAdvisorService.prepareMessages).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        question: "question",
+                        courseId: "course-1",
+                    }),
+                )
+                expect(harness.contentAiService.completeTurn).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        answer: rawAnswer,
+                    }),
+                )
+                expect(harness.wsResponseService.success).toHaveBeenNthCalledWith(1,
+                    expect.objectContaining({
+                        data: expect.objectContaining({
+                            delta: "Helpful answer",
+                            done: false,
+                        }),
+                    }),
+                )
+                expect(harness.wsResponseService.success).toHaveBeenNthCalledWith(2,
+                    expect.objectContaining({
+                        data: expect.objectContaining({
+                            done: true,
+                            courseAdvisor: expect.objectContaining({
+                                intent: "recommend",
+                            }),
+                        }),
+                    }),
+                )
+            })
+
         it("persists the charging barrier and completed transcript before exposing buffered deltas",
             async () => {
                 const harness = createHarness()

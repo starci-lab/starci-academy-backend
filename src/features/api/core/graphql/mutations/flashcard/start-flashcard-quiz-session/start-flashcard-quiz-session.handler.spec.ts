@@ -7,6 +7,9 @@ import {
 import {
     ClozeParserService
 } from "@modules/bussiness/flashcard/cloze/cloze-parser.service"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 describe("StartFlashcardQuizSessionHandler",
     () => {
@@ -51,6 +54,7 @@ describe("StartFlashcardQuizSessionHandler",
                         requestedItemCount: 1,
                         startRequestId: "00000000-0000-4000-8000-000000000011",
                     },
+                    locale: Locale.Vi,
                     user: {
                         id: "user-1"
                     } as never,
@@ -61,5 +65,9 @@ describe("StartFlashcardQuizSessionHandler",
                 })
                 expect((result.items as Array<Record<string, unknown>>)[0]).not.toHaveProperty("answerKey")
                 expect((persisted!.quizItems as Array<Record<string, unknown>>)[0]).toHaveProperty("answerKey")
+                expect(manager.query).toHaveBeenCalledWith(
+                    expect.stringContaining("flashcard_card_translations"),
+                    expect.arrayContaining(["vi"]),
+                )
             })
     })

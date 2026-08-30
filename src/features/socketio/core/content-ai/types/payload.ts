@@ -40,7 +40,7 @@ export type AskContentAiSocketIoPayload = SocketIoPayload<{
   /** Course the question is grounded on when no lesson/task/foundation is open (course scope, enrolled-only). */
   courseId?: string | null;
   /** Explicit Learn owner; omitted for legacy content-AI calls. */
-  experience?: "learn_companion" | null;
+  experience?: "learn_companion" | "course_advisor" | null;
   /** Learner intent for the selected/current material. */
   operation?: LearnAiOperation | null;
   /** Current Learn page; context only, never conversation ownership. */

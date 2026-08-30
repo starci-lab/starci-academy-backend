@@ -2,6 +2,9 @@ import {
     createHash 
 } from "node:crypto"
 import {
+    Optional,
+} from "@nestjs/common"
+import {
     WinstonLog 
 } from "@modules/platform/winston/enums/winston-log"
 import {
@@ -40,6 +43,9 @@ import type {
 import {
     ContentAiService 
 } from "@modules/bussiness/content-ai/content-ai.service"
+import {
+    CourseAdvisorService,
+} from "@modules/bussiness/content-ai/course-advisor.service"
 import {
     AiCeilSurface 
 } from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
@@ -90,6 +96,8 @@ export class ContentAiGateway {
     private readonly aiEntitlementService: AiEntitlementService,
     private readonly wsResponseService: WsResponseService,
     private readonly winstonService: WinstonService,
+    @Optional()
+    private readonly courseAdvisorService?: CourseAdvisorService,
     ) {}
 
   /** The namespace server -- used to attach the auth middleware. */
@@ -206,18 +214,37 @@ export class ContentAiGateway {
                   challengeId,
                   quizId,
                   courseId,
-                  experience,
+                  experience: experience === "learn_companion"
+                      ? experience
+                      : null,
               })
               if (claim.outcome === "replay") {
                   if (claim.answer) {
+                      const replay = experience === "course_advisor"
+                          ? this.courseAdvisorService?.parseResponse({
+                              answer: claim.answer,
+                          })
+                          : undefined
                       this.emitChunk({
                           client,
                           data: {
                               streamId,
-                              delta: claim.answer,
+                              delta: replay?.answer ?? claim.answer,
                               done: false,
                           },
                       })
+                      if (replay?.metadata) {
+                          this.emitChunk({
+                              client,
+                              data: {
+                                  streamId,
+                                  delta: "",
+                                  done: true,
+                                  courseAdvisor: replay.metadata,
+                              },
+                          })
+                          return
+                      }
                   }
                   this.emitChunk({
                       client,
@@ -259,7 +286,7 @@ export class ContentAiGateway {
 
           // ground the question by scope (lesson body + premium gate, or task /
           // foundation RAG) -- the service dispatches on which anchor id is present
-          const { messages } = await this.contentAiService.prepareMessages({
+          const prepared = await this.contentAiService.prepareMessages({
               userId,
               contentId,
               taskId,
@@ -271,6 +298,18 @@ export class ContentAiGateway {
               history,
               locale: payload.locale,
           })
+          let messages = prepared.messages
+          let candidateDisplayIds: Array<string> | undefined
+          if (experience === "course_advisor" && this.courseAdvisorService) {
+              const advisor = await this.courseAdvisorService.prepareMessages({
+                  messages,
+                  question: groundedQuestion,
+                  courseId: groundingCourseId,
+                  locale: payload.locale,
+              })
+              messages = advisor.messages
+              candidateDisplayIds = advisor.candidateDisplayIds
+          }
 
           // Hold the winning attempt at this business boundary too. AiInvoke
           // already prevents cross-provider partial concatenation; the gateway
@@ -305,6 +344,13 @@ export class ContentAiGateway {
                   answerDeltas.push(delta)
               },
           })
+          const advisorResponse = experience === "course_advisor"
+              ? this.courseAdvisorService?.parseResponse({
+                  answer,
+                  candidateDisplayIds,
+              })
+              : undefined
+          const persistedAnswer = advisorResponse?.persistedAnswer ?? answer
 
           // Persist the provider result before crossing the entitlement seam.
           // If the process dies after this point, the durable charging state
@@ -315,7 +361,7 @@ export class ContentAiGateway {
                   sessionId,
                   streamId,
                   requestHash,
-                  answer,
+                  answer: persistedAnswer,
               })
               if (!charging) {
                   const error = "content ai turn could not enter charging"
@@ -364,7 +410,7 @@ export class ContentAiGateway {
                   requestHash,
                   contentId,
                   question,
-                  answer,
+                  answer: persistedAnswer,
               })
               if (!completed) {
                   this.emitChunk({
@@ -382,7 +428,10 @@ export class ContentAiGateway {
 
           // Only a fully served, charged turn crosses the socket boundary.
           // Preserve the provider's successful chunk boundaries when flushing.
-          for (const delta of answerDeltas) {
+          const visibleDeltas = advisorResponse === undefined
+              ? answerDeltas
+              : [advisorResponse.answer]
+          for (const delta of visibleDeltas) {
               this.emitChunk({
                   client,
                   data: {
@@ -400,6 +449,7 @@ export class ContentAiGateway {
                   streamId,
                   delta: "",
                   done: true,
+                  courseAdvisor: advisorResponse?.metadata,
               },
           })
       } catch (error) {

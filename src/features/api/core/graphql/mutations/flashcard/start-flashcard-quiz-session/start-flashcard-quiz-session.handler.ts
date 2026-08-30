@@ -68,7 +68,7 @@ export class StartFlashcardQuizSessionHandler
     ) { super() }
 
     protected override async process(command: StartFlashcardQuizSessionCommand): Promise<StartFlashcardQuizSessionData> {
-        const { request, user } = command.params
+        const { request, locale, user } = command.params
         if (!user) throw new UserNotFoundException({
         })
         const deckIds = [...new Set(request.deckIds ?? [])]
@@ -91,6 +91,7 @@ export class StartFlashcardQuizSessionHandler
             courseId: request.courseId,
             deckScope: deckIds.length ? deckIds : ["__ALL_COURSE_DECKS__"],
             requestedItemCount: request.requestedItemCount,
+            locale,
         })).digest("hex")
 
         return this.entityManager.transaction(async (manager) => {
@@ -128,15 +129,26 @@ export class StartFlashcardQuizSessionHandler
             }
 
             const rows: Array<CardRow> = await manager.query(
-                `SELECT c.id, c.question, c.answer
+                `SELECT c.id,
+                        COALESCE(question_translation.value, c.question) AS question,
+                        COALESCE(answer_translation.value, c.answer) AS answer
                    FROM flashcard_cards c
                    JOIN flashcard_decks d ON d.id = c.flashcard_deck_id
+              LEFT JOIN flashcard_card_translations question_translation
+                     ON question_translation.flashcard_card_id = c.id
+                    AND question_translation.locale = $4
+                    AND question_translation.field = 'question'
+              LEFT JOIN flashcard_card_translations answer_translation
+                     ON answer_translation.flashcard_card_id = c.id
+                    AND answer_translation.locale = $4
+                    AND answer_translation.field = 'answer'
                   WHERE d.course_id = $1
                     AND ($2::uuid[] IS NULL OR d.id = ANY($2::uuid[]))
                   ORDER BY md5(c.id::text || $3)`,
                 [request.courseId,
                     deckIds.length ? deckIds : null,
-                    request.startRequestId],
+                    request.startRequestId,
+                    locale],
             )
             const eligible = rows.map((row) => ({
                 row, parsed: this.clozeParserService.parse(row.id,

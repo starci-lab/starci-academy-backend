@@ -8,6 +8,9 @@ import {
     UseInterceptors,
 } from "@nestjs/common"
 import {
+    GraphQLLocale,
+} from "@modules/api/apollo/server/decorators/locale.decorators"
+import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
 } from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
@@ -79,12 +82,15 @@ export class StartFlashcardQuizSessionResolver {
     async execute(
         @Args("request")
             request: StartFlashcardQuizSessionRequest,
+        @GraphQLLocale()
+            locale: Locale,
         @KeycloakGraphQLUser()
             user: UserEntity,
     ) {
         return this.startFlashcardQuizSessionService.execute(
             {
                 request,
+                locale,
                 user,
             },
         )

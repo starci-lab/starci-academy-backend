@@ -1,6 +1,9 @@
 import {
     MyFlashcardReviewStatsResolver,
 } from "./my-flashcard-review-stats.resolver"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 describe("MyFlashcardReviewStatsResolver",
     () => {
@@ -26,10 +29,12 @@ describe("MyFlashcardReviewStatsResolver",
                 } as never).execute({
                     id: "user-1",
                 } as never,
+                Locale.Vi,
                 "course-1")).resolves.toEqual(computed)
                 expect(compute).toHaveBeenCalledWith({
                     userId: "user-1",
                     courseId: "course-1",
+                    locale: Locale.Vi,
                 })
             })
     })

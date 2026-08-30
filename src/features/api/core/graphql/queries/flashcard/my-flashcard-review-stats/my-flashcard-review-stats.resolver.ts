@@ -13,6 +13,9 @@ import {
     GraphQLTransformInterceptor,
 } from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 import {
+    GraphQLLocale,
+} from "@modules/api/apollo/server/decorators/locale.decorators"
+import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
@@ -72,6 +75,8 @@ export class MyFlashcardReviewStatsResolver {
     async execute(
         @KeycloakGraphQLUser()
             user: UserEntity,
+        @GraphQLLocale()
+            locale: Locale,
         @Args("courseId",
             {
                 type: () => ID,
@@ -82,6 +87,7 @@ export class MyFlashcardReviewStatsResolver {
         const result = await this.myFlashcardReviewStatsService.compute({
             userId: user.id,
             courseId,
+            locale,
         })
         return {
             leechFocus: result.leechFocus,

@@ -1,6 +1,12 @@
 import {
     Injectable,
 } from "@nestjs/common"
+import type {
+    EntityManager,
+} from "typeorm"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserFlashcardCourseStatsProjectionService,
 } from "@modules/bussiness/projections/user-flashcard-course-stats/user-flashcard-course-stats-projection.service"
@@ -28,6 +34,7 @@ export class MyFlashcardReviewStatsService {
     constructor(
         private readonly userService: UserService,
         private readonly userFlashcardCourseStatsProjectionService: UserFlashcardCourseStatsProjectionService,
+        @InjectPrimaryPostgreSQLEntityManager() private readonly entityManager: EntityManager,
     ) {}
 
     /**
@@ -43,6 +50,7 @@ export class MyFlashcardReviewStatsService {
         {
             userId,
             courseId,
+            locale,
         }: ComputeMyFlashcardReviewStatsParams,
     ): Promise<MyFlashcardReviewStatsResultData> {
         // resolve (or lazily create) the SAME trial enrollment
@@ -68,14 +76,49 @@ export class MyFlashcardReviewStatsService {
             enrollmentId: enrollment.id,
         })
 
+        const deckIds = [...new Set([
+            ...deckRetention.map((item) => item.deckId),
+            ...leechFocus.map((item) => item.deckId),
+        ])]
+        const cardIds = [...new Set(leechFocus.map((item) => item.cardId))]
+        const deckRows: Array<{ id: string; value: string }> = deckIds.length === 0 ? [] : await this.entityManager.query(
+            `SELECT flashcard_deck_id AS id, value
+               FROM flashcard_deck_translations
+              WHERE locale = $1
+                AND field = 'title'
+                AND flashcard_deck_id = ANY($2::uuid[])`,
+            [locale,
+                deckIds],
+        )
+        const cardRows: Array<{ id: string; value: string }> = cardIds.length === 0 ? [] : await this.entityManager.query(
+            `SELECT flashcard_card_id AS id, value
+               FROM flashcard_card_translations
+              WHERE locale = $1
+                AND field = 'question'
+                AND flashcard_card_id = ANY($2::uuid[])`,
+            [locale,
+                cardIds],
+        )
+        const deckTitleById = new Map(deckRows.map((row) => [row.id,
+            row.value]))
+        const cardQuestionById = new Map(cardRows.map((row) => [row.id,
+            row.value]))
+
         return {
-            leechFocus,
+            leechFocus: leechFocus.map((item) => ({
+                ...item,
+                question: cardQuestionById.get(item.cardId) ?? item.question,
+                deckTitle: deckTitleById.get(item.deckId) ?? item.deckTitle,
+            })),
             weakTags,
             matureRetention,
             youngRetention,
             reviewedTotal,
             courseRetention,
-            deckRetention,
+            deckRetention: deckRetention.map((item) => ({
+                ...item,
+                deckTitle: deckTitleById.get(item.deckId) ?? item.deckTitle,
+            })),
         }
     }
 }
