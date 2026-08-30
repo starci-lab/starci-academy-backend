@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "conversationId": "01a05038-fbec-7553-9203-512809686d33",
+  "title": "Redesign mock interview page",
+  "interval": {
+    "firstTimestamp": "2026-08-30T01:11:47.327Z",
+    "lastTimestamp": "2026-08-30T05:55:01.995Z"
+  },
+  "sourceProof": {
+    "rawBytes": 147322776,
+    "rawSha256": "sha256:5cf8f60380fa904d5db494658365b136d286dad83e85c199db264f9e1d5e3852",
+    "rawTranscriptCommitted": false
+  },
+  "activity": {
+    "turnContexts": 11,
+    "compactions": 8,
+    "taskStarts": 3,
+    "taskCompletes": 3,
+    "executionCalls": 843,
+    "agentSpawns": 11,
+    "assistantCommentary": 100,
+    "assistantFinals": 3
+  },
+  "evidence": {
+    "fileCount": 448,
+    "totalBytes": 44886303,
+    "rounds": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    "families": {
+      "baseline": 5,
+      "capture": 7,
+      "final": 285,
+      "finding": 5,
+      "probe": 3,
+      "render": 6,
+      "repair": 30,
+      "source": 3,
+      "visual": 9
+    }
+  }
+}

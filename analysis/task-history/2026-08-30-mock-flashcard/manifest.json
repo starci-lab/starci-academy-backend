@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "kind": "task-history-analysis-checkpoint",
+  "generatedAt": "2026-08-30T06:20:26.770Z",
+  "sourceHeads": {
+    "backend": "git:starci-academy-backend/main@2c84dd1e7a64b1665ff8534fecf51dda0977839c",
+    "frontend": "git:starci-academy-fe/main@4e571affa5880440df256dd7894273a06e692493",
+    "skills": "git:starci-skills/main@c3617c5d86640023b962a5fa3b11b4ab77ceb523"
+  },
+  "tasks": [
+    {
+      "id": "01a05038-fbec-7553-9203-512809686d33",
+      "title": "Redesign mock interview page",
+      "summaryPath": "analysis/task-history/2026-08-30-mock-flashcard/SUMMARY.md",
+      "metricsPath": "analysis/task-history/2026-08-30-mock-flashcard/mock-interview/metrics.json",
+      "rawBytes": 147322776,
+      "rawSha256": "sha256:5cf8f60380fa904d5db494658365b136d286dad83e85c199db264f9e1d5e3852",
+      "metricsSha256": "sha256:4ff722fa135eb805be748fb735ad65801fa3507f810cf653e5fb8dc1f8b6e70b"
+    },
+    {
+      "id": "01a04cb0-efee-77c3-80e9-9e36b2ab5a54",
+      "title": "Tiếp tục flashcard hướng 1",
+      "summaryPath": "analysis/task-history/2026-08-30-mock-flashcard/SUMMARY.md",
+      "metricsPath": "analysis/task-history/2026-08-30-mock-flashcard/flashcard/metrics.json",
+      "rawBytes": 576233067,
+      "rawSha256": "sha256:93d6b7e3c8c799d62dfa8594378af1185814740fdb7150b4295f60786a0324c4",
+      "metricsSha256": "sha256:b0466e57c4b48392798e5d4d3c2744bd33545e557a4883d8dabee94e71e0b9b2"
+    }
+  ]
+}

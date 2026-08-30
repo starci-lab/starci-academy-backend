@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "kind": "conversation-redaction-receipt",
+  "identity": {
+    "provider": "codex",
+    "conversationId": "01a04cb0-efee-77c3-80e9-9e36b2ab5a54",
+    "project": "starci-academy",
+    "role": "frontend"
+  },
+  "policyVersion": "source.provenance-v7.2.1",
+  "scannerVersion": "structural-allowlist-1.0.0",
+  "inputSha256": "sha256:93d6b7e3c8c799d62dfa8594378af1185814740fdb7150b4295f60786a0324c4",
+  "outputSha256": "sha256:b0466e57c4b48392798e5d4d3c2744bd33545e557a4883d8dabee94e71e0b9b2",
+  "prohibitedCategoriesPassed": true,
+  "structuralProof": "metrics.json contains only aggregate counters, timestamps, byte counts, evidence filename families and source hashes; provider bodies are omitted."
+}
