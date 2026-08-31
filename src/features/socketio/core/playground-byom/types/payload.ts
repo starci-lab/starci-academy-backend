@@ -68,6 +68,8 @@ export interface PlaygroundResourceReport {
  * {@link CommandOutputSocketIoPayload}.
  */
 export interface ResourcesReportSocketIoPayload {
+    /** True only for the snapshot emitted in direct response to the learner's Verify action. */
+    verificationRequested: boolean
     /** Resources currently reported by the agent. */
     resources: Array<PlaygroundResourceReport>
 }

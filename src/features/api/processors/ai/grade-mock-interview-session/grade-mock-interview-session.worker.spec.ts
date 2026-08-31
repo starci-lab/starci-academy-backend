@@ -31,6 +31,7 @@ describe("durable mock-interview grading transport",
                 }
                 const session = {
                     id: "session-1",
+                    locale: "vi",
                     promptId: "prompt-1",
                     promptTitle: "Prompt",
                     level: "middle",
@@ -67,6 +68,7 @@ gradingService as never)
                     userId: "user-1",
                     courseId: "course-1",
                     sessionId: "session-1",
+                    locale: "vi",
                 }))
             })
 
@@ -131,9 +133,14 @@ gradingService as never)
         it("leases PostgreSQL jobs before publishing pointer-only transport messages",
             async () => {
                 const entityManager = {
-                    query: jest.fn().mockResolvedValue([{
-                        id: "job-1"
-                    }]),
+                    query: jest.fn().mockResolvedValue([
+                        [
+                            {
+                                id: "job-1"
+                            },
+                        ],
+                        1,
+                    ]),
                 }
                 const queue = {
                     add: jest.fn().mockResolvedValue(undefined)

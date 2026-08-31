@@ -83,7 +83,7 @@ export class AiProviderInvokeScript {
  * adapters directly to that real shared Redis without mocking cache behavior.
  */
 export const createAiE2eRedisProviders = (): Array<Provider> => {
-    const host = process.env.REDIS_BULLMQ_HOST ?? "127.0.0.1"
+    const host = process.env.REDIS_BULLMQ_HOST ?? "localhost"
     const port = Number(process.env.REDIS_BULLMQ_PORT ?? 6379)
     const password = process.env.REDIS_BULLMQ_PASSWORD
     const credentials = password

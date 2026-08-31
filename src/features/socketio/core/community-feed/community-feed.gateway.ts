@@ -1,5 +1,6 @@
 import {
     OnModuleInit,
+    Optional,
 } from "@nestjs/common"
 import {
     ConnectedSocket,
@@ -10,6 +11,13 @@ import {
 import type {
     Namespace,
 } from "socket.io"
+import { EventEmitter2 } from "@nestjs/event-emitter"
+import { UserService } from "@modules/bussiness/user/user.service"
+import { EntityManager } from "typeorm"
+import { InjectPrimaryPostgreSQLEntityManager } from "@modules/databases/postgresql/primary/primary.decorators"
+import { CommunityPostEntity } from "@modules/databases/postgresql/primary/entities/community-post.entity"
+import { CommunityScope } from "@modules/databases/postgresql/primary/enums/community-scope"
+import { COURSE_COMMUNITY_CHANGED_EVENT } from "@modules/bussiness/community/community-outbox-publisher.service"
 import {
     CommunityFeedWebSocketGateway,
 } from "@modules/platform/socketio/decorators/gateway"
@@ -64,6 +72,9 @@ export class CommunityFeedGateway implements OnModuleInit {
         private readonly communityFeedRoomService: CommunityFeedRoomService,
         private readonly wsResponseService: WsResponseService,
         private readonly eventEmitterService: EventEmitterService,
+        @Optional() private readonly rawEvents?: EventEmitter2,
+        @Optional() private readonly userService?: UserService,
+        @Optional() @InjectPrimaryPostgreSQLEntityManager() private readonly manager?: EntityManager,
     ) {}
 
     /** The namespace server instance used to emit to rooms. */
@@ -79,7 +90,10 @@ export class CommunityFeedGateway implements OnModuleInit {
     handleSubscribeCommunityFeed(
         @ConnectedSocket() client: TypedSocket,
         @MessageBody() payload: SubscribeCommunityFeedSocketIoPayload,
-    ): void {
+    ): Promise<void> | void {
+        if (payload.data.courseId) {
+            return this.subscribeCourse(client, payload.data.courseId, payload.data.postId ?? null)
+        }
         // a post-detail viewer wants this post's comment/reaction stream
         if (payload.data.postId) {
             client.join(this.communityFeedRoomService.postRoom(payload.data.postId))
@@ -98,6 +112,7 @@ export class CommunityFeedGateway implements OnModuleInit {
      * Wires local event listeners that forward community changes to their rooms.
      */
     onModuleInit(): void {
+        this.rawEvents?.on(COURSE_COMMUNITY_CHANGED_EVENT, (payload: { courseId: string; postId: string; commentId?: string | null }) => void this.emitCourseChange(payload))
         // post create/update/delete -> push to the channel room + the global feed room
         this.eventEmitterService.on({
             event: EventName.CommunityPostCreated,
@@ -173,6 +188,31 @@ export class CommunityFeedGateway implements OnModuleInit {
                 })
             },
         })
+    }
+
+    private async subscribeCourse(client: TypedSocket, courseId: string, postId: string | null): Promise<void> {
+        if (!client.data.userId || !this.userService || !await this.userService.checkEnrollment(client.data.userId, courseId)) return
+        if (postId) {
+            const exists = await this.manager?.count(CommunityPostEntity, { where: { id: postId, scope: CommunityScope.Course, course: { id: courseId }, isDeleted: false } })
+            if (!exists) return
+            await client.join(this.communityFeedRoomService.coursePostRoom(courseId, postId))
+            return
+        }
+        await client.join(this.communityFeedRoomService.courseRoom(courseId))
+    }
+
+    private async emitCourseChange(payload: { courseId: string; postId: string; commentId?: string | null }): Promise<void> {
+        if (!this.userService) return
+        const courseRoom = this.communityFeedRoomService.courseRoom(payload.courseId)
+        const postRoom = this.communityFeedRoomService.coursePostRoom(payload.courseId, payload.postId)
+        const sockets = await this.server.fetchSockets()
+        await Promise.all(sockets.filter((socket) => socket.rooms.has(courseRoom) || socket.rooms.has(postRoom)).map(async (socket) => {
+            if (!socket.data.userId || !await this.userService?.checkEnrollment(socket.data.userId, payload.courseId)) {
+                await socket.leave(courseRoom); await socket.leave(postRoom)
+            }
+        }))
+        this.wsResponseService.successToRoom({ message: "Course community changed", data: payload, room: courseRoom, namespace: this.server, eventName: SubscriptionEvent.CommunityPostUpdated })
+        this.wsResponseService.successToRoom({ message: "Course community post changed", data: payload, room: postRoom, namespace: this.server, eventName: SubscriptionEvent.CommunityPostUpdated })
     }
 
     /**

@@ -7,6 +7,8 @@ import type {
 
 /** Data a client sends to join community feed rooms. */
 export interface SubscribeCommunityFeedData {
+    /** Internal course id for the authenticated Course Community room. */
+    courseId?: string | null
     /** Channel to follow for new posts; omit to follow the unfiltered "all" feed. */
     channel?: CommunityChannel | null
     /** Post to follow for comment/reaction changes; omit when only watching the feed. */

@@ -280,6 +280,15 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
                 connected: Boolean(session?.connected),
             },
         )
+        if (session) {
+            client.emit(
+                SubscriptionEvent.PlaygroundSessionProgress,
+                {
+                    currentStepIndex: session.currentStepIndex,
+                    passedStepIndexes: session.passedStepIndexes,
+                },
+            )
+        }
     }
 
     /**
@@ -501,9 +510,10 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
     }
 
     /**
-     * Relays the agent's self-reported resource snapshot to the browser room,
-     * then runs the "lite" verify against the session's current step -- on a
-     * match, marks the step passed and emits `step:verified`.
+     * Relays the agent's self-reported resource snapshot to the browser room.
+     * Only a snapshot explicitly requested by the learner's Verify action may
+     * run the "lite" verifier; periodic/pairing/post-command snapshots are
+     * observability only and must never advance progress.
      *
      * @param payload - Carries the `resources` list (no `sessionId` -- derived from `socket.data.sessionId`).
      * @param client - The agent's socket (excluded from the relay; carries `data.sessionId`).
@@ -525,6 +535,9 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
                 resources: payload.resources,
             },
         )
+        if (!payload.verificationRequested) {
+            return
+        }
         try {
             await this.verifyCurrentStep({
                 sessionId,

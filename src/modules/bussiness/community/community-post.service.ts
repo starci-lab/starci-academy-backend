@@ -23,6 +23,7 @@ import {
 import {
     envConfig,
 } from "@modules/platform/env/config"
+import { CommunityScope } from "@modules/databases/postgresql/primary/enums/community-scope"
 import {
     CommunityPostQuotaService,
 } from "./community-post-quota.service"
@@ -62,6 +63,7 @@ export class CommunityPostService {
             {
                 where: {
                     id: postId,
+                    scope: CommunityScope.Global,
                 },
                 relations: {
                     author: true,
@@ -95,6 +97,8 @@ export class CommunityPostService {
             {
                 body,
                 channel,
+                scope: CommunityScope.Global,
+                course: null,
                 isPinned: false,
                 isDeleted: false,
                 editedAt: null,
@@ -235,6 +239,7 @@ export class CommunityPostService {
         ] = await this.entityManager.findAndCount(CommunityPostEntity,
             {
                 where: {
+                    scope: CommunityScope.Global,
                     // omit the channel filter entirely when listing across channels
                     ...(channel
                         ? {

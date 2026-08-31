@@ -40,4 +40,12 @@ export class CommunityFeedRoomService {
         // namespace the post id so it never collides with channel/all rooms
         return `community_feed:post:${postId}`
     }
+
+    courseRoom(courseId: string): string {
+        return `community_feed:course:${courseId}`
+    }
+
+    coursePostRoom(courseId: string, postId: string): string {
+        return `community_feed:course:${courseId}:post:${postId}`
+    }
 }

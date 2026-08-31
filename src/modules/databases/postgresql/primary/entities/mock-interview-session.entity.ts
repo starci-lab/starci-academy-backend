@@ -12,6 +12,9 @@ import {
 import {
     EnrollmentEntity,
 } from "./enrollment.entity"
+import {
+    Locale,
+} from "../enums/locale"
 
 /**
  * Max wall-clock duration ONE mock-interview session's live interview loop
@@ -204,6 +207,14 @@ export class MockInterviewSessionEntity extends UuidAbstractEntity {
         nullable: true,
     })
         lang: string | null
+
+    /** UI locale captured when the session starts and reused by durable grading. */
+    @Column({
+        name: "locale",
+        type: "varchar",
+        default: Locale.En,
+    })
+        locale: Locale
 
     /** Difficulty tier the drawn prompt belongs to ("easy" | "medium" | "hard"). */
     @Column({

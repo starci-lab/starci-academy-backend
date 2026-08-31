@@ -14,6 +14,7 @@ import {
 import {
     NotificationType,
 } from "@modules/databases/postgresql/primary/enums/notification-type"
+import { CommunityScope } from "@modules/databases/postgresql/primary/enums/community-scope"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
@@ -72,9 +73,13 @@ export class CommunityCommentService {
             {
                 where: {
                     id: commentId,
+                    post: {
+                        scope: CommunityScope.Global,
+                    },
                 },
                 relations: {
                     user: true,
+                    post: true,
                 },
             })
         // a missing row is a hard not-found for every caller
@@ -102,6 +107,7 @@ export class CommunityCommentService {
             {
                 where: {
                     id: postId,
+                    scope: CommunityScope.Global,
                 },
                 // authorId is a @RelationId (virtual, not selectable) -- load the
                 // author relation and read author.id instead
@@ -257,6 +263,7 @@ export class CommunityCommentService {
                 where: {
                     post: {
                         id: postId,
+                        scope: CommunityScope.Global,
                     },
                     parentComment: parentCommentId ? {
                         id: parentCommentId,

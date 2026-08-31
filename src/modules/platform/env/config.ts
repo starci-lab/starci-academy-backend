@@ -1725,7 +1725,7 @@ export const envConfig = () => ({
     keycloak: {
         url: parseEnvString({
             key: "KEYCLOAK_URL",
-            defaultValue: "http://localhost:8089",
+            defaultValue: "http://localhost:8080",
         }),
         realm: parseEnvString({
             key: "KEYCLOAK_REALM",

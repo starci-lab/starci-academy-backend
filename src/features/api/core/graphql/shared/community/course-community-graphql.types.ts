@@ -1,0 +1,18 @@
+import { Field, ID, InputType, Int, ObjectType } from "@nestjs/graphql"
+import { UserEntity } from "@modules/databases/postgresql/primary/entities/user.entity"
+import { ReactionSummaryObject } from "../discussion/object-types/reaction-summary.object"
+import { GraphQLTypeReactionType, ReactionType } from "@modules/databases/postgresql/primary/enums/reaction-type"
+
+@InputType() export class CourseCommunityFeedRequest { @Field(() => String) courseDisplayId: string; @Field(() => String, { nullable: true }) cursor?: string; @Field(() => Int, { defaultValue: 20 }) limit = 20; @Field(() => Boolean, { defaultValue: false }) mine = false; @Field(() => String, { nullable: true }) query?: string }
+@InputType() export class CourseCommunityPostRequest { @Field(() => String) courseDisplayId: string; @Field(() => String) postId: string }
+@InputType() export class CourseCommunityCommentsRequest extends CourseCommunityPostRequest { @Field(() => String, { nullable: true }) parentCommentId?: string; @Field(() => String, { nullable: true }) cursor?: string; @Field(() => Int, { defaultValue: 20 }) limit = 20 }
+@InputType() export class CreateCourseCommunityPostRequest { @Field(() => String) courseDisplayId: string; @Field(() => String) body: string; @Field(() => String) idempotencyKey: string }
+@InputType() export class MutateCourseCommunityPostRequest extends CourseCommunityPostRequest { @Field(() => String, { nullable: true }) body?: string }
+@InputType() export class CreateCourseCommunityCommentRequest extends CourseCommunityPostRequest { @Field(() => String, { nullable: true }) parentCommentId?: string; @Field(() => String) body: string; @Field(() => String) idempotencyKey: string }
+@InputType() export class MutateCourseCommunityCommentRequest { @Field(() => String) courseDisplayId: string; @Field(() => String) commentId: string; @Field(() => String, { nullable: true }) body?: string }
+@InputType() export class ReactCourseCommunityPostRequest extends CourseCommunityPostRequest { @Field(() => GraphQLTypeReactionType, { nullable: true }) type?: ReactionType | null }
+@InputType() export class ReactCourseCommunityCommentRequest { @Field(() => String) courseDisplayId: string; @Field(() => String) commentId: string; @Field(() => GraphQLTypeReactionType, { nullable: true }) type?: ReactionType | null }
+@ObjectType() export class CourseCommunityPostNode { @Field(() => ID) id: string; @Field(() => String) body: string; @Field(() => Boolean) isDeleted: boolean; @Field(() => Date, { nullable: true }) editedAt: Date | null; @Field(() => Date) createdAt: Date; @Field(() => UserEntity) author: UserEntity; @Field(() => Int) commentCount: number; @Field(() => ReactionSummaryObject) reactions: ReactionSummaryObject; @Field(() => Boolean) isMine: boolean }
+@ObjectType() export class CourseCommunityCommentNode { @Field(() => ID) id: string; @Field(() => String) body: string; @Field(() => Boolean) isDeleted: boolean; @Field(() => Date, { nullable: true }) editedAt: Date | null; @Field(() => Date) createdAt: Date; @Field(() => ID, { nullable: true }) parentCommentId: string | null; @Field(() => UserEntity) author: UserEntity; @Field(() => Int) replyCount: number; @Field(() => ReactionSummaryObject) reactions: ReactionSummaryObject; @Field(() => Boolean) isMine: boolean }
+@ObjectType() export class CourseCommunityFeedPage { @Field(() => [CourseCommunityPostNode]) posts: Array<CourseCommunityPostNode>; @Field(() => String, { nullable: true }) nextCursor: string | null }
+@ObjectType() export class CourseCommunityCommentsPage { @Field(() => [CourseCommunityCommentNode]) comments: Array<CourseCommunityCommentNode>; @Field(() => String, { nullable: true }) nextCursor: string | null }

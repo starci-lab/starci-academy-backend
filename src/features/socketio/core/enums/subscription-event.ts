@@ -61,6 +61,8 @@ export enum SubscriptionEvent {
   PlaygroundAgentPong = "agent:pong",
   /** Current playground step passed -> browser unlocks the next step / shows pass. */
   PlaygroundStepVerified = "step:verified",
+  /** Durable session progress snapshot -> a subscribing browser restores server-owned completion. */
+  PlaygroundSessionProgress = "session:progress",
   // server -> browser: the learner's local CLI agent paired / dropped, so the
   // UI can gate steps behind a real connection instead of guessing.
   /** Agent paired (or already connected on subscribe) -> browser lifts the install / connect gate. */

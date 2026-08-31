@@ -16,6 +16,9 @@ import {
 import {
     CommunityPostQuotaService,
 } from "./community-post-quota.service"
+import { CourseCommunityService } from "./course-community.service"
+import { CourseCommunityCursorService } from "./course-community-cursor.service"
+import { CommunityOutboxPublisherService } from "./community-outbox-publisher.service"
 
 @Module({
     providers: [
@@ -23,12 +26,17 @@ import {
         CommunityCommentService,
         CommunityReactionService,
         CommunityPostQuotaService,
+        CourseCommunityService,
+        CourseCommunityCursorService,
+        CommunityOutboxPublisherService,
     ],
     exports: [
         CommunityPostService,
         CommunityCommentService,
         CommunityReactionService,
         CommunityPostQuotaService,
+        CourseCommunityService,
+        CommunityOutboxPublisherService,
     ],
 })
 /**

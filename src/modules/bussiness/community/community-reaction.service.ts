@@ -16,6 +16,7 @@ import {
 import {
     CommunityPostEntity,
 } from "@modules/databases/postgresql/primary/entities/community-post.entity"
+import { CommunityScope } from "@modules/databases/postgresql/primary/enums/community-scope"
 import {
     ReactionType,
 } from "@modules/databases/postgresql/primary/enums/reaction-type"
@@ -77,6 +78,7 @@ export class CommunityReactionService {
             {
                 where: {
                     id: postId,
+                    scope: CommunityScope.Global,
                 },
             })
         if (postExists === 0) {
@@ -147,6 +149,9 @@ export class CommunityReactionService {
             {
                 where: {
                     id: commentId,
+                    post: {
+                        scope: CommunityScope.Global,
+                    },
                 },
             })
         if (!comment) {

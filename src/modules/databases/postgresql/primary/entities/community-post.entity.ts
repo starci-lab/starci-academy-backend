@@ -5,12 +5,15 @@ import {
 } from "@nestjs/graphql"
 import {
     Column,
+    Check,
     Entity,
     Index,
     JoinColumn,
     ManyToOne,
     RelationId,
 } from "typeorm"
+import { CourseEntity } from "./course.entity"
+import { CommunityScope } from "../enums/community-scope"
 import {
     UuidAbstractEntity,
 } from "./abstract"
@@ -33,6 +36,44 @@ import {
         "createdAt",
     ],
 )
+@Index(
+    "idx_course_community_feed",
+    (post: CommunityPostEntity) => ({
+        course: 1,
+        createdAt: -1,
+        id: -1,
+    }),
+    {
+        where: `"scope" = 'COURSE' AND "is_deleted" = false`,
+    },
+)
+@Index(
+    "idx_course_community_mine",
+    (post: CommunityPostEntity) => ({
+        course: 1,
+        author: 1,
+        createdAt: -1,
+        id: -1,
+    }),
+    {
+        where: `"scope" = 'COURSE' AND "is_deleted" = false`,
+    },
+)
+@Index("idx_course_community_search", {
+    synchronize: false,
+})
+@Check(
+    "chk_community_posts_scope_course",
+    `("scope" = 'GLOBAL' AND "course_id" IS NULL) OR ("scope" = 'COURSE' AND "course_id" IS NOT NULL)`,
+)
+@Check(
+    "chk_course_community_not_pinned",
+    `"scope" <> 'COURSE' OR "is_pinned" = false`,
+)
+@Check(
+    "chk_course_community_general_channel",
+    `"scope" <> 'COURSE' OR "channel" = 'general'`,
+)
 /**
  * A user-authored community post (the Facebook/Twitter-style feed item). Unlike
  * {@link ActivityEntity} (a system-generated activity ledger), a post is free-text
@@ -42,6 +83,27 @@ import {
  * deleted post keeps its comment thread shape.
  */
 export class CommunityPostEntity extends UuidAbstractEntity {
+    @Column({
+        name: "scope",
+        type: "enum",
+        enum: CommunityScope,
+        enumName: "community_scope",
+        default: CommunityScope.Global,
+    })
+        scope: CommunityScope
+
+    @ManyToOne(() => CourseEntity, {
+        nullable: true,
+        onDelete: "RESTRICT",
+    })
+    @JoinColumn({
+        name: "course_id",
+        foreignKeyConstraintName: "fk_community_posts_course_id",
+    })
+        course: CourseEntity | null
+
+    @RelationId((post: CommunityPostEntity) => post.course)
+        courseId: string | null
     /**
      * Raw markdown/plain body authored by the user.
      */

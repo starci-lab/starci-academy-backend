@@ -155,6 +155,7 @@ interface ListCourseFlashcardCardsParams {
 /** Params for {@link MockInterviewSessionDrawService.listCourseInterviewQuestions}. */
 interface ListCourseInterviewQuestionsParams {
     courseId: string
+    locale: Locale
     /**
      * The candidate's selected implementation-track languages. A question authored
      * across the 4 tracks (`langs` bodies) is served in a RANDOM member of
@@ -191,6 +192,7 @@ interface BuildQnaPoolParams<Type> {
 interface PersistMockInterviewSessionParams {
     enrollment: EnrollmentEntity
     level: MockInterviewLevel
+    locale: Locale
     lang?: string | null
     mode: MockInterviewMode
     promptId: string
@@ -552,6 +554,7 @@ export class MockInterviewSessionDrawService {
         const session = await this.persistSession({
             enrollment,
             level,
+            locale,
             mode: MockInterviewMode.Design,
             promptId: drawn.id,
             promptTitle: drawn.title,
@@ -627,6 +630,7 @@ export class MockInterviewSessionDrawService {
         // interview bank authored yet (non-breaking).
         const bankCards = await this.listCourseInterviewQuestions({
             courseId,
+            locale,
             langs: resolvedLangs,
         })
         const useBank = bankCards.length > 0
@@ -724,6 +728,7 @@ export class MockInterviewSessionDrawService {
         const session = await this.persistSession({
             enrollment,
             level,
+            locale,
             // representative session language (per-question served languages now live
             // on each seedQuestion's own givenCodes[0].lang, snapshotted below) -- kept
             // for back-compat with the session row's `lang` column + older readers
@@ -1048,13 +1053,20 @@ export class MockInterviewSessionDrawService {
                     family: "technical",
                 },
                 relations: {
-                    langs: true,
+                    translations: true,
+                    langs: {
+                        translations: true,
+                    },
                 },
             })
         // flatMap so a track-authored question with NO selected-language overlap can
         // return [] (dropped from the pool) -- the candidate is never handed a code
         // question in a language they didn't pick; the draw simply fills from others.
         return questions.flatMap((question) => {
+            const translatedQuestionField = (field: string, fallback: string | null) => {
+                if (question.defaultLocale === params.locale) return fallback
+                return question.translations?.find((translation) => translation.locale === params.locale && translation.field === field)?.value ?? fallback
+            }
             // fold the prose prompt + any GIVEN diagram into the delivered `question`
             // (the diagram is CONTEXT the candidate reasons over -- it stays inline in
             // the chat bubble), but keep the GIVEN CODE SEPARATE so the FE can seed it
@@ -1082,9 +1094,15 @@ export class MockInterviewSessionDrawService {
                     return []
                 }
                 const chosenBody = this.pickRandomFrom(eligible)
+                const translatedBodyField = (field: string, fallback: string | null) => {
+                    if (chosenBody.defaultLocale === params.locale) return fallback
+                    return chosenBody.translations?.find((translation) => translation.locale === params.locale && translation.field === field)?.value ?? fallback
+                }
                 // body prompt (per-language) wins; root prompt is the agnostic fallback
                 // (empty for a full-4-body code question)
-                const promptText = (chosenBody.prompt ?? question.prompt) ?? ""
+                const promptText = translatedBodyField("prompt",
+                    chosenBody.prompt) ?? translatedQuestionField("prompt",
+                    question.prompt) ?? ""
                 const parts = [promptText]
                 if (question.diagram) {
                     parts.push(question.diagram)
@@ -1098,14 +1116,17 @@ export class MockInterviewSessionDrawService {
                     // deliver ONLY the randomly-chosen language's given code -- snapshotted
                     // per-question so grade time re-resolves THIS body (not session.lang)
                     givenCodes: [{
-                        lang: chosenBody.lang, code: chosenBody.givenCode
+                        lang: chosenBody.lang,
+                        code: translatedBodyField("givenCode",
+                            chosenBody.givenCode) ?? chosenBody.givenCode,
                     }],
                 }]
             }
             // NON-track question -- a legacy/agnostic single `givenCode` (e.g. a
             // `dockerfile` debug question, whose language is fixed by the question,
             // not chosen by the candidate) or a no-code question. Always eligible.
-            const promptText = question.prompt ?? ""
+            const promptText = translatedQuestionField("prompt",
+                question.prompt) ?? ""
             const parts = [promptText]
             if (question.diagram) {
                 parts.push(question.diagram)
@@ -1381,6 +1402,7 @@ export class MockInterviewSessionDrawService {
         const {
             enrollment,
             level,
+            locale,
             mode,
             promptId,
             promptTitle,
@@ -1439,6 +1461,7 @@ export class MockInterviewSessionDrawService {
                     promptTitle,
                     level,
                     lang: params.lang ?? null,
+                    locale,
                     mode,
                     difficulty,
                     source,

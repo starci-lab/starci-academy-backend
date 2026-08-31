@@ -7,7 +7,12 @@
     "kind": "sibling",
     "directory": "starci-academy-fe",
     "gitRepository": "https://github.com/starci-lab/starci-academy-fe.git",
-    "branch": "main"
+    "branch": "main",
+    "gitPolicy": {
+      "mutationBranch": "main",
+      "worktreeBranches": "forbidden",
+      "incomingBranchRefs": "merge-into-mutation-branch"
+    }
   },
   "context": {
     "instructions": [],

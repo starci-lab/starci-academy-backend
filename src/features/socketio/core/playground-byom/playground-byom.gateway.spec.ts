@@ -564,6 +564,11 @@ describe("PlaygroundByomGateway",
                         entityManager.findOne.mockResolvedValueOnce({
                             id: "session-1",
                             connected: true,
+                            currentStepIndex: 2,
+                            passedStepIndexes: [
+                                0,
+                                1,
+                            ],
                             user: {
                                 keycloakId: "kc-1",
                             },
@@ -605,6 +610,16 @@ describe("PlaygroundByomGateway",
                             SubscriptionEvent.PlaygroundAgentConnected,
                             {
                                 connected: true,
+                            },
+                        )
+                        expect(client.emit).toHaveBeenCalledWith(
+                            SubscriptionEvent.PlaygroundSessionProgress,
+                            {
+                                currentStepIndex: 2,
+                                passedStepIndexes: [
+                                    0,
+                                    1,
+                                ],
                             },
                         )
                     })
@@ -1330,6 +1345,41 @@ describe("PlaygroundByomGateway",
                     },
                 })
 
+                it("relays an observational snapshot without advancing progress",
+                    async () => {
+                        const client = agent()
+
+                        await gateway.handleResourcesReport(
+                            {
+                                verificationRequested: false,
+                                resources: [
+                                    {
+                                        kind: "Pod",
+                                        name: "web-7d9f",
+                                        status: "Running",
+                                    },
+                                ],
+                            },
+                            asSocket(client),
+                        )
+
+                        expect(client.roomEmit).toHaveBeenCalledWith(
+                            SubscriptionEvent.PlaygroundResourcesReport,
+                            {
+                                resources: [
+                                    {
+                                        kind: "Pod",
+                                        name: "web-7d9f",
+                                        status: "Running",
+                                    },
+                                ],
+                            },
+                        )
+                        expect(entityManager.findOne).not.toHaveBeenCalled()
+                        expect(entityManager.save).not.toHaveBeenCalled()
+                        expect(wsResponseService.successToRoom).not.toHaveBeenCalled()
+                    })
+
                 it("relays the snapshot, passes the matching step and advances the pointer",
                     async () => {
                         const session = {
@@ -1351,6 +1401,7 @@ describe("PlaygroundByomGateway",
 
                         await gateway.handleResourcesReport(
                             {
+                                verificationRequested: true,
                                 resources: [
                                     {
                                         kind: "Pod",
@@ -1419,6 +1470,7 @@ describe("PlaygroundByomGateway",
 
                         await gateway.handleResourcesReport(
                             {
+                                verificationRequested: true,
                                 resources: [
                                     {
                                         kind: "Deployment",
@@ -1458,6 +1510,7 @@ describe("PlaygroundByomGateway",
 
                         await gateway.handleResourcesReport(
                             {
+                                verificationRequested: true,
                                 resources: [
                                     {
                                         // wrong kind
@@ -1512,6 +1565,7 @@ describe("PlaygroundByomGateway",
 
                         await gateway.handleResourcesReport(
                             {
+                                verificationRequested: true,
                                 resources: [
                                     {
                                         kind: "Pod",
@@ -1539,6 +1593,7 @@ describe("PlaygroundByomGateway",
 
                         await gateway.handleResourcesReport(
                             {
+                                verificationRequested: true,
                                 resources: [
                                 ],
                             },
@@ -1564,6 +1619,7 @@ describe("PlaygroundByomGateway",
 
                         await gateway.handleResourcesReport(
                             {
+                                verificationRequested: true,
                                 resources: [
                                     {
                                         kind: "Pod",
@@ -1587,6 +1643,7 @@ describe("PlaygroundByomGateway",
 
                         await gateway.handleResourcesReport(
                             {
+                                verificationRequested: true,
                                 resources: [
                                 ],
                             },
@@ -1604,6 +1661,7 @@ describe("PlaygroundByomGateway",
 
                         await gateway.handleResourcesReport(
                             {
+                                verificationRequested: true,
                                 resources: [
                                     {
                                         kind: "Pod",
@@ -1636,6 +1694,7 @@ describe("PlaygroundByomGateway",
 
                         await gateway.handleResourcesReport(
                             {
+                                verificationRequested: true,
                                 resources: [
                                 ],
                             },
