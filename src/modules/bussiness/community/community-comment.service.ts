@@ -14,7 +14,9 @@ import {
 import {
     NotificationType,
 } from "@modules/databases/postgresql/primary/enums/notification-type"
-import { CommunityScope } from "@modules/databases/postgresql/primary/enums/community-scope"
+import {
+    CommunityScope 
+} from "@modules/databases/postgresql/primary/enums/community-scope"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"

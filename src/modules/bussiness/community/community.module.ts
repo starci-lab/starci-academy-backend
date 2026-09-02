@@ -16,9 +16,15 @@ import {
 import {
     CommunityPostQuotaService,
 } from "./community-post-quota.service"
-import { CourseCommunityService } from "./course-community.service"
-import { CourseCommunityCursorService } from "./course-community-cursor.service"
-import { CommunityOutboxPublisherService } from "./community-outbox-publisher.service"
+import {
+    CourseCommunityService 
+} from "./course-community.service"
+import {
+    CourseCommunityCursorService 
+} from "./course-community-cursor.service"
+import {
+    CommunityOutboxPublisherService 
+} from "./community-outbox-publisher.service"
 
 @Module({
     providers: [

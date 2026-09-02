@@ -23,7 +23,9 @@ import {
 import {
     envConfig,
 } from "@modules/platform/env/config"
-import { CommunityScope } from "@modules/databases/postgresql/primary/enums/community-scope"
+import {
+    CommunityScope 
+} from "@modules/databases/postgresql/primary/enums/community-scope"
 import {
     CommunityPostQuotaService,
 } from "./community-post-quota.service"

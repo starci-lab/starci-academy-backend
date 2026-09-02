@@ -32,35 +32,41 @@ describe("CommunityPostEntity contract",
             })
     })
 
-describe("CommunityPostEntity course index retention", () => {
-    it("binds migration-owned course indexes so synchronize never treats them as old", () => {
-        const indices = getMetadataArgsStorage().indices.filter((metadata) => metadata.target === CommunityPostEntity)
-        const byName = Object.fromEntries(indices.map((index) => [index.name, index]))
-        expect(byName.idx_course_community_feed).toMatchObject({
-            where: `"scope" = 'COURSE' AND "is_deleted" = false`,
-        })
-        expect(byName.idx_course_community_mine).toMatchObject({
-            where: `"scope" = 'COURSE' AND "is_deleted" = false`,
-        })
-        expect(byName.idx_course_community_search).toMatchObject({
-            synchronize: false,
-        })
-        expect(Object.keys(byName)).toEqual(expect.arrayContaining([
-            "idx_course_community_feed",
-            "idx_course_community_mine",
-            "idx_course_community_search",
-        ]))
+describe("CommunityPostEntity course index retention",
+    () => {
+        it("binds migration-owned course indexes so synchronize never treats them as old",
+            () => {
+                const indices = getMetadataArgsStorage().indices.filter((metadata) => metadata.target === CommunityPostEntity)
+                const byName = Object.fromEntries(indices.map((index) => [index.name,
+                    index]))
+                expect(byName.idx_course_community_feed).toMatchObject({
+                    where: "\"scope\" = 'COURSE' AND \"is_deleted\" = false",
+                })
+                expect(byName.idx_course_community_mine).toMatchObject({
+                    where: "\"scope\" = 'COURSE' AND \"is_deleted\" = false",
+                })
+                expect(byName.idx_course_community_search).toMatchObject({
+                    synchronize: false,
+                })
+                expect(Object.keys(byName)).toEqual(expect.arrayContaining([
+                    "idx_course_community_feed",
+                    "idx_course_community_mine",
+                    "idx_course_community_search",
+                ]))
+            })
     })
-})
 
-describe("CommunityPostEntity course check retention", () => {
-    it("binds migration-owned checks so synchronize retains course invariants", () => {
-        const checks = getMetadataArgsStorage().checks.filter((metadata) => metadata.target === CommunityPostEntity)
-        const byName = Object.fromEntries(checks.map((check) => [check.name, check.expression]))
-        expect(byName).toMatchObject({
-            chk_community_posts_scope_course: `("scope" = 'GLOBAL' AND "course_id" IS NULL) OR ("scope" = 'COURSE' AND "course_id" IS NOT NULL)`,
-            chk_course_community_not_pinned: `"scope" <> 'COURSE' OR "is_pinned" = false`,
-            chk_course_community_general_channel: `"scope" <> 'COURSE' OR "channel" = 'general'`,
-        })
+describe("CommunityPostEntity course check retention",
+    () => {
+        it("binds migration-owned checks so synchronize retains course invariants",
+            () => {
+                const checks = getMetadataArgsStorage().checks.filter((metadata) => metadata.target === CommunityPostEntity)
+                const byName = Object.fromEntries(checks.map((check) => [check.name,
+                    check.expression]))
+                expect(byName).toMatchObject({
+                    chk_community_posts_scope_course: "(\"scope\" = 'GLOBAL' AND \"course_id\" IS NULL) OR (\"scope\" = 'COURSE' AND \"course_id\" IS NOT NULL)",
+                    chk_course_community_not_pinned: "\"scope\" <> 'COURSE' OR \"is_pinned\" = false",
+                    chk_course_community_general_channel: "\"scope\" <> 'COURSE' OR \"channel\" = 'general'",
+                })
+            })
     })
-})

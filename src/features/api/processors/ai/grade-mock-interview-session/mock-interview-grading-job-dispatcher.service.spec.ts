@@ -9,7 +9,8 @@ describe("MockInterviewGradingJobDispatcherService",
                 const entityManager = {
                     query: jest.fn().mockResolvedValue([[{
                         id: "grading-job-1"
-                    }], 1]),
+                    }],
+                    1]),
                 }
                 const queue = {
                     add: jest.fn().mockResolvedValue(undefined),
@@ -47,7 +48,8 @@ describe("MockInterviewGradingJobDispatcherService",
                 const entityManager = {
                     query: jest.fn().mockResolvedValue([[{
                         id: "grading-job-1"
-                    }], 1]),
+                    }],
+                    1]),
                     createQueryBuilder: jest.fn().mockReturnValue({
                         update 
                     }),

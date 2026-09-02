@@ -22,8 +22,12 @@ import {
 import {
     CommunityPostCommentsService,
 } from "./community-post-comments/community-post-comments.service"
-import { CourseCommunityQueriesResolver } from "./course-community/course-community.resolver"
-import { CourseCommunityApiService } from "../../shared/community/course-community-api.service"
+import {
+    CourseCommunityQueriesResolver 
+} from "./course-community/course-community.resolver"
+import {
+    CourseCommunityApiService 
+} from "../../shared/community/course-community-api.service"
 
 @Module({
     providers: [
