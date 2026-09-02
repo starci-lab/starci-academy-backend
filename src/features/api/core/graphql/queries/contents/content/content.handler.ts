@@ -42,8 +42,8 @@ import {
     EntityManager
 } from "typeorm"
 import {
-    UserService,
-} from "@modules/bussiness/user/user.service"
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
 import {
     IoRedisInstanceKey,
 } from "@modules/lib/native/ioredis/enums/instance-key"
@@ -88,7 +88,7 @@ export class ContentHandler
         private readonly s3NameResolverService: S3NameResolverService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
-        private readonly userService: UserService,
+        private readonly effectiveLearnerAccessService: EffectiveLearnerAccessService,
         @InjectIoRedis(IoRedisInstanceKey.Cache)
         private readonly redis: Redis,
         private readonly winstonService: WinstonService,
@@ -322,7 +322,7 @@ export class ContentHandler
         if (!userId || !courseId) {
             return false
         }
-        return await this.userService.checkEnrollment(
+        return await this.effectiveLearnerAccessService.hasCourseAccess(
             userId,
             courseId,
         )

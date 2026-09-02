@@ -122,6 +122,9 @@ const createContentAiServiceHarness = (...queryResults: Array<unknown>) => {
     undefined as never,
     undefined as never,
     undefined as never,
+    {
+        hasCourseAccess: jest.fn().mockResolvedValue(true),
+    } as never,
     undefined as never,
     )
     return {

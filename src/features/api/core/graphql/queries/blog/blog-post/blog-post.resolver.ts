@@ -6,7 +6,11 @@ import {
 import {
     UseGuards,
     UseInterceptors,
+    Optional,
 } from "@nestjs/common"
+import {
+    ProSubscriptionService,
+} from "@modules/bussiness/pro-subscription/pro-subscription.service"
 import {
     WinstonLog,
 } from "@modules/platform/winston/enums/winston-log"
@@ -73,6 +77,8 @@ export class BlogPostResolver {
         private readonly entityManager: EntityManager,
         private readonly membershipService: MembershipService,
         private readonly winstonService: WinstonService,
+        @Optional()
+        private readonly proSubscriptionService?: ProSubscriptionService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -161,7 +167,10 @@ export class BlogPostResolver {
         }
         try {
             // single source of truth for membership status
-            return await this.membershipService.isActive(user.id)
+            return Boolean(
+                await this.membershipService.isActive(user.id)
+                || await this.proSubscriptionService?.isActive(user.id),
+            )
         } catch (error) {
             // fail closed: on lookup failure treat as not a member (do not leak)
             this.winstonService.log(

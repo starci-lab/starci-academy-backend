@@ -5,9 +5,6 @@ import {
     ContentEntity,
 } from "@modules/databases/postgresql/primary/entities/content.entity"
 import {
-    EnrollmentEntity,
-} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
-import {
     ModuleEntity,
 } from "@modules/databases/postgresql/primary/entities/module.entity"
 import {
@@ -44,6 +41,9 @@ import {
 import {
     ContentsResponseData,
 } from "./graphql-types/response"
+import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
 
 @QueryHandler(ContentsQuery)
 @Injectable()
@@ -58,6 +58,7 @@ export class ContentsHandler
         private readonly elasticsearch: ElasticsearchService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly effectiveLearnerAccessService: EffectiveLearnerAccessService,
     ) {
         super()
     }
@@ -186,27 +187,10 @@ export class ContentsHandler
             return false
         }
 
-        // An active enrollment in the owning course grants full access.
-        const enrollment = await this.entityManager.findOne(
-            EnrollmentEntity,
-            {
-                where: {
-                    // userId / courseId are @RelationId (virtual, not queryable) --
-                    // filter through the relations' real FK columns instead
-                    user: {
-                        id: userId,
-                    },
-                    course: {
-                        id: moduleRow.course.id,
-                    },
-                },
-                select: {
-                    id: true,
-                },
-            },
+        return this.effectiveLearnerAccessService.hasCourseAccess(
+            userId,
+            moduleRow.course.id,
         )
-
-        return Boolean(enrollment)
     }
 
     /**

@@ -18,9 +18,13 @@ describe("SandboxRepoUrlService",
         const names = {
             repo: jest.fn(() => "repo-key")
         }
+        const effectiveLearnerAccessService = {
+            hasCourseAccess: jest.fn().mockResolvedValue(true)
+        }
         const service = new SandboxRepoUrlService(manager as never,
 build as never,
-names as never)
+names as never,
+effectiveLearnerAccessService as never)
         beforeEach(() => jest.clearAllMocks())
         it("rejects missing and non-sandbox content",
             async () => {
@@ -59,5 +63,6 @@ names as never)
                 expect(names.repo).toHaveBeenCalledWith("repo",
                     "src")
                 expect(build.buildSignedGetObjectUrl).toHaveBeenCalled()
+                expect(effectiveLearnerAccessService.hasCourseAccess).not.toHaveBeenCalled()
             })
     })

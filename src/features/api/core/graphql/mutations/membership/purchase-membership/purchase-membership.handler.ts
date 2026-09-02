@@ -23,6 +23,9 @@ import {
     MembershipNotAvailableException,
 } from "@modules/platform/exceptions/errors/membership/membership-not-available"
 import {
+    LegacyProductSaleClosedException,
+} from "@modules/platform/exceptions/errors/pro-subscription/legacy-product-sale-closed"
+import {
     UserNotFoundException,
 } from "@modules/platform/exceptions/errors/users/user"
 import {
@@ -95,10 +98,18 @@ export class PurchaseMembershipHandler
             })
         }
 
+        const appConfig = this.mountFilesystemService.appConfig()
+        if (["pro-only",
+            "disabled"].includes(
+            appConfig.legacySalesMode ?? "legacy",
+        )) {
+            throw new LegacyProductSaleClosedException({
+                product: "membership",
+            })
+        }
+
         // resolve the single membership price from the live catalog (must be enabled)
-        const membershipConfig = this.mountFilesystemService
-            .appConfig()
-            .membership
+        const membershipConfig = appConfig.membership
         if (!membershipConfig.enabled) {
             throw new MembershipNotAvailableException({
             })

@@ -23,6 +23,9 @@ import {
     AiSubscriptionTierNotAvailableException,
 } from "@modules/platform/exceptions/errors/ai/ai-subscription-tier-not-available"
 import {
+    LegacyProductSaleClosedException,
+} from "@modules/platform/exceptions/errors/pro-subscription/legacy-product-sale-closed"
+import {
     UserNotFoundException,
 } from "@modules/platform/exceptions/errors/users/user"
 import {
@@ -92,10 +95,19 @@ export class PurchaseAiSubscriptionHandler
             })
         }
 
+
+        const appConfig = this.mountFilesystemService.appConfig()
+        if (["pro-only",
+            "disabled"].includes(
+            appConfig.legacySalesMode ?? "legacy",
+        )) {
+            throw new LegacyProductSaleClosedException({
+                product: "ai-subscription",
+            })
+        }
+
         // resolve the tier price from the live catalog (must be enabled)
-        const tierConfig = this.mountFilesystemService
-            .appConfig()
-            .subscriptions
+        const tierConfig = appConfig.subscriptions
             .tiers
             .find((candidate) => candidate.tier === tier && candidate.enabled)
         if (!tierConfig) {

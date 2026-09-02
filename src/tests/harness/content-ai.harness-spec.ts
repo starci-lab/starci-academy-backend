@@ -97,6 +97,9 @@ describe("contextual content AI answer quality (harness)",
                     content: jest.fn(() => "contents/lesson-1/en.json"),
                 } as never,
                 userService as never,
+                {
+                    hasCourseAccess: jest.fn().mockResolvedValue(true),
+                } as never,
                 contentRagRetrievalService as never,
             )
         })

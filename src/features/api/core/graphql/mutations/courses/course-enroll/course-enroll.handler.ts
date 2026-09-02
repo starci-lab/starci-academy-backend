@@ -42,7 +42,14 @@ import {
 } from "@modules/bussiness/transactions/constants/payment-modifier-capability"
 import {
     Injectable,
+    Optional,
 } from "@nestjs/common"
+import {
+    MountFilesystemService,
+} from "@modules/filesystem/mount.service"
+import {
+    LegacyProductSaleClosedException,
+} from "@modules/platform/exceptions/errors/pro-subscription/legacy-product-sale-closed"
 import {
     CommandHandler,
     ICommandHandler,
@@ -91,6 +98,8 @@ export class CourseEnrollHandler
         private readonly courseEnrollCryptoService: CourseEnrollCryptoService,
         private readonly voucherService: VoucherService,
         private readonly coursePriceQuoteService: CoursePriceQuoteService,
+        @Optional()
+        private readonly mountFilesystemService?: MountFilesystemService,
     ) {
         super()
     }
@@ -106,6 +115,15 @@ export class CourseEnrollHandler
 
         if (!user) {
             throw new UserNotFoundException({
+            })
+        }
+
+        if (["pro-only",
+            "disabled"].includes(
+            this.mountFilesystemService?.appConfig().legacySalesMode ?? "legacy",
+        )) {
+            throw new LegacyProductSaleClosedException({
+                product: "course",
             })
         }
 

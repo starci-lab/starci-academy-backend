@@ -81,7 +81,14 @@ import {
 } from "@modules/integrations/nowpayments/nowpayments.client"
 import {
     Injectable,
+    Optional,
 } from "@nestjs/common"
+import {
+    MountFilesystemService,
+} from "@modules/filesystem/mount.service"
+import {
+    LegacyProductSaleClosedException,
+} from "@modules/platform/exceptions/errors/pro-subscription/legacy-product-sale-closed"
 import {
     CommandHandler,
     ICommandHandler,
@@ -133,6 +140,8 @@ export class CoursesCheckoutHandler
         private readonly coursePriceQuoteService: CoursePriceQuoteService,
         private readonly retryService: RetryService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
+        @Optional()
+        private readonly mountFilesystemService?: MountFilesystemService,
     ) {
         super()
     }
@@ -163,6 +172,15 @@ export class CoursesCheckoutHandler
         // an authenticated user is required to own the order + enrollments
         if (!user) {
             throw new UserNotFoundException({
+            })
+        }
+
+        if (["pro-only",
+            "disabled"].includes(
+            this.mountFilesystemService?.appConfig().legacySalesMode ?? "legacy",
+        )) {
+            throw new LegacyProductSaleClosedException({
+                product: "courses-checkout",
             })
         }
 
