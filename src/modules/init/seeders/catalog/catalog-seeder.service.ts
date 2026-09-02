@@ -1,5 +1,6 @@
 import {
     Injectable,
+    Optional,
 } from "@nestjs/common"
 import {
     MountStorageService,
@@ -31,6 +32,9 @@ import {
 import {
     AiModelInsertService,
 } from "./inserts/ai-model-insert.service"
+import {
+    LearnerPlanCatalogParserService,
+} from "./parsers/learner-plan-catalog.parser"
 
 @Injectable()
 /**
@@ -52,6 +56,8 @@ export class CatalogSeederService {
         private readonly keyStoreService: KeyStoreService,
         private readonly winstonService: WinstonService,
         private readonly seedScopeService: SeedScopeService,
+        @Optional()
+        private readonly learnerPlanCatalogParserService?: LearnerPlanCatalogParserService,
     ) {}
 
     /** Upsert the DB model catalog + merge subscription tiers into mount storage. */
@@ -79,10 +85,19 @@ export class CatalogSeederService {
 
         if (subscriptionsEnabled) {
             const tiers = await this.subscriptionCatalogParserService.parseMany()
-            if (tiers.length > 0) {
+            const proSubscription = await this.learnerPlanCatalogParserService?.parseOne()
+            if (tiers.length > 0 || proSubscription) {
                 const base = getAppConfig()
-                base.subscriptions = {
-                    tiers,
+                if (tiers.length > 0) {
+                    base.subscriptions = {
+                        tiers,
+                    }
+                }
+                if (proSubscription) {
+                    base.proSubscription = proSubscription
+                    base.legacySalesMode = proSubscription.enabled
+                        ? "pro-only"
+                        : base.legacySalesMode
                 }
                 this.mountStorageService.applyAppConfig(base)
                 tiersSynced = tiers.length

@@ -251,6 +251,10 @@ describe("parseDataGitDiff",
                         "subcriptions/tiers.yaml",
                         "subscriptions",
                     ],
+                    [
+                        "learner-plans/0-pro/en.md",
+                        "subscriptions",
+                    ],
                 ])("maps %s → domain %s",
                     (path, domain) => {
                         const diff = parseDataGitDiff([

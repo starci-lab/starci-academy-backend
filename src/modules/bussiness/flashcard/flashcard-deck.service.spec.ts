@@ -35,6 +35,9 @@ import {
 import {
     UserService,
 } from "../user/user.service"
+import {
+    EffectiveLearnerAccessService,
+} from "../pro-subscription/effective-learner-access.service"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -110,6 +113,13 @@ describe("FlashcardDeckReadService",
                         useValue: {
                             checkEnrollment: jest.fn(),
                         },
+                    },
+                    {
+                        provide: EffectiveLearnerAccessService,
+                        useFactory: (users: UserService) => ({
+                            hasCourseAccess: users.checkEnrollment.bind(users),
+                        }),
+                        inject: [UserService],
                     },
                 ],
             }).compile()

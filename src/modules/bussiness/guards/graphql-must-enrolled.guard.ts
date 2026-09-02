@@ -4,6 +4,9 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
+    EffectiveLearnerAccessService,
+} from "../pro-subscription/effective-learner-access.service"
+import {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
@@ -15,28 +18,21 @@ import {
 import {
     CourseIdRequiredException,
 } from "@modules/platform/exceptions/errors/guards/course-id-required"
-import {
-    UserService,
-} from "../user/user.service"
 
 @Injectable()
 /**
- * The paid-only gate -- enforces `is_enrolled = true` for the `x-course-id`
- * course before letting a resolver run. Backs capstone / milestone /
- * personal-project / premium mutations and queries, where a trial placeholder
- * (`is_enrolled = false`, see {@link GraphQLEnrollmentGuard}) must NOT be
- * enough. The check is delegated to {@link UserService.checkEnrollment} (the
- * cached authorization hot path); this guard adds only the header parsing and
- * the "no course id at all" rejection.
+ * The paid-only gate for the `x-course-id` course. Backs capstone / milestone /
+ * personal-project / premium mutations and queries. Access is centralized in
+ * {@link EffectiveLearnerAccessService}: active Pro or factual paid enrollment
+ * is enough, while a trial placeholder alone remains insufficient.
  */
 export class GraphQLMustEnrolledGuard implements CanActivate {
     constructor(
-        private readonly userService: UserService,
+        private readonly effectiveLearnerAccessService: EffectiveLearnerAccessService,
     ) {}
 
     /**
-     * Reject the request unless the caller is a paying (`is_enrolled = true`)
-     * member of the `x-course-id` course.
+     * Reject unless the caller has active Pro or a factual paid enrollment.
      *
      * @param context - Execution context.
      * @returns True when the caller is enrolled.
@@ -54,11 +50,11 @@ export class GraphQLMustEnrolledGuard implements CanActivate {
             throw new CourseIdRequiredException({
             })
         }
-        const isEnrolled = await this.userService.checkEnrollment(
+        const hasAccess = await this.effectiveLearnerAccessService.hasCourseAccess(
             user.id,
             courseId,
         )
-        if (!isEnrolled) {
+        if (!hasAccess) {
             throw new EnrollmentNotFoundException({
                 userId: user.id,
                 courseId,

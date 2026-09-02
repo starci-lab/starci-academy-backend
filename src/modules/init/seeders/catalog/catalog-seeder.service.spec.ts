@@ -262,4 +262,54 @@ scope as never)
                 expect(parseMany).toHaveBeenCalledTimes(1)
                 expect(applyAppConfig).not.toHaveBeenCalled()
             })
+
+        it("publishes a mounted Pro plan and closes only new legacy sales",
+            async () => {
+                const applyAppConfig = jest.fn()
+                const pro = {
+                    planId: "pro",
+                    displayName: "StarCi Pro",
+                    description: "Full learner access",
+                    priceVnd: 229_000,
+                    billingPeriodMonths: 1,
+                    offerRevision: "pro-v1",
+                    creditsPer5h: 1_200,
+                    creditsPerWeek: 6_000,
+                    enabled: true,
+                }
+                const service = new CatalogSeederService(
+                    {
+                        parseManyWithTranslations: jest.fn(),
+                    } as never,
+                    {
+                        parseMany: jest.fn().mockResolvedValue([]),
+                    } as never,
+                    {
+                    } as never,
+                    {
+                    } as never,
+                    {
+                        applyAppConfig,
+                    } as never,
+                    {
+                    } as never,
+                    {
+                        log: jest.fn(),
+                    } as never,
+                    {
+                        isAiModelsCatalogSeederEnabled: jest.fn().mockReturnValue(false),
+                        isSubscriptionsCatalogSeederEnabled: jest.fn().mockReturnValue(true),
+                    } as never,
+                    {
+                        parseOne: jest.fn().mockResolvedValue(pro),
+                    } as never,
+                )
+
+                await service.seed()
+
+                expect(applyAppConfig).toHaveBeenCalledWith(expect.objectContaining({
+                    proSubscription: pro,
+                    legacySalesMode: "pro-only",
+                }))
+            })
     })

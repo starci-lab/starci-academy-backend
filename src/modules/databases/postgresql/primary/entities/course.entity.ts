@@ -470,6 +470,19 @@ export class CourseEntity extends UuidAbstractEntity {
         isEnrolled?: boolean | null
 
     /**
+     * Whether the current viewer may access paid course capabilities through
+     * either active Pro or a factual paid enrollment. Null when anonymous.
+     */
+    @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            description: "Whether the current viewer has effective paid access; null when anonymous.",
+        },
+    )
+        hasAccess?: boolean | null
+
+    /**
      * Authored concept mind-map: a keyword tree with cross-links to the learning
      * surfaces (lesson / challenge / milestone / flashcard / interview / ...) that
      * teach each concept. Seeded from `.mount/courses/<course>/mind-map.json`; null

@@ -18,6 +18,7 @@ const DOMAIN_BY_TOP_LEVEL_DIR: Record<string, DataGitDomain> = {
     "coding-problems": "codingProblems",
     "ai-models": "aiModels",
     subcriptions: "subscriptions",
+    "learner-plans": "subscriptions",
 }
 
 /**

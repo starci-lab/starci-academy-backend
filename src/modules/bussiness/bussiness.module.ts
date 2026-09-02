@@ -88,6 +88,9 @@ import {
 import {
     CoursePricingModule,
 } from "./course-pricing/course-pricing.module"
+import {
+    ProSubscriptionModule,
+} from "./pro-subscription/pro-subscription.module"
 
 @Module({
 })
@@ -98,6 +101,7 @@ export class BussinessModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)
         const modules: Array<DynamicModule | Type<unknown>> = [
+            ProSubscriptionModule,
             // import the jobs module
             JobsModule.register(options),
             // import the transactions module

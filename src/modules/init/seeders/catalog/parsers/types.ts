@@ -1,5 +1,6 @@
 import type {
     AppConfigAiModel,
+    AppConfigProSubscription,
 } from "@modules/filesystem/types/config"
 
 /**
@@ -86,3 +87,20 @@ export type SubscriptionCatalogMd = {
     /** Any additional mount fields (index signature for the extractor constraint). */
     [key: string]: unknown
 }
+
+/** Mount markdown shape for `.mount/data/learner-plans/<index>-pro/en.md`. */
+export type LearnerPlanCatalogMd = {
+    planId?: string
+    displayName?: string
+    description?: string
+    priceVnd?: string | number
+    billingPeriodMonths?: string | number
+    offerRevision?: string
+    creditsPer5h?: string | number
+    creditsPerWeek?: string | number
+    enabled?: string | boolean
+    [key: string]: unknown
+}
+
+/** Kept here so parser call sites share the exact runtime config contract. */
+export type LearnerPlanCatalogRow = AppConfigProSubscription

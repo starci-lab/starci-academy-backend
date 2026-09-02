@@ -366,6 +366,19 @@ export class TransactionEntity extends UuidAbstractEntity {
     })
         aiSubTier: AiSubTier | null
 
+    /** Immutable catalog revision used to price/grant a Pro checkout. */
+    @Field(() => String,
+        {
+            nullable: true,
+        })
+    @Column({
+        name: "offer_revision",
+        type: "varchar",
+        length: 64,
+        nullable: true,
+    })
+        offerRevision: string | null
+
     /**
      * The installment plan this transaction pays one cycle of, when
      * {@link actionType} is `installmentPayment`; null for every other action

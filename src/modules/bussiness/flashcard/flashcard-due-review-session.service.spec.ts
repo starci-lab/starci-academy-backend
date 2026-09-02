@@ -21,6 +21,9 @@ import {
     UserService,
 } from "../user/user.service"
 import {
+    EffectiveLearnerAccessService,
+} from "../pro-subscription/effective-learner-access.service"
+import {
     FlashcardDueReviewSessionService,
 } from "./flashcard-due-review-session.service"
 
@@ -62,6 +65,12 @@ describe("FlashcardDueReviewSessionService",
                     {
                         provide: UserService,
                         useValue: userService,
+                    },
+                    {
+                        provide: EffectiveLearnerAccessService,
+                        useValue: {
+                            hasCourseAccess: userService.checkEnrollment,
+                        },
                     },
                 ],
             }).compile()
