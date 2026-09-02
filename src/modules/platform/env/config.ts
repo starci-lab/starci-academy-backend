@@ -45,6 +45,11 @@ export const envConfig = () => ({
             key: "COMMUNITY_FOUNDER_USERNAME",
             defaultValue: "starci183",
         }),
+        /** HMAC secret signing course community pagination cursors (min 32 chars, no safe default). */
+        courseCommunityCursorSecret: parseEnvSecret({
+            key: "COURSE_COMMUNITY_CURSOR_SECRET",
+            defaultValue: "",
+        }),
     },
     /** UUID namespace configuration. */
     uuidNamespace: {

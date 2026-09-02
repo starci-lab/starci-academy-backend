@@ -12,8 +12,12 @@ import {
     ManyToOne,
     RelationId,
 } from "typeorm"
-import { CourseEntity } from "./course.entity"
-import { CommunityScope } from "../enums/community-scope"
+import {
+    CourseEntity 
+} from "./course.entity"
+import {
+    CommunityScope 
+} from "../enums/community-scope"
 import {
     UuidAbstractEntity,
 } from "./abstract"
@@ -38,41 +42,42 @@ import {
 )
 @Index(
     "idx_course_community_feed",
-    (post: CommunityPostEntity) => ({
+    (): Partial<Record<keyof CommunityPostEntity, number>> => ({
         course: 1,
         createdAt: -1,
         id: -1,
     }),
     {
-        where: `"scope" = 'COURSE' AND "is_deleted" = false`,
+        where: "\"scope\" = 'COURSE' AND \"is_deleted\" = false",
     },
 )
 @Index(
     "idx_course_community_mine",
-    (post: CommunityPostEntity) => ({
+    (): Partial<Record<keyof CommunityPostEntity, number>> => ({
         course: 1,
         author: 1,
         createdAt: -1,
         id: -1,
     }),
     {
-        where: `"scope" = 'COURSE' AND "is_deleted" = false`,
+        where: "\"scope\" = 'COURSE' AND \"is_deleted\" = false",
     },
 )
-@Index("idx_course_community_search", {
-    synchronize: false,
-})
+@Index("idx_course_community_search",
+    {
+        synchronize: false,
+    })
 @Check(
     "chk_community_posts_scope_course",
-    `("scope" = 'GLOBAL' AND "course_id" IS NULL) OR ("scope" = 'COURSE' AND "course_id" IS NOT NULL)`,
+    "(\"scope\" = 'GLOBAL' AND \"course_id\" IS NULL) OR (\"scope\" = 'COURSE' AND \"course_id\" IS NOT NULL)",
 )
 @Check(
     "chk_course_community_not_pinned",
-    `"scope" <> 'COURSE' OR "is_pinned" = false`,
+    "\"scope\" <> 'COURSE' OR \"is_pinned\" = false",
 )
 @Check(
     "chk_course_community_general_channel",
-    `"scope" <> 'COURSE' OR "channel" = 'general'`,
+    "\"scope\" <> 'COURSE' OR \"channel\" = 'general'",
 )
 /**
  * A user-authored community post (the Facebook/Twitter-style feed item). Unlike
@@ -92,10 +97,11 @@ export class CommunityPostEntity extends UuidAbstractEntity {
     })
         scope: CommunityScope
 
-    @ManyToOne(() => CourseEntity, {
-        nullable: true,
-        onDelete: "RESTRICT",
-    })
+    @ManyToOne(() => CourseEntity,
+        {
+            nullable: true,
+            onDelete: "RESTRICT",
+        })
     @JoinColumn({
         name: "course_id",
         foreignKeyConstraintName: "fk_community_posts_course_id",
