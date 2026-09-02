@@ -181,3 +181,6 @@ scratch/
 
 # lint report debris
 eslint_out*.json
+
+# local pnpm content store
+/.pnpm-store/

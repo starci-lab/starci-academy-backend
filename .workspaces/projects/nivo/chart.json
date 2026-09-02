@@ -19,5 +19,6 @@
       "charts/mmo/Chart.yaml"
     ],
     "grammarId": null
-  }
+  },
+  "schemaRevision": 2
 }

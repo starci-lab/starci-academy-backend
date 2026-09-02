@@ -17,5 +17,6 @@
       "package.json"
     ],
     "grammarId": "offset-pop"
-  }
+  },
+  "schemaRevision": 2
 }
