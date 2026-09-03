@@ -147,6 +147,7 @@ scratch/
 !.stacks/**/KEYS.md
 !.stacks/**/*.enc
 !.stacks/*/infra/compose/**
+!.stacks/*/environment.json
 # Reusable, credential-free development seed recipes.
 !.stacks/*/seeds/**/*.md
 !.stacks/*/seeds/**/*.ps1
