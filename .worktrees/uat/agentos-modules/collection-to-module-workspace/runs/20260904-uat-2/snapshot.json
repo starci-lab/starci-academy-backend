@@ -1,0 +1,65 @@
+{
+  "feature": "agentos-modules",
+  "flow": "collection-to-module-workspace",
+  "env": "dev",
+  "runId": "20260904-uat-2",
+  "approval": ".stacks/dev/environment.json#sha256:fc15b1d4c0e5e1bbddd6f9433a798c3be5d75b31615cfb5ee0824f476f404e4e",
+  "frozenAt": "2026-09-03T21:25:56.477Z",
+  "sourceHead": "d6cc196e2b74ee522215d0df390b8ffd6772188f",
+  "servedHead": "42f29d59dfafed42bdd10111a1ffae5099a78038",
+  "servedContainsSourceHead": true,
+  "ancestryEvidence": "d6cc196e2b74ee522215d0df390b8ffd6772188f is an ancestor of 42f29d59dfafed42bdd10111a1ffae5099a78038",
+  "registryGeneration": 20,
+  "entryGeneration": 13,
+  "endpoints": {
+    "frontend": "http://localhost:3067",
+    "api": "http://localhost:3068",
+    "identity": "http://localhost:8147"
+  },
+  "endpointProbes": {
+    "frontend": "200",
+    "api": "200",
+    "identity": "200"
+  },
+  "flowDigest": "sha256:70bafdfd425710997e571d6a5da7a8c595b7cfd993cfccd1ce6a7e699530354d",
+  "seedDigest": "sha256:dd35d0ae91f973d6255b46c5c51260dd93c59c3787b37386e9a45c47f0e4f7b0",
+  "accounts": {
+    "owner": {
+      "username": "uat-collection-to-module-workspace-owner",
+      "credentialName": "uat-shared",
+      "plaintextRecorded": false
+    }
+  },
+  "budgets": {
+    "steps": 6,
+    "timeSeconds": 90,
+    "surfaceClass": "console",
+    "viewports": [
+      "1440x900",
+      "390x844"
+    ]
+  },
+  "measured": {
+    "presses": 9,
+    "flowPresses": 7,
+    "elapsedMs": {
+      "wide": 37686,
+      "narrow": 35595
+    }
+  },
+  "seed": {
+    "namespace": "uat-collection-to-module-workspace",
+    "customModules": 8,
+    "installations": 4
+  },
+  "cases": [
+    "collection-lists-owned-modules",
+    "installed-module-opens-dedicated-workspace",
+    "task-switch-keeps-identity",
+    "custom-module-resumes-studio"
+  ],
+  "alternatePaths": [
+    "collection-refused",
+    "module-not-in-workspace"
+  ]
+}

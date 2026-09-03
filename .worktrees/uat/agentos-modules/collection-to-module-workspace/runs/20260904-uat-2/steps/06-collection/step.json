@@ -1,0 +1,87 @@
+{
+  "runId": "20260904-uat-2",
+  "step": "06-collection",
+  "action": "Press the Modules breadcrumb, the only control in the product that opens the collection",
+  "control": "AgentOSSolutionModulePage>Breadcrumbs>Step[Modules]",
+  "controlPressed": true,
+  "captures": [
+    "capture-wide-light.png",
+    "capture-narrow-light.png"
+  ],
+  "observed": {
+    "wide": {
+      "step": 5,
+      "action": "Press the Modules breadcrumb to reach the collection",
+      "control": "AgentOSSolutionModulePage>Breadcrumbs>Step[Modules]",
+      "collection": {
+        "url": "/en/agentos/workspaces/5a7c0d3e-0003-4a00-8000-20260903a003/modules",
+        "heading": "Modules",
+        "sections": [
+          "Custom modules",
+          "Installed solutions",
+          "Nivo solutions"
+        ],
+        "rows": [
+          "UAT lead qualifier",
+          "UAT invoice chaser",
+          "UAT meeting notes summariser",
+          "UAT churn alert",
+          "UAT contract clause finder",
+          "UAT vendor onboarding",
+          "UAT sales reply copilot",
+          "UAT partner onboarding guide",
+          "UAT Finance Copilot",
+          "UAT Scheduling AI",
+          "UAT Support Desk",
+          "UAT Knowledge Hub"
+        ],
+        "primaryCount": 1,
+        "primaryY": 172,
+        "viewportH": 900,
+        "catalogueCards": 4,
+        "nav": [
+          "Modules"
+        ],
+        "stubCopy": false
+      },
+      "evidence": "06-collection-wide-light.png"
+    },
+    "narrow": {
+      "step": 5,
+      "action": "Press the Modules breadcrumb to reach the collection",
+      "control": "AgentOSSolutionModulePage>Breadcrumbs>Step[Modules]",
+      "collection": {
+        "url": "/en/agentos/workspaces/5a7c0d3e-0003-4a00-8000-20260903a003/modules",
+        "heading": "Modules",
+        "sections": [
+          "Custom modules",
+          "Installed solutions",
+          "Nivo solutions"
+        ],
+        "rows": [
+          "UAT lead qualifier",
+          "UAT invoice chaser",
+          "UAT meeting notes summariser",
+          "UAT churn alert",
+          "UAT contract clause finder",
+          "UAT vendor onboarding",
+          "UAT sales reply copilot",
+          "UAT partner onboarding guide",
+          "UAT Finance Copilot",
+          "UAT Scheduling AI",
+          "UAT Support Desk",
+          "UAT Knowledge Hub"
+        ],
+        "primaryCount": 1,
+        "primaryY": 320,
+        "viewportH": 844,
+        "catalogueCards": 4,
+        "nav": [
+          "Modules"
+        ],
+        "stubCopy": false
+      },
+      "evidence": "06-collection-narrow-light.png"
+    }
+  }
+}

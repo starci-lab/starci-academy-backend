@@ -1,0 +1,61 @@
+{
+  "runId": "20260904-uat-2",
+  "step": "04-installed-root",
+  "action": "Press View details on the UAT Knowledge Hub card",
+  "control": "AgentOSWorkspacePage>section[installed]>StatusActionCard[UAT Knowledge Hub]>a[View details]",
+  "controlPressed": true,
+  "captures": [
+    "capture-wide-light.png",
+    "capture-narrow-light.png"
+  ],
+  "observed": {
+    "wide": {
+      "step": 3,
+      "action": "Press Installed, then View details on the UAT Knowledge Hub card",
+      "control": "AgentOSWorkspacePage>section[installed]>StatusActionCard[UAT Knowledge Hub]>a[View details]",
+      "installedRoot": {
+        "url": "/en/agentos/workspaces/5a7c0d3e-0003-4a00-8000-20260903a003/modules/5a7c0d3e-0004-4a00-8000-20260903a004",
+        "heading": "UAT Knowledge Hub",
+        "tasks": [
+          "Setup",
+          "Test",
+          "Operate",
+          "Settings",
+          "Diagnostics"
+        ],
+        "selected": [
+          "AgentOS",
+          "Setup"
+        ],
+        "badges": [
+          "ready"
+        ]
+      },
+      "evidence": "04-installed-root-wide-light.png"
+    },
+    "narrow": {
+      "step": 3,
+      "action": "Press Installed, then View details on the UAT Knowledge Hub card",
+      "control": "AgentOSWorkspacePage>section[installed]>StatusActionCard[UAT Knowledge Hub]>a[View details]",
+      "installedRoot": {
+        "url": "/en/agentos/workspaces/5a7c0d3e-0003-4a00-8000-20260903a003/modules/5a7c0d3e-0004-4a00-8000-20260903a004",
+        "heading": "UAT Knowledge Hub",
+        "tasks": [
+          "Setup",
+          "Test",
+          "Operate",
+          "Settings",
+          "Diagnostics"
+        ],
+        "selected": [
+          "AgentOS",
+          "Setup"
+        ],
+        "badges": [
+          "ready"
+        ]
+      },
+      "evidence": "04-installed-root-narrow-light.png"
+    }
+  }
+}

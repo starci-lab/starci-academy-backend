@@ -1,0 +1,95 @@
+{
+  "runId": "20260904-uat-2",
+  "at": "2026-09-03T21:25:56.477Z",
+  "commit": "d6cc196e2b74ee522215d0df390b8ffd6772188f",
+  "servedHead": "42f29d59dfafed42bdd10111a1ffae5099a78038",
+  "approval": ".stacks/dev/environment.json#sha256:fc15b1d4c0e5e1bbddd6f9433a798c3be5d75b31615cfb5ee0824f476f404e4e",
+  "lanes": {
+    "behavior": "pass",
+    "ui": "fail",
+    "ux": "fail"
+  },
+  "experience": {
+    "mean": 3.55,
+    "verdict": "fix-first"
+  },
+  "presses": [
+    "AuthenticationPage>form>Button[Sign in]",
+    "AuthenticationPage>form>Button[Sign in]",
+    "ConsoleOverviewPage>SurfaceCard[agent-workspace]>Button[Open workspace]",
+    "AgentOSWorkspacePage>ChoiceTabs>Radio[Installed]",
+    "AgentOSWorkspacePage>section[installed]>StatusActionCard[UAT Knowledge Hub]>a[View details]",
+    "AgentOSSolutionModulePage>RouteTabs>Tab[Diagnostics]",
+    "AgentOSSolutionModulePage>Breadcrumbs>Step[Modules]",
+    "AgentOSCustomModuleCollectionBase>SurfaceListCard>div[rows]>LedgerRow>TextAction[UAT partner onboarding guide]",
+    "AgentOSSolutionModuleLedger>SurfaceCard[installed]>EmptyNotice>Button[Try again]"
+  ],
+  "receiptRef": "sessions/20260903-104251-nivo-frontend.direction.decide/step-53/parallel-1",
+  "supersedes": null,
+  "note": "Run 2. The same flow walked entirely by pressing rendered controls, after 1.7.7 made a capture name the control behind every scored assertion. Run 20260903-uat-1 stands as the record of what was done under the rules of its time.",
+  "evidenceRefs": [
+    "runs/20260904-uat-2/run.md",
+    "runs/20260904-uat-2/verdicts.json",
+    "runs/20260904-uat-2/snapshot.json",
+    "runs/20260904-uat-2/steps/01-sign-in/capture-wrong-password-wide-light.png",
+    "runs/20260904-uat-2/steps/01-sign-in/capture-wrong-password-narrow-light.png",
+    "runs/20260904-uat-2/steps/01-sign-in/capture-signed-in-wide-light.png",
+    "runs/20260904-uat-2/steps/01-sign-in/capture-signed-in-narrow-light.png",
+    "runs/20260904-uat-2/steps/02-open-workspace/capture-wide-light.png",
+    "runs/20260904-uat-2/steps/02-open-workspace/capture-narrow-light.png",
+    "runs/20260904-uat-2/steps/03-installed-list/capture-wide-light.png",
+    "runs/20260904-uat-2/steps/03-installed-list/capture-narrow-light.png",
+    "runs/20260904-uat-2/steps/04-installed-root/capture-wide-light.png",
+    "runs/20260904-uat-2/steps/04-installed-root/capture-narrow-light.png",
+    "runs/20260904-uat-2/steps/05-diagnostics/capture-wide-light.png",
+    "runs/20260904-uat-2/steps/05-diagnostics/capture-narrow-light.png",
+    "runs/20260904-uat-2/steps/06-collection/capture-wide-light.png",
+    "runs/20260904-uat-2/steps/06-collection/capture-narrow-light.png",
+    "runs/20260904-uat-2/steps/07-studio/capture-wide-light.png",
+    "runs/20260904-uat-2/steps/07-studio/capture-narrow-light.png",
+    "runs/20260904-uat-2/steps/08-refused-recovery/capture-refused-wide-light.png",
+    "runs/20260904-uat-2/steps/08-refused-recovery/capture-refused-narrow-light.png",
+    "runs/20260904-uat-2/steps/08-refused-recovery/capture-recovered-wide-light.png",
+    "runs/20260904-uat-2/steps/08-refused-recovery/capture-recovered-narrow-light.png",
+    "runs/20260904-uat-2/steps/09-not-owned/capture-wide-light.png",
+    "runs/20260904-uat-2/steps/09-not-owned/capture-narrow-light.png"
+  ],
+  "steps": [
+    {
+      "step": "01-sign-in",
+      "control": "AuthenticationPage>form>Button[Sign in]"
+    },
+    {
+      "step": "02-open-workspace",
+      "control": "ConsoleOverviewPage>SurfaceCard[agent-workspace]>Button[Open workspace]"
+    },
+    {
+      "step": "03-installed-list",
+      "control": "AgentOSWorkspacePage>ChoiceTabs>Radio[Installed]"
+    },
+    {
+      "step": "04-installed-root",
+      "control": "AgentOSWorkspacePage>section[installed]>StatusActionCard[UAT Knowledge Hub]>a[View details]"
+    },
+    {
+      "step": "05-diagnostics",
+      "control": "AgentOSSolutionModulePage>RouteTabs>Tab[Diagnostics]"
+    },
+    {
+      "step": "06-collection",
+      "control": "AgentOSSolutionModulePage>Breadcrumbs>Step[Modules]"
+    },
+    {
+      "step": "07-studio",
+      "control": "AgentOSCustomModuleCollectionBase>SurfaceListCard>div[rows]>LedgerRow>TextAction[UAT partner onboarding guide]"
+    },
+    {
+      "step": "08-refused-recovery",
+      "control": "AgentOSSolutionModuleLedger>SurfaceCard[installed]>EmptyNotice>Button[Try again]"
+    },
+    {
+      "step": "09-not-owned",
+      "control": null
+    }
+  ]
+}

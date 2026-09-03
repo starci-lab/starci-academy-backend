@@ -1,0 +1,83 @@
+{
+  "runId": "20260904-uat-2",
+  "step": "05-diagnostics",
+  "action": "Press Diagnostics, then reload and press back",
+  "control": "AgentOSSolutionModulePage>RouteTabs>Tab[Diagnostics]",
+  "controlPressed": true,
+  "captures": [
+    "capture-wide-light.png",
+    "capture-narrow-light.png"
+  ],
+  "observed": {
+    "wide": {
+      "step": 4,
+      "action": "Press Diagnostics, then reload and press back",
+      "control": "AgentOSSolutionModulePage>RouteTabs>Tab[Diagnostics]",
+      "diagnostics": {
+        "url": "/en/agentos/workspaces/5a7c0d3e-0003-4a00-8000-20260903a003/modules/5a7c0d3e-0004-4a00-8000-20260903a004/diagnostics",
+        "heading": "UAT Knowledge Hub",
+        "badges": [
+          "ready"
+        ],
+        "selected": [
+          "AgentOS",
+          "Diagnostics",
+          "All systems9 checks"
+        ]
+      },
+      "afterReload": {
+        "url": "/en/agentos/workspaces/5a7c0d3e-0003-4a00-8000-20260903a003/modules/5a7c0d3e-0004-4a00-8000-20260903a004/diagnostics",
+        "selected": [
+          "AgentOS",
+          "Diagnostics",
+          "All systems9 checks"
+        ],
+        "heading": "UAT Knowledge Hub"
+      },
+      "afterBack": {
+        "url": "/en/agentos/workspaces/5a7c0d3e-0003-4a00-8000-20260903a003/modules/5a7c0d3e-0004-4a00-8000-20260903a004",
+        "selected": [
+          "AgentOS",
+          "Setup"
+        ]
+      },
+      "identityStable": true,
+      "evidence": "05-diagnostics-wide-light.png"
+    },
+    "narrow": {
+      "step": 4,
+      "action": "Press Diagnostics, then reload and press back",
+      "control": "AgentOSSolutionModulePage>RouteTabs>Tab[Diagnostics]",
+      "diagnostics": {
+        "url": "/en/agentos/workspaces/5a7c0d3e-0003-4a00-8000-20260903a003/modules/5a7c0d3e-0004-4a00-8000-20260903a004/diagnostics",
+        "heading": "UAT Knowledge Hub",
+        "badges": [
+          "ready"
+        ],
+        "selected": [
+          "AgentOS",
+          "Diagnostics",
+          "All systems9 checks"
+        ]
+      },
+      "afterReload": {
+        "url": "/en/agentos/workspaces/5a7c0d3e-0003-4a00-8000-20260903a003/modules/5a7c0d3e-0004-4a00-8000-20260903a004/diagnostics",
+        "selected": [
+          "AgentOS",
+          "Diagnostics",
+          "All systems9 checks"
+        ],
+        "heading": "UAT Knowledge Hub"
+      },
+      "afterBack": {
+        "url": "/en/agentos/workspaces/5a7c0d3e-0003-4a00-8000-20260903a003/modules/5a7c0d3e-0004-4a00-8000-20260903a004",
+        "selected": [
+          "AgentOS",
+          "Setup"
+        ]
+      },
+      "identityStable": true,
+      "evidence": "05-diagnostics-narrow-light.png"
+    }
+  }
+}
