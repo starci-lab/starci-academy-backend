@@ -188,6 +188,9 @@ importers:
       googleapis:
         specifier: ^171.4.0
         version: 171.4.0(supports-color@8.1.1)
+      graphql:
+        specifier: ^16.13.2
+        version: 16.14.2
       graphql-type-json:
         specifier: ^0.3.2
         version: 0.3.2(graphql@16.14.2)
