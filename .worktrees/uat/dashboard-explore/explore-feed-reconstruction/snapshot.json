@@ -1,0 +1,18 @@
+{
+  "version": "7.0.0",
+  "feature": "dashboard-explore",
+  "flow": "explore-feed-reconstruction",
+  "sourceHeads": [
+    "git:D:/Repositories/starci-academy-fe@4809c2179c65eeabd31c05e7fa82d99d7a95afcd",
+    "git:D:/Repositories/starci-academy-backend@5fb7c7090944208df9838c10c68170df3ebb7bbc",
+    "mission:dashboard-explore-reconstruct-20260901"
+  ],
+  "cases": [
+    "dashboard.navigation.explore-bulletin-routes",
+    "dashboard.explore.external-label-featured-card",
+    "dashboard.explore.frameless-ranked-media-responsive-separator",
+    "dashboard.bulletin.responsive-scope-tabs",
+    "dashboard.bulletin.dated-frameless-activity-groups",
+    "dashboard.bulletin.route-reaction-pagination-retry"
+  ]
+}

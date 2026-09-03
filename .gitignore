@@ -104,7 +104,11 @@ claude-legacy/
 
 # Source-local mounts of durable project branches (`businesses`, `debts`).
 # They are Git worktrees, not reusable cache or session storage.
-/.worktrees/
+/.worktrees/businesses/
+/.worktrees/debts/
+/.worktrees/starci-academy/
+# StarCi Skills sessions live here and are never committed; UAT records and templates are tracked.
+/.worktrees/sessions/
 # Disposable invocation artifacts. A session is never durable authority.
 /.sessions/
 

@@ -1,0 +1,51 @@
+{
+  "version": "7.0.1",
+  "operatorId": "fe/independent-review",
+  "reviewTarget": "payment.provider-handoff",
+  "sourceFingerprint": "sha256:5827b2dde722561b5282581fc53111277f1f1cc6049fc94b33b0ae3b3ed60fdd",
+  "authorityRefs": [
+    ".claude/knowledge/ui.md",
+    ".claude/knowledge/ui-render-review.md",
+    ".claude/knowledge/grammar/common/overview.md",
+    ".claude/knowledge/grammar/core/overview.md",
+    ".worktrees/uat/payment/provider-handoff/snapshot.json"
+  ],
+  "verdicts": {
+    "aiFirst": "passed: the course identity, payable total, provider handoff, webhook-pending boundary, and next action have one coherent priority without invented AI synthesis",
+    "rulesFirst": "passed: cart collection and secondary summary have distinct owners; reading/action order persists at wide, intermediate, compact, and default handoff widths",
+    "grammarLast": "passed: Core joined collection, quiet surfaces, primary-secondary composition, neutral pending language, modal focus return, and responsive flattening are preserved"
+  },
+  "interactionEvidence": {
+    "horizontalOverflow": {
+      "wide": false,
+      "intermediate": false,
+      "compact": false,
+      "pendingWide": false,
+      "pendingIntermediate": false,
+      "pendingCompact": false,
+      "recoveryWide": false,
+      "recoveryIntermediate": false,
+      "recoveryCompact": false
+    },
+    "escapeDismissesDialog": true,
+    "focusReturnsTo": "Thanh toán (1)",
+    "freshReloadConsoleErrors": 0
+  },
+  "evidenceRefs": [
+    ".worktrees/uat/payment/provider-handoff/runs/run-20260829-03/screenshots/01-wide-cart.png",
+    ".worktrees/uat/payment/provider-handoff/runs/run-20260829-03/screenshots/01-wide-payment.png",
+    ".worktrees/uat/payment/provider-handoff/runs/run-20260829-03/screenshots/02-intermediate-cart.png",
+    ".worktrees/uat/payment/provider-handoff/runs/run-20260829-03/screenshots/02-intermediate-payment.png",
+    ".worktrees/uat/payment/provider-handoff/runs/run-20260829-03/screenshots/03-compact-cart.png",
+    ".worktrees/uat/payment/provider-handoff/runs/run-20260829-03/screenshots/03-compact-payment.png",
+    ".worktrees/uat/payment/provider-handoff/runs/run-20260829-03/screenshots/04-handoff-default-cart.png",
+    ".worktrees/uat/payment/provider-handoff/runs/run-20260829-03/screenshots/05-wide-pending.png",
+    ".worktrees/uat/payment/provider-handoff/runs/run-20260829-03/screenshots/05-wide-recovery.png",
+    ".worktrees/uat/payment/provider-handoff/runs/run-20260829-03/screenshots/06-intermediate-pending.png",
+    ".worktrees/uat/payment/provider-handoff/runs/run-20260829-03/screenshots/06-intermediate-recovery.png",
+    ".worktrees/uat/payment/provider-handoff/runs/run-20260829-03/screenshots/07-compact-pending.png",
+    ".worktrees/uat/payment/provider-handoff/runs/run-20260829-03/screenshots/07-compact-recovery.png"
+  ],
+  "findings": [],
+  "outcome": "passed"
+}

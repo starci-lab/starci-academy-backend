@@ -1,0 +1,10 @@
+{
+  "version": "7.0.0",
+  "feature": "dashboard",
+  "flow": "landing-tabs",
+  "sourceHeads": [
+    "git:321f0cb4261dffb475c617583f724bda0b612a0b",
+    "git:7a34793160301fefea6525d8012aa147e75f1363"
+  ],
+  "cases": ["dashboard.landing-tabs.happy"]
+}
