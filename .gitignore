@@ -106,6 +106,7 @@ claude-legacy/
 # They are Git worktrees, not reusable cache or session storage.
 /.worktrees/businesses/
 /.worktrees/debts/
+/.worktrees/nivo/
 # StarCi Skills sessions live here and are never committed; UAT records and templates are tracked.
 /.worktrees/sessions/
 # Disposable invocation artifacts. A session is never durable authority.
