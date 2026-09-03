@@ -1,0 +1,104 @@
+{
+  "runId": "20260903-uat-1",
+  "approval": ".stacks/dev/environment.json#sha256:fc15b1d4c0e5e1bbddd6f9433a798c3be5d75b31615cfb5ee0824f476f404e4e",
+  "feature": "agentos-modules",
+  "flow": "collection-to-module-workspace",
+  "env": "dev",
+  "commit": "d6cc196e2b74ee522215d0df390b8ffd6772188f",
+  "frozenAt": "2026-09-03T16:39:50.895Z",
+  "flowRoot": ".worktrees/uat/agentos-modules/collection-to-module-workspace",
+  "snapshotRef": ".worktrees/uat/agentos-modules/collection-to-module-workspace/snapshot.json",
+  "snapshotFingerprint": "sha256:70bafdfd425710997e571d6a5da7a8c595b7cfd993cfccd1ce6a7e699530354d",
+  "lease": {
+    "leaseRef": "uat-lease://agentos-modules/collection-to-module-workspace/20260903-104251",
+    "exclusive": true,
+    "expiresAt": "2026-09-03T17:39:50.898Z"
+  },
+  "admission": [
+    {
+      "kind": "frontend-surface-audit",
+      "ref": "step-49/parallel-1/response/response.md",
+      "commit": "d6cc196e2b74ee522215d0df390b8ffd6772188f"
+    },
+    {
+      "kind": "quality-verification",
+      "ref": "step-50/parallel-1/response/response.md",
+      "commit": "d6cc196e2b74ee522215d0df390b8ffd6772188f"
+    }
+  ],
+  "accounts": [
+    {
+      "alias": "owner",
+      "username": "uat-collection-to-module-workspace-owner",
+      "role": "customer",
+      "credentialName": "uat-shared",
+      "credentialRef": ".stacks/dev/secrets/uat.enc",
+      "custody": "sealed-shared-master-identity",
+      "isUat": true,
+      "plaintextRecorded": false,
+      "identity": "nivo/fe",
+      "provisionedBy": "20260903-104251-nivo-frontend-direction-decide-step-20"
+    }
+  ],
+  "fixtureNamespace": "uat-collection-to-module-workspace",
+  "seed": {
+    "recordsRef": ".worktrees/uat/agentos-modules/collection-to-module-workspace/seed/records.json",
+    "expectedRef": ".worktrees/uat/agentos-modules/collection-to-module-workspace/seed/expected.json",
+    "fingerprint": "sha256:dd35d0ae91f973d6255b46c5c51260dd93c59c3787b37386e9a45c47f0e4f7b0",
+    "namespace": "uat-collection-to-module-workspace",
+    "isUat": true
+  },
+  "cases": [
+    {
+      "caseId": "collection-lists-owned-modules",
+      "order": 1,
+      "as": "owner",
+      "assertions": [
+        "collection-three-sections",
+        "collection-rows-match-seed",
+        "collection-one-create"
+      ]
+    },
+    {
+      "caseId": "installed-module-opens-dedicated-workspace",
+      "order": 2,
+      "as": "owner",
+      "assertions": [
+        "installed-route-committed",
+        "task-navigation-present"
+      ]
+    },
+    {
+      "caseId": "task-switch-keeps-identity",
+      "order": 3,
+      "as": "owner",
+      "assertions": [
+        "identity-shell-stable"
+      ]
+    },
+    {
+      "caseId": "custom-module-resumes-studio",
+      "order": 4,
+      "as": "owner",
+      "assertions": [
+        "studio-resumes-draft"
+      ]
+    }
+  ],
+  "flowSource": "committed",
+  "golden": {
+    "state": "candidate",
+    "ref": ".worktrees/uat/agentos-modules/collection-to-module-workspace/runs/20260903-uat-1/result.json",
+    "approvedBy": null,
+    "env": "dev"
+  },
+  "isolation": {
+    "sessionId": "20260903-104251-nivo-frontend.direction.decide",
+    "browserProfileRef": "playwright:ephemeral-context:step-51",
+    "servedHead": "04c9f4ba81c49e5e06cc8b2cc68792cc926839a2",
+    "servedContainsCommit": true,
+    "ancestryEvidenceRef": "step-48/parallel-1/response/data/probes.json",
+    "seededIds": [],
+    "rollbackIds": []
+  }
+}

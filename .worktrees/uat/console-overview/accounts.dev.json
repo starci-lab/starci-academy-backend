@@ -1,0 +1,16 @@
+{
+  "env": "dev",
+  "flow": "console-overview",
+  "identity": "nivo/fe",
+  "accounts": {
+    "reader": {
+      "username": "uat-console-overview-reader",
+      "role": "customer",
+      "credentialName": "uat-shared",
+      "sealed": ".stacks/dev/secrets/uat.enc",
+      "provisionedBy": "20260903-162203-nivo-frontend.direction.decide-step-19",
+      "createdAt": "2026-09-03T14:19:05.354Z"
+    }
+  },
+  "plaintextRecorded": false
+}
