@@ -10,7 +10,7 @@
     "branch": "main",
     "gitPolicy": {
       "mutationBranch": "main",
-      "worktreeBranches": "forbidden",
+      "worktreeBranches": "session-only",
       "incomingBranchRefs": "merge-into-mutation-branch"
     }
   },
