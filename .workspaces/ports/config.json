@@ -1,5 +1,5 @@
 {
-  "$schema": "../../.claude/readiness/staleness/port-offset/config.schema.json",
+  "$schema": "../../.claude/readiness/initialization/workspaces/ports.schema.json",
   "version": 1,
   "slotStep": 1000
 }
