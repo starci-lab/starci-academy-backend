@@ -63,6 +63,17 @@
       "amount_vnd": 99000,
       "status": "unpaid",
       "purpose": "catalog_order"
+    },
+    {
+      "entity": "expert_sites",
+      "id": "c075ce00-0008-4a00-8000-2026090300a8",
+      "is_uat": true,
+      "namespace": "uat-console-overview",
+      "slug": "uat-console-overview-reader",
+      "status": "draft",
+      "provision_status": "not_provisioned",
+      "placedBy": "20260903-162203-nivo-frontend.direction.decide-step-33",
+      "note": "no instance_id, no catalog_order_id: an owned expert site whose own stack was never provisioned, so OverviewServices/OverviewSignals render it with isDisabled on its onward control -- the disabled state."
     }
   ]
 }

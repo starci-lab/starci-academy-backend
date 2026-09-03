@@ -1,0 +1,37 @@
+{
+  "note": "The scoped data state the frozen case expects, taken over the product's own GraphQL API as the reader alias exactly as seed/README.md says to take it. Drafted at the freeze of run 20260904-131500-9d511ad from the seed records that were already in place; no row was added.",
+  "namespace": "uat-console-overview",
+  "reads": {
+    "apps": {
+      "ok": true,
+      "rows": 1,
+      "expect": "one expert site, slug uat-console-overview-reader, provisionStatus not_provisioned"
+    },
+    "workspaces": {
+      "ok": true,
+      "rows": 1,
+      "expect": "one agent workspace, uat-console-overview workspace, status active"
+    },
+    "pod": {
+      "ok": false,
+      "expect": "refused with POD_REGISTRATION_MISSING_EXCEPTION: no pod is registered for this workspace"
+    },
+    "domains": {
+      "ok": true,
+      "rows": 0,
+      "expect": "no domain row; the empty state is the absence of a row"
+    },
+    "wallet": {
+      "ok": true,
+      "expect": "balanceVnd 150000"
+    },
+    "invoices": {
+      "ok": true,
+      "rows": 1,
+      "expect": "one unpaid invoice, amountVnd 99000, due 2026-09-06"
+    }
+  },
+  "notReachable": {
+    "partially refused": "step-33/parallel-1 established that no state literal `partial` exists anywhere in the served console composition, so no row this seed places can produce it."
+  }
+}

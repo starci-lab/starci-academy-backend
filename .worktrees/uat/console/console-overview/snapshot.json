@@ -1,0 +1,82 @@
+{
+  "runId": "20260904-131500-9d511ad",
+  "approval": "user-chat-20260903-provision-uat-identity-nivo-console-overview-dev",
+  "feature": "console",
+  "flow": "console-overview",
+  "env": "dev",
+  "commit": "9d511ad8c4c79b2d8d6a30f06c9f387fda2ccc1b",
+  "frozenAt": "2026-09-03T19:47:26.049Z",
+  "flowRoot": ".worktrees/uat/console/console-overview",
+  "snapshotRef": ".worktrees/uat/console/console-overview/snapshot.json",
+  "snapshotFingerprint": "sha256:964e1468cfb4bec8ed75dd020139ebbc1ba5632a3ac4f8fa155dfd0500252e19",
+  "lease": {
+    "leaseRef": "uat-lease://console/console-overview/session-20260903-162203-step-39",
+    "exclusive": true,
+    "expiresAt": "2026-09-03T20:47:26.050Z"
+  },
+  "admission": [
+    {
+      "kind": "frontend-surface-audit",
+      "ref": "step-35/parallel-1/response/response.md",
+      "commit": "9d511ad8c4c79b2d8d6a30f06c9f387fda2ccc1b"
+    },
+    {
+      "kind": "quality-verification",
+      "ref": "step-31/parallel-1/response/response.md",
+      "commit": "9d511ad8c4c79b2d8d6a30f06c9f387fda2ccc1b"
+    }
+  ],
+  "accounts": [
+    {
+      "alias": "reader",
+      "username": "uat-console-overview-reader",
+      "role": "customer",
+      "credentialName": "uat-shared",
+      "credentialRef": ".stacks/dev/secrets/uat.enc",
+      "custody": "sealed-shared-master-identity",
+      "isUat": true,
+      "plaintextRecorded": false,
+      "identity": "nivo/fe",
+      "provisionedBy": "20260903-162203-nivo-frontend.direction.decide-step-19"
+    }
+  ],
+  "fixtureNamespace": "uat-20260904-131500-9d511ad",
+  "seed": {
+    "recordsRef": ".worktrees/uat/console/console-overview/seed/records.json",
+    "expectedRef": ".worktrees/uat/console/console-overview/seed/expected.json",
+    "fingerprint": "sha256:4cb31f5840e00a2b964db48dacf2a797fe143b356ae3f1e8f8e1b4b9896c5b9f",
+    "namespace": "uat-20260904-131500-9d511ad",
+    "isUat": true
+  },
+  "cases": [
+    {
+      "caseId": "overview-shows-mixed-block-states",
+      "order": 1,
+      "as": "reader",
+      "assertions": [
+        "applications-answered",
+        "workspaces-answered",
+        "pod-status-needs-attention",
+        "domains-nothing-to-open",
+        "wallet-answered",
+        "invoice-intended-next-step"
+      ]
+    }
+  ],
+  "flowSource": "committed",
+  "golden": {
+    "state": "candidate",
+    "ref": ".worktrees/uat/console/console-overview/runs/20260904-131500-9d511ad/result.json",
+    "approvedBy": null,
+    "env": "dev"
+  },
+  "isolation": {
+    "sessionId": "20260903-162203-nivo-frontend.direction.decide",
+    "browserProfileRef": "playwright:persistent-context:scratchpad/uat39/profile-run (created and driven by this branch alone)",
+    "servedHead": "42f29d59dfafed42bdd10111a1ffae5099a78038",
+    "servedContainsCommit": true,
+    "ancestryEvidenceRef": "response/data/ancestry.json",
+    "seededIds": [],
+    "rollbackIds": []
+  }
+}
