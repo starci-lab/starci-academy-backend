@@ -113,6 +113,20 @@ describe("data-git diff → seed overlay (scenarios)",
                 expect(result.domainCount).toBe(1)
             })
 
+        it("concept change → concepts seed alone without a course or sync pass",
+            () => {
+                const result = run([
+                    "concepts/event-loop/sections/0-context/en.md",
+                ])
+
+                expect(result.overlay?.seeders.concepts).toBe(true)
+                expect(result.overlay?.seeders.courses.enabled).toBe(false)
+                expect(result.overlay?.seeders.courses.tracks).toBeDefined()
+                expect(Object.keys(result.overlay?.seeders.courses.tracks ?? [])).toHaveLength(0)
+                expect(result.courseCount).toBe(0)
+                expect(result.domainCount).toBe(1)
+            })
+
         it("unknown path → full reseed (null overlay, no narrowed override applied)",
             () => {
                 const result = run([

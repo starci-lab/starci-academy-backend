@@ -38,6 +38,7 @@ const DEFAULT_SEED_CONFIG: SeedConfig = {
                 enabled: false,
             },
         },
+        concepts: false,
         cv: false,
         foundations: false,
         headhunting: false,

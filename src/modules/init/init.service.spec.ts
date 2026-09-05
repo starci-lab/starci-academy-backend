@@ -482,8 +482,9 @@ describe("InitService",
                         ])
                     })
 
-                it("full-reseeds on a first pull (no previous SHA)",
+                it("builds the first full snapshot even when it has concepts but no courses directory",
                     async () => {
+                        readdirMock.mockRejectedValue(new Error("ENOENT"))
                         dataGitBootstrapService.ensure.mockResolvedValue(ensureResult({
                             previousSha: "",
                         }))
@@ -491,6 +492,7 @@ describe("InitService",
                         await service.onModuleInit()
 
                         expect(parseDataGitDiffMock).not.toHaveBeenCalled()
+                        expect(seedDiffOverlayService.buildFullConfig).toHaveBeenCalledWith([])
                         expect(setRuntimeSeedConfigMock).toHaveBeenCalledWith(fullConfig)
                     })
 

@@ -9,6 +9,7 @@ import type {
  * flag name, so a changed top-level repo folder can be gated directly.
  */
 export type DataGitDomain =
+    | "concepts"
     | "cv"
     | "foundations"
     | "headhunting"

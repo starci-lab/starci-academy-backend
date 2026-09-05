@@ -58,6 +58,7 @@ export interface SeedSeedersConfig {
     /** Course pipeline (modules, contents, challenges, lessons, flashcard, milestones). */
     courses: SeedCoursesConfig
     /** Standalone domain seeders (simple on/off). */
+    concepts: boolean
     cv: boolean
     foundations: boolean
     headhunting: boolean
@@ -175,6 +176,7 @@ export type InitSeedCourseValue = SeedScopeIndexes | {
 export interface InitSeedBlock {
     enabled?: boolean
     courses?: Record<string, InitSeedCourseValue>
+    concepts?: boolean
     foundations?: boolean
     codingProblems?: boolean
     aiModels?: boolean

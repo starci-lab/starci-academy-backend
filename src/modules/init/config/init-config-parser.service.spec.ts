@@ -50,6 +50,20 @@ describe("InitConfigParserService",
                         expect(config.seeders.courses.flashcard.enabled).toBe(false)
                     })
 
+                it("keeps an explicit concepts opt-out and does not enable an empty course pipeline",
+                    () => {
+                        const config = service.parse({
+                            seed: {
+                                concepts: false,
+                            },
+                        },
+                        [])
+
+                        expect(config.seeders.enabled).toBe(true)
+                        expect(config.seeders.concepts).toBe(false)
+                        expect(config.seeders.courses.enabled).toBe(false)
+                    })
+
                 it("expands the object form (milestones:true → all) + global flashcard flag",
                     () => {
                         const config = service.parse({

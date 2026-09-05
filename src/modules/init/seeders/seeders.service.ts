@@ -11,6 +11,9 @@ import {
     FoundationSeederService,
 } from "./foundations/seeder.service"
 import {
+    ConceptSeederService,
+} from "./concepts/seeder.service"
+import {
     HeadhuntingSeederService,
 } from "./headhuntings/seeder.service"
 import {
@@ -43,6 +46,7 @@ export class SeedersService {
         private readonly courseSeederService: CourseSeederService,
         private readonly cvSeederService: CvSeederService,
         private readonly foundationSeederService: FoundationSeederService,
+        private readonly conceptSeederService: ConceptSeederService,
         private readonly headhunterSeederService: HeadhuntingSeederService,
         private readonly catalogSeederService: CatalogSeederService,
         private readonly codingProblemSeederService: CodingProblemSeederService,
@@ -59,6 +63,7 @@ export class SeedersService {
         await this.courseSeederService.seed()
         await this.cvSeederService.seed()
         await this.foundationSeederService.seed()
+        await this.conceptSeederService.seed()
         await this.headhunterSeederService.seed()
         await this.codingProblemSeederService.seed()
         await this.advertisementSeederService.seed()

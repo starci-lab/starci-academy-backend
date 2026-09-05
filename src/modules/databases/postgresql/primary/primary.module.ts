@@ -204,6 +204,18 @@ import {
     CommunityPostEntity
 } from "./entities/community-post.entity"
 import {
+    ConceptSectionTranslationEntity
+} from "./entities/concept-section-translation.entity"
+import {
+    ConceptSectionEntity
+} from "./entities/concept-section.entity"
+import {
+    ConceptTranslationEntity
+} from "./entities/concept-translation.entity"
+import {
+    ConceptEntity
+} from "./entities/concept.entity"
+import {
     ConsultantTranslationEntity
 } from "./entities/consultant-translation.entity"
 import {
@@ -634,6 +646,10 @@ const PRIMARY_ENTITIES = [
     CourseEntity,
     CourseMetadataEntity,
     CourseTranslationEntity,
+    ConceptEntity,
+    ConceptTranslationEntity,
+    ConceptSectionEntity,
+    ConceptSectionTranslationEntity,
     PricingPhaseEntity,
     PrerequisiteEntity,
     PrerequisiteTranslationEntity,

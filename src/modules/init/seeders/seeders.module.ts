@@ -255,6 +255,27 @@ import {
     FoundationSeederService,
 } from "./foundations/seeder.service"
 import {
+    ConceptIdFactoryService,
+} from "./concepts/id-factories/concept.service"
+import {
+    ConceptSectionIdFactoryService,
+} from "./concepts/id-factories/concept-section.service"
+import {
+    ConceptInsertService,
+} from "./concepts/insert.service"
+import {
+    ConceptParserService,
+} from "./concepts/parser.service"
+import {
+    ConceptSectionPathService,
+} from "./concepts/path/concept-section.service"
+import {
+    ConceptPathService,
+} from "./concepts/path/concept.service"
+import {
+    ConceptSeederService,
+} from "./concepts/seeder.service"
+import {
     CatalogSeederService,
 } from "./catalog/catalog-seeder.service"
 import {
@@ -493,6 +514,13 @@ export class SeedersModule extends ConfigurableModuleClass {
             FoundationCategoryInsertService,
             FoundationInsertService,
             FoundationSeederService,
+            ConceptPathService,
+            ConceptSectionPathService,
+            ConceptIdFactoryService,
+            ConceptSectionIdFactoryService,
+            ConceptParserService,
+            ConceptInsertService,
+            ConceptSeederService,
             HeadhuntingCompanyPathService,
             ConsultantPathService,
             HeadhuntingCompanyIdFactoryService,
