@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: form_copilot
+      POSTGRES_USER: form_copilot
+      POSTGRES_PASSWORD: form_copilot
+    ports:
+      - "127.0.0.1:54329:5432"
+    volumes:
+      - form_copilot_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U form_copilot -d form_copilot"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  form_copilot_pg:

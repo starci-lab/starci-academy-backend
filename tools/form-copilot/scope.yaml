@@ -1,0 +1,47 @@
+schemaVersion: 8
+mission:
+  id: form-copilot-fixed-rehearsal
+  kind: reconstruct
+  target: one fixed owner-authorized Google Form with workbook-backed synthetic rehearsal data
+  delivery: direct local source archive to Tayson VPS; GitHub not required by user
+  users:
+    - authenticated owner/operator running isolated synthetic rehearsals
+  inclusions:
+    - fixed form identity; no editable URL
+    - 519 valid workbook rows joined to raw screening answers by Synthetic_ID
+    - exact count, timezone, time window and immediate or randomized scheduled execution
+    - randomized execution times only; immutable source answers
+    - PostgreSQL durable batches, row reservations, progress, history and recovery
+    - pause, resume and cancel pending jobs
+    - complete form section traversal with confirmation required for success
+    - private authenticated HTTPS deployment on the two requested domains
+  exclusions:
+    - AI-generated answers, provider tokens and arbitrary form URLs in the current workflow
+    - external form submissions during development or UAT
+    - presenting synthetic responses as real participants or research findings
+    - automatically retrying uncertain submissions
+    - changing unrelated VPS services, deleting data volumes or bypassing SSH host checks
+    - evading anti-bot, fraud, moderation or detection controls
+    - passwords, OTP, CAPTCHA, payment data, signatures and government identifiers
+    - reading or copying Codex, Claude Code or browser session credentials
+  dataOwnership:
+    webApp:
+      owns: [controls and presentation]
+      stores: [request UUID for idempotent retries]
+    localAgent:
+      owns: [fixed schema adapter, eligibility, scheduling, dispatch]
+      stores: [PostgreSQL batches, dataset identity, row snapshots, outcomes]
+    webpage:
+      owns: [rendered form and final submission]
+      stores: []
+  externalEffects:
+    - browser submits only when execution is explicitly enabled for the fixed authorized rehearsal form
+    - uncertain outcomes require operator verification before further action
+    - deployment requires verified SSH host identity and target DNS/ingress ownership
+  proof:
+    - typecheck passes
+    - isolated fixture proves full form traversal and blocked states
+    - isolated real PostgreSQL tests cover idempotency, concurrency and recovery
+    - fresh rendered UI and control walkthrough
+    - source archive digest and secret exclusion
+    - HTTPS and authenticated deployed health checks before declaring deployment complete

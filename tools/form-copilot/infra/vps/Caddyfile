@@ -1,0 +1,6 @@
+# Merge these blocks into the VPS's existing Caddy configuration only after
+# verifying that Caddy is the active owner of ports 80/443 and DNS points here.
+form.doanhnghieptayson.vn, api.form.doanhnghieptayson.vn {
+    encode zstd gzip
+    reverse_proxy 127.0.0.1:14317
+}

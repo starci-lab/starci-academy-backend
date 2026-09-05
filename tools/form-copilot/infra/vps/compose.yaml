@@ -1,0 +1,55 @@
+name: form-copilot
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: form_copilot
+      POSTGRES_USER: form_copilot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a unique database password}
+    volumes:
+      - form_copilot_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U form_copilot -d form_copilot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [private]
+  app:
+    image: ${FORM_COPILOT_IMAGE:-form-copilot:local}
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    init: true
+    security_opt:
+      - seccomp=./seccomp_profile.json
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      FORM_COPILOT_HOST: 0.0.0.0
+      FORM_COPILOT_PORT: 4317
+      DATABASE_URL: postgresql://form_copilot:${POSTGRES_PASSWORD:?Set a unique database password}@postgres:5432/form_copilot
+      FORM_COPILOT_AUTH_USER: ${FORM_COPILOT_AUTH_USER:-operator}
+      FORM_COPILOT_AUTH_PASSWORD: ${FORM_COPILOT_AUTH_PASSWORD:?Set a dashboard password with at least 20 characters}
+      FORM_COPILOT_PUBLIC_ORIGINS: https://form.doanhnghieptayson.vn,https://api.form.doanhnghieptayson.vn
+      FORM_COPILOT_ENABLE_SUBMISSIONS: ${FORM_COPILOT_ENABLE_SUBMISSIONS:-false}
+      FORM_COPILOT_BROWSER_HEADLESS: "true"
+    ports:
+      - "127.0.0.1:14317:4317"
+    shm_size: 512mb
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:4317/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks: [private, outbound]
+networks:
+  private:
+    internal: true
+  outbound: {}
+volumes:
+  form_copilot_pg:
