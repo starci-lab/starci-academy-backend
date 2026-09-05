@@ -231,8 +231,13 @@ describe("Concepts V1 init domain",
                 }))
                 const upsertTranslationMany = jest.fn(async () => undefined)
                 const service = new ConceptInsertService({
-                    upsertMany,
-                    upsertTranslationMany,
+                    transaction: async (work: (value: {
+                        upsertMany: typeof upsertMany
+                        upsertTranslationMany: typeof upsertTranslationMany
+                    }) => Promise<void>) => work({
+                        upsertMany,
+                        upsertTranslationMany,
+                    }),
                 } as never)
                 const parsed = await parser().parseMany()
                 const concept = parsed[0].concept
@@ -247,7 +252,7 @@ describe("Concepts V1 init domain",
                 ])
                 const rootCall = (upsertMany as jest.Mock).mock.calls[0]
                 expect(rootCall[1]).toHaveLength(2)
-                expect(rootCall[2]).toBeUndefined()
+                expect(rootCall[2]).toEqual({})
                 expect(upsertMany).toHaveBeenCalledWith(
                     expect.any(Function),
                     expect.any(Array),

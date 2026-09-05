@@ -32,20 +32,34 @@ export class ConceptInsertService {
         if (concepts.length === 0) {
             return
         }
+        await this.upsertService.transaction(async (upsertService) => {
+            await this.insertSnapshot(upsertService,
+                concepts)
+        })
+    }
+
+    private async insertSnapshot(
+        upsertService: UpsertService,
+        concepts: Array<DeepPartial<ConceptEntity>>,
+    ): Promise<void> {
         const roots = concepts.map((concept) => this.conceptRow(concept))
-        await this.upsertService.upsertMany(ConceptEntity,
-            roots)
+        await upsertService.upsertMany(ConceptEntity,
+            roots,
+            {
+            })
 
         for (const concept of concepts) {
-            await this.insertConceptChildren(concept)
+            await this.insertConceptChildren(upsertService,
+                concept)
         }
     }
 
     private async insertConceptChildren(
+        upsertService: UpsertService,
         concept: DeepPartial<ConceptEntity>,
     ): Promise<void> {
         const conceptId = concept.id as string
-        await this.upsertService.upsertTranslationMany(
+        await upsertService.upsertTranslationMany(
             ConceptTranslationEntity,
             concept.translations ?? [],
             {
@@ -55,7 +69,7 @@ export class ConceptInsertService {
 
         const sections = concept.sections ?? []
         const sectionRows = sections.map((section) => this.sectionRow(section))
-        await this.upsertService.upsertMany(
+        await upsertService.upsertMany(
             ConceptSectionEntity,
             sectionRows,
             {
@@ -65,7 +79,7 @@ export class ConceptInsertService {
             },
         )
         for (const section of sections) {
-            await this.upsertService.upsertTranslationMany(
+            await upsertService.upsertTranslationMany(
                 ConceptSectionTranslationEntity,
                 section.translations ?? [],
                 {
