@@ -47,8 +47,12 @@ import type {
     ConceptActivity,
     ConceptActivityKind,
     ConceptDifficulty,
+    ConceptInvariantParams,
     ConceptLearningOutcome,
+    LocalizedConceptMount,
+    LocalizedConceptSectionMount,
     ConceptReference,
+    ConceptSectionInvariantParams,
     ConceptSectionPhase,
     ConceptWorkspace,
     ParsedConceptMount,
@@ -75,6 +79,7 @@ const ACTIVITY_KINDS = new Set<ConceptActivityKind>([
     "choice",
     "exercise",
     "explain",
+    "retrieval",
     "simulation",
 ])
 
@@ -123,6 +128,17 @@ export class ConceptParserService {
                     `${displayId}/${locale}`))
         }
         const en = localized.get(Locale.En)!
+        for (const locale of Object.values(Locale).filter((item) => item !== Locale.En)) {
+            const value = localized.get(locale)!
+            this.assertConceptInvariants({
+                owner: `${displayId}/${locale}`,
+                english,
+                localized: localeMap.get(locale)!,
+                englishCopy: en,
+                localizedCopy: value,
+                orderIndex: path.orderIndex,
+            })
+        }
         return {
             id: conceptId,
             displayId,
@@ -185,6 +201,16 @@ export class ConceptParserService {
                         `${conceptDisplayId}/${displayId}/${locale}`))
             }
             const en = localized.get(Locale.En)!
+            for (const locale of Object.values(Locale).filter((item) => item !== Locale.En)) {
+                this.assertSectionInvariants({
+                    owner: `${conceptDisplayId}/${displayId}/${locale}`,
+                    english,
+                    localized: localeMap.get(locale)!,
+                    englishCopy: en,
+                    localizedCopy: localized.get(locale)!,
+                    orderIndex: path.orderIndex,
+                })
+            }
             sections.push({
                 id: sectionId,
                 displayId,
@@ -227,15 +253,155 @@ export class ConceptParserService {
         return result
     }
 
-    private localizedConcept(raw: RawConceptMount, owner: string): {
-        title: string
-        description: string
-        body: string | null
-        learningOutcomes: Array<ConceptLearningOutcome> | null
-        prerequisites: Array<ConceptLearningOutcome> | null
-        references: Array<ConceptReference> | null
-        activities: Array<ConceptActivity> | null
-    } {
+    private assertConceptInvariants({
+        owner,
+        english,
+        localized,
+        englishCopy,
+        localizedCopy,
+        orderIndex,
+    }: ConceptInvariantParams): void {
+        this.assertInvariant(owner,
+            {
+                category: this.requiredString(english.category,
+                    `${owner}.category/en`),
+                difficulty: this.difficulty(english.difficulty,
+                    `${owner}/en`),
+                minutesRead: this.nonNegativeInt(english.minutesRead,
+                    `${owner}.minutesRead/en`),
+                implementation: this.requiredString(english.implementation,
+                    `${owner}.implementation/en`),
+                sortIndex: this.sortIndex(english.sortIndex,
+                    orderIndex),
+                workspace: this.workspaceTopology(this.workspace(english.workspace,
+                    `${owner}.workspace/en`)),
+                learningOutcomeIds: this.ids(englishCopy.learningOutcomes),
+                prerequisiteIds: this.ids(englishCopy.prerequisites),
+                referenceIds: this.ids(englishCopy.references),
+                activities: this.activityTopology(englishCopy.activities),
+            },
+            {
+                category: this.requiredString(localized.category,
+                    `${owner}.category`),
+                difficulty: this.difficulty(localized.difficulty,
+                    owner),
+                minutesRead: this.nonNegativeInt(localized.minutesRead,
+                    `${owner}.minutesRead`),
+                implementation: this.requiredString(localized.implementation,
+                    `${owner}.implementation`),
+                sortIndex: this.sortIndex(localized.sortIndex,
+                    orderIndex),
+                workspace: this.workspaceTopology(this.workspace(localized.workspace,
+                    `${owner}.workspace`)),
+                learningOutcomeIds: this.ids(localizedCopy.learningOutcomes),
+                prerequisiteIds: this.ids(localizedCopy.prerequisites),
+                referenceIds: this.ids(localizedCopy.references),
+                activities: this.activityTopology(localizedCopy.activities),
+            })
+    }
+
+    private assertSectionInvariants({
+        owner,
+        english,
+        localized,
+        englishCopy,
+        localizedCopy,
+        orderIndex,
+    }: ConceptSectionInvariantParams): void {
+        this.assertInvariant(owner,
+            {
+                phase: this.phase(english.phase,
+                    `${owner}/en`),
+                sortIndex: this.sortIndex(english.sortIndex,
+                    orderIndex),
+                activities: this.activityTopology(englishCopy.activities),
+            },
+            {
+                phase: this.phase(localized.phase,
+                    owner),
+                sortIndex: this.sortIndex(localized.sortIndex,
+                    orderIndex),
+                activities: this.activityTopology(localizedCopy.activities),
+            })
+    }
+
+    private assertInvariant(owner: string, english: unknown, localized: unknown): void {
+        if (JSON.stringify(english) !== JSON.stringify(localized)) {
+            throw new ConceptMountInvalidException({
+                owner,
+                reason: "must preserve English metadata and structural IDs",
+            })
+        }
+    }
+
+    private ids(items: Array<{ id: string }> | null): Array<string> {
+        return (items ?? []).map((item) => item.id)
+    }
+
+    private workspaceTopology(workspace: ConceptWorkspace | null): unknown {
+        if (!workspace) {
+            return null
+        }
+        return {
+            runtime: workspace.runtime,
+            files: workspace.files.map((file) => ({
+                path: file.path,
+                role: file.role,
+            })),
+            commands: workspace.commands ?? null,
+        }
+    }
+
+    private activityTopology(activities: Array<ConceptActivity> | null): unknown {
+        return (activities ?? []).map((activity) => ({
+            id: activity.id,
+            kind: activity.kind,
+            stableKey: activity.stableKey ?? null,
+            placementSortIndex: activity.placementSortIndex ?? null,
+            responseKind: activity.responseKind ?? null,
+            evaluationMethod: activity.evaluationMethod ?? null,
+            isDiagnostic: activity.isDiagnostic ?? null,
+            feedbackRelease: activity.feedbackRelease ?? null,
+            outcomeIds: activity.outcomeIds ?? [],
+            afterDays: activity.afterDays ?? null,
+            options: (activity.options ?? []).map((option) => ({
+                id: option.id,
+                isCorrect: option.isCorrect ?? null,
+            })),
+            rubric: (activity.rubric ?? []).map((criterion) => ({
+                id: criterion.id,
+                maxScore: criterion.maxScore,
+            })),
+            simulation: activity.simulation
+                ? {
+                    engine: activity.simulation.engine,
+                    initialStateId: activity.simulation.initialStateId,
+                    states: activity.simulation.states.map((state) => ({
+                        id: state.id,
+                        isSuccess: state.isSuccess,
+                    })),
+                    actions: activity.simulation.actions.map((action) => action.id),
+                    transitions: activity.simulation.transitions,
+                }
+                : null,
+            exercise: activity.exercise
+                ? {
+                    verificationMode: activity.exercise.verificationMode,
+                    files: (activity.exercise.files ?? []).map((file) => ({
+                        relativePath: file.relativePath,
+                        role: file.role,
+                        syntaxLanguage: file.syntaxLanguage ?? null,
+                    })),
+                    checks: activity.exercise.checks ?? [],
+                }
+                : null,
+        }))
+    }
+
+    private localizedConcept(
+        raw: RawConceptMount,
+        owner: string,
+    ): LocalizedConceptMount {
         return {
             title: this.requiredString(raw.title,
                 `${owner}.title`),
@@ -268,11 +434,10 @@ export class ConceptParserService {
         }
     }
 
-    private localizedSection(raw: RawConceptSectionMount, owner: string): {
-        title: string
-        body: string
-        activities: Array<ConceptActivity> | null
-    } {
+    private localizedSection(
+        raw: RawConceptSectionMount,
+        owner: string,
+    ): LocalizedConceptSectionMount {
         return {
             title: this.requiredString(raw.title,
                 `${owner}.title`),

@@ -21,7 +21,12 @@ export type ConceptSectionPhase =
     | "reflect"
 
 /** Supported interactive activity variants. */
-export type ConceptActivityKind = "choice" | "exercise" | "explain" | "simulation"
+export type ConceptActivityKind =
+    | "choice"
+    | "exercise"
+    | "explain"
+    | "retrieval"
+    | "simulation"
 
 /** One localized learning outcome or prerequisite. */
 export interface ConceptLearningOutcome {
@@ -185,6 +190,44 @@ export interface RawConceptSectionMount {
     sortIndex?: unknown
     body?: unknown
     activities?: unknown
+}
+
+/** Validated locale-specific visible and private fields for one concept. */
+export interface LocalizedConceptMount {
+    title: string
+    description: string
+    body: string | null
+    learningOutcomes: Array<ConceptLearningOutcome> | null
+    prerequisites: Array<ConceptLearningOutcome> | null
+    references: Array<ConceptReference> | null
+    activities: Array<ConceptActivity> | null
+}
+
+/** Validated locale-specific visible and private fields for one section. */
+export interface LocalizedConceptSectionMount {
+    title: string
+    body: string
+    activities: Array<ConceptActivity> | null
+}
+
+/** Inputs used to compare concept metadata and structural identities across locales. */
+export interface ConceptInvariantParams {
+    owner: string
+    english: RawConceptMount
+    localized: RawConceptMount
+    englishCopy: LocalizedConceptMount
+    localizedCopy: LocalizedConceptMount
+    orderIndex: number
+}
+
+/** Inputs used to compare section metadata and activity topology across locales. */
+export interface ConceptSectionInvariantParams {
+    owner: string
+    english: RawConceptSectionMount
+    localized: RawConceptSectionMount
+    englishCopy: LocalizedConceptSectionMount
+    localizedCopy: LocalizedConceptSectionMount
+    orderIndex: number
 }
 
 /** One parsed concept and its resolved mount path. */

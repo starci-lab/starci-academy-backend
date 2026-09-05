@@ -211,6 +211,31 @@ describe("Concepts V1 init domain",
                 }).parseMany()).rejects.toThrow("activities must be a valid JSON array")
             })
 
+        it("rejects locale metadata and activity topology drift",
+            async () => {
+                const viConcept = conceptMarkdown(Locale.Vi).replace(
+                    "<!-- @starci/seperator -->\nbackend\n<!-- @starci/seperator -->",
+                    "<!-- @starci/seperator -->\nfrontend\n<!-- @starci/seperator -->",
+                )
+                await expect(parser({
+                    "concepts/0-request-response-lifecycle/vi.md": viConcept,
+                }).parseMany()).rejects.toThrow(
+                    "must preserve English metadata and structural IDs",
+                )
+
+                await expect(parser({
+                    "concepts/0-request-response-lifecycle/sections/0-predict/vi.md":
+                        sectionMarkdown(Locale.Vi,
+                            [{
+                                id: "different-choice",
+                                kind: "choice",
+                                prompt: "Which trace?",
+                            }]),
+                }).parseMany()).rejects.toThrow(
+                    "must preserve English metadata and structural IDs",
+                )
+            })
+
         it("keeps deterministic IDs stable independently of folder order",
             () => {
                 const ids = new ConceptIdFactoryService()
@@ -252,7 +277,8 @@ describe("Concepts V1 init domain",
                 ])
                 const rootCall = (upsertMany as jest.Mock).mock.calls[0]
                 expect(rootCall[1]).toHaveLength(2)
-                expect(rootCall[2]).toEqual({})
+                expect(rootCall[2]).toEqual({
+                })
                 expect(upsertMany).toHaveBeenCalledWith(
                     expect.any(Function),
                     expect.any(Array),
