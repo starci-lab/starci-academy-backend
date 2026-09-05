@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Form Copilot — Local Demo</title>
+    <link rel="stylesheet" href="/demo.css" />
+    <script src="/demo.js" defer></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <p class="eyebrow">LOCAL TEST FIXTURE</p>
+        <h1>Phiếu trải nghiệm workshop</h1>
+        <p>Form này chỉ chạy trên máy để kiểm tra scan → AI proposal → review → fill. Nút gửi không truyền dữ liệu ra ngoài.</p>
+      </header>
+
+      <form id="workshop-form" class="card">
+        <fieldset>
+          <legend>Thông tin người tham gia</legend>
+          <div class="grid two">
+            <label>
+              <span>Họ và tên <b aria-label="bắt buộc">*</b></span>
+              <input name="fullName" autocomplete="name" required maxlength="120" />
+            </label>
+            <label>
+              <span>Email <b aria-label="bắt buộc">*</b></span>
+              <input name="email" type="email" autocomplete="email" required />
+            </label>
+            <label>
+              <span>Tuổi</span>
+              <input name="age" type="number" min="18" max="70" step="1" aria-describedby="age-help" />
+              <small id="age-help">Synthetic QA có thể lấy mẫu phân phối chuẩn trong khoảng 18–70.</small>
+            </label>
+            <label>
+              <span>Nghề nghiệp</span>
+              <select name="occupation">
+                <option value="">Chọn một mục</option>
+                <option value="student">Sinh viên</option>
+                <option value="developer">Lập trình viên</option>
+                <option value="designer">Thiết kế</option>
+                <option value="other">Khác</option>
+              </select>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Đánh giá workshop</legend>
+          <div class="choice-group">
+            <span>Mức độ hài lòng</span>
+            <label><input type="radio" name="satisfaction" value="3" /> Bình thường</label>
+            <label><input type="radio" name="satisfaction" value="4" /> Hài lòng</label>
+            <label><input type="radio" name="satisfaction" value="5" /> Rất hài lòng</label>
+          </div>
+          <label>
+            <span>Điểm sẵn sàng giới thiệu (0–10)</span>
+            <input name="recommendationScore" type="range" min="0" max="10" step="1" value="5" />
+          </label>
+          <label>
+            <span>Điều hữu ích nhất</span>
+            <textarea name="highlight" rows="4" maxlength="600" placeholder="Viết nhận xét của chính bạn"></textarea>
+          </label>
+          <label class="check"><input type="checkbox" name="followUp" /> Cho phép liên hệ để nhận tài liệu workshop</label>
+        </fieldset>
+
+        <div class="actions">
+          <button type="reset" class="secondary">Đặt lại</button>
+          <button type="submit">Xem payload local</button>
+        </div>
+      </form>
+
+      <section id="result" class="result" hidden aria-live="polite">
+        <h2>Payload local</h2>
+        <pre></pre>
+      </section>
+    </main>
+  </body>
+</html>

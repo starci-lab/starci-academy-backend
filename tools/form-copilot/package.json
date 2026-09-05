@@ -1,0 +1,34 @@
+{
+  "name": "form-copilot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixed-form synthetic rehearsal scheduler with Vite, NestJS and PostgreSQL.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "predev": "npm run build -w @form-copilot/contracts && npm run build -w @form-copilot/api",
+    "dev": "concurrently -n API,WEB -c magenta,cyan \"npm run dev -w @form-copilot/api\" \"npm run dev -w @form-copilot/web\"",
+    "dev:api": "npm run dev -w @form-copilot/api",
+    "dev:web": "npm run dev -w @form-copilot/web",
+    "start": "npm run start -w @form-copilot/api",
+    "build": "npm run build -w @form-copilot/contracts && npm run build -w @form-copilot/api && npm run build -w @form-copilot/web",
+    "typecheck": "npm run build -w @form-copilot/contracts && npm run typecheck -w @form-copilot/api && npm run typecheck -w @form-copilot/web",
+    "test": "npm run build -w @form-copilot/contracts && npm run test -w @form-copilot/api && node --test apps/web/src/schedule.test.mjs apps/web/src/api.test.mjs apps/web/src/batch-status.test.mjs",
+    "check": "npm run typecheck && npm test && npm run build",
+    "db:up": "docker compose -f infra/compose.yaml up -d",
+    "db:down": "docker compose -f infra/compose.yaml down",
+    "package:vps": "node scripts/package-vps.mjs",
+    "service:mac:install": "node scripts/macos-service.mjs install",
+    "service:mac:uninstall": "node scripts/macos-service.mjs uninstall",
+    "service:mac:print": "node scripts/macos-service.mjs print"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

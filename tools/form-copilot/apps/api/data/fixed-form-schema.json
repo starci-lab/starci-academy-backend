@@ -1,0 +1,1915 @@
+{
+  "formId": "1OkPUIYodvLyBjLr9lVFeVtHv_RVIzAYhxevcxJozu34",
+  "resolvedUrl": "https://docs.google.com/forms/d/e/1FAIpQLSd-prSZWEJh6ABB1iLBSYRr0gFu7IVDMwbqEhPleSdYWyybVg/viewform",
+  "observedAt": "2026-09-04T14:00:01.489Z",
+  "observation": "Public GET only; browser traversal and live submission not verified.",
+  "sha256": "23f21627d142e3903400b60684c8db51066b39e1659744aad0bd6ae44409b531",
+  "structure": {
+    "title": "Khảo sát StarCi Academy - Social Media Marketing, Brand Trust & Enrollment Intention",
+    "items": [
+      {
+        "id": 670753711,
+        "title": "I have read the information above and voluntarily agree to participate. / Tôi đã đọc thông tin trên và tự nguyện đồng ý tham gia.",
+        "description": null,
+        "type": 2,
+        "entries": [
+          [
+            1720946146,
+            [
+              [
+                "Yes / Có",
+                null,
+                648925430
+              ],
+              [
+                "No / Không",
+                null,
+                1486587414
+              ]
+            ],
+            1
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 1486587414,
+        "title": "Cảm ơn bạn đã quan tâm. / Thank you for your interest.",
+        "description": "Dựa trên câu trả lời sàng lọc, bạn hiện không thuộc đối tượng khảo sát này. Vui lòng nhấn Nộp để kết thúc. / Based on your screening answers, you are not part of this survey's target group. Please click Submit to finish.",
+        "type": 8,
+        "entries": null,
+        "next": -3
+      },
+      {
+        "id": 648925430,
+        "title": "Screening S0",
+        "description": null,
+        "type": 8,
+        "entries": null,
+        "next": -2
+      },
+      {
+        "id": 615270226,
+        "title": "[S0] Are you 18 years old or above? / Bạn có từ đủ 18 tuổi trở lên không?",
+        "description": null,
+        "type": 2,
+        "entries": [
+          [
+            648914929,
+            [
+              [
+                "Yes / Có",
+                null,
+                -2
+              ],
+              [
+                "No / Không",
+                null,
+                1486587414
+              ]
+            ],
+            1
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 1393194029,
+        "title": "Screening S1",
+        "description": null,
+        "type": 8,
+        "entries": null,
+        "next": -2
+      },
+      {
+        "id": 440438527,
+        "title": "[S1] Do you currently live in Vietnam? / Bạn hiện đang sinh sống tại Việt Nam không?",
+        "description": null,
+        "type": 2,
+        "entries": [
+          [
+            1641707267,
+            [
+              [
+                "Yes / Có",
+                null,
+                -2
+              ],
+              [
+                "No / Không",
+                null,
+                1486587414
+              ]
+            ],
+            1
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 605340261,
+        "title": "Screening S2",
+        "description": null,
+        "type": 8,
+        "entries": null,
+        "next": -2
+      },
+      {
+        "id": 1765815250,
+        "title": "[S2] Do you actively use social media (e.g., Facebook, TikTok, Instagram, YouTube)? / Bạn có thường xuyên sử dụng mạng xã hội (ví dụ: Facebook, TikTok, Instagram, YouTube) không?",
+        "description": null,
+        "type": 2,
+        "entries": [
+          [
+            565575631,
+            [
+              [
+                "Yes / Có",
+                null,
+                -2
+              ],
+              [
+                "No / Không",
+                null,
+                1486587414
+              ]
+            ],
+            1
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 1111724667,
+        "title": "Screening S3",
+        "description": null,
+        "type": 8,
+        "entries": null,
+        "next": -2
+      },
+      {
+        "id": 1471933332,
+        "title": "[S3] Are you interested in learning IT-related knowledge or skills through online courses? / Bạn có quan tâm đến việc học kiến thức hoặc kỹ năng CNTT thông qua các khóa học trực tuyến không?",
+        "description": null,
+        "type": 2,
+        "entries": [
+          [
+            2018620997,
+            [
+              [
+                "Yes / Có",
+                null,
+                -2
+              ],
+              [
+                "No / Không",
+                null,
+                1486587414
+              ]
+            ],
+            1
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 1288449392,
+        "title": "Screening S4",
+        "description": null,
+        "type": 8,
+        "entries": null,
+        "next": -2
+      },
+      {
+        "id": 1173735886,
+        "title": "[S4] Before taking this survey, had you previously seen social media content from StarCi Academy? / Trước khi bắt đầu khảo sát này, bạn đã từng xem nội dung trên mạng xã hội của StarCi Academy chưa?",
+        "description": null,
+        "type": 2,
+        "entries": [
+          [
+            1024290257,
+            [
+              [
+                "Yes / Có",
+                null,
+                -2
+              ],
+              [
+                "No / Không",
+                null,
+                1486587414
+              ]
+            ],
+            1
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 1826241486,
+        "title": "Screening S5",
+        "description": null,
+        "type": 8,
+        "entries": null,
+        "next": -2
+      },
+      {
+        "id": 1486650255,
+        "title": "[S5] Have you already registered for, paid for, started, or completed a course at StarCi Academy? / Bạn đã từng đăng ký, thanh toán, bắt đầu học hoặc hoàn thành một khóa học tại StarCi Academy chưa?",
+        "description": null,
+        "type": 2,
+        "entries": [
+          [
+            404230926,
+            [
+              [
+                "Yes / Có",
+                null,
+                1486587414
+              ],
+              [
+                "No / Không",
+                null,
+                -2
+              ]
+            ],
+            1
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 1894232414,
+        "title": "Social Media Marketing",
+        "description": null,
+        "type": 8,
+        "entries": null,
+        "next": -2
+      },
+      {
+        "id": 1176905522,
+        "title": "Phần 2 - Các thang đo / Section 2 - Construct Items",
+        "description": "Please answer all academy-related questions specifically with reference to StarCi Academy. For the Social Media Marketing items, base your responses only on social media content from this academy that you had already seen before taking this survey.\n\nVui lòng trả lời toàn bộ các câu hỏi liên quan đến học viện dựa riêng trên StarCi Academy. Đối với các câu về Social Media Marketing, hãy chỉ dựa trên những nội dung mạng xã hội của học viện mà bạn đã từng xem trước khi tham gia khảo sát này.",
+        "type": 6,
+        "entries": null,
+        "next": null
+      },
+      {
+        "id": 1273502471,
+        "title": "Social Media Content",
+        "description": null,
+        "type": 7,
+        "entries": [
+          [
+            624690190,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[SMC1] The academy's social media content is interesting. / Nội dung mạng xã hội của học viện thú vị."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            102389313,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[SMC2] The academy's social media content reflects current trends in IT learning. / Nội dung mạng xã hội của học viện phản ánh các xu hướng hiện tại trong việc học CNTT."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            952364040,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[SMC3] The academy's social media content is relevant to what I look for when considering an online IT course. / Nội dung mạng xã hội của học viện phù hợp với những điều tôi quan tâm khi cân nhắc một khóa CNTT trực tuyến."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            331185726,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[SMC4] The academy's social media content is of high overall quality. / Nội dung mạng xã hội của học viện có chất lượng tổng thể cao."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 522453116,
+        "title": "Entertainment",
+        "description": null,
+        "type": 7,
+        "entries": [
+          [
+            999550690,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[ENT1] The academy's social media content is enjoyable. / Nội dung mạng xã hội của học viện mang lại cảm giác thích thú."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            1125631285,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[ENT2] The academy's social media content is entertaining. / Nội dung mạng xã hội của học viện có tính giải trí."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            866276214,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[ENT3] I find it pleasant to follow the academy on social media. / Tôi cảm thấy dễ chịu khi theo dõi học viện trên mạng xã hội."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 133710949,
+        "title": "Informativeness",
+        "description": null,
+        "type": 7,
+        "entries": [
+          [
+            679498975,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INF1] The academy's social media is a good source of information about its courses. / Mạng xã hội của học viện là một nguồn thông tin hữu ích về các khóa học."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            841891631,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INF2] The academy's social media provides timely information. / Mạng xã hội của học viện cung cấp thông tin kịp thời."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            1663161886,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INF3] The academy's social media provides useful information for evaluating its courses. / Mạng xã hội của học viện cung cấp thông tin hữu ích để tôi đánh giá các khóa học."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            68202279,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INF4] The academy's social media provides enough information for me to understand what its courses offer. / Mạng xã hội của học viện cung cấp đủ thông tin để tôi hiểu các khóa học của học viện mang lại điều gì."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 320142532,
+        "title": "Interactivity",
+        "description": null,
+        "type": 7,
+        "entries": [
+          [
+            1090065210,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INT1] It is easy to express my opinions through the academy's social media. / Tôi dễ dàng bày tỏ ý kiến của mình qua mạng xã hội của học viện."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            1745841168,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INT2] Two-way interaction with the academy is possible through its social media. / Có thể tương tác hai chiều với học viện thông qua các kênh mạng xã hội của học viện."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            1403523556,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INT3] It is easy to interact with other users through the academy's social media. / Tôi dễ dàng tương tác với những người dùng khác thông qua mạng xã hội của học viện."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 2029458523,
+        "title": "Credibility",
+        "description": null,
+        "type": 7,
+        "entries": [
+          [
+            1272178199,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[CRE1] The information on the academy's social media is credible. / Thông tin trên mạng xã hội của học viện có độ tin cậy cao."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            714675035,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[CRE2] The information on the academy's social media is trustworthy. / Thông tin trên mạng xã hội của học viện có thể tin tưởng được."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            1927598001,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[CRE3] The information on the academy's social media is believable. / Thông tin trên mạng xã hội của học viện có cơ sở để tin."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            690905115,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[CRE4] The information on the academy's social media is convincing. / Thông tin trên mạng xã hội của học viện có tính thuyết phục."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 121566021,
+        "title": "Brand Trust",
+        "description": null,
+        "type": 8,
+        "entries": null,
+        "next": -2
+      },
+      {
+        "id": 2018291142,
+        "title": "Brand Trust",
+        "description": null,
+        "type": 7,
+        "entries": [
+          [
+            1751448132,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[BT1] I trust this academy. / Tôi tin tưởng học viện này."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            2117139404,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[BT2] I can rely on this academy. / Tôi có thể tin cậy vào học viện này."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            1231020917,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[BT3] This is an honest academy. / Tôi cho rằng đây là một học viện hoạt động trung thực."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            445001749,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[BT4] This academy is safe to deal with. / Tôi cảm thấy an tâm khi cân nhắc theo học tại học viện này."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 143612695,
+        "title": "Enrollment Intention",
+        "description": null,
+        "type": 8,
+        "entries": null,
+        "next": -2
+      },
+      {
+        "id": 293301780,
+        "title": "Enrollment Intention",
+        "description": null,
+        "type": 7,
+        "entries": [
+          [
+            1153906151,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[EI1] I intend to enrol in a course at this online IT academy. / Tôi dự định ghi danh một khóa học tại học viện CNTT trực tuyến này."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            84976918,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[EI2] I would seriously consider enrolling in a course at this academy when choosing where to study IT online. / Tôi sẽ nghiêm túc cân nhắc đăng ký một khóa học tại học viện này khi lựa chọn nơi học CNTT trực tuyến."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            1487950005,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[EI3] It is likely that I will register for a course at this academy in the near future. / Nhiều khả năng tôi sẽ đăng ký một khóa học tại học viện này trong thời gian tới."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            127024562,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[EI4] I plan to enrol in a course at this academy when I next choose an online IT course. / Tôi có kế hoạch đăng ký một khóa học tại học viện này khi lần tới lựa chọn một khóa CNTT trực tuyến."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 1408740410,
+        "title": "Technology Readiness",
+        "description": null,
+        "type": 8,
+        "entries": null,
+        "next": -2
+      },
+      {
+        "id": 1624561584,
+        "title": "Technology Readiness",
+        "description": "The following statements are about your general attitude toward technology in daily life, not specifically about StarCi Academy. / Các phát biểu sau đây liên quan đến thái độ chung của bạn đối với công nghệ trong cuộc sống hằng ngày, không liên quan riêng đến StarCi Academy.",
+        "type": 6,
+        "entries": null,
+        "next": null
+      },
+      {
+        "id": 1225565842,
+        "title": "Optimism",
+        "description": null,
+        "type": 7,
+        "entries": [
+          [
+            891048347,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[OPT1] New technologies contribute to a better quality of life. / Công nghệ mới góp phần nâng cao chất lượng cuộc sống."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            1370864209,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[OPT2] Technology gives me more freedom of mobility. / Công nghệ giúp tôi linh hoạt hơn trong việc di chuyển và thực hiện các hoạt động hằng ngày."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            185323722,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[OPT3] Technology gives people more control over their daily lives. / Công nghệ giúp con người kiểm soát cuộc sống hằng ngày tốt hơn."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            1840221574,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[OPT4] Technology makes me more productive in my personal life. / Công nghệ giúp tôi làm việc hiệu quả hơn trong đời sống cá nhân."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 1574504687,
+        "title": "Innovativeness",
+        "description": null,
+        "type": 7,
+        "entries": [
+          [
+            2039910171,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INN1] Other people come to me for advice on new technologies. / Người khác thường tìm đến tôi để xin lời khuyên về công nghệ mới."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            1960330182,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INN2] In general, I am among the first in my circle to acquire new technology when it appears. / Nhìn chung, tôi thuộc nhóm những người đầu tiên trong các mối quan hệ xung quanh mình sở hữu công nghệ mới khi nó xuất hiện."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            914063966,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INN3] I can usually figure out new high-tech products and services without help from others. / Tôi thường có thể tự tìm hiểu cách sử dụng các sản phẩm và dịch vụ công nghệ mới mà không cần người khác giúp đỡ."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            1452069977,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INN4] I keep up with the latest technological developments in my areas of interest. / Tôi thường xuyên cập nhật những phát triển công nghệ mới nhất trong các lĩnh vực mình quan tâm."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 1790667728,
+        "title": "Discomfort",
+        "description": null,
+        "type": 7,
+        "entries": [
+          [
+            1737967834,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[DIS1] When I get technical support, I sometimes feel as if I am being taken advantage of by someone who knows more than I do. / Khi nhận hỗ trợ kỹ thuật, đôi khi tôi cảm thấy mình có thể bị người hiểu biết hơn lợi dụng."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            90886313,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[DIS2] Technical support lines are not helpful because they don't explain things in terms I understand. / Các kênh hỗ trợ kỹ thuật không hữu ích vì họ không giải thích theo cách mà tôi có thể hiểu."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            955755880,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[DIS3] Sometimes I think technology systems are not designed for use by ordinary people. / Đôi khi tôi nghĩ các hệ thống công nghệ không được thiết kế để người bình thường có thể dễ dàng sử dụng."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            627857569,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[DIS4] There is no such thing as a manual for a high-tech product written in plain language. / Hầu như không có tài liệu hướng dẫn cho sản phẩm công nghệ cao được viết bằng ngôn ngữ thật sự dễ hiểu."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 1679875664,
+        "title": "Insecurity",
+        "description": null,
+        "type": 7,
+        "entries": [
+          [
+            254773189,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INS1] People are too dependent on technology to do things for them. / Con người đang quá phụ thuộc vào công nghệ để làm mọi việc thay mình."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            997874305,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INS2] Too much technology distracts people to a point that is harmful. / Việc sử dụng quá nhiều công nghệ khiến con người mất tập trung đến mức có hại."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            31862889,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INS3] Technology lowers the quality of relationships by reducing personal interaction. / Công nghệ làm giảm chất lượng các mối quan hệ vì làm giảm tương tác trực tiếp giữa người với người."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ],
+          [
+            1029911075,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "[INS4] I do not feel confident doing business with a place that can only be reached online. / Tôi không cảm thấy yên tâm khi giao dịch với một tổ chức chỉ có thể liên hệ qua môi trường trực tuyến."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 2053498637,
+        "title": "Demographics / Thông tin nhân khẩu học",
+        "description": null,
+        "type": 8,
+        "entries": null,
+        "next": -2
+      },
+      {
+        "id": 1016734157,
+        "title": "Thông tin nhân khẩu học / Demographics",
+        "description": null,
+        "type": 6,
+        "entries": null,
+        "next": null
+      },
+      {
+        "id": 1167937533,
+        "title": "Độ tuổi của bạn? / Your age group?",
+        "description": null,
+        "type": 2,
+        "entries": [
+          [
+            361560329,
+            [
+              [
+                "18-22"
+              ],
+              [
+                "23-27"
+              ],
+              [
+                "28-34"
+              ],
+              [
+                "35 trở lên / 35+"
+              ]
+            ],
+            1
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 2125450785,
+        "title": "Giới tính / Gender",
+        "description": null,
+        "type": 2,
+        "entries": [
+          [
+            1753645290,
+            [
+              [
+                "Nữ / Female"
+              ],
+              [
+                "Nam / Male"
+              ],
+              [
+                "Khác / Other"
+              ],
+              [
+                "Không muốn trả lời / Prefer not to say"
+              ]
+            ],
+            1
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 841413909,
+        "title": "Hiện tại bạn thuộc nhóm nào? / What is your current status?",
+        "description": null,
+        "type": 2,
+        "entries": [
+          [
+            411165085,
+            [
+              [
+                "Học sinh / Sinh viên (Student)"
+              ],
+              [
+                "Đi làm (Working)"
+              ],
+              [
+                "Vừa học vừa làm (Both)"
+              ],
+              [
+                "Khác (Other)"
+              ]
+            ],
+            1
+          ]
+        ],
+        "next": null
+      }
+    ]
+  }
+}

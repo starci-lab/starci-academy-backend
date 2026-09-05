@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Form Copilot Local",
+  "version": "0.1.0",
+  "description": "Review-first AI form filling for owned and allowlisted forms.",
+  "permissions": ["activeTab", "scripting", "sidePanel", "storage"],
+  "host_permissions": ["http://127.0.0.1:4317/*", "http://localhost:4317/*"],
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Mở Form Copilot"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  }
+}

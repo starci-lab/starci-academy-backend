@@ -1,0 +1,14 @@
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/*_ed25519*
+**/*_rsa*
+.git
+.worktrees
+artifacts
+extension
+**/browser-profile*
+**/*.log

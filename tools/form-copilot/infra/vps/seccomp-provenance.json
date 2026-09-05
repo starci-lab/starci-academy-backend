@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "status": "compose-configured-local-smoke-passed-vps-unverified",
+  "activated": true,
+  "activationScope": "Compose configuration only; not deployed to the VPS",
+  "policyFile": "seccomp_profile.json",
+  "policySha256": "afa3a4254f50a46fbad4fe5fd11bed3d67643fe9e4e931411f47f2ffa5c10d7f",
+  "base": {
+    "repository": "https://github.com/moby/profiles",
+    "release": "seccomp/v0.2.3",
+    "commit": "836ae4d37ef2ec995c77c99fc55f5b5f3af3a897",
+    "path": "seccomp/default.json",
+    "url": "https://raw.githubusercontent.com/moby/profiles/836ae4d37ef2ec995c77c99fc55f5b5f3af3a897/seccomp/default.json",
+    "sha256": "536529b665dd0972c37bfb569f5d4ac8a53592e7b00752bc39ff063ca9864c74",
+    "bytes": 13470
+  },
+  "delta": {
+    "operation": "prepend one rule to syscalls; retain all other base JSON values exactly",
+    "documentation": "https://playwright.dev/docs/docker#crawling-and-scraping",
+    "rule": {
+      "comment": "Allow Chromium user-namespace sandbox creation (Playwright documented delta)",
+      "names": ["clone", "setns", "unshare"],
+      "action": "SCMP_ACT_ALLOW",
+      "args": [],
+      "includes": {},
+      "excludes": {}
+    },
+    "baseValuesUnchangedAfterRemovingRule": true
+  },
+  "review": {
+    "observedAt": "2026-09-04",
+    "localDockerEngineObserved": "29.5.2",
+    "intendedVpsDockerEngineVerified": false,
+    "finalImageCompatibilityVerified": false,
+    "localSmoke": { "image": "form-copilot:local-20260904", "browserVersion": "151.0.7922.34", "uid": 1000, "defaultPolicy": "sandbox launch failed", "suppliedPolicy": "sandboxed launch and local renderer succeeded", "remoteRequests": 0, "vpsVerified": false },
+    "defaultAction": "SCMP_ACT_ERRNO",
+    "defaultErrnoRet": 1,
+    "ioUringAllowRules": 0,
+    "clone3": "Unmodified upstream behavior: ENOSYS (errno 38) without CAP_SYS_ADMIN, allowing libc fallback to clone. The conditional upstream CAP_SYS_ADMIN rule is not a capability grant; deployment and smoke must not add that capability.",
+    "addedCapabilities": [],
+    "sandboxDisablingFlags": [],
+    "privilegedContainerRequired": false,
+    "unconfinedSeccompAllowed": false,
+    "activationGate": "Try the default Docker seccomp policy first. Keep this candidate inactive if default sandboxed launch works. Otherwise validate this JSON with the intended Docker/libseccomp version and run the final image as its non-root user with --network none and this policy. scripts/smoke-browser.mjs must pass before activation; no widening fallback is authorized."
+  },
+  "rejectedLegacyReference": {
+    "documentationLinkedUrl": "https://github.com/microsoft/playwright/blob/main/utils/docker/seccomp_profile.json",
+    "commit": "ae935a43d9e376e4759548f6b3c6905c7b282333",
+    "commitDate": "2021-01-03",
+    "sha256": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849",
+    "shippedAsPolicy": false,
+    "reason": "The old profile permits io_uring calls and lacks current clone3 fallback behavior. It was inspected as the source of the three documented namespace allowances, not activated or retained as the deployment policy."
+  }
+}
