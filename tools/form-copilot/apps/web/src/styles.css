@@ -198,6 +198,11 @@ footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 2
   .mode-option > svg { display: none; }
   .count-grid { grid-template-columns: repeat(4,minmax(0,1fr)); }
 }
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; }
+  .workspace-grid { grid-template-columns: 1fr; }
+  .context-column { grid-template-columns: 1fr 1fr; }
+}
 @media (max-width: 767px) {
   .topbar { padding: 12px 20px; min-height: 72px; }
   .top-actions { gap: 12px; }
