@@ -1,6 +1,6 @@
 # Direct VPS deployment
 
-Deploy this standalone app from the local source archive; no GitHub repository is needed. The intended VPS is 103.142.25.25 and the names are form.doanhnghieptayson.vn and api.form.doanhnghieptayson.vn.
+Deploy this standalone app from the local source archive; no GitHub repository is needed. The intended VPS is 103.173.229.250 and the names are form.doanhnghieptayson.vn and api.form.doanhnghieptayson.vn.
 
 ## Preconditions
 
