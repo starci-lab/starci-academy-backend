@@ -5,7 +5,7 @@ import { batchDisplayStatus } from "./batch-status.ts";
 const now = Date.parse("2030-01-01T12:00:00Z");
 const batch = {
   status: "running", startAt: "2030-01-01T13:00:00Z",
-  counts: { pending: 3, running: 0, succeeded: 0, failed: 0, uncertain: 0, cancelled: 0, expired: 0 },
+  counts: { pending: 3, running: 0, succeeded: 0, screened_out: 0, failed: 0, uncertain: 0, cancelled: 0, expired: 0 },
 };
 
 test("future pending queue displays scheduled, not processing", () => {

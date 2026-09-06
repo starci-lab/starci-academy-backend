@@ -35,7 +35,7 @@ describe("durable fixed dispatcher", () => {
   it("persists beforeSubmit before allowing driver completion and records confirmed success", async () => {
     const { store } = harness();
     const scheduler = new FixedScheduler(store, async (_row, hooks) => {
-      await hooks.beforeSubmit();
+      await hooks.beforeSubmit({ expectedStatus: "succeeded", terminalPageId: null, terminalPageTitle: null, closeReason: null });
       expect(store.beforeSubmit).toHaveBeenCalledTimes(1);
       return { status: "succeeded", detail: "Fixture confirmation visible" };
     }, () => true);
@@ -52,6 +52,17 @@ describe("durable fixed dispatcher", () => {
     expect(store.finish).toHaveBeenCalledWith(job, "uncertain", expect.stringContaining("no automatic retry"));
     await scheduler.stop();
   });
+  it("persists a confirmed screened-out result once and never reclaims it in the same run", async () => {
+    const { store } = harness();
+    const intent = { expectedStatus: "screened_out" as const, terminalPageId: 1486587414, terminalPageTitle: "Thank you for your interest", closeReason: "S5=1" };
+    const runner = vi.fn(async (_row, hooks) => { await hooks.beforeSubmit(intent); return { ...intent, status: "screened_out" as const, detail: "Fixture early-close confirmation" }; });
+    const scheduler = new FixedScheduler(store, runner, () => true);
+    await scheduler.tick();
+    expect(store.beforeSubmit).toHaveBeenCalledWith(expect.anything(), job, intent);
+    expect(store.finish).toHaveBeenCalledWith(job, "screened_out", "Fixture early-close confirmation");
+    expect(runner).toHaveBeenCalledTimes(1);
+    await scheduler.stop();
+  });
   it("cannot publish false success without a durable boundary", async () => {
     const { store } = harness();
     const scheduler = new FixedScheduler(store, async () => ({ status: "succeeded", detail: "bogus" }), () => true);
@@ -64,7 +75,7 @@ describe("durable fixed dispatcher", () => {
     store.beforeSubmit.mockRejectedValue(new Error("database unavailable"));
     const click = vi.fn();
     const scheduler = new FixedScheduler(store, async (_row, hooks) => {
-      await hooks.beforeSubmit(); click(); return { status: "succeeded", detail: "fixture" };
+      await hooks.beforeSubmit({ expectedStatus: "succeeded", terminalPageId: null, terminalPageTitle: null, closeReason: null }); click(); return { status: "succeeded", detail: "fixture" };
     }, () => true);
     await scheduler.tick();
     expect(click).not.toHaveBeenCalled();

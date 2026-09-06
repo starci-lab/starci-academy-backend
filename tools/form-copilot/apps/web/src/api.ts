@@ -1,5 +1,5 @@
 export type ExecutionMode = "immediate" | "scheduled";
-export type JobStatus = "pending" | "running" | "succeeded" | "failed" | "uncertain" | "cancelled" | "expired";
+export type JobStatus = "pending" | "running" | "succeeded" | "screened_out" | "failed" | "uncertain" | "cancelled" | "expired";
 export type BatchAction = "pause" | "resume" | "cancel";
 
 export interface FixedMeta {
@@ -7,6 +7,9 @@ export interface FixedMeta {
   formUrl: string;
   datasetName: string;
   datasetDigest: string;
+  totalCount: number;
+  completingCount: number;
+  screenedOutCount: number;
   eligibleCount: number;
   availableCount: number;
   synthetic: true;
@@ -31,6 +34,9 @@ export interface FixedJob {
   finishedAt?: string | null;
   status: JobStatus;
   detail?: string | null;
+  terminalPageId?: number | null;
+  terminalPageTitle?: string | null;
+  closeReason?: string | null;
 }
 
 export interface FixedBatch {

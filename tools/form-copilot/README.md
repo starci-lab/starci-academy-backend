@@ -4,7 +4,7 @@ A private Vite + NestJS dashboard for one owner-authorized Google Form. Answers 
 
 ## What it does
 
-- One fixed form and 519 eligible synthetic rows; no editable destination URL.
+- One fixed form and all 637 synthetic source rows; 95 follow its declared early-close path and no destination URL is editable.
 - Pick an exact row count, a time window and an IANA timezone, then run now or distribute execution times within the window.
 - Answers are never randomized. Only execution times are randomized and persisted once.
 - PostgreSQL stores batches, row reservations, progress and outcomes across restarts.

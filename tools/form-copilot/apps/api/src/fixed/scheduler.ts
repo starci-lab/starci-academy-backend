@@ -1,4 +1,4 @@
-import type { ClaimedJob, FixedRunner } from "./types.js";
+import type { ClaimedJob, FixedRunner, SubmissionIntent } from "./types.js";
 import { DispatcherLease, FixedRepository } from "./repository.js";
 
 export type DispatcherStore = Pick<FixedRepository, "tryAcquireDispatcher" | "recover" | "maintain" | "claim" | "beforeSubmit" | "finish">;
@@ -47,23 +47,27 @@ export class FixedScheduler {
 
   async #run(job: ClaimedJob, lease: DispatcherLease): Promise<void> {
     let crossedBoundary = false;
+    const submittedIntent: { value: SubmissionIntent | null } = { value: null };
     let result: Awaited<ReturnType<FixedRunner>>;
     try {
-      result = await this.runner(job.row, { beforeSubmit: async () => {
+      result = await this.runner(job.row, { beforeSubmit: async (intent) => {
         if (!this.enabled() || this.#stopping) throw new Error("Submissions are disabled; final submit prohibited");
         if (crossedBoundary) throw new Error("The final-submit hook may only be invoked once");
-        await this.store.beforeSubmit(lease, job);
+        await this.store.beforeSubmit(lease, job, intent);
         crossedBoundary = true;
+        submittedIntent.value = intent;
       } });
-      if (result.status === "succeeded" && !crossedBoundary) {
-        result = { status: "failed", detail: "Driver returned success without the required durable submission boundary" };
+      if (["succeeded", "screened_out"].includes(result.status) && !crossedBoundary) {
+        result = { ...result, status: "failed", detail: "Driver returned a confirmed outcome without the required durable submission boundary" };
+      } else if (["succeeded", "screened_out"].includes(result.status) && submittedIntent.value?.expectedStatus !== result.status) {
+        result = { ...result, status: "uncertain", detail: "Confirmed driver outcome did not match the durable submission intent. Do not retry automatically." };
       } else if (result.status === "failed" && crossedBoundary) {
-        result = { status: "uncertain", detail: "Final submit was attempted without a confirmed successful response. Do not retry automatically." };
+        result = { ...result, status: "uncertain", detail: "Final submit was attempted without a confirmed response. Do not retry automatically." };
       }
     } catch {
       result = crossedBoundary
-        ? { status: "uncertain", detail: "Worker interrupted after the final-submit boundary. Verify the remote result; no automatic retry." }
-        : { status: "failed", detail: "Worker stopped before final submit. Check the fixed form schema, browser availability, and batch controls." };
+        ? { ...(submittedIntent.value ?? { expectedStatus: "succeeded", terminalPageId: null, terminalPageTitle: null, closeReason: null }), status: "uncertain", detail: "Worker interrupted after the final-submit boundary. Verify the remote result; no automatic retry." }
+        : { expectedStatus: "succeeded", terminalPageId: null, terminalPageTitle: null, closeReason: null, status: "failed", detail: "Worker stopped before final submit. Check the fixed form schema, browser availability, and batch controls." };
     }
     await this.store.finish(job, result.status, result.detail);
   }

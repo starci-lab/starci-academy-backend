@@ -8,12 +8,19 @@ export interface PlannedBatch {
   startAt: string; endAt: string; scheduledAt: string[];
 }
 export type StoredJobStatus = FixedJobStatus | "submitting";
-export type FinalJobStatus = "succeeded" | "failed" | "uncertain";
+export type ConfirmedJobStatus = "succeeded" | "screened_out";
+export type FinalJobStatus = ConfirmedJobStatus | "failed" | "uncertain";
+export interface SubmissionIntent {
+  expectedStatus: ConfirmedJobStatus;
+  terminalPageId: number | null;
+  terminalPageTitle: string | null;
+  closeReason: string | null;
+}
 export interface ClaimedJob {
   id: string; batchId: string; workerId: string; row: FixedDatasetRow; scheduledAt: string;
 }
-export interface FixedRunnerResult { status: FinalJobStatus; detail: string }
-export type FixedRunner = (row: FixedDatasetRow, hooks: { beforeSubmit: () => Promise<void> }) => Promise<FixedRunnerResult>;
+export interface FixedRunnerResult extends Partial<SubmissionIntent> { status: FinalJobStatus; detail: string }
+export type FixedRunner = (row: FixedDatasetRow, hooks: { beforeSubmit: (intent: SubmissionIntent) => Promise<void> }) => Promise<FixedRunnerResult>;
 export interface FixedStore {
   availableCount(rowIds: string[]): Promise<number>;
   createBatch(request: FixedCreateBatch, dataset: FixedDataset): Promise<FixedBatch>;

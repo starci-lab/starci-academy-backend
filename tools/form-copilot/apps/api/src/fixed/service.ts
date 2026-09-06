@@ -2,7 +2,7 @@ import {
   Inject, Injectable, Logger, Optional, type BeforeApplicationShutdown, type OnApplicationBootstrap, type OnModuleInit,
 } from "@nestjs/common";
 import type { FixedCreateBatch, FixedMeta } from "@form-copilot/contracts";
-import { FIXED_FORM_TITLE, FIXED_FORM_URL, loadFixedDataset } from "./dataset.js";
+import { FIXED_FORM_TITLE, FIXED_FORM_URL, SCREENING_FIELDS, loadFixedDataset } from "./dataset.js";
 import { runFixedFormRow } from "./form-runner.js";
 import { FixedRepository } from "./repository.js";
 import { FixedScheduler } from "./scheduler.js";
@@ -35,7 +35,7 @@ export class FixedService implements OnModuleInit, OnApplicationBootstrap, Befor
   async onModuleInit(): Promise<void> {
     this.#dataset = await this.#loader();
     if (!this.#dataset.rows.length || new Set(this.#dataset.rows.map((row) => row.id)).size !== this.#dataset.rows.length) {
-      throw new Error("Fixed dataset must contain eligible rows with unique Synthetic_ID values");
+      throw new Error("Fixed dataset must contain source rows with unique Synthetic_ID values");
     }
   }
   onApplicationBootstrap(): void {
@@ -51,6 +51,9 @@ export class FixedService implements OnModuleInit, OnApplicationBootstrap, Befor
     return {
       formTitle: FIXED_FORM_TITLE, formUrl: FIXED_FORM_URL,
       datasetName: this.#dataset.name, datasetDigest: this.#dataset.digest,
+      totalCount: this.#dataset.rows.length,
+      completingCount: this.#dataset.rows.filter((row) => SCREENING_FIELDS.every((key) => row.answers[key] === (key === "S5" ? "0" : "1"))).length,
+      screenedOutCount: this.#dataset.rows.filter((row) => SCREENING_FIELDS.some((key) => row.answers[key] !== undefined && row.answers[key] !== (key === "S5" ? "0" : "1"))).length,
       eligibleCount: this.#dataset.rows.length,
       availableCount: await this.repository.availableCount(this.#dataset.rows.map((row) => row.id)),
       synthetic: true, enabled: this.#enabled,
