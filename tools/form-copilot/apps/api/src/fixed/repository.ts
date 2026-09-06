@@ -8,19 +8,20 @@ import { Pool, type PoolClient, type QueryResultRow } from "pg";
 import { appConfig } from "../config.js";
 import { planBatch, requestFingerprint } from "./planner.js";
 import { FIXED_SCHEMA_SQL } from "./schema.js";
-import type { ClaimedJob, FinalJobStatus, FixedDataset, FixedStore } from "./types.js";
+import type { ClaimedJob, FinalJobStatus, FixedDataset, FixedStore, SubmissionIntent } from "./types.js";
 
 export const FIXED_POOL = Symbol("FIXED_POOL");
 const LOCK_NAMESPACE = 1647345;
 const DISPATCHER_LOCK = 1;
 const CREATE_LOCK = 2;
 const MIGRATION_LOCK = 3;
-const RESERVED = "('pending', 'running', 'submitting', 'succeeded', 'uncertain')";
+const RESERVED = "('pending', 'running', 'submitting', 'succeeded', 'screened_out', 'uncertain')";
 const BATCH_SELECT = `SELECT b.id, b.mode, b.timezone, b.start_at, b.end_at, b.requested_count,
   b.status, b.created_at,
   count(j.id) FILTER (WHERE j.status = 'pending')::int AS pending,
   count(j.id) FILTER (WHERE j.status IN ('running', 'submitting'))::int AS running,
   count(j.id) FILTER (WHERE j.status = 'succeeded')::int AS succeeded,
+  count(j.id) FILTER (WHERE j.status = 'screened_out')::int AS screened_out,
   count(j.id) FILTER (WHERE j.status = 'failed')::int AS failed,
   count(j.id) FILTER (WHERE j.status = 'uncertain')::int AS uncertain,
   count(j.id) FILTER (WHERE j.status = 'cancelled')::int AS cancelled,
@@ -32,7 +33,7 @@ function iso(value: Date | string): string { return new Date(value).toISOString(
 function batchJson(row: QueryResultRow): FixedBatch {
   const counts: FixedCounts = {
     pending: Number(row.pending), running: Number(row.running), succeeded: Number(row.succeeded),
-    failed: Number(row.failed), uncertain: Number(row.uncertain), cancelled: Number(row.cancelled), expired: Number(row.expired),
+    screened_out: Number(row.screened_out), failed: Number(row.failed), uncertain: Number(row.uncertain), cancelled: Number(row.cancelled), expired: Number(row.expired),
   };
   return {
     id: row.id, mode: row.mode, timezone: row.timezone, startAt: iso(row.start_at), endAt: iso(row.end_at),
@@ -155,12 +156,13 @@ export class FixedRepository implements FixedStore, OnModuleInit, OnApplicationS
   async getBatch(id: string): Promise<FixedBatch> {
     const result = await this.#pool.query(`${BATCH_SELECT} WHERE b.id = $1 GROUP BY b.id`, [id]);
     if (!result.rows[0]) throw new NotFoundException("Batch not found");
-    const jobs = await this.#pool.query(`SELECT id, row_id, scheduled_at, started_at, finished_at, status, detail
+    const jobs = await this.#pool.query(`SELECT id, row_id, scheduled_at, started_at, finished_at, status, detail, terminal_page_id, terminal_page_title, close_reason
       FROM fixed_jobs WHERE batch_id = $1 ORDER BY scheduled_at, id`, [id]);
     return { ...batchJson(result.rows[0]), jobs: jobs.rows.map((row): FixedJob => ({
       id: row.id, rowId: row.row_id, scheduledAt: iso(row.scheduled_at),
       startedAt: row.started_at ? iso(row.started_at) : null, finishedAt: row.finished_at ? iso(row.finished_at) : null,
       status: row.status === "submitting" ? "running" : row.status, detail: row.detail,
+      terminalPageId: row.terminal_page_id === null ? null : Number(row.terminal_page_id), terminalPageTitle: row.terminal_page_title, closeReason: row.close_reason,
     })) };
   }
 
@@ -262,7 +264,7 @@ export class FixedRepository implements FixedStore, OnModuleInit, OnApplicationS
     } catch (error) { await client.query("ROLLBACK").catch(() => {}); throw error; }
   }
 
-  async beforeSubmit(lease: DispatcherLease, job: ClaimedJob): Promise<void> {
+  async beforeSubmit(lease: DispatcherLease, job: ClaimedJob, intent: SubmissionIntent = { expectedStatus: "succeeded", terminalPageId: null, terminalPageTitle: null, closeReason: null }): Promise<void> {
     await lease.verify();
     let stop: string | undefined;
     const client = lease.client;
@@ -281,8 +283,9 @@ export class FixedRepository implements FixedStore, OnModuleInit, OnApplicationS
         await this.#refresh(client, job.batchId);
       } else {
         const updated = await client.query(`UPDATE fixed_jobs SET status = 'submitting',
-          detail = 'Final submit boundary recorded; any unconfirmed outcome will require manual verification'
-          WHERE id = $1 AND worker_id = $2 AND status = 'running' RETURNING id`, [job.id, job.workerId]);
+          detail = 'Final submit boundary recorded; any unconfirmed outcome will require manual verification',
+          terminal_page_id = $3, terminal_page_title = $4, close_reason = $5
+          WHERE id = $1 AND worker_id = $2 AND status = 'running' RETURNING id`, [job.id, job.workerId, intent.terminalPageId, intent.terminalPageTitle, intent.closeReason]);
         if (updated.rowCount !== 1) stop = "Job no longer belongs to this worker; final submit prohibited";
       }
       await client.query("COMMIT");

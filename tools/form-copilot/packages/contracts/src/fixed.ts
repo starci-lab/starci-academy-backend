@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const FixedBatchModeSchema = z.enum(["immediate", "scheduled"]);
 export const FixedBatchStatusSchema = z.enum(["running", "paused", "completed", "attention", "cancelled"]);
-export const FixedJobStatusSchema = z.enum(["pending", "running", "succeeded", "failed", "uncertain", "cancelled", "expired"]);
+export const FixedJobStatusSchema = z.enum(["pending", "running", "succeeded", "screened_out", "failed", "uncertain", "cancelled", "expired"]);
 export const FixedCreateBatchSchema = z.object({
   mode: FixedBatchModeSchema,
   count: z.number().int().min(1).max(10_000),
@@ -29,12 +29,13 @@ export type FixedBatchMode = z.infer<typeof FixedBatchModeSchema>;
 export type FixedBatchStatus = z.infer<typeof FixedBatchStatusSchema>;
 export type FixedJobStatus = z.infer<typeof FixedJobStatusSchema>;
 export interface FixedCounts {
-  pending: number; running: number; succeeded: number; failed: number;
+  pending: number; running: number; succeeded: number; screened_out: number; failed: number;
   uncertain: number; cancelled: number; expired: number;
 }
 export interface FixedJob {
   id: string; rowId: string; scheduledAt: string; startedAt: string | null;
   finishedAt: string | null; status: FixedJobStatus; detail: string;
+  terminalPageId: number | null; terminalPageTitle: string | null; closeReason: string | null;
 }
 export interface FixedBatch {
   id: string; mode: FixedBatchMode; timezone: string; startAt: string; endAt: string;
@@ -42,6 +43,6 @@ export interface FixedBatch {
 }
 export interface FixedMeta {
   formTitle: string; formUrl: string; datasetName: string; datasetDigest: string;
-  eligibleCount: number; availableCount: number; synthetic: true; enabled: boolean;
+  totalCount: number; completingCount: number; screenedOutCount: number; eligibleCount: number; availableCount: number; synthetic: true; enabled: boolean;
   disabledReason: string | null;
 }

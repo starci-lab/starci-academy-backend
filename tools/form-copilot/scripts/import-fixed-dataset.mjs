@@ -43,26 +43,40 @@ indexById(valid.records, 'VALID_519');
 const eligibleRaw = raw.records.filter((row) => row.QC_Status === 'VALID');
 if (eligibleRaw.length !== 519 || valid.records.length !== 519 || raw.records.length !== 637) throw new Error('Source record counts changed');
 const fields = [...screening, ...items, ...demographics];
-const rows = valid.records.map((row) => {
+for (const row of valid.records) {
   const matched = rawIndex.get(row.Synthetic_ID);
   if (!matched || matched.QC_Status !== 'VALID' || matched.Exclusion_Reason) throw new Error(`Eligibility mismatch: ${row.Synthetic_ID}`);
   for (const name of valid.columns) if (matched[name] !== row[name]) throw new Error(`Joined value mismatch: ${row.Synthetic_ID}/${name}`);
-  const answers = Object.fromEntries(fields.map((name) => [name, matched[name]]));
-  if (Object.values(answers).some((value) => value === undefined || value === '')) throw new Error(`Missing source answer: ${row.Synthetic_ID}`);
-  for (const name of screening) if (answers[name] !== (name === 'S5' ? '0' : '1')) throw new Error(`Ineligible screening: ${row.Synthetic_ID}/${name}`);
-  for (const name of items) if (!/^[1-5]$/.test(answers[name])) throw new Error(`Invalid response: ${row.Synthetic_ID}/${name}`);
-  return { id: row.Synthetic_ID, answers };
+}
+const rows = raw.records.map((row) => {
+  const answers = Object.fromEntries(fields.filter((name) => row[name] !== '').map((name) => [name, row[name]]));
+  let screenedOut = false;
+  for (const name of screening) {
+    const value = answers[name];
+    if (value === undefined || !/^[01]$/.test(value)) throw new Error(`Missing or invalid reachable screening answer: ${row.Synthetic_ID}/${name}`);
+    if (value !== (name === 'S5' ? '0' : '1')) { screenedOut = true; break; }
+  }
+  if (!screenedOut) {
+    for (const name of items) if (!/^[1-5]$/.test(answers[name])) throw new Error(`Invalid completing response: ${row.Synthetic_ID}/${name}`);
+    for (const name of demographics) if (!answers[name]) throw new Error(`Missing completing response: ${row.Synthetic_ID}/${name}`);
+  }
+  return {
+    id: row.Synthetic_ID,
+    answers,
+    sourceStatus: row.QC_Status,
+    sourceExclusionReason: row.Exclusion_Reason || null,
+  };
 });
 const sha256 = (data) => createHash('sha256').update(data).digest('hex');
 const sourceDigest = sha256(await fs.readFile(source));
 const rowDigest = sha256(JSON.stringify(rows));
 const artifact = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   name: path.basename(source),
   synthetic: true,
   label: 'Synthetic rehearsal only — not empirical survey findings or evidence of real respondents\' consent.',
   source: { fileName: path.basename(source), sha256: sourceDigest, ranges: ['RAW_637!A1:BD638', 'VALID_519!A1:AT520'], join: 'Synthetic_ID', sourceLabels: markers },
-  reconciliation: { rawCount: 637, eligibleCount: rows.length, excludedCount: 118, mismatchedSharedCells: 0, differentFilteredRowPositions: eligibleRaw.filter((row, index) => row.Synthetic_ID !== rows[index].id).length },
+  reconciliation: { rawCount: 637, completingCount: rows.filter((row) => screening.every((name) => row.answers[name] === (name === 'S5' ? '0' : '1'))).length, screenedOutCount: rows.filter((row) => screening.some((name) => row.answers[name] !== undefined && row.answers[name] !== (name === 'S5' ? '0' : '1'))).length, qualityExcludedCount: rows.filter((row) => row.sourceStatus === 'EXCLUDED_QC').length, eligibleCount: 519, excludedCount: 118, mismatchedSharedCells: 0, differentFilteredRowPositions: eligibleRaw.filter((row, index) => row.Synthetic_ID !== valid.records[index]?.Synthetic_ID).length },
   digest: rowDigest,
   fields,
   rows,

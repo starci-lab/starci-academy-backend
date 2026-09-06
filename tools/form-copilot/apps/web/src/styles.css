@@ -149,7 +149,7 @@ dd { margin: 0; font-size: 13px; font-weight: 650; overflow-wrap: anywhere; }
 .status-running,.status-scheduled { background: #eee4ff; color: #6421ae; }
 .status-paused,.status-pending { background: #fff2d4; color: #795400; }
 .status-completed { background: #e5eef9; color: #2e527d; }
-.status-succeeded { background: #def1e7; color: #176044; }
+.status-succeeded, .status-screened_out { background: #def1e7; color: #176044; }
 .status-attention,.status-uncertain,.status-failed { background: #fbe3e6; color: #9c2130; }
 .status-cancelled,.status-expired { background: #eeecf3; color: #5c5269; }
 .batch-detail { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--line); }
@@ -168,7 +168,7 @@ progress::-moz-progress-bar { background: var(--primary); }
 .count-tile { background: var(--surface); border: 1px solid var(--line); border-radius: 11px; padding: 12px; }
 .count-tile dt { min-height: 34px; font-size: 11px; }
 .count-tile dd { font-size: 24px; margin-top: 4px; font-variant-numeric: tabular-nums; }
-.count-succeeded dd { color: var(--success); }
+.count-succeeded dd, .count-screened_out dd { color: var(--success); }
 .count-uncertain dd,.count-failed dd { color: var(--danger); }
 .batch-controls,.button-row { display: flex; flex-wrap: wrap; gap: 10px; }
 .batch-controls > .danger { margin-left: auto; }

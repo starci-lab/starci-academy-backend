@@ -8,12 +8,14 @@ mission:
     - authenticated owner/operator running isolated synthetic rehearsals
   inclusions:
     - fixed form identity; no editable URL
-    - 519 valid workbook rows joined to raw screening answers by Synthetic_ID
+    - all 637 workbook source rows; 95 follow the form's declared early-close branch and 542 follow the complete branch
     - exact count, timezone, time window and immediate or randomized scheduled execution
     - randomized execution times only; immutable source answers
     - PostgreSQL durable batches, row reservations, progress, history and recovery
     - pause, resume and cancel pending jobs
-    - complete form section traversal with confirmation required for success
+    - branch-aware traversal with exact destination confirmation required for completed or screened_out outcomes
+    - PostgreSQL terminal page and close reason for screened_out history
+    - no automatic retry after a confirmed early-close submission
     - private authenticated HTTPS deployment on the two requested domains
   exclusions:
     - AI-generated answers, provider tokens and arbitrary form URLs in the current workflow
@@ -37,6 +39,7 @@ mission:
   externalEffects:
     - browser submits only when execution is explicitly enabled for the fixed authorized rehearsal form
     - uncertain outcomes require operator verification before further action
+    - only pinned form branching may classify screened_out; workbook QC labels never override the rendered form path
     - deployment requires verified SSH host identity and target DNS/ingress ownership
   proof:
     - typecheck passes

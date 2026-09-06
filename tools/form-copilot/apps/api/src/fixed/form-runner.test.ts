@@ -5,8 +5,14 @@ import { FIXED_FORM_URL, loadFixedDataset, type FixedDatasetRow } from "./datase
 import { loadFixedFormSchema, normalizeOption, optionFor, planFixedForm, PlaywrightFixedFormPage, runFixedFormRow, runFixedFormWithPage, type FixedFormPage, type FixedFormSchema, type FormPageState } from "./form-runner.js";
 
 let row: FixedDatasetRow;
+let screenedRow: FixedDatasetRow;
 let schema: FixedFormSchema;
-beforeAll(async () => { row = (await loadFixedDataset()).rows[0]!; schema = await loadFixedFormSchema(); });
+beforeAll(async () => {
+  const rows = (await loadFixedDataset()).rows;
+  row = rows.find((candidate) => candidate.sourceStatus === "VALID")!;
+  screenedRow = rows.find((candidate) => candidate.sourceStatus === "EXCLUDED_SCREENING")!;
+  schema = await loadFixedFormSchema();
+});
 
 class FakePage implements FixedFormPage {
   index = 0;
@@ -25,9 +31,9 @@ class FakePage implements FixedFormPage {
     const state: FormPageState = {
       url: this.afterSubmit ? schema.resolvedUrl.replace("viewform", "formResponse") : schema.resolvedUrl,
       structure: schema.structure,
-      fields: this.afterSubmit ? [] : this.plan[this.index]!.answers.map((answer) => ({ code: answer.code, options: answer.options, selected: this.selected.get(answer.code) ?? null })),
-      next: !this.afterSubmit && this.index !== this.plan.length - 1,
-      submit: !this.afterSubmit && this.index === this.plan.length - 1,
+      fields: this.afterSubmit ? [] : this.plan.sections[this.index]!.answers.map((answer) => ({ code: answer.code, options: answer.options, selected: this.selected.get(answer.code) ?? null })),
+      next: !this.afterSubmit && this.index !== this.plan.sections.length - 1,
+      submit: !this.afterSubmit && this.index === this.plan.sections.length - 1,
       confirmation: this.afterSubmit && this.confirmation,
       blocker: null,
     };
@@ -39,11 +45,12 @@ class FakePage implements FixedFormPage {
 describe("fixed form safety and deterministic traversal", () => {
   it("plans all 52 answers across 12 eligible pages, respecting the consent branch", () => {
     const plan = planFixedForm(row, schema);
-    expect(plan).toHaveLength(12);
-    expect(plan[1]!.id).toBe(648925430);
-    expect(plan.some((section) => section.id === 1486587414)).toBe(false);
-    expect(plan.flatMap((section) => section.answers)).toHaveLength(52);
-    expect(plan.flatMap((section) => section.answers).find((answer) => answer.code === "S5")!.label).toBe("No / Không");
+    expect(plan.sections).toHaveLength(12);
+    expect(plan.sections[1]!.id).toBe(648925430);
+    expect(plan.sections.some((section) => section.id === 1486587414)).toBe(false);
+    expect(plan.sections.flatMap((section) => section.answers)).toHaveLength(52);
+    expect(plan.sections.flatMap((section) => section.answers).find((answer) => answer.code === "S5")!.label).toBe("No / Không");
+    expect(plan.intent.expectedStatus).toBe("succeeded");
   });
   it("maps bilingual options exactly, without fuzzy or positional substitution", () => {
     expect(optionFor("D1_Age", "35+")).toBe("35 trở lên / 35+");
@@ -60,6 +67,18 @@ describe("fixed form safety and deterministic traversal", () => {
     expect(page.events.filter((event) => event === "next")).toHaveLength(11);
     expect(page.events.slice(-2)).toEqual(["persist", "submit"]);
     expect(page.selected.size).toBe(52);
+  });
+  it("submits the declared answerless early-close page and records a screened-out intent", async () => {
+    const previous = row;
+    row = screenedRow;
+    const page = new FakePage();
+    const intents: unknown[] = [];
+    const result = await runFixedFormWithPage(screenedRow, { beforeSubmit: async (intent) => { page.events.push("persist"); intents.push(intent); } }, page, schema);
+    row = previous;
+    expect(result).toMatchObject({ status: "screened_out", terminalPageId: 1486587414, closeReason: expect.stringMatching(/^(Consent|S[0-5])=[01]$/) });
+    expect(page.plan.sections.at(-1)).toMatchObject({ id: 1486587414, answers: [] });
+    expect(page.events.slice(-2)).toEqual(["persist", "submit"]);
+    expect(intents).toEqual([expect.objectContaining({ expectedStatus: "screened_out", terminalPageId: 1486587414 })]);
   });
   it.each(["login", "captcha", "schema", "missing", "option", "early-submit", "redirect"])("stops on %s before submission", async (kind) => {
     const page = new FakePage();
@@ -221,12 +240,12 @@ describe.skipIf(!existsSync(chrome))("local multi-section DOM fixture (no live G
     inner[1] = schema.structure.items.map((item) => [item.id, item.title, item.description, item.type, item.entries, item.next]);
     inner[8] = schema.structure.title;
     const fixture = (index: number) => {
-      const content = plan[index]!.answers.map((answer) => {
+      const content = plan.sections[index]!.answers.map((answer) => {
         const item = schema.structure.items.find((candidate) => candidate.entries?.some((entry) => candidate.type === 7 ? entry[3]?.[0]?.includes(`[${answer.code}]`) : candidate.title.includes(`[${answer.code}]`) || ({ Consent: 670753711, D1_Age: 1167937533, D2_Gender: 2125450785, D3_Status: 841413909 } as Record<string, number>)[answer.code] === candidate.id))!;
         const caption = item.type === 7 ? `[${answer.code}] Matrix source caption` : item.title;
         return `<div role="listitem"><div data-params="%.@.[${item.id}]"><span id="label-${answer.code}">${escapeHtml(caption)}</span><div role="radiogroup" aria-labelledby="label-${answer.code}">${answer.options.map((option) => `<div tabindex="0" role="radio" aria-label="${escapeHtml(option)}" data-value="${escapeHtml(option)}" aria-checked="false" onclick="for(const r of this.parentElement.children)r.setAttribute('aria-checked','false');this.setAttribute('aria-checked','true')">${escapeHtml(option)}</div>`).join("")}</div></div></div>`;
       }).join("");
-      return `<!doctype html><html><head><meta charset="utf-8"></head><body><h1>Local synthetic fixture section ${index + 1}</h1><script>var FB_PUBLIC_LOAD_DATA_ = ${JSON.stringify(metadata)};</script><form>${content}</form><a role="button" href="${index === plan.length - 1 ? schema.resolvedUrl.replace("viewform", "formResponse") : `${FIXED_FORM_URL}?fixtureSection=${index + 1}`}">${escapeHtml(index === plan.length - 1 ? submitLabel : nextLabel)}</a></body></html>`;
+      return `<!doctype html><html><head><meta charset="utf-8"></head><body><h1>Local synthetic fixture section ${index + 1}</h1><script>var FB_PUBLIC_LOAD_DATA_ = ${JSON.stringify(metadata)};</script><form>${content}</form><a role="button" href="${index === plan.sections.length - 1 ? schema.resolvedUrl.replace("viewform", "formResponse") : `${FIXED_FORM_URL}?fixtureSection=${index + 1}`}">${escapeHtml(index === plan.sections.length - 1 ? submitLabel : nextLabel)}</a></body></html>`;
     };
     await context.route("**/*", async (route) => {
       // Fail closed: every browser request is intercepted and served locally or aborted.
@@ -243,6 +262,45 @@ describe.skipIf(!existsSync(chrome))("local multi-section DOM fixture (no live G
       expect(result, result.detail).toMatchObject({ status: "succeeded" });
       expect(events).toEqual(["durable-write", "submit-request"]);
       expect(requestedPaths.filter((path) => path.endsWith("/viewform"))).toHaveLength(12);
+      expect(requestedPaths.filter((path) => path.endsWith("/formResponse"))).toHaveLength(1);
+    } finally { await context.close(); await browser.close(); }
+  }, 60_000);
+
+  it("walks a screening branch to the answerless terminal page and confirms screen-out", async () => {
+    const browser = await chromium.launch({ headless: true, executablePath: chrome, chromiumSandbox: true });
+    const context = await browser.newContext({ serviceWorkers: "block" });
+    const page = await context.newPage();
+    const plan = planFixedForm(screenedRow, schema);
+    const events: string[] = [];
+    const requestedPaths: string[] = [];
+    const metadata: unknown[] = [null, []];
+    const inner = metadata[1] as unknown[];
+    inner[1] = schema.structure.items.map((item) => [item.id, item.title, item.description, item.type, item.entries, item.next]);
+    inner[8] = schema.structure.title;
+    const fixture = (index: number) => {
+      const section = plan.sections[index]!;
+      const content = section.answers.map((answer) => {
+        const item = schema.structure.items.find((candidate) => candidate.entries?.some((entry) => candidate.type === 7 ? entry[3]?.[0]?.includes(`[${answer.code}]`) : candidate.title.includes(`[${answer.code}]`) || ({ Consent: 670753711, D1_Age: 1167937533, D2_Gender: 2125450785, D3_Status: 841413909 } as Record<string, number>)[answer.code] === candidate.id))!;
+        const caption = item.type === 7 ? `[${answer.code}] Matrix source caption` : item.title;
+        return `<div role="listitem"><div data-params="%.@.[${item.id}]"><span id="label-${answer.code}">${escapeHtml(caption)}</span><div role="radiogroup" aria-labelledby="label-${answer.code}">${answer.options.map((option) => `<div tabindex="0" role="radio" aria-label="${escapeHtml(option)}" data-value="${escapeHtml(option)}" aria-checked="false" onclick="for(const r of this.parentElement.children)r.setAttribute('aria-checked','false');this.setAttribute('aria-checked','true')">${escapeHtml(option)}</div>`).join("")}</div></div></div>`;
+      }).join("");
+      const last = index === plan.sections.length - 1;
+      return `<!doctype html><html><head><meta charset="utf-8"></head><body><h1>${escapeHtml(section.title)}</h1><script>var FB_PUBLIC_LOAD_DATA_ = ${JSON.stringify(metadata)};</script><form>${content}</form><a role="button" href="${last ? schema.resolvedUrl.replace("viewform", "formResponse") : `${FIXED_FORM_URL}?fixtureSection=${index + 1}`}">${last ? "Submit" : "Next"}</a></body></html>`;
+    };
+    await context.route("**/*", async (route) => {
+      const url = new URL(route.request().url());
+      if (url.hostname !== "docs.google.com") { await route.abort(); return; }
+      requestedPaths.push(url.pathname);
+      if (url.pathname.endsWith("/formResponse")) {
+        events.push("submit-request");
+        await route.fulfill({ contentType: "text/html; charset=utf-8", body: "<!doctype html><body>Your response has been recorded.</body>" });
+      } else await route.fulfill({ contentType: "text/html", body: fixture(Number(url.searchParams.get("fixtureSection") ?? "0")) });
+    });
+    try {
+      const result = await runFixedFormWithPage(screenedRow, { beforeSubmit: async (intent) => { events.push("durable-write"); expect(intent).toEqual(plan.intent); } }, new PlaywrightFixedFormPage(page, schema), schema);
+      expect(result, result.detail).toMatchObject({ status: "screened_out", terminalPageId: 1486587414, closeReason: plan.intent.closeReason });
+      expect(plan.sections.at(-1)?.answers).toEqual([]);
+      expect(events).toEqual(["durable-write", "submit-request"]);
       expect(requestedPaths.filter((path) => path.endsWith("/formResponse"))).toHaveLength(1);
     } finally { await context.close(); await browser.close(); }
   }, 60_000);

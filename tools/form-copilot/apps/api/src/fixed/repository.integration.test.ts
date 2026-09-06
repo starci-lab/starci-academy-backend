@@ -128,6 +128,22 @@ describe.skipIf(!databaseUrl).sequential("fixed repository / real PostgreSQL", (
     }
   });
 
+  it("persists a confirmed screen-out with terminal evidence and keeps the row reserved", async () => {
+    const batch = await repository.createBatch(request(), dataset("screened", 1));
+    const leader = await acquire();
+    const job = await repository.claim(leader);
+    const intent = { expectedStatus: "screened_out" as const, terminalPageId: 1486587414, terminalPageTitle: "Cảm ơn bạn đã quan tâm. / Thank you for your interest.", closeReason: "S4=0" };
+    await repository.beforeSubmit(leader, job!, intent);
+    await repository.finish(job!, "screened_out", "Local fixture early-close confirmation");
+    const result = await repository.getBatch(batch.id);
+    expect(result.status).toBe("completed");
+    expect(result.counts.screened_out).toBe(1);
+    expect(result.jobs?.[0]).toMatchObject({ status: "screened_out", terminalPageId: 1486587414, terminalPageTitle: intent.terminalPageTitle, closeReason: "S4=0" });
+    expect(await repository.availableCount([job!.row.id])).toBe(0);
+    await expect(repository.createBatch(request(), dataset("screened", 1))).rejects.toThrow("unused eligible");
+    await release();
+  });
+
   it("expired windows become terminal during recovery with no catch-up burst", async () => {
     const batch = await repository.createBatch(request(3), dataset("expired", 3));
     await sql.query("UPDATE fixed_batches SET start_at = now() - interval '2 hours', end_at = now() - interval '1 hour' WHERE id = $1", [batch.id]);
