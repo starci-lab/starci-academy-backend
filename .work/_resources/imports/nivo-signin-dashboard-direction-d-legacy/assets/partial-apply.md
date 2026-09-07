@@ -25,4 +25,3 @@ Color remained undecided. The partial apply used HeroUI defaults and did not est
 ## Current interpretation
 
 These notes establish only that a legacy apply was partial. They cannot complete any current Work node and do not replace or approve `design.login-form`.
-

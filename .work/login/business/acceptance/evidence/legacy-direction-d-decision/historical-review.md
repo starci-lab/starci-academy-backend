@@ -15,4 +15,3 @@ This evidence is historical and non-promoting. It does not establish `login-acce
 ## Preserved source
 
 The sanitized resource `import.nivo-signin-dashboard-direction-d-legacy` contains the decision, partial-apply note, and the complete 19-file source path/hash inventory. No screenshot existed in the source directory. Session-local runtime and coordination noise was excluded.
-
