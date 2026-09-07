@@ -1,0 +1,35 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.maintenance.legacy-artifact-retirement-batch-1.20260908",
+  "nodeId": "nivo.maintenance.legacy-artifact-retirement-batch-1",
+  "inputDigest": "06022fc2464ff7626b1105047c9fa45cb34fd86131b6740d49f4638721041bc3",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "legacy-artifacts-sanitized",
+      "outcome": "pass",
+      "observation": "Three versioned import resources preserve the reviewed historical facts and selected image evidence while excluding account, database, seed, credential, token, and sealed-secret material."
+    },
+    {
+      "id": "console-overview-source-retired",
+      "outcome": "pass",
+      "observation": "The console-overview legacy source path is absent from canonical main; its remaining historical observations are represented by the sanitized import and explicitly non-promoting evidence."
+    },
+    {
+      "id": "signin-direction-source-retired",
+      "outcome": "pass",
+      "observation": "The app-signin-dashboard design-plan source path is absent from canonical main; direction-d/case-d1 history and its non-approval boundary are represented by the sanitized import."
+    },
+    {
+      "id": "incomplete-module-setup-protected",
+      "outcome": "pass",
+      "observation": "The remaining module-setup legacy directory was not deleted because cleanup is incomplete, three older response references are unresolved, and excluded custody metadata lacks a replacement owner."
+    }
+  ],
+  "assets": [
+    {
+      "path": "retirement-report.json",
+      "sha256": "95e4f0dd94cff59c91847174403811281f6f06b7ad413c4ed28e76c74c4d59a2"
+    }
+  ]
+}
