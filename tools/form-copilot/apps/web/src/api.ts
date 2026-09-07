@@ -1,4 +1,5 @@
 export type ExecutionMode = "immediate" | "scheduled";
+export type ResponseSelection = "mixed" | "completing" | "screened_out";
 export type JobStatus = "pending" | "running" | "succeeded" | "screened_out" | "failed" | "uncertain" | "cancelled" | "expired";
 export type BatchAction = "pause" | "resume" | "cancel";
 
@@ -12,6 +13,8 @@ export interface FixedMeta {
   screenedOutCount: number;
   eligibleCount: number;
   availableCount: number;
+  availableCompletingCount: number;
+  availableScreenedOutCount: number;
   synthetic: true;
   enabled: boolean;
   disabledReason?: string | null;
@@ -19,6 +22,7 @@ export interface FixedMeta {
 
 export interface BatchRequest {
   mode: ExecutionMode;
+  selection: ResponseSelection;
   count: number;
   timezone: string;
   startAt?: string;
@@ -42,6 +46,7 @@ export interface FixedJob {
 export interface FixedBatch {
   id: string;
   mode: ExecutionMode;
+  selection: ResponseSelection;
   timezone: string;
   startAt: string;
   endAt: string;

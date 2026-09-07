@@ -2,21 +2,24 @@ import {
   BadRequestException, ConflictException, Inject, Injectable, NotFoundException, Optional,
   type OnApplicationShutdown, type OnModuleInit,
 } from "@nestjs/common";
-import type { FixedBatch, FixedBatchStatus, FixedCounts, FixedCreateBatch, FixedJob } from "@form-copilot/contracts";
+import type { FixedBatch, FixedBatchStatus, FixedCounts, FixedCreateBatch, FixedJob, FixedReconciliation } from "@form-copilot/contracts";
 import { randomUUID } from "node:crypto";
 import { Pool, type PoolClient, type QueryResultRow } from "pg";
 import { appConfig } from "../config.js";
 import { planBatch, requestFingerprint } from "./planner.js";
 import { FIXED_SCHEMA_SQL } from "./schema.js";
+import { rowsForSelection, selectRandomRows } from "./row-selection.js";
 import type { ClaimedJob, FinalJobStatus, FixedDataset, FixedStore, SubmissionIntent } from "./types.js";
+import type { FixedResponseSnapshot } from "./response-sync.js";
 
 export const FIXED_POOL = Symbol("FIXED_POOL");
 const LOCK_NAMESPACE = 1647345;
 const DISPATCHER_LOCK = 1;
 const CREATE_LOCK = 2;
 const MIGRATION_LOCK = 3;
+const RESPONSE_SYNC_LOCK = 4;
 const RESERVED = "('pending', 'running', 'submitting', 'succeeded', 'screened_out', 'uncertain')";
-const BATCH_SELECT = `SELECT b.id, b.mode, b.timezone, b.start_at, b.end_at, b.requested_count,
+const BATCH_SELECT = `SELECT b.id, b.mode, b.selection, b.timezone, b.start_at, b.end_at, b.requested_count,
   b.status, b.created_at,
   count(j.id) FILTER (WHERE j.status = 'pending')::int AS pending,
   count(j.id) FILTER (WHERE j.status IN ('running', 'submitting'))::int AS running,
@@ -36,7 +39,7 @@ function batchJson(row: QueryResultRow): FixedBatch {
     screened_out: Number(row.screened_out), failed: Number(row.failed), uncertain: Number(row.uncertain), cancelled: Number(row.cancelled), expired: Number(row.expired),
   };
   return {
-    id: row.id, mode: row.mode, timezone: row.timezone, startAt: iso(row.start_at), endAt: iso(row.end_at),
+    id: row.id, mode: row.mode, selection: row.selection, timezone: row.timezone, startAt: iso(row.start_at), endAt: iso(row.end_at),
     count: row.requested_count, status: row.status, createdAt: iso(row.created_at), counts,
   };
 }
@@ -91,6 +94,73 @@ export class FixedRepository implements FixedStore, OnModuleInit, OnApplicationS
   }
   async onApplicationShutdown(): Promise<void> { await this.#pool.end(); }
 
+  async replaceResponseMirror(snapshot: FixedResponseSnapshot): Promise<void> {
+    await this.#transaction(async (client) => {
+      await client.query("SELECT pg_advisory_xact_lock($1, $2)", [LOCK_NAMESPACE, RESPONSE_SYNC_LOCK]);
+      const current = await client.query<{ source_digest: string | null; source_count: number; mirrored_count: number }>(`
+        SELECT s.source_digest, s.source_count,
+          (SELECT count(*)::int FROM fixed_remote_responses r WHERE r.source_key = s.source_key) AS mirrored_count
+        FROM fixed_response_sync_state s WHERE s.source_key = $1 FOR UPDATE`, [snapshot.sourceKey]);
+      if (current.rows[0]?.source_digest === snapshot.digest
+        && Number(current.rows[0].source_count) === snapshot.rows.length
+        && Number(current.rows[0].mirrored_count) === snapshot.rows.length) {
+        await client.query(`UPDATE fixed_response_sync_state SET source_url = $2, status = 'ok',
+          column_count = $3, header_json = $4::jsonb, last_attempt_at = now(), last_success_at = now(), last_error = NULL
+          WHERE source_key = $1`, [snapshot.sourceKey, snapshot.sourceUrl, snapshot.headers.length, JSON.stringify(snapshot.headers)]);
+        return;
+      }
+      await client.query("DELETE FROM fixed_remote_responses WHERE source_key = $1", [snapshot.sourceKey]);
+      await client.query(`INSERT INTO fixed_remote_responses
+        (source_key, row_number, submitted_at_text, response_json, row_digest, synced_at)
+        SELECT $1, item.row_number, item.submitted_at_text, item.response_json, item.row_digest, now()
+        FROM jsonb_to_recordset($2::jsonb) AS item(row_number integer, submitted_at_text text, response_json jsonb, row_digest text)`, [
+        snapshot.sourceKey,
+        JSON.stringify(snapshot.rows.map((row) => ({
+          row_number: row.rowNumber,
+          submitted_at_text: row.submittedAtText,
+          response_json: row.values,
+          row_digest: row.digest,
+        }))),
+      ]);
+      await client.query(`INSERT INTO fixed_response_sync_state
+        (source_key, source_url, status, source_count, column_count, source_digest, header_json, last_attempt_at, last_success_at, last_error)
+        VALUES ($1, $2, 'ok', $3, $4, $5, $6::jsonb, now(), now(), NULL)
+        ON CONFLICT (source_key) DO UPDATE SET source_url = EXCLUDED.source_url, status = 'ok',
+          source_count = EXCLUDED.source_count, column_count = EXCLUDED.column_count,
+          source_digest = EXCLUDED.source_digest, header_json = EXCLUDED.header_json,
+          last_attempt_at = EXCLUDED.last_attempt_at, last_success_at = EXCLUDED.last_success_at, last_error = NULL`, [
+        snapshot.sourceKey, snapshot.sourceUrl, snapshot.rows.length, snapshot.headers.length,
+        snapshot.digest, JSON.stringify(snapshot.headers),
+      ]);
+    });
+  }
+
+  async recordResponseSyncFailure(sourceKey: string, sourceUrl: string, error: string): Promise<void> {
+    await this.#pool.query(`INSERT INTO fixed_response_sync_state
+      (source_key, source_url, status, last_attempt_at, last_error)
+      VALUES ($1, $2, 'error', now(), $3)
+      ON CONFLICT (source_key) DO UPDATE SET source_url = EXCLUDED.source_url, status = 'error',
+        last_attempt_at = EXCLUDED.last_attempt_at, last_error = EXCLUDED.last_error`, [sourceKey, sourceUrl, error.slice(0, 2_000)]);
+  }
+
+  async getReconciliation(sourceKey: string): Promise<FixedReconciliation> {
+    const result = await this.#pool.query(`SELECT s.status, s.source_count, s.column_count, s.source_digest,
+      s.last_attempt_at, s.last_success_at, s.last_error, count(r.row_number)::int AS mirrored_count
+      FROM fixed_response_sync_state s
+      LEFT JOIN fixed_remote_responses r ON r.source_key = s.source_key
+      WHERE s.source_key = $1
+      GROUP BY s.source_key`, [sourceKey]);
+    const row = result.rows[0];
+    if (!row) return { source: "google-sheet-csv", status: "never", mirroredCount: 0, sourceCount: 0, columnCount: 0, sourceDigest: null, lastAttemptAt: null, lastSuccessAt: null, error: null };
+    return {
+      source: "google-sheet-csv", status: row.status, mirroredCount: Number(row.mirrored_count), sourceCount: Number(row.source_count),
+      columnCount: Number(row.column_count), sourceDigest: row.source_digest,
+      lastAttemptAt: row.last_attempt_at ? iso(row.last_attempt_at) : null,
+      lastSuccessAt: row.last_success_at ? iso(row.last_success_at) : null,
+      error: row.last_error,
+    };
+  }
+
   async #transaction<T>(body: (client: PoolClient) => Promise<T>): Promise<T> {
     const client = await this.#pool.connect();
     try {
@@ -126,16 +196,18 @@ export class FixedRepository implements FixedStore, OnModuleInit, OnApplicationS
       const plan = planBatch(request);
       const reserved = await client.query<{ row_id: string }>(`SELECT row_id FROM fixed_jobs WHERE status IN ${RESERVED}`);
       const used = new Set(reserved.rows.map((row) => row.row_id));
-      const rows = dataset.rows.filter((row) => !used.has(row.id)).slice(0, request.count);
-      if (rows.length !== request.count) throw new ConflictException({
+      const availableRows = dataset.rows.filter((row) => !used.has(row.id));
+      const selectableRows = rowsForSelection(availableRows, request.selection);
+      if (selectableRows.length < request.count) throw new ConflictException({
         statusCode: 409, error: "Conflict", code: "INSUFFICIENT_ROWS",
-        message: `Only ${rows.length} unused eligible rows are available; lower the exact count`,
+        message: `Only ${selectableRows.length} unused rows match the selected response type; lower the exact count or choose another type`,
       });
+      const rows = selectRandomRows(availableRows, request.count, request.requestId, request.selection);
       const batchId = randomUUID();
       await client.query(`INSERT INTO fixed_batches
-        (id, request_id, request_fingerprint, mode, timezone, start_at, end_at, requested_count, status, dataset_name, dataset_digest)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'running', $9, $10)`, [
-        batchId, request.requestId, fingerprint, request.mode, request.timezone, plan.startAt, plan.endAt,
+        (id, request_id, request_fingerprint, mode, selection, timezone, start_at, end_at, requested_count, status, dataset_name, dataset_digest)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'running', $10, $11)`, [
+        batchId, request.requestId, fingerprint, request.mode, request.selection, request.timezone, plan.startAt, plan.endAt,
         request.count, dataset.name, dataset.digest,
       ]);
       // Persist the exact dataset snapshot: a subsequent deployment cannot mutate an existing job's answers.

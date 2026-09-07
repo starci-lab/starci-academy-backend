@@ -28,11 +28,11 @@ test("rejects invalid dates, overflowed clock, unsupported zone and abbreviation
   assert.equal(localTimeToInstant("2028-02-29T12:00", "UTC"), "2028-02-29T12:00:00.000Z");
 });
 
-const draft = { mode: "scheduled", timezone: "Asia/Ho_Chi_Minh", count: "5", start: "2030-09-04T12:00", end: "2030-09-04T13:00" };
+const draft = { mode: "scheduled", selection: "mixed", timezone: "Asia/Ho_Chi_Minh", count: "5", start: "2030-09-04T12:00", end: "2030-09-04T13:00" };
 
 test("scheduled payload is UTC with selected timezone and an exact count", () => {
   assert.deepEqual(validateSchedule(draft, 10, 0), { errors: {}, payload: {
-    mode: "scheduled", timezone: "Asia/Ho_Chi_Minh", count: 5,
+    mode: "scheduled", selection: "mixed", timezone: "Asia/Ho_Chi_Minh", count: 5,
     startAt: "2030-09-04T05:00:00.000Z", endAt: "2030-09-04T06:00:00.000Z",
   } });
 });
@@ -46,7 +46,7 @@ test("rejects exhausted/invalid counts and past or reversed windows", () => {
 
 test("immediate mode omits unused window but still validates timezone and count", () => {
   const result = validateSchedule({ ...draft, mode: "immediate", start: "", end: "" }, 10);
-  assert.deepEqual(result.payload, { mode: "immediate", timezone: draft.timezone, count: 5 });
+  assert.deepEqual(result.payload, { mode: "immediate", selection: "mixed", timezone: draft.timezone, count: 5 });
   assert.ok(validateSchedule({ ...draft, mode: "immediate", timezone: "nonsense" }, 10).errors.timezone);
   assert.equal(formatInstant(null, "UTC"), "—");
 });

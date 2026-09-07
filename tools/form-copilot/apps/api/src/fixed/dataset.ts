@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 
-export const FIXED_FORM_ID = "1OkPUIYodvLyBjLr9lVFeVtHv_RVIzAYhxevcxJozu34";
+export const FIXED_FORM_ID = "18jAiCr6Q7bz6sQA5kH1SW53aPW6L_jzzp8m8UgJkPIk";
 export const FIXED_FORM_URL = `https://docs.google.com/forms/d/${FIXED_FORM_ID}/viewform`;
 export const FIXED_FORM_TITLE = "Khảo sát StarCi Academy - Social Media Marketing, Brand Trust & Enrollment Intention";
 export const SCREENING_FIELDS = ["Consent", "S0", "S1", "S2", "S3", "S4", "S5"] as const;

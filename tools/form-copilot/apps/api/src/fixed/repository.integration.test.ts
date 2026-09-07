@@ -5,6 +5,7 @@ import { ConflictException } from "@nestjs/common";
 import type { FixedCreateBatch } from "@form-copilot/contracts";
 import { FixedRepository, type DispatcherLease } from "./repository.js";
 import type { FixedDataset } from "./types.js";
+import type { FixedResponseSnapshot } from "./response-sync.js";
 
 // Explicit opt-in only. A unique test-owned database is created and removed; no existing tables are truncated.
 const databaseUrl = process.env.FORM_COPILOT_TEST_DATABASE_URL;
@@ -22,7 +23,7 @@ describe.skipIf(!databaseUrl).sequential("fixed repository / real PostgreSQL", (
     })) };
   }
   function request(count = 1): FixedCreateBatch {
-    return { requestId: randomUUID(), count, mode: "immediate", timezone: "Asia/Bangkok" };
+    return { requestId: randomUUID(), count, mode: "immediate", selection: "mixed", timezone: "Asia/Bangkok" };
   }
   async function acquire() {
     lease = await repository.tryAcquireDispatcher();
@@ -59,6 +60,31 @@ describe.skipIf(!databaseUrl).sequential("fixed repository / real PostgreSQL", (
     expect((await sql.query("SELECT row_json FROM fixed_jobs WHERE batch_id = $1", [a.id])).rows[0]!.row_json.answers.fixture).toBe("SYNTHETIC TEST ONLY");
     await expect(repository.createBatch({ ...input, count: 2 }, data)).rejects.toThrow("different batch settings");
     await repository.transition(a.id, "cancel");
+  });
+
+  it("atomically replaces the response mirror without rewriting job history", async () => {
+    const batch = await repository.createBatch(request(), dataset("mirror-history", 1));
+    const before = await sql.query("SELECT row_json, status FROM fixed_jobs WHERE batch_id = $1", [batch.id]);
+    const snapshot: FixedResponseSnapshot = {
+      sourceKey: "test-source", sourceUrl: "https://example.test/responses.csv", headers: ["Timestamp", "Answer"], digest: "source-digest-2",
+      rows: [
+        { rowNumber: 1, submittedAtText: "first", values: ["first", "yes"], digest: "row-1" },
+        { rowNumber: 2, submittedAtText: "second", values: ["second", "no"], digest: "row-2" },
+      ],
+    };
+    await repository.replaceResponseMirror(snapshot);
+    expect(await repository.getReconciliation("test-source")).toMatchObject({ status: "ok", mirroredCount: 2, sourceCount: 2, columnCount: 2, sourceDigest: "source-digest-2" });
+    const firstSync = await sql.query("SELECT synced_at FROM fixed_remote_responses WHERE source_key = 'test-source' ORDER BY row_number");
+    await repository.replaceResponseMirror(snapshot);
+    const unchangedSync = await sql.query("SELECT synced_at FROM fixed_remote_responses WHERE source_key = 'test-source' ORDER BY row_number");
+    expect(unchangedSync.rows).toEqual(firstSync.rows);
+    await repository.replaceResponseMirror({ ...snapshot, digest: "source-digest-1", rows: snapshot.rows.slice(0, 1) });
+    expect(await repository.getReconciliation("test-source")).toMatchObject({ status: "ok", mirroredCount: 1, sourceCount: 1, sourceDigest: "source-digest-1" });
+    const after = await sql.query("SELECT row_json, status FROM fixed_jobs WHERE batch_id = $1", [batch.id]);
+    expect(after.rows).toEqual(before.rows);
+    await repository.recordResponseSyncFailure("test-source", snapshot.sourceUrl, "malformed fixture");
+    expect(await repository.getReconciliation("test-source")).toMatchObject({ status: "error", mirroredCount: 1, sourceCount: 1, sourceDigest: "source-digest-1", error: "malformed fixture" });
+    await repository.transition(batch.id, "cancel");
   });
 
   it("concurrent distinct batches cannot reserve the same row", async () => {
@@ -104,7 +130,7 @@ describe.skipIf(!databaseUrl).sequential("fixed repository / real PostgreSQL", (
     await repository.finish(job!, "succeeded", "Local fixture confirmation");
     expect((await repository.getBatch(batch.id)).status).toBe("completed");
     expect(await repository.availableCount([job!.row.id])).toBe(0);
-    await expect(repository.createBatch(request(), dataset("leader", 1))).rejects.toThrow("unused eligible");
+    await expect(repository.createBatch(request(), dataset("leader", 1))).rejects.toThrow("unused rows");
     await repository.transition(queued.id, "cancel");
     await release();
   });
@@ -140,7 +166,7 @@ describe.skipIf(!databaseUrl).sequential("fixed repository / real PostgreSQL", (
     expect(result.counts.screened_out).toBe(1);
     expect(result.jobs?.[0]).toMatchObject({ status: "screened_out", terminalPageId: 1486587414, terminalPageTitle: intent.terminalPageTitle, closeReason: "S4=0" });
     expect(await repository.availableCount([job!.row.id])).toBe(0);
-    await expect(repository.createBatch(request(), dataset("screened", 1))).rejects.toThrow("unused eligible");
+    await expect(repository.createBatch(request(), dataset("screened", 1))).rejects.toThrow("unused rows");
     await release();
   });
 

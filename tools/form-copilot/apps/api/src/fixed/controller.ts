@@ -6,6 +6,7 @@ import { FixedService } from "./service.js";
 export class FixedController {
   constructor(@Inject(FixedService) private readonly service: FixedService) {}
   @Get("meta") meta() { return this.service.meta(); }
+  @Get("reconciliation") reconciliation() { return this.service.reconciliation(); }
   @Get("batches") async list() { return { items: await this.service.listBatches() }; }
   @Post("batches") create(@Body() body: unknown) {
     const result = FixedCreateBatchSchema.safeParse(body);
