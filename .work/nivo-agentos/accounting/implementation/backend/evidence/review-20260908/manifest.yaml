@@ -1,0 +1,36 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.accounting.implementation.backend.review-20260908",
+  "nodeId": "nivo.accounting.implementation.backend",
+  "inputDigest": "19d8501cc581495fb7ae52e738b20e7f4c8a824798d94abd80682c88c6034ae5",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "accounting-backend-setup-contract-implemented",
+      "outcome": "pass",
+      "observation": "Verified against backend integration commit 51248f75e0bf1c36a088afb57a04b2d7440a62c4; the focused 2026-09-08 run passed 16 suites and 94 tests, with a verbose 4-suite subset passing 34 tests."
+    },
+    {
+      "id": "accounting-backend-document-ledger-flow-implemented",
+      "outcome": "pass",
+      "observation": "Verified against backend integration commit 51248f75e0bf1c36a088afb57a04b2d7440a62c4; the focused 2026-09-08 run passed 16 suites and 94 tests, with a verbose 4-suite subset passing 34 tests."
+    },
+    {
+      "id": "accounting-backend-correction-reconciliation-flow-implemented",
+      "outcome": "pass",
+      "observation": "Verified against backend integration commit 51248f75e0bf1c36a088afb57a04b2d7440a62c4; the focused 2026-09-08 run passed 16 suites and 94 tests, with a verbose 4-suite subset passing 34 tests."
+    },
+    {
+      "id": "accounting-backend-installation-isolation-verified",
+      "outcome": "pass",
+      "observation": "Verified against backend integration commit 51248f75e0bf1c36a088afb57a04b2d7440a62c4; the focused 2026-09-08 run passed 16 suites and 94 tests, with a verbose 4-suite subset passing 34 tests."
+    }
+  ],
+  "assets": [],
+  "codeRefs": [
+    {
+      "repository": "repo.nivo-backend",
+      "commit": "51248f75e0bf1c36a088afb57a04b2d7440a62c4"
+    }
+  ]
+}

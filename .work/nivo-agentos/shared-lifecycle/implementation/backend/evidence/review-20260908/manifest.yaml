@@ -1,0 +1,26 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.shared.implementation.backend.review-20260908",
+  "nodeId": "nivo.shared.implementation.backend",
+  "inputDigest": "5b58a7d154e10905f9870de0713922ec9525808453dfa803a1127037085c2cd4",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "shared-backend-implemented",
+      "outcome": "pass",
+      "observation": "Verified against backend integration commit 51248f75e0bf1c36a088afb57a04b2d7440a62c4; the focused 2026-09-08 run passed 16 suites and 94 tests, with a verbose 4-suite subset passing 34 tests."
+    },
+    {
+      "id": "shared-backend-tests-pass",
+      "outcome": "pass",
+      "observation": "Verified against backend integration commit 51248f75e0bf1c36a088afb57a04b2d7440a62c4; the focused 2026-09-08 run passed 16 suites and 94 tests, with a verbose 4-suite subset passing 34 tests."
+    }
+  ],
+  "assets": [],
+  "codeRefs": [
+    {
+      "repository": "repo.nivo-backend",
+      "commit": "51248f75e0bf1c36a088afb57a04b2d7440a62c4"
+    }
+  ]
+}

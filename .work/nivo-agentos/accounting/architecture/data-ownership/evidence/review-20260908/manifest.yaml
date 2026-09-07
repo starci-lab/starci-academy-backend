@@ -1,0 +1,25 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.accounting.architecture.data-ownership.review-20260908",
+  "nodeId": "nivo.accounting.architecture.data-ownership",
+  "inputDigest": "ab294139b0113f9eebb4f9ffab83642e0f78fa8d0cdb3f4e7664f74c5b251fa3",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "accounting-data-owner-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "accounting-installation-isolation-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "accounting-data-integrity-boundaries-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    }
+  ],
+  "assets": []
+}
