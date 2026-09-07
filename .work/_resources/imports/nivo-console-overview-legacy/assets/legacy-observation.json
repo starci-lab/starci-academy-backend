@@ -1,0 +1,66 @@
+{
+  "schema": "nivo/sanitized-legacy-observation@1",
+  "classification": "historical-only",
+  "source": {
+    "directory": "D:/Repositories/starci-academy-backend/.worktrees/uat/console/console-overview",
+    "runId": "20260904-131500-9d511ad",
+    "capturedAt": "2026-09-03T19:53:27.346Z",
+    "environment": "dev",
+    "commit": "9d511ad8c4c79b2d8d6a30f06c9f387fda2ccc1b",
+    "servedHead": "42f29d59dfafed42bdd10111a1ffae5099a78038"
+  },
+  "historicalOutcome": {
+    "behavior": "pass",
+    "ui": "fail",
+    "ux": "fail",
+    "experience": "fix-first",
+    "mean": 3.5455
+  },
+  "observations": {
+    "validSignIn": "The legacy runner submitted the rendered sign-in form and recorded arrival at /en/overview after 2445 ms. Its only retained sign-in-step screenshot was captured after redirect.",
+    "invalidCorrection": "The legacy UX verdict states that a deliberately wrong sign-in value was refused, both entered values survived, correction occurred at the same field, and the terminal frame returned 308 ms later. It did not retain transport, cookie, or authenticated-state proof for that refusal.",
+    "reloadSession": "The legacy UX verdict states that Back returned the overview with values, reload retained the overview and balance, and a fresh profile that had never signed in landed on the sign-in surface. It did not inspect refresh-cookie exchange, client storage, or an expired-session branch."
+  },
+  "sourceFileHashes": [
+    {
+      "path": "flow.md",
+      "sha256": "7ca281eb79dc315e6c9e61be0ae78c066a741bc666d002f286082ac389451238"
+    },
+    {
+      "path": "history.md",
+      "sha256": "1a7385bcd225ea4648687ab082747da5df2f16b47f986a3437eb7b9c81a67058"
+    },
+    {
+      "path": "runs/20260904-131500-9d511ad/result.json",
+      "sha256": "d954716ade26590c75be837a022c3b9c88aa894e28caec8d172a2bf500faa8fb"
+    },
+    {
+      "path": "runs/20260904-131500-9d511ad/snapshot.json",
+      "sha256": "5a3fd550ce0e0d563ca8714e588eb844a382935cc4d410b7f6e93f1a52b4824b"
+    },
+    {
+      "path": "runs/20260904-131500-9d511ad/verdicts.json",
+      "sha256": "fe385a7fafce66f1640eca0a6626ceb272a48af0e81134b43bdaa43d7ac9efa4"
+    },
+    {
+      "path": "runs/20260904-131500-9d511ad/steps/01-sign-in/action.json",
+      "sha256": "d3a6dd39ffd6d4a702ad397a03e55ac1b7084c3d50e06f6dfe1e0d0be211d642"
+    },
+    {
+      "path": "runs/20260904-131500-9d511ad/steps/01-sign-in/capture-1440x900-light.png",
+      "sha256": "40f6a52c1b2cffdbd0fac5b6b6372cae444894505fc5293f8870a097ca8c147e"
+    }
+  ],
+  "excluded": [
+    "accounts.dev.json",
+    "runs/20260904-131500-9d511ad/db/before.json",
+    "runs/20260904-131500-9d511ad/db/after.json",
+    "seed/records.json",
+    "all secret values and browser/session material"
+  ],
+  "authorityLimits": {
+    "approvesUi": false,
+    "promotesLeaf": false,
+    "qualifiesAsCurrentTinoUat": false
+  }
+}
