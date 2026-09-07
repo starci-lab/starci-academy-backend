@@ -10,7 +10,7 @@ let schema: FixedFormSchema;
 beforeAll(async () => {
   const rows = (await loadFixedDataset()).rows;
   row = rows.find((candidate) => candidate.sourceStatus === "VALID")!;
-  screenedRow = rows.find((candidate) => candidate.sourceStatus === "EXCLUDED_SCREENING")!;
+  screenedRow = { id: "TEST-SCREENED", answers: { Consent: "1", S0: "0" }, sourceStatus: "TEST_FIXTURE" };
   schema = await loadFixedFormSchema();
 });
 

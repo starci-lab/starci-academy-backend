@@ -1,18 +1,18 @@
 # Fixed synthetic rehearsal dataset
 
-`fixed-dataset.json` contains all 637 synthetic source records. Of these, 95 carry a source answer that the pinned form routes to its answerless early-close page; 542 carry a complete 52-answer path. It is not empirical survey data and does not establish real respondents' consent. The UI and operational history must retain the synthetic label.
+`fixed-dataset.json` contains exactly the 519 complete synthetic records from `MGT400_SYNTHETIC_VALID_519_v2 (2).csv`. Every record follows the full 52-answer form path. It is not empirical survey data and does not establish real respondents' consent. The UI and operational history must retain the synthetic label.
 
-The importer reads `MGT400_SYNTHETIC_Outcome_A_Rehearsal_v2.xlsx` without editing the workbook. It joins `VALID_519` to `RAW_637` by `Synthetic_ID` to verify every shared value, then imports every RAW row without inventing blank downstream answers. The workbook has 95 screening exclusions and 23 additional QC exclusions. Those 23 still follow the complete Google Form path because their screening answers are eligible; QC metadata never changes form routing. A positional join is invalid: 518 of 519 eligible positions differ between the sheets.
+The importer reads the CSV without editing it, validates 519 unique `Synthetic_ID` values, 42 complete Likert responses and three supported demographic values. The seven routing answers required to reach those valid responses are derived deterministically as the passing screening path and recorded in the artifact provenance.
 
-Source SHA-256: `12722bdf55f7c4c22d5f8c5881d16bcdc03bb18d0a3a77892fcb26f241e2f729`.
+Source SHA-256: `0e410fc7bafbf13f1dee360ff130d212ed51ee9023bc786f2606872096566905`.
 
-Canonical row SHA-256: `909e30bf2593cca13c3f14cc03e6800f0b955606f8826719a66685f8082adb5e`.
+Canonical row SHA-256: `17f3dea3957325f8ff29d190a2899c9c0bbfe9968e2528f59eca8f7d0f0b4adb`.
 
-The source labels, ranges, join rule, counts and digests are embedded in the JSON. Runtime loading validates the digest, 637 unique IDs, every reachable screening answer, and all values present on the branch a row actually follows. Missing downstream values are allowed only after a declared screen-out branch; values are never invented.
+The source file, range, join rule, derived screening path, counts and digests are embedded in the JSON. Runtime loading validates the digest, 519 unique IDs, every screening answer and every value required by the complete form path.
 
 ## Re-import
 
-Run `scripts/import-fixed-dataset.mjs --source <workbook.xlsx> --artifact-modules <bundled-node_modules>` using the bundled Artifact Tool runtime. `--inspect` validates and reports provenance without writing the dataset. `--capture-form` explicitly refreshes the public GET-only schema capture; review any change before accepting it. No production spreadsheet dependency is required.
+Run `scripts/import-fixed-dataset.mjs --source <valid.csv> --artifact-modules <bundled-node_modules>` using the bundled Artifact Tool runtime. `--inspect` validates and reports provenance without writing the dataset. `--capture-form` explicitly refreshes the public GET-only schema capture; review any change before accepting it. No production spreadsheet dependency is required.
 
 ## Form pin and verification limits
 

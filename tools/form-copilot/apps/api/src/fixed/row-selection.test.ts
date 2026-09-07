@@ -4,12 +4,12 @@ import type { FixedDatasetRow } from "./dataset.js";
 import { isScreenedOutRow, selectRandomRows } from "./row-selection.js";
 
 describe("fixed dataset row selection", () => {
-  it("samples whole records without replacement and preserves the pool branch distribution", async () => {
+  it("samples whole valid records without replacement from the corrected CSV", async () => {
     const artifact = JSON.parse(await readFile(new URL("../../data/fixed-dataset.json", import.meta.url), "utf8")) as { rows: FixedDatasetRow[] };
     const selected = selectRandomRows(artifact.rows, 200, "batch-a");
     expect(selected).toHaveLength(200);
     expect(new Set(selected.map((row) => row.id))).toHaveLength(200);
-    expect(selected.filter(isScreenedOutRow)).toHaveLength(30);
+    expect(selected.filter(isScreenedOutRow)).toHaveLength(0);
     for (const row of selected) expect(artifact.rows.find((source) => source.id === row.id)).toBe(row);
   });
 

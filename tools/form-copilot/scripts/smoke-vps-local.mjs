@@ -37,10 +37,10 @@ try {
   const meta = await (await fetch(`${base}/api/fixed/meta`, { headers: auth })).json();
   assert.equal(meta.synthetic, true);
   assert.equal(meta.enabled, false);
-  assert.equal(meta.totalCount, 637);
-  assert.equal(meta.completingCount, 542);
-  assert.equal(meta.screenedOutCount, 95);
-  assert.equal(meta.eligibleCount, 637);
+  assert.equal(meta.totalCount, 519);
+  assert.equal(meta.completingCount, 519);
+  assert.equal(meta.screenedOutCount, 0);
+  assert.equal(meta.eligibleCount, 519);
   assert.equal((await fetch(base, { headers: auth })).status, 200);
   assert.equal((await fetch(`${base}/api/ai/analyze`, { method: "POST", headers: auth })).status, 404);
   console.log(JSON.stringify({ ok: true, image, containerId: id, authenticatedUi: true, unauthenticatedBlocked: true, corsPreflight: true, csrfBlocked: true, postgresReady: true, fixedDatasetRows: meta.eligibleCount, submissionsEnabled: false, createdBatches: 0, liveSubmissions: 0, deployed: false }));

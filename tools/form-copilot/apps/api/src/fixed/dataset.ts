@@ -52,11 +52,14 @@ export function validateFixedDataset(value: unknown): FixedDataset {
   if (!value || typeof value !== "object") throw new Error("Fixed dataset is missing");
   const artifact = value as Record<string, unknown>;
   const source = artifact.source as Record<string, unknown> | undefined;
-  if (artifact.schemaVersion !== 2 || artifact.synthetic !== true || typeof artifact.label !== "string" || !/synthetic rehearsal/i.test(artifact.label) ||
-    typeof artifact.name !== "string" || !source || source.join !== "Synthetic_ID" || typeof source.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(source.sha256)) {
+  const expectedScreening = { Consent: "1", S0: "1", S1: "1", S2: "1", S3: "1", S4: "1", S5: "0" };
+  if (artifact.schemaVersion !== 3 || artifact.synthetic !== true || typeof artifact.label !== "string" || !/synthetic rehearsal/i.test(artifact.label) ||
+    typeof artifact.name !== "string" || !source || source.join !== "Synthetic_ID" || source.format !== "csv" ||
+    JSON.stringify(source.ranges) !== JSON.stringify(["VALID_519!A1:AT520"]) || JSON.stringify(source.derivedScreening) !== JSON.stringify(expectedScreening) ||
+    typeof source.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(source.sha256)) {
     throw new Error("Fixed dataset synthetic provenance is invalid");
   }
-  if (!Array.isArray(artifact.rows) || artifact.rows.length !== 637) throw new Error("Fixed dataset must contain all 637 source rows");
+  if (!Array.isArray(artifact.rows) || artifact.rows.length !== 519) throw new Error("Fixed dataset must contain exactly 519 valid source rows");
   const rows = artifact.rows as FixedDatasetRow[];
   const seen = new Set<string>();
   for (const row of rows) {

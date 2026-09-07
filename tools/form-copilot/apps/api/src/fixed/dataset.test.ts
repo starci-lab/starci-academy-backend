@@ -4,24 +4,24 @@ import { FIXED_FIELDS, loadFixedDataset, validateFixedDataset, validateFixedRow 
 
 const sourceArtifact = async () => JSON.parse(await readFile(new URL("../../data/fixed-dataset.json", import.meta.url), "utf8"));
 describe("fixed synthetic dataset", () => {
-  it("loads all 637 source records without inventing answers after a screen-out", async () => {
+  it("loads exactly the 519 complete records from the corrected valid CSV", async () => {
     const dataset = await loadFixedDataset();
-    expect(dataset.rows).toHaveLength(637);
-    expect(new Set(dataset.rows.map((row) => row.id)).size).toBe(637);
-    expect(dataset.digest).toBe("6955d1008ff3bf169b5ada24f334ab135c11ccf191d38af9740061078e66141a");
+    expect(dataset.rows).toHaveLength(519);
+    expect(new Set(dataset.rows.map((row) => row.id)).size).toBe(519);
     const completing = dataset.rows.filter((row) => Object.keys(row.answers).length === FIXED_FIELDS.length);
     const screened = dataset.rows.filter((row) => Object.keys(row.answers).length < FIXED_FIELDS.length);
-    expect(completing).toHaveLength(542);
-    expect(screened).toHaveLength(95);
+    expect(completing).toHaveLength(519);
+    expect(screened).toHaveLength(0);
     for (const row of dataset.rows) expect(() => validateFixedRow(row)).not.toThrow();
   });
-  it("retains the ID-join reconciliation and source workbook fingerprint", async () => {
+  it("retains the corrected CSV provenance and valid-only reconciliation", async () => {
     const artifact = await sourceArtifact();
     expect(artifact.synthetic).toBe(true);
     expect(artifact.source.join).toBe("Synthetic_ID");
-    expect(artifact.source.sha256).toBe("12722bdf55f7c4c22d5f8c5881d16bcdc03bb18d0a3a77892fcb26f241e2f729");
-    expect(artifact.reconciliation).toEqual({ rawCount: 637, completingCount: 542, screenedOutCount: 95, qualityExcludedCount: 23, eligibleCount: 519, excludedCount: 118, mismatchedSharedCells: 0, differentFilteredRowPositions: 518 });
-    expect(artifact.source.sourceLabels).toHaveLength(3);
+    expect(artifact.source.sha256).toBe("0e410fc7bafbf13f1dee360ff130d212ed51ee9023bc786f2606872096566905");
+    expect(artifact.source.format).toBe("csv");
+    expect(artifact.source.derivedScreening).toEqual({ Consent: "1", S0: "1", S1: "1", S2: "1", S3: "1", S4: "1", S5: "0" });
+    expect(artifact.reconciliation).toEqual({ sourceCount: 519, completingCount: 519, screenedOutCount: 0, eligibleCount: 519, excludedCount: 0 });
   });
   it("rejects missing values, duplicate IDs, tampering and stripped synthetic provenance", async () => {
     const artifact = await sourceArtifact();
