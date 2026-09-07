@@ -102,7 +102,7 @@ export class GradeMockInterviewSessionWorker extends WorkerHost {
                     phase: turn.phase as MockInterviewPhase,
                 })),
                 sessionId: session.id,
-                locale: Locale.En,
+                locale: session.locale ?? Locale.En,
                 selectedModel: gradingJob.selectedModel ?? undefined,
                 selectedModelProvider: gradingJob.selectedModelProvider as ModelProvider | undefined,
             })

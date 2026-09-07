@@ -31,6 +31,9 @@ import {
 import {
     UserService,
 } from "../user/user.service"
+import {
+    EffectiveLearnerAccessService,
+} from "../pro-subscription/effective-learner-access.service"
 import type {
     CompleteFlashcardReviewSessionParams,
     CompleteFlashcardReviewSessionResult,
@@ -80,6 +83,7 @@ export class FlashcardReviewSessionService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly userService: UserService,
+        private readonly effectiveLearnerAccessService: EffectiveLearnerAccessService,
     ) {}
 
     /**
@@ -185,7 +189,7 @@ export class FlashcardReviewSessionService {
             userId,
             deck.course.id,
         )
-        const entitled = await this.userService.checkEnrollment(userId,
+        const entitled = await this.effectiveLearnerAccessService.hasCourseAccess(userId,
             deck.course.id)
         if (!entitled) {
             const accessibleCards = await this.entityManager.find(
@@ -564,7 +568,7 @@ export class FlashcardReviewSessionService {
         courseId: string,
         deckId: string,
     ): Promise<void> {
-        if (await this.userService.checkEnrollment(userId,
+        if (await this.effectiveLearnerAccessService.hasCourseAccess(userId,
             courseId)) {
             return
         }

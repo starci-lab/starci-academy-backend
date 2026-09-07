@@ -23,6 +23,9 @@ import {
     MembershipService,
 } from "@modules/membership/membership.service"
 import {
+    ProSubscriptionService,
+} from "../../pro-subscription/pro-subscription.service"
+import {
     EnqueueEnrollJobService,
 } from "../../jobs/enqueue/enroll.service"
 import {
@@ -58,6 +61,7 @@ import {
 } from "@modules/lib/mixin/dayjs.service"
 import {
     Injectable,
+    Optional,
 } from "@nestjs/common"
 import {
     WinstonLog,
@@ -88,6 +92,8 @@ export class TransactionGrantService {
         private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly membershipService: MembershipService,
+        @Optional()
+        private readonly proSubscriptionService: ProSubscriptionService | undefined,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
         private readonly notificationService: NotificationService,
         private readonly winstonService: WinstonService,
@@ -154,6 +160,18 @@ export class TransactionGrantService {
         // community membership purchase: grant/extend directly
         case ActionType.MembershipPurchase:
             await this.grantCommunityMembership(transaction)
+            return
+        case ActionType.ProSubscriptionPurchase:
+            if (!this.proSubscriptionService) {
+                throw new UnsupportedTransactionActionException({
+                    actionType: String(transaction.actionType),
+                })
+            }
+            await this.proSubscriptionService.grantPaidPeriod({
+                userId: transaction.userId,
+                transactionId: transaction.id,
+                offerRevision: transaction.offerRevision ?? "unknown",
+            })
             return
         case ActionType.Enroll:
             await this.grantEnrollment(transaction)

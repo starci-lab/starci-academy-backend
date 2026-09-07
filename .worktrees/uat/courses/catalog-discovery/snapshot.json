@@ -1,0 +1,15 @@
+{
+  "version": "7.0.0",
+  "feature": "courses",
+  "flow": "catalog-discovery",
+  "sourceHeads": [
+    "git:f9d88b4a1cb5d4e40c0c89428525a0e6ff73c1f7",
+    "git:cbd8a629fc345322b3edaac43a75881772d4d330",
+    "worktree:sha256:d3ec449908a5fd883db190826d7d01cc9a7f44e104d5be971a98e2ac43be5b9d"
+  ],
+  "cases": [
+    "courses.catalog.desktop-grid-and-line",
+    "courses.catalog.compact-no-overflow",
+    "courses.catalog.fullstack-navigation"
+  ]
+}

@@ -46,7 +46,7 @@ export class MockInterviewGradingJobDispatcherService {
     @Interval(DISPATCH_INTERVAL_MS)
     async dispatch(): Promise<void> {
         const leaseToken = randomUUID()
-        const rows = await this.entityManager.query<Array<{ id: string }>>(`
+        const [rows] = await this.entityManager.query<[Array<{ id: string }>, number]>(`
             WITH candidate AS (
                 SELECT id
                 FROM mock_interview_grading_jobs

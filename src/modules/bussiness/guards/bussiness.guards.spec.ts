@@ -24,8 +24,8 @@ import {
     GraphQLMustEnrolledGuard,
 } from "./graphql-must-enrolled.guard"
 import {
-    UserService,
-} from "../user/user.service"
+    EffectiveLearnerAccessService,
+} from "../pro-subscription/effective-learner-access.service"
 import type {
     ExecutionContext,
 } from "@nestjs/common"
@@ -159,20 +159,21 @@ describe("GraphQLMustEnrolledGuard",
     () => {
         let module: TestingModule
         let guard: GraphQLMustEnrolledGuard
-        let userService: jest.Mocked<Pick<UserService, "checkEnrollment">>
+        let effectiveLearnerAccessService: jest.Mocked<Pick<EffectiveLearnerAccessService, "hasCourseAccess">>
 
         beforeEach(async () => {
-            // enrollment lookup is programmed per-case (enrolled by default)
-            userService = {
-                checkEnrollment: jest.fn(async () => true),
-            } as unknown as jest.Mocked<Pick<UserService, "checkEnrollment">>
+            // effective paid access (active Pro or factual paid enrollment) is
+            // programmed per-case (granted by default)
+            effectiveLearnerAccessService = {
+                hasCourseAccess: jest.fn(async () => true),
+            } as unknown as jest.Mocked<Pick<EffectiveLearnerAccessService, "hasCourseAccess">>
 
             module = await Test.createTestingModule({
                 providers: [
                     GraphQLMustEnrolledGuard,
                     {
-                        provide: UserService,
-                        useValue: userService,
+                        provide: EffectiveLearnerAccessService,
+                        useValue: effectiveLearnerAccessService,
                     },
                 ],
             }).compile()
@@ -186,7 +187,7 @@ describe("GraphQLMustEnrolledGuard",
 
         it("allows an enrolled user for the requested course",
             async () => {
-                // user is enrolled -> guard passes and checks the right pair
+                // effective access granted -> guard passes and checks the right pair
                 const allowed = await guard.canActivate(
                     buildGqlContext({
                         user: {
@@ -199,7 +200,7 @@ describe("GraphQLMustEnrolledGuard",
                 )
 
                 expect(allowed).toBe(true)
-                expect(userService.checkEnrollment).toHaveBeenCalledWith(
+                expect(effectiveLearnerAccessService.hasCourseAccess).toHaveBeenCalledWith(
                     "user-1",
                     "course-1",
                 )
@@ -207,7 +208,7 @@ describe("GraphQLMustEnrolledGuard",
 
         it("throws CourseIdRequiredException when the course id header is missing",
             async () => {
-                // no course id -> cannot evaluate enrollment (400)
+                // no course id -> cannot evaluate effective access (400)
                 await expect(
                     guard.canActivate(
                         buildGqlContext({
@@ -219,14 +220,14 @@ describe("GraphQLMustEnrolledGuard",
                         }),
                     ),
                 ).rejects.toBeInstanceOf(CourseIdRequiredException)
-                // enrollment is never queried without a course id
-                expect(userService.checkEnrollment).not.toHaveBeenCalled()
+                // access is never resolved without a course id
+                expect(effectiveLearnerAccessService.hasCourseAccess).not.toHaveBeenCalled()
             })
 
         it("throws EnrollmentNotFoundException when the user is not enrolled",
             async () => {
-                // enrollment check fails -> access denied (403)
-                userService.checkEnrollment.mockResolvedValueOnce(false)
+                // neither active Pro nor a factual paid enrollment -> denied (403)
+                effectiveLearnerAccessService.hasCourseAccess.mockResolvedValueOnce(false)
 
                 await expect(
                     guard.canActivate(
@@ -260,7 +261,7 @@ describe("GraphQLMustEnrolledGuard",
                 )
 
                 expect(allowed).toBe(true)
-                expect(userService.checkEnrollment).toHaveBeenCalledWith(
+                expect(effectiveLearnerAccessService.hasCourseAccess).toHaveBeenCalledWith(
                     "user-1",
                     "course-1",
                 )

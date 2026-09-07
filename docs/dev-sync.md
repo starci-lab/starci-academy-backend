@@ -107,6 +107,30 @@ chuẩn và ăn `ECONNREFUSED` trong khi `docker ps` trông hoàn toàn khoẻ m
 `npm run sync` là **entry point duy nhất**. Nó lo cả `.gitmounts/data` lẫn `.stacks/`, và
 chạy lại được nhiều lần (idempotent) — cứ `git pull` xong là chạy lại.
 
+### URL local chuẩn cho browser và OAuth
+
+Mọi luồng browser/OAuth local dùng duy nhất hostname `localhost`. Không mở frontend bằng
+`127.0.0.1`, vì OAuth, cookie, CORS và browser storage coi đó là một origin khác.
+Literal loopback IP chỉ còn hợp lệ trong field mang nghĩa IP (ví dụ request IP hoặc IPv4
+bind để giữ port cho Docker), không dùng làm endpoint, origin hay hostname kết nối.
+
+| Vai trò | URL chuẩn |
+|---|---|
+| Frontend | `http://localhost:3000` |
+| Core API | `http://localhost:3001` |
+| Keycloak | `http://localhost:8080` |
+| Google broker callback | `http://localhost:8080/realms/master/broker/google/endpoint` |
+
+Trong Keycloak, client `academy-web` dùng `http://localhost:3000/*` cho Valid redirect URIs
+và `http://localhost:3000` cho Web origins. Callback `KEYCLOAK_GOOGLE_REDIRECT_URI` ở
+`http://localhost:3001/api/v1/keycloak/google/callback` là callback của ứng dụng với
+Keycloak; nó không thay thế Google broker callback ở bảng trên.
+
+Google Cloud Console phải có Google broker callback khớp tuyệt đối trong **Authorized
+redirect URIs**. `npm run sync`, sửa JSON credential đã tải về, hoặc sửa Keycloak không thể
+thay đổi allowlist bên Google; lỗi `redirect_uri_mismatch` chỉ hết sau khi URI `:8080` ở trên
+được thêm vào OAuth client tương ứng.
+
 Muốn xem `sync` sẽ viết gì mà chưa muốn đụng vào `.env.override` đang chạy:
 
 ```bash
@@ -230,6 +254,7 @@ server được đẩy riêng từ máy có khoá.
 | Kafka nối được rồi treo | `KAFKA_ADVERTISED_LISTENERS` phải advertise **port host**, không phải port container |
 | Trang kiến trúc public rỗng số liệu | tên container không còn bắt đầu bằng `starci-` (xem `STARCI_CONTAINER_PREFIX`) |
 | Keycloak "Client not found" sau `down -v` | realm nằm trong volume `keycloak-data`; `-v` xoá nó, phải provision lại |
+| Google báo `Error 400: redirect_uri_mismatch` | thêm chính xác `http://localhost:8080/realms/master/broker/google/endpoint` vào Authorized redirect URIs của OAuth client trên Google Cloud Console |
 
 ## Script trong `package.json`
 

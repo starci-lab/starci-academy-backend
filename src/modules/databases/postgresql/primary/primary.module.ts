@@ -39,6 +39,12 @@ import {
     AiSubscriptionEntity
 } from "./entities/ai-subscription.entity"
 import {
+    ProEntitlementSourceEntity
+} from "./entities/pro-entitlement-source.entity"
+import {
+    ProSubscriptionEntity
+} from "./entities/pro-subscription.entity"
+import {
     BlogPostEntity
 } from "./entities/blog-post.entity"
 import {
@@ -748,6 +754,8 @@ const PRIMARY_ENTITIES = [
     AiModelTranslationEntity,
     AiSubscriptionEntity,
     MembershipEntity,
+    ProSubscriptionEntity,
+    ProEntitlementSourceEntity,
     InstallmentPlanEntity,
     CodingProblemEntity,
     CodingProblemTranslationEntity,

@@ -7,9 +7,10 @@ describe("MockInterviewGradingJobDispatcherService",
         it("publishes the durable grading-job id returned by PostgreSQL",
             async () => {
                 const entityManager = {
-                    query: jest.fn().mockResolvedValue([{
+                    query: jest.fn().mockResolvedValue([[{
                         id: "grading-job-1"
-                    }]),
+                    }],
+                    1]),
                 }
                 const queue = {
                     add: jest.fn().mockResolvedValue(undefined),
@@ -29,6 +30,7 @@ describe("MockInterviewGradingJobDispatcherService",
                     {
                         jobId: `grading-job-1-${leaseToken}`
                     })
+                expect(queue.add).toHaveBeenCalledTimes(1)
             })
 
         it("releases the same lease for a bounded retry when BullMQ publication fails",
@@ -44,9 +46,10 @@ describe("MockInterviewGradingJobDispatcherService",
                     set 
                 })
                 const entityManager = {
-                    query: jest.fn().mockResolvedValue([{
+                    query: jest.fn().mockResolvedValue([[{
                         id: "grading-job-1"
-                    }]),
+                    }],
+                    1]),
                     createQueryBuilder: jest.fn().mockReturnValue({
                         update 
                     }),

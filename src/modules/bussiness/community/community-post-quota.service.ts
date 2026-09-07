@@ -1,6 +1,10 @@
 import {
     Injectable,
+    Optional,
 } from "@nestjs/common"
+import {
+    ProSubscriptionService,
+} from "../pro-subscription/pro-subscription.service"
 import {
     EntityManager,
     MoreThan,
@@ -8,6 +12,9 @@ import {
 import {
     CommunityPostEntity,
 } from "@modules/databases/postgresql/primary/entities/community-post.entity"
+import {
+    CommunityScope
+} from "@modules/databases/postgresql/primary/enums/community-scope"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
@@ -40,6 +47,8 @@ export class CommunityPostQuotaService {
         private readonly entityManager: EntityManager,
         private readonly membershipService: MembershipService,
         private readonly dayjsService: DayjsService,
+        @Optional()
+        private readonly proSubscriptionService?: ProSubscriptionService,
     ) {}
 
     /**
@@ -51,6 +60,7 @@ export class CommunityPostQuotaService {
     }: AssertCanCreateCommunityPostParams): Promise<void> {
         // active members are never rate-limited -> short-circuit before any count
         const isMember = await this.membershipService.isActive(userId)
+            || await this.proSubscriptionService?.isActive(userId)
         if (isMember) {
             return
         }
@@ -70,6 +80,7 @@ export class CommunityPostQuotaService {
         const recentPostCount = await this.entityManager.count(CommunityPostEntity,
             {
                 where: {
+                    scope: CommunityScope.Global,
                     author: {
                         id: userId,
                     },

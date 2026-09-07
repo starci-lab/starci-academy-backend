@@ -30,6 +30,9 @@ import {
     UserService,
 } from "../user/user.service"
 import {
+    EffectiveLearnerAccessService,
+} from "../pro-subscription/effective-learner-access.service"
+import {
     FlashcardReviewSessionService,
 } from "./flashcard-review-session.service"
 
@@ -96,6 +99,12 @@ describe("FlashcardReviewSessionService",
                     {
                         provide: UserService,
                         useValue: userService,
+                    },
+                    {
+                        provide: EffectiveLearnerAccessService,
+                        useValue: {
+                            hasCourseAccess: userService.checkEnrollment,
+                        },
                     },
                 ],
             }).compile()

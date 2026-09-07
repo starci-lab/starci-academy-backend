@@ -58,6 +58,12 @@ import {
 import {
     SetCommunityPostPinnedService,
 } from "./set-community-post-pinned/set-community-post-pinned.service"
+import {
+    CourseCommunityMutationsResolver 
+} from "./course-community/course-community.resolver"
+import {
+    CourseCommunityApiService 
+} from "../../shared/community/course-community-api.service"
 
 @Module({
     providers: [
@@ -79,6 +85,8 @@ import {
         ReactToCommunityPostCommentService,
         SetCommunityPostPinnedResolver,
         SetCommunityPostPinnedService,
+        CourseCommunityMutationsResolver,
+        CourseCommunityApiService,
     ],
 })
 /**

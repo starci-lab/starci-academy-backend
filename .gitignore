@@ -104,7 +104,11 @@ claude-legacy/
 
 # Source-local mounts of durable project branches (`businesses`, `debts`).
 # They are Git worktrees, not reusable cache or session storage.
-/.worktrees/
+/.worktrees/businesses/
+/.worktrees/debts/
+/.worktrees/nivo/
+# StarCi Skills sessions live here and are never committed; UAT records and templates are tracked.
+/.worktrees/sessions/
 # Disposable invocation artifacts. A session is never durable authority.
 /.sessions/
 
@@ -143,6 +147,7 @@ scratch/
 !.stacks/**/KEYS.md
 !.stacks/**/*.enc
 !.stacks/*/infra/compose/**
+!.stacks/*/environment.json
 # Reusable, credential-free development seed recipes.
 !.stacks/*/seeds/**/*.md
 !.stacks/*/seeds/**/*.ps1
@@ -181,3 +186,6 @@ scratch/
 
 # lint report debris
 eslint_out*.json
+
+# local pnpm content store
+/.pnpm-store/

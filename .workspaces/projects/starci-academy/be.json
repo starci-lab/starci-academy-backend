@@ -7,16 +7,24 @@
     "kind": "source",
     "directory": null,
     "gitRepository": "https://github.com/starci-lab/starci-academy-backend",
-    "branch": "mtp"
+    "branch": "mtp",
+    "gitPolicy": {
+      "mutationBranch": "mtp",
+      "worktreeBranches": "session-only",
+      "incomingBranchRefs": "merge-into-mutation-branch"
+    }
   },
   "context": {
     "instructions": [
       "AGENTS.md",
       "CLAUDE.md"
     ],
+    "contract": null,
+    "contractSource": null,
     "manifests": [
       "package.json"
     ],
     "grammarId": null
-  }
+  },
+  "schemaRevision": 2
 }

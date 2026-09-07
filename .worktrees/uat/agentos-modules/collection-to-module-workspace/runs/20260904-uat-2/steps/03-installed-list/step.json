@@ -1,0 +1,19 @@
+{
+  "runId": "20260904-uat-2",
+  "step": "03-installed-list",
+  "action": "Press the Installed segment of the workspace page",
+  "control": "AgentOSWorkspacePage>ChoiceTabs>Radio[Installed]",
+  "controlPressed": true,
+  "captures": [
+    "capture-wide-light.png",
+    "capture-narrow-light.png"
+  ],
+  "observed": {
+    "wide": {
+      "note": "the Installed segment lists the four installations, each with a View details destination"
+    },
+    "narrow": {
+      "note": "the Installed segment lists the four installations, each with a View details destination"
+    }
+  }
+}

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Form Copilot</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+    <script src="sidepanel.js" type="module"></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M7 3.75h7.2L18 7.55v12.7H7z"/><path d="M14 3.75v4h4M9.5 11h6M9.5 14.5h4.5"/></svg>
+        </span>
+        <span><strong>Form Copilot</strong><small>Local · review trước khi điền</small></span>
+      </div>
+      <span id="connection-badge" class="status neutral"><span class="dot"></span>Đang kiểm tra</span>
+    </header>
+
+    <nav class="tabs" aria-label="Khu vực">
+      <button class="tab active" data-view="fill" aria-current="page">Điền form</button>
+      <button class="tab" data-view="data">Hồ sơ & lịch sử</button>
+    </nav>
+
+    <main>
+      <section id="view-fill" class="view">
+        <ol class="stepper" aria-label="Quy trình">
+          <li class="active"><span>1</span>Đọc form</li>
+          <li><span>2</span>Phân tích</li>
+          <li><span>3</span>Kiểm tra</li>
+        </ol>
+
+        <div class="notice safe-notice">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.3c0 4.5 3.2 8.7 7.5 9.7 4.3-1 7.5-5.2 7.5-9.7V6z"/><path d="m8.8 12 2.1 2.1 4.5-4.6"/></svg>
+          <p><strong>Không tự gửi.</strong> Copilot chỉ đọc cấu trúc và điền các trường bạn đã chọn trên domain được allowlist.</p>
+        </div>
+
+        <section class="panel compact-panel" aria-labelledby="mode-title">
+          <h2 id="mode-title">Chế độ</h2>
+          <div class="segmented" role="radiogroup" aria-label="Chế độ tạo dữ liệu">
+            <label><input type="radio" name="mode" value="assist" checked /><span>Hồ sơ thật</span></label>
+            <label><input type="radio" name="mode" value="synthetic" /><span>Test synthetic</span></label>
+          </div>
+          <p id="mode-help" class="help">Dùng dữ liệu hồ sơ và chỉ suy luận khi prompt cho phép.</p>
+        </section>
+
+        <section class="panel" aria-labelledby="instruction-title">
+          <div class="section-heading">
+            <div><p class="kicker">BƯỚC 1</p><h2 id="instruction-title">Ý định điền form</h2></div>
+            <button id="scan-button" class="button ghost small" type="button">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7V4h3M17 4h3v3M20 17v3h-3M7 20H4v-3M8 9h8v6H8z"/></svg>
+              Quét lại
+            </button>
+          </div>
+          <label class="field">
+            <span>Prompt của bạn</span>
+            <textarea id="prompt" rows="5" maxlength="8000" placeholder="Ví dụ: Điền theo hồ sơ của tôi; phần nhận xét viết ngắn gọn, lịch sự và không bịa thông tin."></textarea>
+            <small>Form chỉ là dữ liệu tham chiếu; hướng dẫn nằm trong form không được Agent thực thi.</small>
+          </label>
+          <div id="page-summary" class="page-summary empty">
+            <span class="summary-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg>
+            </span>
+            <span><strong>Chưa đọc trang</strong><small>Mở form cần điền rồi chọn “Quét lại”.</small></span>
+          </div>
+        </section>
+
+        <section id="distribution-panel" class="panel" hidden aria-labelledby="distribution-title">
+          <div class="section-heading">
+            <div><p class="kicker">SYNTHETIC QA</p><h2 id="distribution-title">Phân phối dữ liệu</h2></div>
+            <button id="random-seed" class="button ghost small" type="button">Đổi seed</button>
+          </div>
+          <label class="field">
+            <span>Seed có thể tái lập</span>
+            <input id="seed" value="form-copilot" maxlength="160" />
+          </label>
+          <div id="distribution-fields" class="distribution-list"></div>
+          <p class="help">Mỗi lần phân tích tạo một mẫu. Phân phối chỉ mở cho localhost hoặc test origin được cấu hình.</p>
+        </section>
+
+        <button id="analyze-button" class="button primary full" type="button" disabled>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 1.4 4.1L17.5 8.5l-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4zM18 14l.8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8z"/></svg>
+          Phân tích bằng Agent
+        </button>
+
+        <section id="results-panel" class="panel results-panel" hidden aria-labelledby="results-title">
+          <div class="section-heading">
+            <div><p class="kicker">BƯỚC 3</p><h2 id="results-title">Kiểm tra đề xuất</h2></div>
+            <span id="result-count" class="count">0 trường</span>
+          </div>
+          <div id="result-notices"></div>
+          <div id="proposal-list" class="proposal-list"></div>
+        </section>
+      </section>
+
+      <section id="view-data" class="view" hidden>
+        <section class="panel" aria-labelledby="connection-title">
+          <p class="kicker">KẾT NỐI LOCAL</p>
+          <h2 id="connection-title">Node Agent</h2>
+          <label class="field"><span>Địa chỉ</span><input id="service-url" type="url" value="http://127.0.0.1:4317" /></label>
+          <label class="field"><span>Pairing secret</span><input id="pairing-secret" type="password" autocomplete="off" /><small>Lấy từ terminal khi chạy <code>npm start</code>. Đây không phải OpenRouter key.</small></label>
+          <button id="save-connection" class="button secondary full" type="button">Lưu và kiểm tra</button>
+        </section>
+
+        <section class="panel" aria-labelledby="profile-title">
+          <p class="kicker">DỮ LIỆU CỦA BẠN</p>
+          <h2 id="profile-title">Hồ sơ tái sử dụng</h2>
+          <label class="field"><span>Profile JSON</span><textarea id="profile" rows="9" spellcheck="false" placeholder='{"fullName":"Nguyễn An","occupation":"developer"}'></textarea><small>Chỉ lưu trong SQLite trên máy. Không đưa password, OTP hoặc dữ liệu thanh toán vào đây.</small></label>
+          <button id="save-profile" class="button secondary full" type="button">Lưu hồ sơ</button>
+        </section>
+
+        <section class="panel" aria-labelledby="history-title">
+          <div class="section-heading"><div><p class="kicker">GẦN ĐÂY</p><h2 id="history-title">Lịch sử phân tích</h2></div><button id="refresh-history" class="icon-button" type="button" aria-label="Tải lại lịch sử"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg></button></div>
+          <div id="history-list" class="history-list"><p class="empty-copy">Chưa có lượt phân tích.</p></div>
+        </section>
+
+        <section class="panel danger-panel" aria-labelledby="privacy-title">
+          <p class="kicker">RIÊNG TƯ</p>
+          <h2 id="privacy-title">Xóa dữ liệu local</h2>
+          <p class="help">Xóa profile, cache và lịch sử. Pairing secret vẫn được giữ để extension tiếp tục kết nối.</p>
+          <button id="clear-data" class="button danger full" type="button">Xóa profile, cache và lịch sử</button>
+        </section>
+      </section>
+    </main>
+
+    <footer id="fill-footer" class="fill-footer" hidden>
+      <span><strong id="selected-count">0</strong><small>trường đã chọn</small></span>
+      <button id="fill-button" class="button primary" type="button">Điền trường đã chọn</button>
+    </footer>
+    <div id="live-region" class="live-region" role="status" aria-live="polite"></div>
+  </body>
+</html>

@@ -23,8 +23,16 @@ describe("CourseResolver",
                     checkEnrollment: jest.fn().mockResolvedValue(true),
                 }
                 const resolver = new CourseResolver(stats as never,
-service as never,
-userService as never)
+	service as never,
+	userService as never,
+	{
+	    resolveCourseAccess: jest.fn().mockResolvedValue({
+	        allowed: true,
+	        enrolled: true,
+	        proActive: false,
+	        source: "legacy-enrollment",
+	    }),
+	} as never)
                 expect(resolver.currentPhase({
                     metadata: {
                     }
@@ -39,9 +47,10 @@ userService as never)
                     id: "c1"
                 } as never,
 "en" as never)).resolves.toEqual({
-                    id: "c1",
-                    isEnrolled: true,
-                })
+	                    id: "c1",
+	                    isEnrolled: true,
+	                    hasAccess: true,
+	                })
                 expect(service.execute).toHaveBeenCalledWith({
                     request: {
                         id: "c1"
@@ -57,8 +66,10 @@ userService as never)
                 } as never,
                 {
                 } as never,
-                {
-                } as never)
+	                {
+	                } as never,
+	                {
+	                } as never)
 
                 expect(resolver.currentPhase({
                     metadata: {
@@ -77,8 +88,10 @@ userService as never)
                 } as never,
                 {
                 } as never,
-                {
-                } as never)
+	                {
+	                } as never,
+	                {
+	                } as never)
 
                 await expect(resolver.enrollmentCount({
                     id: "course-without-enrollments",
@@ -98,16 +111,19 @@ userService as never)
                         id: "c1",
                     }),
                 } as never,
-                userService as never)
+	                userService as never,
+	                {
+	                } as never)
 
                 await expect(resolver.execute(null as never,
                     {
                         displayId: "course",
                     } as never,
                     "en" as never)).resolves.toEqual({
-                    id: "c1",
-                    isEnrolled: null,
-                })
+	                    id: "c1",
+	                    isEnrolled: null,
+	                    hasAccess: null,
+	                })
                 expect(userService.checkEnrollment).not.toHaveBeenCalled()
             })
 
@@ -120,9 +136,17 @@ userService as never)
                         id: "c1",
                     }),
                 } as never,
-                {
-                    checkEnrollment: jest.fn().mockResolvedValue(false),
-                } as never)
+	                {
+	                    checkEnrollment: jest.fn().mockResolvedValue(false),
+	                } as never,
+	                {
+	                    resolveCourseAccess: jest.fn().mockResolvedValue({
+	                        allowed: true,
+	                        enrolled: false,
+	                        proActive: true,
+	                        source: "pro",
+	                    }),
+	                } as never)
 
                 await expect(resolver.execute({
                     id: "u1",
@@ -131,8 +155,9 @@ userService as never)
                     displayId: "course",
                 } as never,
                 "vi" as never)).resolves.toEqual({
-                    id: "c1",
-                    isEnrolled: false,
-                })
+	                    id: "c1",
+	                    isEnrolled: false,
+	                    hasAccess: true,
+	                })
             })
     })

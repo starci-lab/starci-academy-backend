@@ -267,11 +267,17 @@ import {
     SubscriptionCatalogParserService,
 } from "./catalog/parsers/subscription-catalog.parser"
 import {
+    LearnerPlanCatalogParserService,
+} from "./catalog/parsers/learner-plan-catalog.parser"
+import {
     AiModelCatalogPathService,
 } from "./catalog/path/ai-model-catalog.path"
 import {
     SubscriptionCatalogPathService,
 } from "./catalog/path/subscription-catalog.path"
+import {
+    LearnerPlanCatalogPathService,
+} from "./catalog/path/learner-plan-catalog.path"
 import {
     ConsultantIdFactoryService,
 } from "./headhuntings/id-factories/consultant.service"
@@ -498,8 +504,10 @@ export class SeedersModule extends ConfigurableModuleClass {
             HeadhuntingSeederService,
             AiModelCatalogPathService,
             SubscriptionCatalogPathService,
+            LearnerPlanCatalogPathService,
             AiModelCatalogParserService,
             SubscriptionCatalogParserService,
+            LearnerPlanCatalogParserService,
             AiModelInsertService,
             CatalogSeederService,
             CodingProblemPathService,

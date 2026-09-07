@@ -11,9 +11,12 @@
   },
   "context": {
     "instructions": [],
+    "contract": null,
+    "contractSource": null,
     "manifests": [
       "package.json"
     ],
     "grammarId": "offset-pop"
-  }
+  },
+  "schemaRevision": 2
 }

@@ -158,8 +158,8 @@ describe("API core module composition",
                     module: MutationsModule
                 })]))
                 expect(imports).toHaveLength(2)
-                expect(queryImports).toHaveLength(36)
-                expect(mutationImports).toHaveLength(26)
+                expect(queryImports).toHaveLength(37)
+                expect(mutationImports).toHaveLength(27)
                 expect(QueriesModule.register({
                     isGlobal: true
                 }).global).toBeUndefined()
@@ -194,9 +194,12 @@ describe("API core module composition",
                 expect(queryFields).toEqual(expect.arrayContaining([
                     "learnAiCompanion",
                     "globalChatRoom",
+                    "proOffer",
+                    "myProSubscription",
                 ]))
                 expect(mutationFields).toEqual(expect.arrayContaining([
                     "resolveLearnAiCompanion",
+                    "purchaseProSubscription",
                 ]))
             })
     })

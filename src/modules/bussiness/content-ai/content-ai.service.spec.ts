@@ -25,6 +25,9 @@ import {
     UserService
 } from "../user/user.service"
 import {
+    EffectiveLearnerAccessService,
+} from "../pro-subscription/effective-learner-access.service"
+import {
     Locale
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
@@ -177,6 +180,12 @@ describe("ContentAiService",
                     {
                         provide: UserService,
                         useValue: userService,
+                    },
+                    {
+                        provide: EffectiveLearnerAccessService,
+                        useValue: {
+                            hasCourseAccess: userService.checkEnrollment,
+                        },
                     },
                     {
                         provide: CourseRagRetrievalService,

@@ -82,12 +82,16 @@ import {
 import {
     StreakMutationsModule,
 } from "./streak/streak.module"
+import {
+    ProSubscriptionMutationsModule,
+} from "./pro-subscription/pro-subscription.module"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
  */
 @Module({
     imports: [
+        ProSubscriptionMutationsModule,
         ContactMutationsModule.register({
             isGlobal: true,
         }),

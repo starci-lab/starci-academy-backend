@@ -104,7 +104,7 @@ export class CourseParserService {
     ) { }
 
     /**
-     * Resolve a raw `# coverImageUrl` mount value into the URL persisted to the DB.
+     * Resolve a raw authored image value into the public URL persisted to the DB.
      *
      * Absolute URLs (`http(s)://...`) are kept verbatim (legacy externally-hosted covers); anything
      * else is treated as a MinIO object key (e.g. `assets/courses/fullstack-mastery.png`, synced by
@@ -114,7 +114,7 @@ export class CourseParserService {
      * @param value - Raw cover value from the mount, or `null`/empty when absent.
      * @returns The resolved absolute URL, or `undefined` when no cover is set.
      */
-    private resolveCoverImageUrl(value: string | null | undefined): string | undefined {
+    private resolvePublicImageUrl(value: string | null | undefined): string | undefined {
         const trimmed = value?.trim()
         if (!trimmed) {
             return undefined
@@ -234,7 +234,10 @@ export class CourseParserService {
                     translations: [],
                 }
             }),
-            coverImageUrl: this.resolveCoverImageUrl(merged.coverImageUrl),
+            coverImageUrl: this.resolvePublicImageUrl(merged.coverImageUrl),
+            playgroundPreviewImageUrl: this.resolvePublicImageUrl(
+                merged.playgroundPreviewImageUrl,
+            ),
             pricingPhases: (
                 merged.pricingPhases ?? []).map(
                 (phase) => {

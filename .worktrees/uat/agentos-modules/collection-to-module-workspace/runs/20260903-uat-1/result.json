@@ -1,0 +1,17 @@
+{
+  "runId": "20260903-uat-1",
+  "at": "2026-09-03T16:39:50.895Z",
+  "commit": "d6cc196e2b74ee522215d0df390b8ffd6772188f",
+  "servedHead": "04c9f4ba81c49e5e06cc8b2cc68792cc926839a2",
+  "approval": ".stacks/dev/environment.json#sha256:fc15b1d4c0e5e1bbddd6f9433a798c3be5d75b31615cfb5ee0824f476f404e4e",
+  "lanes": {
+    "behavior": "pass",
+    "ui": "fail",
+    "ux": "fail"
+  },
+  "experience": {
+    "mean": 3.82,
+    "verdict": "fix-first"
+  },
+  "receiptRef": "sessions/20260903-104251-nivo-frontend.direction.decide/step-51/parallel-1"
+}

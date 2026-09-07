@@ -11,11 +11,14 @@
   },
   "context": {
     "instructions": [],
+    "contract": null,
+    "contractSource": null,
     "manifests": [
       "charts/agentos/Chart.yaml",
       "charts/expert-academy/Chart.yaml",
       "charts/mmo/Chart.yaml"
     ],
     "grammarId": null
-  }
+  },
+  "schemaRevision": 2
 }

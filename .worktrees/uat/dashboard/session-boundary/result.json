@@ -1,0 +1,11 @@
+{
+  "version": "7.0.0",
+  "feature": "dashboard",
+  "flow": "session-boundary",
+  "snapshotFingerprint": "sha256:73151194a16b3c3858bb305915e20d2a8cc81de5e01b0840f54f663c851c0bd7",
+  "outcome": "passed",
+  "evidenceRefs": [
+    ".workspaces/local/migration-v6/worktrees-central-20260829/uat-reviews/dashboard/session-boundary/runs/run-20260829-01/result.json",
+    ".workspaces/local/migration-v6/worktrees-central-20260829/uat-reviews/dashboard/session-boundary/runs/run-20260829-01/screenshots/11-localhost-terminal.full.png"
+  ]
+}

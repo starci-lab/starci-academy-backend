@@ -87,6 +87,18 @@ describe("DockerAgentService",
                 expect(resources.snapshot).toHaveBeenCalledTimes(4)
                 expect(socket.emit).toHaveBeenCalledWith(EVENT.resourcesReport,
                     {
+                        verificationRequested: false,
+                        resources: [
+                            {
+                                kind: "Container",
+                                name: "web",
+                                status: "Running",
+                            },
+                        ],
+                    })
+                expect(socket.emit).toHaveBeenCalledWith(EVENT.resourcesReport,
+                    {
+                        verificationRequested: true,
                         resources: [
                             {
                                 kind: "Container",

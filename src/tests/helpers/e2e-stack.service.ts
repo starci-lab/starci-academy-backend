@@ -301,6 +301,8 @@ export class E2eStackService {
             const server = createServer()
             server.once("error",
                 reject)
+            // Reserve the IPv4 host port that Docker publishes; `localhost` may resolve
+            // to IPv6 and would not reserve the corresponding 0.0.0.0 listener.
             server.listen(0,
                 "127.0.0.1",
                 () => {

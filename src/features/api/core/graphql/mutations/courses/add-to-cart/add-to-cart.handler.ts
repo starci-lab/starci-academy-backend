@@ -24,7 +24,14 @@ import {
 } from "@modules/platform/exceptions/errors/users/user"
 import {
     Injectable,
+    Optional,
 } from "@nestjs/common"
+import {
+    MountFilesystemService,
+} from "@modules/filesystem/mount.service"
+import {
+    LegacyProductSaleClosedException,
+} from "@modules/platform/exceptions/errors/pro-subscription/legacy-product-sale-closed"
 import {
     CommandHandler,
     ICommandHandler,
@@ -56,6 +63,8 @@ export class AddToCartHandler
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        @Optional()
+        private readonly mountFilesystemService?: MountFilesystemService,
     ) {
         super()
     }
@@ -76,6 +85,15 @@ export class AddToCartHandler
         // reject unauthenticated callers up front -- cart rows are per-user
         if (!user) {
             throw new UserNotFoundException({
+            })
+        }
+
+        if (["pro-only",
+            "disabled"].includes(
+            this.mountFilesystemService?.appConfig().legacySalesMode ?? "legacy",
+        )) {
+            throw new LegacyProductSaleClosedException({
+                product: "course-cart",
             })
         }
 

@@ -108,4 +108,42 @@ response as never,
                     },
                 }))
             })
+
+        it("joins a course room when centralized effective access allows it",
+            async () => {
+                const room = {
+                    courseRoom: jest.fn((id: string) => `course:${id}`),
+                    coursePostRoom: jest.fn(),
+                }
+                const access = {
+                    hasCourseAccess: jest.fn().mockResolvedValue(true),
+                }
+                const gateway = new CommunityFeedGateway(room as never,
+                    {
+                    } as never,
+                    {
+                        on: jest.fn(),
+                    } as never,
+                    undefined,
+                    access as never,
+                    {
+                    } as never)
+                const client = {
+                    data: {
+                        userId: "user-1",
+                    },
+                    join: jest.fn(),
+                }
+
+                await gateway.handleSubscribeCommunityFeed(client as never,
+                    {
+                        data: {
+                            courseId: "course-1",
+                        },
+                    } as never)
+
+                expect(access.hasCourseAccess).toHaveBeenCalledWith("user-1",
+                    "course-1")
+                expect(client.join).toHaveBeenCalledWith("course:course-1")
+            })
     })

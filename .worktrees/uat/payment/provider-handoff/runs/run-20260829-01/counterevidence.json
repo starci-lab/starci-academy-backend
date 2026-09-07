@@ -1,0 +1,17 @@
+{
+  "version": "7.0.1",
+  "type": "post-completion-counterevidence",
+  "runId": "payment-provider-handoff-20260829-01",
+  "source": "user-supplied screenshot after the prior completion verdict",
+  "route": "http://localhost:3000/vi/cart",
+  "durableImageRef": ".worktrees/uat/payment/provider-handoff/runs/run-20260829-01/screenshots/04-counterevidence-handoff-wide.png",
+  "sha256": "591f528b455d4835939ab231b6293de8b2171fa34abcc66fa74eec2134a74539",
+  "findings": [
+    "The visible wide handoff state has broken cart hierarchy and spacing: the course image dominates the viewport while item details, totals, and actions collapse into a narrow strip.",
+    "The prior modal screenshots covered the payment task state but did not certify the obscured cart entry surface or the exact state handed back to the user.",
+    "CSS, DOM, geometry, tests, and overlay-only screenshots cannot override this rendered-image failure."
+  ],
+  "invalidates": ".worktrees/uat/payment/provider-handoff/result.json#outcome=passed",
+  "outcome": "failed",
+  "resumeState": "repair"
+}
