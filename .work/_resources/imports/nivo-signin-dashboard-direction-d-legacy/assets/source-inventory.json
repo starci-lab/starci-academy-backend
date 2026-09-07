@@ -1,0 +1,51 @@
+{
+  "schema": "nivo/historical-source-inventory@1",
+  "sourceRoot": "D:/Repositories/starci-academy-backend/.worktrees/nivo/uat/design-plans/app-signin-dashboard",
+  "repositoryRoot": "D:/Repositories/starci-academy-backend/.worktrees/nivo/uat",
+  "repositoryCommit": "2d512c46247f6873a1dbbb0f370bd87ab107c593",
+  "repositoryBranch": "uat",
+  "inventoryObservation": {
+    "workingTreeStatusForSource": "clean",
+    "trackedFiles": 19,
+    "untrackedFiles": 0,
+    "ignoredFiles": 0,
+    "screenshots": 0,
+    "originMainContainsSameSourceTree": true,
+    "originMainPathIntroductionCommit": "9fdf5c3cf06914e1279d937710bc9fd8454f59bc"
+  },
+  "files": [
+    {"path":"apply-progress.md","sha256":"716a5a3c79fd35555609b6aeab83a00bd50de1aefe01ada75c9542a9aa8db683","bytes":3225},
+    {"path":"context-lock.apply.json","sha256":"9d531bc0e6afc5dd14653e8e4e6b1c45f93d5266b4c8941990500099192a2ee6","bytes":5520},
+    {"path":"context-lock.apply.md","sha256":"f48b78541edfd6d283082476c962c9a93de2089256aa660c36b5007d67699f01","bytes":2828},
+    {"path":"context-lock.plan.json","sha256":"ad57dd586bf326d4a45e11d9254390916c0e7ccc33347d4879bc671fdbbe96cb","bytes":3122},
+    {"path":"context-lock.plan.md","sha256":"515193c4efed72f9c892cbe1b81706f0115ad14a9bdbb1173b3751b9e9658e90","bytes":1888},
+    {"path":"context-lock.preview.json","sha256":"9210700c973f13e8f084842eb722225d1c75521d1a79aa36de4fd704bc75e1d1","bytes":3465},
+    {"path":"context-lock.preview.md","sha256":"d686e1f75781919c31591782f55fd9038f3340162e1f3a797215b50bfca83ba0","bytes":2086},
+    {"path":"design-record.json","sha256":"e3fd6675c8d1632abc2cfa4d0920dd530ba86206e9d44b1bc9e99460b3096ab1","bytes":17391},
+    {"path":"design-record.md","sha256":"3becc26cac15b51b75fae9c901459a8c6ea39b03c3e04fcc87fc6be588b1aae9","bytes":4326},
+    {"path":"direction-lab/cases.js","sha256":"5279869d6df91bb597c541790f19c53f8a98ff52d763b999cd2ae8b27cce3f76","bytes":46887},
+    {"path":"direction-lab/index.html","sha256":"a7f36f02bc74153380e399810a164b29a8c3cdac27a4fb0a753dcef9164c6ad3","bytes":646},
+    {"path":"direction-lab/review.css","sha256":"198dc3e875265707dd7b2ee5eca5ed9d066797071747f2be3005b339b86c7a0e","bytes":2502},
+    {"path":"direction-lab/review.js","sha256":"161d54d523748fef9d46959e7f1cbc1a0ff67bf432ac7a0dd5b39bfbd79018a6","bytes":5336},
+    {"path":"plan-record.json","sha256":"0d8c7ed1b63aab7b9f705e87f716c2664b2b6c0a68cff558e748b61531249b07","bytes":21193},
+    {"path":"plan-record.md","sha256":"f369844b39b067d75aa2bf2f05bbdff742fcc423a28893488afeeca81899691c","bytes":8733},
+    {"path":"preview-lab/cases.js","sha256":"f5b3177dbe12739630e910f35d9f5eb9775b3b1aa54a554a8c725e68bff2a966","bytes":38358},
+    {"path":"preview-lab/index.html","sha256":"a7f36f02bc74153380e399810a164b29a8c3cdac27a4fb0a753dcef9164c6ad3","bytes":646},
+    {"path":"preview-lab/review.css","sha256":"198dc3e875265707dd7b2ee5eca5ed9d066797071747f2be3005b339b86c7a0e","bytes":2502},
+    {"path":"preview-lab/review.js","sha256":"161d54d523748fef9d46959e7f1cbc1a0ff67bf432ac7a0dd5b39bfbd79018a6","bytes":5336}
+  ],
+  "preservationSelection": {
+    "copiedVerbatim": [],
+    "sanitizedDerivatives": [
+      "direction-d-decision.json",
+      "partial-apply.md",
+      "source-inventory.json"
+    ],
+    "notCopied": [
+      "Session/context locks containing obsolete runtime and dirty-tree coordination details",
+      "Direction and preview lab implementation files; their selected decision and limitations are preserved in the sanitized derivative",
+      "Runtime ports, process identifiers, local URLs, and session-local state"
+    ]
+  }
+}
+
