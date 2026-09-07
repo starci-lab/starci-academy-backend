@@ -12,7 +12,7 @@ describe("fixed-only API boundary", () => {
     expect(() => controller.create({ ...body, url: "https://untrusted.example" })).toThrow("Unrecognized key");
     expect(() => controller.create({ ...body, timezone: "not-a-zone" })).toThrow("IANA");
     expect(createBatch).not.toHaveBeenCalled();
-    controller.create(body); expect(createBatch).toHaveBeenCalledWith(body);
+    controller.create(body); expect(createBatch).toHaveBeenCalledWith({ ...body, selection: "mixed" });
   });
   it("wraps list responses while returning individual batches directly", async () => {
     const batch = { id: "batch", status: "paused" };
@@ -26,6 +26,12 @@ describe("fixed-only API boundary", () => {
     expect(await controller.pause("batch")).toBe(batch);
     expect(await controller.resume("batch")).toBe(batch);
     expect(await controller.cancel("batch")).toBe(batch);
+  });
+  it("exposes reconciliation metadata without raw response contents", async () => {
+    const receipt = { source: "google-sheet-csv", status: "ok", mirroredCount: 216, sourceCount: 216, columnCount: 53, sourceDigest: "digest", lastAttemptAt: "2026-09-06T00:00:00.000Z", lastSuccessAt: "2026-09-06T00:00:00.000Z", error: null };
+    const controller = new FixedController({ reconciliation: vi.fn(async () => receipt) } as unknown as FixedService);
+    expect(await controller.reconciliation()).toEqual(receipt);
+    expect(JSON.stringify(await controller.reconciliation())).not.toContain("response_json");
   });
   it("metadata explicitly labels synthetic data and explains disabled submissions", async () => {
     const availableCount = vi.fn(async () => 1);

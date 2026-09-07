@@ -1,7 +1,8 @@
-import type { BatchRequest, ExecutionMode } from "./api";
+import type { BatchRequest, ExecutionMode, ResponseSelection } from "./api";
 
 export interface ScheduleDraft {
   mode: ExecutionMode;
+  selection: ResponseSelection;
   timezone: string;
   count: string;
   start: string;
@@ -101,9 +102,9 @@ export function validateSchedule(draft: ScheduleDraft, availableCount: number, n
   if (draft.mode === "scheduled" && !errors.timezone) {
     try { startAt = localTimeToInstant(draft.start, timezone); } catch (error) { errors.start = (error as Error).message; }
     try { endAt = localTimeToInstant(draft.end, timezone); } catch (error) { errors.end = (error as Error).message; }
-    if (startAt && new Date(startAt).getTime() <= now) errors.start = "Giờ bắt đầu phải ở tương lai. Chọn lại thời gian hoặc dùng Chạy ngay.";
+    if (startAt && new Date(startAt).getTime() <= now) errors.start = "Giờ bắt đầu phải ở tương lai. Chọn lại thời gian hoặc dùng Gửi ngay.";
     if (startAt && endAt && new Date(endAt) <= new Date(startAt)) errors.end = "Giờ kết thúc phải sau giờ bắt đầu.";
   }
   if (Object.keys(errors).length > 0) return { errors };
-  return { errors, payload: { mode: draft.mode, timezone, count, ...(draft.mode === "scheduled" && startAt && endAt ? { startAt, endAt } : {}) } };
+  return { errors, payload: { mode: draft.mode, selection: draft.mode === "scheduled" ? "mixed" : draft.selection, timezone, count, ...(draft.mode === "scheduled" && startAt && endAt ? { startAt, endAt } : {}) } };
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { FixedCreateBatchSchema, type FixedCreateBatch } from "@form-copilot/contracts";
 import { IMMEDIATE_WINDOW_MS, planBatch, requestFingerprint } from "./planner.js";
 
-const base: FixedCreateBatch = { mode: "immediate", count: 3, timezone: "Asia/Bangkok", requestId: "18a5e536-617b-4c27-a84f-232c9907437d" };
+const base: FixedCreateBatch = { mode: "immediate", selection: "mixed", count: 3, timezone: "Asia/Bangkok", requestId: "18a5e536-617b-4c27-a84f-232c9907437d" };
 describe("fixed batch input and UTC planning", () => {
   it("validates exact counts, IANA zones and rejects arbitrary URL/AI inputs", () => {
     expect(FixedCreateBatchSchema.safeParse(base).success).toBe(true);
@@ -17,6 +17,10 @@ describe("fixed batch input and UTC planning", () => {
     expect(FixedCreateBatchSchema.safeParse({ ...scheduled, endAt: scheduled.startAt }).success).toBe(false);
     expect(FixedCreateBatchSchema.safeParse({ ...scheduled, endAt: undefined }).success).toBe(false);
     expect(FixedCreateBatchSchema.safeParse({ ...base, startAt: scheduled.startAt }).success).toBe(false);
+    expect(FixedCreateBatchSchema.safeParse({ ...scheduled, selection: "screened_out" }).success).toBe(false);
+  });
+  it("binds response selection into the idempotency fingerprint", () => {
+    expect(requestFingerprint({ ...base, selection: "completing" })).not.toBe(requestFingerprint({ ...base, selection: "screened_out" }));
   });
   it("jitters the exact count within UTC strata, keeping the last slot inside the deadline", () => {
     const plan = planBatch({ ...base, mode: "scheduled", startAt: "2030-04-01T09:00:00+07:00", endAt: "2030-04-01T10:00:00+07:00" }, new Date("2030-04-01T00:00:00Z"), () => 0.5);

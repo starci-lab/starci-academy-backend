@@ -93,7 +93,8 @@ if (args.includes('--inspect')) {
 // Explicit read-only schema capture. No browser, no clicks, no formResponse POST.
 // Review any change to this pin before allowing workers to use a new form schema.
 if (args.includes('--capture-form')) {
-  const url = 'https://docs.google.com/forms/d/1OkPUIYodvLyBjLr9lVFeVtHv_RVIzAYhxevcxJozu34/viewform';
+  const formId = '18jAiCr6Q7bz6sQA5kH1SW53aPW6L_jzzp8m8UgJkPIk';
+  const url = `https://docs.google.com/forms/d/${formId}/viewform`;
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Form metadata HTTP ${response.status}`);
   const html = await response.text();
@@ -105,6 +106,6 @@ if (args.includes('--capture-form')) {
     items: metadata[1][1].map((item) => ({ id: item[0], title: item[1], description: item[2] ?? null, type: item[3], entries: item[4] ?? null, next: item[5] ?? null })),
   };
   const output = new URL('../apps/api/data/fixed-form-schema.json', import.meta.url);
-  await fs.writeFile(output, `${JSON.stringify({ formId: '1OkPUIYodvLyBjLr9lVFeVtHv_RVIzAYhxevcxJozu34', resolvedUrl: response.url, observedAt: new Date().toISOString(), observation: 'Public GET only; browser traversal and live submission not verified.', sha256: sha256(JSON.stringify(structure)), structure }, null, 2)}\n`);
+  await fs.writeFile(output, `${JSON.stringify({ formId, resolvedUrl: response.url, observedAt: new Date().toISOString(), observation: 'Public GET only; browser traversal and live submission not verified.', sha256: sha256(JSON.stringify(structure)), structure }, null, 2)}\n`);
   console.log(JSON.stringify({ formStatus: response.status, resolvedUrl: response.url, structureDigest: sha256(JSON.stringify(structure)), pageBreaks: structure.items.filter((item) => item.type === 8).length }));
 }

@@ -138,6 +138,22 @@ describe.skipIf(!existsSync(chrome))("local multi-section DOM fixture (no live G
     } finally { await context.close(); await browser.close(); }
   }, 30_000);
 
+  it("accepts an exact confirmation when Google's public-data payload omits form items", async () => {
+    const browser = await chromium.launch({ headless: true, executablePath: chrome, chromiumSandbox: true });
+    const context = await browser.newContext({ serviceWorkers: "block" });
+    try {
+      const partialMetadata = [null, []];
+      await context.route("**/*", (route) => route.fulfill({
+        contentType: "text/html; charset=utf-8",
+        body: `<!doctype html><body><script>var FB_PUBLIC_LOAD_DATA_ = ${JSON.stringify(partialMetadata)};</script>Your response has been recorded.</body>`,
+      }));
+      const page = await context.newPage();
+      await page.goto(schema.resolvedUrl.replace("viewform", "formResponse"));
+      const state = await new PlaywrightFixedFormPage(page, schema).snapshot();
+      expect(state).toMatchObject({ confirmation: true, structure: null, fields: [] });
+    } finally { await context.close(); await browser.close(); }
+  }, 30_000);
+
   it.each(["missing", "duplicate-next", "duplicate-submit"])("rejects %s controls without clicking", async (kind) => {
     const browser = await chromium.launch({ headless: true, executablePath: chrome, chromiumSandbox: true });
     const context = await browser.newContext({ serviceWorkers: "block" });
@@ -266,7 +282,7 @@ describe.skipIf(!existsSync(chrome))("local multi-section DOM fixture (no live G
     } finally { await context.close(); await browser.close(); }
   }, 60_000);
 
-  it("walks a screening branch to the answerless terminal page and confirms screen-out", async () => {
+  it.each(["Submit", "Tiếp"])("walks a screening branch to the answerless terminal page through %s and confirms screen-out", async (terminalLabel) => {
     const browser = await chromium.launch({ headless: true, executablePath: chrome, chromiumSandbox: true });
     const context = await browser.newContext({ serviceWorkers: "block" });
     const page = await context.newPage();
@@ -285,13 +301,19 @@ describe.skipIf(!existsSync(chrome))("local multi-section DOM fixture (no live G
         return `<div role="listitem"><div data-params="%.@.[${item.id}]"><span id="label-${answer.code}">${escapeHtml(caption)}</span><div role="radiogroup" aria-labelledby="label-${answer.code}">${answer.options.map((option) => `<div tabindex="0" role="radio" aria-label="${escapeHtml(option)}" data-value="${escapeHtml(option)}" aria-checked="false" onclick="for(const r of this.parentElement.children)r.setAttribute('aria-checked','false');this.setAttribute('aria-checked','true')">${escapeHtml(option)}</div>`).join("")}</div></div></div>`;
       }).join("");
       const last = index === plan.sections.length - 1;
-      return `<!doctype html><html><head><meta charset="utf-8"></head><body><h1>${escapeHtml(section.title)}</h1><script>var FB_PUBLIC_LOAD_DATA_ = ${JSON.stringify(metadata)};</script><form>${content}</form><a role="button" href="${last ? schema.resolvedUrl.replace("viewform", "formResponse") : `${FIXED_FORM_URL}?fixtureSection=${index + 1}`}">${last ? "Submit" : "Next"}</a></body></html>`;
+      const target = last
+        ? terminalLabel === "Tiếp" ? `${FIXED_FORM_URL}?fixtureTerminalSubmit=1` : schema.resolvedUrl.replace("viewform", "formResponse")
+        : `${FIXED_FORM_URL}?fixtureSection=${index + 1}`;
+      return `<!doctype html><html><head><meta charset="utf-8"></head><body><h1>${escapeHtml(section.title)}</h1><script>var FB_PUBLIC_LOAD_DATA_ = ${JSON.stringify(metadata)};</script><form>${content}</form><a role="button" href="${target}">${last ? terminalLabel : "Next"}</a></body></html>`;
     };
     await context.route("**/*", async (route) => {
       const url = new URL(route.request().url());
       if (url.hostname !== "docs.google.com") { await route.abort(); return; }
       requestedPaths.push(url.pathname);
-      if (url.pathname.endsWith("/formResponse")) {
+      if (url.searchParams.has("fixtureTerminalSubmit")) {
+        const terminal = plan.sections.at(-1)!;
+        await route.fulfill({ contentType: "text/html; charset=utf-8", body: `<!doctype html><body><h1>${escapeHtml(terminal.title)}</h1><script>var FB_PUBLIC_LOAD_DATA_ = ${JSON.stringify(metadata)};</script><a role="button" href="${schema.resolvedUrl.replace("viewform", "formResponse")}">Submit</a></body>` });
+      } else if (url.pathname.endsWith("/formResponse")) {
         events.push("submit-request");
         await route.fulfill({ contentType: "text/html; charset=utf-8", body: "<!doctype html><body>Your response has been recorded.</body>" });
       } else await route.fulfill({ contentType: "text/html", body: fixture(Number(url.searchParams.get("fixtureSection") ?? "0")) });

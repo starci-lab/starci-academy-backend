@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CalendarClock, Check, ChevronDown, ChevronRight, CircleAlert, Clock3, Database, FileCheck2, History, LoaderCircle, Pause, Play, RefreshCw, ShieldCheck, Square, WandSparkles } from "lucide-react";
-import { api, isDefinitiveBatchRejection, type BatchAction, type FixedBatch, type JobStatus } from "./api";
+import { api, isDefinitiveBatchRejection, type BatchAction, type ExecutionMode, type FixedBatch, type JobStatus, type ResponseSelection } from "./api";
 import { formatInstant, instantToLocalTime, validateSchedule, type FieldErrors, type ScheduleDraft } from "./schedule";
 import { PENDING_KEY, readPending, savePending, type PendingRequest } from "./pending-request";
 import { useFixedData } from "./use-fixed-data";
@@ -12,13 +12,14 @@ const statusLabels: Record<string, string> = {
   succeeded: "Đã hoàn tất", screened_out: "Đã sàng lọc và gửi", failed: "Thất bại", uncertain: "Chưa rõ kết quả", expired: "Hết hạn",
 };
 const countOrder: JobStatus[] = ["pending", "running", "succeeded", "screened_out", "failed", "uncertain", "cancelled", "expired"];
-const fieldNames: Record<keyof ScheduleDraft, string> = { mode: "Cách thực hiện", timezone: "Múi giờ", count: "Số lượng", start: "Bắt đầu", end: "Kết thúc" };
-const fieldIds: Record<keyof ScheduleDraft, string> = { mode: "mode-immediate", timezone: "timezone", count: "count", start: "start", end: "end" };
+const fieldNames: Record<keyof ScheduleDraft, string> = { mode: "Cách thực hiện", selection: "Loại câu trả lời", timezone: "Múi giờ", count: "Số lượng", start: "Bắt đầu", end: "Kết thúc" };
+const fieldIds: Record<keyof ScheduleDraft, string> = { mode: "mode-immediate", selection: "selection-mixed", timezone: "timezone", count: "count", start: "start", end: "end" };
+const selectionLabels: Record<ResponseSelection, string> = { mixed: "Trộn theo dữ liệu", completing: "Good · đi hết form", screened_out: "Bad · đóng sớm" };
 const commonZones = ["Asia/Ho_Chi_Minh", "Asia/Bangkok", "Asia/Singapore", "Asia/Tokyo", "UTC", "Europe/London", "Europe/Paris", "America/New_York", "America/Los_Angeles", "Australia/Sydney"];
 
 function initialDraft(): ScheduleDraft {
   const timezone = "Asia/Ho_Chi_Minh";
-  return { mode: "scheduled", timezone, count: "10",
+  return { mode: "immediate", selection: "mixed", timezone, count: "10",
     start: instantToLocalTime(new Date(Date.now() + 3_600_000), timezone),
     end: instantToLocalTime(new Date(Date.now() + 86_400_000), timezone) };
 }
@@ -57,7 +58,8 @@ function BatchDetail({ batch, busy, onAction }: { batch: FixedBatch; busy: strin
       </div>
       <p className="batch-id">Mã lô <code>{batch.id}</code></p>
       <dl className="detail-facts">
-        <div><dt>Hình thức</dt><dd>{batch.mode === "immediate" ? "Chạy ngay" : "Theo khung giờ"}</dd></div>
+        <div><dt>Hình thức</dt><dd>{batch.mode === "immediate" ? "Gửi ngay" : "Theo khung giờ"}</dd></div>
+        <div><dt>Loại câu trả lời</dt><dd>{selectionLabels[batch.selection]}</dd></div>
         <div><dt>Múi giờ hiển thị</dt><dd>{batch.timezone}</dd></div>
         <div><dt>Bắt đầu</dt><dd>{formatInstant(batch.startAt, batch.timezone)}</dd></div>
         <div><dt>Kết thúc</dt><dd>{formatInstant(batch.endAt, batch.timezone)}</dd></div>
@@ -114,8 +116,10 @@ export function App() {
   const requestHeading = useRef<HTMLHeadingElement>(null);
   const [focusError, setFocusError] = useState(0);
   const meta = data.meta;
+  const availableForDraft = !meta ? 0 : draft.mode !== "immediate" || draft.selection === "mixed" ? meta.availableCount
+    : draft.selection === "completing" ? meta.availableCompletingCount : meta.availableScreenedOutCount;
   const locked = Boolean(pending || busy || storageError);
-  const preview = validateSchedule(draft, meta?.availableCount ?? 0);
+  const preview = validateSchedule(draft, availableForDraft);
   const errorsPresent = Object.values(errors).some(Boolean);
 
   useEffect(() => { if (focusError) errorSummary.current?.focus(); }, [focusError]);
@@ -128,23 +132,26 @@ export function App() {
   }
 
   function validateField(key: keyof ScheduleDraft) {
-    const next = validateSchedule(draft, meta?.availableCount ?? 0).errors;
+    const next = validateSchedule(draft, availableForDraft).errors;
     setErrors((current) => ({ ...current, [key]: next[key] }));
   }
 
-  async function submit(event?: React.FormEvent) {
+  async function submit(event?: React.FormEvent, modeOverride?: ExecutionMode) {
     event?.preventDefault();
     if (mutation.current || storageError) return;
     setActionError(null); setNotice(null);
     let attempt = pendingRef.current;
     if (!attempt) {
       if (!meta) return;
-      const result = validateSchedule(draft, meta.availableCount);
+      const attemptDraft = modeOverride ? { ...draft, mode: modeOverride } : draft;
+      const attemptAvailable = attemptDraft.mode !== "immediate" || attemptDraft.selection === "mixed" ? meta.availableCount
+        : attemptDraft.selection === "completing" ? meta.availableCompletingCount : meta.availableScreenedOutCount;
+      const result = validateSchedule(attemptDraft, attemptAvailable);
       setErrors(result.errors);
       if (!result.payload) { setFocusError((value) => value + 1); return; }
       try {
         if (!globalThis.crypto?.randomUUID) throw new Error("Cần HTTPS hoặc localhost để tạo mã yêu cầu an toàn.");
-        attempt = { payload: { ...result.payload, requestId: globalThis.crypto.randomUUID() }, draft: { ...draft } };
+        attempt = { payload: { ...result.payload, requestId: globalThis.crypto.randomUUID() }, draft: { ...attemptDraft } };
         savePending(window.sessionStorage, attempt);
         pendingRef.current = attempt;
         setPending(attempt);
@@ -205,7 +212,7 @@ export function App() {
 
         {data.readError && <div className="banner error" role="alert"><CircleAlert size={20} aria-hidden="true" /><div><strong>Không tải được trạng thái mới nhất</strong><p>{data.readError} {meta && "Thông tin đang hiển thị là lần tải trước."}</p><button type="button" className="button secondary" disabled={data.refreshing} onClick={() => void data.refresh()}>Thử tải lại</button></div></div>}
         {meta && !meta.enabled && <div className="banner warning" id="submission-state"><ShieldCheck size={21} aria-hidden="true" /><div><strong>Gửi form đang tắt — chỉ lưu kế hoạch</strong><p>{meta.disabledReason || "Máy chủ chưa cho phép gửi form."} Lô đã lưu chỉ có thể chạy sau khi máy chủ được cho phép gửi.</p></div></div>}
-        {meta?.enabled && <div className="banner enabled" id="submission-state"><CircleAlert size={20} aria-hidden="true" /><p><strong>Máy chủ đã bật gửi form.</strong> Chạy ngay hoặc lên lịch sẽ tạo công việc gửi tới form cố định. Đây vẫn là dữ liệu diễn tập synthetic.</p></div>}
+        {meta?.enabled && <div className="banner enabled" id="submission-state"><CircleAlert size={20} aria-hidden="true" /><p><strong>Máy chủ đã bật gửi form.</strong> Gửi ngay hoặc lên lịch sẽ tạo công việc gửi tới form cố định. Đây vẫn là dữ liệu diễn tập synthetic.</p></div>}
 
         <div className="workspace-grid">
           <section className="panel schedule-panel" aria-labelledby="request-title">
@@ -214,21 +221,27 @@ export function App() {
               {(errorsPresent || actionError || storageError) && <div className="error-summary" role="alert" tabIndex={-1} ref={errorSummary}><strong>Cần kiểm tra trước khi tiếp tục</strong>{actionError && <p>{actionError}</p>}{storageError && <p>{storageError}</p>}{errorsPresent && <ul>{Object.entries(errors).filter(([, message]) => message).map(([field, message]) => <li key={field}><a href={"#" + fieldIds[field as keyof ScheduleDraft]}>{fieldNames[field as keyof ScheduleDraft]}: {message}</a></li>)}</ul>}</div>}
               {pending && <div className="pending-request"><strong>Yêu cầu đang chờ xác nhận</strong><p>Thông số được giữ nguyên. Thử lại sẽ dùng cùng mã yêu cầu, không tạo lô thứ hai. Đừng mở tab mới để gửi lại.</p><code>{pending.payload.requestId}</code></div>}
               <fieldset disabled={locked} className="mode-fieldset"><legend>Cách thực hiện</legend><div className="mode-options">
-                <label className={draft.mode === "scheduled" ? "mode-option selected" : "mode-option"}><input id="mode-scheduled" type="radio" name="mode" value="scheduled" checked={draft.mode === "scheduled"} onChange={() => change("mode", "scheduled")} /><CalendarClock size={18} aria-hidden="true" /><span>Theo khung giờ</span></label>
-                <label className={draft.mode === "immediate" ? "mode-option selected" : "mode-option"}><input id="mode-immediate" type="radio" name="mode" value="immediate" checked={draft.mode === "immediate"} onChange={() => change("mode", "immediate")} /><Play size={17} aria-hidden="true" /><span>Chạy ngay</span></label>
+                <label className={draft.mode === "scheduled" ? "mode-option selected" : "mode-option"}><input id="mode-scheduled" type="radio" name="mode" value="scheduled" checked={draft.mode === "scheduled"} onChange={() => { setDraft((current) => ({ ...current, mode: "scheduled", selection: "mixed" })); setErrors({}); }} /><CalendarClock size={18} aria-hidden="true" /><span>Theo khung giờ</span></label>
+                <label className={draft.mode === "immediate" ? "mode-option selected" : "mode-option"}><input id="mode-immediate" type="radio" name="mode" value="immediate" checked={draft.mode === "immediate"} onChange={() => change("mode", "immediate")} /><Play size={17} aria-hidden="true" /><span>Gửi ngay</span></label>
               </div></fieldset>
               <div className="form-grid">
                 <div className="field"><label htmlFor="timezone">Múi giờ <span aria-hidden="true">*</span></label><input id="timezone" list="timezones" autoComplete="off" required value={draft.timezone} disabled={locked} onChange={(event) => change("timezone", event.target.value)} onBlur={() => validateField("timezone")} aria-invalid={Boolean(errors.timezone)} aria-describedby={"timezone-hint" + (errors.timezone ? " timezone-error" : "")} /><datalist id="timezones">{commonZones.map((zone) => <option key={zone} value={zone} />)}</datalist><p className="helper" id="timezone-hint">Giờ bên dưới thuộc múi giờ này, không phải giờ của thiết bị.</p>{errors.timezone && <p className="field-error" id="timezone-error">{errors.timezone}</p>}</div>
                 <div className="field"><label htmlFor="count">Số lượng chính xác <span aria-hidden="true">*</span></label><input id="count" type="number" inputMode="numeric" min={1} max={meta?.availableCount} step={1} required value={draft.count} disabled={locked} onChange={(event) => change("count", event.target.value)} onBlur={() => validateField("count")} aria-invalid={Boolean(errors.count)} aria-describedby={"count-hint" + (errors.count ? " count-error" : "")} /><p className="helper" id="count-hint">{meta ? meta.availableCount.toLocaleString("vi-VN") + " bản ghi có thể dùng." : "Đang kiểm tra bộ dữ liệu…"}</p>{errors.count && <p className="field-error" id="count-error">{errors.count}</p>}</div>
               </div>
+              {draft.mode === "immediate" && <fieldset className="response-fieldset" disabled={locked}><legend>Loại câu trả lời</legend><div className="response-options">
+                {(["mixed", "completing", "screened_out"] as const).map((selection) => <label className={draft.selection === selection ? "response-option selected" : "response-option"} key={selection}><input id={`selection-${selection}`} type="radio" name="selection" value={selection} checked={draft.selection === selection} onChange={() => change("selection", selection)} /><span>{selectionLabels[selection]}</span><small>{selection === "mixed" ? `${meta?.availableCount ?? "—"} còn lại · giữ tỷ lệ pool` : selection === "completing" ? `${meta?.availableCompletingCount ?? "—"} record đủ form` : `${meta?.availableScreenedOutCount ?? "—"} record kết thúc sớm`}</small></label>)}
+              </div><p className="helper">Hệ thống random record chưa dùng trong nhóm đã chọn. Mỗi record giữ nguyên toàn bộ câu trả lời để đi đúng nhánh của form.</p></fieldset>}
               {draft.mode === "scheduled" ? <fieldset className="window-fieldset" disabled={locked}><legend>Khung thời gian <span className="optional-note">Bắt buộc khi lên lịch</span></legend><div className="form-grid">
                 {(["start", "end"] as const).map((key) => <div className="field" key={key}><label htmlFor={key}>{fieldNames[key]}</label><input id={key} type="datetime-local" step={60} required value={draft[key]} onChange={(event) => change(key, event.target.value)} onBlur={() => validateField(key)} aria-invalid={Boolean(errors[key])} aria-describedby={errors[key] ? key + "-error" : "window-hint"} />{errors[key] && <p className="field-error" id={key + "-error"}>{errors[key]}</p>}</div>)}
-              </div><p className="helper" id="window-hint">Giờ thực hiện được chọn ngẫu nhiên trong khung đã chọn. Gửi Google Form có thể muộn hơn giờ dự kiến do thời gian xử lý, nhưng không gửi sau hạn kết thúc. Giờ bị trùng hoặc không tồn tại khi đổi giờ sẽ bị từ chối.</p></fieldset> : <div className="immediate-note"><Clock3 size={18} aria-hidden="true" /><p>Công việc được đưa vào hàng đợi ngay sau khi lưu. Máy chủ xử lý tuần tự, trong giới hạn 24 giờ, khi gửi form được bật.</p></div>}
-              <div className="plan-preview"><span>Tóm tắt kế hoạch</span><strong>{/^\d+$/.test(draft.count) ? Number(draft.count).toLocaleString("vi-VN") : "—"} bản ghi · {draft.mode === "immediate" ? "Chạy ngay" : "Theo khung giờ"}</strong><p>{preview.payload?.startAt ? formatInstant(preview.payload.startAt, preview.payload.timezone) + " → " + formatInstant(preview.payload.endAt, preview.payload.timezone) : draft.mode === "immediate" ? "Múi giờ lịch sử: " + draft.timezone : "Hoàn tất thông tin hợp lệ để xem khung giờ."}</p></div>
-              <button className="button primary submit-button" type="submit" disabled={Boolean(busy || storageError || (!pending && (!meta || data.readError || meta.availableCount < 1)))} aria-describedby="submission-state">
-                {busy === "create" ? <LoaderCircle size={19} className="spin" aria-hidden="true" /> : pending ? <RefreshCw size={18} aria-hidden="true" /> : <CalendarClock size={19} aria-hidden="true" />}
-                {busy === "create" ? "Đang ghi nhận…" : pending ? "Thử lại cùng mã yêu cầu" : !meta?.enabled ? "Lưu kế hoạch" : draft.mode === "immediate" ? "Chạy ngay" : "Lên lịch thực hiện"}
-              </button>
+              </div><p className="helper" id="window-hint">Giờ thực hiện được chọn ngẫu nhiên trong khung đã chọn. Gửi Google Form có thể muộn hơn giờ dự kiến do thời gian xử lý, nhưng không gửi sau hạn kết thúc. Giờ bị trùng hoặc không tồn tại khi đổi giờ sẽ bị từ chối.</p></fieldset> : <div className="immediate-note"><Clock3 size={18} aria-hidden="true" /><p>Bản ghi được đưa vào hàng đợi ngay khi tạo lô và xử lý tuần tự. Mỗi bản ghi có thể hoàn tất toàn bộ form hoặc đóng sớm theo chính câu trả lời của bản ghi đó.</p></div>}
+              <div className="plan-preview"><span>Tóm tắt kế hoạch</span><strong>{/^\d+$/.test(draft.count) ? Number(draft.count).toLocaleString("vi-VN") : "—"} bản ghi · {draft.mode === "immediate" ? `Gửi ngay · ${selectionLabels[draft.selection]}` : "Theo khung giờ"}</strong><p>{preview.payload?.startAt ? formatInstant(preview.payload.startAt, preview.payload.timezone) + " → " + formatInstant(preview.payload.endAt, preview.payload.timezone) : draft.mode === "immediate" ? "Bắt đầu ngay · Múi giờ lịch sử: " + draft.timezone : "Hoàn tất thông tin hợp lệ để xem khung giờ."}</p></div>
+              <div className={draft.mode === "scheduled" && !pending ? "submit-actions split" : "submit-actions"}>
+                {draft.mode === "scheduled" && !pending && <button className="button secondary submit-button immediate-shortcut" type="button" disabled={Boolean(busy || storageError || !meta || data.readError || meta.availableCount < 1)} aria-describedby="submission-state" onClick={() => void submit(undefined, "immediate")}><Play size={18} aria-hidden="true" />{meta?.enabled ? "Gửi ngay" : "Lưu lô chạy ngay"}</button>}
+                <button className="button primary submit-button" type="submit" disabled={Boolean(busy || storageError || (!pending && (!meta || data.readError || meta.availableCount < 1)))} aria-describedby="submission-state">
+                  {busy === "create" ? <LoaderCircle size={19} className="spin" aria-hidden="true" /> : pending ? <RefreshCw size={18} aria-hidden="true" /> : draft.mode === "immediate" ? <Play size={18} aria-hidden="true" /> : <CalendarClock size={19} aria-hidden="true" />}
+                  {busy === "create" ? "Đang ghi nhận…" : pending ? "Thử lại cùng mã yêu cầu" : !meta?.enabled ? "Lưu kế hoạch" : draft.mode === "immediate" ? "Gửi ngay" : "Lên lịch thực hiện"}
+                </button>
+              </div>
               <p className="submit-helper">{!meta ? "Cần tải thông tin máy chủ trước khi tạo lô." : !meta.enabled ? "Chỉ tạo kế hoạch và giữ chỗ dữ liệu. Gửi form đang tắt." : "Chỉ bắt đầu nếu bạn được phép gửi dữ liệu diễn tập vào form này."}</p>
             </form>
           </section>
@@ -243,7 +256,7 @@ export function App() {
         <section className="panel history-panel" id="history" aria-labelledby="history-title" aria-busy={data.loading}>
           <div className="section-heading"><div><span className="eyebrow"><History size={15} aria-hidden="true" />Theo dõi thực hiện</span><h2 id="history-title">Lịch sử các lô</h2><p className="helper">{data.updatedAt ? "Cập nhật lúc " + formatInstant(data.updatedAt.toISOString(), "Asia/Ho_Chi_Minh") : "Đang tải lịch sử…"} · Tự cập nhật khi tab đang mở.</p></div><button type="button" className="button secondary" disabled={data.refreshing} onClick={() => void data.refresh()}><RefreshCw size={17} className={data.refreshing ? "spin" : ""} aria-hidden="true" />{data.refreshing ? "Đang tải…" : "Làm mới"}</button></div>
           {data.loading ? <div className="empty-state"><LoaderCircle size={27} className="spin" aria-hidden="true" /><strong>Đang tải các lô đã lưu</strong><p>Chỉ đọc trạng thái, không tạo công việc mới.</p></div> : data.batches.length === 0 ? <div className="empty-state"><CalendarClock size={30} aria-hidden="true" /><strong>{data.readError ? "Chưa thể tải lịch sử" : "Chưa có lô thực hiện"}</strong><p>{data.readError ? "Thử tải lại khi máy chủ kết nối." : "Kế hoạch đầu tiên sẽ xuất hiện ở đây sau khi lưu."}</p></div> : <div className="history-content">
-            <ul className="batch-list">{data.batches.slice(0, historyLimit).map((batch) => <li key={batch.id}><button type="button" className={"batch-row " + (data.selectedId === batch.id ? "selected" : "")} onClick={() => data.select(batch.id)} aria-expanded={data.selectedId === batch.id} aria-controls="selected-batch"><span className="batch-row-icon"><CalendarClock size={20} aria-hidden="true" /></span><span className="batch-row-main"><strong>{batch.count} bản ghi <span>· {batch.mode === "immediate" ? "Chạy ngay" : "Theo khung giờ"}</span></strong><small>{formatInstant(batch.createdAt, batch.timezone)}</small><small className="batch-short-id">{batch.id}</small></span><span className="batch-row-state"><StatusBadge status={batchDisplayStatus(batch)} /><small>{batch.counts.succeeded + batch.counts.screened_out} / {batch.count} đã xác nhận gửi</small></span>{data.selectedId === batch.id ? <ChevronDown size={18} aria-hidden="true" /> : <ChevronRight size={18} aria-hidden="true" />}</button></li>)}</ul>
+            <ul className="batch-list">{data.batches.slice(0, historyLimit).map((batch) => <li key={batch.id}><button type="button" className={"batch-row " + (data.selectedId === batch.id ? "selected" : "")} onClick={() => data.select(batch.id)} aria-expanded={data.selectedId === batch.id} aria-controls="selected-batch"><span className="batch-row-icon"><CalendarClock size={20} aria-hidden="true" /></span><span className="batch-row-main"><strong>{batch.count} bản ghi <span>· {batch.mode === "immediate" ? "Gửi ngay" : "Theo khung giờ"}</span></strong><small>{formatInstant(batch.createdAt, batch.timezone)}</small><small className="batch-short-id">{batch.id}</small></span><span className="batch-row-state"><StatusBadge status={batchDisplayStatus(batch)} /><small>{batch.counts.succeeded + batch.counts.screened_out} / {batch.count} đã xác nhận gửi</small></span>{data.selectedId === batch.id ? <ChevronDown size={18} aria-hidden="true" /> : <ChevronRight size={18} aria-hidden="true" />}</button></li>)}</ul>
             {data.batches.length > historyLimit && <button type="button" className="button secondary show-more" onClick={() => setHistoryLimit((value) => value + 10)}>Xem thêm lô</button>}
             <div id="selected-batch">{data.selectedId && (data.detail ? <BatchDetail batch={data.detail} busy={busy} onAction={(action) => void act(action)} /> : <p className="loading-line">{data.readError ? "Không tải được chi tiết. Chọn Làm mới để thử lại." : "Đang tải chi tiết lô…"}</p>)}</div>
           </div>}

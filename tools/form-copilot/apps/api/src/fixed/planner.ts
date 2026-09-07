@@ -26,7 +26,7 @@ export function planBatch(request: FixedCreateBatch, now = new Date(), random = 
 
 export function requestFingerprint(request: FixedCreateBatch): string {
   return createHash("sha256").update(JSON.stringify({
-    mode: request.mode, count: request.count, timezone: request.timezone,
+    mode: request.mode, selection: request.selection, count: request.count, timezone: request.timezone,
     startAt: request.startAt ? new Date(request.startAt).toISOString() : null,
     endAt: request.endAt ? new Date(request.endAt).toISOString() : null,
   })).digest("hex");

@@ -155,8 +155,18 @@ export async function runFixedFormWithPage(row: FixedDatasetRow, hooks: FormRunH
         await hooks.beforeSubmit(intent); // Durable intent must finish before the first possible final click.
         submitAttempted = true;
         await page.submit();
-        const result = await page.snapshot();
+        let result = await page.snapshot();
         assertFixedUrl(result.url, schema);
+        if (!result.blocker && !result.confirmation && intent.expectedStatus === "screened_out") {
+          // Google can render an answerless screen-out section with a Next-labelled control,
+          // then expose the real Submit control on one final answerless page. The durable
+          // boundary is already recorded before either control; never loop or guess further.
+          assertPage(result, schema);
+          if (result.fields.length || !result.submit || result.next) throw new Error("Screen-out did not reach the single final submit control");
+          await page.submit();
+          result = await page.snapshot();
+          assertFixedUrl(result.url, schema);
+        }
         if (result.blocker || !result.confirmation || result.fields.length) throw new Error("Remote confirmation was not observed after final submit");
         return { ...intent, status: intent.expectedStatus, detail: intent.expectedStatus === "screened_out" ? `Remote confirmation observed after the declared early-close branch (${intent.closeReason}).` : "Remote confirmation observed after submitting the complete source-backed synthetic response." };
       }
@@ -208,6 +218,7 @@ const NAVIGATION_LABELS: Record<NavigationAction, readonly string[]> = {
 
 export class PlaywrightFixedFormPage implements FixedFormPage {
   private groups = new Map<string, number>();
+  private submitUsesNextControl = false;
   constructor(private readonly page: Page, private readonly schema: FixedFormSchema) {}
   async open(): Promise<void> { await this.page.goto(FIXED_FORM_URL, { waitUntil: "domcontentloaded", timeout: 45_000 }); }
   async snapshot(): Promise<FormPageState> {
@@ -218,7 +229,28 @@ export class PlaywrightFixedFormPage implements FixedFormPage {
       let structure = null;
       if (publicData) {
         const metadata = JSON.parse(publicData[1]!);
-        structure = { title: metadata[1][8], items: metadata[1][1].map((item: unknown[]) => ({ id: item[0], title: item[1], description: item[2] ?? null, type: item[3], entries: item[4] ?? null, next: item[5] ?? null })) };
+        const form = Array.isArray(metadata?.[1]) ? metadata[1] : null;
+        const items = form && Array.isArray(form[1]) ? form[1] : null;
+        // Google keeps FB_PUBLIC_LOAD_DATA_ on some confirmation pages, but that
+        // payload is not the editable form schema and may omit the item array.
+        // A successful POST must therefore be judged by the exact confirmation
+        // message and /formResponse boundary below, not by parsing absent fields.
+        if (form && items) {
+          structure = {
+            title: typeof form[8] === "string" ? form[8] : "",
+            items: items.map((raw: unknown): SchemaItem => {
+              const item = Array.isArray(raw) ? raw : [];
+              return {
+                id: Number(item[0]),
+                title: typeof item[1] === "string" ? item[1] : "",
+                description: typeof item[2] === "string" ? item[2] : null,
+                type: Number(item[3]),
+                entries: Array.isArray(item[4]) ? item[4] as Entry[] : null,
+                next: typeof item[5] === "number" ? item[5] : null,
+              };
+            }),
+          };
+        }
       }
       const groups = [...document.querySelectorAll('[role="radiogroup"]')].map((group, index) => {
         const block = group.closest('[role="listitem"]');
@@ -233,7 +265,7 @@ export class PlaywrightFixedFormPage implements FixedFormPage {
       const blocker = challenge || /verify (?:that )?you are (?:a )?human|unusual traffic|xác minh bạn là con người/i.test(body) ? "CAPTCHA or identity challenge requires manual review" :
         /sign in to continue|you need permission|you must be signed in|đăng nhập để tiếp tục|bạn cần có quyền/i.test(body) ? "Login or permission is required" : null;
       const lines = body.normalize("NFC").split(/\n/).map((line) => line.replace(/\s+/g, " ").trim());
-      return { structure, groups, buttons, blocker, confirmation: confirmations.some((message) => lines.includes(message)) };
+      return { structure, groups, buttons, lines, blocker, confirmation: confirmations.some((message) => lines.includes(message)) };
     }, CONFIRMATION_MESSAGES);
     this.groups.clear();
     const fields = dom.groups.map((group) => {
@@ -246,10 +278,18 @@ export class PlaywrightFixedFormPage implements FixedFormPage {
     });
     const nextCount = dom.buttons.filter((text) => NAVIGATION_LABELS.next.includes(text)).length;
     const submitCount = dom.buttons.filter((text) => NAVIGATION_LABELS.submit.includes(text)).length;
+    const terminalTitles = this.schema.structure.items
+      .filter((item) => item.type === 8 && item.next === -3)
+      .map((item) => normalizeOption(item.title));
+    const terminalNextSubmit = fields.length === 0 && nextCount === 1 && submitCount === 0
+      && terminalTitles.filter((title) => dom.lines.includes(title)).length === 1;
+    this.submitUsesNextControl = terminalNextSubmit;
     return {
-      url: this.page.url(), structure: dom.structure, fields, next: nextCount === 1, submit: submitCount === 1,
+      url: this.page.url(), structure: dom.structure, fields,
+      next: nextCount === 1 && !terminalNextSubmit,
+      submit: submitCount === 1 || terminalNextSubmit,
       confirmation: dom.confirmation && /\/formResponse(?:[?#]|$)/.test(this.page.url()),
-      blocker: dom.blocker ?? (nextCount > 1 || submitCount > 1 ? "Navigation control is missing or ambiguous" : null),
+      blocker: dom.blocker ?? (nextCount > 1 || submitCount > 1 || (nextCount === 1 && submitCount === 1) ? "Navigation control is missing or ambiguous" : null),
     };
   }
   async choose(code: string, option: string): Promise<void> {
@@ -289,7 +329,7 @@ export class PlaywrightFixedFormPage implements FixedFormPage {
     } finally { await Promise.all(radios.map((radio) => radio.dispose())); }
   }
   private async press(action: NavigationAction): Promise<void> {
-    const labels = NAVIGATION_LABELS[action];
+    const labels = action === "submit" && this.submitUsesNextControl ? NAVIGATION_LABELS.next : NAVIGATION_LABELS[action];
     const ready = await this.page.waitForFunction(formTransitionMarker, { before: null, submitting: false, confirmations: CONFIRMATION_MESSAGES, labels }, { timeout: 30_000 });
     const before = await ready.jsonValue();
     await ready.dispose();
@@ -311,7 +351,16 @@ export class PlaywrightFixedFormPage implements FixedFormPage {
         return current.length === 1 && current[0] === element;
       }, labels);
       if (!unchanged) throw new Error("Navigation control changed before click");
+      // The fixed Google form performs full-document POST navigation. Arm the waiter before
+      // the final click, including when /formResponse navigates to the same pathname.
+      const finalNavigation = action === "submit"
+        ? this.page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 30_000 })
+        : null;
       await button.click({ timeout: 15_000 });
+      if (finalNavigation) {
+        await finalNavigation;
+        return;
+      }
     } finally { await Promise.all(buttons.map((button) => button.dispose())); }
     const nextLabels = action === "next" ? [...NAVIGATION_LABELS.next, ...NAVIGATION_LABELS.submit] : labels;
     const transition = await this.page.waitForFunction(formTransitionMarker, { before, submitting: action === "submit", confirmations: CONFIRMATION_MESSAGES, labels: nextLabels }, { timeout: 30_000 });
