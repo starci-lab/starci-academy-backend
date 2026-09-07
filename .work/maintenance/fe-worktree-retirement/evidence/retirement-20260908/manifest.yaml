@@ -1,0 +1,17 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.maintenance.fe-worktree-retirement.20260908",
+  "nodeId": "nivo.maintenance.fe-worktree-retirement",
+  "inputDigest": "43ff04db3caebc4c8d53adfa0df6c23ede62083cbb0e43a991e9613afe6924b4",
+  "outcome": "pass",
+  "assertions": [
+    {"id":"art-direction-preserved","outcome":"pass","observation":"Chatbot, Accounting, and byte-identical Shared module-studio draft directions were copied into versioned Work design resources before retirement."},
+    {"id":"retirement-candidates-safe","outcome":"pass","observation":"All three frontend worktrees were tracked-clean; Chatbot and Accounting patches were equivalent to integration and Shared was an integration ancestor."},
+    {"id":"fe-worktrees-removed","outcome":"pass","observation":"All three exact frontend worktree paths are absent and no longer registered after normal Git worktree removal completed."},
+    {"id":"branch-recovery-retained","outcome":"pass","observation":"All three session branch refs remain at their original full commits for recovery."},
+    {"id":"unsafe-worktrees-protected","outcome":"pass","observation":"Integration, backend, dirty, and unreviewed worktrees were not removed in this batch."}
+  ],
+  "assets": [
+    {"path":"retirement-report.json","sha256":"364781628e67a22f3efeef6407ad79788c364fa79695690c92f24d9e995ccb37"}
+  ]
+}
