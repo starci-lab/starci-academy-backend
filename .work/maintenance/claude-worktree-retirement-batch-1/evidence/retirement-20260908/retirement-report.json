@@ -1,0 +1,55 @@
+{
+  "schema": "work/retirement-report@1",
+  "operation": "claude-worktree-retirement-batch-1",
+  "completedAt": "2026-09-08",
+  "originMain": "2d08de1446982bb2f4120d50078c790e2eea2554",
+  "policy": {
+    "batchLimit": 3,
+    "requireClean": true,
+    "requireIntegratedHead": true,
+    "requireNoUniqueArtifacts": true,
+    "retainBranchRefs": true
+  },
+  "removed": [
+    {
+      "path": "D:/Repositories/starci-academy-backend/.claude/worktrees/affectionate-austin-795fc3",
+      "branch": "claude/affectionate-austin-795fc3",
+      "head": "2c84dd1e7a64b1665ff8534fecf51dda0977839c",
+      "statusEntries": 0,
+      "untrackedEntries": 0,
+      "ignoredEntries": 0,
+      "headAncestorOfOriginMain": true,
+      "uniqueCommits": 0,
+      "migrationRequired": false
+    },
+    {
+      "path": "D:/Repositories/starci-academy-backend/.claude/worktrees/competent-cohen-f749fd",
+      "branch": "claude/gracious-jemison-1cb6b5",
+      "head": "2c84dd1e7a64b1665ff8534fecf51dda0977839c",
+      "statusEntries": 0,
+      "untrackedEntries": 0,
+      "ignoredEntries": 0,
+      "headAncestorOfOriginMain": true,
+      "uniqueCommits": 0,
+      "migrationRequired": false
+    },
+    {
+      "path": "D:/Repositories/starci-academy-backend/.claude/worktrees/elated-williams-fcd6b3",
+      "branch": "claude/ecstatic-nash-4f38b4",
+      "head": "2c84dd1e7a64b1665ff8534fecf51dda0977839c",
+      "statusEntries": 0,
+      "untrackedEntries": 0,
+      "ignoredEntries": 0,
+      "headAncestorOfOriginMain": true,
+      "uniqueCommits": 0,
+      "migrationRequired": false
+    }
+  ],
+  "protected": [
+    "All unreviewed worktrees",
+    "All dirty worktrees",
+    "All worktrees with unique commits or unique durable artifacts",
+    "Locked business and debt authorities",
+    "Legacy UAT bundles pending selective migration and redaction"
+  ]
+}
