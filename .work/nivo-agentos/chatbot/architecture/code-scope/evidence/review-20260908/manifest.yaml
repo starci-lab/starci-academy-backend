@@ -1,0 +1,25 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.chatbot.architecture.code-scope.review-20260908",
+  "nodeId": "nivo.chatbot.architecture.code-scope",
+  "inputDigest": "2692b947351b3c6bbea7fe0f3a1c6c2dd35a10a904d8c58c85bc317531ed5e65",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "chatbot-backend-scope-mapped",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "chatbot-frontend-scope-mapped",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "chatbot-shared-boundaries-respected",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    }
+  ],
+  "assets": []
+}

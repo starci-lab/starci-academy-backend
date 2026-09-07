@@ -1,0 +1,25 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.accounting.business.rules.review-20260908",
+  "nodeId": "nivo.accounting.business.rules",
+  "inputDigest": "68f165d51d53db031bff4054e1f1e6aa0fa35346e9f0fa3f0289263bb0865e9c",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "accounting-role-rules-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "accounting-ledger-and-period-rules-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "accounting-setup-and-evidence-rules-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    }
+  ],
+  "assets": []
+}

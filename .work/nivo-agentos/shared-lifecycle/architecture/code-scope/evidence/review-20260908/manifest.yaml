@@ -1,0 +1,15 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.shared.architecture.code-scope.review-20260908",
+  "nodeId": "nivo.shared.architecture.code-scope",
+  "inputDigest": "8197346388922d528fe23e69752465d91d8716b63e7b1fb6ea7844403ea9a6e5",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "shared-code-scope-reviewed",
+      "outcome": "pass",
+      "observation": "Reviewed against the concrete Shared lifecycle source map and accepted as the prerequisite non-UI contract for the requested Chatbot and Accounting completion."
+    }
+  ],
+  "assets": []
+}

@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 9,
+  "mode": "playwright",
+  "walkRef": "response/data/walks/chatbot-live-handoff-mobile-20260908/walk.json",
+  "walkFingerprint": "sha256:a3b953c7ee97ed88d69df628d110270857a0cd2f68c4c99861bf9d94e789ecfc",
+  "route": "https://app.staging.nivo.vn/en/authentication?returnTo=%2Fagentos%2Fworkspaces%2Fa91d7469-f8eb-41be-970b-6c8abb33c330%2Fmodules%2F234f82f0-f6c0-43a0-8cfd-80a0da2da588%2Foperate",
+  "outcome": "pass",
+  "startedAt": "2026-09-07T18:49:10.143Z",
+  "finishedAt": "2026-09-07T18:49:17.188Z",
+  "driver": {
+    "playwright": "1.63.0",
+    "browser": "chromium",
+    "browserVersion": "153.0.8010.12",
+    "headless": true,
+    "context": {
+      "fresh": true,
+      "viewport": [
+        390,
+        844
+      ],
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "reducedMotion": "reduce",
+      "locale": "en"
+    }
+  },
+  "steps": [
+    {
+      "id": "open",
+      "action": "goto",
+      "control": "entry https://app.staging.nivo.vn/en/authentication?returnTo=%2Fagentos%2Fworkspaces%2Fa91d7469-f8eb-41be-970b-6c8abb33c330%2Fmodules%2F234f82f0-f6c0-43a0-8cfd-80a0da2da588%2Foperate",
+      "outcome": "pass",
+      "url": "https://app.staging.nivo.vn/en/authentication?returnTo=%2Fagentos%2Fworkspaces%2Fa91d7469-f8eb-41be-970b-6c8abb33c330%2Fmodules%2F234f82f0-f6c0-43a0-8cfd-80a0da2da588%2Foperate",
+      "ms": 383
+    },
+    {
+      "id": "email",
+      "action": "fill",
+      "control": "textbox \"Email\"",
+      "outcome": "pass",
+      "url": "https://app.staging.nivo.vn/en/authentication?returnTo=%2Fagentos%2Fworkspaces%2Fa91d7469-f8eb-41be-970b-6c8abb33c330%2Fmodules%2F234f82f0-f6c0-43a0-8cfd-80a0da2da588%2Foperate",
+      "ms": 25
+    },
+    {
+      "id": "password",
+      "action": "fill",
+      "control": "textbox \"Password\"",
+      "outcome": "pass",
+      "url": "https://app.staging.nivo.vn/en/authentication?returnTo=%2Fagentos%2Fworkspaces%2Fa91d7469-f8eb-41be-970b-6c8abb33c330%2Fmodules%2F234f82f0-f6c0-43a0-8cfd-80a0da2da588%2Foperate",
+      "ms": 32
+    },
+    {
+      "id": "submit",
+      "action": "click",
+      "control": "button \"Sign in\"",
+      "outcome": "pass",
+      "url": "https://app.staging.nivo.vn/en/authentication?returnTo=%2Fagentos%2Fworkspaces%2Fa91d7469-f8eb-41be-970b-6c8abb33c330%2Fmodules%2F234f82f0-f6c0-43a0-8cfd-80a0da2da588%2Foperate",
+      "ms": 38
+    },
+    {
+      "id": "signed-in",
+      "action": "expect",
+      "control": null,
+      "outcome": "pass",
+      "url": "https://app.staging.nivo.vn/en/agentos/workspaces/a91d7469-f8eb-41be-970b-6c8abb33c330/modules/234f82f0-f6c0-43a0-8cfd-80a0da2da588/operate",
+      "ms": 658
+    },
+    {
+      "id": "settle",
+      "action": "wait",
+      "control": null,
+      "outcome": "pass",
+      "url": "https://app.staging.nivo.vn/en/agentos/workspaces/a91d7469-f8eb-41be-970b-6c8abb33c330/modules/234f82f0-f6c0-43a0-8cfd-80a0da2da588/operate",
+      "ms": 2504
+    },
+    {
+      "id": "mobile-before",
+      "action": "capture",
+      "control": null,
+      "outcome": "pass",
+      "url": "https://app.staging.nivo.vn/en/agentos/workspaces/a91d7469-f8eb-41be-970b-6c8abb33c330/modules/234f82f0-f6c0-43a0-8cfd-80a0da2da588/operate",
+      "ms": 73
+    },
+    {
+      "id": "take-over",
+      "action": "click",
+      "control": "button \"Take over\" exact",
+      "outcome": "pass",
+      "url": "https://app.staging.nivo.vn/en/agentos/workspaces/a91d7469-f8eb-41be-970b-6c8abb33c330/modules/234f82f0-f6c0-43a0-8cfd-80a0da2da588/operate",
+      "ms": 27
+    },
+    {
+      "id": "take-over-settle",
+      "action": "wait",
+      "control": null,
+      "outcome": "pass",
+      "url": "https://app.staging.nivo.vn/en/agentos/workspaces/a91d7469-f8eb-41be-970b-6c8abb33c330/modules/234f82f0-f6c0-43a0-8cfd-80a0da2da588/operate",
+      "ms": 1505
+    },
+    {
+      "id": "mobile-human",
+      "action": "capture",
+      "control": null,
+      "outcome": "pass",
+      "url": "https://app.staging.nivo.vn/en/agentos/workspaces/a91d7469-f8eb-41be-970b-6c8abb33c330/modules/234f82f0-f6c0-43a0-8cfd-80a0da2da588/operate",
+      "ms": 58
+    },
+    {
+      "id": "resolve",
+      "action": "click",
+      "control": "button \"Return to automation\" exact",
+      "outcome": "pass",
+      "url": "https://app.staging.nivo.vn/en/agentos/workspaces/a91d7469-f8eb-41be-970b-6c8abb33c330/modules/234f82f0-f6c0-43a0-8cfd-80a0da2da588/operate",
+      "ms": 19
+    },
+    {
+      "id": "resolve-settle",
+      "action": "wait",
+      "control": null,
+      "outcome": "pass",
+      "url": "https://app.staging.nivo.vn/en/agentos/workspaces/a91d7469-f8eb-41be-970b-6c8abb33c330/modules/234f82f0-f6c0-43a0-8cfd-80a0da2da588/operate",
+      "ms": 1514
+    },
+    {
+      "id": "mobile-resolved",
+      "action": "capture",
+      "control": null,
+      "outcome": "pass",
+      "url": "https://app.staging.nivo.vn/en/agentos/workspaces/a91d7469-f8eb-41be-970b-6c8abb33c330/modules/234f82f0-f6c0-43a0-8cfd-80a0da2da588/operate",
+      "ms": 51
+    }
+  ],
+  "firstFailure": null,
+  "captures": [
+    {
+      "name": "chatbot-live-mobile-before-handoff",
+      "stepId": "mobile-before",
+      "screenshotRef": "response/artifacts/chatbot-live-mobile-before-handoff.png",
+      "axRef": "response/artifacts/chatbot-live-mobile-before-handoff.ax.txt",
+      "domRef": "response/artifacts/chatbot-live-mobile-before-handoff.dom.json",
+      "measurementsRef": "response/artifacts/chatbot-live-mobile-before-handoff.measurements.json"
+    },
+    {
+      "name": "chatbot-live-mobile-human",
+      "stepId": "mobile-human",
+      "screenshotRef": "response/artifacts/chatbot-live-mobile-human.png",
+      "axRef": "response/artifacts/chatbot-live-mobile-human.ax.txt",
+      "domRef": "response/artifacts/chatbot-live-mobile-human.dom.json",
+      "measurementsRef": "response/artifacts/chatbot-live-mobile-human.measurements.json"
+    },
+    {
+      "name": "chatbot-live-mobile-resolved",
+      "stepId": "mobile-resolved",
+      "screenshotRef": "response/artifacts/chatbot-live-mobile-resolved.png",
+      "axRef": "response/artifacts/chatbot-live-mobile-resolved.ax.txt",
+      "domRef": "response/artifacts/chatbot-live-mobile-resolved.dom.json",
+      "measurementsRef": "response/artifacts/chatbot-live-mobile-resolved.measurements.json"
+    }
+  ],
+  "ledgerRef": "response/data/walks/chatbot-live-handoff-mobile-20260908/capture.json"
+}

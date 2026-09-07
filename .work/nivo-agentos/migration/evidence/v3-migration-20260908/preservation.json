@@ -1,0 +1,19 @@
+{
+  "schema": "nivo/work-preservation@1",
+  "originalsPreserved": true,
+  "copiedClasses": [
+    "draft visual-direction images",
+    "selected browser screenshots",
+    "selected walk-result JSON",
+    "selected Accounting mutation result JSON"
+  ],
+  "omittedClasses": [
+    "credentials",
+    "tokens",
+    "cookies",
+    "browser storage state",
+    "task transcripts",
+    "trace archives"
+  ],
+  "classification": "Imported UAT files are historical observations, not fresh certification."
+}

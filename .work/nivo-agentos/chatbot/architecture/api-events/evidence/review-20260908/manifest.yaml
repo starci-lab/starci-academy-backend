@@ -1,0 +1,25 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.chatbot.architecture.api-events.review-20260908",
+  "nodeId": "nivo.chatbot.architecture.api-events",
+  "inputDigest": "7d237b384f8f08550f05f7597e0ac67fdce89f4c6079193e80b41e4091a60e13",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "chatbot-api-contract-reviewed",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "chatbot-event-authority-and-idempotency-reviewed",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "chatbot-provider-ambiguity-protocol-reviewed",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    }
+  ],
+  "assets": []
+}

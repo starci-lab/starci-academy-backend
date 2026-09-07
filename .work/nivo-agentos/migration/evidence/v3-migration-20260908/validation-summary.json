@@ -1,0 +1,13 @@
+{
+  "schema": "starci/work-validation-summary@1",
+  "validator": "starci-skills 3.0.0-alpha.2",
+  "validatorSourceCommit": "77adc01400c46699f8e69d78509de8bae3c518b6",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "nodes": 98,
+  "leaves": 69,
+  "doneLeavesBeforeMigrationCompletion": 24,
+  "suspendedLeaves": 44,
+  "resources": 12
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.chatbot.business.functional.review-20260908",
+  "nodeId": "nivo.chatbot.business.functional",
+  "inputDigest": "8e1f72ee0e5b24a5e8dbe63e7c277d6669f3294ee92a54b287d5f6ec87a38127",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "chatbot-functional-boundary-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "chatbot-functional-gaps-explicit",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    }
+  ],
+  "assets": []
+}

@@ -1,0 +1,1 @@
+{"schema":"work/resource@1","id":"identity.tino-owner","kind":"identity","owner":"Nivo UAT identity custody","revision":"existing-session-observed-2026-09-08","details":{"alias":"tino-owner-existing-session","roles":["workspace owner","module owner"],"credentialMaterialStored":false,"sealedCredentialReferenceVerified":false}}

@@ -1,0 +1,25 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.chatbot.business.acceptance.review-20260908",
+  "nodeId": "nivo.chatbot.business.acceptance",
+  "inputDigest": "321c306cd695a694fa3390532e2017386cf8d6e842b7bb7a9bc160c75a75867a",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "chatbot-acceptance-model-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "chatbot-uat-flow-boundaries-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "chatbot-unresolved-decisions-visible",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    }
+  ],
+  "assets": []
+}

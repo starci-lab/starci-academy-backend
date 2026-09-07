@@ -1,0 +1,25 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.chatbot.business.rules.review-20260908",
+  "nodeId": "nivo.chatbot.business.rules",
+  "inputDigest": "40388692594ce6b75f98032f5b62e0d0e1494ba239f35e3388adcce1d7909f3c",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "chatbot-authority-rules-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "chatbot-delivery-and-handoff-rules-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "chatbot-provider-ownership-rules-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    }
+  ],
+  "assets": []
+}

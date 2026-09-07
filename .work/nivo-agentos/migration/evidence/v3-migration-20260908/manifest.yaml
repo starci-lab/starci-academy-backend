@@ -1,0 +1,23 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.agentos.migration.v3-20260908",
+  "nodeId": "nivo.agentos.migration",
+  "inputDigest": "5093f3aff2fe37ab7eaeb2a3e009a07f790e3de1178a941ecf5c2fab874c15f9",
+  "outcome": "pass",
+  "assertions": [
+    {"id":"scope-bound","outcome":"pass","observation":"The workspace contains the three requested active streams and global sign-in only; unrelated Nivo domains are excluded."},
+    {"id":"source-grounded","outcome":"pass","observation":"Every imported claim is mapped to exact repository revisions and concrete source or preserved evidence paths."},
+    {"id":"artifacts-preserved","outcome":"pass","observation":"Selected non-secret design drafts, screenshots, and machine-readable results are copied under immutable Work resources; originals remain untouched."},
+    {"id":"states-reviewed","outcome":"pass","observation":"Twenty-four non-UI leaves were explicitly promoted with bound evidence; UI/frontend and unresolved UAT leaves remain suspended, including all art-direction-dependent work."},
+    {"id":"cleanup-safe","outcome":"pass","observation":"No source repository, active Git worktree, original UAT bundle, or runtime process was changed or deleted."}
+  ],
+  "assets": [
+    {"path":"backend-verification.md","sha256":"6b4ebcf838a297107ede73bd247d15013757988eeea66c88b5bcb93c248c8b7c"},
+    {"path":"cleanup.json","sha256":"fb3e3449290479b8d85888775591e64a053a17bf722222e79f45d4cb3b66b15b"},
+    {"path":"import-review.md","sha256":"3d9641fb52fbd94b51e0767b675a2210603dad90c3affe088a1a9f8e51cc47a5"},
+    {"path":"inventory.json","sha256":"0834797ba55b2ddc7b1bc700c6ccbf3aba4830f34ccf711b6857d0d610d0383c"},
+    {"path":"preservation.json","sha256":"854b3ab961246c0494d3dc7e41d4b9d2565e5feea9b0307cb0ae0bdcaee0f4bf"},
+    {"path":"source-map.md","sha256":"8703ffde453568abb9d713d473ee2e88be7a4763587ba3519f13bc125a9b311d"},
+    {"path":"validation-summary.json","sha256":"8f0deb6608b82ad50b07f39cc0c84a857ae3e29dcacd420b9d6119e472cea7d4"}
+  ]
+}

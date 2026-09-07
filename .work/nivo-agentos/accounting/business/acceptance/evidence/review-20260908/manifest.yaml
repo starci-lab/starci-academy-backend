@@ -1,0 +1,25 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.accounting.business.acceptance.review-20260908",
+  "nodeId": "nivo.accounting.business.acceptance",
+  "inputDigest": "e6cde43d95956954bb7d62a43f5cffa975fa1243f6704e6ce18b211629a71780",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "accounting-acceptance-flows-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "accounting-acceptance-negative-cases-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "accounting-acceptance-fixture-policy-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    }
+  ],
+  "assets": []
+}

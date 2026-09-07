@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 9,
+  "mode": "playwright",
+  "walkRef": "response/data/walks/integrated-owned-module-login/walk.json",
+  "walkFingerprint": "sha256:a17cdafec13895f73ff80027afdd3c10894b12389b548544d48e890bd8fb2f0d",
+  "route": "http://localhost:3067/en/authentication?returnTo=%2Fagentos%2Fworkspaces%2F8c8b0002-0429-4268-aa15-000000000026%2Fmodules%2F8c8b0003-0429-4268-aa15-000000000026%2Fsetup",
+  "outcome": "pass",
+  "startedAt": "2026-09-07T07:33:54.014Z",
+  "finishedAt": "2026-09-07T07:33:59.383Z",
+  "driver": {
+    "playwright": "1.62.1",
+    "browser": "chromium",
+    "browserVersion": "151.0.7922.34",
+    "headless": true,
+    "context": {
+      "fresh": true,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "reducedMotion": "reduce",
+      "locale": "en"
+    }
+  },
+  "steps": [
+    {
+      "id": "open",
+      "action": "goto",
+      "control": "entry http://localhost:3067/en/authentication?returnTo=%2Fagentos%2Fworkspaces%2F8c8b0002-0429-4268-aa15-000000000026%2Fmodules%2F8c8b0003-0429-4268-aa15-000000000026%2Fsetup",
+      "outcome": "pass",
+      "url": "http://localhost:3067/en/authentication?returnTo=%2Fagentos%2Fworkspaces%2F8c8b0002-0429-4268-aa15-000000000026%2Fmodules%2F8c8b0003-0429-4268-aa15-000000000026%2Fsetup",
+      "ms": 1071
+    },
+    {
+      "id": "email",
+      "action": "fill",
+      "control": "textbox \"Email\"",
+      "outcome": "pass",
+      "url": "http://localhost:3067/en/authentication?returnTo=%2Fagentos%2Fworkspaces%2F8c8b0002-0429-4268-aa15-000000000026%2Fmodules%2F8c8b0003-0429-4268-aa15-000000000026%2Fsetup",
+      "ms": 29
+    },
+    {
+      "id": "password",
+      "action": "fill",
+      "control": "textbox \"Password\"",
+      "outcome": "pass",
+      "url": "http://localhost:3067/en/authentication?returnTo=%2Fagentos%2Fworkspaces%2F8c8b0002-0429-4268-aa15-000000000026%2Fmodules%2F8c8b0003-0429-4268-aa15-000000000026%2Fsetup",
+      "ms": 47
+    },
+    {
+      "id": "submit",
+      "action": "click",
+      "control": "button \"Sign in\"",
+      "outcome": "pass",
+      "url": "http://localhost:3067/en/authentication?returnTo=%2Fagentos%2Fworkspaces%2F8c8b0002-0429-4268-aa15-000000000026%2Fmodules%2F8c8b0003-0429-4268-aa15-000000000026%2Fsetup",
+      "ms": 68
+    },
+    {
+      "id": "signed-in",
+      "action": "expect",
+      "control": null,
+      "outcome": "pass",
+      "url": "http://localhost:3067/en/agentos/workspaces/8c8b0002-0429-4268-aa15-000000000026/modules/8c8b0003-0429-4268-aa15-000000000026/setup",
+      "ms": 3486
+    },
+    {
+      "id": "workspace",
+      "action": "capture",
+      "control": null,
+      "outcome": "pass",
+      "url": "http://localhost:3067/en/agentos/workspaces/8c8b0002-0429-4268-aa15-000000000026/modules/8c8b0003-0429-4268-aa15-000000000026/setup",
+      "ms": 296
+    }
+  ],
+  "firstFailure": null,
+  "captures": [
+    {
+      "name": "owned-module-after-login",
+      "stepId": "workspace",
+      "screenshotRef": "response/artifacts/owned-module-after-login.png",
+      "axRef": "response/artifacts/owned-module-after-login.ax.txt",
+      "domRef": "response/artifacts/owned-module-after-login.dom.json",
+      "measurementsRef": "response/artifacts/owned-module-after-login.measurements.json"
+    }
+  ],
+  "traceRef": "response/data/walks/integrated-owned-module-login/trace.zip",
+  "ledgerRef": "response/data/walks/integrated-owned-module-login/capture.json"
+}

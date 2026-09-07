@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-07T20:06:49Z",
+  "flow": "agentos-accounting",
+  "installationId": "6e973f2f-b081-417b-ad4c-105c43a880cc",
+  "servedTuple": {
+    "core": "ghcr.io/starci-lab/nivo-core:uat-9bf80d86@sha256:af1d1c08ff57917bbd2ce15fa58a6142e72f81966abbff6ce1561d4153cb6a00",
+    "frontend": "ghcr.io/starci-lab/nivo-app:uat-f0c5164@sha256:469ea66f196c93a0939b1de6dc39f81b9bd385124bfbb94727f946c07dadd0e7",
+    "controlPlane": "ghcr.io/starci-lab/nivo-agentos-controlplane:uat-ab4e106c@sha256:363ea7676575658815cfc3782f139a653ef7c48b3f83c84034f4a868f440e941",
+    "controlPlaneHelmRevision": 13
+  },
+  "repairCommit": "c2ad733e0eec71028e6c2da11bfdf6d38da9c952",
+  "results": [
+    {
+      "case": "owner-submit-correction-native-button",
+      "browserAction": true,
+      "status": "passed",
+      "invalidState": "0 remained aria-invalid and the submit button remained disabled",
+      "acceptedFeedback": "submit-accounting-correction accepted",
+      "persistedOutcome": "one pending Nov 2026 correction for +500000 VND; ledger remained v3 at -36500000 VND before approval",
+      "walk": "browser-owner-submit-correction-fef0c5164/data/walks/accounting-browser-owner-submit-correction-fef0c5164/walk-result.json",
+      "walkSha256": "5F93356B92CBE1BE58A1664D81D9DC7F5BBD2815DC9F3D44A559470A8BD774E7",
+      "acceptedScreenshotSha256": "69A58DF4D9009FF85737AD50CE308BB19A0A469636BF13EEEE7FCCFB9A4055FD"
+    },
+    {
+      "case": "distinct-approver-approve-correction-after-fresh-login",
+      "browserAction": true,
+      "status": "passed",
+      "acceptedFeedback": "approve-accounting-correction accepted",
+      "persistedOutcome": "ledger v4 at -36000000 VND with a +500000 VND Nov correction and zero pending corrections",
+      "walk": "browser-approver-approve-correction-fef0c5164/data/walks/accounting-browser-approver-approve-correction-fef0c5164/walk-result.json",
+      "walkSha256": "398B003310F3B6047185634C4F2514DEFE321E6A0D208B1C4AFCE12EB495FD53",
+      "screenshotSha256": "14372F2238C0A81E8A1E28706EB618FD6E2820E7AF12FD83B1195921DC294E6C"
+    },
+    {
+      "case": "owner-reconcile-native-enter",
+      "browserAction": true,
+      "status": "passed",
+      "invalidState": "not-money remained aria-invalid and the reconciliation button remained disabled",
+      "acceptedFeedback": "reconcile-accounting accepted",
+      "persistedOutcome": "third reconciliation stored at ledger v4 with source -36000000 VND, ledger -36000000 VND, and difference 0 VND",
+      "walk": "browser-owner-reconcile-v4-enter-fef0c5164/data/walks/accounting-browser-owner-reconcile-v4-enter-fef0c5164/walk-result.json",
+      "walkSha256": "13834F521929AA9AFD308AE5C447C2C9F002C2D14F1D017D81562D7A31A5785E",
+      "acceptedScreenshotSha256": "7686950DBA53E8A7788A3041C7714A9A4BC2D9EA7365886FFA33651AC3A6C508"
+    },
+    {
+      "case": "owner-durable-readback-after-fresh-login",
+      "browserAction": false,
+      "status": "passed",
+      "persistedOutcome": "ledger v4 at -36000000 VND, four ledger items including the Nov correction, three balanced reconciliations, and zero pending corrections",
+      "walk": "browser-owner-final-readback-fef0c5164/data/walks/accounting-browser-owner-final-readback-fef0c5164/walk-result.json",
+      "walkSha256": "D10AB53780756A495B405C24806C13603DB2CDCC1A5D1A15F57FDFE999AF8E13",
+      "screenshotSha256": "3B4CDF9AD20FC054C6D9264E014204A061443189FD5D50DC097B3E52EB5BEBA7"
+    }
+  ],
+  "repairVerdict": "passed",
+  "overallAccountingBrowserVerdict": "partial",
+  "remainingCoverageGaps": [
+    "Evidence-file ingest remains blocked because the approved browser runner has no file-upload action.",
+    "Owner self-approval cannot be browser-triggered because the UI intentionally hides that control; the API negative proof remains separate.",
+    "Initialization and setup finalization are immutable terminal operations and were not repeated."
+  ],
+  "secretSweep": "passed"
+}

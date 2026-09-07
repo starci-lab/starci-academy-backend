@@ -1,0 +1,15 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.shared.architecture.data-ownership.review-20260908",
+  "nodeId": "nivo.shared.architecture.data-ownership",
+  "inputDigest": "934407b0a6b7d34219d452daaf98e56ef2e63ce3f8810c5eac0df5886104be69",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "shared-data-ownership-reviewed",
+      "outcome": "pass",
+      "observation": "Reviewed against the concrete Shared lifecycle source map and accepted as the prerequisite non-UI contract for the requested Chatbot and Accounting completion."
+    }
+  ],
+  "assets": []
+}

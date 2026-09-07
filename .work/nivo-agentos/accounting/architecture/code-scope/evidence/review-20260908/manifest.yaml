@@ -1,0 +1,25 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.accounting.architecture.code-scope.review-20260908",
+  "nodeId": "nivo.accounting.architecture.code-scope",
+  "inputDigest": "db8db3b86e599a17a2bff950811c83bbbb56baef962d7a2c07f1502286a2bf8a",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "accounting-backend-code-boundary-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "accounting-frontend-code-boundary-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "accounting-shared-seams-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    }
+  ],
+  "assets": []
+}
