@@ -1,0 +1,451 @@
+{
+  "schema": "nivo/sanitized-custody-inventory@1",
+  "classification": "historical metadata only; non-promoting",
+  "source": {
+    "worktree": "D:/Repositories/nivo-backend-chatbot-20260905160512",
+    "branch": "session/20260905160512-nivo-ca563924",
+    "prePreservationHead": "dcc090bbc3c3dc346e8ed3ed43af9f19e9be2af8",
+    "sourcePreservationCommit": "ce09de14",
+    "toolingPreservationCommit": "64619839"
+  },
+  "scan": {
+    "pathScanCompleted": true,
+    "jsonFiles": 65,
+    "jsonParsed": 65,
+    "invalidJson": 0,
+    "filesWithSecretLikeKeys": 35,
+    "filesWithIdentityLikeKeys": 60,
+    "filesWithResponseBodyLikeKeys": 7,
+    "secretValuesReadOrStored": false,
+    "rawBodiesCopied": false
+  },
+  "excludedFiles": [
+    {
+      "path": "uat/chatbot/installation/install-result.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 2882,
+      "sha256": "63cc25ab9a780b816e11ccc9ae868082d1b2909261dbcf36f14dc4adb4b61917"
+    },
+    {
+      "path": "uat/chatbot/installation/manifest-refresh-result.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 3304,
+      "sha256": "24c247ec415adeb12e2e9e3f559592e8701a92e6e2144d750f88472eee1e7f59"
+    },
+    {
+      "path": "uat/chatbot/installation/probe-chatbot-route-auth.cjs",
+      "classification": "flagged-executable-tool",
+      "bytes": 2387,
+      "sha256": "7851a6fc9d1c47703ea48f6f0436606c557bb53a7eb7494faa4378833e2b6bc2"
+    },
+    {
+      "path": "uat/chatbot/installation/query-catalog-current.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 545,
+      "sha256": "e9dcec85c8955614cef416812d9026892687f40435a51bc9bc82cc074da021b7"
+    },
+    {
+      "path": "uat/chatbot/installation/query-core54-live.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1203,
+      "sha256": "2ac758e145a6340a6b03465ee94965d9c73634e23cc91bfd8cb5ce6ebb3d18b2"
+    },
+    {
+      "path": "uat/chatbot/installation/query-pod-recovery.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 526,
+      "sha256": "d2784078a289291ec7f9e589936bb0de69467db7e353dc47390074bfdee186cd"
+    },
+    {
+      "path": "uat/chatbot/installation/query-post-catalog-merge.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 541,
+      "sha256": "436f71b81ca4c775ff140ad58106443e5b79c39bbebc5ae55bba6eab4ce60b50"
+    },
+    {
+      "path": "uat/chatbot/installation/query-post-data-git-rollout.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1419,
+      "sha256": "bfdb1d1dccf5cf8f6ad09d21559c0425c6e26a6679efcc0c072a70185e7d1a9d"
+    },
+    {
+      "path": "uat/chatbot/installation/query-post-install-poll1.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1419,
+      "sha256": "86df831f1fc0f8cb7633ced5a8785a17a4064c774b317f80f394f919a5285c32"
+    },
+    {
+      "path": "uat/chatbot/installation/query-post-install-poll2.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1419,
+      "sha256": "62bdfda56c724b05a1de199877738a973dff3c84f2b2cd448fbe3e417ce9fc95"
+    },
+    {
+      "path": "uat/chatbot/installation/query-post-install-poll3.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1419,
+      "sha256": "9df9a839ceb0121bb16fc1d67152d54de024e4ff377edc4078d7d1df4f2e0f1f"
+    },
+    {
+      "path": "uat/chatbot/installation/query-post-install-poll4.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1419,
+      "sha256": "d2b90c25ca7c713b10c144561dd7bd0fb9cb0fdcb25ecae7a16b6b065cb9a61d"
+    },
+    {
+      "path": "uat/chatbot/installation/query-recovered-install-poll1.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1435,
+      "sha256": "67184be2bf293306690c36268f0bdc9993baea4ca0bbab6e0c3d88684d656092"
+    },
+    {
+      "path": "uat/chatbot/installation/query-recovery3-poll1.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1205,
+      "sha256": "d13b2075360ba149f7d76f982f504bce93f5a7060d0033b7c5d7b3c6f8bc803b"
+    },
+    {
+      "path": "uat/chatbot/installation/query-recovery3-poll2.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1205,
+      "sha256": "e99606383851d9346880446ff4d2b369ca6212c625cb6cb90d0b8d8fb3dc71d3"
+    },
+    {
+      "path": "uat/chatbot/installation/query-recovery3-poll3.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1205,
+      "sha256": "5d88711828e51c5c6aea1d43ba46cad7973f0bbd4ec4cae7e31aa78a162926c5"
+    },
+    {
+      "path": "uat/chatbot/installation/query-recovery3-start.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1207,
+      "sha256": "31e6657e0e7e13eac29ae809fe20c499320b55e2a6d8058ab616dfd280bd2c5a"
+    },
+    {
+      "path": "uat/chatbot/installation/query-third-dispatch-ai-readiness.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1203,
+      "sha256": "9585c943e78c0e5d9d1cece25496b82e5e12b74f9f16454740d51deef41c9c8d"
+    },
+    {
+      "path": "uat/chatbot/installation/query-third-dispatch-poll1.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1205,
+      "sha256": "acab7c67d6b0fe15fd03beed411cdc5f7a3710179eafa89b1ff7e4c8113582c1"
+    },
+    {
+      "path": "uat/chatbot/installation/query-third-dispatch-poll2.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1205,
+      "sha256": "f9c6b2987a87f76f4a598a1768071fccf3c2314442cf6e7131b12f48b758f352"
+    },
+    {
+      "path": "uat/chatbot/installation/query-third-dispatch-poll3.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1205,
+      "sha256": "44ee2c528c57ec3caa54ad736de04572a86fbdebbd0d169a11904d3cb0cf9b98"
+    },
+    {
+      "path": "uat/chatbot/installation/secondary-install-result.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 2357,
+      "sha256": "477803a761e5db01825c5e47e50ee72993cbe075eab4558d321bc9e9d641b617"
+    },
+    {
+      "path": "uat/chatbot/installation/secondary-runtime-post-apply.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 5152,
+      "sha256": "894dbce688d1676af243f6737795201aec1d38b94aad9361bb36582a9c74b575"
+    },
+    {
+      "path": "uat/chatbot/installation/secondary-runtime-post-interrupt.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 4924,
+      "sha256": "8fbc15a842690d827440d7e610f7c2fbf7eb7934b957bcc69ad642fac4507539"
+    },
+    {
+      "path": "uat/chatbot/installation/secondary-runtime-post-rollout.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 3067,
+      "sha256": "581d03e663cdf52b3655e2e492deb037e31111edf2e04595257bad3292deefb1"
+    },
+    {
+      "path": "uat/chatbot/installation/secondary-runtime-ready.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 3067,
+      "sha256": "f77ad066b106935ceb5ab5515d1e0882c9c17973ed19b4bce585ec047cfedc6b"
+    },
+    {
+      "path": "uat/chatbot/setup/acceptance-result-secondary.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 2600,
+      "sha256": "6cc9ccb521f992a385f188b8a7c48a73c408f5d8f717eaee83c871f65b3b0827"
+    },
+    {
+      "path": "uat/chatbot/setup/acceptance-result.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 2600,
+      "sha256": "841b53fdd671f5a40ed1ab85a1679b1763b4e7802be10c09ae5e79ba2181abcb"
+    },
+    {
+      "path": "uat/chatbot/setup/bind-telegram-channel.mjs",
+      "classification": "flagged-executable-tool",
+      "bytes": 5075,
+      "sha256": "fe3bc23876456e683b2e9c46f0ceda31c2dd167ddf072c200cf3e6ef7b118fd5"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-reply-retry-result-contract-fixed.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 517,
+      "sha256": "37f3fe6f0988f96636c73736642ac88b236a2c2954fb64e01fdba01dba2fac4c"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-reply-retry-result.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 517,
+      "sha256": "b5845cc5720de56082db0f5d17fea0fe0af5f407259abb73be26f68f678faddf"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-ca38350e-helm7-projection-after-migration.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 557,
+      "sha256": "fc9689e48800d41df6ec7f19b7e2e047b38ae7e7563747495e11fe00a6ecf647"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-ca38350e-helm7-projection.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 560,
+      "sha256": "a99386ecdd4124fc0c938f2e0819b32ab0b72581e8cf0fb0c0a7830997ff6683"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-ca38350e-helm7-telegram-bind-failed.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 557,
+      "sha256": "c698f4150da9f18a78d9b2ed5b18d84b372ee9bbb78d9cec3b301297368fed73"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-core51248-primary.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1753,
+      "sha256": "ddebf75378637a1bdaa97469bf1d694e195019bba14f1f13b00f6500e3c0cea3"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-core51248-secondary.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 608,
+      "sha256": "f1acb90c8f3f5c1d098a1f41f3cbce49e3f16c73908303438b769a8999c85e27"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-helm-r4.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 546,
+      "sha256": "a4dc6511b0c57643ef04b12126bba4e40ad75f790ccc9c1367d81864649171d0"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-helm-r5-context-v2.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 546,
+      "sha256": "d3cc883894c9c8a171f2ebac66a81c9c10c700455e50dad6914f098219d41983"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-contract-fixed-outcome-1.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1753,
+      "sha256": "7e5f5d5a5106c2ab67bcbcb654054c0228c215f4085be9cef7b9f1fea6843f93"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-final-resolved.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1753,
+      "sha256": "71773af8f49c29b956520e4e318d05c9b48bcb3ec667ebf31bdcdce6b9c02b3f"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-handoff-state.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1749,
+      "sha256": "d04d4c8db356efba024c6d4a2264e9bf88eccd9e2c00c4b92cde54145487a1dc"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-inbound-check-1.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 816,
+      "sha256": "8f6797407dec03b0538972ef360e707ff1848a0ae6db31c5e4002af4733a7a23"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-inbound-check-2.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 816,
+      "sha256": "442736498af71276c5c3eb130cff457544bcdd1778a69f44ec6cf4b4ec2b35d6"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-inbound-check-3.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 816,
+      "sha256": "6861e74a8ada18b97aa1ce2b39216cfa530709b9d1f6a02dc735651d785ec577"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-inbound-check-4.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 816,
+      "sha256": "a3641ece4646a7aa350181d9a9d567163f826e1a5c351216211d6cd31acb8ba8"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-inbound-check-5.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 816,
+      "sha256": "698c6df325376433a858f0490f1209238ce8f77eef4ae4035bd3953a25024377"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-inbound-check-5b.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 816,
+      "sha256": "e9b5ca19560289730310b8502534de628d6a2209a0ca4742131a967bc9693f09"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-inbound-check-browser-start.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 816,
+      "sha256": "36c13fdcfccc839058a005781ae613d5d6552100822ff70b64dac8ddf215af51"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-outbound-check-1.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 816,
+      "sha256": "67bc50445d6d8dacef08fd66700e756e5623339a8004884573a8754778197ce3"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-outbound-diagnostic-1.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1399,
+      "sha256": "7fc42b787284f801b8e0ac5fd885a1b95089273b89b295815b2703de1699f2c1"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-pre-inbound-20260908.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 816,
+      "sha256": "03a704c65355f5807228fa2247370006f1c79cb514c59429d1f44be8ead13ce5"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-resolved-state.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1753,
+      "sha256": "eb81c948e377f895c4e70855f818815aad052bc961e2556648dfd137f557c5d3"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-retry-outcome-1.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1399,
+      "sha256": "c95855620746a1ffcd4268562b98c9f7bf1997072f6d2102829c6aaa7d4134fc"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-live-retry-outcome-2.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1399,
+      "sha256": "e2c322bfd76a5e3eef915d249167358071083407b8a5f0d1d87686fae4ae7cb8"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-post-helpdesk-bootstrap-ready.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1753,
+      "sha256": "8673da95fd0181297289edeebe78e298aa75479b89fe58192fad16d0df49bc67"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-post-helpdesk-rollout.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1753,
+      "sha256": "5a3b0ce79013cc5b3440cfbf59e01bee972dd6c5a7855e4bc3c2bd241ff0e8d0"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-root-after-browser-read-error.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 1753,
+      "sha256": "6aabb2bcafb01c31e65d4b5e0e431ee0f2f0afe1caf34e88d2e66628229e7a56"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-root-helm5-owner.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 546,
+      "sha256": "e320409b332ee2ef14969bf3172a766d1172ed5d0a5c6ae0724d6b316cf73526"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-root-helm6-owner-ready.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 560,
+      "sha256": "d6d0a14ac01aca92ff13c387d82acef503e86b0bdd036508f67e94a9cd1688de"
+    },
+    {
+      "path": "uat/chatbot/setup/chatbot-workbench-read-root-kind-migrated.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 557,
+      "sha256": "225b8f6408ea92d926ac7677a4e90002d6460776d9f6160250ba04bad6fa5f1c"
+    },
+    {
+      "path": "uat/chatbot/setup/probe-zalo-oauth-refusal.mjs",
+      "classification": "flagged-executable-tool",
+      "bytes": 3070,
+      "sha256": "43010fa59bcf8e38187321f609c3c1c39ed6c42eb95903c646dc9ffe54b2268d"
+    },
+    {
+      "path": "uat/chatbot/setup/telegram-channel-bind-result.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 421,
+      "sha256": "57a458cd69bf690636e30a9d67995b6507306bfbfad89cdd4a178e1651d42af7"
+    },
+    {
+      "path": "uat/chatbot/setup/telegram-live-result.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 510,
+      "sha256": "2217d3e9fcc0bc0214e713b461f2c0f4034aceb77192192a2d3cdd6e73c37e81"
+    },
+    {
+      "path": "uat/chatbot/setup/telegram-provider-live-probe.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 317,
+      "sha256": "baa2b36bae22ed1d353dc281f70e5fe0e52a42f0fa7f4efdc6743d3b8db5fe25"
+    },
+    {
+      "path": "uat/chatbot/setup/telegram-readiness-compose-failure.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 467,
+      "sha256": "385c4c8d07c04ded33ad8e7632cf29565f37a2a05e9e398219b048561c05318c"
+    },
+    {
+      "path": "uat/chatbot/setup/telegram-readiness.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 467,
+      "sha256": "b169af85f3551c48cbc3a4c47204d7e7ee7d88900a0b1e10b754994a35f3ddf6"
+    },
+    {
+      "path": "uat/chatbot/setup/zalo-config-readiness.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 365,
+      "sha256": "ce35e27a533b80e80dba142848ed4e04d9503d3ae30b1b96034e87ed7fd7d430"
+    },
+    {
+      "path": "uat/chatbot/setup/zalo-oauth-start-refusal.json",
+      "classification": "raw-result-response-runtime",
+      "bytes": 378,
+      "sha256": "9dc5577baaf0f275c6a3148f409ad9cc688a0c4713719b34899e8c8e5f90fec2"
+    }
+  ],
+  "ignoredCustodyRoots": [
+    {
+      "path": ".gitmounts/data",
+      "inspected": false,
+      "copied": false
+    },
+    {
+      "path": ".gitmounts/.snapshots",
+      "inspected": false,
+      "copied": false
+    }
+  ],
+  "limitations": [
+    "No raw JSON value was migrated or interpreted.",
+    "No UAT pass, product acceptance, deployment success, or identity claim is made.",
+    "The three flagged executable tools were excluded because static scanning detected a direct private-material literal context.",
+    "The original worktree remains required until a secret-aware owner decides the disposition of the excluded files and ignored custody roots."
+  ],
+  "retentionDecision": "KEEP"
+}
