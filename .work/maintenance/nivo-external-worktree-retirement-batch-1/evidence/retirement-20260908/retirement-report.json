@@ -1,0 +1,119 @@
+{
+  "schema": "nivo/external-worktree-retirement-report@1",
+  "capturedAt": "2026-09-08T07:42:42+07:00",
+  "repositories": {
+    "frontend": {
+      "mainCommit": "5eec15cfa4664b95b7980aba3f03e74a95d55f21",
+      "integrationCommit": "f234d1abe6dd8f59fa4031959f8c55934e8997b0"
+    },
+    "backend": {
+      "mainCommit": "5adaf96fc4d4deffbd2460ce18e0b84c897ce17b",
+      "integrationCommit": "51248f75e0bf1c36a088afb57a04b2d7440a62c4"
+    }
+  },
+  "removedFrontendWorktrees": [
+    "D:/Repositories/nivo-fe-consume-20260905-130417",
+    "D:/Repositories/nivo-fe-consume-20260906",
+    "D:/Repositories/nivo-fe-i18n-20260904-052331",
+    "D:/Repositories/nivo-fe-setup-20260904-042915",
+    "D:/Repositories/nivo-fe-setup-20260905-020000",
+    "D:/Repositories/nivo-fe-setup-20260905-031901",
+    "D:/Repositories/nivo-fe-landing-851c458d",
+    "D:/Repositories/nivo-fe-landing-cherrypick-851c458d",
+    "D:/Repositories/nivo-fe-landing-tainted-851c458d",
+    "D:/Repositories/nivo-fe-proof-d673833",
+    "D:/Repositories/nivo-fe-worktrees/20260903-104251-nivo-frontend-direction-decide",
+    "D:/Repositories/nivo-fe-worktrees/20260903-162203-nivo-overview",
+    "D:/Repositories/starci-academy-backend/.worktrees/sessions/20260903-074800-nivo-frontend-direction-decide/checkout"
+  ],
+  "removedBackendWorktrees": [
+    "D:/Repositories/nivo-be-migration-212731",
+    "D:/Repositories/nivo-be-reach-20260905-074125",
+    "D:/Repositories/nivo-be-recovery-20260905-015806",
+    "D:/Repositories/nivo-be-recovery-20260905-031845",
+    "D:/Repositories/.worktrees/cursor-sonar/nivo-be-inventory",
+    "D:/Repositories/.worktrees/cursor-sonar/nivo-be-repair",
+    "D:/Repositories/.worktrees/cursor-sonar/nivo-fe-inventory",
+    "D:/Repositories/.worktrees/cursor-sonar/nivo-fe-repair",
+    "D:/Repositories/starci-academy-backend/.worktrees/nbi",
+    "D:/Repositories/nivo-be-accounting-01a07247",
+    "D:/Repositories/nivo-be-shared-20260906234044",
+    "D:/Repositories/nivo-be-setup-20260904-042915"
+  ],
+  "prunedRegistrations": [
+    "D:/Repositories/starci-academy-backend/.worktrees/sessions/20260904-042654-nivo-frontend.direction.decide/checkouts/fe",
+    "D:/Repositories/starci-academy-backend/.worktrees/sessions/20260904-042654-nivo-frontend.direction.decide/checkouts/be"
+  ],
+  "preservedRecovery": [
+    {
+      "branch": "session/20260903-074800-nivo-frontend-direction-decide",
+      "commit": "89da75394c057c0422417fdbd782c04b97d34581",
+      "reason": "legacy overview direction draft"
+    },
+    {
+      "branch": "session/20260904-042915-nivo-workspace.bind",
+      "commit": "3a01b6053749e5d7112ae3dd65ef495c85979079",
+      "reason": "isolated fixture migration draft; focused checks did not justify integration"
+    },
+    {
+      "branch": "session/20260905-nivo-accounting-01a07247",
+      "commit": "b1e0d71ba1d33a8ad697414e970dd4ef07451957",
+      "reason": "Accounting recovery branch; sanitized custody is represented in Work"
+    },
+    {
+      "branch": "session/20260906234044-nivo-9861230d",
+      "commit": "85dca80cc9f3d9b04097cf9a1dd1d64634fa837c",
+      "reason": "Shared canonical-definition implementation branch"
+    }
+  ],
+  "protectedWorktrees": [
+    {
+      "path": "D:/Repositories/nivo-fe",
+      "reason": "canonical frontend checkout"
+    },
+    {
+      "path": "D:/Repositories/nivo-fe/.worktrees/integration-20260907",
+      "reason": "frontend integration authority"
+    },
+    {
+      "path": "D:/Repositories/nivo-backend",
+      "reason": "canonical backend checkout"
+    },
+    {
+      "path": "D:/Repositories/nivo-backend/.worktrees/integration-20260907",
+      "reason": "backend integration authority"
+    },
+    {
+      "path": "D:/Repositories/nivo-backend-chatbot-20260905160512",
+      "reason": "68 excluded untracked custody files and ignored mounted custody roots require secret-aware disposition"
+    },
+    {
+      "path": "D:/Repositories/starci-academy-backend/.worktrees/nivo/uat",
+      "reason": "frontend UAT branch retains a patch-unique dependency commit pending explicit disposition"
+    },
+    {
+      "path": "D:/Repositories/starci-academy-backend/.worktrees/runtime/nivo-be",
+      "reason": "designated backend runtime checkout; operational decommission was not established"
+    },
+    {
+      "path": "D:/Repositories/nivo-backend/.worktrees/businesses",
+      "reason": "locked business authority"
+    },
+    {
+      "path": "D:/Repositories/nivo-backend/.worktrees/debts",
+      "reason": "locked debt authority"
+    }
+  ],
+  "protectedLegacyCustody": [
+    {
+      "path": "D:/Repositories/starci-academy-backend/.worktrees/uat/agentos-modules/module-setup",
+      "reason": "cleanup is incomplete, older response references are unresolved, and excluded custody metadata has no replacement owner"
+    }
+  ],
+  "safety": {
+    "branchesDeleted": false,
+    "mainOrIntegrationRemoved": false,
+    "credentialValuesCopied": false,
+    "runtimeDecommissioned": false
+  }
+}
