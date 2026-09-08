@@ -1,0 +1,196 @@
+{
+  "schema": "nivo/sanitized-deployment-provenance@1",
+  "classification": "historical-custody-only",
+  "source": {
+    "repository": "repo.nivo-backend",
+    "branch": "session/20260906234044-nivo-9861230d",
+    "commit": "85dca80cc9f3d9b04097cf9a1dd1d64634fa837c",
+    "worktree": "D:/Repositories/nivo-be-shared-20260906234044",
+    "record": ".stacks/k8s-deployment.json",
+    "bytes": 2758,
+    "sha256": "80c2f3ab48c4fd4e74c5db73c488b590408f0d186a53759cdc4656b894be352d"
+  },
+  "identity": {
+    "project": "nivo",
+    "environment": "k3s-staging",
+    "release": "agentos-release",
+    "workspace": "D:/Repositories/nivo-be-shared-20260906234044",
+    "ownerRole": "be",
+    "roles": [
+      "be",
+      "chart"
+    ],
+    "stackRuntime": "kubernetes"
+  },
+  "releaseDefinition": {
+    "driver": "local",
+    "role": "be",
+    "workflow": "scripts/nivo-agentos-release.mjs",
+    "ref": "main",
+    "artifacts": [
+      {
+        "name": "agentos-controlplane",
+        "role": "be",
+        "source": "apps/agentos-controlplane/Dockerfile",
+        "releaseArtifact": "nivo-agentos-controlplane",
+        "target": "kubernetes/agentos-controlplane"
+      },
+      {
+        "name": "agentos-cli",
+        "role": "be",
+        "source": "apps/agentos-cli/Dockerfile",
+        "releaseArtifact": "nivo-agentos-cli",
+        "target": "kubernetes/agentos-provision-job"
+      }
+    ],
+    "probeInventory": [
+      {
+        "name": "k3s-nodes",
+        "kind": "kubernetes",
+        "role": "be"
+      },
+      {
+        "name": "cert-manager-issuer",
+        "kind": "kubernetes",
+        "role": "be"
+      },
+      {
+        "name": "agentos-release",
+        "kind": "kubernetes",
+        "role": "chart"
+      },
+      {
+        "name": "agentos-readiness",
+        "kind": "command",
+        "role": "be"
+      }
+    ]
+  },
+  "relatedSourceFiles": [
+    {
+      "path": "scripts/nivo-agentos-release.mjs",
+      "bytes": 14538,
+      "sha256": "106f4096fe699ba62d01a2f01f3f4c7b494227d957e39ea6855509bae815838b"
+    },
+    {
+      "path": "apps/agentos-controlplane/Dockerfile",
+      "bytes": 3094,
+      "sha256": "7476a2c2e45831e677867b91450efda49c518f2f82ccf4f8a9afccbf5cb11f6e"
+    },
+    {
+      "path": "apps/agentos-cli/Dockerfile",
+      "bytes": 2734,
+      "sha256": "d69464916bee0dd8fc802448ff7c4509f44af4adcddb065e03e0b79e136463d8"
+    }
+  ],
+  "sealedReferences": [
+    {
+      "name": ".stacks/k8s/infra/tino/client-username.txt.enc",
+      "sha256": "bfd75c0d70180284a6c3520472e3a7d88368ae58fc070337f2b3a358a3ba2f8e"
+    },
+    {
+      "name": ".stacks/k8s/infra/tino/client-password.key.enc",
+      "sha256": "d3f7f041ea3313ba365b931241310ce4f115216756ba5d12e6d6ea184435f21e"
+    },
+    {
+      "name": ".stacks/k8s/infra/tino/nivo-capacity-ed25519.key.enc",
+      "sha256": "3f6f2d75c84a71b37818c16a7ab6dda4bde0def7114f3f4ff57205fb7fac889d"
+    },
+    {
+      "name": ".stacks/k8s/infra/tino/k3s-agent-token.key.enc",
+      "sha256": "dc9f500334fa8b5034fccd0b266369dd47d3b7080bf29f0f66410b53179ac56e"
+    },
+    {
+      "name": ".stacks/k8s/infra/kubeconfig/tino.kubeconfig.enc",
+      "sha256": "309ae40404e45568e2eebb5343d0f143059ff348fb353da823fadbaa1f93db13"
+    },
+    {
+      "name": ".stacks/k8s/infra/cloudflare/dns-api-token.key.enc",
+      "sha256": "7c80ce19e761263d287e963cdfe42fe75129378a46265284c21d4c28ff6d1c47"
+    }
+  ],
+  "sourcePropertyInventory": [
+    "$schema",
+    "version",
+    "project",
+    "environment",
+    "ownerRole",
+    "roles",
+    "stack",
+    "stack.root",
+    "stack.runtime",
+    "stack.credentialRefs",
+    "infra",
+    "infra.root",
+    "infra.workingDirectories",
+    "host",
+    "host.transport",
+    "host.addressRef",
+    "host.userRef",
+    "host.portRef",
+    "host.forbiddenAddressRefs",
+    "host.runtimeSetup",
+    "host.runtimeSetup.driver",
+    "host.runtimeSetup.path",
+    "artifacts",
+    "artifacts[0].name",
+    "artifacts[0].role",
+    "artifacts[0].source",
+    "artifacts[0].image",
+    "artifacts[0].target",
+    "artifacts[1].name",
+    "artifacts[1].role",
+    "artifacts[1].source",
+    "artifacts[1].image",
+    "artifacts[1].target",
+    "domains",
+    "deploy",
+    "deploy.driver",
+    "deploy.role",
+    "deploy.workflow",
+    "deploy.ref",
+    "deploy.verification",
+    "monitor",
+    "monitor.intervalSeconds",
+    "monitor.steadySeconds",
+    "monitor.timeoutSeconds",
+    "monitor.probes",
+    "monitor.probes[0].name",
+    "monitor.probes[0].kind",
+    "monitor.probes[0].target",
+    "monitor.probes[0].role",
+    "monitor.probes[1].name",
+    "monitor.probes[1].kind",
+    "monitor.probes[1].target",
+    "monitor.probes[1].role",
+    "monitor.probes[2].name",
+    "monitor.probes[2].kind",
+    "monitor.probes[2].target",
+    "monitor.probes[2].role",
+    "monitor.probes[3].name",
+    "monitor.probes[3].kind",
+    "monitor.probes[3].target",
+    "monitor.probes[3].role"
+  ],
+  "redactedValueClasses": [
+    "host and endpoint values",
+    "domain values",
+    "probe target values",
+    "sealed file bytes",
+    "kubeconfig bytes",
+    "authentication material"
+  ],
+  "custodyChecks": {
+    "sealedReferenceCount": 6,
+    "sealedReferencesByteIdenticalInPrimaryCheckout": true,
+    "sealedReferencesByteIdenticalInIntegrationCheckout": true,
+    "sourceRecordByteIdenticalInIntegrationCheckout": true,
+    "rawMaterialCopied": false
+  },
+  "authorityLimits": {
+    "isUatEvidence": false,
+    "authorizesDeployment": false,
+    "recordsDeploymentExecution": false,
+    "provesLiveEnvironment": false
+  }
+}

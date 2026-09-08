@@ -1,0 +1,30 @@
+{
+  "schema": "work/resource@1",
+  "id": "import.nivo-k3s-deployment-provenance",
+  "kind": "import",
+  "owner": "Nivo deployment provenance custody",
+  "revision": "sanitized-k3s-staging-85dca80c",
+  "details": {
+    "classification": "Sanitized historical deployment-definition provenance",
+    "sourceRepository": "repo.nivo-backend",
+    "sourceBranch": "session/20260906234044-nivo-9861230d",
+    "sourceCommit": "85dca80cc9f3d9b04097cf9a1dd1d64634fa837c",
+    "sourceWorktree": "D:/Repositories/nivo-be-shared-20260906234044",
+    "environmentIdentity": "k3s-staging",
+    "releaseIdentity": "agentos-release",
+    "workspaceIdentity": "D:/Repositories/nivo-be-shared-20260906234044",
+    "sourceRecord": ".stacks/k8s-deployment.json",
+    "sourceRecordSha256": "80c2f3ab48c4fd4e74c5db73c488b590408f0d186a53759cdc4656b894be352d",
+    "sourceRecordBytes": 2758,
+    "secretMaterialStored": false,
+    "uatCertification": false,
+    "deploymentAuthorization": false,
+    "deploymentPerformed": false,
+    "meaning": "Custody metadata only: not a UAT result, not permission to deploy, not runnable deployment input, and not proof that an environment is live."
+  },
+  "files": [
+    {
+      "path": "assets/sanitized-provenance.json"
+    }
+  ]
+}
