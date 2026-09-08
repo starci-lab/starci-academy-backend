@@ -1,0 +1,18 @@
+{
+  "schema": "starci/workspace-binding@1",
+  "project": "nivo",
+  "repositories": {
+    "be": {
+      "pathFromSource": "../nivo-backend",
+      "gitRepository": "https://github.com/starci-lab/nivo-backend.git"
+    },
+    "fe": {
+      "pathFromSource": "../nivo-fe",
+      "gitRepository": "https://github.com/starci-lab/nivo-fe.git"
+    }
+  },
+  "work": {
+    "ownerRole": "be",
+    "pathFromRepository": ".work"
+  }
+}
