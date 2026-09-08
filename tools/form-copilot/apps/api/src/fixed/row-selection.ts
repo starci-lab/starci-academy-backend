@@ -23,14 +23,18 @@ export function isScreenedOutRow(row: FixedDatasetRow): boolean {
   return SCREENING_FIELDS.some((key) => row.answers[key] !== undefined && row.answers[key] !== (key === "S5" ? "0" : "1"));
 }
 
+export function isInvalidRow(row: FixedDatasetRow): boolean {
+  return row.sourceStatus === "INVALID";
+}
+
 /**
  * Select whole answer vectors without replacement. Stratification prevents source
- * order from erasing early-close cases; stochastic rounding keeps small batches
+ * order from erasing invalid cases; stochastic rounding keeps small batches
  * unbiased while converging to the remaining pool's actual branch distribution.
  */
 export function rowsForSelection(rows: readonly FixedDatasetRow[], selection: FixedResponseSelection): FixedDatasetRow[] {
-  if (selection === "completing") return rows.filter((row) => !isScreenedOutRow(row));
-  if (selection === "screened_out") return rows.filter(isScreenedOutRow);
+  if (selection === "completing") return rows.filter((row) => !isInvalidRow(row));
+  if (selection === "screened_out") return rows.filter(isInvalidRow);
   return [...rows];
 }
 
@@ -40,17 +44,17 @@ export function selectRandomRows(rows: readonly FixedDatasetRow[], count: number
   if (count === 0) return [];
   const random = seededRandom(seed);
   if (selection !== "mixed") return shuffled(eligible, random).slice(0, count);
-  const screened = eligible.filter(isScreenedOutRow);
-  const completing = eligible.filter((row) => !isScreenedOutRow(row));
-  const exactScreened = count * screened.length / eligible.length;
-  let screenedCount = Math.floor(exactScreened) + (random() < exactScreened % 1 ? 1 : 0);
-  screenedCount = Math.min(screened.length, Math.max(0, screenedCount));
-  const completingCount = count - screenedCount;
-  if (completingCount > completing.length) {
-    screenedCount += completingCount - completing.length;
+  const invalid = eligible.filter(isInvalidRow);
+  const valid = eligible.filter((row) => !isInvalidRow(row));
+  const exactInvalid = count * invalid.length / eligible.length;
+  let invalidCount = Math.floor(exactInvalid) + (random() < exactInvalid % 1 ? 1 : 0);
+  invalidCount = Math.min(invalid.length, Math.max(0, invalidCount));
+  const completingCount = count - invalidCount;
+  if (completingCount > valid.length) {
+    invalidCount += completingCount - valid.length;
   }
   return shuffled([
-    ...shuffled(screened, random).slice(0, screenedCount),
-    ...shuffled(completing, random).slice(0, count - screenedCount),
+    ...shuffled(invalid, random).slice(0, invalidCount),
+    ...shuffled(valid, random).slice(0, count - invalidCount),
   ], random);
 }

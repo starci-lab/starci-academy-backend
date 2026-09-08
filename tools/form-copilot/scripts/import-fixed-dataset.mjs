@@ -8,27 +8,34 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const args = process.argv.slice(2);
 const option = (name) => args[args.indexOf(name) + 1];
-const source = option('--source');
+const validSource = option('--valid-source') || option('--source');
+const invalidSource = option('--invalid-source');
 const modules = option('--artifact-modules') || process.env.ARTIFACT_TOOL_NODE_MODULES;
-if (!args.includes('--source') || !source || !modules) {
-  throw new Error('Usage: node scripts/import-fixed-dataset.mjs --source valid.csv --artifact-modules /bundled/node_modules [--inspect] [--capture-form]');
+if (!validSource || !invalidSource || !modules) {
+  throw new Error('Usage: node scripts/import-fixed-dataset.mjs --valid-source valid.csv --invalid-source invalid.xlsx --artifact-modules /bundled/node_modules [--inspect] [--capture-form]');
 }
 const requireBundled = createRequire(path.join(path.resolve(modules), '..', '__fixed_dataset_import__.mjs'));
 const { FileBlob, SpreadsheetFile, Workbook } = await import(pathToFileURL(requireBundled.resolve('@oai/artifact-tool')).href);
-const isCsv = path.extname(source).toLowerCase() === '.csv';
-const wb = isCsv
-  ? await Workbook.fromCSV(await fs.readFile(source, 'utf8'), { sheetName: 'VALID_519' })
-  : await SpreadsheetFile.importXlsx(await FileBlob.load(source));
+const validWorkbook = await Workbook.fromCSV(await fs.readFile(validSource, 'utf8'), { sheetName: 'VALID_519' });
+const invalidWorkbook = await SpreadsheetFile.importXlsx(await FileBlob.load(invalidSource));
 const readTable = (sheet, range) => {
-  const [header, ...values] = wb.worksheets.getItem(sheet).getRange(range).values;
+  const workbook = sheet === 'VALID_519' ? validWorkbook : invalidWorkbook;
+  const [header, ...values] = workbook.worksheets.getItem(sheet).getRange(range).values;
   const columns = header.map((value) => String(value ?? '').trim());
   if (columns.some((name) => !name) || new Set(columns).size !== columns.length) throw new Error(`${sheet}: invalid headers`);
   return { columns, records: values.map((row) => Object.fromEntries(columns.map((name, index) => [name, String(row[index] ?? '').trim()]))) };
 };
 const valid = readTable('VALID_519', 'A1:AT520');
+const invalid = readTable('INVALID_104', 'A1:BA104');
 const screening = ['Consent', 'S0', 'S1', 'S2', 'S3', 'S4', 'S5'];
 const passingScreening = { Consent: '1', S0: '1', S1: '1', S2: '1', S3: '1', S4: '1', S5: '0' };
 const demographics = ['D1_Age', 'D2_Gender', 'D3_Status'];
+const demographicValues = {
+  D1_Age: ['18-22', '23-27', '28-34', '35+'],
+  D2_Gender: ['Female', 'Male', 'Other', 'Prefer not to say'],
+  D3_Status: ['Student', 'Working', 'Both studying and working', 'Other'],
+};
+const canonicalValue = (name, value) => name === 'D3_Status' && value === 'Both' ? 'Both studying and working' : value;
 const items = valid.columns.filter((name) => name !== 'Synthetic_ID' && !demographics.includes(name));
 if (items.length !== 42 || !items.every((name) => /^[A-Z]{2,3}[1-5]$/.test(name))) throw new Error('Unexpected 42-item response schema');
 const indexById = (records, label) => {
@@ -40,12 +47,15 @@ const indexById = (records, label) => {
   return index;
 };
 indexById(valid.records, 'VALID_519');
+indexById(invalid.records, 'INVALID_104');
 if (valid.records.length !== 519) throw new Error('Source must contain exactly 519 valid records');
+if (invalid.records.length !== 103) throw new Error('Source must contain exactly 103 invalid records');
 const fields = [...screening, ...items, ...demographics];
-const rows = valid.records.map((row) => {
+if (JSON.stringify(invalid.columns) !== JSON.stringify(['Synthetic_ID', ...fields])) throw new Error('Invalid source headers do not match the fixed form schema');
+const validRows = valid.records.map((row) => {
   const answers = { ...passingScreening, ...Object.fromEntries([...items, ...demographics].map((name) => [name, row[name]])) };
   for (const name of items) if (!/^[1-5]$/.test(answers[name])) throw new Error(`Invalid completing response: ${row.Synthetic_ID}/${name}`);
-  for (const name of demographics) if (!answers[name]) throw new Error(`Missing completing response: ${row.Synthetic_ID}/${name}`);
+  for (const name of demographics) if (!demographicValues[name].includes(answers[name])) throw new Error(`Invalid completing response: ${row.Synthetic_ID}/${name}`);
   return {
     id: row.Synthetic_ID,
     answers,
@@ -53,16 +63,39 @@ const rows = valid.records.map((row) => {
     sourceExclusionReason: null,
   };
 });
+const reasonFor = (answers) => {
+  const reasons = { Consent: 'Consent declined', S0: 'Under 18', S1: 'Not living in Vietnam', S2: 'Inactive social media', S3: 'Not interested in online IT learning', S4: 'No prior StarCi exposure', S5: 'Already registered/paid/started/completed' };
+  for (const name of screening) {
+    if (answers[name] !== passingScreening[name]) return reasons[name];
+  }
+  const values = items.map((name) => answers[name]);
+  if (values.length === 42 && values.every((value) => value === values[0])) return 'Straight-lining';
+  throw new Error('Invalid row has neither a screening exclusion nor the declared straight-line QC exclusion');
+};
+const invalidRows = invalid.records.map((row) => {
+  const answers = Object.fromEntries(fields.filter((name) => row[name] !== '').map((name) => [name, canonicalValue(name, row[name])]));
+  const firstBlank = screening.findIndex((name) => answers[name] === undefined);
+  if (firstBlank >= 0 && screening.slice(firstBlank).some((name) => answers[name] !== undefined)) throw new Error(`Non-prefix screening answers: ${row.Synthetic_ID}`);
+  for (const name of items) if (answers[name] !== undefined && !/^[1-5]$/.test(answers[name])) throw new Error(`Invalid matrix response: ${row.Synthetic_ID}/${name}`);
+  for (const name of demographics) if (answers[name] !== undefined && !demographicValues[name].includes(answers[name])) throw new Error(`Invalid demographic response: ${row.Synthetic_ID}/${name}`);
+  return { id: row.Synthetic_ID, answers, sourceStatus: 'INVALID', sourceExclusionReason: reasonFor(answers) };
+});
+const rows = [...validRows, ...invalidRows];
+if (new Set(rows.map((row) => row.id)).size !== rows.length) throw new Error('Duplicate Synthetic_ID across valid and invalid sources');
 const sha256 = (data) => createHash('sha256').update(data).digest('hex');
-const sourceDigest = sha256(await fs.readFile(source));
+const validSourceDigest = sha256(await fs.readFile(validSource));
+const invalidSourceDigest = sha256(await fs.readFile(invalidSource));
 const rowDigest = sha256(JSON.stringify(rows));
 const artifact = {
-  schemaVersion: 3,
-  name: path.basename(source),
+  schemaVersion: 4,
+  name: 'MGT400 synthetic valid + invalid rehearsal dataset',
   synthetic: true,
   label: 'Synthetic rehearsal only — not empirical survey findings or evidence of real respondents\' consent.',
-  source: { fileName: path.basename(source), sha256: sourceDigest, format: isCsv ? 'csv' : 'xlsx', ranges: ['VALID_519!A1:AT520'], join: 'Synthetic_ID', derivedScreening: passingScreening },
-  reconciliation: { sourceCount: 519, completingCount: 519, screenedOutCount: 0, eligibleCount: 519, excludedCount: 0 },
+  source: { files: [
+    { role: 'valid', fileName: path.basename(validSource), sha256: validSourceDigest, format: 'csv', ranges: ['VALID_519!A1:AT520'] },
+    { role: 'invalid', fileName: path.basename(invalidSource), sha256: invalidSourceDigest, format: 'xlsx', ranges: ['INVALID_104!A1:BA104'] },
+  ], join: 'Synthetic_ID', derivedScreening: passingScreening, canonicalization: { 'D3_Status:Both': 'Both studying and working' } },
+  reconciliation: { sourceCount: 622, validCount: 519, invalidCount: 103, completingCount: 526, screenedOutCount: 96, qualityControlInvalidCount: 7, runnableCount: 622 },
   digest: rowDigest,
   fields,
   rows,
@@ -73,7 +106,7 @@ if (args.includes('--inspect')) {
   const output = fileURLToPath(new URL('../apps/api/data/', import.meta.url));
   await fs.mkdir(output, { recursive: true });
   await fs.writeFile(path.join(output, 'fixed-dataset.json'), `${JSON.stringify(artifact, null, 2)}\n`);
-  console.log(JSON.stringify({ rows: rows.length, fields: fields.length, sourceDigest, rowDigest }));
+  console.log(JSON.stringify({ rows: rows.length, fields: fields.length, validSourceDigest, invalidSourceDigest, rowDigest }));
 }
 
 // Explicit read-only schema capture. No browser, no clicks, no formResponse POST.

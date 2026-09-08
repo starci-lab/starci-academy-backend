@@ -53,13 +53,17 @@ export function validateFixedDataset(value: unknown): FixedDataset {
   const artifact = value as Record<string, unknown>;
   const source = artifact.source as Record<string, unknown> | undefined;
   const expectedScreening = { Consent: "1", S0: "1", S1: "1", S2: "1", S3: "1", S4: "1", S5: "0" };
-  if (artifact.schemaVersion !== 3 || artifact.synthetic !== true || typeof artifact.label !== "string" || !/synthetic rehearsal/i.test(artifact.label) ||
-    typeof artifact.name !== "string" || !source || source.join !== "Synthetic_ID" || source.format !== "csv" ||
-    JSON.stringify(source.ranges) !== JSON.stringify(["VALID_519!A1:AT520"]) || JSON.stringify(source.derivedScreening) !== JSON.stringify(expectedScreening) ||
-    typeof source.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(source.sha256)) {
+  const files = source?.files as Array<Record<string, unknown>> | undefined;
+  if (artifact.schemaVersion !== 4 || artifact.synthetic !== true || typeof artifact.label !== "string" || !/synthetic rehearsal/i.test(artifact.label) ||
+    typeof artifact.name !== "string" || !source || source.join !== "Synthetic_ID" ||
+    JSON.stringify(source.derivedScreening) !== JSON.stringify(expectedScreening) || JSON.stringify(source.canonicalization) !== JSON.stringify({ "D3_Status:Both": "Both studying and working" }) || !Array.isArray(files) || files.length !== 2 ||
+    JSON.stringify(files.map(({ role, format, ranges }) => ({ role, format, ranges }))) !== JSON.stringify([
+      { role: "valid", format: "csv", ranges: ["VALID_519!A1:AT520"] },
+      { role: "invalid", format: "xlsx", ranges: ["INVALID_104!A1:BA104"] },
+    ]) || files.some((file) => typeof file.fileName !== "string" || typeof file.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(file.sha256 as string))) {
     throw new Error("Fixed dataset synthetic provenance is invalid");
   }
-  if (!Array.isArray(artifact.rows) || artifact.rows.length !== 519) throw new Error("Fixed dataset must contain exactly 519 valid source rows");
+  if (!Array.isArray(artifact.rows) || artifact.rows.length !== 622) throw new Error("Fixed dataset must contain exactly 519 valid and 103 invalid source rows");
   const rows = artifact.rows as FixedDatasetRow[];
   const seen = new Set<string>();
   for (const row of rows) {
@@ -67,6 +71,23 @@ export function validateFixedDataset(value: unknown): FixedDataset {
     if (seen.has(row.id)) throw new Error("Duplicate Synthetic_ID in fixed dataset");
     seen.add(row.id);
   }
+  const valid = rows.filter((row) => row.sourceStatus === "VALID");
+  const invalid = rows.filter((row) => row.sourceStatus === "INVALID");
+  if (valid.length !== 519 || invalid.length !== 103 || rows.some((row) => !["VALID", "INVALID"].includes(row.sourceStatus ?? ""))) throw new Error("Fixed dataset status counts are invalid");
+  if (valid.some((row) => row.sourceExclusionReason !== null || FIXED_FIELDS.some((key) => row.answers[key] === undefined) ||
+    SCREENING_FIELDS.some((key) => row.answers[key] !== expectedScreening[key]))) throw new Error("Valid source row is incomplete");
+  for (const row of invalid) {
+    if (!row.sourceExclusionReason) throw new Error("Invalid source row is missing its exclusion reason");
+    const mismatch = SCREENING_FIELDS.findIndex((key) => row.answers[key] !== undefined && row.answers[key] !== expectedScreening[key]);
+    if (mismatch >= 0) {
+      const allowed = new Set(SCREENING_FIELDS.slice(0, mismatch + 1));
+      if (Object.keys(row.answers).some((key) => !allowed.has(key as typeof SCREENING_FIELDS[number]))) throw new Error("Screening exclusion contains unreachable answers");
+    } else {
+      const matrix = MATRIX_FIELDS.map((key) => row.answers[key]);
+      if (FIXED_FIELDS.some((key) => row.answers[key] === undefined) || !matrix.every((value) => value === matrix[0])) throw new Error("QC exclusion is not a complete straight-line response");
+    }
+  }
+  if (JSON.stringify(artifact.reconciliation) !== JSON.stringify({ sourceCount: 622, validCount: 519, invalidCount: 103, completingCount: 526, screenedOutCount: 96, qualityControlInvalidCount: 7, runnableCount: 622 })) throw new Error("Fixed dataset reconciliation is invalid");
   const digest = createHash("sha256").update(JSON.stringify(rows)).digest("hex");
   if (artifact.digest !== digest) throw new Error("Fixed dataset digest mismatch");
   return { name: artifact.name, digest, rows };

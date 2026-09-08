@@ -4,24 +4,26 @@ import { FIXED_FIELDS, loadFixedDataset, validateFixedDataset, validateFixedRow 
 
 const sourceArtifact = async () => JSON.parse(await readFile(new URL("../../data/fixed-dataset.json", import.meta.url), "utf8"));
 describe("fixed synthetic dataset", () => {
-  it("loads exactly the 519 complete records from the corrected valid CSV", async () => {
+  it("loads exactly 519 valid and 103 invalid source records", async () => {
     const dataset = await loadFixedDataset();
-    expect(dataset.rows).toHaveLength(519);
-    expect(new Set(dataset.rows.map((row) => row.id)).size).toBe(519);
-    const completing = dataset.rows.filter((row) => Object.keys(row.answers).length === FIXED_FIELDS.length);
-    const screened = dataset.rows.filter((row) => Object.keys(row.answers).length < FIXED_FIELDS.length);
-    expect(completing).toHaveLength(519);
-    expect(screened).toHaveLength(0);
+    expect(dataset.rows).toHaveLength(622);
+    expect(new Set(dataset.rows.map((row) => row.id)).size).toBe(622);
+    expect(dataset.rows.filter((row) => row.sourceStatus === "VALID")).toHaveLength(519);
+    expect(dataset.rows.filter((row) => row.sourceStatus === "INVALID")).toHaveLength(103);
+    expect(dataset.rows.filter((row) => row.sourceStatus === "INVALID" && Object.keys(row.answers).length < FIXED_FIELDS.length)).toHaveLength(96);
+    expect(dataset.rows.filter((row) => row.sourceExclusionReason === "Straight-lining")).toHaveLength(7);
     for (const row of dataset.rows) expect(() => validateFixedRow(row)).not.toThrow();
   });
-  it("retains the corrected CSV provenance and valid-only reconciliation", async () => {
+  it("retains both source digests and reconciles the actual row-level data", async () => {
     const artifact = await sourceArtifact();
     expect(artifact.synthetic).toBe(true);
     expect(artifact.source.join).toBe("Synthetic_ID");
-    expect(artifact.source.sha256).toBe("0e410fc7bafbf13f1dee360ff130d212ed51ee9023bc786f2606872096566905");
-    expect(artifact.source.format).toBe("csv");
+    expect(artifact.source.files).toEqual([
+      expect.objectContaining({ role: "valid", format: "csv", sha256: "0e410fc7bafbf13f1dee360ff130d212ed51ee9023bc786f2606872096566905" }),
+      expect.objectContaining({ role: "invalid", format: "xlsx", sha256: "eb5bcf2f34af9cf8ebfe8bfe4b37d232ad99cde9a81a757f3187d7935a141151" }),
+    ]);
     expect(artifact.source.derivedScreening).toEqual({ Consent: "1", S0: "1", S1: "1", S2: "1", S3: "1", S4: "1", S5: "0" });
-    expect(artifact.reconciliation).toEqual({ sourceCount: 519, completingCount: 519, screenedOutCount: 0, eligibleCount: 519, excludedCount: 0 });
+    expect(artifact.reconciliation).toEqual({ sourceCount: 622, validCount: 519, invalidCount: 103, completingCount: 526, screenedOutCount: 96, qualityControlInvalidCount: 7, runnableCount: 622 });
   });
   it("rejects missing values, duplicate IDs, tampering and stripped synthetic provenance", async () => {
     const artifact = await sourceArtifact();

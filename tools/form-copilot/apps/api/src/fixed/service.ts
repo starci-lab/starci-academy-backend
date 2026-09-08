@@ -2,8 +2,8 @@ import {
   Inject, Injectable, Logger, Optional, type BeforeApplicationShutdown, type OnApplicationBootstrap, type OnModuleInit,
 } from "@nestjs/common";
 import type { FixedCreateBatch, FixedMeta, FixedReconciliation } from "@form-copilot/contracts";
-import { FIXED_FORM_TITLE, FIXED_FORM_URL, SCREENING_FIELDS, loadFixedDataset } from "./dataset.js";
-import { isScreenedOutRow } from "./row-selection.js";
+import { FIXED_FORM_TITLE, FIXED_FORM_URL, loadFixedDataset } from "./dataset.js";
+import { isInvalidRow } from "./row-selection.js";
 import { runFixedFormRow } from "./form-runner.js";
 import { FixedRepository } from "./repository.js";
 import { FixedScheduler } from "./scheduler.js";
@@ -82,14 +82,14 @@ export class FixedService implements OnModuleInit, OnApplicationBootstrap, Befor
   }
   reconciliation(): Promise<FixedReconciliation> { return this.repository.getReconciliation(FIXED_RESPONSE_SOURCE_KEY); }
   async meta(): Promise<FixedMeta> {
-    const completingRows = this.#dataset.rows.filter((row) => !isScreenedOutRow(row));
-    const screenedRows = this.#dataset.rows.filter(isScreenedOutRow);
+    const completingRows = this.#dataset.rows.filter((row) => !isInvalidRow(row));
+    const screenedRows = this.#dataset.rows.filter(isInvalidRow);
     return {
       formTitle: FIXED_FORM_TITLE, formUrl: FIXED_FORM_URL,
       datasetName: this.#dataset.name, datasetDigest: this.#dataset.digest,
       totalCount: this.#dataset.rows.length,
-      completingCount: this.#dataset.rows.filter((row) => SCREENING_FIELDS.every((key) => row.answers[key] === (key === "S5" ? "0" : "1"))).length,
-      screenedOutCount: this.#dataset.rows.filter((row) => SCREENING_FIELDS.some((key) => row.answers[key] !== undefined && row.answers[key] !== (key === "S5" ? "0" : "1"))).length,
+      completingCount: completingRows.length,
+      screenedOutCount: screenedRows.length,
       eligibleCount: this.#dataset.rows.length,
       availableCount: await this.repository.availableCount(this.#dataset.rows.map((row) => row.id)),
       availableCompletingCount: await this.repository.availableCount(completingRows.map((row) => row.id)),

@@ -1,14 +1,28 @@
 {
-  "schemaVersion": 3,
-  "name": "MGT400_SYNTHETIC_VALID_519_v2 (2).csv",
+  "schemaVersion": 4,
+  "name": "MGT400 synthetic valid + invalid rehearsal dataset",
   "synthetic": true,
   "label": "Synthetic rehearsal only — not empirical survey findings or evidence of real respondents' consent.",
   "source": {
-    "fileName": "MGT400_SYNTHETIC_VALID_519_v2 (2).csv",
-    "sha256": "0e410fc7bafbf13f1dee360ff130d212ed51ee9023bc786f2606872096566905",
-    "format": "csv",
-    "ranges": [
-      "VALID_519!A1:AT520"
+    "files": [
+      {
+        "role": "valid",
+        "fileName": "MGT400_SYNTHETIC_VALID_519_v2 (2).csv",
+        "sha256": "0e410fc7bafbf13f1dee360ff130d212ed51ee9023bc786f2606872096566905",
+        "format": "csv",
+        "ranges": [
+          "VALID_519!A1:AT520"
+        ]
+      },
+      {
+        "role": "invalid",
+        "fileName": "MGT400_INVALID_103_HEADERS_ALIGNED.xlsx",
+        "sha256": "eb5bcf2f34af9cf8ebfe8bfe4b37d232ad99cde9a81a757f3187d7935a141151",
+        "format": "xlsx",
+        "ranges": [
+          "INVALID_104!A1:BA104"
+        ]
+      }
     ],
     "join": "Synthetic_ID",
     "derivedScreening": {
@@ -19,16 +33,21 @@
       "S3": "1",
       "S4": "1",
       "S5": "0"
+    },
+    "canonicalization": {
+      "D3_Status:Both": "Both studying and working"
     }
   },
   "reconciliation": {
-    "sourceCount": 519,
-    "completingCount": 519,
-    "screenedOutCount": 0,
-    "eligibleCount": 519,
-    "excludedCount": 0
+    "sourceCount": 622,
+    "validCount": 519,
+    "invalidCount": 103,
+    "completingCount": 526,
+    "screenedOutCount": 96,
+    "qualityControlInvalidCount": 7,
+    "runnableCount": 622
   },
-  "digest": "17f3dea3957325f8ff29d190a2899c9c0bbfe9968e2528f59eca8f7d0f0b4adb",
+  "digest": "105b6d2faaa8a530f948db614ea84e399f774cb238187f3f6c0a8423edbc041d",
   "fields": [
     "Consent",
     "S0",
@@ -30704,6 +30723,1663 @@
       },
       "sourceStatus": "VALID",
       "sourceExclusionReason": null
+    },
+    {
+      "id": "PLAN-X001",
+      "answers": {
+        "Consent": "1",
+        "S0": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Under 18"
+    },
+    {
+      "id": "PLAN-X002",
+      "answers": {
+        "Consent": "1",
+        "S0": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Under 18"
+    },
+    {
+      "id": "PLAN-X003",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Not living in Vietnam"
+    },
+    {
+      "id": "PLAN-X004",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Not living in Vietnam"
+    },
+    {
+      "id": "PLAN-X005",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Not living in Vietnam"
+    },
+    {
+      "id": "PLAN-X006",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Inactive social media"
+    },
+    {
+      "id": "PLAN-X007",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Inactive social media"
+    },
+    {
+      "id": "PLAN-X008",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Inactive social media"
+    },
+    {
+      "id": "PLAN-X009",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Inactive social media"
+    },
+    {
+      "id": "PLAN-X010",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Not interested in online IT learning"
+    },
+    {
+      "id": "PLAN-X011",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Not interested in online IT learning"
+    },
+    {
+      "id": "PLAN-X012",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Not interested in online IT learning"
+    },
+    {
+      "id": "PLAN-X013",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Not interested in online IT learning"
+    },
+    {
+      "id": "PLAN-X014",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Not interested in online IT learning"
+    },
+    {
+      "id": "PLAN-X015",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Not interested in online IT learning"
+    },
+    {
+      "id": "PLAN-X016",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Not interested in online IT learning"
+    },
+    {
+      "id": "PLAN-X017",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X018",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X019",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X020",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X021",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X022",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X023",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X024",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X025",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X026",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X027",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X028",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X029",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X030",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X031",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X032",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X033",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X034",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X035",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X036",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X037",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X038",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X039",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X040",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X041",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X042",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X043",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X044",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X045",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X046",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X047",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X048",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X049",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X050",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X051",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X052",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X053",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X054",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X055",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X056",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X057",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X058",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X059",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X060",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X061",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X062",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X063",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X064",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X065",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X066",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X067",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X068",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "0"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "No prior StarCi exposure"
+    },
+    {
+      "id": "PLAN-X069",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X070",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X071",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X072",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X073",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X074",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X075",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X076",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X077",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X078",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X079",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X080",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X081",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X082",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X083",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X084",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X085",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X086",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X087",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X088",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X089",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X090",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X091",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X092",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X093",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X094",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X095",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X096",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "1"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Already registered/paid/started/completed"
+    },
+    {
+      "id": "PLAN-X097",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "0",
+        "SMC1": "1",
+        "SMC2": "1",
+        "SMC3": "1",
+        "SMC4": "1",
+        "ENT1": "1",
+        "ENT2": "1",
+        "ENT3": "1",
+        "INF1": "1",
+        "INF2": "1",
+        "INF3": "1",
+        "INF4": "1",
+        "INT1": "1",
+        "INT2": "1",
+        "INT3": "1",
+        "CRE1": "1",
+        "CRE2": "1",
+        "CRE3": "1",
+        "CRE4": "1",
+        "BT1": "1",
+        "BT2": "1",
+        "BT3": "1",
+        "BT4": "1",
+        "EI1": "1",
+        "EI2": "1",
+        "EI3": "1",
+        "EI4": "1",
+        "OPT1": "1",
+        "OPT2": "1",
+        "OPT3": "1",
+        "OPT4": "1",
+        "INN1": "1",
+        "INN2": "1",
+        "INN3": "1",
+        "INN4": "1",
+        "DIS1": "1",
+        "DIS2": "1",
+        "DIS3": "1",
+        "DIS4": "1",
+        "INS1": "1",
+        "INS2": "1",
+        "INS3": "1",
+        "INS4": "1",
+        "D1_Age": "18-22",
+        "D2_Gender": "Female",
+        "D3_Status": "Student"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Straight-lining"
+    },
+    {
+      "id": "PLAN-X098",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "0",
+        "SMC1": "2",
+        "SMC2": "2",
+        "SMC3": "2",
+        "SMC4": "2",
+        "ENT1": "2",
+        "ENT2": "2",
+        "ENT3": "2",
+        "INF1": "2",
+        "INF2": "2",
+        "INF3": "2",
+        "INF4": "2",
+        "INT1": "2",
+        "INT2": "2",
+        "INT3": "2",
+        "CRE1": "2",
+        "CRE2": "2",
+        "CRE3": "2",
+        "CRE4": "2",
+        "BT1": "2",
+        "BT2": "2",
+        "BT3": "2",
+        "BT4": "2",
+        "EI1": "2",
+        "EI2": "2",
+        "EI3": "2",
+        "EI4": "2",
+        "OPT1": "2",
+        "OPT2": "2",
+        "OPT3": "2",
+        "OPT4": "2",
+        "INN1": "2",
+        "INN2": "2",
+        "INN3": "2",
+        "INN4": "2",
+        "DIS1": "2",
+        "DIS2": "2",
+        "DIS3": "2",
+        "DIS4": "2",
+        "INS1": "2",
+        "INS2": "2",
+        "INS3": "2",
+        "INS4": "2",
+        "D1_Age": "23-27",
+        "D2_Gender": "Male",
+        "D3_Status": "Working"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Straight-lining"
+    },
+    {
+      "id": "PLAN-X099",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "0",
+        "SMC1": "3",
+        "SMC2": "3",
+        "SMC3": "3",
+        "SMC4": "3",
+        "ENT1": "3",
+        "ENT2": "3",
+        "ENT3": "3",
+        "INF1": "3",
+        "INF2": "3",
+        "INF3": "3",
+        "INF4": "3",
+        "INT1": "3",
+        "INT2": "3",
+        "INT3": "3",
+        "CRE1": "3",
+        "CRE2": "3",
+        "CRE3": "3",
+        "CRE4": "3",
+        "BT1": "3",
+        "BT2": "3",
+        "BT3": "3",
+        "BT4": "3",
+        "EI1": "3",
+        "EI2": "3",
+        "EI3": "3",
+        "EI4": "3",
+        "OPT1": "3",
+        "OPT2": "3",
+        "OPT3": "3",
+        "OPT4": "3",
+        "INN1": "3",
+        "INN2": "3",
+        "INN3": "3",
+        "INN4": "3",
+        "DIS1": "3",
+        "DIS2": "3",
+        "DIS3": "3",
+        "DIS4": "3",
+        "INS1": "3",
+        "INS2": "3",
+        "INS3": "3",
+        "INS4": "3",
+        "D1_Age": "28-34",
+        "D2_Gender": "Female",
+        "D3_Status": "Both studying and working"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Straight-lining"
+    },
+    {
+      "id": "PLAN-X100",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "0",
+        "SMC1": "4",
+        "SMC2": "4",
+        "SMC3": "4",
+        "SMC4": "4",
+        "ENT1": "4",
+        "ENT2": "4",
+        "ENT3": "4",
+        "INF1": "4",
+        "INF2": "4",
+        "INF3": "4",
+        "INF4": "4",
+        "INT1": "4",
+        "INT2": "4",
+        "INT3": "4",
+        "CRE1": "4",
+        "CRE2": "4",
+        "CRE3": "4",
+        "CRE4": "4",
+        "BT1": "4",
+        "BT2": "4",
+        "BT3": "4",
+        "BT4": "4",
+        "EI1": "4",
+        "EI2": "4",
+        "EI3": "4",
+        "EI4": "4",
+        "OPT1": "4",
+        "OPT2": "4",
+        "OPT3": "4",
+        "OPT4": "4",
+        "INN1": "4",
+        "INN2": "4",
+        "INN3": "4",
+        "INN4": "4",
+        "DIS1": "4",
+        "DIS2": "4",
+        "DIS3": "4",
+        "DIS4": "4",
+        "INS1": "4",
+        "INS2": "4",
+        "INS3": "4",
+        "INS4": "4",
+        "D1_Age": "35+",
+        "D2_Gender": "Male",
+        "D3_Status": "Working"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Straight-lining"
+    },
+    {
+      "id": "PLAN-X101",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "0",
+        "SMC1": "5",
+        "SMC2": "5",
+        "SMC3": "5",
+        "SMC4": "5",
+        "ENT1": "5",
+        "ENT2": "5",
+        "ENT3": "5",
+        "INF1": "5",
+        "INF2": "5",
+        "INF3": "5",
+        "INF4": "5",
+        "INT1": "5",
+        "INT2": "5",
+        "INT3": "5",
+        "CRE1": "5",
+        "CRE2": "5",
+        "CRE3": "5",
+        "CRE4": "5",
+        "BT1": "5",
+        "BT2": "5",
+        "BT3": "5",
+        "BT4": "5",
+        "EI1": "5",
+        "EI2": "5",
+        "EI3": "5",
+        "EI4": "5",
+        "OPT1": "5",
+        "OPT2": "5",
+        "OPT3": "5",
+        "OPT4": "5",
+        "INN1": "5",
+        "INN2": "5",
+        "INN3": "5",
+        "INN4": "5",
+        "DIS1": "5",
+        "DIS2": "5",
+        "DIS3": "5",
+        "DIS4": "5",
+        "INS1": "5",
+        "INS2": "5",
+        "INS3": "5",
+        "INS4": "5",
+        "D1_Age": "18-22",
+        "D2_Gender": "Male",
+        "D3_Status": "Student"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Straight-lining"
+    },
+    {
+      "id": "PLAN-X102",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "0",
+        "SMC1": "1",
+        "SMC2": "1",
+        "SMC3": "1",
+        "SMC4": "1",
+        "ENT1": "1",
+        "ENT2": "1",
+        "ENT3": "1",
+        "INF1": "1",
+        "INF2": "1",
+        "INF3": "1",
+        "INF4": "1",
+        "INT1": "1",
+        "INT2": "1",
+        "INT3": "1",
+        "CRE1": "1",
+        "CRE2": "1",
+        "CRE3": "1",
+        "CRE4": "1",
+        "BT1": "1",
+        "BT2": "1",
+        "BT3": "1",
+        "BT4": "1",
+        "EI1": "1",
+        "EI2": "1",
+        "EI3": "1",
+        "EI4": "1",
+        "OPT1": "1",
+        "OPT2": "1",
+        "OPT3": "1",
+        "OPT4": "1",
+        "INN1": "1",
+        "INN2": "1",
+        "INN3": "1",
+        "INN4": "1",
+        "DIS1": "1",
+        "DIS2": "1",
+        "DIS3": "1",
+        "DIS4": "1",
+        "INS1": "1",
+        "INS2": "1",
+        "INS3": "1",
+        "INS4": "1",
+        "D1_Age": "23-27",
+        "D2_Gender": "Female",
+        "D3_Status": "Both studying and working"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Straight-lining"
+    },
+    {
+      "id": "PLAN-X103",
+      "answers": {
+        "Consent": "1",
+        "S0": "1",
+        "S1": "1",
+        "S2": "1",
+        "S3": "1",
+        "S4": "1",
+        "S5": "0",
+        "SMC1": "3",
+        "SMC2": "3",
+        "SMC3": "3",
+        "SMC4": "3",
+        "ENT1": "3",
+        "ENT2": "3",
+        "ENT3": "3",
+        "INF1": "3",
+        "INF2": "3",
+        "INF3": "3",
+        "INF4": "3",
+        "INT1": "3",
+        "INT2": "3",
+        "INT3": "3",
+        "CRE1": "3",
+        "CRE2": "3",
+        "CRE3": "3",
+        "CRE4": "3",
+        "BT1": "3",
+        "BT2": "3",
+        "BT3": "3",
+        "BT4": "3",
+        "EI1": "3",
+        "EI2": "3",
+        "EI3": "3",
+        "EI4": "3",
+        "OPT1": "3",
+        "OPT2": "3",
+        "OPT3": "3",
+        "OPT4": "3",
+        "INN1": "3",
+        "INN2": "3",
+        "INN3": "3",
+        "INN4": "3",
+        "DIS1": "3",
+        "DIS2": "3",
+        "DIS3": "3",
+        "DIS4": "3",
+        "INS1": "3",
+        "INS2": "3",
+        "INS3": "3",
+        "INS4": "3",
+        "D1_Age": "28-34",
+        "D2_Gender": "Male",
+        "D3_Status": "Working"
+      },
+      "sourceStatus": "INVALID",
+      "sourceExclusionReason": "Straight-lining"
     }
   ]
 }
