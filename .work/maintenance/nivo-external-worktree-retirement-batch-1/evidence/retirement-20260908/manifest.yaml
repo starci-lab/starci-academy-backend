@@ -18,12 +18,12 @@
     {
       "id": "safe-worktrees-removed",
       "outcome": "pass",
-      "observation": "Twenty-five safe frontend/backend checkout paths were removed and two dead registrations were pruned; canonical, integration, runtime, and custody-bearing paths were excluded."
+      "observation": "Twenty-six safe frontend/backend checkout paths were removed and two dead registrations were pruned; canonical, integration, runtime, and custody-bearing paths were excluded."
     },
     {
       "id": "unique-runtime-and-dirty-worktrees-protected",
       "outcome": "pass",
-      "observation": "The Chatbot custody checkout, frontend UAT checkout, backend runtime checkout, locked authorities, and incomplete legacy module-setup custody remain present with explicit reasons."
+      "observation": "The Chatbot custody checkout, backend runtime checkout, locked authorities, and incomplete legacy module-setup custody remain present with explicit reasons."
     },
     {
       "id": "branch-recovery-retained",
@@ -34,7 +34,7 @@
   "assets": [
     {
       "path": "retirement-report.json",
-      "sha256": "d7d31809110134c3643e40148e339db1ec60184452e0b2a41f93ce1e0de3769f"
+      "sha256": "3634a8a793b87bf43fa66adffc6072e482be36a74efc859264d8cdac39698a54"
     }
   ]
 }

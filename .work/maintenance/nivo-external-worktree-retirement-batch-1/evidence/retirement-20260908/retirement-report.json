@@ -24,7 +24,8 @@
     "D:/Repositories/nivo-fe-proof-d673833",
     "D:/Repositories/nivo-fe-worktrees/20260903-104251-nivo-frontend-direction-decide",
     "D:/Repositories/nivo-fe-worktrees/20260903-162203-nivo-overview",
-    "D:/Repositories/starci-academy-backend/.worktrees/sessions/20260903-074800-nivo-frontend-direction-decide/checkout"
+    "D:/Repositories/starci-academy-backend/.worktrees/sessions/20260903-074800-nivo-frontend-direction-decide/checkout",
+    "D:/Repositories/starci-academy-backend/.worktrees/nivo/uat"
   ],
   "removedBackendWorktrees": [
     "D:/Repositories/nivo-be-migration-212731",
@@ -64,6 +65,11 @@
       "branch": "session/20260906234044-nivo-9861230d",
       "commit": "85dca80cc9f3d9b04097cf9a1dd1d64634fa837c",
       "reason": "Shared canonical-definition implementation branch"
+    },
+    {
+      "branch": "uat",
+      "commit": "2d512c46247f6873a1dbbb0f370bd87ab107c593",
+      "reason": "frontend UAT history retained after Login and AgentOS evidence migration"
     }
   ],
   "protectedWorktrees": [
@@ -86,10 +92,6 @@
     {
       "path": "D:/Repositories/nivo-backend-chatbot-20260905160512",
       "reason": "68 excluded untracked custody files and ignored mounted custody roots require secret-aware disposition"
-    },
-    {
-      "path": "D:/Repositories/starci-academy-backend/.worktrees/nivo/uat",
-      "reason": "frontend UAT branch retains a patch-unique dependency commit pending explicit disposition"
     },
     {
       "path": "D:/Repositories/starci-academy-backend/.worktrees/runtime/nivo-be",
