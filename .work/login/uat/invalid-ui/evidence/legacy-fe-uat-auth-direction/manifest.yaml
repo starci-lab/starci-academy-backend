@@ -1,0 +1,29 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.login.uat.invalid.ui.legacy-fe-uat-auth-direction",
+  "nodeId": "nivo.login.uat.invalid.ui",
+  "inputDigest": "2949ff6c35ed64a086535e75af6d7c863d8e3712884dcf427498f0fe74e69fba",
+  "outcome": "inconclusive",
+  "assertions": [
+    {
+      "id": "login-invalid-appearance",
+      "outcome": "inconclusive",
+      "observation": "A historical candidate screenshot shows generic refusal copy and visually marked fields, but it does not prove the current TINO field semantics, accessibility, focus recovery, request behavior or absence of provider detail."
+    }
+  ],
+  "assets": [
+    {"path":"result.md","sha256":"411d528d5aa370f7bc13f2d3a136d8d681a5e2053d2968db341b7a4eca90ee0d"}
+  ],
+  "codeRefs": [
+    {"repository":"repo.nivo-frontend","commit":"2d512c46247f6873a1dbbb0f370bd87ab107c593"}
+  ],
+  "extensions": {
+    "classification": "historical-design-only",
+    "resource": "import.nivo-fe-uat-login-direction-legacy",
+    "resourceAsset": "assets/sign-in-refused.png",
+    "sourcePath": "design-plans/app-authentication/preview-lab/screens/sign-in-refused.png",
+    "containsRealAccountIdentifier": false,
+    "doesNotApproveUi": true,
+    "doesNotPromoteLeaf": true
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "work/resource@1",
+  "id": "import.nivo-fe-uat-agentos-create-requests-legacy",
+  "kind": "import",
+  "owner": "Nivo historical design custody",
+  "revision": "agentos-create-requests-source-2d512c4-20260908",
+  "details": {
+    "classification": "sanitized historical AgentOS frontend creation intent; not implementation proof, current design authority, or UAT acceptance",
+    "sourceRepository": "repo.nivo-frontend",
+    "sourceCheckout": "D:/Repositories/starci-academy-backend/.worktrees/nivo/uat",
+    "sourceBranch": "uat",
+    "sourceCommit": "2d512c46247f6873a1dbbb0f370bd87ab107c593",
+    "sourcePath": "design-plans/app-agentos-collaborative-workbench/create-requests.json",
+    "sourceBlob": "bbf96926dc3e45599457d7d8c2406f2c3bc041a5",
+    "sourceSha256": "01ede30a439698d290e49ea5c7bd01d33222b749addfd221eeb77a0c245e2792",
+    "sourceAlsoPresentAtOriginMain": true,
+    "sourceAlsoPresentAtIntegrationHead": true,
+    "doesNotReplace": "design.agentos-shared-ui",
+    "doesNotApproveUi": true,
+    "doesNotPromoteNodes": true,
+    "originalsPreserved": true
+  },
+  "files": [
+    {"path":"assets/create-request-summary.json"},
+    {"path":"assets/source-inventory.json"}
+  ]
+}

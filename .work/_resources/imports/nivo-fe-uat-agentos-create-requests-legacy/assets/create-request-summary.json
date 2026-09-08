@@ -1,0 +1,34 @@
+{
+  "schema": "nivo/historical-agentos-create-request-summary@1",
+  "source": {
+    "repository": "repo.nivo-frontend",
+    "checkout": "D:/Repositories/starci-academy-backend/.worktrees/nivo/uat",
+    "branch": "uat",
+    "commit": "2d512c46247f6873a1dbbb0f370bd87ab107c593",
+    "path": "design-plans/app-agentos-collaborative-workbench/create-requests.json",
+    "blob": "bbf96926dc3e45599457d7d8c2406f2c3bc041a5",
+    "sha256": "01ede30a439698d290e49ea5c7bd01d33222b749addfd221eeb77a0c245e2792"
+  },
+  "historicalEnvelope": {
+    "id": "NIVO-AGENTOS-SETUP-FIRST-CREATE-REQUESTS-V1",
+    "businessHead": "86fcb8fbe6ec2f984b8fc7ece190725e4a78aa7376c119b0a6557cbfe338f263",
+    "layout": "LAYOUT-01-PERSISTENT-MODULE-SHELL",
+    "grammar": "@starci/grammar 0.2.0",
+    "requestCount": 6
+  },
+  "requests": [
+    {"id":"NIVO-BLOCK-MODULE-ROUTE-SHELL-V1","contentSha256":"372009cf38e310634faf1395074f07e4df5945877af81e96363c8dfc73b5bf09","intent":"One persistent module-local shell owns breadcrumbs, identity, lifecycle/context continuity and Operate/Settings/Diagnostics composition.","boundary":"Do not hard-code module-kind routes or create a second continuity owner."},
+    {"id":"NIVO-BLOCK-PRIVATE-SETUP-CHAT-V1","contentSha256":"e28b3dc835ce821932ee71f56866587f144a457cb0be762c6dcf5d35863e60a3","intent":"Keep the private Setup conversation separate from Execute and hand off a context draft explicitly.","boundary":"Do not merge Setup history into Execute, activate context implicitly, or expose secrets/permissions."},
+    {"id":"NIVO-BLOCK-CONTEXT-VERSION-V1","contentSha256":"d9b6f00079aceb527af50b22b1669442fd771299ea572dac1a58aed0e27d051d","intent":"Review a versioned context draft and apply explicitly while retaining the prior active version.","boundary":"Do not replace active context before Apply succeeds or synthesize readiness/permission."},
+    {"id":"NIVO-BLOCK-EXECUTE-SESSION-RAIL-V1","contentSha256":"e02a910289dd1d29d3274a8ea44919824e9eeecc55b40f2d2e799018744995cd","intent":"Navigate multiple Execute sessions while preserving selection across compact transformation.","boundary":"Do not include private Setup or let the rail own workflow completion."},
+    {"id":"NIVO-BLOCK-EXECUTE-CHAT-V1","contentSha256":"11e3fad714a295d01da0eaca321859fb0f3bab7222bf69fa1281a1ab8190742c","intent":"Keep a persistent Execute conversation, composer and typed inline widgets beside the kind workbench.","boundary":"Do not execute arbitrary markup/scripts or let widget payloads mutate shell ownership."},
+    {"id":"NIVO-BLOCK-KIND-WORKBENCH-V1","contentSha256":"d2fce2d8065b6857d3f9ecdf879a737bae62df519bbb80ffd41d4388fd89feaa","intent":"Resolve a kind workbench from a registry without branching the shared shell per module kind.","boundary":"Do not move kind semantics into Grammar or replace chat on non-compact layouts."}
+  ],
+  "currentMeaning": {
+    "resource": "design.agentos-shared-ui",
+    "approvalStatus": "unapproved",
+    "sourceRequestsAreImplementationIntentOnly": true,
+    "doesNotProveCodeOrTests": true,
+    "doesNotPromoteAnyLeaf": true
+  }
+}

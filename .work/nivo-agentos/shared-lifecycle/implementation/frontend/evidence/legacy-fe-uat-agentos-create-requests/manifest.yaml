@@ -1,0 +1,33 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.shared.implementation.frontend.legacy-fe-uat-agentos-create-requests",
+  "nodeId": "nivo.shared.implementation.frontend",
+  "inputDigest": "e294bc5e4774b06d9c487d8dd5aa64fcd2691080a7fc198968ceeaab46a9853b",
+  "outcome": "inconclusive",
+  "assertions": [
+    {
+      "id": "shared-frontend-implemented",
+      "outcome": "inconclusive",
+      "observation": "Six historical create requests preserve shared-shell, Setup/Execute separation, explicit Apply, multi-session and safe widget boundaries, but request intent is not implementation or rendered evidence."
+    },
+    {
+      "id": "shared-frontend-tests-pass",
+      "outcome": "inconclusive",
+      "observation": "No current test command or exact served-build review was executed while migrating the historical request record."
+    }
+  ],
+  "assets": [
+    {"path":"result.md","sha256":"d5edff127d0926b0b0efd9b6a62663f39998d12306ee27ad7850cd2290218d3e"}
+  ],
+  "codeRefs": [
+    {"repository":"repo.nivo-frontend","commit":"2d512c46247f6873a1dbbb0f370bd87ab107c593"}
+  ],
+  "extensions": {
+    "classification": "historical-intent-only",
+    "resource": "import.nivo-fe-uat-agentos-create-requests-legacy",
+    "sourcePath": "design-plans/app-agentos-collaborative-workbench/create-requests.json",
+    "sourceAlsoPresentAtIntegrationHead": true,
+    "doesNotApproveUi": true,
+    "doesNotPromoteLeaf": true
+  }
+}

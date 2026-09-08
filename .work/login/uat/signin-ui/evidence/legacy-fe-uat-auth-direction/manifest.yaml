@@ -1,0 +1,28 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.login.uat.signin.ui.legacy-fe-uat-auth-direction",
+  "nodeId": "nivo.login.uat.signin.ui",
+  "inputDigest": "d319455f81c6246d5dd1c62eacabd497f161b9cb35b0e2e110b8cecec593dad0",
+  "outcome": "inconclusive",
+  "assertions": [
+    {
+      "id": "login-valid-appearance",
+      "outcome": "inconclusive",
+      "observation": "A historical shipped-route screenshot preserves one former sign-in composition, but no current TINO form, valid submit, authenticated landing, responsive viewport, focus or accessibility state was inspected."
+    }
+  ],
+  "assets": [
+    {"path":"result.md","sha256":"4a162d2bd82af740cd06cc158698efff5da0971d49198f594f47dcad4151b009"}
+  ],
+  "codeRefs": [
+    {"repository":"repo.nivo-frontend","commit":"2d512c46247f6873a1dbbb0f370bd87ab107c593"}
+  ],
+  "extensions": {
+    "classification": "historical-design-only",
+    "resource": "import.nivo-fe-uat-login-direction-legacy",
+    "resourceAsset": "assets/production-authentication.png",
+    "sourcePath": "design-plans/app-authentication/preview-lab/screens/PRODUCTION-authentication.png",
+    "doesNotApproveUi": true,
+    "doesNotPromoteLeaf": true
+  }
+}

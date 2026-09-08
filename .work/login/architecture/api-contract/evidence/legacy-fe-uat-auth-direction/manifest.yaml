@@ -1,0 +1,27 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.login.architecture.api-contract.legacy-fe-uat-auth-direction",
+  "nodeId": "nivo.login.architecture.api-contract",
+  "inputDigest": "c450bf414891c48d15fbb7e54ba79c6c56b28a4dbcd9f09f02c222f48540fcc1",
+  "outcome": "inconclusive",
+  "assertions": [
+    {
+      "id": "login-api-contract-reviewed",
+      "outcome": "inconclusive",
+      "observation": "The legacy design record preserves source-era claims about a two-factor OTP verification gap and an unexecuted resend-cooldown happy path; current contracts and fixes were not re-verified by this migration."
+    }
+  ],
+  "assets": [
+    {"path":"result.md","sha256":"27c6b93648ba6ffe6494c33240cc373d96854bf0a73c87d93769f1398a2da539"}
+  ],
+  "codeRefs": [
+    {"repository":"repo.nivo-frontend","commit":"2d512c46247f6873a1dbbb0f370bd87ab107c593"}
+  ],
+  "extensions": {
+    "classification": "historical-risk-observation",
+    "resource": "import.nivo-fe-uat-login-direction-legacy",
+    "sourcePath": "design-plans/app-authentication/design-record.md",
+    "currentDefectStatus": "not-assessed",
+    "doesNotPromoteLeaf": true
+  }
+}
