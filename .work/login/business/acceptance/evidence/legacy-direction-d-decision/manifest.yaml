@@ -1,0 +1,27 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.login.business.acceptance.legacy-direction-d-decision",
+  "nodeId": "nivo.login.business.acceptance",
+  "inputDigest": "9c22081502a3c92f30207a449679304e6de0c3e56839be8462522ecd413ce14a",
+  "outcome": "inconclusive",
+  "assertions": [
+    {
+      "id": "login-acceptance-approved",
+      "outcome": "not-run",
+      "observation": "The historical direction-d/case-d1 record and partial apply were preserved and reviewed, but they do not approve the current login acceptance boundary, replace design.login-form, or prove current browser behavior."
+    }
+  ],
+  "assets": [
+    {
+      "path": "historical-review.md",
+      "sha256": "6a73b2e5c5834ea4d7e905e5ff4c3dd0ed1796c4b05195fec7041edffae22a27"
+    }
+  ],
+  "extensions": {
+    "work3": {
+      "evidenceClass": "historical-design-decision",
+      "resourceId": "import.nivo-signin-dashboard-direction-d-legacy",
+      "promotionPolicy": "non-promoting; retained only as historical decision context"
+    }
+  }
+}

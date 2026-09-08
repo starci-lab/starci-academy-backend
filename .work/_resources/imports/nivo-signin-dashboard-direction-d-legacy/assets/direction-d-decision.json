@@ -1,0 +1,56 @@
+{
+  "schema": "nivo/historical-design-decision@1",
+  "status": "historical-limited-approval",
+  "recordedDate": "2026-08-12",
+  "selectedDirection": "direction-d",
+  "approvedCaseId": "case-d1",
+  "approvalRecord": {
+    "authority": "historical explicit user feedback recorded by the legacy design workflow",
+    "scope": [
+      "A route-stable, collapsible left sidebar adapted from the cited StarCi course-learn sidebar geometry and behavior.",
+      "The sidebar is 16rem expanded and 4rem collapsed, collapses in place, remembers collapse state, separates navigation clusters, and yields to a drawer below the large breakpoint.",
+      "The sidebar top slot carries the provision action.",
+      "The fleet leads the dashboard; work needing attention and wallet share the second row; the body remains one column with no additional 288px rail.",
+      "Sign-in keeps the previously reviewed ordering of shortcuts, divider, then credentials, with the credential form retained in the DOM for password managers.",
+      "The sign-in surface completes the second-factor challenge instead of presenting it as unsupported.",
+      "Credential refusal does not disclose the address or which credential field was wrong."
+    ],
+    "namedDecisions": [
+      {
+        "id": "second-factor-completed",
+        "decision": "Complete the second-factor challenge on the sign-in screen."
+      },
+      {
+        "id": "topslot-provision",
+        "decision": "Use the sidebar top slot for the provision action."
+      },
+      {
+        "id": "one-column-body",
+        "decision": "Keep the dashboard body one column beside the sidebar."
+      }
+    ],
+    "rejectedDirections": [
+      "direction-a",
+      "direction-b",
+      "direction-c"
+    ]
+  },
+  "explicitlyNotApproved": {
+    "colorPalette": true,
+    "statement": "The case-d1 decision approved hierarchy, state ownership, and topology, not Nivo brand colors. The neutral lab palette and the StarCi Academy palette were not approved for Nivo.",
+    "navigationInformationArchitecture": "The eight destinations and three clusters were inferred from then-observed my* queries, not approved as final information architecture."
+  },
+  "unresolvedAtDecision": [
+    "Nivo semantic token values",
+    "Canonical MyInstance status vocabulary",
+    "Polling behavior in the absence of subscriptions",
+    "USD credit-burn presentation beside VND wallet and invoice values",
+    "GraphQL client shape",
+    "Internationalization catalogue shape"
+  ],
+  "currentAuthorityRelationship": {
+    "doesNotReplaceResourceId": "design.login-form",
+    "doesNotApproveCurrentDesign": true,
+    "reason": "This is a sanitized record of a limited 2026-08-12 decision. The current design.login-form resource remains explicitly unapproved and requires its own review."
+  }
+}

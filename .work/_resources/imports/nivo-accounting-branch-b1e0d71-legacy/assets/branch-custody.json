@@ -1,0 +1,104 @@
+{
+  "schema": "nivo/historical-branch-custody@1",
+  "capturedAt": "2026-09-08T00:10:36.0013295Z",
+  "classification": "sanitized historical source-branch custody; not integrated-delivery or product-acceptance evidence",
+  "repository": {
+    "resourceId": "repo.nivo-backend",
+    "inspectedRoot": "D:/Repositories/nivo-backend",
+    "sourceCheckout": "D:/Repositories/nivo-be-accounting-01a07247",
+    "branch": "session/20260905-nivo-accounting-01a07247",
+    "head": "b1e0d71ba1d33a8ad697414e970dd4ef07451957",
+    "statusAtCapture": {
+      "trackedChanges": 0,
+      "untrackedFiles": 0
+    }
+  },
+  "comparison": {
+    "originMain": {
+      "ref": "origin/main",
+      "head": "793eaad87513b32c799070a416fb30565c27c340",
+      "sourceAhead": 15,
+      "sourceBehind": 0
+    },
+    "integration": {
+      "ref": "codex/nivo-be-integration",
+      "head": "51248f75e0bf1c36a088afb57a04b2d7440a62c4",
+      "sourceAhead": 3,
+      "sourceBehind": 92,
+      "gitCherrySummary": {
+        "uniqueNonEquivalent": 2,
+        "patchEquivalent": 1
+      }
+    }
+  },
+  "commits": [
+    {
+      "commit": "edfbee073a7f30cc2a8ac12bf47bc4c97fd8ac59",
+      "parent": "56b57edcc04fab635402115f2604c118987a1770",
+      "authoredAt": "2026-09-07T13:35:30+07:00",
+      "subject": "fix(agentos): provide setup eligibility service",
+      "stablePatchId": "70a5ff8023e88296c22044ef094b409e359b3ddb",
+      "integrationDisposition": "unique-non-equivalent-not-integrated",
+      "reachabilityAtCapture": [
+        "session/20260905-nivo-accounting-01a07247"
+      ],
+      "changeSummary": {
+        "insertions": 4,
+        "deletions": 0,
+        "paths": [
+          "src/modules/bussiness/agentos-solution-modules/agentos-solution-modules.module.ts"
+        ]
+      }
+    },
+    {
+      "commit": "59c32fef97efa034ea7a3f9b02af8ccaa8e5f29d",
+      "parent": "edfbee073a7f30cc2a8ac12bf47bc4c97fd8ac59",
+      "authoredAt": "2026-09-07T13:38:36+07:00",
+      "subject": "docs(accounting): record authenticated UAT prerequisite",
+      "stablePatchId": "d0428a47c47303026d1a11b651197ca60322b0e1",
+      "integrationDisposition": "unique-non-equivalent-not-integrated",
+      "reachabilityAtCapture": [
+        "session/20260905-nivo-accounting-01a07247"
+      ],
+      "changeSummary": {
+        "insertions": 1,
+        "deletions": 0,
+        "paths": [
+          "TODO.md"
+        ]
+      }
+    },
+    {
+      "commit": "b1e0d71ba1d33a8ad697414e970dd4ef07451957",
+      "parent": "59c32fef97efa034ea7a3f9b02af8ccaa8e5f29d",
+      "authoredAt": "2026-09-07T21:55:53+07:00",
+      "subject": "fix(accounting): admit optional ledger version",
+      "stablePatchId": "afaf282a192e6a5dbee7687d6e52d549d50aee01",
+      "integrationDisposition": "patch-equivalent-integrated",
+      "integratedAs": {
+        "commit": "29294cb0d142ba322d9e45da5a92710285938ecd",
+        "parent": "a6ce09a0b6c765f17af8250568d2fbdff0f15d4e",
+        "stablePatchId": "afaf282a192e6a5dbee7687d6e52d549d50aee01",
+        "verification": "git cherry marked the source patch equivalent and independently computed stable patch IDs matched"
+      },
+      "changeSummary": {
+        "insertions": 57,
+        "deletions": 0,
+        "paths": [
+          "src/features/core/api/core/graphql/agentos-accounting/graphql-types/input.spec.ts",
+          "src/features/core/api/core/graphql/agentos-accounting/graphql-types/input.ts"
+        ]
+      }
+    }
+  ],
+  "custodyMeaning": {
+    "nonIntegratedCommits": [
+      "edfbee073a7f30cc2a8ac12bf47bc4c97fd8ac59",
+      "59c32fef97efa034ea7a3f9b02af8ccaa8e5f29d"
+    ],
+    "nonPromoting": true,
+    "sourceCodeCopied": false,
+    "credentialsCopied": false,
+    "reviewRequirement": "A future integration decision must inspect the original Git objects and current target code; this inventory does not authorize cherry-picking or claim the behavior is delivered."
+  }
+}

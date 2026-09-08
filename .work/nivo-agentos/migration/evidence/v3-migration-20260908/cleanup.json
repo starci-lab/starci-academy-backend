@@ -1,0 +1,7 @@
+{
+  "schema": "nivo/work-cleanup-decision@1",
+  "requested": false,
+  "performed": false,
+  "reason": "The user requested construction of .work for active tasks, not removal of active product worktrees or source evidence.",
+  "safety": "All source repositories, worktrees, task artifacts, and original UAT bundles remain untouched."
+}

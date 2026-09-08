@@ -1,0 +1,100 @@
+{
+  "schema": "nivo/sanitized-legacy-uat-inventory@1",
+  "classification": "historical-non-promoting",
+  "source": {
+    "root": "D:/Repositories/starci-academy-backend/.worktrees/uat/agentos-modules/module-setup",
+    "repositoryHeadAtReconciliation": "1731b15ba4ed526477e3c572b9d82c31ab64f1d5",
+    "sourceTreeGitStatus": "untracked"
+  },
+  "identityCustody": {
+    "alias": "owner",
+    "role": "customer",
+    "custody": "sealed-shared-master-identity",
+    "identity": "nivo/fe",
+    "isUat": true,
+    "plaintextRecorded": false
+  },
+  "runs": [
+    {
+      "runId": "20260905-025816-7cff0ea",
+      "recordedAt": "2026-09-05T03:01:06.504Z",
+      "frontendCommit": "7cff0ea63b48d40dfcbc603d4888179d41cf5164",
+      "frontendServedHead": "afa241ed76e08ccc370d6f5d5d6ca4b45ea2d7d2",
+      "backendCommit": "ab36b8d6e8999b0032fb7440a912e54722ad64fe",
+      "verdicts": {"behavior": "pass", "ui": "fail", "ux": "fail"},
+      "cleanupPerformed": true,
+      "referencedResponseAssetsLocated": false
+    },
+    {
+      "runId": "20260905-155900-e2f4968",
+      "frontendCommit": "e2f4968fcee02afd81ccf99aa3f691af4c9bc625",
+      "backendCommit": "ca60f4195f355d000bbd31e1d110d74c0c01d98c",
+      "verdicts": {"behavior": "pass", "ui": "fail", "ux": "fail"},
+      "cleanupPerformed": true,
+      "referencedResponseAssetsLocated": false
+    },
+    {
+      "runId": "20260905-175907-c1e8732",
+      "frozenAt": "2026-09-05T10:59:13.189Z",
+      "frontendCommit": "c1e87320dc5cb6a3a11211654ccb363b9881e1ba",
+      "frontendServedHead": "a9758e0965134c2d72f5613119ebb5abab5e82b2",
+      "backendCommit": "793eaad87513b32c799070a416fb30565c27c340",
+      "verdicts": {"behavior": "pass", "ui": "fail", "ux": "fail"},
+      "coverageClaim": "incomplete",
+      "goldenState": "candidate",
+      "approvedBy": null,
+      "cleanupPerformed": true,
+      "referencedResponseAssetsLocated": false
+    },
+    {
+      "runId": "20260906-005807-5eec15c",
+      "frozenAt": "2026-09-06T01:04:34.882Z",
+      "frontendCommit": "5eec15cfa4664b95b7980aba3f03e74a95d55f21",
+      "frontendServedHead": "edeb1c044de71f200077c019738cdc9cdd47556a",
+      "backendCommit": "793eaad87513b32c799070a416fb30565c27c340",
+      "backendServedHead": "9693eee1dc3da4c4af7c0d20f979b59a0273126e",
+      "verdicts": {"behavior": "pass", "ui": "pass", "ux": "fail", "experience": "fix-first"},
+      "coverageClaim": "incomplete",
+      "goldenState": "candidate",
+      "approvedBy": null,
+      "cleanupPerformed": false,
+      "referencedResponseAssetsLocated": true
+    }
+  ],
+  "selectedAssets": [
+    {
+      "path": "assets/setup-wide-20260906.png",
+      "sourceSha256": "5b5e550c22ec4dccfe80b8c6a44adbae7a452750cbd418f6a3ead137c4c83c0e",
+      "bytes": 104493,
+      "observation": "Wide Setup page showing the fictional generic-agent installation and an open setup revision."
+    },
+    {
+      "path": "assets/setup-compact-390-20260906.png",
+      "sourceSha256": "a4d9913f7da8114bef457322c40263cf6183922b7da8dac6fa5a6eec04d31e87",
+      "bytes": 78655,
+      "observation": "Compact 390x844 Setup page showing the same fictional installation and the send control within the captured frame."
+    }
+  ],
+  "limitations": {
+    "historicalEvidenceManifestCreated": false,
+    "reason": "The target UAT leaf requires Setup, Test, Apply, rollback, refusal, and reload persistence. The legacy flow and recovered captures cover Setup inspection only and explicitly disclaim the remaining behaviors.",
+    "earlierResponseAssetsMissing": true,
+    "currentEnvironmentNotReplayed": true,
+    "nodeStateOrCompletionChanged": false
+  },
+  "excludedMaterial": [
+    "account files",
+    "database records",
+    "seed records and tables",
+    "plaintext credentials",
+    "sealed secret bytes"
+  ],
+  "retentionDecision": {
+    "verdict": "KEEP",
+    "blockers": [
+      "The selected run records cleanupPerformed=false for its retained fixture namespace.",
+      "The original tree remains the only custody location for non-imported run metadata and excluded fixture material.",
+      "Earlier result records still reference response artefacts that were not located within the allowed search root."
+    ]
+  }
+}

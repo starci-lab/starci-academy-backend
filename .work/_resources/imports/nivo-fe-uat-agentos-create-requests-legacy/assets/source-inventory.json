@@ -1,0 +1,34 @@
+{
+  "schema": "nivo/historical-source-inventory@1",
+  "repositoryRoot": "D:/Repositories/starci-academy-backend/.worktrees/nivo/uat",
+  "repositoryBranch": "uat",
+  "repositoryCommit": "2d512c46247f6873a1dbbb0f370bd87ab107c593",
+  "workingTreeStatus": "clean",
+  "scope": "Nivo AgentOS shared frontend intent relevant to the current shared-lifecycle tree",
+  "tracked": {
+    "sourcePath": "design-plans/app-agentos-collaborative-workbench/create-requests.json",
+    "fileCount": 1,
+    "totalBytes": 7472,
+    "gitBlob": "bbf96926dc3e45599457d7d8c2406f2c3bc041a5",
+    "sha256": "01ede30a439698d290e49ea5c7bd01d33222b749addfd221eeb77a0c245e2792",
+    "sameBlobAtOriginMain": true,
+    "sameBlobAtIntegrationHead": true
+  },
+  "ignoredOrUntrackedRelevantCustody": {
+    "untrackedCount": 0,
+    "ignoredDurableArtDirectionCount": 0,
+    "ignoredDurableUatEvidenceCount": 0,
+    "ignoredAccountOrCustodyMetadataCount": 0,
+    "generatedCachesExcluded": ["apps/app/.next","coverage","node_modules"]
+  },
+  "custodyAndSensitivity": {
+    "credentialOrSecretFileFoundInScope": false,
+    "highConfidenceSecretScanHits": 0,
+    "copiedSecretMaterial": false
+  },
+  "selection": {
+    "sanitizedDerivative": "create-request-summary.json",
+    "verbatimSourceCopied": false,
+    "reason": "The derivative preserves request identities, digests, intent and negative boundaries while avoiding obsolete workflow linkage and treating the record as historical only."
+  }
+}

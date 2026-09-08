@@ -1,0 +1,55 @@
+{
+  "schema": "nivo/historical-source-inventory@1",
+  "repositoryRoot": "D:/Repositories/starci-academy-backend/.worktrees/nivo/uat",
+  "repositoryBranch": "uat",
+  "repositoryCommit": "2d512c46247f6873a1dbbb0f370bd87ab107c593",
+  "workingTreeStatus": "clean",
+  "scope": "Nivo global sign-in material relevant to the current .work/login tree",
+  "tracked": {
+    "sourcePath": "design-plans/app-authentication",
+    "fileCount": 55,
+    "totalBytes": 668913,
+    "screenshotCount": 16,
+    "gitTree": "c477f916604d4ded0d436c42b97486daf1f04095",
+    "sortedPathSizeSha256InventoryDigest": "b758bc005679d7be91f078ddfe5c74a6c06e92ec23fc59c6fcabc7307cecd2a9",
+    "sameGitTreeAtOriginMain": true,
+    "sameGitTreeAtIntegrationHead": true
+  },
+  "ignoredOrUntrackedRelevantCustody": {
+    "untrackedCount": 0,
+    "ignoredDurableArtDirectionCount": 0,
+    "ignoredDurableUatEvidenceCount": 0,
+    "ignoredAccountOrCustodyMetadataCount": 0,
+    "excludedGeneratedMaterial": [
+      {"path":"apps/app/.next","fileCount":262,"bytes":255241302,"reason":"rebuildable framework output"},
+      {"path":"coverage","fileCount":481,"bytes":8112356,"reason":"rebuildable coverage output containing source renderings"},
+      {"path":"node_modules","fileCount":57017,"bytes":622449387,"reason":"reinstallable dependencies and workspace links"}
+    ]
+  },
+  "custodyAndSensitivity": {
+    "sourceOwnedAccountAliasFileFound": false,
+    "credentialOrSecretFileFoundInScope": false,
+    "highConfidenceSecretScanHitsInSelectedText": 0,
+    "selectedScreenshotReview": "No real account identifier or secret was visible; the fields use generic placeholders only.",
+    "copiedSecretMaterial": false
+  },
+  "selection": {
+    "copiedImages": [
+      {"path":"preview-lab/screens/sign-in-refused.png","sha256":"7abeba965dd6384883cd5611297af50ea7f91dafdb6faabd517ceb791c0db155","bytes":28134},
+      {"path":"preview-lab/screens/sign-in-2fa.png","sha256":"70fd820e05e5399155898860ba6b7b0af3b6e570bb857e1a3fbd5deb9d6bb749","bytes":21409},
+      {"path":"preview-lab/screens/PRODUCTION-authentication.png","sha256":"256a2f4cf7f15361d1fec6c74b9cbe29c54cc3ac1569dec1de8107bc57f8fc2b","bytes":29986}
+    ],
+    "sanitizedDerivatives": ["auth-direction-summary.json","source-inventory.json"],
+    "duplicateNotCopied": {"path":"preview-lab/screens/sign-in.png","sha256":"070a6363812baecd850bb99dd39764d2fe48ede944d2482e041971c5a946d0db","existing":"design.login-form/assets/sign-in.png"},
+    "outOfScopeNotCopied": "Sign-up and forgot-password candidate states, preview implementation source, and unrelated design-plan roots.",
+    "unsafeOrObsoleteNotCopied": "Context-lock runtime coordination, local URLs/ports, and full records carrying obsolete workflow paths."
+  },
+  "alreadyRepresentedSibling": {
+    "sourcePath": "design-plans/app-signin-dashboard",
+    "fileCount": 19,
+    "totalBytes": 175990,
+    "gitTree": "fc75b87d83c4e9f53addb4eae98fb00aa819d004",
+    "inventoryDigest": "a6ef4f27ceb62f42d4022621b9cd5fc8ccc4c87a299d0e47ad0e6f3137c70025",
+    "existingResource": "import.nivo-signin-dashboard-direction-d-legacy"
+  }
+}

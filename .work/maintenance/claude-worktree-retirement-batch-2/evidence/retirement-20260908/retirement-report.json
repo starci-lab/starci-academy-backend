@@ -1,0 +1,38 @@
+{
+  "schema": "work/retirement-report@1",
+  "operation": "claude-worktree-retirement-batch-2",
+  "completedAt": "2026-09-08",
+  "originMainAtAudit": "91c8cbe2f7b96099a8cc3b6dcf11c9f1916c7dee",
+  "sharedProof": {
+    "head": "2c84dd1e7a64b1665ff8534fecf51dda0977839c",
+    "headAncestorOfOriginMain": true,
+    "uniqueCommits": 0,
+    "statusEntries": 0,
+    "untrackedEntries": 0,
+    "ignoredEntries": 0,
+    "uniqueDurableArtifacts": 0,
+    "activeProcessReferences": 0,
+    "administrativeLocks": 0,
+    "branchRefsRetained": true
+  },
+  "removed": [
+    {"path":".claude/worktrees/elegant-rosalind-5b7d4f","branch":"claude/objective-fermat-8f4555"},
+    {"path":".claude/worktrees/elegant-tu-26a76e","branch":"claude/elegant-tu-26a76e"},
+    {"path":".claude/worktrees/eloquent-sutherland-e222a2","branch":"claude/eloquent-sutherland-e222a2"},
+    {"path":".claude/worktrees/fervent-dijkstra-b3bff8","branch":"claude/peaceful-tu-f2338a"},
+    {"path":".claude/worktrees/friendly-pasteur-b5ab3b","branch":"claude/friendly-pasteur-b5ab3b"},
+    {"path":".claude/worktrees/great-haslett-b2f45c","branch":"claude/great-haslett-b2f45c"},
+    {"path":".claude/worktrees/musing-cannon-14c0f6","branch":"claude/gracious-darwin-1db02a"},
+    {"path":".claude/worktrees/optimistic-shamir-807b02","branch":"claude/optimistic-shamir-807b02"},
+    {"path":".claude/worktrees/serene-cartwright-c4d3d3","branch":"claude/serene-cartwright-c4d3d3"},
+    {"path":".claude/worktrees/serene-sinoussi-b15100","branch":"claude/serene-sinoussi-b15100"},
+    {"path":".claude/worktrees/silly-davinci-104029","branch":"claude/hopeful-shtern-2556d0"},
+    {"path":".claude/worktrees/wizardly-northcutt-2e55c9","branch":"claude/zealous-easley-a19e85"},
+    {"path":".claude/worktrees/youthful-zhukovsky-081ff4","branch":"claude/youthful-zhukovsky-081ff4"}
+  ],
+  "postcondition": {
+    "registeredClaudeWorktreesRemaining": 0,
+    "dirtyOrUniqueWorktreesTouched": 0,
+    "nonClaudeWorktreesTouched": 0
+  }
+}

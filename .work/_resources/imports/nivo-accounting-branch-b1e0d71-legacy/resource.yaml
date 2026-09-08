@@ -1,0 +1,40 @@
+{
+  "schema": "work/resource@1",
+  "id": "import.nivo-accounting-branch-b1e0d71-legacy",
+  "kind": "import",
+  "owner": "Nivo backend historical branch custody",
+  "revision": "branch-b1e0d71-custody-20260908",
+  "details": {
+    "classification": "sanitized historical branch lineage and UAT-prerequisite context; not source-code custody, integrated-delivery evidence, or product acceptance",
+    "repository": "repo.nivo-backend",
+    "sourceCheckout": "D:/Repositories/nivo-be-accounting-01a07247",
+    "sourceBranch": "session/20260905-nivo-accounting-01a07247",
+    "sourceHead": "b1e0d71ba1d33a8ad697414e970dd4ef07451957",
+    "comparedOriginMain": "793eaad87513b32c799070a416fb30565c27c340",
+    "comparedIntegrationRef": "codex/nivo-be-integration",
+    "comparedIntegrationHead": "51248f75e0bf1c36a088afb57a04b2d7440a62c4",
+    "uniqueNonIntegratedCommits": [
+      "edfbee073a7f30cc2a8ac12bf47bc4c97fd8ac59",
+      "59c32fef97efa034ea7a3f9b02af8ccaa8e5f29d"
+    ],
+    "patchEquivalentMapping": {
+      "source": "b1e0d71ba1d33a8ad697414e970dd4ef07451957",
+      "integrated": "29294cb0d142ba322d9e45da5a92710285938ecd",
+      "stablePatchId": "afaf282a192e6a5dbee7687d6e52d549d50aee01"
+    },
+    "authenticatedUatStatus": "historically not run because an approved sealed credential and lawful Accounting installation seed were unavailable",
+    "promotionPolicy": "non-promoting: this resource cannot mark implementation, login, Accounting acceptance, or UAT complete",
+    "integrationMeaning": "Only the optional-ledger-version patch is recorded as patch-equivalent in integration. The setup-eligibility wiring and authenticated-UAT prerequisite commits are not integrated by this observation.",
+    "sourceCodeCopied": false,
+    "credentialsCopied": false,
+    "branchRetentionRequirement": "Keep the source branch, or another verified Git ref containing the two unique commits, until their engineering and UAT-custody disposition is resolved.",
+    "assetHashes": {
+      "assets/authenticated-uat-prerequisite.md": "913e249ac4dc9421366eee754b344d17ab1b0113eb98e0098c668dbf3d097557",
+      "assets/branch-custody.json": "f3f4b97c9878d85c950a5cd1e0efbcd83a1d8f65a6268f48cc1dd8b6603d72a5"
+    }
+  },
+  "files": [
+    {"path":"assets/authenticated-uat-prerequisite.md"},
+    {"path":"assets/branch-custody.json"}
+  ]
+}

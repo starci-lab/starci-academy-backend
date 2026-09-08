@@ -1,0 +1,24 @@
+{
+  "schema": "work/resource@1",
+  "id": "import.nivo-console-overview-legacy",
+  "kind": "import",
+  "owner": "Nivo UAT evidence custody",
+  "revision": "sanitized-console-overview-20260904",
+  "details": {
+    "classification": "Sanitized historical observation from a legacy dev run; not fresh TINO UAT certification.",
+    "sourceDirectory": "D:/Repositories/starci-academy-backend/.worktrees/uat/console/console-overview",
+    "sourceRunId": "20260904-131500-9d511ad",
+    "sourceCommit": "9d511ad8c4c79b2d8d6a30f06c9f387fda2ccc1b",
+    "servedHead": "42f29d59dfafed42bdd10111a1ffae5099a78038",
+    "historicalOutcome": "fix-first",
+    "secretMaterialStored": false,
+    "uiApproval": false,
+    "leafPromotion": false,
+    "originalsPreserved": true
+  },
+  "files": [
+    {
+      "path": "assets/legacy-observation.json"
+    }
+  ]
+}

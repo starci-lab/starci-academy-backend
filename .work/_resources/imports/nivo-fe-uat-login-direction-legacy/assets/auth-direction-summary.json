@@ -1,0 +1,66 @@
+{
+  "schema": "nivo/historical-login-direction-summary@1",
+  "source": {
+    "repository": "repo.nivo-frontend",
+    "checkout": "D:/Repositories/starci-academy-backend/.worktrees/nivo/uat",
+    "branch": "uat",
+    "commit": "2d512c46247f6873a1dbbb0f370bd87ab107c593",
+    "path": "design-plans/app-authentication",
+    "gitTree": "c477f916604d4ded0d436c42b97486daf1f04095"
+  },
+  "historicalRecord": {
+    "caseId": "case-auth",
+    "selectedDirection": "direction-b",
+    "approvedRevisionClaim": "1.2, recorded retroactively by the legacy workflow",
+    "attestingCommit": "9fdf5c3cf06914e1279d937710bc9fd8454f59bc",
+    "shippedShape": "One authentication route and one panel owning details, code, done, and two-factor-unsupported states.",
+    "signInDecisions": [
+      "Provider shortcut precedes the divider and credential form.",
+      "Credential refusal is generic and must not disclose which credential or provider detail failed.",
+      "Remember-me is drawn, but the legacy record says it did not alter the fixed refresh-cookie lifetime.",
+      "An enrolled two-factor account is shown a refusal/return state because that legacy UI did not complete the second factor."
+    ]
+  },
+  "historicalRiskObservations": [
+    {
+      "id": "signin-otp-totp-bypass-claim",
+      "observation": "The legacy design record states signInVerifyOtp returned requiresTwoFactor false even when ordinary sign-in gated on twoFactorEnabled.",
+      "currentMeaning": "Unverified historical source observation only; re-check current backend and frontend contracts before treating it as an open defect or resolved behavior."
+    },
+    {
+      "id": "resend-cooldown-happy-path-not-run",
+      "observation": "The legacy record states the real-time sixty-second resend happy path had not been executed by a test.",
+      "currentMeaning": "Historical gap only; it is not current UAT evidence."
+    }
+  ],
+  "screenshots": [
+    {
+      "sourcePath": "preview-lab/screens/sign-in-refused.png",
+      "copiedPath": "sign-in-refused.png",
+      "sha256": "7abeba965dd6384883cd5611297af50ea7f91dafdb6faabd517ceb791c0db155",
+      "dimensions": "1280x900",
+      "meaning": "Historical candidate generic-refusal appearance; no request, cookie, focus, or navigation behavior is proven."
+    },
+    {
+      "sourcePath": "preview-lab/screens/sign-in-2fa.png",
+      "copiedPath": "sign-in-2fa.png",
+      "sha256": "70fd820e05e5399155898860ba6b7b0af3b6e570bb857e1a3fbd5deb9d6bb749",
+      "dimensions": "1280x900",
+      "meaning": "Historical candidate two-factor-unsupported state; it is not an approved current policy."
+    },
+    {
+      "sourcePath": "preview-lab/screens/PRODUCTION-authentication.png",
+      "copiedPath": "production-authentication.png",
+      "sha256": "256a2f4cf7f15361d1fec6c74b9cbe29c54cc3ac1569dec1de8107bc57f8fc2b",
+      "dimensions": "1280x900",
+      "meaning": "Historical shipped-route capture named by the source record; it does not prove the current TINO build, credentials, returnTo, or session restoration."
+    }
+  ],
+  "authorityBoundary": {
+    "currentDesignResource": "design.login-form",
+    "currentDesignApproval": "unapproved",
+    "doesNotApproveUi": true,
+    "doesNotPromoteAnyLeaf": true,
+    "doesNotProveUat": true
+  }
+}

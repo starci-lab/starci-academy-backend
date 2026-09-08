@@ -1,0 +1,31 @@
+{
+  "schema": "work/resource@1",
+  "id": "import.nivo-fe-uat-login-direction-legacy",
+  "kind": "import",
+  "owner": "Nivo historical design custody",
+  "revision": "auth-direction-source-2d512c4-20260908",
+  "details": {
+    "classification": "sanitized historical login design record and screenshots; not current design authority, behavior proof, or UAT acceptance",
+    "sourceRepository": "repo.nivo-frontend",
+    "sourceCheckout": "D:/Repositories/starci-academy-backend/.worktrees/nivo/uat",
+    "sourceBranch": "uat",
+    "sourceCommit": "2d512c46247f6873a1dbbb0f370bd87ab107c593",
+    "sourcePath": "design-plans/app-authentication",
+    "sourceGitTree": "c477f916604d4ded0d436c42b97486daf1f04095",
+    "sourceAlsoPresentAtOriginMain": true,
+    "sourceAlsoPresentAtIntegrationHead": true,
+    "historicalRecordClaim": "The legacy record labels direction-b revision 1.2 retroactively approved and attested by shipped commit 9fdf5c3cf06914e1279d937710bc9fd8454f59bc.",
+    "currentAuthority": "design.login-form remains unapproved; this import neither approves the old pixels nor changes any login node state.",
+    "sanitization": "Only a compact summary, full inventory digests, and three visually inspected screenshots with placeholder fields are stored. Context locks, local URLs, ports, candidate source, credentials, tokens, cookies, browser storage, and real account identifiers are excluded.",
+    "duplicateNotCopied": "preview-lab/screens/sign-in.png is byte-identical to design.login-form/assets/sign-in.png (sha256 070a6363812baecd850bb99dd39764d2fe48ede944d2482e041971c5a946d0db).",
+    "doesNotPromoteNodes": true,
+    "originalsPreserved": true
+  },
+  "files": [
+    {"path":"assets/auth-direction-summary.json"},
+    {"path":"assets/source-inventory.json"},
+    {"path":"assets/sign-in-refused.png"},
+    {"path":"assets/sign-in-2fa.png"},
+    {"path":"assets/production-authentication.png"}
+  ]
+}

@@ -1,0 +1,1 @@
+{"schema":"work/resource@1","id":"env.tino-uat","kind":"environment","owner":"Nivo platform operations","revision":"staging-observed-2026-09-08","details":{"origin":"https://app.staging.nivo.vn","workspaceId":"a91d7469-f8eb-41be-970b-6c8abb33c330","classification":"shared staging UAT environment","credentialMaterialStored":false}}

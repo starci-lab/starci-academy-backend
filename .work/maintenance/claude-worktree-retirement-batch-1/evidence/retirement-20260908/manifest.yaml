@@ -1,0 +1,35 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.maintenance.claude-worktree-retirement-batch-1.20260908",
+  "nodeId": "nivo.maintenance.claude-worktree-retirement-batch-1",
+  "inputDigest": "e32fab5123f90de7eda502b65cc681b514bf8107f6676a0b9d8d83bba88e5b87",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "three-worktrees-proven-safe",
+      "outcome": "pass",
+      "observation": "Each exact worktree was clean, had no untracked or ignored material, had no unique commit, and its HEAD was already an ancestor of origin/main."
+    },
+    {
+      "id": "three-worktrees-removed",
+      "outcome": "pass",
+      "observation": "Normal Git worktree removal completed for all three exact paths and each path was verified absent afterward."
+    },
+    {
+      "id": "branch-recovery-retained",
+      "outcome": "pass",
+      "observation": "The three branch refs were deliberately retained even though their shared HEAD was already integrated."
+    },
+    {
+      "id": "unsafe-material-protected",
+      "outcome": "pass",
+      "observation": "Unreviewed worktrees, unique-commit worktrees, locked authorities, and legacy UAT bundles needing selective migration were not removed."
+    }
+  ],
+  "assets": [
+    {
+      "path": "retirement-report.json",
+      "sha256": "f0b805350bca7f7cb429e580e0885798995386ccf07dbf688a38e9f655cce04f"
+    }
+  ]
+}

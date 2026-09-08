@@ -1,0 +1,20 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.accounting.business.functional.review-20260908",
+  "nodeId": "nivo.accounting.business.functional",
+  "inputDigest": "22e0d6dea7d0fbe46fabec977bda9e759061bf76176555027c52e554ebc9acc3",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "accounting-functional-scope-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "accounting-functional-exclusions-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    }
+  ],
+  "assets": []
+}

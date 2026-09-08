@@ -1,0 +1,15 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.shared.business.rules.review-20260908",
+  "nodeId": "nivo.shared.business.rules",
+  "inputDigest": "0949a4b694ec7e49464bf04d00eabd80e76b67c122d43e23918d7565e68333e9",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "shared-rules-reviewed",
+      "outcome": "pass",
+      "observation": "Reviewed against the concrete Shared lifecycle source map and accepted as the prerequisite non-UI contract for the requested Chatbot and Accounting completion."
+    }
+  ],
+  "assets": []
+}

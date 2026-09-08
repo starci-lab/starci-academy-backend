@@ -1,0 +1,35 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.maintenance.claude-worktree-retirement-batch-2.20260908",
+  "nodeId": "nivo.maintenance.claude-worktree-retirement-batch-2",
+  "inputDigest": "f66b0a51a04ced9fafb902670daf99707f9b40bb5491251f983c276572458b34",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "nine-worktrees-proven-and-removed",
+      "outcome": "pass",
+      "observation": "The first nine worktrees in this batch were independently audited as clean, integrated, artifact-free and inactive, then removed through Git worktree removal."
+    },
+    {
+      "id": "remaining-worktrees-proven-and-removed",
+      "outcome": "pass",
+      "observation": "The final four worktrees passed the same checks and were removed; no registered path remains under .claude/worktrees."
+    },
+    {
+      "id": "branch-recovery-retained",
+      "outcome": "pass",
+      "observation": "All thirteen branch refs were retained at their original integrated HEAD for recovery."
+    },
+    {
+      "id": "unsafe-worktrees-protected",
+      "outcome": "pass",
+      "observation": "No non-Claude, dirty, unique-commit, unique-artifact, active, or locked worktree was changed."
+    }
+  ],
+  "assets": [
+    {
+      "path": "retirement-report.json",
+      "sha256": "30b05bd7aebc2ef3aca4deb6686fc843da301acba63a4914b4b0d3701870f5ef"
+    }
+  ]
+}

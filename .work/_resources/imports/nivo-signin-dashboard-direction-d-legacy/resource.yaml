@@ -1,0 +1,28 @@
+{
+  "schema": "work/resource@1",
+  "id": "import.nivo-signin-dashboard-direction-d-legacy",
+  "kind": "import",
+  "owner": "Nivo historical design custody",
+  "revision": "direction-d-case-d1-source-2d512c4",
+  "details": {
+    "classification": "sanitized historical design decision and partial-apply observation; not current UI authority or acceptance",
+    "sourceRepository": "repo.nivo-frontend",
+    "sourceCheckout": "D:/Repositories/starci-academy-backend/.worktrees/nivo/uat",
+    "sourceCommit": "2d512c46247f6873a1dbbb0f370bd87ab107c593",
+    "sourcePath": "design-plans/app-signin-dashboard",
+    "selectedDirection": "direction-d",
+    "approvedCaseId": "case-d1",
+    "colorApproval": "explicitly not approved",
+    "applyStatus": "partial historical apply with unfinished sign-in, sidebar, dashboard, data, and state-matrix work",
+    "sanitization": "No ports, process identifiers, local URLs, session-lock coordination, unrelated dirty-tree details, credentials, tokens, or screenshots are stored.",
+    "originalsPreserved": true,
+    "sourceTreeAlsoPresentInOriginMain": true,
+    "doesNotReplace": "design.login-form",
+    "currentDesignStatus": "design.login-form remains unapproved"
+  },
+  "files": [
+    {"path":"assets/direction-d-decision.json"},
+    {"path":"assets/partial-apply.md"},
+    {"path":"assets/source-inventory.json"}
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.login.uat.signin.ux.legacy-console-overview-20260904",
+  "nodeId": "nivo.login.uat.signin.ux",
+  "inputDigest": "f2e2228c420137eec0dff23d6605197f85a11bf8d46f7b276f43da7ee8c62d2d",
+  "outcome": "inconclusive",
+  "assertions": [
+    {
+      "id": "login-valid-behavior",
+      "outcome": "inconclusive",
+      "observation": "A legacy dev run recorded form submission and arrival at /en/overview after 2445 ms, but it did not prove the current TINO build or current session contract.",
+      "kind": "behavior"
+    }
+  ],
+  "assets": [
+    {
+      "path": "result.md",
+      "sha256": "90380b2b64f2b6e0c40ad37334b9112952ff78a9b769d07f8013ac719b463180"
+    },
+    {
+      "path": "overview-after-signin.png",
+      "sha256": "40f6a52c1b2cffdbd0fac5b6b6372cae444894505fc5293f8870a097ca8c147e"
+    }
+  ],
+  "codeRefs": [
+    {
+      "repository": "repo.nivo-frontend",
+      "commit": "9d511ad8c4c79b2d8d6a30f06c9f387fda2ccc1b"
+    }
+  ],
+  "extensions": {
+    "classification": "historical-only",
+    "resource": "import.nivo-console-overview-legacy",
+    "sourceDirectory": "D:/Repositories/starci-academy-backend/.worktrees/uat/console/console-overview",
+    "sourceRunId": "20260904-131500-9d511ad",
+    "servedHead": "42f29d59dfafed42bdd10111a1ffae5099a78038",
+    "historicalOutcome": "fix-first",
+    "doesNotApproveUi": true,
+    "doesNotPromoteLeaf": true
+  }
+}

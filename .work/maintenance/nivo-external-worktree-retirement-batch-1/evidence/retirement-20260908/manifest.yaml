@@ -1,0 +1,40 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.maintenance.external-worktree-retirement-batch-1.20260908",
+  "nodeId": "nivo.maintenance.external-worktree-retirement-batch-1",
+  "inputDigest": "9f865bd58b4f26c4c6bc99fbe8b0b28f7711f001ef79b360e1d54e4b5857bd34",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "stale-frontend-worktrees-classified",
+      "outcome": "pass",
+      "observation": "Older frontend candidates were classified against current main/integration, and art or recovery state was preserved before each safe removal."
+    },
+    {
+      "id": "stale-backend-worktrees-classified",
+      "outcome": "pass",
+      "observation": "Older backend candidates were classified by cleanliness, reachability or retained branch recovery, runtime role, and custody risk."
+    },
+    {
+      "id": "safe-worktrees-removed",
+      "outcome": "pass",
+      "observation": "Twenty-six safe frontend/backend checkout paths were removed and two dead registrations were pruned; canonical, integration, runtime, and custody-bearing paths were excluded."
+    },
+    {
+      "id": "unique-runtime-and-dirty-worktrees-protected",
+      "outcome": "pass",
+      "observation": "The Chatbot custody checkout, backend runtime checkout, locked authorities, and incomplete legacy module-setup custody remain present with explicit reasons."
+    },
+    {
+      "id": "branch-recovery-retained",
+      "outcome": "pass",
+      "observation": "No branch was deleted; named recovery commits for the preserved direction, setup, Accounting, and Shared work were verified after checkout removal."
+    }
+  ],
+  "assets": [
+    {
+      "path": "retirement-report.json",
+      "sha256": "3634a8a793b87bf43fa66adffc6072e482be36a74efc859264d8cdac39698a54"
+    }
+  ]
+}

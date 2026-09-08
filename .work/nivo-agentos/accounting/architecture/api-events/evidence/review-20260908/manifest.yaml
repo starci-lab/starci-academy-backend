@@ -1,0 +1,25 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.accounting.architecture.api-events.review-20260908",
+  "nodeId": "nivo.accounting.architecture.api-events",
+  "inputDigest": "31fc82253a5d860402e79814cdc547379f0e260b86a9ec24736d8c82c4974b8b",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "accounting-graphql-contract-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "accounting-event-and-idempotency-contract-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "accounting-readback-contract-approved",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    }
+  ],
+  "assets": []
+}

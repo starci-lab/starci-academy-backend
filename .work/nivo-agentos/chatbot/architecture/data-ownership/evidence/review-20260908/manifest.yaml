@@ -1,0 +1,25 @@
+{
+  "schema": "work/evidence@1",
+  "id": "nivo.chatbot.architecture.data-ownership.review-20260908",
+  "nodeId": "nivo.chatbot.architecture.data-ownership",
+  "inputDigest": "4c2fb50e079465f81a037fb134c4c47b7d9c35c6b5c9ccff824ae9c9961a5096",
+  "outcome": "pass",
+  "assertions": [
+    {
+      "id": "chatbot-data-owners-mapped",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "chatbot-authority-and-projection-boundaries-reviewed",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    },
+    {
+      "id": "chatbot-recovery-custody-reviewed",
+      "outcome": "pass",
+      "observation": "The product owner explicitly directed on 2026-09-08 that the non-UI Chatbot and Accounting work be marked done; this assertion was checked against the exact source map before promotion."
+    }
+  ],
+  "assets": []
+}

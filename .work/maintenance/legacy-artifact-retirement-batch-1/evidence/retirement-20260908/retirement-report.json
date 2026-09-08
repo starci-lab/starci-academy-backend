@@ -1,0 +1,46 @@
+{
+  "schema": "work/retirement-report@1",
+  "operation": "legacy-artifact-retirement-batch-1",
+  "observedAt": "2026-09-08",
+  "canonicalMain": "58dbd04ae7f560092a7385e0dcc2f0bd82b2976c",
+  "imports": [
+    {
+      "resource": "import.nivo-console-overview-legacy",
+      "source": ".worktrees/uat/console/console-overview",
+      "canonicalSourcePresent": false,
+      "migrationOutcome": "sanitized historical UAT preserved",
+      "promotion": "none"
+    },
+    {
+      "resource": "import.nivo-signin-dashboard-direction-d-legacy",
+      "source": ".worktrees/nivo/uat/design-plans/app-signin-dashboard",
+      "canonicalSourcePresent": false,
+      "migrationOutcome": "sanitized historical direction preserved",
+      "promotion": "none"
+    },
+    {
+      "resource": "import.nivo-module-setup-legacy",
+      "source": ".worktrees/uat/agentos-modules/module-setup",
+      "canonicalSourcePresent": false,
+      "legacyCheckoutSourcePresent": true,
+      "migrationOutcome": "sanitized observation subset preserved",
+      "promotion": "none",
+      "retirement": "blocked"
+    }
+  ],
+  "protectedReason": {
+    "moduleSetup": [
+      "Latest legacy run records cleanupPerformed=false",
+      "Referenced response artifacts for three older runs remain unresolved",
+      "Excluded custody metadata still has no replacement owner"
+    ],
+    "dirtyCheckout": "No raw deletion was performed in the existing mtp checkout because it contains unrelated user changes and older tracked state."
+  },
+  "excludedFromWork": [
+    "account files",
+    "database snapshots",
+    "seed records and tables",
+    "credentials and tokens",
+    "sealed secret bytes"
+  ]
+}
