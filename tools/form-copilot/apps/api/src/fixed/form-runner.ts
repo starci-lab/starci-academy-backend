@@ -322,8 +322,23 @@ export class PlaywrightFixedFormPage implements FixedFormPage {
       }, expected);
       if (!unchanged) throw new Error(`Exact option changed before click: ${code}`);
       await radio.click({ timeout: 15_000 });
-      const selectedValue = await radio.getAttribute("data-value") ?? await radio.getAttribute("aria-label") ?? "";
-      if (await radio.getAttribute("aria-checked") !== "true" || normalizeOption(selectedValue) !== expected) {
+      // Google Forms may replace the radio (or its whole group) after the click. Verify
+      // against a fresh DOM lookup instead of reading the pre-click ElementHandle.
+      const persisted = await this.page.waitForFunction(({ groupIndex, value }) => {
+        const visible = (node: Element) => !!(node as HTMLElement).getClientRects().length && getComputedStyle(node).visibility !== "hidden";
+        const normalize = (text: string) => text.normalize("NFC").replace(/\s+/g, " ").trim();
+        const groups = [...document.querySelectorAll('[role="radiogroup"]')];
+        const current = groups[groupIndex];
+        if (!current || !visible(current)) return false;
+        const exact = [...current.querySelectorAll('[role="radio"]')].filter((node) =>
+          visible(node) && normalize(node.getAttribute("data-value") ?? node.getAttribute("aria-label") ?? "") === value);
+        return exact.length === 1 && exact[0]!.getAttribute("aria-checked") === "true";
+      }, { groupIndex: index, value: expected }, { timeout: 5_000 }).then(async (handle) => {
+        const value = await handle.jsonValue();
+        await handle.dispose();
+        return value === true;
+      }).catch(() => false);
+      if (!persisted) {
         throw new Error(`Selection did not persist: ${code}`);
       }
     } finally { await Promise.all(radios.map((radio) => radio.dispose())); }

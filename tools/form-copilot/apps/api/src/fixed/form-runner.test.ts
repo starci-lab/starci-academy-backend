@@ -172,7 +172,7 @@ describe.skipIf(!existsSync(chrome))("local multi-section DOM fixture (no live G
     } finally { await context.close(); await browser.close(); }
   }, 30_000);
 
-  it.each(["matrix-context", "hidden-prefix", "duplicate", "missing", "aria-fallback"])("matches source option values safely: %s", async (kind) => {
+  it.each(["matrix-context", "hidden-prefix", "duplicate", "missing", "aria-fallback", "rerender"])("matches source option values safely: %s", async (kind) => {
     const browser = await chromium.launch({ headless: true, executablePath: chrome, chromiumSandbox: true });
     const context = await browser.newContext({ serviceWorkers: "block" });
     await context.route("**/*", (route) => route.abort());
@@ -187,7 +187,9 @@ describe.skipIf(!existsSync(chrome))("local multi-section DOM fixture (no live G
     if (kind === "duplicate") optionValues.push(expected);
     const radio = (value: string, hidden = false) => {
       const accessible = kind === "aria-fallback" ? value : `${value}, câu trả lời cho [SMC1] Matrix question context`;
-      return `<div role="radio" tabindex="0" aria-label="${escapeHtml(accessible)}" ${kind === "aria-fallback" ? "" : `data-value="${escapeHtml(value)}"`} aria-checked="false" ${hidden ? 'style="display:none"' : ""} onclick="document.body.dataset.clicks=String(Number(document.body.dataset.clicks||0)+1);for(const r of this.parentElement.children)r.setAttribute('aria-checked','false');this.setAttribute('aria-checked','true')">${escapeHtml(value)}</div>`;
+      const select = "for(const r of this.parentElement.children)r.setAttribute('aria-checked','false');this.setAttribute('aria-checked','true')";
+      const rerender = kind === "rerender" ? ";const fresh=this.parentElement.cloneNode(true);fresh.querySelector('[aria-checked=true]').setAttribute('data-rerendered','true');this.parentElement.replaceWith(fresh)" : "";
+      return `<div role="radio" tabindex="0" aria-label="${escapeHtml(accessible)}" ${kind === "aria-fallback" ? "" : `data-value="${escapeHtml(value)}"`} aria-checked="false" ${hidden ? 'style="display:none"' : ""} onclick="document.body.dataset.clicks=String(Number(document.body.dataset.clicks||0)+1);${select}${rerender}">${escapeHtml(value)}</div>`;
     };
     try {
       const hiddenPrefix = kind === "hidden-prefix" ? `<div role="radiogroup" style="display:none">${radio(expected)}</div>` : "";
@@ -205,6 +207,7 @@ describe.skipIf(!existsSync(chrome))("local multi-section DOM fixture (no live G
         await adapter.choose("SMC1", expected);
         expect(await page.locator("body").getAttribute("data-clicks")).toBe("1");
         expect((await adapter.snapshot()).fields[0]!.selected).toBe(expected);
+        if (kind === "rerender") expect(await page.locator('[role="radio"][data-rerendered="true"]').count()).toBe(1);
       }
     } finally { await context.close(); await browser.close(); }
   }, 30_000);
