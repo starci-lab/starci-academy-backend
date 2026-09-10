@@ -193,6 +193,9 @@ progress::-moz-progress-bar { background: var(--primary); }
 .job-times { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; margin: 12px 0; }
 .job-times dd { font-size: 12px; font-weight: 500; margin-top: 3px; }
 .job-detail { font-size: 12px; line-height: 1.65; color: var(--muted); overflow-wrap: anywhere; }
+.job-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
+.retry-confirm { margin-top: 12px; padding: 14px; border: 1px solid var(--input-line); border-radius: 12px; background: var(--primary-soft); }
+.retry-confirm p { margin: 6px 0 12px; color: var(--muted); font-size: 12px; line-height: 1.55; }
 .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 16px; margin-top: 18px; font-size: 13px; }
 .show-more { margin-top: 16px; width: 100%; }
 .loading-line { display: flex; gap: 10px; align-items: center; padding: 18px 0; color: var(--muted); font-size: 14px; }

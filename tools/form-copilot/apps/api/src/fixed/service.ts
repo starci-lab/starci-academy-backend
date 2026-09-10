@@ -102,4 +102,5 @@ export class FixedService implements OnModuleInit, OnApplicationBootstrap, Befor
   listBatches() { return this.repository.listBatches(); }
   getBatch(id: string) { return this.repository.getBatch(id); }
   transition(id: string, action: "pause" | "resume" | "cancel") { return this.repository.transition(id, action); }
+  retryJob(id: string, requestId: string) { return this.repository.retryJob(id, requestId); }
 }

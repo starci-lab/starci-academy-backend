@@ -27,4 +27,5 @@ export interface FixedStore {
   listBatches(): Promise<FixedBatch[]>;
   getBatch(id: string): Promise<FixedBatch>;
   transition(id: string, action: "pause" | "resume" | "cancel"): Promise<FixedBatch>;
+  retryJob(id: string, requestId: string): Promise<FixedBatch>;
 }

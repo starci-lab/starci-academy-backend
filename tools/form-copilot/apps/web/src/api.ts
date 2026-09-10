@@ -41,6 +41,7 @@ export interface FixedJob {
   terminalPageId?: number | null;
   terminalPageTitle?: string | null;
   closeReason?: string | null;
+  retryOfJobId?: string | null;
 }
 
 export interface FixedBatch {
@@ -112,4 +113,5 @@ export const api = {
   batch: (id: string, signal?: AbortSignal) => request<FixedBatch>(`/batches/${encodeURIComponent(id)}`, { signal: signal ?? null }),
   createBatch: (body: BatchRequest) => request<FixedBatch>("/batches", { method: "POST", body: JSON.stringify(body) }),
   action: (id: string, action: BatchAction) => request<FixedBatch>(`/batches/${encodeURIComponent(id)}/${action}`, { method: "POST" }),
+  retryJob: (id: string, requestId: string) => request<FixedBatch>(`/jobs/${encodeURIComponent(id)}/retry`, { method: "POST", body: JSON.stringify({ requestId }) }),
 };

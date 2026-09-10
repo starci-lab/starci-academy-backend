@@ -82,7 +82,11 @@ test("detail IDs are encoded and cancellation uses only the fixed action endpoin
   });
   await api.batch("id/with spaces");
   await api.action("fixture", "cancel");
+  await api.retryJob("job/with spaces", "287c8d1d-63de-4216-8f46-05a1da0b2304");
   assert.equal(calls[0][0], "/api/fixed/batches/id%2Fwith%20spaces");
   assert.equal(calls[1][0], "/api/fixed/batches/fixture/cancel");
   assert.equal(calls[1][1].method, "POST");
+  assert.equal(calls[2][0], "/api/fixed/jobs/job%2Fwith%20spaces/retry");
+  assert.equal(calls[2][1].method, "POST");
+  assert.deepEqual(JSON.parse(calls[2][1].body), { requestId: "287c8d1d-63de-4216-8f46-05a1da0b2304" });
 });

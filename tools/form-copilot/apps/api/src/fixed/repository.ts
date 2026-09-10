@@ -228,14 +228,57 @@ export class FixedRepository implements FixedStore, OnModuleInit, OnApplicationS
   async getBatch(id: string): Promise<FixedBatch> {
     const result = await this.#pool.query(`${BATCH_SELECT} WHERE b.id = $1 GROUP BY b.id`, [id]);
     if (!result.rows[0]) throw new NotFoundException("Batch not found");
-    const jobs = await this.#pool.query(`SELECT id, row_id, scheduled_at, started_at, finished_at, status, detail, terminal_page_id, terminal_page_title, close_reason
+    const jobs = await this.#pool.query(`SELECT id, row_id, scheduled_at, started_at, finished_at, status, detail, terminal_page_id, terminal_page_title, close_reason, retry_of_job_id
       FROM fixed_jobs WHERE batch_id = $1 ORDER BY scheduled_at, id`, [id]);
     return { ...batchJson(result.rows[0]), jobs: jobs.rows.map((row): FixedJob => ({
       id: row.id, rowId: row.row_id, scheduledAt: iso(row.scheduled_at),
       startedAt: row.started_at ? iso(row.started_at) : null, finishedAt: row.finished_at ? iso(row.finished_at) : null,
       status: row.status === "submitting" ? "running" : row.status, detail: row.detail,
       terminalPageId: row.terminal_page_id === null ? null : Number(row.terminal_page_id), terminalPageTitle: row.terminal_page_title, closeReason: row.close_reason,
+      retryOfJobId: row.retry_of_job_id,
     })) };
+  }
+
+  async retryJob(id: string, requestId: string): Promise<FixedBatch> {
+    const fingerprint = `retry-job:${id}`;
+    const batchId = await this.#transaction(async (client) => {
+      await client.query("SELECT pg_advisory_xact_lock($1, $2)", [LOCK_NAMESPACE, CREATE_LOCK]);
+      const existing = await client.query<{ id: string; request_fingerprint: string }>(
+        "SELECT id, request_fingerprint FROM fixed_batches WHERE request_id = $1", [requestId],
+      );
+      if (existing.rows[0]) {
+        if (existing.rows[0].request_fingerprint !== fingerprint) throw new ConflictException("requestId was already used for a different retry");
+        return existing.rows[0].id;
+      }
+      const source = await client.query(`SELECT j.status, j.row_id, j.row_json,
+        b.selection, b.timezone, b.dataset_name, b.dataset_digest
+        FROM fixed_jobs j JOIN fixed_batches b ON b.id = j.batch_id
+        WHERE j.id = $1 FOR UPDATE OF j`, [id]);
+      const job = source.rows[0];
+      if (!job) throw new NotFoundException("Job not found");
+      if (!['failed', 'expired'].includes(job.status)) {
+        throw new ConflictException(job.status === "uncertain"
+          ? "Uncertain submissions require source reconciliation and cannot be retried"
+          : "Only failed or expired jobs can be retried");
+      }
+      const reserved = await client.query(`SELECT 1 FROM fixed_jobs WHERE row_id = $1 AND status IN ${RESERVED} LIMIT 1`, [job.row_id]);
+      if (reserved.rows[0]) throw new ConflictException("This row is already reserved or has a confirmed submission");
+      const retryBatchId = randomUUID();
+      const retryJobId = randomUUID();
+      const plan = planBatch({ mode: "immediate", selection: job.selection, count: 1, timezone: job.timezone, requestId });
+      await client.query(`INSERT INTO fixed_batches
+        (id, request_id, request_fingerprint, mode, selection, timezone, start_at, end_at, requested_count, status, dataset_name, dataset_digest)
+        VALUES ($1, $2, $3, 'immediate', $4, $5, $6, $7, 1, 'running', $8, $9)`, [
+        retryBatchId, requestId, fingerprint, job.selection, job.timezone, plan.startAt, plan.endAt, job.dataset_name, job.dataset_digest,
+      ]);
+      await client.query(`INSERT INTO fixed_jobs
+        (id, batch_id, row_id, row_json, scheduled_at, status, detail, retry_of_job_id)
+        VALUES ($1, $2, $3, $4, $5, 'pending', $6, $7)`, [
+        retryJobId, retryBatchId, job.row_id, job.row_json, plan.scheduledAt[0], `Retry of ${id}`, id,
+      ]);
+      return retryBatchId;
+    });
+    return this.getBatch(batchId);
   }
 
   async transition(id: string, action: "pause" | "resume" | "cancel"): Promise<FixedBatch> {

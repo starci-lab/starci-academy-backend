@@ -182,6 +182,54 @@ describe.skipIf(!databaseUrl).sequential("fixed repository / real PostgreSQL", (
     await release();
   });
 
+  it("retries failed or expired work as a new linked, idempotent immediate attempt", async () => {
+    const failedBatch = await repository.createBatch(request(), dataset("retry-failed", 1));
+    const leader = await acquire();
+    const failedJob = await repository.claim(leader);
+    await repository.finish(failedJob!, "failed", "Synthetic pre-submit fixture failure");
+    await release();
+
+    const retryRequestId = randomUUID();
+    const [firstRetry, replayedRetry] = await Promise.all([
+      repository.retryJob(failedJob!.id, retryRequestId),
+      replica.retryJob(failedJob!.id, retryRequestId),
+    ]);
+    expect(replayedRetry.id).toBe(firstRetry.id);
+    expect(firstRetry).toMatchObject({ mode: "immediate", count: 1, counts: { pending: 1 } });
+    expect(firstRetry.jobs?.[0]).toMatchObject({
+      rowId: failedJob!.row.id,
+      status: "pending",
+      retryOfJobId: failedJob!.id,
+    });
+    expect((await repository.getBatch(failedBatch.id)).jobs?.[0]).toMatchObject({
+      status: "failed",
+      retryOfJobId: null,
+    });
+    await expect(repository.retryJob(failedJob!.id, randomUUID())).rejects.toThrow("already reserved");
+    await repository.transition(firstRetry.id, "cancel");
+
+    const expiredBatch = await repository.createBatch(request(), dataset("retry-expired", 1));
+    await sql.query("UPDATE fixed_batches SET start_at = now() - interval '2 hours', end_at = now() - interval '1 hour' WHERE id = $1", [expiredBatch.id]);
+    const expiryLeader = await acquire();
+    expect(await repository.claim(expiryLeader)).toBeNull();
+    await release();
+    const expired = await repository.getBatch(expiredBatch.id);
+    const expiredRetry = await repository.retryJob(expired.jobs![0]!.id, randomUUID());
+    expect(expiredRetry.jobs?.[0]).toMatchObject({ rowId: "retry-expired-0", retryOfJobId: expired.jobs![0]!.id, status: "pending" });
+    await repository.transition(expiredRetry.id, "cancel");
+  });
+
+  it("never retries uncertain work because a remote submission may already exist", async () => {
+    const batch = await repository.createBatch(request(), dataset("retry-uncertain", 1));
+    const leader = await acquire(); const job = await repository.claim(leader);
+    await repository.beforeSubmit(leader, job!);
+    await repository.finish(job!, "uncertain", "Synthetic confirmation loss");
+    await release();
+    await expect(repository.retryJob(job!.id, randomUUID())).rejects.toThrow("source reconciliation");
+    expect(await repository.availableCount([job!.row.id])).toBe(0);
+    expect((await repository.getBatch(batch.id)).counts.uncertain).toBe(1);
+  });
+
   it("future jobs remain pending and preserve requested timezone plus normalized UTC", async () => {
     const start = new Date(Date.now() + 60_000); const end = new Date(start.getTime() + 60_000);
     const input: FixedCreateBatch = { ...request(2), mode: "scheduled", startAt: start.toISOString(), endAt: end.toISOString() };

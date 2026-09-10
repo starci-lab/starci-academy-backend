@@ -33,8 +33,9 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={"status-badge status-" + status}>{statusLabels[status] ?? status}</span>;
 }
 
-function BatchDetail({ batch, busy, onAction }: { batch: FixedBatch; busy: string | null; onAction: (action: BatchAction) => void }) {
+function BatchDetail({ batch, busy, onAction, onRetry }: { batch: FixedBatch; busy: string | null; onAction: (action: BatchAction) => void; onRetry: (jobId: string) => void }) {
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [confirmRetry, setConfirmRetry] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const heading = useRef<HTMLHeadingElement>(null);
   const cancelButton = useRef<HTMLButtonElement>(null);
@@ -46,7 +47,7 @@ function BatchDetail({ batch, busy, onAction }: { batch: FixedBatch; busy: strin
   const unfinished = pending + batch.counts.running;
   const processed = batch.count - batch.counts.pending - batch.counts.running;
 
-  useEffect(() => { setConfirmCancel(false); setPage(1); }, [batch.id]);
+  useEffect(() => { setConfirmCancel(false); setConfirmRetry(null); setPage(1); }, [batch.id]);
   useEffect(() => { if (confirmCancel) cancelButton.current?.focus(); }, [confirmCancel]);
   useEffect(() => { if (!busy && document.activeElement === document.body) heading.current?.focus(); }, [busy]);
 
@@ -89,7 +90,11 @@ function BatchDetail({ batch, busy, onAction }: { batch: FixedBatch; busy: strin
             <div className="job-heading"><strong>{job.rowId}</strong><StatusBadge status={job.status} /></div>
             <dl className="job-times"><div><dt>Dự kiến</dt><dd>{formatInstant(job.scheduledAt, batch.timezone)}</dd></div><div><dt>Bắt đầu</dt><dd>{formatInstant(job.startedAt, batch.timezone)}</dd></div><div><dt>Kết thúc</dt><dd>{formatInstant(job.finishedAt, batch.timezone)}</dd></div></dl>
             <p className="job-detail">{job.detail || "Chưa có ghi chú xử lý."}</p>
+            {job.retryOfJobId && <p className="job-detail">Lượt thử lại từ <code>{job.retryOfJobId}</code>.</p>}
             {job.status === "screened_out" && <dl className="job-times"><div><dt>Trang kết thúc</dt><dd>{job.terminalPageTitle || job.terminalPageId || "—"}</dd></div><div><dt>Lý do đóng sớm</dt><dd>{job.closeReason || "—"}</dd></div></dl>}
+            {(["failed", "expired"] as JobStatus[]).includes(job.status) && (confirmRetry === job.id
+              ? <div className="retry-confirm" role="alert"><strong>Thử lại bản ghi {job.rowId} ngay?</strong><p>Lượt cũ vẫn được giữ trong lịch sử. Hệ thống sẽ chặn nếu bản ghi đã được gửi hoặc đang được xử lý ở lượt khác.</p><div className="button-row"><button type="button" className="button primary" disabled={Boolean(busy)} onClick={() => { setConfirmRetry(null); onRetry(job.id); }}>Xác nhận thử lại</button><button type="button" className="button secondary" disabled={Boolean(busy)} onClick={() => setConfirmRetry(null)}>Không</button></div></div>
+              : <div className="job-actions"><button type="button" className="button secondary" disabled={Boolean(busy)} onClick={() => setConfirmRetry(job.id)}><RefreshCw size={16} aria-hidden="true" />{busy === `retry:${job.id}` ? "Đang tạo lượt thử…" : "Thử lại ngay"}</button></div>)}
           </li>)}
         </ol>
         {pages > 1 && <nav className="pagination" aria-label="Phân trang bản ghi"><button type="button" className="button secondary" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>Trước</button><span>Trang {currentPage} / {pages}</span><button type="button" className="button secondary" disabled={currentPage === pages} onClick={() => setPage(currentPage + 1)}>Tiếp</button></nav>}
@@ -197,6 +202,19 @@ export function App() {
     finally { mutation.current = false; setBusy(null); void data.refresh(); }
   }
 
+  async function retryJob(jobId: string) {
+    if (mutation.current) return;
+    mutation.current = true; setBusy(`retry:${jobId}`); setActionError(null); setNotice(null);
+    try {
+      if (!globalThis.crypto?.randomUUID) throw new Error("Cần HTTPS hoặc localhost để tạo mã retry an toàn.");
+      const batch = await api.retryJob(jobId, globalThis.crypto.randomUUID());
+      data.acceptBatch(batch);
+      setNotice("Đã tạo lượt thử lại riêng. Lịch sử cũ được giữ nguyên; theo dõi batch mới bên dưới.");
+      requestAnimationFrame(() => noticeRef.current?.focus());
+    } catch (error) { setActionError((error as Error).message + " Làm mới lịch sử trước khi thử lại."); requestAnimationFrame(() => errorSummary.current?.focus()); }
+    finally { mutation.current = false; setBusy(null); void data.refresh(); }
+  }
+
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main">Đến nội dung chính</a>
@@ -258,7 +276,7 @@ export function App() {
           {data.loading ? <div className="empty-state"><LoaderCircle size={27} className="spin" aria-hidden="true" /><strong>Đang tải các lô đã lưu</strong><p>Chỉ đọc trạng thái, không tạo công việc mới.</p></div> : data.batches.length === 0 ? <div className="empty-state"><CalendarClock size={30} aria-hidden="true" /><strong>{data.readError ? "Chưa thể tải lịch sử" : "Chưa có lô thực hiện"}</strong><p>{data.readError ? "Thử tải lại khi máy chủ kết nối." : "Kế hoạch đầu tiên sẽ xuất hiện ở đây sau khi lưu."}</p></div> : <div className="history-content">
             <ul className="batch-list">{data.batches.slice(0, historyLimit).map((batch) => <li key={batch.id}><button type="button" className={"batch-row " + (data.selectedId === batch.id ? "selected" : "")} onClick={() => data.select(batch.id)} aria-expanded={data.selectedId === batch.id} aria-controls="selected-batch"><span className="batch-row-icon"><CalendarClock size={20} aria-hidden="true" /></span><span className="batch-row-main"><strong>{batch.count} bản ghi <span>· {batch.mode === "immediate" ? "Gửi ngay" : "Theo khung giờ"}</span></strong><small>{formatInstant(batch.createdAt, batch.timezone)}</small><small className="batch-short-id">{batch.id}</small></span><span className="batch-row-state"><StatusBadge status={batchDisplayStatus(batch)} /><small>{batch.counts.succeeded + batch.counts.screened_out} / {batch.count} đã xác nhận gửi</small></span>{data.selectedId === batch.id ? <ChevronDown size={18} aria-hidden="true" /> : <ChevronRight size={18} aria-hidden="true" />}</button></li>)}</ul>
             {data.batches.length > historyLimit && <button type="button" className="button secondary show-more" onClick={() => setHistoryLimit((value) => value + 10)}>Xem thêm lô</button>}
-            <div id="selected-batch">{data.selectedId && (data.detail ? <BatchDetail batch={data.detail} busy={busy} onAction={(action) => void act(action)} /> : <p className="loading-line">{data.readError ? "Không tải được chi tiết. Chọn Làm mới để thử lại." : "Đang tải chi tiết lô…"}</p>)}</div>
+            <div id="selected-batch">{data.selectedId && (data.detail ? <BatchDetail batch={data.detail} busy={busy} onAction={(action) => void act(action)} onRetry={(jobId) => void retryJob(jobId)} /> : <p className="loading-line">{data.readError ? "Không tải được chi tiết. Chọn Làm mới để thử lại." : "Đang tải chi tiết lô…"}</p>)}</div>
           </div>}
         </section>
         <footer>Dữ liệu diễn tập luôn được gắn nhãn synthetic. Lịch sử không thay thế việc đối chiếu kết quả tại nguồn nhận.</footer>

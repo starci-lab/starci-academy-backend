@@ -19,6 +19,7 @@ describe("fixed-only API boundary", () => {
     const service = {
       listBatches: vi.fn(async () => [batch]), getBatch: vi.fn(async () => batch),
       transition: vi.fn(async () => batch),
+      retryJob: vi.fn(async () => batch),
     } as unknown as FixedService;
     const controller = new FixedController(service);
     expect(await controller.list()).toEqual({ items: [batch] });
@@ -26,6 +27,14 @@ describe("fixed-only API boundary", () => {
     expect(await controller.pause("batch")).toBe(batch);
     expect(await controller.resume("batch")).toBe(batch);
     expect(await controller.cancel("batch")).toBe(batch);
+    expect(await controller.retry("job", { requestId: "18a5e536-617b-4c27-a84f-232c9907437d" })).toBe(batch);
+  });
+  it("validates retry idempotency keys before calling the service", () => {
+    const retryJob = vi.fn();
+    const controller = new FixedController({ retryJob } as unknown as FixedService);
+    expect(() => controller.retry("job", {})).toThrow("requestId");
+    expect(() => controller.retry("job", { requestId: "bad", extra: true })).toThrow();
+    expect(retryJob).not.toHaveBeenCalled();
   });
   it("exposes reconciliation metadata without raw response contents", async () => {
     const receipt = { source: "google-sheet-csv", status: "ok", mirroredCount: 216, sourceCount: 216, columnCount: 53, sourceDigest: "digest", lastAttemptAt: "2026-09-06T00:00:00.000Z", lastSuccessAt: "2026-09-06T00:00:00.000Z", error: null };

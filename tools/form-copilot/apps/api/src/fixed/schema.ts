@@ -29,12 +29,14 @@ CREATE TABLE IF NOT EXISTS fixed_jobs (
   terminal_page_id BIGINT,
   terminal_page_title TEXT,
   close_reason TEXT,
+  retry_of_job_id UUID REFERENCES fixed_jobs(id),
   worker_id UUID,
   UNIQUE(batch_id, row_id)
 );
 ALTER TABLE fixed_jobs ADD COLUMN IF NOT EXISTS terminal_page_id BIGINT;
 ALTER TABLE fixed_jobs ADD COLUMN IF NOT EXISTS terminal_page_title TEXT;
 ALTER TABLE fixed_jobs ADD COLUMN IF NOT EXISTS close_reason TEXT;
+ALTER TABLE fixed_jobs ADD COLUMN IF NOT EXISTS retry_of_job_id UUID REFERENCES fixed_jobs(id);
 ALTER TABLE fixed_batches ADD COLUMN IF NOT EXISTS selection TEXT NOT NULL DEFAULT 'mixed';
 ALTER TABLE fixed_batches DROP CONSTRAINT IF EXISTS fixed_batches_selection_check;
 ALTER TABLE fixed_batches ADD CONSTRAINT fixed_batches_selection_check CHECK (selection IN ('mixed', 'completing', 'screened_out'));

@@ -4,6 +4,7 @@ export const FixedBatchModeSchema = z.enum(["immediate", "scheduled"]);
 export const FixedResponseSelectionSchema = z.enum(["mixed", "completing", "screened_out"]);
 export const FixedBatchStatusSchema = z.enum(["running", "paused", "completed", "attention", "cancelled"]);
 export const FixedJobStatusSchema = z.enum(["pending", "running", "succeeded", "screened_out", "failed", "uncertain", "cancelled", "expired"]);
+export const FixedRetryJobSchema = z.object({ requestId: z.uuid() }).strict();
 export const FixedCreateBatchSchema = z.object({
   mode: FixedBatchModeSchema,
   selection: FixedResponseSelectionSchema.default("mixed"),
@@ -32,6 +33,7 @@ export type FixedBatchMode = z.infer<typeof FixedBatchModeSchema>;
 export type FixedResponseSelection = z.infer<typeof FixedResponseSelectionSchema>;
 export type FixedBatchStatus = z.infer<typeof FixedBatchStatusSchema>;
 export type FixedJobStatus = z.infer<typeof FixedJobStatusSchema>;
+export type FixedRetryJob = z.infer<typeof FixedRetryJobSchema>;
 export interface FixedCounts {
   pending: number; running: number; succeeded: number; screened_out: number; failed: number;
   uncertain: number; cancelled: number; expired: number;
@@ -40,6 +42,7 @@ export interface FixedJob {
   id: string; rowId: string; scheduledAt: string; startedAt: string | null;
   finishedAt: string | null; status: FixedJobStatus; detail: string;
   terminalPageId: number | null; terminalPageTitle: string | null; closeReason: string | null;
+  retryOfJobId: string | null;
 }
 export interface FixedBatch {
   id: string; mode: FixedBatchMode; selection: FixedResponseSelection; timezone: string; startAt: string; endAt: string;

@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, Get, Inject, Param, ParseUUIDPipe, Post } from "@nestjs/common";
-import { FixedCreateBatchSchema } from "@form-copilot/contracts";
+import { FixedCreateBatchSchema, FixedRetryJobSchema } from "@form-copilot/contracts";
 import { FixedService } from "./service.js";
 
 @Controller("api/fixed")
@@ -17,4 +17,9 @@ export class FixedController {
   @Post("batches/:id/pause") pause(@Param("id", new ParseUUIDPipe()) id: string) { return this.service.transition(id, "pause"); }
   @Post("batches/:id/resume") resume(@Param("id", new ParseUUIDPipe()) id: string) { return this.service.transition(id, "resume"); }
   @Post("batches/:id/cancel") cancel(@Param("id", new ParseUUIDPipe()) id: string) { return this.service.transition(id, "cancel"); }
+  @Post("jobs/:id/retry") retry(@Param("id", new ParseUUIDPipe()) id: string, @Body() body: unknown) {
+    const result = FixedRetryJobSchema.safeParse(body);
+    if (!result.success) throw new BadRequestException(result.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`).join("; "));
+    return this.service.retryJob(id, result.data.requestId);
+  }
 }
