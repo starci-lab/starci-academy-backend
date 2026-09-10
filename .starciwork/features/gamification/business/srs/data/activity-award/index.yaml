@@ -1,0 +1,96 @@
+schema: work/node@2
+id: starci-next.business.srs.data.activity-award
+kind: business
+required: true
+state: todo
+description: Activity recognition and correction
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.community-policy
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-data-definition@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: DATA-activity-award
+      title: Activity recognition and correction
+      modelLevel: Proposed logical business contract; physical storage, indexes and APIs belong to SDS.
+      owner: learner; recognition policy owner
+      fields:
+        - name: id
+          meaning: Stable logical record identity
+          validation: Required, unique and not changed by a state transition
+          classification: context-scoped
+        - name: version
+          meaning: Record/content revision used for attribution and confirmation
+          validation: Identify the reviewed version; changed content must not impersonate an earlier revision
+          classification: context-scoped
+        - name: qualifyingEvent
+          meaning: Actual activity receiving recognition
+          validation: Identifies one eligible event
+          classification: private
+        - name: ruleVersion
+          meaning: Recognition rule and time context
+          validation: Approved D05 amount, timezone and eligibility semantics
+          classification: private
+        - name: awardAndCorrection
+          meaning: Granted amount and later adjustment
+          validation: Corrections retain original award and reason
+          classification: private
+      relations:
+        - dataRef: DATA-progress
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-submission
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-discussion
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+      states:
+        - eligible
+        - awarded
+        - disputed
+        - adjusted
+      transitions:
+        - id: DATA-activity-award.T1
+          from: eligible
+          to: awarded
+          event: Apply configured recognition
+          guard: Qualifying event not already awarded
+        - id: DATA-activity-award.T2
+          from: awarded
+          to: disputed
+          event: Receive supported correction request
+          guard: Track allegation separately
+        - id: DATA-activity-award.T3
+          from: disputed
+          to: adjusted
+          event: Authorize correction
+          guard: Applicable rule and evidence support change
+        - id: DATA-activity-award.T4
+          from: awarded
+          to: adjusted
+          event: Correct proven accounting error
+          guard: Attributable authorized correction
+      invariants:
+        - Award totals and streaks cannot substitute for mastery evidence.
+      decisionRefs:
+        - D05
+        - D09
+      privacy:
+        access: Apply current owner, role, resource and audience grants. A selected-public field is exposed
+          only after authorized publication.
+        retention: D08 selects retention/export/closure behavior. No storage duration or automatic deletion
+          policy is inferred.
+        referenceWithdrawal: Preserve permitted provenance while preventing newly unauthorized source
+          access; retained snapshots require approved D08 purpose and scope.
+      validationCases:
+        - given: An actor without current rights references this activity-award.
+          when: Read or mutate the record.
+          then: Deny the unauthorized action without disclosing restricted fields.
+        - given: A record in a declared state and an attributed authorized event.
+          when: Apply a listed transition.
+          then: Require its guard, retain the prior version attribution and reject a transition unsupported by
+            policy.
+      featureOwner: gamification
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

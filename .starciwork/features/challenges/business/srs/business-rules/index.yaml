@@ -1,0 +1,16 @@
+schema: work/node@2
+id: starci-next.features.challenges.business.srs.business-rules
+kind: business
+required: true
+description: "business-rules: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: business-rules
+      title: business-rules
+      status: draft
+      children:
+        - path: incremental-assistance/index.yaml
+          workRef: starci-next.business.srs.business-rules.incremental-assistance
+          title: Incremental assistance

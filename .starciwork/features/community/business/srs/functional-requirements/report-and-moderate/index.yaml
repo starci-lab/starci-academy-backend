@@ -1,0 +1,349 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.community.report-and-moderate
+kind: business
+required: true
+state: todo
+description: Report content and review moderation outcomes
+refs:
+  - starci-next.business.srs.business-rules.context-and-moderation
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.data.moderation-case
+  - starci-next.business.srs.data.discussion
+  - starci-next.business.srs.data.account
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.community-policy
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-COM-03
+      title: Report content and review moderation outcomes
+      domain: community
+      goal: Report content and review moderation outcomes
+      priority: release-priority-awaits-D01
+      actors:
+        - member
+        - moderator
+      preconditions:
+        - The relevant context, group/resource audience and contribution authority are identifiable.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-COM-03.IN1
+          name: reportedContribution
+          validation: Exact permitted context of the alleged issue
+          dataRefs:
+            - DATA-moderation-case
+            - DATA-discussion
+            - DATA-account
+        - id: FR-COM-03.IN2
+          name: reportOrDecision
+          validation: Specific concern or authorized moderator rationale under applicable policy
+          dataRefs:
+            - DATA-moderation-case
+            - DATA-discussion
+            - DATA-account
+      outputs:
+        - name: result-1
+          fromStep: FR-COM-03.MAIN.S1
+          meaning: Capture the referenced content and reason within current rights
+          effect: Sensitive report details are scoped to the review process.
+        - name: result-2
+          fromStep: FR-COM-03.MAIN.S2
+          meaning: Acknowledge receipt and show case status
+          effect: Submission alone does not establish wrongdoing.
+        - name: result-3
+          fromStep: FR-COM-03.MAIN.S3
+          meaning: Assess the applicable policy, evidence and relevant context
+          effect: Moderator actions are attributed to the reviewer.
+        - name: result-4
+          fromStep: FR-COM-03.MAIN.S4
+          meaning: Show the action or unresolved outcome with an appropriate explanation
+          effect: Appeal/review handling follows the configured policy.
+      businessRuleRefs:
+        - BR-COMMUNITY
+        - BR-RIGHTS
+        - BR-PRIVACY
+      dataRefs:
+        - DATA-moderation-case
+        - DATA-discussion
+        - DATA-account
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-AUDIT
+      decisionRefs:
+        - D09
+        - D08
+        - D11
+        - D05
+        - D03
+        - D07
+        - D12
+      directPolicyRefs:
+        - D09
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-COM-03.MAIN
+        trigger: Select a contribution and report a specific concern
+        steps:
+          - id: FR-COM-03.MAIN.S1
+            actor: member
+            request: Select a contribution and report a specific concern
+            systemResponse: Capture the referenced content and reason within current rights
+            businessEffect: Sensitive report details are scoped to the review process.
+            acceptanceRefs:
+              - FR-COM-03.AC.M1
+          - id: FR-COM-03.MAIN.S2
+            actor: member
+            request: Submit the report
+            systemResponse: Acknowledge receipt and show case status
+            businessEffect: Submission alone does not establish wrongdoing.
+            acceptanceRefs:
+              - FR-COM-03.AC.M2
+          - id: FR-COM-03.MAIN.S3
+            actor: moderator
+            request: Have an authorized moderator review the case
+            systemResponse: Assess the applicable policy, evidence and relevant context
+            businessEffect: Moderator actions are attributed to the reviewer.
+            acceptanceRefs:
+              - FR-COM-03.AC.M3
+          - id: FR-COM-03.MAIN.S4
+            actor: member
+            request: Inspect the permitted outcome and follow-up path
+            systemResponse: Show the action or unresolved outcome with an appropriate explanation
+            businessEffect: Appeal/review handling follows the configured policy.
+            acceptanceRefs:
+              - FR-COM-03.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: Appeal/review handling follows the configured policy.
+      alternativeFlows:
+        - id: FR-COM-03.ALT1
+          title: The reviewer finds no policy violation
+          fromStep: FR-COM-03.MAIN.S3
+          condition: The reviewer finds no policy violation
+          steps:
+            - id: FR-COM-03.ALT1.S1
+              actor: member
+              request: Resolve the case with explanation
+              systemResponse: Keep the contribution available under its existing rights
+              businessEffect: No unsupported punitive action.
+              acceptanceRefs:
+                - FR-COM-03.AC.ALT1
+          resume:
+            type: end
+            outcome: No unsupported punitive action.
+          postconditions:
+            - No unsupported punitive action.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-COM-03.AC.ALT1
+      exceptionFlows:
+        - id: FR-COM-03.EX1
+          title: The moderator lacks authority for this case
+          fromStep: FR-COM-03.MAIN.S3
+          condition: The moderator lacks authority for this case
+          steps:
+            - id: FR-COM-03.EX1.S1
+              actor: member
+              request: Attempt moderation
+              systemResponse: Deny the action
+              businessEffect: No role escalation or private case disclosure.
+              acceptanceRefs:
+                - FR-COM-03.AC.EX1
+          resume:
+            type: end
+            outcome: No role escalation or private case disclosure.
+          postconditions:
+            - No role escalation or private case disclosure.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-COM-03.AC.EX1
+        - id: FR-COM-03.EX2
+          title: Policy or evidence is insufficient for a decision
+          fromStep: FR-COM-03.MAIN.S3
+          condition: Policy or evidence is insufficient for a decision
+          steps:
+            - id: FR-COM-03.EX2.S1
+              actor: member
+              request: Review the case
+              systemResponse: Retain an unresolved case and identify the decision owner
+              businessEffect: No fabricated rule or automatic guilt from report count.
+              acceptanceRefs:
+                - FR-COM-03.AC.EX2
+          resume:
+            type: end
+            outcome: No fabricated rule or automatic guilt from report count.
+          postconditions:
+            - No fabricated rule or automatic guilt from report count.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-COM-03.AC.EX2
+      postconditions:
+        success:
+          - Sensitive report details are scoped to the review process.
+          - Submission alone does not establish wrongdoing.
+          - Moderator actions are attributed to the reviewer.
+          - Appeal/review handling follows the configured policy.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No role escalation or private case disclosure.
+          - No fabricated rule or automatic guilt from report count.
+      acceptanceCriteria:
+        - id: FR-COM-03.AC.M1
+          flowRef: FR-COM-03.MAIN
+          stepRefs:
+            - FR-COM-03.MAIN.S1
+          given:
+            - The relevant context, group/resource audience and contribution authority are
+              identifiable.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Select a contribution and report a specific concern
+          then:
+            - Capture the referenced content and reason within current rights
+            - Sensitive report details are scoped to the review process.
+        - id: FR-COM-03.AC.M2
+          flowRef: FR-COM-03.MAIN
+          stepRefs:
+            - FR-COM-03.MAIN.S2
+          given:
+            - The previous main-flow step FR-COM-03.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Submit the report
+          then:
+            - Acknowledge receipt and show case status
+            - Submission alone does not establish wrongdoing.
+        - id: FR-COM-03.AC.M3
+          flowRef: FR-COM-03.MAIN
+          stepRefs:
+            - FR-COM-03.MAIN.S3
+          given:
+            - The previous main-flow step FR-COM-03.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Have an authorized moderator review the case
+          then:
+            - Assess the applicable policy, evidence and relevant context
+            - Moderator actions are attributed to the reviewer.
+        - id: FR-COM-03.AC.M4
+          flowRef: FR-COM-03.MAIN
+          stepRefs:
+            - FR-COM-03.MAIN.S4
+          given:
+            - The previous main-flow step FR-COM-03.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect the permitted outcome and follow-up path
+          then:
+            - Show the action or unresolved outcome with an appropriate explanation
+            - Appeal/review handling follows the configured policy.
+        - id: FR-COM-03.AC.ALT1
+          flowRef: FR-COM-03.ALT1
+          stepRefs:
+            - FR-COM-03.ALT1.S1
+          given:
+            - Execution reaches FR-COM-03.MAIN.S3.
+            - The reviewer finds no policy violation
+          when: Resolve the case with explanation
+          then:
+            - Keep the contribution available under its existing rights
+            - No unsupported punitive action.
+        - id: FR-COM-03.AC.EX1
+          flowRef: FR-COM-03.EX1
+          stepRefs:
+            - FR-COM-03.EX1.S1
+          given:
+            - Execution reaches FR-COM-03.MAIN.S3.
+            - The moderator lacks authority for this case
+          when: Attempt moderation
+          then:
+            - Deny the action
+            - No role escalation or private case disclosure.
+        - id: FR-COM-03.AC.EX2
+          flowRef: FR-COM-03.EX2
+          stepRefs:
+            - FR-COM-03.EX2.S1
+          given:
+            - Execution reaches FR-COM-03.MAIN.S3.
+            - Policy or evidence is insufficient for a decision
+          when: Review the case
+          then:
+            - Retain an unresolved case and identify the decision owner
+            - No fabricated rule or automatic guilt from report count.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: community
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "9.2"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Select a contribution and report a specific concern

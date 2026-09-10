@@ -1,0 +1,16 @@
+schema: work/node@2
+id: starci-next.features.commerce.business.srs.customer-journeys
+kind: business
+required: true
+description: "customer-journeys: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: customer-journeys
+      title: customer-journeys
+      status: draft
+      children:
+        - path: purchase-use-and-lifecycle/index.yaml
+          workRef: starci-next.business.srs.customer-journeys.purchase-use-and-lifecycle
+          title: Inspect, buy, use and manage subscription rights

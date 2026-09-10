@@ -1,0 +1,388 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.projects.define-project-and-milestones
+kind: business
+required: true
+state: todo
+description: Define a personal project and milestone criteria
+refs:
+  - starci-next.business.srs.business-rules.learner-accepted-plan
+  - starci-next.business.srs.business-rules.assessment-provenance
+  - starci-next.business.srs.business-rules.bounded-ai-assistance
+  - starci-next.business.srs.data.project
+  - starci-next.business.srs.data.assessment
+  - starci-next.business.srs.data.learning-plan
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.grounding-and-ai-boundaries
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.allowance-and-cost-visibility
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.non-functional-requirements.untrusted-submission-safety
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.release-scope
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-PROJ-01
+      title: Define a personal project and milestone criteria
+      domain: projects
+      goal: Define a personal project and milestone criteria
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - The learner owns the project proposal or the evidence to be reviewed.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-PROJ-01.IN1
+          name: projectBrief
+          validation: Users, problem, scope and expected outcome
+          dataRefs:
+            - DATA-project
+            - DATA-assessment
+            - DATA-learning-plan
+        - id: FR-PROJ-01.IN2
+          name: milestoneChoices
+          validation: Reviewed deliverables, prerequisites and evidence criteria
+          dataRefs:
+            - DATA-project
+            - DATA-assessment
+            - DATA-learning-plan
+      outputs:
+        - name: result-1
+          fromStep: FR-PROJ-01.MAIN.S1
+          meaning: Capture target users, problem, outcome and scope
+          effect: The proposal remains learner-owned.
+        - name: result-2
+          fromStep: FR-PROJ-01.MAIN.S2
+          meaning: Explain the purpose, deliverables and criteria of each milestone
+          effect: AI suggestions are visibly proposed.
+        - name: result-3
+          fromStep: FR-PROJ-01.MAIN.S3
+          meaning: Show how changes affect milestone expectations
+          effect: The learner can reject unsuitable suggestions.
+        - name: result-4
+          fromStep: FR-PROJ-01.MAIN.S4
+          meaning: Record the brief and milestone/rubric versions
+          effect: Work can be evaluated against explicit accepted criteria.
+        - name: result-5
+          fromStep: FR-PROJ-01.MAIN.S5
+          meaning: Show required source/demo/evidence and related concepts
+          effect: The learner knows what must be demonstrated.
+      businessRuleRefs:
+        - BR-PLAN
+        - BR-EVIDENCE
+        - BR-AI
+      dataRefs:
+        - DATA-project
+        - DATA-assessment
+        - DATA-learning-plan
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-AI
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-COST
+        - NFR-AUDIT
+        - NFR-SUBMISSION
+      decisionRefs:
+        - D05
+        - D07
+        - D06
+        - D01
+        - D08
+        - D11
+        - D03
+        - D12
+        - D02
+      directPolicyRefs:
+        - D05
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-PROJ-01.MAIN
+        trigger: Choose a project brief or describe a product idea
+        steps:
+          - id: FR-PROJ-01.MAIN.S1
+            actor: learner
+            request: Choose a project brief or describe a product idea
+            systemResponse: Capture target users, problem, outcome and scope
+            businessEffect: The proposal remains learner-owned.
+            acceptanceRefs:
+              - FR-PROJ-01.AC.M1
+          - id: FR-PROJ-01.MAIN.S2
+            actor: learner
+            request: Review prerequisites and proposed milestones
+            systemResponse: Explain the purpose, deliverables and criteria of each milestone
+            businessEffect: AI suggestions are visibly proposed.
+            acceptanceRefs:
+              - FR-PROJ-01.AC.M2
+          - id: FR-PROJ-01.MAIN.S3
+            actor: learner
+            request: Adjust scope and success criteria
+            systemResponse: Show how changes affect milestone expectations
+            businessEffect: The learner can reject unsuitable suggestions.
+            acceptanceRefs:
+              - FR-PROJ-01.AC.M3
+          - id: FR-PROJ-01.MAIN.S4
+            actor: learner
+            request: Accept the reviewed project plan
+            systemResponse: Record the brief and milestone/rubric versions
+            businessEffect: Work can be evaluated against explicit accepted criteria.
+            acceptanceRefs:
+              - FR-PROJ-01.AC.M4
+          - id: FR-PROJ-01.MAIN.S5
+            actor: learner
+            request: Open the first milestone
+            systemResponse: Show required source/demo/evidence and related concepts
+            businessEffect: The learner knows what must be demonstrated.
+            acceptanceRefs:
+              - FR-PROJ-01.AC.M5
+        end:
+          type: completed-main-flow
+          outcome: The learner knows what must be demonstrated.
+      alternativeFlows:
+        - id: FR-PROJ-01.ALT1
+          title: The learner chooses a smaller project scope
+          fromStep: FR-PROJ-01.MAIN.S3
+          condition: The learner chooses a smaller project scope
+          steps:
+            - id: FR-PROJ-01.ALT1.S1
+              actor: learner
+              request: Revise the proposal before acceptance
+              systemResponse: Show updated milestones for review
+              businessEffect: No unreviewed scope is added.
+              acceptanceRefs:
+                - FR-PROJ-01.AC.ALT1
+          resume:
+            type: main-step
+            stepRef: FR-PROJ-01.MAIN.S4
+          postconditions:
+            - No unreviewed scope is added.
+          continuation: Continue at FR-PROJ-01.MAIN.S4.
+          acceptanceRefs:
+            - FR-PROJ-01.AC.ALT1
+      exceptionFlows:
+        - id: FR-PROJ-01.EX1
+          title: The brief lacks a testable outcome or required criteria
+          fromStep: FR-PROJ-01.MAIN.S4
+          condition: The brief lacks a testable outcome or required criteria
+          steps:
+            - id: FR-PROJ-01.EX1.S1
+              actor: learner
+              request: Accept the plan
+              systemResponse: Identify the missing criteria and retain the proposal
+              businessEffect: No claim that an unspecified milestone is ready for assessment.
+              acceptanceRefs:
+                - FR-PROJ-01.AC.EX1
+          resume:
+            type: end
+            outcome: No claim that an unspecified milestone is ready for assessment.
+          postconditions:
+            - No claim that an unspecified milestone is ready for assessment.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-PROJ-01.AC.EX1
+        - id: FR-PROJ-01.EX2
+          title: The plan changed concurrently
+          fromStep: FR-PROJ-01.MAIN.S4
+          condition: The plan changed concurrently
+          steps:
+            - id: FR-PROJ-01.EX2.S1
+              actor: learner
+              request: Accept a stale proposal
+              systemResponse: Require review of current scope
+              businessEffect: No hidden milestone replacement.
+              acceptanceRefs:
+                - FR-PROJ-01.AC.EX2
+          resume:
+            type: end
+            outcome: No hidden milestone replacement.
+          postconditions:
+            - No hidden milestone replacement.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-PROJ-01.AC.EX2
+      postconditions:
+        success:
+          - The proposal remains learner-owned.
+          - AI suggestions are visibly proposed.
+          - The learner can reject unsuitable suggestions.
+          - Work can be evaluated against explicit accepted criteria.
+          - The learner knows what must be demonstrated.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No claim that an unspecified milestone is ready for assessment.
+          - No hidden milestone replacement.
+      acceptanceCriteria:
+        - id: FR-PROJ-01.AC.M1
+          flowRef: FR-PROJ-01.MAIN
+          stepRefs:
+            - FR-PROJ-01.MAIN.S1
+          given:
+            - The learner owns the project proposal or the evidence to be reviewed.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Choose a project brief or describe a product idea
+          then:
+            - Capture target users, problem, outcome and scope
+            - The proposal remains learner-owned.
+        - id: FR-PROJ-01.AC.M2
+          flowRef: FR-PROJ-01.MAIN
+          stepRefs:
+            - FR-PROJ-01.MAIN.S2
+          given:
+            - The previous main-flow step FR-PROJ-01.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Review prerequisites and proposed milestones
+          then:
+            - Explain the purpose, deliverables and criteria of each milestone
+            - AI suggestions are visibly proposed.
+        - id: FR-PROJ-01.AC.M3
+          flowRef: FR-PROJ-01.MAIN
+          stepRefs:
+            - FR-PROJ-01.MAIN.S3
+          given:
+            - The previous main-flow step FR-PROJ-01.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Adjust scope and success criteria
+          then:
+            - Show how changes affect milestone expectations
+            - The learner can reject unsuitable suggestions.
+        - id: FR-PROJ-01.AC.M4
+          flowRef: FR-PROJ-01.MAIN
+          stepRefs:
+            - FR-PROJ-01.MAIN.S4
+          given:
+            - The previous main-flow step FR-PROJ-01.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Accept the reviewed project plan
+          then:
+            - Record the brief and milestone/rubric versions
+            - Work can be evaluated against explicit accepted criteria.
+        - id: FR-PROJ-01.AC.M5
+          flowRef: FR-PROJ-01.MAIN
+          stepRefs:
+            - FR-PROJ-01.MAIN.S5
+          given:
+            - The previous main-flow step FR-PROJ-01.MAIN.S4 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open the first milestone
+          then:
+            - Show required source/demo/evidence and related concepts
+            - The learner knows what must be demonstrated.
+        - id: FR-PROJ-01.AC.ALT1
+          flowRef: FR-PROJ-01.ALT1
+          stepRefs:
+            - FR-PROJ-01.ALT1.S1
+          given:
+            - Execution reaches FR-PROJ-01.MAIN.S3.
+            - The learner chooses a smaller project scope
+          when: Revise the proposal before acceptance
+          then:
+            - Show updated milestones for review
+            - No unreviewed scope is added.
+            - Continue at FR-PROJ-01.MAIN.S4 with current authority and reviewed context.
+        - id: FR-PROJ-01.AC.EX1
+          flowRef: FR-PROJ-01.EX1
+          stepRefs:
+            - FR-PROJ-01.EX1.S1
+          given:
+            - Execution reaches FR-PROJ-01.MAIN.S4.
+            - The brief lacks a testable outcome or required criteria
+          when: Accept the plan
+          then:
+            - Identify the missing criteria and retain the proposal
+            - No claim that an unspecified milestone is ready for assessment.
+        - id: FR-PROJ-01.AC.EX2
+          flowRef: FR-PROJ-01.EX2
+          stepRefs:
+            - FR-PROJ-01.EX2.S1
+          given:
+            - Execution reaches FR-PROJ-01.MAIN.S4.
+            - The plan changed concurrently
+          when: Accept a stale proposal
+          then:
+            - Require review of current scope
+            - No hidden milestone replacement.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AI
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-COST
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-SUBMISSION
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: projects
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "7"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Choose a project brief or describe a product idea

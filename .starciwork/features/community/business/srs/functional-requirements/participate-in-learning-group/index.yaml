@@ -1,0 +1,352 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.community.participate-in-learning-group
+kind: business
+required: true
+state: todo
+description: Join and participate in scoped learning groups
+refs:
+  - starci-next.business.srs.business-rules.context-and-moderation
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.data.learning-group
+  - starci-next.business.srs.data.account
+  - starci-next.business.srs.data.discussion
+  - starci-next.business.srs.data.share-grant
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.community-policy
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-COM-04
+      title: Join and participate in scoped learning groups
+      domain: community
+      goal: Join and participate in scoped learning groups
+      priority: release-priority-awaits-D01
+      actors:
+        - member
+      preconditions:
+        - The relevant context, group/resource audience and contribution authority are identifiable.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-COM-04.IN1
+          name: groupRef
+          validation: Group summary and applicable admission rule
+          dataRefs:
+            - DATA-learning-group
+            - DATA-account
+            - DATA-discussion
+            - DATA-share-grant
+        - id: FR-COM-04.IN2
+          name: membershipOrContribution
+          validation: Join/leave choice or scoped group interaction
+          dataRefs:
+            - DATA-learning-group
+            - DATA-account
+            - DATA-discussion
+            - DATA-share-grant
+      outputs:
+        - name: result-1
+          fromStep: FR-COM-04.MAIN.S1
+          meaning: Show its purpose, membership conditions and visible activity
+          effect: Private group content is not exposed in discovery.
+        - name: result-2
+          fromStep: FR-COM-04.MAIN.S2
+          meaning: Apply the configured admission rule and show pending or admitted status
+          effect: A membership request alone does not grant member rights.
+        - name: result-3
+          fromStep: FR-COM-04.MAIN.S3
+          meaning: Allow contributions and work sharing within current group/resource permission
+          effect: Group membership does not expose private learning records by default.
+        - name: result-4
+          fromStep: FR-COM-04.MAIN.S4
+          meaning: Explain remaining contribution attribution and revoked member access
+          effect: Future reads and posts use current membership.
+      businessRuleRefs:
+        - BR-COMMUNITY
+        - BR-PRIVACY
+        - BR-RIGHTS
+      dataRefs:
+        - DATA-learning-group
+        - DATA-account
+        - DATA-discussion
+        - DATA-share-grant
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-AUDIT
+      decisionRefs:
+        - D09
+        - D08
+        - D11
+        - D05
+        - D03
+        - D07
+        - D12
+      directPolicyRefs:
+        - D09
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-COM-04.MAIN
+        trigger: Inspect a learning group summary
+        steps:
+          - id: FR-COM-04.MAIN.S1
+            actor: member
+            request: Inspect a learning group summary
+            systemResponse: Show its purpose, membership conditions and visible activity
+            businessEffect: Private group content is not exposed in discovery.
+            acceptanceRefs:
+              - FR-COM-04.AC.M1
+          - id: FR-COM-04.MAIN.S2
+            actor: member
+            request: Request or accept eligible membership
+            systemResponse: Apply the configured admission rule and show pending or admitted status
+            businessEffect: A membership request alone does not grant member rights.
+            acceptanceRefs:
+              - FR-COM-04.AC.M2
+          - id: FR-COM-04.MAIN.S3
+            actor: member
+            request: Participate in group learning and discussions
+            systemResponse: Allow contributions and work sharing within current group/resource permission
+            businessEffect: Group membership does not expose private learning records by default.
+            acceptanceRefs:
+              - FR-COM-04.AC.M3
+          - id: FR-COM-04.MAIN.S4
+            actor: member
+            request: Leave the group or inspect a membership change
+            systemResponse: Explain remaining contribution attribution and revoked member access
+            businessEffect: Future reads and posts use current membership.
+            acceptanceRefs:
+              - FR-COM-04.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: Future reads and posts use current membership.
+      alternativeFlows:
+        - id: FR-COM-04.ALT1
+          title: The group requires an admission decision
+          fromStep: FR-COM-04.MAIN.S2
+          condition: The group requires an admission decision
+          steps:
+            - id: FR-COM-04.ALT1.S1
+              actor: member
+              request: Wait for an authorized decision
+              systemResponse: Show the pending request
+              businessEffect: No premature membership grant.
+              acceptanceRefs:
+                - FR-COM-04.AC.ALT1
+          resume:
+            type: end
+            outcome: No premature membership grant.
+          postconditions:
+            - No premature membership grant.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-COM-04.AC.ALT1
+      exceptionFlows:
+        - id: FR-COM-04.EX1
+          title: The member tries to share another learner private submission
+          fromStep: FR-COM-04.MAIN.S3
+          condition: The member tries to share another learner private submission
+          steps:
+            - id: FR-COM-04.EX1.S1
+              actor: member
+              request: Publish the reference/content
+              systemResponse: Deny unauthorized disclosure
+              businessEffect: No group role overrides submission ownership.
+              acceptanceRefs:
+                - FR-COM-04.AC.EX1
+          resume:
+            type: end
+            outcome: No group role overrides submission ownership.
+          postconditions:
+            - No group role overrides submission ownership.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-COM-04.AC.EX1
+        - id: FR-COM-04.EX2
+          title: A former member follows an old private group link
+          fromStep: FR-COM-04.MAIN.S4
+          condition: A former member follows an old private group link
+          steps:
+            - id: FR-COM-04.EX2.S1
+              actor: member
+              request: Open the linked discussion
+              systemResponse: Deny newly unauthorized access
+              businessEffect: No retained link bypasses withdrawal.
+              acceptanceRefs:
+                - FR-COM-04.AC.EX2
+          resume:
+            type: end
+            outcome: No retained link bypasses withdrawal.
+          postconditions:
+            - No retained link bypasses withdrawal.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-COM-04.AC.EX2
+      postconditions:
+        success:
+          - Private group content is not exposed in discovery.
+          - A membership request alone does not grant member rights.
+          - Group membership does not expose private learning records by default.
+          - Future reads and posts use current membership.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No group role overrides submission ownership.
+          - No retained link bypasses withdrawal.
+      acceptanceCriteria:
+        - id: FR-COM-04.AC.M1
+          flowRef: FR-COM-04.MAIN
+          stepRefs:
+            - FR-COM-04.MAIN.S1
+          given:
+            - The relevant context, group/resource audience and contribution authority are
+              identifiable.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect a learning group summary
+          then:
+            - Show its purpose, membership conditions and visible activity
+            - Private group content is not exposed in discovery.
+        - id: FR-COM-04.AC.M2
+          flowRef: FR-COM-04.MAIN
+          stepRefs:
+            - FR-COM-04.MAIN.S2
+          given:
+            - The previous main-flow step FR-COM-04.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Request or accept eligible membership
+          then:
+            - Apply the configured admission rule and show pending or admitted status
+            - A membership request alone does not grant member rights.
+        - id: FR-COM-04.AC.M3
+          flowRef: FR-COM-04.MAIN
+          stepRefs:
+            - FR-COM-04.MAIN.S3
+          given:
+            - The previous main-flow step FR-COM-04.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Participate in group learning and discussions
+          then:
+            - Allow contributions and work sharing within current group/resource permission
+            - Group membership does not expose private learning records by default.
+        - id: FR-COM-04.AC.M4
+          flowRef: FR-COM-04.MAIN
+          stepRefs:
+            - FR-COM-04.MAIN.S4
+          given:
+            - The previous main-flow step FR-COM-04.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Leave the group or inspect a membership change
+          then:
+            - Explain remaining contribution attribution and revoked member access
+            - Future reads and posts use current membership.
+        - id: FR-COM-04.AC.ALT1
+          flowRef: FR-COM-04.ALT1
+          stepRefs:
+            - FR-COM-04.ALT1.S1
+          given:
+            - Execution reaches FR-COM-04.MAIN.S2.
+            - The group requires an admission decision
+          when: Wait for an authorized decision
+          then:
+            - Show the pending request
+            - No premature membership grant.
+        - id: FR-COM-04.AC.EX1
+          flowRef: FR-COM-04.EX1
+          stepRefs:
+            - FR-COM-04.EX1.S1
+          given:
+            - Execution reaches FR-COM-04.MAIN.S3.
+            - The member tries to share another learner private submission
+          when: Publish the reference/content
+          then:
+            - Deny unauthorized disclosure
+            - No group role overrides submission ownership.
+        - id: FR-COM-04.AC.EX2
+          flowRef: FR-COM-04.EX2
+          stepRefs:
+            - FR-COM-04.EX2.S1
+          given:
+            - Execution reaches FR-COM-04.MAIN.S4.
+            - A former member follows an old private group link
+          when: Open the linked discussion
+          then:
+            - Deny newly unauthorized access
+            - No retained link bypasses withdrawal.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: community
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "9.2"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Inspect a learning group summary

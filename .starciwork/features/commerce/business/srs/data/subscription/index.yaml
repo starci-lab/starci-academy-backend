@@ -1,0 +1,116 @@
+schema: work/node@2
+id: starci-next.business.srs.data.subscription
+kind: business
+required: true
+state: todo
+description: Subscription agreement and effective schedule
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-data-definition@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: DATA-subscription
+      title: Subscription agreement and effective schedule
+      modelLevel: Proposed logical business contract; physical storage, indexes and APIs belong to SDS.
+      owner: subscriber; scoped commercial operations
+      fields:
+        - name: id
+          meaning: Stable logical record identity
+          validation: Required, unique and not changed by a state transition
+          classification: context-scoped
+        - name: version
+          meaning: Record/content revision used for attribution and confirmation
+          validation: Identify the reviewed version; changed content must not impersonate an earlier revision
+          classification: context-scoped
+        - name: offerVersion
+          meaning: Reviewed commercial agreement
+          validation: Exact confirmed terms and beneficiary
+          classification: private
+        - name: currentWindow
+          meaning: Current service interval and rights
+          validation: Matches approved lifecycle and settlement
+          classification: private
+        - name: scheduledAction
+          meaning: Renew, change or cancel request and effective date
+          validation: User-confirmed review under D03
+          classification: private
+        - name: settlementRefs
+          meaning: Payment evidence for applicable intervals
+          validation: Pending/unknown distinguished from confirmed
+          classification: restricted
+      relations:
+        - dataRef: DATA-offer
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-purchase
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-entitlement
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+      states:
+        - pending
+        - active
+        - change-pending
+        - renewal-unresolved
+        - ended
+      transitions:
+        - id: DATA-subscription.T1
+          from: pending
+          to: active
+          event: Activate confirmed agreement
+          guard: Settlement and approved activation terms satisfied
+        - id: DATA-subscription.T2
+          from: active
+          to: change-pending
+          event: Confirm supported lifecycle change
+          guard: Current terms and effective impact reviewed
+        - id: DATA-subscription.T3
+          from: change-pending
+          to: active
+          event: Apply confirmed change
+          guard: D03 effective boundary and payment requirements met
+        - id: DATA-subscription.T4
+          from: active
+          to: renewal-unresolved
+          event: Renewal cannot be confirmed
+          guard: D03 determines continuing rights; no guessed grace
+        - id: DATA-subscription.T5
+          from: renewal-unresolved
+          to: active
+          event: Resolve confirmed renewal
+          guard: Authoritative payment evidence
+        - id: DATA-subscription.T6
+          from: active
+          to: ended
+          event: Reach approved end boundary
+          guard: Cancel/expiry policy applied
+        - id: DATA-subscription.T7
+          from: change-pending
+          to: ended
+          event: Cancellation becomes effective
+          guard: Approved D03 boundary reached
+      invariants:
+        - Requesting cancellation does not itself choose an immediate access end or deletion date.
+      decisionRefs:
+        - D02
+        - D03
+      privacy:
+        access: Apply current owner, role, resource and audience grants. A selected-public field is exposed
+          only after authorized publication.
+        retention: D08 selects retention/export/closure behavior. No storage duration or automatic deletion
+          policy is inferred.
+        referenceWithdrawal: Preserve permitted provenance while preventing newly unauthorized source
+          access; retained snapshots require approved D08 purpose and scope.
+      validationCases:
+        - given: An actor without current rights references this subscription.
+          when: Read or mutate the record.
+          then: Deny the unauthorized action without disclosing restricted fields.
+        - given: A record in a declared state and an attributed authorized event.
+          when: Apply a listed transition.
+          then: Require its guard, retain the prior version attribution and reject a transition unsupported by
+            policy.
+      featureOwner: commerce
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

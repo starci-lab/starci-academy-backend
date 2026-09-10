@@ -1,0 +1,108 @@
+schema: work/node@2
+id: starci-next.business.srs.data.moderation-case
+kind: business
+required: true
+state: todo
+description: Content or answer review case
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.community-policy
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-data-definition@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: DATA-moderation-case
+      title: Content or answer review case
+      modelLevel: Proposed logical business contract; physical storage, indexes and APIs belong to SDS.
+      owner: community/content moderation owner
+      fields:
+        - name: id
+          meaning: Stable logical record identity
+          validation: Required, unique and not changed by a state transition
+          classification: context-scoped
+        - name: version
+          meaning: Record/content revision used for attribution and confirmation
+          validation: Identify the reviewed version; changed content must not impersonate an earlier revision
+          classification: context-scoped
+        - name: subject
+          meaning: Reported contribution, answer or source version
+          validation: Must identify permitted exact context
+          classification: restricted
+        - name: reportReason
+          meaning: Claim and relevant submitted evidence
+          validation: Claim is not a finding; exclude foreign private content
+          classification: restricted
+        - name: reviewerAndPolicy
+          meaning: Assigned authority and applicable policy
+          validation: Required for consequential decision
+          classification: restricted
+        - name: disposition
+          meaning: Resolution, explanation and allowed follow-up
+          validation: Unresolved differs from cleared or action taken
+          classification: restricted
+      relations:
+        - dataRef: DATA-discussion
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-rag-session
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-content-source
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-account
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+      states:
+        - received
+        - in-review
+        - awaiting-policy
+        - resolved
+        - under-appeal
+      transitions:
+        - id: DATA-moderation-case.T1
+          from: received
+          to: in-review
+          event: Authorized reviewer accepts
+          guard: Scope and policy identified
+        - id: DATA-moderation-case.T2
+          from: in-review
+          to: awaiting-policy
+          event: Policy/evidence insufficient
+          guard: Named decision owner recorded
+        - id: DATA-moderation-case.T3
+          from: in-review
+          to: resolved
+          event: Establish permitted outcome
+          guard: Evidence and applicable rule support it
+        - id: DATA-moderation-case.T4
+          from: resolved
+          to: under-appeal
+          event: Accept permitted review request
+          guard: D09 appeal policy applies
+        - id: DATA-moderation-case.T5
+          from: under-appeal
+          to: resolved
+          event: Conclude authorized re-review
+          guard: Attributed rationale recorded
+      invariants:
+        - Report count alone does not establish truth or misconduct.
+      decisionRefs:
+        - D06
+        - D09
+      privacy:
+        access: Apply current owner, role, resource and audience grants. A selected-public field is exposed
+          only after authorized publication.
+        retention: D08 selects retention/export/closure behavior. No storage duration or automatic deletion
+          policy is inferred.
+        referenceWithdrawal: Preserve permitted provenance while preventing newly unauthorized source
+          access; retained snapshots require approved D08 purpose and scope.
+      validationCases:
+        - given: An actor without current rights references this moderation-case.
+          when: Read or mutate the record.
+          then: Deny the unauthorized action without disclosing restricted fields.
+        - given: A record in a declared state and an attributed authorized event.
+          when: Apply a listed transition.
+          then: Require its guard, retain the prior version attribution and reject a transition unsupported by
+            policy.
+      featureOwner: community
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

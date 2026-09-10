@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.authoring.business.srs.data
+kind: business
+required: true
+description: "data: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: data
+      title: data
+      status: draft
+      children:
+        - path: assessment/index.yaml
+          workRef: starci-next.business.srs.data.assessment
+          title: Assessment, challenge and rubric version
+        - path: content-source/index.yaml
+          workRef: starci-next.business.srs.data.content-source
+          title: Knowledge source trust and reuse decision

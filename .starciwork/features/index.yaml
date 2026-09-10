@@ -1,0 +1,58 @@
+schema: work/node@2
+id: starci-next.features
+kind: business
+required: true
+description: "StarCiNext features: product scope and navigation"
+extensions:
+  starci:
+    schema: starci/feature-catalog@1
+    product: StarCiNext
+    features:
+      - path: authoring/index.yaml
+        workRef: starci-next.features.authoring
+        title: "authoring: feature-owned specification"
+      - path: challenges/index.yaml
+        workRef: starci-next.features.challenges
+        title: "challenges: feature-owned specification"
+      - path: commerce/index.yaml
+        workRef: starci-next.features.commerce
+        title: "commerce: feature-owned specification"
+      - path: community/index.yaml
+        workRef: starci-next.features.community
+        title: "community: feature-owned specification"
+      - path: concepts/index.yaml
+        workRef: starci-next.features.concepts
+        title: "concepts: feature-owned specification"
+      - path: cv/index.yaml
+        workRef: starci-next.features.cv
+        title: "cv: feature-owned specification"
+      - path: gamification/index.yaml
+        workRef: starci-next.features.gamification
+        title: "gamification: feature-owned specification"
+      - path: identity/index.yaml
+        workRef: starci-next.features.identity
+        title: "identity: feature-owned specification"
+      - path: interviews/index.yaml
+        workRef: starci-next.features.interviews
+        title: "interviews: feature-owned specification"
+      - path: learning-paths/index.yaml
+        workRef: starci-next.features.learning-paths
+        title: "learning-paths: feature-owned specification"
+      - path: mentoring/index.yaml
+        workRef: starci-next.features.mentoring
+        title: "mentoring: feature-owned specification"
+      - path: operations/index.yaml
+        workRef: starci-next.features.operations
+        title: "operations: feature-owned specification"
+      - path: profiles/index.yaml
+        workRef: starci-next.features.profiles
+        title: "profiles: feature-owned specification"
+      - path: projects/index.yaml
+        workRef: starci-next.features.projects
+        title: "projects: feature-owned specification"
+      - path: rag/index.yaml
+        workRef: starci-next.features.rag
+        title: "rag: feature-owned specification"
+      - path: recruitment/index.yaml
+        workRef: starci-next.features.recruitment
+        title: "recruitment: feature-owned specification"

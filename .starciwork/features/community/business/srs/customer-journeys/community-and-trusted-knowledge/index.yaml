@@ -1,0 +1,144 @@
+schema: work/node@2
+id: starci-next.business.srs.customer-journeys.community-and-trusted-knowledge
+kind: business
+required: true
+state: todo
+description: Learn together, moderate and curate useful knowledge
+refs:
+  - starci-next.business.srs.functional-requirements.community.participate-in-learning-group
+  - starci-next.business.srs.functional-requirements.community.discuss-in-context
+  - starci-next.business.srs.functional-requirements.community.peer-review-and-showcase
+  - starci-next.business.srs.functional-requirements.community.report-and-moderate
+  - starci-next.business.srs.functional-requirements.authoring.curate-learning-sources
+  - starci-next.business.srs.functional-requirements.gamification.recognize-learning-activity
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-customer-journey@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: CJ-10
+      title: Learn together, moderate and curate useful knowledge
+      actor: member with moderator and editor
+      entry: Members want to discuss and review work in a shared learning context.
+      preconditions:
+        - The actor can enter the relevant personal/organization context.
+        - Each referenced feature establishes its own prerequisites, current permissions and
+          approved policy before its consequential action.
+      stages:
+        - id: CJ-10.S1
+          actorAction: Join a permitted learning group
+          requirementRef: FR-COM-04
+          flowRef: FR-COM-04.MAIN
+          acceptanceRefs:
+            - FR-COM-04.AC.M1
+            - FR-COM-04.AC.M2
+            - FR-COM-04.AC.M3
+            - FR-COM-04.AC.M4
+          outcome: Admission and current private-group access are clear.
+          nextStep: CJ-10.S2
+        - id: CJ-10.S2
+          actorAction: Ask or respond in the relevant Concept/work context
+          requirementRef: FR-COM-01
+          flowRef: FR-COM-01.MAIN
+          acceptanceRefs:
+            - FR-COM-01.AC.M1
+            - FR-COM-01.AC.M2
+            - FR-COM-01.AC.M3
+            - FR-COM-01.AC.M4
+          outcome: Contribution attribution and audience are retained.
+          nextStep: CJ-10.S3
+        - id: CJ-10.S3
+          actorAction: Offer scoped peer review and acknowledge useful feedback
+          requirementRef: FR-COM-02
+          flowRef: FR-COM-02.MAIN
+          acceptanceRefs:
+            - FR-COM-02.AC.M1
+            - FR-COM-02.AC.M2
+            - FR-COM-02.AC.M3
+            - FR-COM-02.AC.M4
+          outcome: Feedback references exact work versions.
+          nextStep: CJ-10.S4
+        - id: CJ-10.S4
+          actorAction: Report concerns and inspect authorized moderation
+          requirementRef: FR-COM-03
+          flowRef: FR-COM-03.MAIN
+          acceptanceRefs:
+            - FR-COM-03.AC.M1
+            - FR-COM-03.AC.M2
+            - FR-COM-03.AC.M3
+            - FR-COM-03.AC.M4
+          outcome: Reports and findings remain distinct.
+          nextStep: CJ-10.S5
+        - id: CJ-10.S5
+          actorAction: Have an editor review candidate knowledge for reuse
+          requirementRef: FR-AUTH-02
+          flowRef: FR-AUTH-02.MAIN
+          acceptanceRefs:
+            - FR-AUTH-02.AC.M1
+            - FR-AUTH-02.AC.M2
+            - FR-AUTH-02.AC.M3
+            - FR-AUTH-02.AC.M4
+          outcome: Community content becomes trusted only through authorized curation.
+          nextStep: CJ-10.S6
+        - id: CJ-10.S6
+          actorAction: Inspect configured contribution recognition
+          requirementRef: FR-GAME-01
+          flowRef: FR-GAME-01.MAIN
+          acceptanceRefs:
+            - FR-GAME-01.AC.M1
+            - FR-GAME-01.AC.M2
+            - FR-GAME-01.AC.M3
+            - FR-GAME-01.AC.M4
+          outcome: Activity recognition does not imply truth or mastery.
+          nextStep: null
+      branches:
+        - id: CJ-10.B1
+          atStageRefs:
+            - CJ-10.S1
+          requirementRef: FR-COM-04
+          flowRef: FR-COM-04.ALT1
+          condition: The group requires an admission decision
+          handling: A pending group applicant waits for admission without private member access.
+          acceptanceRefs:
+            - FR-COM-04.AC.ALT1
+          outcome:
+            - No premature membership grant.
+        - id: CJ-10.B2
+          atStageRefs:
+            - CJ-10.S4
+          requirementRef: FR-COM-03
+          flowRef: FR-COM-03.EX2
+          condition: Policy or evidence is insufficient for a decision
+          handling: Insufficient policy/evidence leaves a named unresolved moderation decision.
+          acceptanceRefs:
+            - FR-COM-03.AC.EX2
+          outcome:
+            - No fabricated rule or automatic guilt from report count.
+        - id: CJ-10.B3
+          atStageRefs:
+            - CJ-10.S5
+          requirementRef: FR-AUTH-02
+          flowRef: FR-AUTH-02.EX1
+          condition: Reviewer authority or contributor consent was withdrawn
+          handling: Lost consent or review authority prevents promotion/reuse.
+          acceptanceRefs:
+            - FR-AUTH-02.AC.EX1
+          outcome:
+            - No automatic promotion from a reported or popular answer.
+      exit: Useful contributions remain attributable, moderation follows policy, and any trusted-source
+        promotion has a separate reviewed basis.
+      observations:
+        - A stage starts when the user reaches that feature with its prerequisites satisfied; the
+          overview does not bypass required project/evidence preparation.
+        - A referenced pending, cancelled or denied branch changes the journey outcome and must not
+          be reported as full-path success.
+      acceptanceCriteria:
+        - id: CJ-10.AC1
+          given: Members want to discuss and review work in a shared learning context.
+          when: Complete each relevant stage under its declared prerequisites and inspect branch outcomes.
+          then: Useful contributions remain attributable, moderation follows policy, and any trusted-source
+            promotion has a separate reviewed basis.
+      featureOwner: community
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

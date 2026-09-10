@@ -1,0 +1,16 @@
+schema: work/node@2
+id: starci-next.features.learning-paths.business.srs.business-rules
+kind: business
+required: true
+description: "business-rules: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: business-rules
+      title: business-rules
+      status: draft
+      children:
+        - path: learner-accepted-plan/index.yaml
+          workRef: starci-next.business.srs.business-rules.learner-accepted-plan
+          title: Learner-controlled plan changes

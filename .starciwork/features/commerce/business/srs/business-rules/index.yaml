@@ -1,0 +1,22 @@
+schema: work/node@2
+id: starci-next.features.commerce.business.srs.business-rules
+kind: business
+required: true
+description: "business-rules: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: business-rules
+      title: business-rules
+      status: draft
+      children:
+        - path: capability-specific-usage/index.yaml
+          workRef: starci-next.business.srs.business-rules.capability-specific-usage
+          title: Capability-specific usage
+        - path: policy-decisions/index.yaml
+          workRef: starci-next.features.commerce.business.srs.business-rules.policy-decisions
+          title: "policy-decisions: owned specification items"
+        - path: settlement-and-effective-rights/index.yaml
+          workRef: starci-next.business.srs.business-rules.settlement-and-effective-rights
+          title: Settlement and effective rights

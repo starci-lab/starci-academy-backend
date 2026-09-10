@@ -1,0 +1,22 @@
+schema: work/node@2
+id: starci-next.features.authoring.business.srs.business-rules
+kind: business
+required: true
+description: "business-rules: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: business-rules
+      title: business-rules
+      status: draft
+      children:
+        - path: policy-decisions/index.yaml
+          workRef: starci-next.features.authoring.business.srs.business-rules.policy-decisions
+          title: "policy-decisions: owned specification items"
+        - path: source-trust-and-access/index.yaml
+          workRef: starci-next.business.srs.business-rules.source-trust-and-access
+          title: Source trust and access
+        - path: version-bound-history/index.yaml
+          workRef: starci-next.business.srs.business-rules.version-bound-history
+          title: Version-bound evidence

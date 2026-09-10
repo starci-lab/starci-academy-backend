@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.profiles
+kind: business
+required: true
+description: "profiles: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: profiles
+    title: profiles
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.profiles.business
+        title: "profiles: business scope and SRS"

@@ -1,0 +1,369 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.authoring.manage-assessment-and-rubric
+kind: business
+required: true
+state: todo
+description: Publish assessment and review criteria
+refs:
+  - starci-next.business.srs.business-rules.assessment-provenance
+  - starci-next.business.srs.business-rules.version-bound-history
+  - starci-next.business.srs.business-rules.activity-versus-mastery
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.data.assessment
+  - starci-next.business.srs.data.test-result
+  - starci-next.business.srs.data.review
+  - starci-next.business.srs.data.concept
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.grounding-and-ai-boundaries
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.multilingual-content-consistency
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.non-functional-requirements.untrusted-submission-safety
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+  - starci-next.business.srs.business-rules.policy-decisions.release-scope
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-AUTH-03
+      title: Publish assessment and review criteria
+      domain: authoring
+      goal: Publish assessment and review criteria
+      priority: release-priority-awaits-D01
+      actors:
+        - author-editor
+      preconditions:
+        - The actor holds the relevant content/assessment review or publication authority.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-AUTH-03.IN1
+          name: assessmentCandidate
+          validation: Prompt, inputs, criteria, objective tests and assistance rules
+          dataRefs:
+            - DATA-assessment
+            - DATA-test-result
+            - DATA-review
+            - DATA-concept
+        - id: FR-AUTH-03.IN2
+          name: rubricDecision
+          validation: Authorized version-specific approval or retirement
+          dataRefs:
+            - DATA-assessment
+            - DATA-test-result
+            - DATA-review
+            - DATA-concept
+      outputs:
+        - name: result-1
+          fromStep: FR-AUTH-03.MAIN.S1
+          meaning: Describe objectives, required evidence and evaluation method
+          effect: The draft distinguishes deterministic checks and judgment criteria.
+        - name: result-2
+          fromStep: FR-AUTH-03.MAIN.S2
+          meaning: Explain pass/fail/partial/unevaluated semantics and mastery relationship
+          effect: No hidden mapping from AI feedback to test success.
+        - name: result-3
+          fromStep: FR-AUTH-03.MAIN.S3
+          meaning: Check examples, criteria consistency and authorized publishing role
+          effect: Approval identifies the exact assessment and rubric version.
+        - name: result-4
+          fromStep: FR-AUTH-03.MAIN.S4
+          meaning: Make the approved version available to its audience or close new attempts
+          effect: Existing attempts and reviews keep their original criteria and provenance.
+      businessRuleRefs:
+        - BR-EVIDENCE
+        - BR-VERSION
+        - BR-MASTERY
+        - BR-RIGHTS
+      dataRefs:
+        - DATA-assessment
+        - DATA-test-result
+        - DATA-review
+        - DATA-concept
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-AI
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-LANGUAGE
+        - NFR-AUDIT
+        - NFR-SUBMISSION
+      decisionRefs:
+        - D05
+        - D08
+        - D11
+        - D07
+        - D06
+        - D03
+        - D12
+        - D01
+      directPolicyRefs:
+        - D05
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-AUTH-03.MAIN
+        trigger: Create a challenge, interview question or project rubric draft
+        steps:
+          - id: FR-AUTH-03.MAIN.S1
+            actor: author-editor
+            request: Create a challenge, interview question or project rubric draft
+            systemResponse: Describe objectives, required evidence and evaluation method
+            businessEffect: The draft distinguishes deterministic checks and judgment criteria.
+            acceptanceRefs:
+              - FR-AUTH-03.AC.M1
+          - id: FR-AUTH-03.MAIN.S2
+            actor: author-editor
+            request: Define permitted assistance and result meanings
+            systemResponse: Explain pass/fail/partial/unevaluated semantics and mastery relationship
+            businessEffect: No hidden mapping from AI feedback to test success.
+            acceptanceRefs:
+              - FR-AUTH-03.AC.M2
+          - id: FR-AUTH-03.MAIN.S3
+            actor: author-editor
+            request: Review and approve the candidate
+            systemResponse: Check examples, criteria consistency and authorized publishing role
+            businessEffect: Approval identifies the exact assessment and rubric version.
+            acceptanceRefs:
+              - FR-AUTH-03.AC.M3
+          - id: FR-AUTH-03.MAIN.S4
+            actor: author-editor
+            request: Publish or retire the assessment version
+            systemResponse: Make the approved version available to its audience or close new attempts
+            businessEffect: Existing attempts and reviews keep their original criteria and provenance.
+            acceptanceRefs:
+              - FR-AUTH-03.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: Existing attempts and reviews keep their original criteria and provenance.
+      alternativeFlows:
+        - id: FR-AUTH-03.ALT1
+          title: The rubric is incomplete or disputed
+          fromStep: FR-AUTH-03.MAIN.S3
+          condition: The rubric is incomplete or disputed
+          steps:
+            - id: FR-AUTH-03.ALT1.S1
+              actor: author-editor
+              request: Return it for revision
+              systemResponse: Keep the current published criteria
+              businessEffect: No unsupported certification threshold is activated.
+              acceptanceRefs:
+                - FR-AUTH-03.AC.ALT1
+          resume:
+            type: end
+            outcome: No unsupported certification threshold is activated.
+          postconditions:
+            - No unsupported certification threshold is activated.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-AUTH-03.AC.ALT1
+      exceptionFlows:
+        - id: FR-AUTH-03.EX1
+          title: An active attempt references the retired version
+          fromStep: FR-AUTH-03.MAIN.S4
+          condition: An active attempt references the retired version
+          steps:
+            - id: FR-AUTH-03.EX1.S1
+              actor: author-editor
+              request: Inspect or submit the attempt
+              systemResponse: Explain the approved continuation policy while retaining the attempt
+              businessEffect: Do not silently grade against a replacement rubric.
+              acceptanceRefs:
+                - FR-AUTH-03.AC.EX1
+          resume:
+            type: end
+            outcome: Do not silently grade against a replacement rubric.
+          postconditions:
+            - Do not silently grade against a replacement rubric.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-AUTH-03.AC.EX1
+        - id: FR-AUTH-03.EX2
+          title: A reviewer tries to change recorded test outcomes to match AI commentary
+          fromStep: FR-AUTH-03.MAIN.S3
+          condition: A reviewer tries to change recorded test outcomes to match AI commentary
+          steps:
+            - id: FR-AUTH-03.EX2.S1
+              actor: author-editor
+              request: Submit the criteria change
+              systemResponse: Reject rewriting historical results
+              businessEffect: New criteria apply only through an explicit versioned evaluation decision.
+              acceptanceRefs:
+                - FR-AUTH-03.AC.EX2
+          resume:
+            type: end
+            outcome: New criteria apply only through an explicit versioned evaluation decision.
+          postconditions:
+            - New criteria apply only through an explicit versioned evaluation decision.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-AUTH-03.AC.EX2
+      postconditions:
+        success:
+          - The draft distinguishes deterministic checks and judgment criteria.
+          - No hidden mapping from AI feedback to test success.
+          - Approval identifies the exact assessment and rubric version.
+          - Existing attempts and reviews keep their original criteria and provenance.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - Do not silently grade against a replacement rubric.
+          - New criteria apply only through an explicit versioned evaluation decision.
+      acceptanceCriteria:
+        - id: FR-AUTH-03.AC.M1
+          flowRef: FR-AUTH-03.MAIN
+          stepRefs:
+            - FR-AUTH-03.MAIN.S1
+          given:
+            - The actor holds the relevant content/assessment review or publication authority.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Create a challenge, interview question or project rubric draft
+          then:
+            - Describe objectives, required evidence and evaluation method
+            - The draft distinguishes deterministic checks and judgment criteria.
+        - id: FR-AUTH-03.AC.M2
+          flowRef: FR-AUTH-03.MAIN
+          stepRefs:
+            - FR-AUTH-03.MAIN.S2
+          given:
+            - The previous main-flow step FR-AUTH-03.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Define permitted assistance and result meanings
+          then:
+            - Explain pass/fail/partial/unevaluated semantics and mastery relationship
+            - No hidden mapping from AI feedback to test success.
+        - id: FR-AUTH-03.AC.M3
+          flowRef: FR-AUTH-03.MAIN
+          stepRefs:
+            - FR-AUTH-03.MAIN.S3
+          given:
+            - The previous main-flow step FR-AUTH-03.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Review and approve the candidate
+          then:
+            - Check examples, criteria consistency and authorized publishing role
+            - Approval identifies the exact assessment and rubric version.
+        - id: FR-AUTH-03.AC.M4
+          flowRef: FR-AUTH-03.MAIN
+          stepRefs:
+            - FR-AUTH-03.MAIN.S4
+          given:
+            - The previous main-flow step FR-AUTH-03.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Publish or retire the assessment version
+          then:
+            - Make the approved version available to its audience or close new attempts
+            - Existing attempts and reviews keep their original criteria and provenance.
+        - id: FR-AUTH-03.AC.ALT1
+          flowRef: FR-AUTH-03.ALT1
+          stepRefs:
+            - FR-AUTH-03.ALT1.S1
+          given:
+            - Execution reaches FR-AUTH-03.MAIN.S3.
+            - The rubric is incomplete or disputed
+          when: Return it for revision
+          then:
+            - Keep the current published criteria
+            - No unsupported certification threshold is activated.
+        - id: FR-AUTH-03.AC.EX1
+          flowRef: FR-AUTH-03.EX1
+          stepRefs:
+            - FR-AUTH-03.EX1.S1
+          given:
+            - Execution reaches FR-AUTH-03.MAIN.S4.
+            - An active attempt references the retired version
+          when: Inspect or submit the attempt
+          then:
+            - Explain the approved continuation policy while retaining the attempt
+            - Do not silently grade against a replacement rubric.
+        - id: FR-AUTH-03.AC.EX2
+          flowRef: FR-AUTH-03.EX2
+          stepRefs:
+            - FR-AUTH-03.EX2.S1
+          given:
+            - Execution reaches FR-AUTH-03.MAIN.S3.
+            - A reviewer tries to change recorded test outcomes to match AI commentary
+          when: Submit the criteria change
+          then:
+            - Reject rewriting historical results
+            - New criteria apply only through an explicit versioned evaluation decision.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AI
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LANGUAGE
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-SUBMISSION
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: authoring
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "6"
+            - "7"
+            - "8.1"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Create a challenge, interview question or project rubric draft

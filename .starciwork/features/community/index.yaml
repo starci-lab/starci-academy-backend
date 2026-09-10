@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.community
+kind: business
+required: true
+description: "community: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: community
+    title: community
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.community.business
+        title: "community: business scope and SRS"

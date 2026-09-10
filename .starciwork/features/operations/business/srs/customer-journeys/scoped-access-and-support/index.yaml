@@ -1,0 +1,132 @@
+schema: work/node@2
+id: starci-next.business.srs.customer-journeys.scoped-access-and-support
+kind: business
+required: true
+state: todo
+description: Manage membership and resolve access/support issues
+refs:
+  - starci-next.business.srs.functional-requirements.identity.access-workspace
+  - starci-next.business.srs.functional-requirements.identity.manage-scoped-membership
+  - starci-next.business.srs.functional-requirements.operations.resolve-account-and-benefit-case
+  - starci-next.business.srs.functional-requirements.commerce.resolve-purchase-and-refund
+  - starci-next.business.srs.functional-requirements.operations.manage-personal-data-request
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-customer-journey@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: CJ-13
+      title: Manage membership and resolve access/support issues
+      actor: member with administrator and operations
+      entry: A member has a role or account/benefit issue requiring authorized assistance.
+      preconditions:
+        - The actor can enter the relevant personal/organization context.
+        - Each referenced feature establishes its own prerequisites, current permissions and
+          approved policy before its consequential action.
+      stages:
+        - id: CJ-13.S1
+          actorAction: Enter the appropriate held context
+          requirementRef: FR-ID-01
+          flowRef: FR-ID-01.MAIN
+          acceptanceRefs:
+            - FR-ID-01.AC.M1
+            - FR-ID-01.AC.M2
+            - FR-ID-01.AC.M3
+            - FR-ID-01.AC.M4
+          outcome: Protected access uses current rights.
+          nextStep: CJ-13.S2
+        - id: CJ-13.S2
+          actorAction: Have an authorized administrator review a membership change
+          requirementRef: FR-ID-02
+          flowRef: FR-ID-02.MAIN
+          acceptanceRefs:
+            - FR-ID-02.AC.M1
+            - FR-ID-02.AC.M2
+            - FR-ID-02.AC.M3
+            - FR-ID-02.AC.M4
+          outcome: The reviewed grant/withdrawal stays in organization scope.
+          nextStep: CJ-13.S3
+        - id: CJ-13.S3
+          actorAction: Submit the remaining issue for scoped support
+          requirementRef: FR-OPS-01
+          flowRef: FR-OPS-01.MAIN
+          acceptanceRefs:
+            - FR-OPS-01.AC.M1
+            - FR-OPS-01.AC.M2
+            - FR-OPS-01.AC.M3
+            - FR-OPS-01.AC.M4
+          outcome: A tracked case has relevant evidence and an authorized owner.
+          nextStep: CJ-13.S4
+        - id: CJ-13.S4
+          actorAction: Use the purchase-resolution path when financially relevant
+          requirementRef: FR-SUB-04
+          flowRef: FR-SUB-04.MAIN
+          acceptanceRefs:
+            - FR-SUB-04.AC.M1
+            - FR-SUB-04.AC.M2
+            - FR-SUB-04.AC.M3
+            - FR-SUB-04.AC.M4
+          outcome: Commercial outcome and entitlement correction stay distinct.
+          nextStep: CJ-13.S5
+        - id: CJ-13.S5
+          actorAction: Request a permitted personal-data action when relevant
+          requirementRef: FR-OPS-02
+          flowRef: FR-OPS-02.MAIN
+          acceptanceRefs:
+            - FR-OPS-02.AC.M1
+            - FR-OPS-02.AC.M2
+            - FR-OPS-02.AC.M3
+            - FR-OPS-02.AC.M4
+          outcome: Data fulfillment requires verified ownership and approved policy.
+          nextStep: null
+      branches:
+        - id: CJ-13.B1
+          atStageRefs:
+            - CJ-13.S2
+          requirementRef: FR-ID-02
+          flowRef: FR-ID-02.EX2
+          condition: Requested role exceeds administrator authority
+          handling: An administrator cannot grant a role exceeding their authority.
+          acceptanceRefs:
+            - FR-ID-02.AC.EX2
+          outcome:
+            - No self-escalation or foreign membership mutation.
+        - id: CJ-13.B2
+          atStageRefs:
+            - CJ-13.S3
+          requirementRef: FR-OPS-01
+          flowRef: FR-OPS-01.EX1
+          condition: The operator requests unrelated private work
+          handling: Support purpose does not permit unrelated private work inspection.
+          acceptanceRefs:
+            - FR-OPS-01.AC.EX1
+          outcome:
+            - No support role becomes unlimited account access.
+        - id: CJ-13.B3
+          atStageRefs:
+            - CJ-13.S3
+          requirementRef: FR-OPS-01
+          flowRef: FR-OPS-01.EX2
+          condition: The policy needed for resolution is missing
+          handling: Missing policy stays an explicit decision dependency rather than an invented resolution.
+          acceptanceRefs:
+            - FR-OPS-01.AC.EX2
+          outcome:
+            - No invented refund, legacy entitlement or privacy policy.
+      exit: The user sees the actual corrected or pending state and the accountable next step without
+        cross-account access.
+      observations:
+        - A stage starts when the user reaches that feature with its prerequisites satisfied; the
+          overview does not bypass required project/evidence preparation.
+        - A referenced pending, cancelled or denied branch changes the journey outcome and must not
+          be reported as full-path success.
+      acceptanceCriteria:
+        - id: CJ-13.AC1
+          given: A member has a role or account/benefit issue requiring authorized assistance.
+          when: Complete each relevant stage under its declared prerequisites and inspect branch outcomes.
+          then: The user sees the actual corrected or pending state and the accountable next step without
+            cross-account access.
+      featureOwner: operations
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

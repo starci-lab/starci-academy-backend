@@ -1,0 +1,28 @@
+schema: work/node@2
+id: starci-next.features.rag.business.srs
+kind: business
+required: true
+description: "rag: Software Requirements Specification"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: feature-srs
+      title: rag SRS
+      status: draft
+      children:
+        - path: business-rules/index.yaml
+          workRef: starci-next.features.rag.business.srs.business-rules
+          title: "business-rules: owned specification items"
+        - path: customer-journeys/index.yaml
+          workRef: starci-next.features.rag.business.srs.customer-journeys
+          title: "customer-journeys: owned specification items"
+        - path: data/index.yaml
+          workRef: starci-next.features.rag.business.srs.data
+          title: "data: owned specification items"
+        - path: functional-requirements/index.yaml
+          workRef: starci-next.features.rag.business.srs.functional-requirements
+          title: "functional-requirements: owned specification items"
+        - path: non-functional-requirements/index.yaml
+          workRef: starci-next.features.rag.business.srs.non-functional-requirements
+          title: "non-functional-requirements: owned specification items"

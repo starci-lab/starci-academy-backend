@@ -1,0 +1,134 @@
+schema: work/node@2
+id: starci-next.business.srs.customer-journeys.profile-privacy-and-withdrawal
+kind: business
+required: true
+state: todo
+description: Control learning privacy and career sharing
+refs:
+  - starci-next.business.srs.functional-requirements.profiles.manage-private-learning-profile
+  - starci-next.business.srs.functional-requirements.profiles.publish-career-profile
+  - starci-next.business.srs.functional-requirements.cv.export-and-share-cv
+  - starci-next.business.srs.functional-requirements.profiles.revise-or-withdraw-sharing
+  - starci-next.business.srs.functional-requirements.operations.manage-personal-data-request
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-customer-journey@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: CJ-07
+      title: Control learning privacy and career sharing
+      actor: learner
+      entry: A learner wants to publish a portfolio while keeping private study information.
+      preconditions:
+        - The actor can enter the relevant personal/organization context.
+        - Each referenced feature establishes its own prerequisites, current permissions and
+          approved policy before its consequential action.
+      stages:
+        - id: CJ-07.S1
+          actorAction: Inspect the private learning profile
+          requirementRef: FR-PROFILE-01
+          flowRef: FR-PROFILE-01.MAIN
+          acceptanceRefs:
+            - FR-PROFILE-01.AC.M1
+            - FR-PROFILE-01.AC.M2
+            - FR-PROFILE-01.AC.M3
+            - FR-PROFILE-01.AC.M4
+          outcome: Learning history and weaknesses remain owner-scoped.
+          nextStep: CJ-07.S2
+        - id: CJ-07.S2
+          actorAction: Select and review career profile fields
+          requirementRef: FR-PROFILE-02
+          flowRef: FR-PROFILE-02.MAIN
+          acceptanceRefs:
+            - FR-PROFILE-02.AC.M1
+            - FR-PROFILE-02.AC.M2
+            - FR-PROFILE-02.AC.M3
+            - FR-PROFILE-02.AC.M4
+          outcome: Only chosen claims/evidence are prepared for sharing.
+          nextStep: CJ-07.S3
+        - id: CJ-07.S3
+          actorAction: Share the selected CV version where wanted
+          requirementRef: FR-CV-02
+          flowRef: FR-CV-02.MAIN
+          acceptanceRefs:
+            - FR-CV-02.AC.M1
+            - FR-CV-02.AC.M2
+            - FR-CV-02.AC.M3
+            - FR-CV-02.AC.M4
+          outcome: Audience and evidence scope are explicit.
+          nextStep: CJ-07.S4
+        - id: CJ-07.S4
+          actorAction: Revise the profile or withdraw selected sharing
+          requirementRef: FR-PROFILE-03
+          flowRef: FR-PROFILE-03.MAIN
+          acceptanceRefs:
+            - FR-PROFILE-03.AC.M1
+            - FR-PROFILE-03.AC.M2
+            - FR-PROFILE-03.AC.M3
+            - FR-PROFILE-03.AC.M4
+          outcome: Future rights and historical limitations are explained.
+          nextStep: CJ-07.S5
+        - id: CJ-07.S5
+          actorAction: Request a supported personal-data action if needed
+          requirementRef: FR-OPS-02
+          flowRef: FR-OPS-02.MAIN
+          acceptanceRefs:
+            - FR-OPS-02.AC.M1
+            - FR-OPS-02.AC.M2
+            - FR-OPS-02.AC.M3
+            - FR-OPS-02.AC.M4
+          outcome: Ownership, retention and external-copy limits are reviewed.
+          nextStep: null
+      branches:
+        - id: CJ-07.B1
+          atStageRefs:
+            - CJ-07.S2
+          requirementRef: FR-PROFILE-02
+          flowRef: FR-PROFILE-02.ALT1
+          condition: The learner keeps the profile private
+          handling: Keeping the candidate private causes no public publication.
+          acceptanceRefs:
+            - FR-PROFILE-02.AC.ALT1
+          outcome:
+            - No public or recruiter visibility.
+        - id: CJ-07.B2
+          atStageRefs:
+            - CJ-07.S4
+          requirementRef: FR-PROFILE-03
+          flowRef: FR-PROFILE-03.EX2
+          condition: A derived view or RAG context still references withdrawn evidence
+          handling: Dependent shared claims expose unavailable evidence rather than silently retaining private
+            source access.
+          acceptanceRefs:
+            - FR-PROFILE-03.AC.EX2
+          outcome:
+            - Delayed refresh does not extend old sharing rights.
+        - id: CJ-07.B3
+          atStageRefs:
+            - CJ-07.S5
+          requirementRef: FR-OPS-02
+          flowRef: FR-OPS-02.EX2
+          condition: Retention or closure policy is unresolved
+          handling: Undefined retention/closure policy leaves a named pending decision without guessed
+            deletion.
+          acceptanceRefs:
+            - FR-OPS-02.AC.EX2
+          outcome:
+            - No guessed retention period, blanket erasure or hidden deletion.
+      exit: The learner knows what audiences may see now and what approved historical retention or
+        external copies may still exist.
+      observations:
+        - A stage starts when the user reaches that feature with its prerequisites satisfied; the
+          overview does not bypass required project/evidence preparation.
+        - A referenced pending, cancelled or denied branch changes the journey outcome and must not
+          be reported as full-path success.
+      acceptanceCriteria:
+        - id: CJ-07.AC1
+          given: A learner wants to publish a portfolio while keeping private study information.
+          when: Complete each relevant stage under its declared prerequisites and inspect branch outcomes.
+          then: The learner knows what audiences may see now and what approved historical retention or
+            external copies may still exist.
+      featureOwner: profiles
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

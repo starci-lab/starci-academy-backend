@@ -1,0 +1,46 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.purpose-bound-sharing
+kind: business
+required: true
+state: todo
+description: Private learning and explicit sharing
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-business-rule@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: BR-PRIVACY
+      title: Private learning and explicit sharing
+      statements:
+        - Learning plans, weak areas, raw attempts and private reviews are owner-scoped unless an
+          authorized sharing decision covers the named resource and audience.
+        - A profile/CV/application exposes only reviewed selections; joining a group or buying an
+          offer does not consent to recruiter access.
+        - Withdrawal prevents new unauthorized access; historical attribution and approved retention
+          must be distinguished from current visibility.
+      decisionRefs:
+        - D08
+      example: Publishing a portfolio does not publish failed practice attempts or the private learning
+        dashboard.
+      acceptanceCriteria:
+        - id: BR-PRIVACY.AC1
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Learning plans, weak areas, raw attempts and private reviews are owner-scoped unless an
+            authorized sharing decision covers the named resource and audience.
+        - id: BR-PRIVACY.AC2
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: A profile/CV/application exposes only reviewed selections; joining a group or buying an offer
+            does not consent to recruiter access.
+        - id: BR-PRIVACY.AC3
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Withdrawal prevents new unauthorized access; historical attribution and approved retention
+            must be distinguished from current visibility.
+      featureOwner: profiles
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

@@ -1,0 +1,22 @@
+schema: work/node@2
+id: starci-next.features.recruitment.business.srs.data
+kind: business
+required: true
+description: "data: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: data
+      title: data
+      status: draft
+      children:
+        - path: application/index.yaml
+          workRef: starci-next.business.srs.data.application
+          title: Candidate-approved opportunity application
+        - path: opportunity/index.yaml
+          workRef: starci-next.business.srs.data.opportunity
+          title: Organization-owned recruitment opportunity
+        - path: organization/index.yaml
+          workRef: starci-next.business.srs.data.organization
+          title: Organization and scoped representation

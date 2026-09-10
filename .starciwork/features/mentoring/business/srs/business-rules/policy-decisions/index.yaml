@@ -1,0 +1,16 @@
+schema: work/node@2
+id: starci-next.features.mentoring.business.srs.business-rules.policy-decisions
+kind: business
+required: true
+description: "policy-decisions: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: policy-decisions
+      title: policy-decisions
+      status: draft
+      children:
+        - path: mentor-service/index.yaml
+          workRef: starci-next.business.srs.business-rules.policy-decisions.mentor-service
+          title: Mentor service availability and terms

@@ -1,0 +1,95 @@
+schema: work/node@2
+id: starci-next.business.srs.data.account
+kind: business
+required: true
+state: todo
+description: Account and held roles
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-data-definition@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: DATA-account
+      title: Account and held roles
+      modelLevel: Proposed logical business contract; physical storage, indexes and APIs belong to SDS.
+      owner: account holder; scoped identity operations
+      fields:
+        - name: id
+          meaning: Stable logical record identity
+          validation: Required, unique and not changed by a state transition
+          classification: context-scoped
+        - name: version
+          meaning: Record/content revision used for attribution and confirmation
+          validation: Identify the reviewed version; changed content must not impersonate an earlier revision
+          classification: context-scoped
+        - name: identitySubject
+          meaning: Verified identity reference
+          validation: Required and unique within the configured identity authority
+          classification: private
+        - name: displayName
+          meaning: Chosen visible name
+          validation: Nonempty; display audience follows profile selection
+          classification: personal
+        - name: roleContexts
+          meaning: Held personal and organization roles
+          validation: Every role names its grant authority and scope
+          classification: restricted
+        - name: accessState
+          meaning: Current ability to use protected areas
+          validation: One declared access state; reason for restrictions is attributable
+          classification: restricted
+      relations: []
+      states:
+        - unverified
+        - active
+        - restricted
+        - closed
+      transitions:
+        - id: DATA-account.T1
+          from: unverified
+          to: active
+          event: Identity verified
+          guard: Verification succeeds under configured identity policy
+        - id: DATA-account.T2
+          from: active
+          to: restricted
+          event: Authorized access restriction
+          guard: Actor is authorized for the specific restriction
+        - id: DATA-account.T3
+          from: restricted
+          to: active
+          event: Restriction resolved
+          guard: Resolution evidence and authority are recorded
+        - id: DATA-account.T4
+          from: active
+          to: closed
+          event: Approved account closure fulfilled
+          guard: D08 ownership and retention policy satisfied
+      invariants:
+        - Selecting a role cannot create a grant.
+        - Account closure is not a blanket promise to erase retained or exported records.
+      decisionRefs:
+        - D08
+        - D11
+      privacy:
+        access: Apply current owner, role, resource and audience grants. A selected-public field is exposed
+          only after authorized publication.
+        retention: D08 selects retention/export/closure behavior. No storage duration or automatic deletion
+          policy is inferred.
+        referenceWithdrawal: Preserve permitted provenance while preventing newly unauthorized source
+          access; retained snapshots require approved D08 purpose and scope.
+      validationCases:
+        - given: An actor without current rights references this account.
+          when: Read or mutate the record.
+          then: Deny the unauthorized action without disclosing restricted fields.
+        - given: A record in a declared state and an attributed authorized event.
+          when: Apply a listed transition.
+          then: Require its guard, retain the prior version attribution and reject a transition unsupported by
+            policy.
+      featureOwner: identity
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

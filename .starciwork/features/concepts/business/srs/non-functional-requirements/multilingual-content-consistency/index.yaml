@@ -1,0 +1,50 @@
+schema: work/node@2
+id: starci-next.business.srs.non-functional-requirements.multilingual-content-consistency
+kind: business
+required: true
+state: todo
+description: Language and content-version consistency
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.release-scope
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-non-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: NFR-LANGUAGE
+      title: Language and content-version consistency
+      scope:
+        - concepts
+        - learning-paths
+        - rag
+        - authoring
+      requirement: VI/EN content versions preserve shared Concept identity and disclose missing or
+        non-equivalent translations.
+      decisionRefs:
+        - D01
+        - D06
+      measurement:
+        metric: Every offered language switch resolves to the shown content/version relationship; release
+          language completeness awaits D01.
+        conditions: Use equivalent translations, an untranslated update, citations in one language and
+          progress recorded against the earlier version.
+        thresholdStatus: Quantitative/policy targets referenced above are open; deterministic invariants
+          below are reviewable now.
+        evidenceRequired: Record scenario, input/source/policy versions, environment/load, observation
+          timestamps, actual outcomes and metric calculation; do not substitute a document check for
+          runtime evidence.
+      acceptanceCriteria:
+        - id: NFR-LANGUAGE.AC1
+          given: Use equivalent translations, an untranslated update, citations in one language and progress
+            recorded against the earlier version.
+          when: Switch language during study and open citations before and after publication updates.
+          then: No unrelated content substitution or silent mastery conversion; unavailable translations are
+            explicit and the learner can retain the original context.
+      tradeoffBoundary: SDS proposes optimizations and capacity choices within these obligations. Privacy,
+        consent, financial truth and evidence provenance cannot be relaxed to improve latency or
+        cost.
+      featureOwner: concepts
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

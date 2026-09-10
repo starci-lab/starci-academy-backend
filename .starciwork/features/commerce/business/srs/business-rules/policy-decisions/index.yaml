@@ -1,0 +1,22 @@
+schema: work/node@2
+id: starci-next.features.commerce.business.srs.business-rules.policy-decisions
+kind: business
+required: true
+description: "policy-decisions: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: policy-decisions
+      title: policy-decisions
+      status: draft
+      children:
+        - path: commercial-offers/index.yaml
+          workRef: starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+          title: Offer matrix, price and allowance
+        - path: failed-ai-usage/index.yaml
+          workRef: starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+          title: AI retry and failed/unknown usage treatment
+        - path: subscription-policy/index.yaml
+          workRef: starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+          title: Payment and subscription lifecycle policy

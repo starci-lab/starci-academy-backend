@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.interviews
+kind: business
+required: true
+description: "interviews: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: interviews
+    title: interviews
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.interviews.business
+        title: "interviews: business scope and SRS"

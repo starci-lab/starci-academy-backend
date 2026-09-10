@@ -1,0 +1,47 @@
+schema: work/node@2
+id: starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+kind: business
+required: true
+state: todo
+description: Version and result integrity
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-non-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: NFR-INTEGRITY
+      title: Version and result integrity
+      scope:
+        - all
+      requirement: A displayed result or commercial effect identifies the exact source version and cannot
+        silently drift after edits.
+      decisionRefs:
+        - D05
+        - D08
+      measurement:
+        metric: All sampled attempts, reviews, published claims and purchases resolve to the versions and
+          authority that produced them.
+        conditions: Record attempts under one rubric/source/offer; revise each source and repeat retrieval
+          and confirmation.
+        thresholdStatus: Quantitative/policy targets referenced above are open; deterministic invariants
+          below are reviewable now.
+        evidenceRequired: Record scenario, input/source/policy versions, environment/load, observation
+          timestamps, actual outcomes and metric calculation; do not substitute a document check for
+          runtime evidence.
+      acceptanceCriteria:
+        - id: NFR-INTEGRITY.AC1
+          given: Record attempts under one rubric/source/offer; revise each source and repeat retrieval and
+            confirmation.
+          when: Inspect the old result, submit a stale confirmation and create a new intentional revision.
+          then: Old provenance stays intact, stale different terms require review, and the new version has
+            distinct identity and outcome.
+      tradeoffBoundary: SDS proposes optimizations and capacity choices within these obligations. Privacy,
+        consent, financial truth and evidence provenance cannot be relaxed to improve latency or
+        cost.
+      featureOwner: authoring
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

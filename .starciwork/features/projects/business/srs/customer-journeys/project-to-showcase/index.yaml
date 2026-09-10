@@ -1,0 +1,134 @@
+schema: work/node@2
+id: starci-next.business.srs.customer-journeys.project-to-showcase
+kind: business
+required: true
+state: todo
+description: Build, review, improve and share a Personal Project
+refs:
+  - starci-next.business.srs.functional-requirements.projects.define-project-and-milestones
+  - starci-next.business.srs.functional-requirements.projects.submit-milestone-evidence
+  - starci-next.business.srs.functional-requirements.projects.review-and-improve-project
+  - starci-next.business.srs.functional-requirements.community.peer-review-and-showcase
+  - starci-next.business.srs.functional-requirements.profiles.publish-career-profile
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-customer-journey@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: CJ-05
+      title: Build, review, improve and share a Personal Project
+      actor: learner
+      entry: A learner wants to demonstrate practical engineering capability.
+      preconditions:
+        - The actor can enter the relevant personal/organization context.
+        - Each referenced feature establishes its own prerequisites, current permissions and
+          approved policy before its consequential action.
+      stages:
+        - id: CJ-05.S1
+          actorAction: Accept a project brief and milestones
+          requirementRef: FR-PROJ-01
+          flowRef: FR-PROJ-01.MAIN
+          acceptanceRefs:
+            - FR-PROJ-01.AC.M1
+            - FR-PROJ-01.AC.M2
+            - FR-PROJ-01.AC.M3
+            - FR-PROJ-01.AC.M4
+            - FR-PROJ-01.AC.M5
+          outcome: The intended result and evidence criteria are clear.
+          nextStep: CJ-05.S2
+        - id: CJ-05.S2
+          actorAction: Submit a milestone evidence version
+          requirementRef: FR-PROJ-02
+          flowRef: FR-PROJ-02.MAIN
+          acceptanceRefs:
+            - FR-PROJ-02.AC.M1
+            - FR-PROJ-02.AC.M2
+            - FR-PROJ-02.AC.M3
+            - FR-PROJ-02.AC.M4
+          outcome: The review input is owned, inspectable and attributable.
+          nextStep: CJ-05.S3
+        - id: CJ-05.S3
+          actorAction: Inspect review and submit improvements
+          requirementRef: FR-PROJ-03
+          flowRef: FR-PROJ-03.MAIN
+          acceptanceRefs:
+            - FR-PROJ-03.AC.M1
+            - FR-PROJ-03.AC.M2
+            - FR-PROJ-03.AC.M3
+            - FR-PROJ-03.AC.M4
+            - FR-PROJ-03.AC.M5
+          outcome: Findings and revisions retain a traceable relationship.
+          nextStep: CJ-05.S4
+        - id: CJ-05.S4
+          actorAction: Invite scoped peer feedback or showcase selected work
+          requirementRef: FR-COM-02
+          flowRef: FR-COM-02.MAIN
+          acceptanceRefs:
+            - FR-COM-02.AC.M1
+            - FR-COM-02.AC.M2
+            - FR-COM-02.AC.M3
+            - FR-COM-02.AC.M4
+          outcome: The community sees only selected evidence.
+          nextStep: CJ-05.S5
+        - id: CJ-05.S5
+          actorAction: Publish chosen evidence in the career profile
+          requirementRef: FR-PROFILE-02
+          flowRef: FR-PROFILE-02.MAIN
+          acceptanceRefs:
+            - FR-PROFILE-02.AC.M1
+            - FR-PROFILE-02.AC.M2
+            - FR-PROFILE-02.AC.M3
+            - FR-PROFILE-02.AC.M4
+          outcome: Claims identify their source and limits.
+          nextStep: null
+      branches:
+        - id: CJ-05.B1
+          atStageRefs:
+            - CJ-05.S2
+          requirementRef: FR-PROJ-02
+          flowRef: FR-PROJ-02.EX1
+          condition: A repository/demo cannot be accessed or evidence is missing
+          handling: Missing required evidence leads to correction without a fabricated completed review.
+          acceptanceRefs:
+            - FR-PROJ-02.AC.EX1
+          outcome:
+            - Keep the submitted revision; no invented implementation finding.
+        - id: CJ-05.B2
+          atStageRefs:
+            - CJ-05.S3
+          requirementRef: FR-PROJ-03
+          flowRef: FR-PROJ-03.EX2
+          condition: Review processing fails or usage permission is unavailable
+          handling: Unresolved AI review follows the declared recovery/usage policy.
+          acceptanceRefs:
+            - FR-PROJ-03.AC.EX2
+          outcome:
+            - No false failing grade or undisclosed duplicate usage.
+        - id: CJ-05.B3
+          atStageRefs:
+            - CJ-05.S4
+          requirementRef: FR-COM-02
+          flowRef: FR-COM-02.EX1
+          condition: The work owner withdraws sharing
+          handling: Withdrawn sharing prevents new peer access while preserving appropriate attribution.
+          acceptanceRefs:
+            - FR-COM-02.AC.EX1
+          outcome:
+            - Existing references do not bypass withdrawn permission.
+      exit: Selected project evidence supports a reviewed career claim, with both feedback history and
+        private work boundaries preserved.
+      observations:
+        - A stage starts when the user reaches that feature with its prerequisites satisfied; the
+          overview does not bypass required project/evidence preparation.
+        - A referenced pending, cancelled or denied branch changes the journey outcome and must not
+          be reported as full-path success.
+      acceptanceCriteria:
+        - id: CJ-05.AC1
+          given: A learner wants to demonstrate practical engineering capability.
+          when: Complete each relevant stage under its declared prerequisites and inspect branch outcomes.
+          then: Selected project evidence supports a reviewed career claim, with both feedback history and
+            private work boundaries preserved.
+      featureOwner: projects
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

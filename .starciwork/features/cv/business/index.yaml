@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.cv.business
+kind: business
+required: true
+description: "cv: business scope and SRS"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: feature-business
+      title: cv business
+      status: draft
+      children:
+        - path: overview/index.yaml
+          workRef: starci-next.features.cv.business.overview
+          title: "cv: goals, scope and shared ownership"
+        - path: srs/index.yaml
+          workRef: starci-next.features.cv.business.srs
+          title: "cv: Software Requirements Specification"

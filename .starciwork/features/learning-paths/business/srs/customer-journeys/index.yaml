@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.learning-paths.business.srs.customer-journeys
+kind: business
+required: true
+description: "customer-journeys: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: customer-journeys
+      title: customer-journeys
+      status: draft
+      children:
+        - path: engineer-growth-to-opportunity/index.yaml
+          workRef: starci-next.business.srs.customer-journeys.engineer-growth-to-opportunity
+          title: Engineer growth from goal to career opportunity
+        - path: plan-study-and-progress/index.yaml
+          workRef: starci-next.business.srs.customer-journeys.plan-study-and-progress
+          title: Discover, study, assess and revise a plan

@@ -1,0 +1,52 @@
+schema: work/node@2
+id: starci-next.features.identity.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "identity: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.identity.access-workspace
+  - starci-next.business.srs.functional-requirements.identity.manage-scoped-membership
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-identity
+      feature: identity
+      title: identity business overview
+      product: StarCiNext
+      goal: Access the product in an authorized role; Manage organization membership and scoped access
+      actors:
+        - member
+        - organization-admin
+      inScope:
+        - requirementRef: FR-ID-01
+          title: Access the product in an authorized role
+        - requirementRef: FR-ID-02
+          title: Manage organization membership and scoped access
+      relatedJourneyRefs:
+        - CJ-01
+        - CJ-12
+        - CJ-13
+      ownedSharedDefinitionRefs:
+        - BR-RIGHTS
+        - NFR-SEC
+        - DATA-account
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "2"
+            - "10"
+businessOverview:
+  purpose: Access the product in an authorized role; Manage organization membership and scoped access
+  customerUnderstanding: StarCiNext identity serves member, organization-admin through the
+    requirements and journeys owned by this feature.
+  desiredOutcome: Access the product in an authorized role; Manage organization membership and scoped access
+  scope: Access the product in an authorized role; Manage organization membership and scoped access
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.identity
+kind: business
+required: true
+description: "identity: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: identity
+    title: identity
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.identity.business
+        title: "identity: business scope and SRS"

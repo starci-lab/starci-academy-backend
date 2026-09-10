@@ -1,0 +1,394 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.interviews.practice-interview
+kind: business
+required: true
+state: todo
+description: Practice an interview against a chosen role or project
+refs:
+  - starci-next.business.srs.business-rules.bounded-ai-assistance
+  - starci-next.business.srs.business-rules.assessment-provenance
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.business-rules.capability-specific-usage
+  - starci-next.business.srs.data.interview
+  - starci-next.business.srs.data.project
+  - starci-next.business.srs.data.assessment
+  - starci-next.business.srs.data.usage
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.grounding-and-ai-boundaries
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.allowance-and-cost-visibility
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.non-functional-requirements.untrusted-submission-safety
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-INT-01
+      title: Practice an interview against a chosen role or project
+      domain: interviews
+      goal: Practice an interview against a chosen role or project
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - The learner can select permitted practice questions and owned/authorized evidence.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-INT-01.IN1
+          name: practiceScope
+          validation: Selected role, topic or owned project evidence
+          dataRefs:
+            - DATA-interview
+            - DATA-project
+            - DATA-assessment
+            - DATA-usage
+        - id: FR-INT-01.IN2
+          name: responses
+          validation: Answers and explicit follow-up/finish choices
+          dataRefs:
+            - DATA-interview
+            - DATA-project
+            - DATA-assessment
+            - DATA-usage
+      outputs:
+        - name: result-1
+          fromStep: FR-INT-01.MAIN.S1
+          meaning: Show the interview scope, permitted evidence and assessment criteria
+          effect: The practice session is distinct from a recruitment decision.
+        - name: result-2
+          fromStep: FR-INT-01.MAIN.S2
+          meaning: Present a question appropriate to the selected scope
+          effect: Capture the question and rubric version.
+        - name: result-3
+          fromStep: FR-INT-01.MAIN.S3
+          meaning: Keep the answer attributable to this session and question
+          effect: Only submitted material enters evaluation.
+        - name: result-4
+          fromStep: FR-INT-01.MAIN.S4
+          meaning: Explain the topic being explored and allow a clear end to the session
+          effect: Follow-up questions remain within the selected interview scope.
+        - name: result-5
+          fromStep: FR-INT-01.MAIN.S5
+          meaning: Show criterion-based feedback, evidence and limits
+          effect: No claim of universal job readiness or guaranteed employment.
+      businessRuleRefs:
+        - BR-AI
+        - BR-EVIDENCE
+        - BR-PRIVACY
+        - BR-USAGE
+      dataRefs:
+        - DATA-interview
+        - DATA-project
+        - DATA-assessment
+        - DATA-usage
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-AI
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-COST
+        - NFR-AUDIT
+        - NFR-SUBMISSION
+      decisionRefs:
+        - D05
+        - D07
+        - D08
+        - D06
+        - D02
+        - D11
+        - D03
+        - D12
+      directPolicyRefs:
+        - D05
+        - D07
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-INT-01.MAIN
+        trigger: Choose a target role, knowledge area or owned project
+        steps:
+          - id: FR-INT-01.MAIN.S1
+            actor: learner
+            request: Choose a target role, knowledge area or owned project
+            systemResponse: Show the interview scope, permitted evidence and assessment criteria
+            businessEffect: The practice session is distinct from a recruitment decision.
+            acceptanceRefs:
+              - FR-INT-01.AC.M1
+          - id: FR-INT-01.MAIN.S2
+            actor: learner
+            request: Start the session
+            systemResponse: Present a question appropriate to the selected scope
+            businessEffect: Capture the question and rubric version.
+            acceptanceRefs:
+              - FR-INT-01.AC.M2
+          - id: FR-INT-01.MAIN.S3
+            actor: learner
+            request: Submit an answer
+            systemResponse: Keep the answer attributable to this session and question
+            businessEffect: Only submitted material enters evaluation.
+            acceptanceRefs:
+              - FR-INT-01.AC.M3
+          - id: FR-INT-01.MAIN.S4
+            actor: learner
+            request: Answer a relevant follow-up or finish the round
+            systemResponse: Explain the topic being explored and allow a clear end to the session
+            businessEffect: Follow-up questions remain within the selected interview scope.
+            acceptanceRefs:
+              - FR-INT-01.AC.M4
+          - id: FR-INT-01.MAIN.S5
+            actor: learner
+            request: Open the round result
+            systemResponse: Show criterion-based feedback, evidence and limits
+            businessEffect: No claim of universal job readiness or guaranteed employment.
+            acceptanceRefs:
+              - FR-INT-01.AC.M5
+        end:
+          type: completed-main-flow
+          outcome: No claim of universal job readiness or guaranteed employment.
+      alternativeFlows:
+        - id: FR-INT-01.ALT1
+          title: The learner stops before completing the round
+          fromStep: FR-INT-01.MAIN.S4
+          condition: The learner stops before completing the round
+          steps:
+            - id: FR-INT-01.ALT1.S1
+              actor: learner
+              request: End the session
+              systemResponse: Show completed questions and unfinished coverage
+              businessEffect: An incomplete round is labeled incomplete.
+              acceptanceRefs:
+                - FR-INT-01.AC.ALT1
+          resume:
+            type: end
+            outcome: An incomplete round is labeled incomplete.
+          postconditions:
+            - An incomplete round is labeled incomplete.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-INT-01.AC.ALT1
+      exceptionFlows:
+        - id: FR-INT-01.EX1
+          title: The selected project evidence is unavailable or not permitted
+          fromStep: FR-INT-01.MAIN.S2
+          condition: The selected project evidence is unavailable or not permitted
+          steps:
+            - id: FR-INT-01.EX1.S1
+              actor: learner
+              request: Start the interview
+              systemResponse: Explain the missing context and offer a permitted scope change
+              businessEffect: No other learner project is substituted.
+              acceptanceRefs:
+                - FR-INT-01.AC.EX1
+          resume:
+            type: end
+            outcome: No other learner project is substituted.
+          postconditions:
+            - No other learner project is substituted.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-INT-01.AC.EX1
+        - id: FR-INT-01.EX2
+          title: Evaluation fails
+          fromStep: FR-INT-01.MAIN.S5
+          condition: Evaluation fails
+          steps:
+            - id: FR-INT-01.EX2.S1
+              actor: learner
+              request: Request the same round result
+              systemResponse: Show evaluation error/pending and the continuation policy
+              businessEffect: Preserve answers; no fabricated score.
+              acceptanceRefs:
+                - FR-INT-01.AC.EX2
+          resume:
+            type: end
+            outcome: Preserve answers; no fabricated score.
+          postconditions:
+            - Preserve answers; no fabricated score.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-INT-01.AC.EX2
+      postconditions:
+        success:
+          - The practice session is distinct from a recruitment decision.
+          - Capture the question and rubric version.
+          - Only submitted material enters evaluation.
+          - Follow-up questions remain within the selected interview scope.
+          - No claim of universal job readiness or guaranteed employment.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No other learner project is substituted.
+          - Preserve answers; no fabricated score.
+      acceptanceCriteria:
+        - id: FR-INT-01.AC.M1
+          flowRef: FR-INT-01.MAIN
+          stepRefs:
+            - FR-INT-01.MAIN.S1
+          given:
+            - The learner can select permitted practice questions and owned/authorized evidence.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Choose a target role, knowledge area or owned project
+          then:
+            - Show the interview scope, permitted evidence and assessment criteria
+            - The practice session is distinct from a recruitment decision.
+        - id: FR-INT-01.AC.M2
+          flowRef: FR-INT-01.MAIN
+          stepRefs:
+            - FR-INT-01.MAIN.S2
+          given:
+            - The previous main-flow step FR-INT-01.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Start the session
+          then:
+            - Present a question appropriate to the selected scope
+            - Capture the question and rubric version.
+        - id: FR-INT-01.AC.M3
+          flowRef: FR-INT-01.MAIN
+          stepRefs:
+            - FR-INT-01.MAIN.S3
+          given:
+            - The previous main-flow step FR-INT-01.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Submit an answer
+          then:
+            - Keep the answer attributable to this session and question
+            - Only submitted material enters evaluation.
+        - id: FR-INT-01.AC.M4
+          flowRef: FR-INT-01.MAIN
+          stepRefs:
+            - FR-INT-01.MAIN.S4
+          given:
+            - The previous main-flow step FR-INT-01.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Answer a relevant follow-up or finish the round
+          then:
+            - Explain the topic being explored and allow a clear end to the session
+            - Follow-up questions remain within the selected interview scope.
+        - id: FR-INT-01.AC.M5
+          flowRef: FR-INT-01.MAIN
+          stepRefs:
+            - FR-INT-01.MAIN.S5
+          given:
+            - The previous main-flow step FR-INT-01.MAIN.S4 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open the round result
+          then:
+            - Show criterion-based feedback, evidence and limits
+            - No claim of universal job readiness or guaranteed employment.
+        - id: FR-INT-01.AC.ALT1
+          flowRef: FR-INT-01.ALT1
+          stepRefs:
+            - FR-INT-01.ALT1.S1
+          given:
+            - Execution reaches FR-INT-01.MAIN.S4.
+            - The learner stops before completing the round
+          when: End the session
+          then:
+            - Show completed questions and unfinished coverage
+            - An incomplete round is labeled incomplete.
+        - id: FR-INT-01.AC.EX1
+          flowRef: FR-INT-01.EX1
+          stepRefs:
+            - FR-INT-01.EX1.S1
+          given:
+            - Execution reaches FR-INT-01.MAIN.S2.
+            - The selected project evidence is unavailable or not permitted
+          when: Start the interview
+          then:
+            - Explain the missing context and offer a permitted scope change
+            - No other learner project is substituted.
+        - id: FR-INT-01.AC.EX2
+          flowRef: FR-INT-01.EX2
+          stepRefs:
+            - FR-INT-01.EX2.S1
+          given:
+            - Execution reaches FR-INT-01.MAIN.S5.
+            - Evaluation fails
+          when: Request the same round result
+          then:
+            - Show evaluation error/pending and the continuation policy
+            - Preserve answers; no fabricated score.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AI
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-COST
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-SUBMISSION
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: interviews
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "8.1"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Choose a target role, knowledge area or owned project

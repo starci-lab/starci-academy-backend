@@ -1,0 +1,97 @@
+schema: work/node@2
+id: starci-next.business.srs.data.organization
+kind: business
+required: true
+state: todo
+description: Organization and scoped representation
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-data-definition@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: DATA-organization
+      title: Organization and scoped representation
+      modelLevel: Proposed logical business contract; physical storage, indexes and APIs belong to SDS.
+      owner: organization owner; verified representatives within authority
+      fields:
+        - name: id
+          meaning: Stable logical record identity
+          validation: Required, unique and not changed by a state transition
+          classification: context-scoped
+        - name: version
+          meaning: Record/content revision used for attribution and confirmation
+          validation: Identify the reviewed version; changed content must not impersonate an earlier revision
+          classification: context-scoped
+        - name: organizationName
+          meaning: Organization display identity
+          validation: Required; self-description does not establish verification
+          classification: selected-public
+        - name: verification
+          meaning: Trust state and supporting review
+          validation: Must distinguish unreviewed, pending, verified and rejected claims
+          classification: restricted
+        - name: representatives
+          meaning: Accounts and organization-scoped roles
+          validation: Each grant has actor, scope and effective status
+          classification: restricted
+        - name: profileFields
+          meaning: Approved public organization information
+          validation: Only reviewed fields for the selected audience
+          classification: selected-public
+      relations:
+        - dataRef: DATA-account
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-profile
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+      states:
+        - draft
+        - verification-pending
+        - active
+        - restricted
+      transitions:
+        - id: DATA-organization.T1
+          from: draft
+          to: verification-pending
+          event: Request verification
+          guard: Required D11 evidence supplied
+        - id: DATA-organization.T2
+          from: verification-pending
+          to: active
+          event: Authorize organization operation
+          guard: Approved D11 review or explicitly permitted unverified capability
+        - id: DATA-organization.T3
+          from: active
+          to: restricted
+          event: Withdraw relevant authority
+          guard: Attributed trust or organization decision
+        - id: DATA-organization.T4
+          from: restricted
+          to: active
+          event: Resolve the restriction
+          guard: Approved review evidence
+      invariants:
+        - Organization activity never grants access to all learners.
+        - Verification status remains distinct from basic organization existence.
+      decisionRefs:
+        - D11
+      privacy:
+        access: Apply current owner, role, resource and audience grants. A selected-public field is exposed
+          only after authorized publication.
+        retention: D08 selects retention/export/closure behavior. No storage duration or automatic deletion
+          policy is inferred.
+        referenceWithdrawal: Preserve permitted provenance while preventing newly unauthorized source
+          access; retained snapshots require approved D08 purpose and scope.
+      validationCases:
+        - given: An actor without current rights references this organization.
+          when: Read or mutate the record.
+          then: Deny the unauthorized action without disclosing restricted fields.
+        - given: A record in a declared state and an attributed authorized event.
+          when: Apply a listed transition.
+          then: Require its guard, retain the prior version attribution and reject a transition unsupported by
+            policy.
+      featureOwner: recruitment
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

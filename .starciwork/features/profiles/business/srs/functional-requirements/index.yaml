@@ -1,0 +1,22 @@
+schema: work/node@2
+id: starci-next.features.profiles.business.srs.functional-requirements
+kind: business
+required: true
+description: "functional-requirements: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: functional-requirements
+      title: functional-requirements
+      status: draft
+      children:
+        - path: manage-private-learning-profile/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.profiles.manage-private-learning-profile
+          title: Manage the private learning profile and its evidence
+        - path: publish-career-profile/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.profiles.publish-career-profile
+          title: Publish selected career evidence to a chosen audience
+        - path: revise-or-withdraw-sharing/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.profiles.revise-or-withdraw-sharing
+          title: Revise evidence sharing and propagate its access consequences

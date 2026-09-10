@@ -1,0 +1,28 @@
+schema: work/node@2
+id: starci-next.features.operations.business.srs.non-functional-requirements
+kind: business
+required: true
+description: "non-functional-requirements: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: non-functional-requirements
+      title: non-functional-requirements
+      status: draft
+      children:
+        - path: accessible-and-clear-flows/index.yaml
+          workRef: starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+          title: Accessible, clear and recoverable interaction
+        - path: explainable-and-auditable-outcomes/index.yaml
+          workRef: starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+          title: Explainable and auditable outcomes
+        - path: repeat-and-concurrency/index.yaml
+          workRef: starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+          title: Repeat and concurrent-action consistency
+        - path: response-and-processing-latency/index.yaml
+          workRef: starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+          title: Interactive and AI processing latency
+        - path: uncertainty-and-recovery/index.yaml
+          workRef: starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+          title: Uncertainty and recoverable operations

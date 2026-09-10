@@ -1,0 +1,133 @@
+schema: work/node@2
+id: starci-next.business.srs.customer-journeys.interview-and-cv
+kind: business
+required: true
+state: todo
+description: Practice an interview and prepare a factual CV
+refs:
+  - starci-next.business.srs.functional-requirements.interviews.practice-interview
+  - starci-next.business.srs.functional-requirements.interviews.review-and-repeat-interview
+  - starci-next.business.srs.functional-requirements.learning-paths.track-and-revise-progress
+  - starci-next.business.srs.functional-requirements.cv.compose-cv
+  - starci-next.business.srs.functional-requirements.cv.export-and-share-cv
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-customer-journey@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: CJ-06
+      title: Practice an interview and prepare a factual CV
+      actor: learner
+      entry: A learner targets a role using their own learning and project evidence.
+      preconditions:
+        - The actor can enter the relevant personal/organization context.
+        - Each referenced feature establishes its own prerequisites, current permissions and
+          approved policy before its consequential action.
+      stages:
+        - id: CJ-06.S1
+          actorAction: Practice contextual interview questions and follow-ups
+          requirementRef: FR-INT-01
+          flowRef: FR-INT-01.MAIN
+          acceptanceRefs:
+            - FR-INT-01.AC.M1
+            - FR-INT-01.AC.M2
+            - FR-INT-01.AC.M3
+            - FR-INT-01.AC.M4
+            - FR-INT-01.AC.M5
+          outcome: Responses and criterion versions are retained.
+          nextStep: CJ-06.S2
+        - id: CJ-06.S2
+          actorAction: Inspect feedback and select another practice round
+          requirementRef: FR-INT-02
+          flowRef: FR-INT-02.MAIN
+          acceptanceRefs:
+            - FR-INT-02.AC.M1
+            - FR-INT-02.AC.M2
+            - FR-INT-02.AC.M3
+            - FR-INT-02.AC.M4
+          outcome: Prior practice is not overwritten.
+          nextStep: CJ-06.S3
+        - id: CJ-06.S3
+          actorAction: Revisit the identified skill gap
+          requirementRef: FR-PATH-02
+          flowRef: FR-PATH-02.MAIN
+          acceptanceRefs:
+            - FR-PATH-02.AC.M1
+            - FR-PATH-02.AC.M2
+            - FR-PATH-02.AC.M3
+            - FR-PATH-02.AC.M4
+          outcome: The learner reviews any proposed plan change.
+          nextStep: CJ-06.S4
+        - id: CJ-06.S4
+          actorAction: Select facts, inspect suggestions and accept wording
+          requirementRef: FR-CV-01
+          flowRef: FR-CV-01.MAIN
+          acceptanceRefs:
+            - FR-CV-01.AC.M1
+            - FR-CV-01.AC.M2
+            - FR-CV-01.AC.M3
+            - FR-CV-01.AC.M4
+          outcome: Unsupported generated claims are corrected.
+          nextStep: CJ-06.S5
+        - id: CJ-06.S5
+          actorAction: Review and export/share the chosen CV version
+          requirementRef: FR-CV-02
+          flowRef: FR-CV-02.MAIN
+          acceptanceRefs:
+            - FR-CV-02.AC.M1
+            - FR-CV-02.AC.M2
+            - FR-CV-02.AC.M3
+            - FR-CV-02.AC.M4
+          outcome: The selected version and audience are explicit.
+          nextStep: null
+      branches:
+        - id: CJ-06.B1
+          atStageRefs:
+            - CJ-06.S1
+          requirementRef: FR-INT-01
+          flowRef: FR-INT-01.EX1
+          condition: The selected project evidence is unavailable or not permitted
+          handling: Insufficient or inaccessible interview evidence produces a clear limitation.
+          acceptanceRefs:
+            - FR-INT-01.AC.EX1
+          outcome:
+            - No other learner project is substituted.
+        - id: CJ-06.B2
+          atStageRefs:
+            - CJ-06.S4
+          requirementRef: FR-CV-01
+          flowRef: FR-CV-01.EX3
+          condition: AI proposes a fact absent from the selected information
+          handling: Unsupported CV claims remain corrections to review, never verified achievements.
+          acceptanceRefs:
+            - FR-CV-01.AC.EX3
+          outcome:
+            - No invented employer, date or achievement is accepted as verified evidence.
+        - id: CJ-06.B3
+          atStageRefs:
+            - CJ-06.S5
+          requirementRef: FR-CV-02
+          flowRef: FR-CV-02.EX3
+          condition: Evidence or sharing permission changed after preview
+          handling: Changed evidence or share permission requires review of the export scope.
+          acceptanceRefs:
+            - FR-CV-02.AC.EX3
+          outcome:
+            - No export/share under stale permission.
+      exit: The learner has practice feedback and a deliberately accepted CV; neither is a hiring
+        guarantee.
+      observations:
+        - A stage starts when the user reaches that feature with its prerequisites satisfied; the
+          overview does not bypass required project/evidence preparation.
+        - A referenced pending, cancelled or denied branch changes the journey outcome and must not
+          be reported as full-path success.
+      acceptanceCriteria:
+        - id: CJ-06.AC1
+          given: A learner targets a role using their own learning and project evidence.
+          when: Complete each relevant stage under its declared prerequisites and inspect branch outcomes.
+          then: The learner has practice feedback and a deliberately accepted CV; neither is a hiring
+            guarantee.
+      featureOwner: interviews
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

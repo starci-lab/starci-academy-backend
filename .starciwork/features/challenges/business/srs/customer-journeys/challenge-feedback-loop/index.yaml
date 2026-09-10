@@ -1,0 +1,122 @@
+schema: work/node@2
+id: starci-next.business.srs.customer-journeys.challenge-feedback-loop
+kind: business
+required: true
+state: todo
+description: Attempt, test and improve a challenge
+refs:
+  - starci-next.business.srs.functional-requirements.challenges.practice-with-hints
+  - starci-next.business.srs.functional-requirements.challenges.submit-code-and-evaluate
+  - starci-next.business.srs.functional-requirements.challenges.revise-and-compare-attempts
+  - starci-next.business.srs.functional-requirements.learning-paths.track-and-revise-progress
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-customer-journey@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: CJ-04
+      title: Attempt, test and improve a challenge
+      actor: learner
+      entry: A learner chooses a permitted challenge associated with a Concept.
+      preconditions:
+        - The actor can enter the relevant personal/organization context.
+        - Each referenced feature establishes its own prerequisites, current permissions and
+          approved policy before its consequential action.
+      stages:
+        - id: CJ-04.S1
+          actorAction: Start the challenge and select assistance depth
+          requirementRef: FR-CH-01
+          flowRef: FR-CH-01.MAIN
+          acceptanceRefs:
+            - FR-CH-01.AC.M1
+            - FR-CH-01.AC.M2
+            - FR-CH-01.AC.M3
+            - FR-CH-01.AC.M4
+          outcome: The task, rubric and assistance implications are visible.
+          nextStep: CJ-04.S2
+        - id: CJ-04.S2
+          actorAction: Submit and inspect objective execution and feedback
+          requirementRef: FR-CH-02
+          flowRef: FR-CH-02.MAIN
+          acceptanceRefs:
+            - FR-CH-02.AC.M1
+            - FR-CH-02.AC.M2
+            - FR-CH-02.AC.M3
+            - FR-CH-02.AC.M4
+            - FR-CH-02.AC.M5
+          outcome: The exact attempt has attributed results.
+          nextStep: CJ-04.S3
+        - id: CJ-04.S3
+          actorAction: Revise and compare attempts
+          requirementRef: FR-CH-03
+          flowRef: FR-CH-03.MAIN
+          acceptanceRefs:
+            - FR-CH-03.AC.M1
+            - FR-CH-03.AC.M2
+            - FR-CH-03.AC.M3
+            - FR-CH-03.AC.M4
+          outcome: Feedback is attached to the correct old and new versions.
+          nextStep: CJ-04.S4
+        - id: CJ-04.S4
+          actorAction: Return identified gaps to the learning plan
+          requirementRef: FR-PATH-02
+          flowRef: FR-PATH-02.MAIN
+          acceptanceRefs:
+            - FR-PATH-02.AC.M1
+            - FR-PATH-02.AC.M2
+            - FR-PATH-02.AC.M3
+            - FR-PATH-02.AC.M4
+          outcome: Improvement recommendations remain learner-reviewed.
+          nextStep: null
+      branches:
+        - id: CJ-04.B1
+          atStageRefs:
+            - CJ-04.S1
+          requirementRef: FR-CH-01
+          flowRef: FR-CH-01.ALT1
+          condition: The learner explicitly chooses to view the solution
+          handling: Full solution viewing requires the learner explicit choice and remains assistance context.
+          acceptanceRefs:
+            - FR-CH-01.AC.ALT1
+          outcome:
+            - Record solution use separately from independently demonstrated performance.
+        - id: CJ-04.B2
+          atStageRefs:
+            - CJ-04.S2
+          requirementRef: FR-CH-02
+          flowRef: FR-CH-02.EX1
+          condition: Required files or inputs are invalid
+          handling: Invalid or inaccessible input is corrected before valid evaluation.
+          acceptanceRefs:
+            - FR-CH-02.AC.EX1
+          outcome:
+            - No evaluation represented as complete; retain the editable solution.
+        - id: CJ-04.B3
+          atStageRefs:
+            - CJ-04.S3
+          requirementRef: FR-CH-03
+          flowRef: FR-CH-03.EX1
+          condition: The rubric or challenge changed between attempts
+          handling: A changed rubric or challenge exposes limits of comparison instead of a false improvement
+            score.
+          acceptanceRefs:
+            - FR-CH-03.AC.EX1
+          outcome:
+            - No false score equivalence across incompatible rubrics.
+      exit: The learner can explain the result of each attempt and the change that addressed a specific
+        gap.
+      observations:
+        - A stage starts when the user reaches that feature with its prerequisites satisfied; the
+          overview does not bypass required project/evidence preparation.
+        - A referenced pending, cancelled or denied branch changes the journey outcome and must not
+          be reported as full-path success.
+      acceptanceCriteria:
+        - id: CJ-04.AC1
+          given: A learner chooses a permitted challenge associated with a Concept.
+          when: Complete each relevant stage under its declared prerequisites and inspect branch outcomes.
+          then: The learner can explain the result of each attempt and the change that addressed a specific
+            gap.
+      featureOwner: challenges
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

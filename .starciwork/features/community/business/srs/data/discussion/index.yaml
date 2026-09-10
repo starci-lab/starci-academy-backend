@@ -1,0 +1,102 @@
+schema: work/node@2
+id: starci-next.business.srs.data.discussion
+kind: business
+required: true
+state: todo
+description: Contextual contribution and peer feedback
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.community-policy
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-data-definition@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: DATA-discussion
+      title: Contextual contribution and peer feedback
+      modelLevel: Proposed logical business contract; physical storage, indexes and APIs belong to SDS.
+      owner: contributor; community policy controller
+      fields:
+        - name: id
+          meaning: Stable logical record identity
+          validation: Required, unique and not changed by a state transition
+          classification: context-scoped
+        - name: version
+          meaning: Record/content revision used for attribution and confirmation
+          validation: Identify the reviewed version; changed content must not impersonate an earlier revision
+          classification: context-scoped
+        - name: contextRef
+          meaning: Concept, question, group or work revision
+          validation: Exact permitted context required
+          classification: audience-scoped
+        - name: bodyAndAuthor
+          meaning: Contribution content and attribution
+          validation: No unauthorized embedded private content
+          classification: audience-scoped
+        - name: sourceTrust
+          meaning: Community versus curated status
+          validation: Curation requires separate authorized content-source decision
+          classification: audience-scoped
+        - name: moderationState
+          meaning: Visible/restricted/withdrawn outcome
+          validation: Attributed action under applicable policy
+          classification: restricted
+      relations:
+        - dataRef: DATA-concept
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-evidence
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-learning-group
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-moderation-case
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+      states:
+        - draft
+        - published
+        - restricted
+        - withdrawn
+      transitions:
+        - id: DATA-discussion.T1
+          from: draft
+          to: published
+          event: Confirm contribution
+          guard: Current context rights and audience reviewed
+        - id: DATA-discussion.T2
+          from: published
+          to: restricted
+          event: Authorized moderation action
+          guard: D09 evidence and policy support action
+        - id: DATA-discussion.T3
+          from: restricted
+          to: published
+          event: Resolve restriction
+          guard: Authorized review outcome
+        - id: DATA-discussion.T4
+          from: published
+          to: withdrawn
+          event: Author withdraws where permitted
+          guard: Attribution and retention follow D08/D09
+      invariants:
+        - A community post is not automatically an official RAG source.
+      decisionRefs:
+        - D08
+        - D09
+      privacy:
+        access: Apply current owner, role, resource and audience grants. A selected-public field is exposed
+          only after authorized publication.
+        retention: D08 selects retention/export/closure behavior. No storage duration or automatic deletion
+          policy is inferred.
+        referenceWithdrawal: Preserve permitted provenance while preventing newly unauthorized source
+          access; retained snapshots require approved D08 purpose and scope.
+      validationCases:
+        - given: An actor without current rights references this discussion.
+          when: Read or mutate the record.
+          then: Deny the unauthorized action without disclosing restricted fields.
+        - given: A record in a declared state and an attributed authorized event.
+          when: Apply a listed transition.
+          then: Require its guard, retain the prior version attribution and reject a transition unsupported by
+            policy.
+      featureOwner: community
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

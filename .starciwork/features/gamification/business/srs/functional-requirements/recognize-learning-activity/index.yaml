@@ -1,0 +1,353 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.gamification.recognize-learning-activity
+kind: business
+required: true
+state: todo
+description: Recognize eligible learning and community activity
+refs:
+  - starci-next.business.srs.business-rules.activity-versus-mastery
+  - starci-next.business.srs.business-rules.one-logical-effect
+  - starci-next.business.srs.business-rules.context-and-moderation
+  - starci-next.business.srs.data.activity-award
+  - starci-next.business.srs.data.progress
+  - starci-next.business.srs.data.submission
+  - starci-next.business.srs.data.discussion
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.community-policy
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-GAME-01
+      title: Recognize eligible learning and community activity
+      domain: gamification
+      goal: Recognize eligible learning and community activity
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - Activity and competency criteria are represented separately, with approved rules required
+          before an award.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-GAME-01.IN1
+          name: eligibleActivity
+          validation: Actual activity and configured recognition rule version
+          dataRefs:
+            - DATA-activity-award
+            - DATA-progress
+            - DATA-submission
+            - DATA-discussion
+        - id: FR-GAME-01.IN2
+          name: correctionContext
+          validation: Specific disputed award and supporting evidence if applicable
+          dataRefs:
+            - DATA-activity-award
+            - DATA-progress
+            - DATA-submission
+            - DATA-discussion
+      outputs:
+        - name: result-1
+          fromStep: FR-GAME-01.MAIN.S1
+          meaning: Show the activity outcome and rule version
+          effect: Eligibility follows the actual activity result.
+        - name: result-2
+          fromStep: FR-GAME-01.MAIN.S2
+          meaning: Award the configured activity credit once for the qualifying event
+          effect: Repeated notifications do not multiply credit.
+        - name: result-3
+          fromStep: FR-GAME-01.MAIN.S3
+          meaning: Explain what was counted and the applicable time/rule context
+          effect: Activity totals are separate from competency evidence.
+        - name: result-4
+          fromStep: FR-GAME-01.MAIN.S4
+          meaning: Show an attributable adjustment and reason when a rule permits it
+          effect: Past award and correction remain distinguishable.
+      businessRuleRefs:
+        - BR-MASTERY
+        - BR-REPEAT
+        - BR-COMMUNITY
+      dataRefs:
+        - DATA-activity-award
+        - DATA-progress
+        - DATA-submission
+        - DATA-discussion
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-AUDIT
+      decisionRefs:
+        - D05
+        - D03
+        - D07
+        - D09
+        - D08
+        - D11
+        - D12
+      directPolicyRefs:
+        - D05
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-GAME-01.MAIN
+        trigger: Complete an activity eligible under a published recognition rule
+        steps:
+          - id: FR-GAME-01.MAIN.S1
+            actor: learner
+            request: Complete an activity eligible under a published recognition rule
+            systemResponse: Show the activity outcome and rule version
+            businessEffect: Eligibility follows the actual activity result.
+            acceptanceRefs:
+              - FR-GAME-01.AC.M1
+          - id: FR-GAME-01.MAIN.S2
+            actor: learner
+            request: Inspect the recorded recognition
+            systemResponse: Award the configured activity credit once for the qualifying event
+            businessEffect: Repeated notifications do not multiply credit.
+            acceptanceRefs:
+              - FR-GAME-01.AC.M2
+          - id: FR-GAME-01.MAIN.S3
+            actor: learner
+            request: Open the activity history or streak view
+            systemResponse: Explain what was counted and the applicable time/rule context
+            businessEffect: Activity totals are separate from competency evidence.
+            acceptanceRefs:
+              - FR-GAME-01.AC.M3
+          - id: FR-GAME-01.MAIN.S4
+            actor: learner
+            request: Report or inspect a correction
+            systemResponse: Show an attributable adjustment and reason when a rule permits it
+            businessEffect: Past award and correction remain distinguishable.
+            acceptanceRefs:
+              - FR-GAME-01.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: Past award and correction remain distinguishable.
+      alternativeFlows:
+        - id: FR-GAME-01.ALT1
+          title: An activity is useful but has no configured award
+          fromStep: FR-GAME-01.MAIN.S1
+          condition: An activity is useful but has no configured award
+          steps:
+            - id: FR-GAME-01.ALT1.S1
+              actor: learner
+              request: Complete the activity
+              systemResponse: Show its learning result without an invented reward
+              businessEffect: No arbitrary XP or mastery claim.
+              acceptanceRefs:
+                - FR-GAME-01.AC.ALT1
+          resume:
+            type: end
+            outcome: No arbitrary XP or mastery claim.
+          postconditions:
+            - No arbitrary XP or mastery claim.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-GAME-01.AC.ALT1
+      exceptionFlows:
+        - id: FR-GAME-01.EX1
+          title: The same activity event is repeated
+          fromStep: FR-GAME-01.MAIN.S2
+          condition: The same activity event is repeated
+          steps:
+            - id: FR-GAME-01.EX1.S1
+              actor: learner
+              request: Process the recognition again
+              systemResponse: Return the existing recognition
+              businessEffect: No duplicate award.
+              acceptanceRefs:
+                - FR-GAME-01.AC.EX1
+          resume:
+            type: end
+            outcome: No duplicate award.
+          postconditions:
+            - No duplicate award.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-GAME-01.AC.EX1
+        - id: FR-GAME-01.EX2
+          title: A disputed award cannot yet be resolved
+          fromStep: FR-GAME-01.MAIN.S4
+          condition: A disputed award cannot yet be resolved
+          steps:
+            - id: FR-GAME-01.EX2.S1
+              actor: learner
+              request: Inspect the correction request
+              systemResponse: Show the pending review and owner
+              businessEffect: Do not silently remove or invent activity evidence.
+              acceptanceRefs:
+                - FR-GAME-01.AC.EX2
+          resume:
+            type: end
+            outcome: Do not silently remove or invent activity evidence.
+          postconditions:
+            - Do not silently remove or invent activity evidence.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-GAME-01.AC.EX2
+      postconditions:
+        success:
+          - Eligibility follows the actual activity result.
+          - Repeated notifications do not multiply credit.
+          - Activity totals are separate from competency evidence.
+          - Past award and correction remain distinguishable.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No duplicate award.
+          - Do not silently remove or invent activity evidence.
+      acceptanceCriteria:
+        - id: FR-GAME-01.AC.M1
+          flowRef: FR-GAME-01.MAIN
+          stepRefs:
+            - FR-GAME-01.MAIN.S1
+          given:
+            - Activity and competency criteria are represented separately, with approved rules
+              required before an award.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Complete an activity eligible under a published recognition rule
+          then:
+            - Show the activity outcome and rule version
+            - Eligibility follows the actual activity result.
+        - id: FR-GAME-01.AC.M2
+          flowRef: FR-GAME-01.MAIN
+          stepRefs:
+            - FR-GAME-01.MAIN.S2
+          given:
+            - The previous main-flow step FR-GAME-01.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect the recorded recognition
+          then:
+            - Award the configured activity credit once for the qualifying event
+            - Repeated notifications do not multiply credit.
+        - id: FR-GAME-01.AC.M3
+          flowRef: FR-GAME-01.MAIN
+          stepRefs:
+            - FR-GAME-01.MAIN.S3
+          given:
+            - The previous main-flow step FR-GAME-01.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open the activity history or streak view
+          then:
+            - Explain what was counted and the applicable time/rule context
+            - Activity totals are separate from competency evidence.
+        - id: FR-GAME-01.AC.M4
+          flowRef: FR-GAME-01.MAIN
+          stepRefs:
+            - FR-GAME-01.MAIN.S4
+          given:
+            - The previous main-flow step FR-GAME-01.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Report or inspect a correction
+          then:
+            - Show an attributable adjustment and reason when a rule permits it
+            - Past award and correction remain distinguishable.
+        - id: FR-GAME-01.AC.ALT1
+          flowRef: FR-GAME-01.ALT1
+          stepRefs:
+            - FR-GAME-01.ALT1.S1
+          given:
+            - Execution reaches FR-GAME-01.MAIN.S1.
+            - An activity is useful but has no configured award
+          when: Complete the activity
+          then:
+            - Show its learning result without an invented reward
+            - No arbitrary XP or mastery claim.
+        - id: FR-GAME-01.AC.EX1
+          flowRef: FR-GAME-01.EX1
+          stepRefs:
+            - FR-GAME-01.EX1.S1
+          given:
+            - Execution reaches FR-GAME-01.MAIN.S2.
+            - The same activity event is repeated
+          when: Process the recognition again
+          then:
+            - Return the existing recognition
+            - No duplicate award.
+        - id: FR-GAME-01.AC.EX2
+          flowRef: FR-GAME-01.EX2
+          stepRefs:
+            - FR-GAME-01.EX2.S1
+          given:
+            - Execution reaches FR-GAME-01.MAIN.S4.
+            - A disputed award cannot yet be resolved
+          when: Inspect the correction request
+          then:
+            - Show the pending review and owner
+            - Do not silently remove or invent activity evidence.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: gamification
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "9.1"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Complete an activity eligible under a published recognition rule

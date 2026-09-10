@@ -1,0 +1,16 @@
+schema: work/workspace@1
+id: starci-next-workspace
+extensions:
+  starci:
+    schema: starci/product-workspace@1
+    product: StarCiNext
+    canonicalRoot: C:/Repositories/ac/starci-academy-backend/.starciwork
+    scope: One StarCiNext workspace. Actual capabilities own
+      features/<feature>/{business,architecture,ui,implementation,uat}/; only authored layers are
+      created.
+    authoredOn: 2026-09-10
+    status: draft
+    sourceRepository: https://github.com/starci-lab/starci-academy-backend
+    repositoryPurpose: Document destination only; old product code does not constrain this target SRS.
+    layout: features@1
+    featureRoot: features/

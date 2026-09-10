@@ -1,0 +1,47 @@
+schema: work/node@2
+id: starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+kind: business
+required: true
+state: todo
+description: Explainable and auditable outcomes
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-non-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: NFR-AUDIT
+      title: Explainable and auditable outcomes
+      scope:
+        - all
+      requirement: Authorized users and operators can explain consequential changes without exposing
+        unrelated private material.
+      decisionRefs:
+        - D08
+        - D12
+      measurement:
+        metric: Sampled grants, refunds, source approvals, moderation and review outcomes identify actor,
+          target, version, time, reason and resulting state; retention targets await D08.
+        conditions: Generate an authorized role change, rejected refund, source withdrawal, AI review and
+          moderation outcome with distinct accounts.
+        thresholdStatus: Quantitative/policy targets referenced above are open; deterministic invariants
+          below are reviewable now.
+        evidenceRequired: Record scenario, input/source/policy versions, environment/load, observation
+          timestamps, actual outcomes and metric calculation; do not substitute a document check for
+          runtime evidence.
+      acceptanceCriteria:
+        - id: NFR-AUDIT.AC1
+          given: Generate an authorized role change, rejected refund, source withdrawal, AI review and
+            moderation outcome with distinct accounts.
+          when: Inspect owner-visible history and scoped operator records.
+          then: The actor and effect can be reconstructed, pending differs from completed, sensitive source
+            content is not exposed in general logs, and restricted audit access is enforced.
+      tradeoffBoundary: SDS proposes optimizations and capacity choices within these obligations. Privacy,
+        consent, financial truth and evidence provenance cannot be relaxed to improve latency or
+        cost.
+      featureOwner: operations
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

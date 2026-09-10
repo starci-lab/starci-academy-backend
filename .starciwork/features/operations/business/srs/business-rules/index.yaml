@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.operations.business.srs.business-rules
+kind: business
+required: true
+description: "business-rules: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: business-rules
+      title: business-rules
+      status: draft
+      children:
+        - path: one-logical-effect/index.yaml
+          workRef: starci-next.business.srs.business-rules.one-logical-effect
+          title: One logical effect per confirmed action
+        - path: policy-decisions/index.yaml
+          workRef: starci-next.features.operations.business.srs.business-rules.policy-decisions
+          title: "policy-decisions: owned specification items"

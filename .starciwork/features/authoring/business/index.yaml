@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.authoring.business
+kind: business
+required: true
+description: "authoring: business scope and SRS"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: feature-business
+      title: authoring business
+      status: draft
+      children:
+        - path: overview/index.yaml
+          workRef: starci-next.features.authoring.business.overview
+          title: "authoring: goals, scope and shared ownership"
+        - path: srs/index.yaml
+          workRef: starci-next.features.authoring.business.srs
+          title: "authoring: Software Requirements Specification"

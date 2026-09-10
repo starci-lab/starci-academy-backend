@@ -1,0 +1,51 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.settlement-and-effective-rights
+kind: business
+required: true
+state: todo
+description: Settlement and effective rights
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-business-rule@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: BR-COMMERCE
+      title: Settlement and effective rights
+      statements:
+        - An intent, return page or submitted payment action does not prove financial settlement.
+        - Offer review binds the approved price, currency, period and terms version; activation
+          follows confirmed settlement and applicable terms.
+        - Renewal, cancellation, grace, refund and correction use approved effective dates and
+          policies; do not infer immediate data deletion or immediate right loss.
+        - Paid-but-not-activated and unknown payment results remain visible cases for reconciliation.
+      decisionRefs:
+        - D02
+        - D03
+      example: Confirmed payment with activation failure displays a paid claim awaiting recovery, not an
+        instruction to buy again.
+      acceptanceCriteria:
+        - id: BR-COMMERCE.AC1
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: An intent, return page or submitted payment action does not prove financial settlement.
+        - id: BR-COMMERCE.AC2
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Offer review binds the approved price, currency, period and terms version; activation follows
+            confirmed settlement and applicable terms.
+        - id: BR-COMMERCE.AC3
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Renewal, cancellation, grace, refund and correction use approved effective dates and policies;
+            do not infer immediate data deletion or immediate right loss.
+        - id: BR-COMMERCE.AC4
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Paid-but-not-activated and unknown payment results remain visible cases for reconciliation.
+      featureOwner: commerce
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

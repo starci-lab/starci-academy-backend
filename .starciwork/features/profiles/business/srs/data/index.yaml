@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.profiles.business.srs.data
+kind: business
+required: true
+description: "data: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: data
+      title: data
+      status: draft
+      children:
+        - path: profile/index.yaml
+          workRef: starci-next.business.srs.data.profile
+          title: Private, career, mentor or organization profile
+        - path: share-grant/index.yaml
+          workRef: starci-next.business.srs.data.share-grant
+          title: Purpose and audience-specific sharing grant

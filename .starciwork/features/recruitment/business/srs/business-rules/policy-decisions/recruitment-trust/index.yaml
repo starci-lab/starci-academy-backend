@@ -1,0 +1,84 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+kind: business
+required: true
+state: todo
+description: Organization and recruitment authority
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-policy-decision@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: D11
+      title: Organization and recruitment authority
+      decisionStatus: open
+      accountableRole: Recruitment owner with trust operations
+      ownerAssignmentStatus: Proposed accountable business role; named person not assigned by this document.
+      question: How are organizations and representatives verified, and what matching, application,
+        contact and fee policies apply?
+      requiredDecisions:
+        - Define representation proof and scoped organization roles.
+        - Define candidate-approved information and contact permission.
+        - Approve opportunity moderation and any commercial terms.
+      safeDisposition: Self-claims are not verification; suggestions do not send applications or open
+        private learner data.
+      affectedFeatureRefs:
+        - FR-ID-01
+        - FR-ID-02
+        - FR-CON-01
+        - FR-CON-02
+        - FR-CON-03
+        - FR-PATH-01
+        - FR-PATH-02
+        - FR-RAG-01
+        - FR-RAG-02
+        - FR-CH-01
+        - FR-CH-02
+        - FR-CH-03
+        - FR-PROJ-01
+        - FR-PROJ-02
+        - FR-PROJ-03
+        - FR-INT-01
+        - FR-INT-02
+        - FR-CV-01
+        - FR-CV-02
+        - FR-PROFILE-01
+        - FR-PROFILE-02
+        - FR-PROFILE-03
+        - FR-HIRE-01
+        - FR-HIRE-02
+        - FR-HIRE-03
+        - FR-HIRE-04
+        - FR-COM-01
+        - FR-COM-02
+        - FR-COM-03
+        - FR-GAME-01
+        - FR-GAME-02
+        - FR-SUB-01
+        - FR-SUB-02
+        - FR-SUB-03
+        - FR-SUB-04
+        - FR-SUB-05
+        - FR-AUTH-01
+        - FR-AUTH-02
+        - FR-AUTH-03
+        - FR-COM-04
+        - FR-MENT-01
+        - FR-MENT-02
+        - FR-OPS-01
+        - FR-OPS-02
+      affectedDataRefs:
+        - DATA-account
+        - DATA-organization
+        - DATA-profile
+        - DATA-application
+        - DATA-opportunity
+      affectedNfrRefs:
+        - NFR-SEC
+      closureEvidence: Record the authorized owner decision, effective date/version, affected release
+        scope and updated acceptance criteria. Document generation or schema validation cannot close
+        this decision.
+      featureOwner: recruitment
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

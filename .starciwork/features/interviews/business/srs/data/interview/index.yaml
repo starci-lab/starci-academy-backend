@@ -1,0 +1,106 @@
+schema: work/node@2
+id: starci-next.business.srs.data.interview
+kind: business
+required: true
+state: todo
+description: Practice interview session
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-data-definition@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: DATA-interview
+      title: Practice interview session
+      modelLevel: Proposed logical business contract; physical storage, indexes and APIs belong to SDS.
+      owner: learner
+      fields:
+        - name: id
+          meaning: Stable logical record identity
+          validation: Required, unique and not changed by a state transition
+          classification: context-scoped
+        - name: version
+          meaning: Record/content revision used for attribution and confirmation
+          validation: Identify the reviewed version; changed content must not impersonate an earlier revision
+          classification: context-scoped
+        - name: practiceGoal
+          meaning: Target role, topic or project context
+          validation: Learner-selected goal; job success not implied
+          classification: private
+        - name: selectedEvidence
+          meaning: Permitted project/learning context
+          validation: Current ownership and sharing constraints apply
+          classification: private
+        - name: questionAnswerTurns
+          meaning: Question, follow-up and learner response
+          validation: Keep question/rubric versions and order
+          classification: private
+        - name: feedbackRef
+          meaning: Practice result and identified gaps
+          validation: AI/human provenance and limits required
+          classification: private
+      relations:
+        - dataRef: DATA-assessment
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-evidence
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-review
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+      states:
+        - configured
+        - in-progress
+        - submitted
+        - reviewed
+        - interrupted
+      transitions:
+        - id: DATA-interview.T1
+          from: configured
+          to: in-progress
+          event: Start practice
+          guard: Goal and eligible context selected
+        - id: DATA-interview.T2
+          from: in-progress
+          to: submitted
+          event: Finish requested practice
+          guard: Responses and unanswered parts preserved
+        - id: DATA-interview.T3
+          from: submitted
+          to: reviewed
+          event: Feedback completed
+          guard: Versioned review and limitations available
+        - id: DATA-interview.T4
+          from: in-progress
+          to: interrupted
+          event: Practice connection or capability fails
+          guard: Keep acknowledged responses where recoverable
+        - id: DATA-interview.T5
+          from: interrupted
+          to: in-progress
+          event: Resume supported practice
+          guard: Identity and current evidence rights rechecked
+      invariants:
+        - Practice evaluation is not a hiring decision.
+      decisionRefs:
+        - D05
+        - D07
+      privacy:
+        access: Apply current owner, role, resource and audience grants. A selected-public field is exposed
+          only after authorized publication.
+        retention: D08 selects retention/export/closure behavior. No storage duration or automatic deletion
+          policy is inferred.
+        referenceWithdrawal: Preserve permitted provenance while preventing newly unauthorized source
+          access; retained snapshots require approved D08 purpose and scope.
+      validationCases:
+        - given: An actor without current rights references this interview.
+          when: Read or mutate the record.
+          then: Deny the unauthorized action without disclosing restricted fields.
+        - given: A record in a declared state and an attributed authorized event.
+          when: Apply a listed transition.
+          then: Require its guard, retain the prior version attribution and reject a transition unsupported by
+            policy.
+      featureOwner: interviews
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.identity.business
+kind: business
+required: true
+description: "identity: business scope and SRS"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: feature-business
+      title: identity business
+      status: draft
+      children:
+        - path: overview/index.yaml
+          workRef: starci-next.features.identity.business.overview
+          title: "identity: goals, scope and shared ownership"
+        - path: srs/index.yaml
+          workRef: starci-next.features.identity.business.srs
+          title: "identity: Software Requirements Specification"

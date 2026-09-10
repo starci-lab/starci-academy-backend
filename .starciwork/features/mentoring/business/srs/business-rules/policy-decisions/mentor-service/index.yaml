@@ -1,0 +1,38 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.policy-decisions.mentor-service
+kind: business
+required: true
+state: todo
+description: Mentor service availability and terms
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-policy-decision@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: D10
+      title: Mentor service availability and terms
+      decisionStatus: open
+      accountableRole: Product owner with mentor operations
+      ownerAssignmentStatus: Proposed accountable business role; named person not assigned by this document.
+      question: Which mentor interactions launch, who may provide them, and are there fees, acceptance
+        criteria or response commitments?
+      requiredDecisions:
+        - Define request acceptance, cancellation and completion states.
+        - Approve any commercial terms and service expectations before offering paid help.
+      safeDisposition: Expertise can be drafted; no unsupported paid service, availability or response
+        deadline is promised.
+      affectedFeatureRefs:
+        - FR-COM-02
+        - FR-MENT-01
+        - FR-MENT-02
+      affectedDataRefs:
+        - DATA-review
+        - DATA-profile
+      affectedNfrRefs: []
+      closureEvidence: Record the authorized owner decision, effective date/version, affected release
+        scope and updated acceptance criteria. Document generation or schema validation cannot close
+        this decision.
+      featureOwner: mentoring
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

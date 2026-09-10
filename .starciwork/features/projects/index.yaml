@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.projects
+kind: business
+required: true
+description: "projects: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: projects
+    title: projects
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.projects.business
+        title: "projects: business scope and SRS"

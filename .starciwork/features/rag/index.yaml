@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.rag
+kind: business
+required: true
+description: "rag: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: rag
+    title: rag
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.rag.business
+        title: "rag: business scope and SRS"

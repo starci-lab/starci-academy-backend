@@ -1,0 +1,359 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.operations.manage-personal-data-request
+kind: business
+required: true
+state: todo
+description: Review and fulfill personal data requests under approved policy
+refs:
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.business-rules.assessment-provenance
+  - starci-next.business.srs.data.account
+  - starci-next.business.srs.data.profile
+  - starci-next.business.srs.data.share-grant
+  - starci-next.business.srs.data.support-case
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.allowance-and-cost-visibility
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-OPS-02
+      title: Review and fulfill personal data requests under approved policy
+      domain: operations
+      goal: Review and fulfill personal data requests under approved policy
+      priority: release-priority-awaits-D01
+      actors:
+        - member
+      preconditions:
+        - The requester and scoped operator purpose are identifiable; consequential changes require
+          the applicable policy.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-OPS-02.IN1
+          name: dataRequest
+          validation: Supported export/correction/closure scope and ownership proof
+          dataRefs:
+            - DATA-account
+            - DATA-profile
+            - DATA-share-grant
+            - DATA-support-case
+        - id: FR-OPS-02.IN2
+          name: fulfillmentConfirmation
+          validation: Reviewed consequences under approved D08 policy
+          dataRefs:
+            - DATA-account
+            - DATA-profile
+            - DATA-share-grant
+            - DATA-support-case
+      outputs:
+        - name: result-1
+          fromStep: FR-OPS-02.MAIN.S1
+          meaning: Explain the available scope and consequences under the approved policy
+          effect: No irreversible change occurs from opening the request.
+        - name: result-2
+          fromStep: FR-OPS-02.MAIN.S2
+          meaning: Show included personal records and any policy-governed exclusions or retained records
+          effect: Other users and organization records are excluded without separate authority.
+        - name: result-3
+          fromStep: FR-OPS-02.MAIN.S3
+          meaning: Apply the authorized action or record pending fulfillment
+          effect: Sharing withdrawal and data retention are distinguished explicitly.
+        - name: result-4
+          fromStep: FR-OPS-02.MAIN.S4
+          meaning: Show what was completed, retained or still pending with an attributable explanation
+          effect: No false claim that previously exported third-party copies were erased.
+      businessRuleRefs:
+        - BR-PRIVACY
+        - BR-RIGHTS
+        - BR-EVIDENCE
+      dataRefs:
+        - DATA-account
+        - DATA-profile
+        - DATA-share-grant
+        - DATA-support-case
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-COST
+        - NFR-AUDIT
+      decisionRefs:
+        - D08
+        - D11
+        - D05
+        - D07
+        - D03
+        - D12
+        - D02
+      directPolicyRefs:
+        - D08
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-OPS-02.MAIN
+        trigger: Request a supported export, account closure or data correction
+        steps:
+          - id: FR-OPS-02.MAIN.S1
+            actor: member
+            request: Request a supported export, account closure or data correction
+            systemResponse: Explain the available scope and consequences under the approved policy
+            businessEffect: No irreversible change occurs from opening the request.
+            acceptanceRefs:
+              - FR-OPS-02.AC.M1
+          - id: FR-OPS-02.MAIN.S2
+            actor: member
+            request: Verify request ownership and review the scope
+            systemResponse: Show included personal records and any policy-governed exclusions or retained records
+            businessEffect: Other users and organization records are excluded without separate authority.
+            acceptanceRefs:
+              - FR-OPS-02.AC.M2
+          - id: FR-OPS-02.MAIN.S3
+            actor: member
+            request: Confirm the reviewed request
+            systemResponse: Apply the authorized action or record pending fulfillment
+            businessEffect: Sharing withdrawal and data retention are distinguished explicitly.
+            acceptanceRefs:
+              - FR-OPS-02.AC.M3
+          - id: FR-OPS-02.MAIN.S4
+            actor: member
+            request: Inspect fulfillment and any limitations
+            systemResponse: Show what was completed, retained or still pending with an attributable explanation
+            businessEffect: No false claim that previously exported third-party copies were erased.
+            acceptanceRefs:
+              - FR-OPS-02.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: No false claim that previously exported third-party copies were erased.
+      alternativeFlows:
+        - id: FR-OPS-02.ALT1
+          title: The member cancels before fulfillment
+          fromStep: FR-OPS-02.MAIN.S3
+          condition: The member cancels before fulfillment
+          steps:
+            - id: FR-OPS-02.ALT1.S1
+              actor: member
+              request: Cancel the pending request where permitted
+              systemResponse: Show the retained account state
+              businessEffect: No data deletion is inferred from an abandoned request.
+              acceptanceRefs:
+                - FR-OPS-02.AC.ALT1
+          resume:
+            type: end
+            outcome: No data deletion is inferred from an abandoned request.
+          postconditions:
+            - No data deletion is inferred from an abandoned request.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-OPS-02.AC.ALT1
+      exceptionFlows:
+        - id: FR-OPS-02.EX1
+          title: Request ownership cannot be verified
+          fromStep: FR-OPS-02.MAIN.S2
+          condition: Request ownership cannot be verified
+          steps:
+            - id: FR-OPS-02.EX1.S1
+              actor: member
+              request: Continue the request
+              systemResponse: Require verification without exposing account content
+              businessEffect: No export or deletion for an unauthorized person.
+              acceptanceRefs:
+                - FR-OPS-02.AC.EX1
+          resume:
+            type: end
+            outcome: No export or deletion for an unauthorized person.
+          postconditions:
+            - No export or deletion for an unauthorized person.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-OPS-02.AC.EX1
+        - id: FR-OPS-02.EX2
+          title: Retention or closure policy is unresolved
+          fromStep: FR-OPS-02.MAIN.S3
+          condition: Retention or closure policy is unresolved
+          steps:
+            - id: FR-OPS-02.EX2.S1
+              actor: member
+              request: Confirm the policy-dependent action
+              systemResponse: Record the pending D08 decision and explain the available safe continuation
+              businessEffect: No guessed retention period, blanket erasure or hidden deletion.
+              acceptanceRefs:
+                - FR-OPS-02.AC.EX2
+          resume:
+            type: end
+            outcome: No guessed retention period, blanket erasure or hidden deletion.
+          postconditions:
+            - No guessed retention period, blanket erasure or hidden deletion.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-OPS-02.AC.EX2
+      postconditions:
+        success:
+          - No irreversible change occurs from opening the request.
+          - Other users and organization records are excluded without separate authority.
+          - Sharing withdrawal and data retention are distinguished explicitly.
+          - No false claim that previously exported third-party copies were erased.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No export or deletion for an unauthorized person.
+          - No guessed retention period, blanket erasure or hidden deletion.
+      acceptanceCriteria:
+        - id: FR-OPS-02.AC.M1
+          flowRef: FR-OPS-02.MAIN
+          stepRefs:
+            - FR-OPS-02.MAIN.S1
+          given:
+            - The requester and scoped operator purpose are identifiable; consequential changes
+              require the applicable policy.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Request a supported export, account closure or data correction
+          then:
+            - Explain the available scope and consequences under the approved policy
+            - No irreversible change occurs from opening the request.
+        - id: FR-OPS-02.AC.M2
+          flowRef: FR-OPS-02.MAIN
+          stepRefs:
+            - FR-OPS-02.MAIN.S2
+          given:
+            - The previous main-flow step FR-OPS-02.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Verify request ownership and review the scope
+          then:
+            - Show included personal records and any policy-governed exclusions or retained records
+            - Other users and organization records are excluded without separate authority.
+        - id: FR-OPS-02.AC.M3
+          flowRef: FR-OPS-02.MAIN
+          stepRefs:
+            - FR-OPS-02.MAIN.S3
+          given:
+            - The previous main-flow step FR-OPS-02.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Confirm the reviewed request
+          then:
+            - Apply the authorized action or record pending fulfillment
+            - Sharing withdrawal and data retention are distinguished explicitly.
+        - id: FR-OPS-02.AC.M4
+          flowRef: FR-OPS-02.MAIN
+          stepRefs:
+            - FR-OPS-02.MAIN.S4
+          given:
+            - The previous main-flow step FR-OPS-02.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect fulfillment and any limitations
+          then:
+            - Show what was completed, retained or still pending with an attributable explanation
+            - No false claim that previously exported third-party copies were erased.
+        - id: FR-OPS-02.AC.ALT1
+          flowRef: FR-OPS-02.ALT1
+          stepRefs:
+            - FR-OPS-02.ALT1.S1
+          given:
+            - Execution reaches FR-OPS-02.MAIN.S3.
+            - The member cancels before fulfillment
+          when: Cancel the pending request where permitted
+          then:
+            - Show the retained account state
+            - No data deletion is inferred from an abandoned request.
+        - id: FR-OPS-02.AC.EX1
+          flowRef: FR-OPS-02.EX1
+          stepRefs:
+            - FR-OPS-02.EX1.S1
+          given:
+            - Execution reaches FR-OPS-02.MAIN.S2.
+            - Request ownership cannot be verified
+          when: Continue the request
+          then:
+            - Require verification without exposing account content
+            - No export or deletion for an unauthorized person.
+        - id: FR-OPS-02.AC.EX2
+          flowRef: FR-OPS-02.EX2
+          stepRefs:
+            - FR-OPS-02.EX2.S1
+          given:
+            - Execution reaches FR-OPS-02.MAIN.S3.
+            - Retention or closure policy is unresolved
+          when: Confirm the policy-dependent action
+          then:
+            - Record the pending D08 decision and explain the available safe continuation
+            - No guessed retention period, blanket erasure or hidden deletion.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-COST
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: operations
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "10"
+            - "12"
+            - "16"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Request a supported export, account closure or data correction

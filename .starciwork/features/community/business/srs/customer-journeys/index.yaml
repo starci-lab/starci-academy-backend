@@ -1,0 +1,16 @@
+schema: work/node@2
+id: starci-next.features.community.business.srs.customer-journeys
+kind: business
+required: true
+description: "customer-journeys: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: customer-journeys
+      title: customer-journeys
+      status: draft
+      children:
+        - path: community-and-trusted-knowledge/index.yaml
+          workRef: starci-next.business.srs.customer-journeys.community-and-trusted-knowledge
+          title: Learn together, moderate and curate useful knowledge

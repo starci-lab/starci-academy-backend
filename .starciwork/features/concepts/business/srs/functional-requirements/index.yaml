@@ -1,0 +1,22 @@
+schema: work/node@2
+id: starci-next.features.concepts.business.srs.functional-requirements
+kind: business
+required: true
+description: "functional-requirements: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: functional-requirements
+      title: functional-requirements
+      status: draft
+      children:
+        - path: answer-lesson-assessment/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.concepts.answer-lesson-assessment
+          title: Answer concept quizzes and interview-style questions
+        - path: discover-concepts/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.concepts.discover-concepts
+          title: Discover concepts by category and learning need
+        - path: study-structured-concept/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.concepts.study-structured-concept
+          title: Study a structured and versioned concept

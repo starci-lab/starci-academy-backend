@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.learning-paths
+kind: business
+required: true
+description: "learning-paths: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: learning-paths
+    title: learning-paths
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.learning-paths.business
+        title: "learning-paths: business scope and SRS"

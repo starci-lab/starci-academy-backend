@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.operations
+kind: business
+required: true
+description: "operations: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: operations
+    title: operations
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.operations.business
+        title: "operations: business scope and SRS"

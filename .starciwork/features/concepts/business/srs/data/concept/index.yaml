@@ -1,0 +1,105 @@
+schema: work/node@2
+id: starci-next.business.srs.data.concept
+kind: business
+required: true
+state: todo
+description: Concept and content version
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-data-definition@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: DATA-concept
+      title: Concept and content version
+      modelLevel: Proposed logical business contract; physical storage, indexes and APIs belong to SDS.
+      owner: content owner; authorized authors and editors
+      fields:
+        - name: id
+          meaning: Stable logical record identity
+          validation: Required, unique and not changed by a state transition
+          classification: context-scoped
+        - name: version
+          meaning: Record/content revision used for attribution and confirmation
+          validation: Identify the reviewed version; changed content must not impersonate an earlier revision
+          classification: context-scoped
+        - name: conceptKey
+          meaning: Stable reusable learning identity
+          validation: Required independent of category and translation
+          classification: published
+        - name: learningOutcomes
+          meaning: What the learner should understand and apply
+          validation: Required explicit outcomes and prerequisites
+          classification: published
+        - name: sections
+          meaning: Teaching, visual, source, practice and assessment sections
+          validation: Each required section has content or an explicit unresolved completeness issue
+          classification: content-rights
+        - name: languageVersions
+          meaning: VI/EN version relationships
+          validation: Each version names language, source version and equivalence state
+          classification: content-rights
+        - name: publication
+          meaning: Audience, approved version and source provenance
+          validation: Only approved exact version is published
+          classification: restricted
+      relations:
+        - dataRef: DATA-category
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-assessment
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-content-source
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+      states:
+        - draft
+        - in-review
+        - published
+        - retired
+      transitions:
+        - id: DATA-concept.T1
+          from: draft
+          to: in-review
+          event: Submit content candidate
+          guard: Required teaching sections and source links validate
+        - id: DATA-concept.T2
+          from: in-review
+          to: draft
+          event: Request editorial changes
+          guard: Reviewer explains missing or incorrect content
+        - id: DATA-concept.T3
+          from: in-review
+          to: published
+          event: Approve publication
+          guard: Exact version and audience approved
+        - id: DATA-concept.T4
+          from: published
+          to: retired
+          event: Retire version for new study
+          guard: Existing evidence references retained
+      invariants:
+        - A category/path reuses Concept identity.
+        - Published revision creates a new version without overwriting an old attempt reference.
+      decisionRefs:
+        - D05
+        - D06
+      privacy:
+        access: Apply current owner, role, resource and audience grants. A selected-public field is exposed
+          only after authorized publication.
+        retention: D08 selects retention/export/closure behavior. No storage duration or automatic deletion
+          policy is inferred.
+        referenceWithdrawal: Preserve permitted provenance while preventing newly unauthorized source
+          access; retained snapshots require approved D08 purpose and scope.
+      validationCases:
+        - given: An actor without current rights references this concept.
+          when: Read or mutate the record.
+          then: Deny the unauthorized action without disclosing restricted fields.
+        - given: A record in a declared state and an attributed authorized event.
+          when: Apply a listed transition.
+          then: Require its guard, retain the prior version attribution and reject a transition unsupported by
+            policy.
+      featureOwner: concepts
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

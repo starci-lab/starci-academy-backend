@@ -1,0 +1,54 @@
+schema: work/node@2
+id: starci-next.features.mentoring.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "mentoring: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.mentoring.manage-mentor-presence
+  - starci-next.business.srs.functional-requirements.mentoring.request-and-deliver-scoped-review
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-mentoring
+      feature: mentoring
+      title: mentoring business overview
+      product: StarCiNext
+      goal: Present mentor expertise and available support scope; Request mentor review of selected
+        learning evidence
+      actors:
+        - mentor
+        - learner
+      inScope:
+        - requirementRef: FR-MENT-01
+          title: Present mentor expertise and available support scope
+        - requirementRef: FR-MENT-02
+          title: Request mentor review of selected learning evidence
+      relatedJourneyRefs:
+        - CJ-12
+      ownedSharedDefinitionRefs:
+        - D10
+        - CJ-12
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "2"
+            - "10.1"
+            - "7"
+businessOverview:
+  purpose: Present mentor expertise and available support scope; Request mentor review of selected
+    learning evidence
+  customerUnderstanding: StarCiNext mentoring serves mentor, learner through the requirements and
+    journeys owned by this feature.
+  desiredOutcome: Present mentor expertise and available support scope; Request mentor review of
+    selected learning evidence
+  scope: Present mentor expertise and available support scope; Request mentor review of selected
+    learning evidence
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

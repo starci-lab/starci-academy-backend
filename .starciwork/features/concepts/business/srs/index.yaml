@@ -1,0 +1,25 @@
+schema: work/node@2
+id: starci-next.features.concepts.business.srs
+kind: business
+required: true
+description: "concepts: Software Requirements Specification"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: feature-srs
+      title: concepts SRS
+      status: draft
+      children:
+        - path: business-rules/index.yaml
+          workRef: starci-next.features.concepts.business.srs.business-rules
+          title: "business-rules: owned specification items"
+        - path: data/index.yaml
+          workRef: starci-next.features.concepts.business.srs.data
+          title: "data: owned specification items"
+        - path: functional-requirements/index.yaml
+          workRef: starci-next.features.concepts.business.srs.functional-requirements
+          title: "functional-requirements: owned specification items"
+        - path: non-functional-requirements/index.yaml
+          workRef: starci-next.features.concepts.business.srs.non-functional-requirements
+          title: "non-functional-requirements: owned specification items"

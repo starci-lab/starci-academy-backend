@@ -1,0 +1,355 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.concepts.discover-concepts
+kind: business
+required: true
+state: todo
+description: Discover concepts by category and learning need
+refs:
+  - starci-next.business.srs.business-rules.concept-composition
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.business-rules.version-bound-history
+  - starci-next.business.srs.data.concept
+  - starci-next.business.srs.data.category
+  - starci-next.business.srs.data.entitlement
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.multilingual-content-consistency
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+  - starci-next.business.srs.business-rules.policy-decisions.release-scope
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-CON-01
+      title: Discover concepts by category and learning need
+      domain: concepts
+      goal: Discover concepts by category and learning need
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - The selected published content and applicable content-access rules are identifiable.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-CON-01.IN1
+          name: discoveryCriteria
+          validation: Category, query and preferred language
+          dataRefs:
+            - DATA-concept
+            - DATA-category
+            - DATA-entitlement
+        - id: FR-CON-01.IN2
+          name: conceptRef
+          validation: Selected discoverable Concept/version; full content still requires access
+          dataRefs:
+            - DATA-concept
+            - DATA-category
+            - DATA-entitlement
+      outputs:
+        - name: result-1
+          fromStep: FR-CON-01.MAIN.S1
+          meaning: Show available categories, discovery controls and content availability
+          effect: No learning mastery is inferred from opening a list.
+        - name: result-2
+          fromStep: FR-CON-01.MAIN.S2
+          meaning: Return relevant concept summaries with prerequisites, language and access status
+          effect: One concept identity may appear in multiple categories.
+        - name: result-3
+          fromStep: FR-CON-01.MAIN.S3
+          meaning: Show learning outcomes, version and related learning opportunities
+          effect: Restricted full content remains protected.
+        - name: result-4
+          fromStep: FR-CON-01.MAIN.S4
+          meaning: Check content entitlement and route to its selected available version
+          effect: The learner enters the concept or receives a clear access requirement.
+      businessRuleRefs:
+        - BR-CONCEPT
+        - BR-RIGHTS
+        - BR-VERSION
+      dataRefs:
+        - DATA-concept
+        - DATA-category
+        - DATA-entitlement
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-LANGUAGE
+        - NFR-AUDIT
+      decisionRefs:
+        - D02
+        - D08
+        - D11
+        - D05
+        - D03
+        - D07
+        - D12
+        - D01
+        - D06
+      directPolicyRefs:
+        - D02
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-CON-01.MAIN
+        trigger: Open concept discovery
+        steps:
+          - id: FR-CON-01.MAIN.S1
+            actor: learner
+            request: Open concept discovery
+            systemResponse: Show available categories, discovery controls and content availability
+            businessEffect: No learning mastery is inferred from opening a list.
+            acceptanceRefs:
+              - FR-CON-01.AC.M1
+          - id: FR-CON-01.MAIN.S2
+            actor: learner
+            request: Choose a category or search for a learning need
+            systemResponse: Return relevant concept summaries with prerequisites, language and access status
+            businessEffect: One concept identity may appear in multiple categories.
+            acceptanceRefs:
+              - FR-CON-01.AC.M2
+          - id: FR-CON-01.MAIN.S3
+            actor: learner
+            request: Inspect a concept summary
+            systemResponse: Show learning outcomes, version and related learning opportunities
+            businessEffect: Restricted full content remains protected.
+            acceptanceRefs:
+              - FR-CON-01.AC.M3
+          - id: FR-CON-01.MAIN.S4
+            actor: learner
+            request: Choose to open the concept
+            systemResponse: Check content entitlement and route to its selected available version
+            businessEffect: The learner enters the concept or receives a clear access requirement.
+            acceptanceRefs:
+              - FR-CON-01.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: The learner enters the concept or receives a clear access requirement.
+      alternativeFlows:
+        - id: FR-CON-01.ALT1
+          title: The learner changes category or query
+          fromStep: FR-CON-01.MAIN.S2
+          condition: The learner changes category or query
+          steps:
+            - id: FR-CON-01.ALT1.S1
+              actor: learner
+              request: Change discovery criteria
+              systemResponse: Refresh matching summaries
+              businessEffect: Previously saved learning progress remains unchanged.
+              acceptanceRefs:
+                - FR-CON-01.AC.ALT1
+          resume:
+            type: main-step
+            stepRef: FR-CON-01.MAIN.S3
+          postconditions:
+            - Previously saved learning progress remains unchanged.
+          continuation: Continue at FR-CON-01.MAIN.S3.
+          acceptanceRefs:
+            - FR-CON-01.AC.ALT1
+      exceptionFlows:
+        - id: FR-CON-01.EX1
+          title: No concept matches the current criteria
+          fromStep: FR-CON-01.MAIN.S2
+          condition: No concept matches the current criteria
+          steps:
+            - id: FR-CON-01.EX1.S1
+              actor: learner
+              request: Inspect the empty result
+              systemResponse: Show no matches and let the learner change criteria
+              businessEffect: No invented or unpublished concept is shown.
+              acceptanceRefs:
+                - FR-CON-01.AC.EX1
+          resume:
+            type: end
+            outcome: No invented or unpublished concept is shown.
+          postconditions:
+            - No invented or unpublished concept is shown.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-CON-01.AC.EX1
+        - id: FR-CON-01.EX2
+          title: The learner lacks the required content entitlement
+          fromStep: FR-CON-01.MAIN.S4
+          condition: The learner lacks the required content entitlement
+          steps:
+            - id: FR-CON-01.EX2.S1
+              actor: learner
+              request: Open restricted content
+              systemResponse: Show the applicable access condition without revealing the full content
+              businessEffect: No access is granted through discovery previews.
+              acceptanceRefs:
+                - FR-CON-01.AC.EX2
+          resume:
+            type: end
+            outcome: No access is granted through discovery previews.
+          postconditions:
+            - No access is granted through discovery previews.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-CON-01.AC.EX2
+      postconditions:
+        success:
+          - No learning mastery is inferred from opening a list.
+          - One concept identity may appear in multiple categories.
+          - Restricted full content remains protected.
+          - The learner enters the concept or receives a clear access requirement.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No invented or unpublished concept is shown.
+          - No access is granted through discovery previews.
+      acceptanceCriteria:
+        - id: FR-CON-01.AC.M1
+          flowRef: FR-CON-01.MAIN
+          stepRefs:
+            - FR-CON-01.MAIN.S1
+          given:
+            - The selected published content and applicable content-access rules are identifiable.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open concept discovery
+          then:
+            - Show available categories, discovery controls and content availability
+            - No learning mastery is inferred from opening a list.
+        - id: FR-CON-01.AC.M2
+          flowRef: FR-CON-01.MAIN
+          stepRefs:
+            - FR-CON-01.MAIN.S2
+          given:
+            - The previous main-flow step FR-CON-01.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Choose a category or search for a learning need
+          then:
+            - Return relevant concept summaries with prerequisites, language and access status
+            - One concept identity may appear in multiple categories.
+        - id: FR-CON-01.AC.M3
+          flowRef: FR-CON-01.MAIN
+          stepRefs:
+            - FR-CON-01.MAIN.S3
+          given:
+            - The previous main-flow step FR-CON-01.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect a concept summary
+          then:
+            - Show learning outcomes, version and related learning opportunities
+            - Restricted full content remains protected.
+        - id: FR-CON-01.AC.M4
+          flowRef: FR-CON-01.MAIN
+          stepRefs:
+            - FR-CON-01.MAIN.S4
+          given:
+            - The previous main-flow step FR-CON-01.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Choose to open the concept
+          then:
+            - Check content entitlement and route to its selected available version
+            - The learner enters the concept or receives a clear access requirement.
+        - id: FR-CON-01.AC.ALT1
+          flowRef: FR-CON-01.ALT1
+          stepRefs:
+            - FR-CON-01.ALT1.S1
+          given:
+            - Execution reaches FR-CON-01.MAIN.S2.
+            - The learner changes category or query
+          when: Change discovery criteria
+          then:
+            - Refresh matching summaries
+            - Previously saved learning progress remains unchanged.
+            - Continue at FR-CON-01.MAIN.S3 with current authority and reviewed context.
+        - id: FR-CON-01.AC.EX1
+          flowRef: FR-CON-01.EX1
+          stepRefs:
+            - FR-CON-01.EX1.S1
+          given:
+            - Execution reaches FR-CON-01.MAIN.S2.
+            - No concept matches the current criteria
+          when: Inspect the empty result
+          then:
+            - Show no matches and let the learner change criteria
+            - No invented or unpublished concept is shown.
+        - id: FR-CON-01.AC.EX2
+          flowRef: FR-CON-01.EX2
+          stepRefs:
+            - FR-CON-01.EX2.S1
+          given:
+            - Execution reaches FR-CON-01.MAIN.S4.
+            - The learner lacks the required content entitlement
+          when: Open restricted content
+          then:
+            - Show the applicable access condition without revealing the full content
+            - No access is granted through discovery previews.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LANGUAGE
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: concepts
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "4.1"
+            - "4.2"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Open concept discovery

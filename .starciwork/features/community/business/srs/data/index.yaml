@@ -1,0 +1,22 @@
+schema: work/node@2
+id: starci-next.features.community.business.srs.data
+kind: business
+required: true
+description: "data: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: data
+      title: data
+      status: draft
+      children:
+        - path: discussion/index.yaml
+          workRef: starci-next.business.srs.data.discussion
+          title: Contextual contribution and peer feedback
+        - path: learning-group/index.yaml
+          workRef: starci-next.business.srs.data.learning-group
+          title: Scoped learning group and memberships
+        - path: moderation-case/index.yaml
+          workRef: starci-next.business.srs.data.moderation-case
+          title: Content or answer review case

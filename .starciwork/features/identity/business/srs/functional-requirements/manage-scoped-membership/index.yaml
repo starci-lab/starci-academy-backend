@@ -1,0 +1,340 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.identity.manage-scoped-membership
+kind: business
+required: true
+state: todo
+description: Manage organization membership and scoped access
+refs:
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.data.account
+  - starci-next.business.srs.data.organization
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-ID-02
+      title: Manage organization membership and scoped access
+      domain: identity
+      goal: Manage organization membership and scoped access
+      priority: release-priority-awaits-D01
+      actors:
+        - organization-admin
+      preconditions:
+        - The configured identity capability and current role-grant authority are identifiable.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-ID-02.IN1
+          name: memberRef
+          validation: Member within the selected organization
+          dataRefs:
+            - DATA-account
+            - DATA-organization
+        - id: FR-ID-02.IN2
+          name: requestedRoleChange
+          validation: Assignable role or withdrawal with current membership revision
+          dataRefs:
+            - DATA-account
+            - DATA-organization
+      outputs:
+        - name: result-1
+          fromStep: FR-ID-02.MAIN.S1
+          meaning: List members and assignable roles within current administrator authority
+          effect: Other organizations remain invisible.
+        - name: result-2
+          fromStep: FR-ID-02.MAIN.S2
+          meaning: Preview the actions and resources affected
+          effect: No change is applied during preview.
+        - name: result-3
+          fromStep: FR-ID-02.MAIN.S3
+          meaning: Recheck current administrator authority and membership state
+          effect: Record the authorized change with actor and effective state.
+        - name: result-4
+          fromStep: FR-ID-02.MAIN.S4
+          meaning: Show current rights and safe denial for withdrawn actions
+          effect: Existing contributions retain their attribution.
+      businessRuleRefs:
+        - BR-RIGHTS
+        - BR-PRIVACY
+      dataRefs:
+        - DATA-account
+        - DATA-organization
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-AUDIT
+      decisionRefs:
+        - D11
+        - D08
+        - D05
+        - D03
+        - D07
+        - D12
+      directPolicyRefs:
+        - D11
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-ID-02.MAIN
+        trigger: Open membership settings for an owned organization
+        steps:
+          - id: FR-ID-02.MAIN.S1
+            actor: organization-admin
+            request: Open membership settings for an owned organization
+            systemResponse: List members and assignable roles within current administrator authority
+            businessEffect: Other organizations remain invisible.
+            acceptanceRefs:
+              - FR-ID-02.AC.M1
+          - id: FR-ID-02.MAIN.S2
+            actor: organization-admin
+            request: Select a member and a proposed role or withdrawal
+            systemResponse: Preview the actions and resources affected
+            businessEffect: No change is applied during preview.
+            acceptanceRefs:
+              - FR-ID-02.AC.M2
+          - id: FR-ID-02.MAIN.S3
+            actor: organization-admin
+            request: Confirm the reviewed change
+            systemResponse: Recheck current administrator authority and membership state
+            businessEffect: Record the authorized change with actor and effective state.
+            acceptanceRefs:
+              - FR-ID-02.AC.M3
+          - id: FR-ID-02.MAIN.S4
+            actor: organization-admin
+            request: Inspect the result as the administrator and affected member
+            systemResponse: Show current rights and safe denial for withdrawn actions
+            businessEffect: Existing contributions retain their attribution.
+            acceptanceRefs:
+              - FR-ID-02.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: Existing contributions retain their attribution.
+      alternativeFlows:
+        - id: FR-ID-02.ALT1
+          title: The administrator cancels the change
+          fromStep: FR-ID-02.MAIN.S2
+          condition: The administrator cancels the change
+          steps:
+            - id: FR-ID-02.ALT1.S1
+              actor: organization-admin
+              request: Cancel the preview
+              systemResponse: Return to the existing member list
+              businessEffect: Membership stays unchanged.
+              acceptanceRefs:
+                - FR-ID-02.AC.ALT1
+          resume:
+            type: end
+            outcome: Membership stays unchanged.
+          postconditions:
+            - Membership stays unchanged.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-ID-02.AC.ALT1
+      exceptionFlows:
+        - id: FR-ID-02.EX1
+          title: Another administrator changed the same membership
+          fromStep: FR-ID-02.MAIN.S3
+          condition: Another administrator changed the same membership
+          steps:
+            - id: FR-ID-02.EX1.S1
+              actor: organization-admin
+              request: Submit the stale change
+              systemResponse: Show a conflict and the current permitted state
+              businessEffect: No stale overwrite; review a new change.
+              acceptanceRefs:
+                - FR-ID-02.AC.EX1
+          resume:
+            type: end
+            outcome: No stale overwrite; review a new change.
+          postconditions:
+            - No stale overwrite; review a new change.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-ID-02.AC.EX1
+        - id: FR-ID-02.EX2
+          title: Requested role exceeds administrator authority
+          fromStep: FR-ID-02.MAIN.S3
+          condition: Requested role exceeds administrator authority
+          steps:
+            - id: FR-ID-02.EX2.S1
+              actor: organization-admin
+              request: Attempt to grant that role
+              systemResponse: Refuse the grant
+              businessEffect: No self-escalation or foreign membership mutation.
+              acceptanceRefs:
+                - FR-ID-02.AC.EX2
+          resume:
+            type: end
+            outcome: No self-escalation or foreign membership mutation.
+          postconditions:
+            - No self-escalation or foreign membership mutation.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-ID-02.AC.EX2
+      postconditions:
+        success:
+          - Other organizations remain invisible.
+          - No change is applied during preview.
+          - Record the authorized change with actor and effective state.
+          - Existing contributions retain their attribution.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No stale overwrite; review a new change.
+          - No self-escalation or foreign membership mutation.
+      acceptanceCriteria:
+        - id: FR-ID-02.AC.M1
+          flowRef: FR-ID-02.MAIN
+          stepRefs:
+            - FR-ID-02.MAIN.S1
+          given:
+            - The configured identity capability and current role-grant authority are identifiable.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open membership settings for an owned organization
+          then:
+            - List members and assignable roles within current administrator authority
+            - Other organizations remain invisible.
+        - id: FR-ID-02.AC.M2
+          flowRef: FR-ID-02.MAIN
+          stepRefs:
+            - FR-ID-02.MAIN.S2
+          given:
+            - The previous main-flow step FR-ID-02.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Select a member and a proposed role or withdrawal
+          then:
+            - Preview the actions and resources affected
+            - No change is applied during preview.
+        - id: FR-ID-02.AC.M3
+          flowRef: FR-ID-02.MAIN
+          stepRefs:
+            - FR-ID-02.MAIN.S3
+          given:
+            - The previous main-flow step FR-ID-02.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Confirm the reviewed change
+          then:
+            - Recheck current administrator authority and membership state
+            - Record the authorized change with actor and effective state.
+        - id: FR-ID-02.AC.M4
+          flowRef: FR-ID-02.MAIN
+          stepRefs:
+            - FR-ID-02.MAIN.S4
+          given:
+            - The previous main-flow step FR-ID-02.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect the result as the administrator and affected member
+          then:
+            - Show current rights and safe denial for withdrawn actions
+            - Existing contributions retain their attribution.
+        - id: FR-ID-02.AC.ALT1
+          flowRef: FR-ID-02.ALT1
+          stepRefs:
+            - FR-ID-02.ALT1.S1
+          given:
+            - Execution reaches FR-ID-02.MAIN.S2.
+            - The administrator cancels the change
+          when: Cancel the preview
+          then:
+            - Return to the existing member list
+            - Membership stays unchanged.
+        - id: FR-ID-02.AC.EX1
+          flowRef: FR-ID-02.EX1
+          stepRefs:
+            - FR-ID-02.EX1.S1
+          given:
+            - Execution reaches FR-ID-02.MAIN.S3.
+            - Another administrator changed the same membership
+          when: Submit the stale change
+          then:
+            - Show a conflict and the current permitted state
+            - No stale overwrite; review a new change.
+        - id: FR-ID-02.AC.EX2
+          flowRef: FR-ID-02.EX2
+          stepRefs:
+            - FR-ID-02.EX2.S1
+          given:
+            - Execution reaches FR-ID-02.MAIN.S3.
+            - Requested role exceeds administrator authority
+          when: Attempt to grant that role
+          then:
+            - Refuse the grant
+            - No self-escalation or foreign membership mutation.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: identity
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "2"
+            - "10"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Open membership settings for an owned organization

@@ -1,0 +1,65 @@
+schema: work/node@2
+id: starci-next.features.operations.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "operations: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.operations.resolve-account-and-benefit-case
+  - starci-next.business.srs.functional-requirements.operations.manage-personal-data-request
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-operations
+      feature: operations
+      title: operations business overview
+      product: StarCiNext
+      goal: Resolve scoped support cases with attributable outcomes; Review and fulfill personal data
+        requests under approved policy
+      actors:
+        - member
+        - operations
+      inScope:
+        - requirementRef: FR-OPS-01
+          title: Resolve scoped support cases with attributable outcomes
+        - requirementRef: FR-OPS-02
+          title: Review and fulfill personal data requests under approved policy
+      relatedJourneyRefs:
+        - CJ-07
+        - CJ-13
+      ownedSharedDefinitionRefs:
+        - BR-REPEAT
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-AUDIT
+        - DATA-support-case
+        - D01
+        - D04
+        - D12
+        - CJ-13
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "11.2"
+            - "12"
+            - "10"
+            - "16"
+businessOverview:
+  purpose: Resolve scoped support cases with attributable outcomes; Review and fulfill personal data
+    requests under approved policy
+  customerUnderstanding: StarCiNext operations serves member, operations through the requirements and
+    journeys owned by this feature.
+  desiredOutcome: Resolve scoped support cases with attributable outcomes; Review and fulfill personal
+    data requests under approved policy
+  scope: Resolve scoped support cases with attributable outcomes; Review and fulfill personal data
+    requests under approved policy
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

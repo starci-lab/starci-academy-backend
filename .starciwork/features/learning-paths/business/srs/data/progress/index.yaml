@@ -1,0 +1,102 @@
+schema: work/node@2
+id: starci-next.business.srs.data.progress
+kind: business
+required: true
+state: todo
+description: Learning progress and criterion evidence
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-data-definition@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: DATA-progress
+      title: Learning progress and criterion evidence
+      modelLevel: Proposed logical business contract; physical storage, indexes and APIs belong to SDS.
+      owner: learner
+      fields:
+        - name: id
+          meaning: Stable logical record identity
+          validation: Required, unique and not changed by a state transition
+          classification: context-scoped
+        - name: version
+          meaning: Record/content revision used for attribution and confirmation
+          validation: Identify the reviewed version; changed content must not impersonate an earlier revision
+          classification: context-scoped
+        - name: learningContext
+          meaning: Plan, Concept or milestone being tracked
+          validation: Reference the applicable version
+          classification: private
+        - name: activityProgress
+          meaning: Viewed/read/practiced activity
+          validation: Must preserve distinct activity types
+          classification: private
+        - name: criterionResults
+          meaning: Demonstrated or missing criteria
+          validation: Each positive result links applicable evidence and rubric
+          classification: private
+        - name: verificationLimits
+          meaning: Current limits of inspectable evidence
+          validation: Withdrawn or superseded evidence cannot be presented as freshly verified
+          classification: private
+      relations:
+        - dataRef: DATA-learning-plan
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-concept
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-submission
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-review
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-evidence
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+      states:
+        - not-started
+        - in-progress
+        - criteria-met
+        - needs-review
+      transitions:
+        - id: DATA-progress.T1
+          from: not-started
+          to: in-progress
+          event: Record actual learning activity
+          guard: Activity type and source context supplied
+        - id: DATA-progress.T2
+          from: in-progress
+          to: criteria-met
+          event: Establish required evidence
+          guard: Approved D05 criteria supported
+        - id: DATA-progress.T3
+          from: criteria-met
+          to: needs-review
+          event: Evidence or criteria become incompatible
+          guard: Historical achievement retained with current limits
+        - id: DATA-progress.T4
+          from: needs-review
+          to: criteria-met
+          event: Obtain applicable evidence
+          guard: Reassessment meets current approved criteria
+      invariants:
+        - Reading and XP cannot alone establish a practical criterion.
+      decisionRefs:
+        - D05
+      privacy:
+        access: Apply current owner, role, resource and audience grants. A selected-public field is exposed
+          only after authorized publication.
+        retention: D08 selects retention/export/closure behavior. No storage duration or automatic deletion
+          policy is inferred.
+        referenceWithdrawal: Preserve permitted provenance while preventing newly unauthorized source
+          access; retained snapshots require approved D08 purpose and scope.
+      validationCases:
+        - given: An actor without current rights references this progress.
+          when: Read or mutate the record.
+          then: Deny the unauthorized action without disclosing restricted fields.
+        - given: A record in a declared state and an attributed authorized event.
+          when: Apply a listed transition.
+          then: Require its guard, retain the prior version attribution and reject a transition unsupported by
+            policy.
+      featureOwner: learning-paths
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

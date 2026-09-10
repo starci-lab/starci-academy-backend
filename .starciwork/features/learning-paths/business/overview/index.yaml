@@ -1,0 +1,54 @@
+schema: work/node@2
+id: starci-next.features.learning-paths.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "learning-paths: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.learning-paths.choose-learning-plan
+  - starci-next.business.srs.functional-requirements.learning-paths.track-and-revise-progress
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-learning-paths
+      feature: learning-paths
+      title: learning-paths business overview
+      product: StarCiNext
+      goal: Choose and accept a goal-based learning plan; Review progress and revise the learning plan
+      actors:
+        - learner
+      inScope:
+        - requirementRef: FR-PATH-01
+          title: Choose and accept a goal-based learning plan
+        - requirementRef: FR-PATH-02
+          title: Review progress and revise the learning plan
+      relatedJourneyRefs:
+        - CJ-01
+        - CJ-02
+        - CJ-04
+        - CJ-06
+      ownedSharedDefinitionRefs:
+        - BR-PLAN
+        - DATA-progress
+        - DATA-learning-plan
+        - CJ-01
+        - CJ-02
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "4.3"
+            - "9.1"
+businessOverview:
+  purpose: Choose and accept a goal-based learning plan; Review progress and revise the learning plan
+  customerUnderstanding: StarCiNext learning-paths serves learner through the requirements and
+    journeys owned by this feature.
+  desiredOutcome: Choose and accept a goal-based learning plan; Review progress and revise the learning plan
+  scope: Choose and accept a goal-based learning plan; Review progress and revise the learning plan
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

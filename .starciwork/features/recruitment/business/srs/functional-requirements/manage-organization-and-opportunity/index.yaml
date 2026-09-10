@@ -1,0 +1,375 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.recruitment.manage-organization-and-opportunity
+kind: business
+required: true
+state: todo
+description: Manage an organization profile and recruitment opportunity
+refs:
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.business-rules.consented-recruitment
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.data.organization
+  - starci-next.business.srs.data.opportunity
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.grounding-and-ai-boundaries
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-HIRE-01
+      title: Manage an organization profile and recruitment opportunity
+      domain: recruitment
+      goal: Manage an organization profile and recruitment opportunity
+      priority: release-priority-awaits-D01
+      actors:
+        - recruiter
+      preconditions:
+        - The actor can use personal discovery or a currently held organization role;
+          publication/contact requires its separate policy.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-HIRE-01.IN1
+          name: organizationContext
+          validation: Held representation and current trust status
+          dataRefs:
+            - DATA-organization
+            - DATA-opportunity
+        - id: FR-HIRE-01.IN2
+          name: opportunityFields
+          validation: Role, requirements, publication/update/closure choice
+          dataRefs:
+            - DATA-organization
+            - DATA-opportunity
+      outputs:
+        - name: result-1
+          fromStep: FR-HIRE-01.MAIN.S1
+          meaning: Show current representation and verification status
+          effect: A personal account does not automatically represent an organization.
+        - name: result-2
+          fromStep: FR-HIRE-01.MAIN.S2
+          meaning: Capture responsibilities, requirements and candidate-facing information
+          effect: The opportunity remains a draft until publication conditions are met.
+        - name: result-3
+          fromStep: FR-HIRE-01.MAIN.S3
+          meaning: Explain missing information and policy requirements
+          effect: Unverified status is not presented as verified.
+        - name: result-4
+          fromStep: FR-HIRE-01.MAIN.S4
+          meaning: Record the active opportunity version
+          effect: Candidates see its current status and requirements.
+        - name: result-5
+          fromStep: FR-HIRE-01.MAIN.S5
+          meaning: Show consequences for new applications and existing applicants
+          effect: Existing application history is retained under policy.
+      businessRuleRefs:
+        - BR-RIGHTS
+        - BR-RECRUIT
+        - BR-PRIVACY
+      dataRefs:
+        - DATA-organization
+        - DATA-opportunity
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-AI
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-AUDIT
+      decisionRefs:
+        - D11
+        - D08
+        - D06
+        - D07
+        - D05
+        - D03
+        - D12
+      directPolicyRefs:
+        - D11
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-HIRE-01.MAIN
+        trigger: Open the organization profile in a held role
+        steps:
+          - id: FR-HIRE-01.MAIN.S1
+            actor: recruiter
+            request: Open the organization profile in a held role
+            systemResponse: Show current representation and verification status
+            businessEffect: A personal account does not automatically represent an organization.
+            acceptanceRefs:
+              - FR-HIRE-01.AC.M1
+          - id: FR-HIRE-01.MAIN.S2
+            actor: recruiter
+            request: Create or revise a role opportunity
+            systemResponse: Capture responsibilities, requirements and candidate-facing information
+            businessEffect: The opportunity remains a draft until publication conditions are met.
+            acceptanceRefs:
+              - FR-HIRE-01.AC.M2
+          - id: FR-HIRE-01.MAIN.S3
+            actor: recruiter
+            request: Review verification and publication conditions
+            systemResponse: Explain missing information and policy requirements
+            businessEffect: Unverified status is not presented as verified.
+            acceptanceRefs:
+              - FR-HIRE-01.AC.M3
+          - id: FR-HIRE-01.MAIN.S4
+            actor: recruiter
+            request: Publish the reviewed opportunity when eligible
+            systemResponse: Record the active opportunity version
+            businessEffect: Candidates see its current status and requirements.
+            acceptanceRefs:
+              - FR-HIRE-01.AC.M4
+          - id: FR-HIRE-01.MAIN.S5
+            actor: recruiter
+            request: Close or update the opportunity
+            systemResponse: Show consequences for new applications and existing applicants
+            businessEffect: Existing application history is retained under policy.
+            acceptanceRefs:
+              - FR-HIRE-01.AC.M5
+        end:
+          type: completed-main-flow
+          outcome: Existing application history is retained under policy.
+      alternativeFlows:
+        - id: FR-HIRE-01.ALT1
+          title: The recruiter keeps the opportunity as a draft
+          fromStep: FR-HIRE-01.MAIN.S3
+          condition: The recruiter keeps the opportunity as a draft
+          steps:
+            - id: FR-HIRE-01.ALT1.S1
+              actor: recruiter
+              request: Leave publication pending
+              systemResponse: Retain the editable opportunity
+              businessEffect: No candidate-facing active listing.
+              acceptanceRefs:
+                - FR-HIRE-01.AC.ALT1
+          resume:
+            type: end
+            outcome: No candidate-facing active listing.
+          postconditions:
+            - No candidate-facing active listing.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-HIRE-01.AC.ALT1
+      exceptionFlows:
+        - id: FR-HIRE-01.EX1
+          title: Representation or publication authority is missing
+          fromStep: FR-HIRE-01.MAIN.S4
+          condition: Representation or publication authority is missing
+          steps:
+            - id: FR-HIRE-01.EX1.S1
+              actor: recruiter
+              request: Publish the opportunity
+              systemResponse: Refuse publication and explain the requirement
+              businessEffect: No false organization verification.
+              acceptanceRefs:
+                - FR-HIRE-01.AC.EX1
+          resume:
+            type: end
+            outcome: No false organization verification.
+          postconditions:
+            - No false organization verification.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-HIRE-01.AC.EX1
+        - id: FR-HIRE-01.EX2
+          title: A concurrent change supersedes the recruiter view
+          fromStep: FR-HIRE-01.MAIN.S5
+          condition: A concurrent change supersedes the recruiter view
+          steps:
+            - id: FR-HIRE-01.EX2.S1
+              actor: recruiter
+              request: Save the outdated revision
+              systemResponse: Return a conflict with permitted current information
+              businessEffect: No lost opportunity update.
+              acceptanceRefs:
+                - FR-HIRE-01.AC.EX2
+          resume:
+            type: end
+            outcome: No lost opportunity update.
+          postconditions:
+            - No lost opportunity update.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-HIRE-01.AC.EX2
+      postconditions:
+        success:
+          - A personal account does not automatically represent an organization.
+          - The opportunity remains a draft until publication conditions are met.
+          - Unverified status is not presented as verified.
+          - Candidates see its current status and requirements.
+          - Existing application history is retained under policy.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No false organization verification.
+          - No lost opportunity update.
+      acceptanceCriteria:
+        - id: FR-HIRE-01.AC.M1
+          flowRef: FR-HIRE-01.MAIN
+          stepRefs:
+            - FR-HIRE-01.MAIN.S1
+          given:
+            - The actor can use personal discovery or a currently held organization role;
+              publication/contact requires its separate policy.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open the organization profile in a held role
+          then:
+            - Show current representation and verification status
+            - A personal account does not automatically represent an organization.
+        - id: FR-HIRE-01.AC.M2
+          flowRef: FR-HIRE-01.MAIN
+          stepRefs:
+            - FR-HIRE-01.MAIN.S2
+          given:
+            - The previous main-flow step FR-HIRE-01.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Create or revise a role opportunity
+          then:
+            - Capture responsibilities, requirements and candidate-facing information
+            - The opportunity remains a draft until publication conditions are met.
+        - id: FR-HIRE-01.AC.M3
+          flowRef: FR-HIRE-01.MAIN
+          stepRefs:
+            - FR-HIRE-01.MAIN.S3
+          given:
+            - The previous main-flow step FR-HIRE-01.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Review verification and publication conditions
+          then:
+            - Explain missing information and policy requirements
+            - Unverified status is not presented as verified.
+        - id: FR-HIRE-01.AC.M4
+          flowRef: FR-HIRE-01.MAIN
+          stepRefs:
+            - FR-HIRE-01.MAIN.S4
+          given:
+            - The previous main-flow step FR-HIRE-01.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Publish the reviewed opportunity when eligible
+          then:
+            - Record the active opportunity version
+            - Candidates see its current status and requirements.
+        - id: FR-HIRE-01.AC.M5
+          flowRef: FR-HIRE-01.MAIN
+          stepRefs:
+            - FR-HIRE-01.MAIN.S5
+          given:
+            - The previous main-flow step FR-HIRE-01.MAIN.S4 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Close or update the opportunity
+          then:
+            - Show consequences for new applications and existing applicants
+            - Existing application history is retained under policy.
+        - id: FR-HIRE-01.AC.ALT1
+          flowRef: FR-HIRE-01.ALT1
+          stepRefs:
+            - FR-HIRE-01.ALT1.S1
+          given:
+            - Execution reaches FR-HIRE-01.MAIN.S3.
+            - The recruiter keeps the opportunity as a draft
+          when: Leave publication pending
+          then:
+            - Retain the editable opportunity
+            - No candidate-facing active listing.
+        - id: FR-HIRE-01.AC.EX1
+          flowRef: FR-HIRE-01.EX1
+          stepRefs:
+            - FR-HIRE-01.EX1.S1
+          given:
+            - Execution reaches FR-HIRE-01.MAIN.S4.
+            - Representation or publication authority is missing
+          when: Publish the opportunity
+          then:
+            - Refuse publication and explain the requirement
+            - No false organization verification.
+        - id: FR-HIRE-01.AC.EX2
+          flowRef: FR-HIRE-01.EX2
+          stepRefs:
+            - FR-HIRE-01.EX2.S1
+          given:
+            - Execution reaches FR-HIRE-01.MAIN.S5.
+            - A concurrent change supersedes the recruiter view
+          when: Save the outdated revision
+          then:
+            - Return a conflict with permitted current information
+            - No lost opportunity update.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AI
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: recruitment
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "10.2"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Open the organization profile in a held role

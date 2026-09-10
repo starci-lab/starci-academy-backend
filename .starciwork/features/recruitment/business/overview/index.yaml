@@ -1,0 +1,67 @@
+schema: work/node@2
+id: starci-next.features.recruitment.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "recruitment: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.recruitment.manage-organization-and-opportunity
+  - starci-next.business.srs.functional-requirements.recruitment.discover-and-explain-matches
+  - starci-next.business.srs.functional-requirements.recruitment.apply-with-selected-evidence
+  - starci-next.business.srs.functional-requirements.recruitment.handle-application-and-contact
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-recruitment
+      feature: recruitment
+      title: recruitment business overview
+      product: StarCiNext
+      goal: Manage an organization profile and recruitment opportunity; Discover opportunities and explain
+        evidence-based matches; Apply using reviewed profile and CV versions; Review applications
+        and conduct permitted recruitment contact
+      actors:
+        - recruiter
+        - learner
+      inScope:
+        - requirementRef: FR-HIRE-01
+          title: Manage an organization profile and recruitment opportunity
+        - requirementRef: FR-HIRE-02
+          title: Discover opportunities and explain evidence-based matches
+        - requirementRef: FR-HIRE-03
+          title: Apply using reviewed profile and CV versions
+        - requirementRef: FR-HIRE-04
+          title: Review applications and conduct permitted recruitment contact
+      relatedJourneyRefs:
+        - CJ-01
+        - CJ-08
+      ownedSharedDefinitionRefs:
+        - BR-RECRUIT
+        - DATA-organization
+        - DATA-application
+        - DATA-opportunity
+        - D11
+        - CJ-08
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "10.2"
+businessOverview:
+  purpose: Manage an organization profile and recruitment opportunity; Discover opportunities and
+    explain evidence-based matches; Apply using reviewed profile and CV versions; Review
+    applications and conduct permitted recruitment contact
+  customerUnderstanding: StarCiNext recruitment serves recruiter, learner through the requirements and
+    journeys owned by this feature.
+  desiredOutcome: Manage an organization profile and recruitment opportunity; Discover opportunities
+    and explain evidence-based matches; Apply using reviewed profile and CV versions; Review
+    applications and conduct permitted recruitment contact
+  scope: Manage an organization profile and recruitment opportunity; Discover opportunities and
+    explain evidence-based matches; Apply using reviewed profile and CV versions; Review
+    applications and conduct permitted recruitment contact
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

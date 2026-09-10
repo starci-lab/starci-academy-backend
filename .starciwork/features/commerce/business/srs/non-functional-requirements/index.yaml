@@ -1,0 +1,16 @@
+schema: work/node@2
+id: starci-next.features.commerce.business.srs.non-functional-requirements
+kind: business
+required: true
+description: "non-functional-requirements: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: non-functional-requirements
+      title: non-functional-requirements
+      status: draft
+      children:
+        - path: allowance-and-cost-visibility/index.yaml
+          workRef: starci-next.business.srs.non-functional-requirements.allowance-and-cost-visibility
+          title: Allowance and cost control

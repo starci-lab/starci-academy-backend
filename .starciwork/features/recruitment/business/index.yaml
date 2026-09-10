@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.recruitment.business
+kind: business
+required: true
+description: "recruitment: business scope and SRS"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: feature-business
+      title: recruitment business
+      status: draft
+      children:
+        - path: overview/index.yaml
+          workRef: starci-next.features.recruitment.business.overview
+          title: "recruitment: goals, scope and shared ownership"
+        - path: srs/index.yaml
+          workRef: starci-next.features.recruitment.business.srs
+          title: "recruitment: Software Requirements Specification"

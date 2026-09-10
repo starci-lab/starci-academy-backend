@@ -1,0 +1,386 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.learning-paths.choose-learning-plan
+kind: business
+required: true
+state: todo
+description: Choose and accept a goal-based learning plan
+refs:
+  - starci-next.business.srs.business-rules.learner-accepted-plan
+  - starci-next.business.srs.business-rules.activity-versus-mastery
+  - starci-next.business.srs.business-rules.concept-composition
+  - starci-next.business.srs.business-rules.bounded-ai-assistance
+  - starci-next.business.srs.data.learning-plan
+  - starci-next.business.srs.data.concept
+  - starci-next.business.srs.data.progress
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.grounding-and-ai-boundaries
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.multilingual-content-consistency
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.release-scope
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-PATH-01
+      title: Choose and accept a goal-based learning plan
+      domain: learning-paths
+      goal: Choose and accept a goal-based learning plan
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - The learner can access their own goal, plan and learning evidence.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-PATH-01.IN1
+          name: learningGoal
+          validation: Career goal, current experience and study availability; self-report is labeled
+          dataRefs:
+            - DATA-learning-plan
+            - DATA-concept
+            - DATA-progress
+        - id: FR-PATH-01.IN2
+          name: planChoice
+          validation: Learner-reviewed milestone adjustments and acceptance of the current proposal
+          dataRefs:
+            - DATA-learning-plan
+            - DATA-concept
+            - DATA-progress
+      outputs:
+        - name: result-1
+          fromStep: FR-PATH-01.MAIN.S1
+          meaning: Capture the learner-provided starting point
+          effect: Self-reported experience is labeled as such.
+        - name: result-2
+          fromStep: FR-PATH-01.MAIN.S2
+          meaning: Explain milestones, prerequisite concepts and practice opportunities across categories
+          effect: The proposal is separate from the current accepted plan.
+        - name: result-3
+          fromStep: FR-PATH-01.MAIN.S3
+          meaning: Show the implications of changed scope and prerequisites
+          effect: The learner controls proposed plan choices.
+        - name: result-4
+          fromStep: FR-PATH-01.MAIN.S4
+          meaning: Record the selected plan version and milestones
+          effect: The accepted plan becomes the learner current plan.
+        - name: result-5
+          fromStep: FR-PATH-01.MAIN.S5
+          meaning: Explain what to study or practice and why
+          effect: Progress will be tied to the accepted milestone criteria.
+      businessRuleRefs:
+        - BR-PLAN
+        - BR-MASTERY
+        - BR-CONCEPT
+        - BR-AI
+      dataRefs:
+        - DATA-learning-plan
+        - DATA-concept
+        - DATA-progress
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-AI
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-LANGUAGE
+        - NFR-AUDIT
+      decisionRefs:
+        - D01
+        - D05
+        - D06
+        - D07
+        - D08
+        - D11
+        - D03
+        - D12
+      directPolicyRefs:
+        - D01
+        - D05
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-PATH-01.MAIN
+        trigger: Describe a career goal, current experience and available study time
+        steps:
+          - id: FR-PATH-01.MAIN.S1
+            actor: learner
+            request: Describe a career goal, current experience and available study time
+            systemResponse: Capture the learner-provided starting point
+            businessEffect: Self-reported experience is labeled as such.
+            acceptanceRefs:
+              - FR-PATH-01.AC.M1
+          - id: FR-PATH-01.MAIN.S2
+            actor: learner
+            request: Request a proposed learning plan
+            systemResponse: Explain milestones, prerequisite concepts and practice opportunities across categories
+            businessEffect: The proposal is separate from the current accepted plan.
+            acceptanceRefs:
+              - FR-PATH-01.AC.M2
+          - id: FR-PATH-01.MAIN.S3
+            actor: learner
+            request: Review and adjust the proposed milestones
+            systemResponse: Show the implications of changed scope and prerequisites
+            businessEffect: The learner controls proposed plan choices.
+            acceptanceRefs:
+              - FR-PATH-01.AC.M3
+          - id: FR-PATH-01.MAIN.S4
+            actor: learner
+            request: Accept the reviewed plan
+            systemResponse: Record the selected plan version and milestones
+            businessEffect: The accepted plan becomes the learner current plan.
+            acceptanceRefs:
+              - FR-PATH-01.AC.M4
+          - id: FR-PATH-01.MAIN.S5
+            actor: learner
+            request: Open the first eligible step
+            systemResponse: Explain what to study or practice and why
+            businessEffect: Progress will be tied to the accepted milestone criteria.
+            acceptanceRefs:
+              - FR-PATH-01.AC.M5
+        end:
+          type: completed-main-flow
+          outcome: Progress will be tied to the accepted milestone criteria.
+      alternativeFlows:
+        - id: FR-PATH-01.ALT1
+          title: The learner rejects the proposal
+          fromStep: FR-PATH-01.MAIN.S3
+          condition: The learner rejects the proposal
+          steps:
+            - id: FR-PATH-01.ALT1.S1
+              actor: learner
+              request: Return to goal editing
+              systemResponse: Retain the current accepted plan
+              businessEffect: No AI proposal replaces the learner plan.
+              acceptanceRefs:
+                - FR-PATH-01.AC.ALT1
+          resume:
+            type: end
+            outcome: No AI proposal replaces the learner plan.
+          postconditions:
+            - No AI proposal replaces the learner plan.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-PATH-01.AC.ALT1
+      exceptionFlows:
+        - id: FR-PATH-01.EX1
+          title: There is insufficient information to recommend a plan
+          fromStep: FR-PATH-01.MAIN.S2
+          condition: There is insufficient information to recommend a plan
+          steps:
+            - id: FR-PATH-01.EX1.S1
+              actor: learner
+              request: Request the missing goal or prerequisite information
+              systemResponse: Explain the limitation and preserve the supplied input
+              businessEffect: No unsupported exemption or competency claim.
+              acceptanceRefs:
+                - FR-PATH-01.AC.EX1
+          resume:
+            type: end
+            outcome: No unsupported exemption or competency claim.
+          postconditions:
+            - No unsupported exemption or competency claim.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-PATH-01.AC.EX1
+        - id: FR-PATH-01.EX2
+          title: The plan or prerequisite content changed during review
+          fromStep: FR-PATH-01.MAIN.S4
+          condition: The plan or prerequisite content changed during review
+          steps:
+            - id: FR-PATH-01.EX2.S1
+              actor: learner
+              request: Accept the stale proposal
+              systemResponse: Require review of the changed plan
+              businessEffect: No silent replacement with a different plan.
+              acceptanceRefs:
+                - FR-PATH-01.AC.EX2
+          resume:
+            type: end
+            outcome: No silent replacement with a different plan.
+          postconditions:
+            - No silent replacement with a different plan.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-PATH-01.AC.EX2
+      postconditions:
+        success:
+          - Self-reported experience is labeled as such.
+          - The proposal is separate from the current accepted plan.
+          - The learner controls proposed plan choices.
+          - The accepted plan becomes the learner current plan.
+          - Progress will be tied to the accepted milestone criteria.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No unsupported exemption or competency claim.
+          - No silent replacement with a different plan.
+      acceptanceCriteria:
+        - id: FR-PATH-01.AC.M1
+          flowRef: FR-PATH-01.MAIN
+          stepRefs:
+            - FR-PATH-01.MAIN.S1
+          given:
+            - The learner can access their own goal, plan and learning evidence.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Describe a career goal, current experience and available study time
+          then:
+            - Capture the learner-provided starting point
+            - Self-reported experience is labeled as such.
+        - id: FR-PATH-01.AC.M2
+          flowRef: FR-PATH-01.MAIN
+          stepRefs:
+            - FR-PATH-01.MAIN.S2
+          given:
+            - The previous main-flow step FR-PATH-01.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Request a proposed learning plan
+          then:
+            - Explain milestones, prerequisite concepts and practice opportunities across categories
+            - The proposal is separate from the current accepted plan.
+        - id: FR-PATH-01.AC.M3
+          flowRef: FR-PATH-01.MAIN
+          stepRefs:
+            - FR-PATH-01.MAIN.S3
+          given:
+            - The previous main-flow step FR-PATH-01.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Review and adjust the proposed milestones
+          then:
+            - Show the implications of changed scope and prerequisites
+            - The learner controls proposed plan choices.
+        - id: FR-PATH-01.AC.M4
+          flowRef: FR-PATH-01.MAIN
+          stepRefs:
+            - FR-PATH-01.MAIN.S4
+          given:
+            - The previous main-flow step FR-PATH-01.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Accept the reviewed plan
+          then:
+            - Record the selected plan version and milestones
+            - The accepted plan becomes the learner current plan.
+        - id: FR-PATH-01.AC.M5
+          flowRef: FR-PATH-01.MAIN
+          stepRefs:
+            - FR-PATH-01.MAIN.S5
+          given:
+            - The previous main-flow step FR-PATH-01.MAIN.S4 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open the first eligible step
+          then:
+            - Explain what to study or practice and why
+            - Progress will be tied to the accepted milestone criteria.
+        - id: FR-PATH-01.AC.ALT1
+          flowRef: FR-PATH-01.ALT1
+          stepRefs:
+            - FR-PATH-01.ALT1.S1
+          given:
+            - Execution reaches FR-PATH-01.MAIN.S3.
+            - The learner rejects the proposal
+          when: Return to goal editing
+          then:
+            - Retain the current accepted plan
+            - No AI proposal replaces the learner plan.
+        - id: FR-PATH-01.AC.EX1
+          flowRef: FR-PATH-01.EX1
+          stepRefs:
+            - FR-PATH-01.EX1.S1
+          given:
+            - Execution reaches FR-PATH-01.MAIN.S2.
+            - There is insufficient information to recommend a plan
+          when: Request the missing goal or prerequisite information
+          then:
+            - Explain the limitation and preserve the supplied input
+            - No unsupported exemption or competency claim.
+        - id: FR-PATH-01.AC.EX2
+          flowRef: FR-PATH-01.EX2
+          stepRefs:
+            - FR-PATH-01.EX2.S1
+          given:
+            - Execution reaches FR-PATH-01.MAIN.S4.
+            - The plan or prerequisite content changed during review
+          when: Accept the stale proposal
+          then:
+            - Require review of the changed plan
+            - No silent replacement with a different plan.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AI
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LANGUAGE
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: learning-paths
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "4.3"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Describe a career goal, current experience and available study time

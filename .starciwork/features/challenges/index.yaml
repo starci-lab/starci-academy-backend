@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.challenges
+kind: business
+required: true
+description: "challenges: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: challenges
+    title: challenges
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.challenges.business
+        title: "challenges: business scope and SRS"

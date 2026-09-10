@@ -1,0 +1,359 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.commerce.resolve-purchase-and-refund
+kind: business
+required: true
+state: todo
+description: Resolve purchase disputes and eligible refund requests
+refs:
+  - starci-next.business.srs.business-rules.settlement-and-effective-rights
+  - starci-next.business.srs.business-rules.one-logical-effect
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.data.purchase
+  - starci-next.business.srs.data.subscription
+  - starci-next.business.srs.data.entitlement
+  - starci-next.business.srs.data.support-case
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.allowance-and-cost-visibility
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-SUB-04
+      title: Resolve purchase disputes and eligible refund requests
+      domain: commerce
+      goal: Resolve purchase disputes and eligible refund requests
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+        - operations
+      preconditions:
+        - The buyer account and current known rights are identifiable; commercial effects require
+          approved terms and authoritative evidence.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-SUB-04.IN1
+          name: purchaseRef
+          validation: Buyer-owned purchase and known settlement/activation state
+          dataRefs:
+            - DATA-purchase
+            - DATA-subscription
+            - DATA-entitlement
+            - DATA-support-case
+        - id: FR-SUB-04.IN2
+          name: supportRequest
+          validation: Concern or refund request and permitted evidence
+          dataRefs:
+            - DATA-purchase
+            - DATA-subscription
+            - DATA-entitlement
+            - DATA-support-case
+      outputs:
+        - name: result-1
+          fromStep: FR-SUB-04.MAIN.S1
+          meaning: Show purchase state and a scoped support path
+          effect: Only the buyer and authorized support can inspect private purchase details.
+        - name: result-2
+          fromStep: FR-SUB-04.MAIN.S2
+          meaning: Capture the purchase reference and reason
+          effect: A support request does not itself refund money or withdraw rights.
+        - name: result-3
+          fromStep: FR-SUB-04.MAIN.S3
+          meaning: Explain the decision, unresolved evidence or approved corrective action
+          effect: Actions remain attributable and within operator authority.
+        - name: result-4
+          fromStep: FR-SUB-04.MAIN.S4
+          meaning: Show financial outcome and corresponding entitlement impact separately
+          effect: Approved corrections apply once; unknown external settlement stays unresolved.
+      businessRuleRefs:
+        - BR-COMMERCE
+        - BR-REPEAT
+        - BR-RIGHTS
+      dataRefs:
+        - DATA-purchase
+        - DATA-subscription
+        - DATA-entitlement
+        - DATA-support-case
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-COST
+        - NFR-AUDIT
+      decisionRefs:
+        - D03
+        - D08
+        - D11
+        - D07
+        - D02
+        - D05
+        - D12
+      directPolicyRefs:
+        - D03
+        - D08
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-SUB-04.MAIN
+        trigger: Open the purchase with a settlement or benefit concern
+        steps:
+          - id: FR-SUB-04.MAIN.S1
+            actor: learner
+            request: Open the purchase with a settlement or benefit concern
+            systemResponse: Show purchase state and a scoped support path
+            businessEffect: Only the buyer and authorized support can inspect private purchase details.
+            acceptanceRefs:
+              - FR-SUB-04.AC.M1
+          - id: FR-SUB-04.MAIN.S2
+            actor: learner
+            request: Describe the issue or request a refund
+            systemResponse: Capture the purchase reference and reason
+            businessEffect: A support request does not itself refund money or withdraw rights.
+            acceptanceRefs:
+              - FR-SUB-04.AC.M2
+          - id: FR-SUB-04.MAIN.S3
+            actor: operations
+            request: Have authorized operations review payment evidence and applicable terms
+            systemResponse: Explain the decision, unresolved evidence or approved corrective action
+            businessEffect: Actions remain attributable and within operator authority.
+            acceptanceRefs:
+              - FR-SUB-04.AC.M3
+          - id: FR-SUB-04.MAIN.S4
+            actor: learner
+            request: Inspect the confirmed correction or refund outcome
+            systemResponse: Show financial outcome and corresponding entitlement impact separately
+            businessEffect: Approved corrections apply once; unknown external settlement stays unresolved.
+            acceptanceRefs:
+              - FR-SUB-04.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: Approved corrections apply once; unknown external settlement stays unresolved.
+      alternativeFlows:
+        - id: FR-SUB-04.ALT1
+          title: The refund is ineligible under an approved policy
+          fromStep: FR-SUB-04.MAIN.S3
+          condition: The refund is ineligible under an approved policy
+          steps:
+            - id: FR-SUB-04.ALT1.S1
+              actor: learner
+              request: Inspect the decision and rationale
+              systemResponse: Show the applicable terms and permitted review path
+              businessEffect: No refund promise; existing rights follow their terms.
+              acceptanceRefs:
+                - FR-SUB-04.AC.ALT1
+          resume:
+            type: end
+            outcome: No refund promise; existing rights follow their terms.
+          postconditions:
+            - No refund promise; existing rights follow their terms.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-SUB-04.AC.ALT1
+      exceptionFlows:
+        - id: FR-SUB-04.EX1
+          title: The policy or authoritative settlement is unavailable
+          fromStep: FR-SUB-04.MAIN.S3
+          condition: The policy or authoritative settlement is unavailable
+          steps:
+            - id: FR-SUB-04.EX1.S1
+              actor: learner
+              request: Inspect case progress
+              systemResponse: Keep a pending decision with owner and required evidence
+              businessEffect: Do not claim money returned or infer charge success.
+              acceptanceRefs:
+                - FR-SUB-04.AC.EX1
+          resume:
+            type: end
+            outcome: Do not claim money returned or infer charge success.
+          postconditions:
+            - Do not claim money returned or infer charge success.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-SUB-04.AC.EX1
+        - id: FR-SUB-04.EX2
+          title: A repeated refund/correction confirmation arrives
+          fromStep: FR-SUB-04.MAIN.S4
+          condition: A repeated refund/correction confirmation arrives
+          steps:
+            - id: FR-SUB-04.EX2.S1
+              actor: learner
+              request: Inspect the same case
+              systemResponse: Show the existing result
+              businessEffect: No duplicate monetary instruction or entitlement reversal.
+              acceptanceRefs:
+                - FR-SUB-04.AC.EX2
+          resume:
+            type: end
+            outcome: No duplicate monetary instruction or entitlement reversal.
+          postconditions:
+            - No duplicate monetary instruction or entitlement reversal.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-SUB-04.AC.EX2
+      postconditions:
+        success:
+          - Only the buyer and authorized support can inspect private purchase details.
+          - A support request does not itself refund money or withdraw rights.
+          - Actions remain attributable and within operator authority.
+          - Approved corrections apply once; unknown external settlement stays unresolved.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - Do not claim money returned or infer charge success.
+          - No duplicate monetary instruction or entitlement reversal.
+      acceptanceCriteria:
+        - id: FR-SUB-04.AC.M1
+          flowRef: FR-SUB-04.MAIN
+          stepRefs:
+            - FR-SUB-04.MAIN.S1
+          given:
+            - The buyer account and current known rights are identifiable; commercial effects
+              require approved terms and authoritative evidence.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open the purchase with a settlement or benefit concern
+          then:
+            - Show purchase state and a scoped support path
+            - Only the buyer and authorized support can inspect private purchase details.
+        - id: FR-SUB-04.AC.M2
+          flowRef: FR-SUB-04.MAIN
+          stepRefs:
+            - FR-SUB-04.MAIN.S2
+          given:
+            - The previous main-flow step FR-SUB-04.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Describe the issue or request a refund
+          then:
+            - Capture the purchase reference and reason
+            - A support request does not itself refund money or withdraw rights.
+        - id: FR-SUB-04.AC.M3
+          flowRef: FR-SUB-04.MAIN
+          stepRefs:
+            - FR-SUB-04.MAIN.S3
+          given:
+            - The previous main-flow step FR-SUB-04.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Have authorized operations review payment evidence and applicable terms
+          then:
+            - Explain the decision, unresolved evidence or approved corrective action
+            - Actions remain attributable and within operator authority.
+        - id: FR-SUB-04.AC.M4
+          flowRef: FR-SUB-04.MAIN
+          stepRefs:
+            - FR-SUB-04.MAIN.S4
+          given:
+            - The previous main-flow step FR-SUB-04.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect the confirmed correction or refund outcome
+          then:
+            - Show financial outcome and corresponding entitlement impact separately
+            - Approved corrections apply once; unknown external settlement stays unresolved.
+        - id: FR-SUB-04.AC.ALT1
+          flowRef: FR-SUB-04.ALT1
+          stepRefs:
+            - FR-SUB-04.ALT1.S1
+          given:
+            - Execution reaches FR-SUB-04.MAIN.S3.
+            - The refund is ineligible under an approved policy
+          when: Inspect the decision and rationale
+          then:
+            - Show the applicable terms and permitted review path
+            - No refund promise; existing rights follow their terms.
+        - id: FR-SUB-04.AC.EX1
+          flowRef: FR-SUB-04.EX1
+          stepRefs:
+            - FR-SUB-04.EX1.S1
+          given:
+            - Execution reaches FR-SUB-04.MAIN.S3.
+            - The policy or authoritative settlement is unavailable
+          when: Inspect case progress
+          then:
+            - Keep a pending decision with owner and required evidence
+            - Do not claim money returned or infer charge success.
+        - id: FR-SUB-04.AC.EX2
+          flowRef: FR-SUB-04.EX2
+          stepRefs:
+            - FR-SUB-04.EX2.S1
+          given:
+            - Execution reaches FR-SUB-04.MAIN.S4.
+            - A repeated refund/correction confirmation arrives
+          when: Inspect the same case
+          then:
+            - Show the existing result
+            - No duplicate monetary instruction or entitlement reversal.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-COST
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: commerce
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "11.2"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Open the purchase with a settlement or benefit concern

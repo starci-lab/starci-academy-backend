@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.rag.business.srs.functional-requirements
+kind: business
+required: true
+description: "functional-requirements: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: functional-requirements
+      title: functional-requirements
+      status: draft
+      children:
+        - path: ask-grounded-question/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.rag.ask-grounded-question
+          title: Ask a question with permitted learning context and sources
+        - path: report-and-correct-answer/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.rag.report-and-correct-answer
+          title: Report an incorrect or conflicting learning answer
