@@ -17,6 +17,11 @@ jobs:
   verify:
     uses: ./.github/workflows/ci.yml
     secrets: inherit
+    # ci.yml requests id-token: write for Codecov OIDC; a caller job may not grant
+    # less than the called workflow asks for, or the run dies at startup.
+    permissions:
+      contents: read
+      id-token: write
 
   deploy:
     needs: verify
