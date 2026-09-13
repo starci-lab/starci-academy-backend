@@ -1,12 +1,12 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { chromium, type Page, type Browser, type BrowserContext } from "playwright-core";
-import { FIXED_FIELDS, FIXED_FORM_ID, FIXED_FORM_URL, SCREENING_FIELDS, validateFixedRow, type FixedDatasetRow } from "./dataset.js";
+import { FIXED_FIELDS, FIXED_FORM_EDIT_ID, FIXED_FORM_ID, FIXED_FORM_URL, SCREENING_FIELDS, validateFixedRow, type FixedDatasetRow } from "./dataset.js";
 import type { SubmissionIntent } from "./types.js";
 
 type Entry = [number, [string, unknown?, number?][], number | boolean, string[]?, ...unknown[]];
 export interface SchemaItem { id: number; title: string; description: string | null; type: number; entries: Entry[] | null; next: number | null }
-export interface FixedFormSchema { formId: string; resolvedUrl: string; sha256: string; structure: { title: string; items: SchemaItem[] } }
+export interface FixedFormSchema { formId: string; editFormId: string; resolvedUrl: string; sha256: string; structure: { title: string; items: SchemaItem[] } }
 export interface FormRunHooks { beforeSubmit: (intent: SubmissionIntent) => Promise<void> }
 export interface FormRunResult extends Partial<SubmissionIntent> { status: "succeeded" | "screened_out" | "failed" | "uncertain"; detail: string }
 export interface VisibleAnswer { code: string; options: string[]; selected: string | null }
@@ -32,7 +32,7 @@ const demographics: Record<string, Record<string, string>> = {
   D2_Gender: { Female: "Nữ / Female", Male: "Nam / Male", Other: "Khác / Other", "Prefer not to say": "Không muốn trả lời / Prefer not to say" },
   D3_Status: { Student: "Học sinh / Sinh viên (Student)", Working: "Đi làm (Working)", "Both studying and working": "Vừa học vừa làm (Both)", Other: "Khác (Other)" },
 };
-const uncodedItems: Record<number, string> = { 670753711: "Consent", 1167937533: "D1_Age", 2125450785: "D2_Gender", 841413909: "D3_Status" };
+const uncodedItems: Record<number, string> = { 670753711: "Consent", 762436152: "SMM_OVERALL", 1167937533: "D1_Age", 2125450785: "D2_Gender", 841413909: "D3_Status" };
 const codeOf = (item: SchemaItem, entry: Entry): string => {
   const label = item.type === 7 ? entry[3]?.[0] : item.title;
   const code = label?.match(/\[([A-Z]{1,3}\d)\]/)?.[1] ?? uncodedItems[item.id];
@@ -46,7 +46,7 @@ export function optionFor(code: string, answer: string): string {
 }
 export async function loadFixedFormSchema(): Promise<FixedFormSchema> {
   const schema = JSON.parse(await readFile(new URL("../../data/fixed-form-schema.json", import.meta.url), "utf8")) as FixedFormSchema;
-  if (schema.formId !== FIXED_FORM_ID || hash(schema.structure) !== schema.sha256 || schema.structure.items.filter((item) => item.type === 8).length !== 12) throw new Error("Pinned form schema is invalid");
+  if (schema.formId !== FIXED_FORM_ID || schema.editFormId !== FIXED_FORM_EDIT_ID || hash(schema.structure) !== schema.sha256 || schema.structure.items.filter((item) => item.type === 8).length !== 13) throw new Error("Pinned form schema is invalid");
   return schema;
 }
 
@@ -97,7 +97,7 @@ export function planFixedForm(row: FixedDatasetRow, schema: FixedFormSchema): Fi
   const codes = path.flatMap((section) => section.answers.map((answer) => answer.code));
   const terminal = path.at(-1);
   const screenedOut = terminal?.next === -3;
-  if (!screenedOut && (codes.length !== 52 || new Set(codes).size !== 52 || FIXED_FIELDS.some((code) => !codes.includes(code)))) throw new Error("Completing branch does not cover all 52 answers");
+  if (!screenedOut && (codes.length !== FIXED_FIELDS.length || new Set(codes).size !== FIXED_FIELDS.length || FIXED_FIELDS.some((code) => !codes.includes(code)))) throw new Error(`Completing branch does not cover all ${FIXED_FIELDS.length} answers`);
   if (screenedOut && (!closeReason || terminal.answers.length)) throw new Error("Screen-out branch is not a declared answerless terminal section");
   return {
     sections: path,
@@ -271,7 +271,7 @@ export class PlaywrightFixedFormPage implements FixedFormPage {
     const fields = dom.groups.map((group) => {
       const item = this.schema.structure.items.find((candidate) => candidate.id === group.blockId);
       if (!item?.entries) throw new Error("Unknown visible form question");
-      const code = item.type === 7 ? group.label.match(/\[([A-Z]{1,3}\d)\]/)?.[1] : codeOf(item, item.entries[0]!);
+      const code = item.type === 7 ? group.label.match(/\[([A-Z]{1,3}\d)\]/)?.[1] ?? uncodedItems[group.blockId] : codeOf(item, item.entries[0]!);
       if (!code || !item.entries.some((entry) => codeOf(item, entry) === code) || this.groups.has(code)) throw new Error("Matrix row label missing or ambiguous");
       this.groups.set(code, group.index);
       return { code, options: group.options, selected: group.selected };

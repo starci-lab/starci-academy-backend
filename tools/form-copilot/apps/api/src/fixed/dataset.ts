@@ -1,13 +1,19 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 
-export const FIXED_FORM_ID = "18jAiCr6Q7bz6sQA5kH1SW53aPW6L_jzzp8m8UgJkPIk";
-export const FIXED_FORM_URL = `https://docs.google.com/forms/d/${FIXED_FORM_ID}/viewform`;
+export const FIXED_FORM_ID = "1FAIpQLSdTcfJ5fWj2jXUC87OgMLXHDA8eZOB_KoSjmnYRNbUFsixIVg";
+export const FIXED_FORM_EDIT_ID = "1SUw44N_WBCEiYR4i4O_p0axXl8R1V-f4he4p-HiT0m8";
+export const FIXED_FORM_URL = `https://docs.google.com/forms/d/e/${FIXED_FORM_ID}/viewform`;
 export const FIXED_FORM_TITLE = "Khảo sát StarCi Academy - Social Media Marketing, Brand Trust & Enrollment Intention";
 export const SCREENING_FIELDS = ["Consent", "S0", "S1", "S2", "S3", "S4", "S5"] as const;
 export const MATRIX_FIELDS = [
-  ...["SMC", "INF", "CRE", "BT", "EI", "OPT", "INN", "DIS", "INS"].flatMap((prefix) => [1, 2, 3, 4].map((n) => `${prefix}${n}`)),
-  ...["ENT", "INT"].flatMap((prefix) => [1, 2, 3].map((n) => `${prefix}${n}`)),
+  ...[1, 2, 3, 4].map((number) => `SMC${number}`),
+  ...[1, 2, 3].map((number) => `ENT${number}`),
+  ...[1, 2, 3, 4].map((number) => `INF${number}`),
+  ...[1, 2, 3].map((number) => `INT${number}`),
+  ...[1, 2, 3, 4].map((number) => `CRE${number}`),
+  "SMM_OVERALL",
+  ...["BT", "EI", "OPT", "INN", "DIS", "INS"].flatMap((prefix) => [1, 2, 3, 4].map((number) => `${prefix}${number}`)),
 ];
 export const DEMOGRAPHIC_VALUES: Record<string, readonly string[]> = {
   D1_Age: ["18-22", "23-27", "28-34", "35+"],
@@ -27,12 +33,12 @@ export function validateFixedRow(row: FixedDatasetRow): void {
   if (!row || typeof row.id !== "string" || !row.id.trim() || !row.answers || typeof row.answers !== "object") throw new Error("Invalid synthetic dataset row");
   const keys = Object.keys(row.answers);
   if (!keys.length || keys.some((key) => !FIXED_FIELDS.includes(key))) throw new Error("Dataset contains unsupported or missing answer keys");
-  let screenedOut = false;
-  for (const key of SCREENING_FIELDS) {
+  let screenedOutAt = -1;
+  for (const [index, key] of SCREENING_FIELDS.entries()) {
     const value = row.answers[key];
     if (value === undefined) throw new Error(`Missing reachable screening answer: ${key}`);
     if (!/^[01]$/.test(value)) throw new Error(`Invalid screening answer: ${key}`);
-    if (value !== (key === "S5" ? "0" : "1")) { screenedOut = true; break; }
+    if (value !== (key === "S5" ? "0" : "1")) { screenedOutAt = index; break; }
   }
   for (const key of MATRIX_FIELDS) {
     const value = row.answers[key];
@@ -42,8 +48,13 @@ export function validateFixedRow(row: FixedDatasetRow): void {
     const value = row.answers[key];
     if (value !== undefined && !values.includes(value)) throw new Error(`Invalid demographic answer: ${key}`);
   }
-  if (!screenedOut && (keys.length !== 52 || FIXED_FIELDS.some((key) => !Object.hasOwn(row.answers, key)))) {
-    throw new Error("A completing response must contain exactly 52 supported answers");
+  if (screenedOutAt >= 0) {
+    const reachable = SCREENING_FIELDS.slice(0, screenedOutAt + 1);
+    if (keys.length !== reachable.length || keys.some((key) => !reachable.includes(key as typeof reachable[number]))) {
+      throw new Error("A screened-out response must contain only its reachable screening prefix");
+    }
+  } else if (keys.length !== FIXED_FIELDS.length || FIXED_FIELDS.some((key) => !Object.hasOwn(row.answers, key))) {
+    throw new Error(`A completing response must contain exactly ${FIXED_FIELDS.length} supported answers`);
   }
 }
 
@@ -52,42 +63,48 @@ export function validateFixedDataset(value: unknown): FixedDataset {
   if (!value || typeof value !== "object") throw new Error("Fixed dataset is missing");
   const artifact = value as Record<string, unknown>;
   const source = artifact.source as Record<string, unknown> | undefined;
-  const expectedScreening = { Consent: "1", S0: "1", S1: "1", S2: "1", S3: "1", S4: "1", S5: "0" };
-  const files = source?.files as Array<Record<string, unknown>> | undefined;
-  if (artifact.schemaVersion !== 4 || artifact.synthetic !== true || typeof artifact.label !== "string" || !/synthetic rehearsal/i.test(artifact.label) ||
-    typeof artifact.name !== "string" || !source || source.join !== "Synthetic_ID" ||
-    JSON.stringify(source.derivedScreening) !== JSON.stringify(expectedScreening) || JSON.stringify(source.canonicalization) !== JSON.stringify({ "D3_Status:Both": "Both studying and working" }) || !Array.isArray(files) || files.length !== 2 ||
-    JSON.stringify(files.map(({ role, format, ranges }) => ({ role, format, ranges }))) !== JSON.stringify([
-      { role: "valid", format: "csv", ranges: ["VALID_519!A1:AT520"] },
-      { role: "invalid", format: "xlsx", ranges: ["INVALID_104!A1:BA104"] },
-    ]) || files.some((file) => typeof file.fileName !== "string" || typeof file.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(file.sha256 as string))) {
+  const reconciliation = artifact.reconciliation as Record<string, unknown> | undefined;
+  if (artifact.schemaVersion !== 5 || artifact.synthetic !== true || typeof artifact.label !== "string" || !/synthetic rehearsal/i.test(artifact.label) ||
+    typeof artifact.name !== "string" || !source || source.join !== "merged Excel row" || source.invalidIdStrategy !== "SYN-I + 3-digit invalid ordinal in merged-row order" ||
+    typeof source.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(source.sha256)) {
     throw new Error("Fixed dataset synthetic provenance is invalid");
   }
-  if (!Array.isArray(artifact.rows) || artifact.rows.length !== 622) throw new Error("Fixed dataset must contain exactly 519 valid and 103 invalid source rows");
+  if (!Array.isArray(artifact.rows) || artifact.rows.length !== 639) throw new Error("Fixed dataset must contain all 639 source rows");
   const rows = artifact.rows as FixedDatasetRow[];
   const seen = new Set<string>();
+  let validCount = 0;
+  let invalidCount = 0;
+  let screenedOutCount = 0;
+  let qualityExcludedCount = 0;
   for (const row of rows) {
     validateFixedRow(row);
     if (seen.has(row.id)) throw new Error("Duplicate Synthetic_ID in fixed dataset");
     seen.add(row.id);
-  }
-  const valid = rows.filter((row) => row.sourceStatus === "VALID");
-  const invalid = rows.filter((row) => row.sourceStatus === "INVALID");
-  if (valid.length !== 519 || invalid.length !== 103 || rows.some((row) => !["VALID", "INVALID"].includes(row.sourceStatus ?? ""))) throw new Error("Fixed dataset status counts are invalid");
-  if (valid.some((row) => row.sourceExclusionReason !== null || FIXED_FIELDS.some((key) => row.answers[key] === undefined) ||
-    SCREENING_FIELDS.some((key) => row.answers[key] !== expectedScreening[key]))) throw new Error("Valid source row is incomplete");
-  for (const row of invalid) {
-    if (!row.sourceExclusionReason) throw new Error("Invalid source row is missing its exclusion reason");
-    const mismatch = SCREENING_FIELDS.findIndex((key) => row.answers[key] !== undefined && row.answers[key] !== expectedScreening[key]);
-    if (mismatch >= 0) {
-      const allowed = new Set(SCREENING_FIELDS.slice(0, mismatch + 1));
-      if (Object.keys(row.answers).some((key) => !allowed.has(key as typeof SCREENING_FIELDS[number]))) throw new Error("Screening exclusion contains unreachable answers");
+    if (row.sourceStatus === "VALID") {
+      if (!/^SYN-V\d{3}$/.test(row.id) || row.sourceExclusionReason !== null) throw new Error("Valid source row identity is invalid");
+      validCount++;
+    } else if (row.sourceStatus === "INVALID") {
+      invalidCount++;
+      if (row.id !== `SYN-I${String(invalidCount).padStart(3, "0")}` || typeof row.sourceExclusionReason !== "string" || !row.sourceExclusionReason) {
+        throw new Error("Deterministic invalid source row identity is invalid");
+      }
+      if (/^Screening: (?:Consent|S[0-5])$/.test(row.sourceExclusionReason)) {
+        screenedOutCount++;
+      } else if (row.sourceExclusionReason === "QC: straight-line") {
+        qualityExcludedCount++;
+      } else {
+        throw new Error("Invalid source exclusion reason is invalid");
+      }
     } else {
-      const matrix = MATRIX_FIELDS.map((key) => row.answers[key]);
-      if (FIXED_FIELDS.some((key) => row.answers[key] === undefined) || !matrix.every((value) => value === matrix[0])) throw new Error("QC exclusion is not a complete straight-line response");
+      throw new Error("Fixed dataset source status is invalid");
     }
   }
-  if (JSON.stringify(artifact.reconciliation) !== JSON.stringify({ sourceCount: 622, validCount: 519, invalidCount: 103, completingCount: 526, screenedOutCount: 96, qualityControlInvalidCount: 7, runnableCount: 622 })) throw new Error("Fixed dataset reconciliation is invalid");
+  if (validCount !== 519 || invalidCount !== 120 || screenedOutCount !== 112 || qualityExcludedCount !== 8 || !reconciliation ||
+    reconciliation.sourceCount !== 639 || reconciliation.completingPathCount !== 527 || reconciliation.earlyCloseCount !== 112 ||
+    reconciliation.qualityControlInvalidCount !== 8 || reconciliation.validCount !== 519 || reconciliation.invalidCount !== 120 || reconciliation.runnableCount !== 639 ||
+    reconciliation.preservedValidIds !== 519 || reconciliation.generatedInvalidIds !== 120) {
+    throw new Error("Fixed dataset classification counts are invalid");
+  }
   const digest = createHash("sha256").update(JSON.stringify(rows)).digest("hex");
   if (artifact.digest !== digest) throw new Error("Fixed dataset digest mismatch");
   return { name: artifact.name, digest, rows };

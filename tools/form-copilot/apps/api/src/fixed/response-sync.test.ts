@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { parseFixedResponseCsv } from "./response-sync.js";
+import { FIXED_FIELDS, FIXED_FORM_EDIT_ID } from "./dataset.js";
+import { FIXED_RESPONSE_COLUMN_COUNT, FIXED_RESPONSE_SOURCE_KEY, parseFixedResponseCsv } from "./response-sync.js";
 
 const headers = ["Dấu thời gian", "Question, with comma", "Free text"];
 const contract = {
@@ -9,6 +10,13 @@ const contract = {
 };
 
 describe("fixed response CSV", () => {
+  it("derives the response width from the fixed answer contract plus its timestamp", () => {
+    expect(FIXED_FIELDS).toHaveLength(53);
+    expect(FIXED_RESPONSE_COLUMN_COUNT).toBe(54);
+    expect(FIXED_RESPONSE_COLUMN_COUNT).toBe(FIXED_FIELDS.length + 1);
+    expect(FIXED_RESPONSE_SOURCE_KEY).toBe(`google-form:${FIXED_FORM_EDIT_ID}`);
+  });
+
   it("preserves every cell and creates stable row/source digests", () => {
     const csv = '\uFEFFDấu thời gian,"Question, with comma",Free text\r\n"06/09/2026 10:00:00","Yes","a, b"\r\n';
     const result = parseFixedResponseCsv(csv, "https://example.test/export.csv", contract);

@@ -8,7 +8,7 @@ mission:
     - authenticated owner/operator running isolated synthetic rehearsals
   inclusions:
     - fixed form identity; no editable URL
-    - all 637 workbook source rows; 95 follow the form's declared early-close branch and 542 follow the complete branch
+    - all 639 workbook source rows; 112 follow the form's declared early-close branch and 527 follow the complete branch (519 valid plus 8 QC rehearsal rows)
     - exact count, timezone, time window and immediate or randomized scheduled execution
     - randomized execution times only; immutable source answers
     - PostgreSQL durable batches, row reservations, progress, history and recovery

@@ -4,19 +4,19 @@ import type { FixedDatasetRow } from "./dataset.js";
 import { isInvalidRow, isScreenedOutRow, selectRandomRows } from "./row-selection.js";
 
 describe("fixed dataset row selection", () => {
-  it("samples whole records without replacement while preserving the valid/invalid pool", async () => {
+  it("samples whole records without replacement and preserves the pool branch distribution", async () => {
     const artifact = JSON.parse(await readFile(new URL("../../data/fixed-dataset.json", import.meta.url), "utf8")) as { rows: FixedDatasetRow[] };
     const selected = selectRandomRows(artifact.rows, 200, "batch-a");
     expect(selected).toHaveLength(200);
     expect(new Set(selected.map((row) => row.id))).toHaveLength(200);
-    expect(selected.filter(isInvalidRow).length).toBeGreaterThan(0);
+    expect(selected.filter(isInvalidRow)).toHaveLength(37);
     for (const row of selected) expect(artifact.rows.find((source) => source.id === row.id)).toBe(row);
     const good = selectRandomRows(artifact.rows, 519, "all-good", "completing");
-    const bad = selectRandomRows(artifact.rows, 103, "all-bad", "screened_out");
+    const bad = selectRandomRows(artifact.rows, 120, "all-bad", "screened_out");
     expect(good.every((row) => row.sourceStatus === "VALID")).toBe(true);
     expect(bad.every((row) => row.sourceStatus === "INVALID")).toBe(true);
-    expect(bad.filter(isScreenedOutRow)).toHaveLength(96);
-    expect(bad.filter((row) => !isScreenedOutRow(row) && row.sourceExclusionReason === "Straight-lining")).toHaveLength(7);
+    expect(bad.filter(isScreenedOutRow)).toHaveLength(112);
+    expect(bad.filter((row) => !isScreenedOutRow(row) && row.sourceExclusionReason === "QC: straight-line")).toHaveLength(8);
   });
 
   it("is deterministic for one request and varies ordering between request seeds", () => {

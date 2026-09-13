@@ -1,9 +1,10 @@
 {
-  "formId": "18jAiCr6Q7bz6sQA5kH1SW53aPW6L_jzzp8m8UgJkPIk",
-  "resolvedUrl": "https://docs.google.com/forms/d/e/1FAIpQLSflxCshqKdIqo8rYWkmDZexJA5xI-Bd3tkrcw2KlasJ0Z3RpA/viewform",
-  "observedAt": "2026-09-07T04:00:54.524Z",
+  "formId": "1FAIpQLSdTcfJ5fWj2jXUC87OgMLXHDA8eZOB_KoSjmnYRNbUFsixIVg",
+  "editFormId": "1SUw44N_WBCEiYR4i4O_p0axXl8R1V-f4he4p-HiT0m8",
+  "resolvedUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdTcfJ5fWj2jXUC87OgMLXHDA8eZOB_KoSjmnYRNbUFsixIVg/viewform",
+  "observedAt": "2026-09-13T03:53:01.785Z",
   "observation": "Public GET only; browser traversal and live submission not verified.",
-  "sha256": "e21a9fc2b984cc957356a8e573649a7c40f852ab94baa92fc14d30bda7caad6d",
+  "sha256": "6908634ac4b42bc4fafb152dab97708821fca3fb53e11c310431f31d6b2d5a8f",
   "structure": {
     "title": "Khảo sát StarCi Academy - Social Media Marketing, Brand Trust & Enrollment Intention",
     "items": [
@@ -896,6 +897,57 @@
             1,
             [
               "[CRE4] The information on the academy's social media is convincing. / Thông tin trên mạng xã hội của học viện có tính thuyết phục."
+            ],
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              0
+            ]
+          ]
+        ],
+        "next": null
+      },
+      {
+        "id": 1922783661,
+        "title": "SMM_OVERALL",
+        "description": null,
+        "type": 8,
+        "entries": null,
+        "next": null
+      },
+      {
+        "id": 762436152,
+        "title": "Overall, I perceive StarCi Academy's social media communications as valuable. / Nhìn chung, tôi cảm nhận các nội dung truyền thông trên mạng xã hội của StarCi Academy mang lại giá trị cho tôi.",
+        "description": null,
+        "type": 7,
+        "entries": [
+          [
+            474582675,
+            [
+              [
+                "1 - Strongly disagree / Hoàn toàn không đồng ý"
+              ],
+              [
+                "2 - Disagree / Không đồng ý"
+              ],
+              [
+                "3 - Neutral / Trung lập"
+              ],
+              [
+                "4 - Agree / Đồng ý"
+              ],
+              [
+                "5 - Strongly agree / Hoàn toàn đồng ý"
+              ]
+            ],
+            1,
+            [
+              "Overall, I perceive StarCi Academy's social media communications as valuable. / Nhìn chung, tôi cảm nhận các nội dung truyền thông trên mạng xã hội của StarCi Academy mang lại giá trị cho tôi."
             ],
             null,
             null,

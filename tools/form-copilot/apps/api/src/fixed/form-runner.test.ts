@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { chromium } from "playwright-core";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { FIXED_FORM_URL, loadFixedDataset, type FixedDatasetRow } from "./dataset.js";
+import { FIXED_FIELDS, FIXED_FORM_URL, loadFixedDataset, type FixedDatasetRow } from "./dataset.js";
 import { loadFixedFormSchema, normalizeOption, optionFor, planFixedForm, PlaywrightFixedFormPage, runFixedFormRow, runFixedFormWithPage, type FixedFormPage, type FixedFormSchema, type FormPageState } from "./form-runner.js";
 
 let row: FixedDatasetRow;
@@ -43,13 +43,14 @@ class FakePage implements FixedFormPage {
 }
 
 describe("fixed form safety and deterministic traversal", () => {
-  it("plans all 52 answers across 12 eligible pages, respecting the consent branch", () => {
+  it("plans every fixed answer across 13 eligible pages, respecting the consent branch", () => {
     const plan = planFixedForm(row, schema);
-    expect(plan.sections).toHaveLength(12);
+    expect(plan.sections).toHaveLength(13);
     expect(plan.sections[1]!.id).toBe(648925430);
     expect(plan.sections.some((section) => section.id === 1486587414)).toBe(false);
-    expect(plan.sections.flatMap((section) => section.answers)).toHaveLength(52);
+    expect(plan.sections.flatMap((section) => section.answers)).toHaveLength(FIXED_FIELDS.length);
     expect(plan.sections.flatMap((section) => section.answers).find((answer) => answer.code === "S5")!.label).toBe("No / Không");
+    expect(plan.sections.flatMap((section) => section.answers).find((answer) => answer.code === "SMM_OVERALL")!.label).toBe(optionFor("SMM_OVERALL", row.answers.SMM_OVERALL!));
     expect(plan.intent.expectedStatus).toBe("succeeded");
   });
   it("maps bilingual options exactly, without fuzzy or positional substitution", () => {
@@ -64,9 +65,9 @@ describe("fixed form safety and deterministic traversal", () => {
     const page = new FakePage();
     const hooks = { beforeSubmit: async () => { page.events.push("persist"); } };
     expect((await runFixedFormWithPage(row, hooks, page, schema)).status).toBe("succeeded");
-    expect(page.events.filter((event) => event === "next")).toHaveLength(11);
+    expect(page.events.filter((event) => event === "next")).toHaveLength(12);
     expect(page.events.slice(-2)).toEqual(["persist", "submit"]);
-    expect(page.selected.size).toBe(52);
+    expect(page.selected.size).toBe(FIXED_FIELDS.length);
   });
   it("submits the declared answerless early-close page and records a screened-out intent", async () => {
     const previous = row;
@@ -247,7 +248,7 @@ describe.skipIf(!existsSync(chrome))("local multi-section DOM fixture (no live G
     { language: "Google partially decomposed Vietnamese", nextLabel: "Tiếp".normalize("NFD"), submitLabel: "G\u01b0\u0309i", confirmation: "Câu trả lời của bạn đã được ghi lại.".normalize("NFD") },
     { language: "NFD Vietnamese", nextLabel: "Tiếp theo".normalize("NFD"), submitLabel: "Gửi".normalize("NFD"), confirmation: "Câu trả lời của bạn đã được ghi lại.".normalize("NFD") },
     { language: "Owned form custom confirmation", nextLabel: "Tiếp", submitLabel: "G\u01b0\u0309i", confirmation: "Cảm ơn bạn đã hoàn thành khảo sát! / Thank you for completing the survey!".normalize("NFD") },
-  ])("walks all 52 answers with $language controls and confirmation", async ({ nextLabel, submitLabel, confirmation }) => {
+  ])("walks every fixed answer with $language controls and confirmation", async ({ nextLabel, submitLabel, confirmation }) => {
     const browser = await chromium.launch({ headless: true, executablePath: chrome, chromiumSandbox: true });
     const context = await browser.newContext({ serviceWorkers: "block" });
     const page = await context.newPage();
@@ -260,7 +261,7 @@ describe.skipIf(!existsSync(chrome))("local multi-section DOM fixture (no live G
     inner[8] = schema.structure.title;
     const fixture = (index: number) => {
       const content = plan.sections[index]!.answers.map((answer) => {
-        const item = schema.structure.items.find((candidate) => candidate.entries?.some((entry) => candidate.type === 7 ? entry[3]?.[0]?.includes(`[${answer.code}]`) : candidate.title.includes(`[${answer.code}]`) || ({ Consent: 670753711, D1_Age: 1167937533, D2_Gender: 2125450785, D3_Status: 841413909 } as Record<string, number>)[answer.code] === candidate.id))!;
+        const item = schema.structure.items.find((candidate) => candidate.entries?.some((entry) => candidate.type === 7 ? entry[3]?.[0]?.includes(`[${answer.code}]`) || ({ SMM_OVERALL: 762436152 } as Record<string, number>)[answer.code] === candidate.id : candidate.title.includes(`[${answer.code}]`) || ({ Consent: 670753711, D1_Age: 1167937533, D2_Gender: 2125450785, D3_Status: 841413909 } as Record<string, number>)[answer.code] === candidate.id))!;
         const caption = item.type === 7 ? `[${answer.code}] Matrix source caption` : item.title;
         return `<div role="listitem"><div data-params="%.@.[${item.id}]"><span id="label-${answer.code}">${escapeHtml(caption)}</span><div role="radiogroup" aria-labelledby="label-${answer.code}">${answer.options.map((option) => `<div tabindex="0" role="radio" aria-label="${escapeHtml(option)}" data-value="${escapeHtml(option)}" aria-checked="false" onclick="for(const r of this.parentElement.children)r.setAttribute('aria-checked','false');this.setAttribute('aria-checked','true')">${escapeHtml(option)}</div>`).join("")}</div></div></div>`;
       }).join("");
@@ -280,7 +281,7 @@ describe.skipIf(!existsSync(chrome))("local multi-section DOM fixture (no live G
       const result = await runFixedFormWithPage(row, { beforeSubmit: async () => { events.push("durable-write"); } }, new PlaywrightFixedFormPage(page, schema), schema);
       expect(result, result.detail).toMatchObject({ status: "succeeded" });
       expect(events).toEqual(["durable-write", "submit-request"]);
-      expect(requestedPaths.filter((path) => path.endsWith("/viewform"))).toHaveLength(12);
+      expect(requestedPaths.filter((path) => path.endsWith("/viewform"))).toHaveLength(13);
       expect(requestedPaths.filter((path) => path.endsWith("/formResponse"))).toHaveLength(1);
     } finally { await context.close(); await browser.close(); }
   }, 60_000);
@@ -299,7 +300,7 @@ describe.skipIf(!existsSync(chrome))("local multi-section DOM fixture (no live G
     const fixture = (index: number) => {
       const section = plan.sections[index]!;
       const content = section.answers.map((answer) => {
-        const item = schema.structure.items.find((candidate) => candidate.entries?.some((entry) => candidate.type === 7 ? entry[3]?.[0]?.includes(`[${answer.code}]`) : candidate.title.includes(`[${answer.code}]`) || ({ Consent: 670753711, D1_Age: 1167937533, D2_Gender: 2125450785, D3_Status: 841413909 } as Record<string, number>)[answer.code] === candidate.id))!;
+        const item = schema.structure.items.find((candidate) => candidate.entries?.some((entry) => candidate.type === 7 ? entry[3]?.[0]?.includes(`[${answer.code}]`) || ({ SMM_OVERALL: 762436152 } as Record<string, number>)[answer.code] === candidate.id : candidate.title.includes(`[${answer.code}]`) || ({ Consent: 670753711, D1_Age: 1167937533, D2_Gender: 2125450785, D3_Status: 841413909 } as Record<string, number>)[answer.code] === candidate.id))!;
         const caption = item.type === 7 ? `[${answer.code}] Matrix source caption` : item.title;
         return `<div role="listitem"><div data-params="%.@.[${item.id}]"><span id="label-${answer.code}">${escapeHtml(caption)}</span><div role="radiogroup" aria-labelledby="label-${answer.code}">${answer.options.map((option) => `<div tabindex="0" role="radio" aria-label="${escapeHtml(option)}" data-value="${escapeHtml(option)}" aria-checked="false" onclick="for(const r of this.parentElement.children)r.setAttribute('aria-checked','false');this.setAttribute('aria-checked','true')">${escapeHtml(option)}</div>`).join("")}</div></div></div>`;
       }).join("");

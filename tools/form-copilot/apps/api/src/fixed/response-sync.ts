@@ -1,10 +1,11 @@
 import { createHash } from "node:crypto";
 import { parse } from "csv-parse/sync";
+import { FIXED_FIELDS, FIXED_FORM_EDIT_ID } from "./dataset.js";
 
-export const FIXED_RESPONSE_SOURCE_KEY = "google-form:18jAiCr6Q7bz6sQA5kH1SW53aPW6L_jzzp8m8UgJkPIk";
-export const FIXED_RESPONSE_CSV_URL = "https://docs.google.com/spreadsheets/d/1vQQzBLe22K92IROjnoYfqrEHgHeAH14HDQb9UPHUSiI/export?format=csv&gid=57238434";
-export const FIXED_RESPONSE_COLUMN_COUNT = 53;
-export const FIXED_RESPONSE_HEADER_DIGEST = "a1706b59dcbd27f5892c17f851fff06c0b5f88436b0c0630f36a46e67471a6f1";
+export const FIXED_RESPONSE_SOURCE_KEY = `google-form:${FIXED_FORM_EDIT_ID}`;
+export const FIXED_RESPONSE_CSV_URL = "https://docs.google.com/spreadsheets/d/1JSTL5_jlragNO7MeyT31ewfdKTMdCdqHpbGQbDqsGtk/export?format=csv&gid=1719070970";
+export const FIXED_RESPONSE_COLUMN_COUNT = FIXED_FIELDS.length + 1;
+export const FIXED_RESPONSE_HEADER_DIGEST = "c32f6838d6ed37b233b48b52dedea3000e63593d5550daf47492833cfc21d141";
 const MAX_CSV_BYTES = 8 * 1024 * 1024;
 
 export interface FixedResponseRow {

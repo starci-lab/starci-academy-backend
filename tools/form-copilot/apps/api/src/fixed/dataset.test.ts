@@ -1,29 +1,38 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
-import { FIXED_FIELDS, loadFixedDataset, validateFixedDataset, validateFixedRow } from "./dataset.js";
+import { FIXED_FIELDS, FIXED_FORM_EDIT_ID, FIXED_FORM_ID, MATRIX_FIELDS, loadFixedDataset, validateFixedDataset, validateFixedRow } from "./dataset.js";
 
 const sourceArtifact = async () => JSON.parse(await readFile(new URL("../../data/fixed-dataset.json", import.meta.url), "utf8"));
 describe("fixed synthetic dataset", () => {
-  it("loads exactly 519 valid and 103 invalid source records", async () => {
+  it("loads all 639 source records without inventing answers after a screen-out", async () => {
     const dataset = await loadFixedDataset();
-    expect(dataset.rows).toHaveLength(622);
-    expect(new Set(dataset.rows.map((row) => row.id)).size).toBe(622);
-    expect(dataset.rows.filter((row) => row.sourceStatus === "VALID")).toHaveLength(519);
-    expect(dataset.rows.filter((row) => row.sourceStatus === "INVALID")).toHaveLength(103);
-    expect(dataset.rows.filter((row) => row.sourceStatus === "INVALID" && Object.keys(row.answers).length < FIXED_FIELDS.length)).toHaveLength(96);
-    expect(dataset.rows.filter((row) => row.sourceExclusionReason === "Straight-lining")).toHaveLength(7);
+    expect(dataset.rows).toHaveLength(639);
+    expect(new Set(dataset.rows.map((row) => row.id)).size).toBe(639);
+    expect(dataset.digest).toBe("0b040e996558ca77273e4d794c0ce22a6328eef7a668071e77ab17ce5537c136");
+    expect(FIXED_FIELDS).toHaveLength(53);
+    expect(MATRIX_FIELDS).toContain("SMM_OVERALL");
+    const completing = dataset.rows.filter((row) => Object.keys(row.answers).length === FIXED_FIELDS.length);
+    const screened = dataset.rows.filter((row) => Object.keys(row.answers).length < FIXED_FIELDS.length);
+    expect(completing).toHaveLength(527);
+    expect(screened).toHaveLength(112);
     for (const row of dataset.rows) expect(() => validateFixedRow(row)).not.toThrow();
   });
-  it("retains both source digests and reconciles the actual row-level data", async () => {
+  it("preserves valid IDs and assigns deterministic invalid IDs in merged-row order", async () => {
     const artifact = await sourceArtifact();
     expect(artifact.synthetic).toBe(true);
-    expect(artifact.source.join).toBe("Synthetic_ID");
-    expect(artifact.source.files).toEqual([
-      expect.objectContaining({ role: "valid", format: "csv", sha256: "0e410fc7bafbf13f1dee360ff130d212ed51ee9023bc786f2606872096566905" }),
-      expect.objectContaining({ role: "invalid", format: "xlsx", sha256: "eb5bcf2f34af9cf8ebfe8bfe4b37d232ad99cde9a81a757f3187d7935a141151" }),
-    ]);
-    expect(artifact.source.derivedScreening).toEqual({ Consent: "1", S0: "1", S1: "1", S2: "1", S3: "1", S4: "1", S5: "0" });
-    expect(artifact.reconciliation).toEqual({ sourceCount: 622, validCount: 519, invalidCount: 103, completingCount: 526, screenedOutCount: 96, qualityControlInvalidCount: 7, runnableCount: 622 });
+    expect(artifact.source.join).toBe("merged Excel row");
+    expect(artifact.source.sha256).toBe("a569369f211e06053ca74a8e08c56a9891a5bf086cc933e9a399b5ff6f12040a");
+    expect(artifact.reconciliation).toEqual({ sourceCount: 639, validCount: 519, invalidCount: 120, completingPathCount: 527, earlyCloseCount: 112, qualityControlInvalidCount: 8, runnableCount: 639, preservedValidIds: 519, generatedInvalidIds: 120 });
+    const validIds = artifact.rows.filter((row: { sourceStatus: string }) => row.sourceStatus === "VALID").map((row: { id: string }) => row.id);
+    const invalidRows = artifact.rows.filter((row: { sourceStatus: string }) => row.sourceStatus === "INVALID");
+    const invalidIds = invalidRows.map((row: { id: string }) => row.id);
+    expect(validIds).toHaveLength(519);
+    expect(validIds.every((id: string) => /^SYN-V\d{3}$/.test(id))).toBe(true);
+    expect(invalidIds).toEqual(Array.from({ length: 120 }, (_, index) => `SYN-I${String(index + 1).padStart(3, "0")}`));
+    expect(invalidRows.filter((row: { answers: Record<string, string> }) => Object.keys(row.answers).length < FIXED_FIELDS.length)).toHaveLength(112);
+    expect(invalidRows.filter((row: { sourceExclusionReason: string }) => row.sourceExclusionReason === "QC: straight-line")).toHaveLength(8);
+    expect(FIXED_FORM_ID).toBe("1FAIpQLSdTcfJ5fWj2jXUC87OgMLXHDA8eZOB_KoSjmnYRNbUFsixIVg");
+    expect(FIXED_FORM_EDIT_ID).toBe("1SUw44N_WBCEiYR4i4O_p0axXl8R1V-f4he4p-HiT0m8");
   });
   it("rejects missing values, duplicate IDs, tampering and stripped synthetic provenance", async () => {
     const artifact = await sourceArtifact();
@@ -53,5 +62,8 @@ describe("fixed synthetic dataset", () => {
     complete.answers.SMC1 = "3";
     complete.answers.D3_Status = "Both";
     expect(() => validateFixedRow(complete)).toThrow("demographic");
+    complete.answers.D3_Status = "Both studying and working";
+    complete.answers.Consent = "0";
+    expect(() => validateFixedRow(complete)).toThrow("reachable screening prefix");
   });
 });
