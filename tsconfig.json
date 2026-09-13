@@ -33,5 +33,12 @@
         "./src/tests/*"
       ]
     }
-  }
+  },
+  // tools/* are self-contained workspaces with their own tsconfig and node_modules;
+  // the root typecheck must not compile them against the backend dependency set.
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tools"
+  ]
 }
