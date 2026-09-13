@@ -38,10 +38,17 @@ import {
 import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
+    KeycloakGraphQLUser,
+} from "@modules/integrations/keycloak/keycloak.decorators"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 @Resolver(() => ChallengeEntity)
 /**
  * GraphQL entry for `challenge`: one challenge by id, served from the locale
- * S3 snapshot. Premium content is locked until the caller enrolls.
+ * S3 snapshot. A premium content's challenge opens only for a learner enrolled
+ * in the owning course, so the signed-in user travels with the query.
  */
 export class ChallengeResolver {
     constructor(
@@ -69,11 +76,14 @@ export class ChallengeResolver {
             request: ChallengeRequest,
         @GraphQLLocale()
             locale: Locale,
+        @KeycloakGraphQLUser()
+            user: UserEntity,
     ): Promise<ChallengeEntity> {
         return this.challengeQueryService.execute(
             {
                 request,
                 locale,
+                user,
             },
         )
     }

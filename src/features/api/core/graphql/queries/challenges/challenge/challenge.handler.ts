@@ -17,6 +17,9 @@ import {
     ChallengePremiumLockedException,
 } from "@modules/platform/exceptions/errors/courses/challenge-premium-locked"
 import {
+    UserService,
+} from "@modules/bussiness/user/user.service"
+import {
     S3Provider,
 } from "@modules/integrations/s3/enums/s3"
 import {
@@ -52,6 +55,7 @@ export class ChallengeHandler
         private readonly s3NameResolverService: S3NameResolverService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly userService: UserService,
     ) {
         super()
     }
@@ -65,6 +69,7 @@ export class ChallengeHandler
         const {
             request,
             locale,
+            user,
         } = query.params
 
         const objectKey = this.s3NameResolverService.challenge(
@@ -80,8 +85,8 @@ export class ChallengeHandler
                 id: request.id,
             })
         }
-        // challenges are readable ONLY inside FREE (non-premium) content -- a premium
-        // content's challenge requires enrolling first (mirrors the submit gate).
+        // A premium content's challenge is readable only by a learner enrolled in the
+        // owning course (mirrors the submit gate); free content stays open to everyone.
         const ownerContent = await this.entityManager.findOne(
             ContentEntity,
             {
@@ -90,17 +95,55 @@ export class ChallengeHandler
                         id: request.id,
                     },
                 },
+                relations: {
+                    module: {
+                        course: true,
+                    },
+                },
                 select: {
                     id: true,
                     isPremium: true,
+                    module: {
+                        id: true,
+                        course: {
+                            id: true,
+                        },
+                    },
                 },
             },
         )
-        if (ownerContent?.isPremium) {
+        if (ownerContent && !(await this.isUnlocked(
+            ownerContent,
+            user?.id,
+        ))) {
             throw new ChallengePremiumLockedException({
                 contentId: ownerContent.id,
             })
         }
         return challenge
+    }
+
+    /**
+     * Whether the viewer may open a challenge owned by `ownerContent`: always for
+     * free content, otherwise only for a learner enrolled in the owning course.
+     * A trial row does not count as enrollment.
+     * @param ownerContent Content row that owns the challenge.
+     * @param userId Active user id, when authenticated.
+     */
+    private async isUnlocked(
+        ownerContent: ContentEntity,
+        userId?: string,
+    ): Promise<boolean> {
+        if (!ownerContent.isPremium) {
+            return true
+        }
+        const courseId = ownerContent.module?.course?.id
+        if (!userId || !courseId) {
+            return false
+        }
+        return await this.userService.checkEnrollment(
+            userId,
+            courseId,
+        )
     }
 }

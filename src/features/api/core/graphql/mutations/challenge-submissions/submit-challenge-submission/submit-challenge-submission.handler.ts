@@ -159,6 +159,34 @@ export class SubmitChallengeSubmissionHandler
         }
     }
 
+    /**
+     * A premium content's challenge is open only to a learner enrolled in the
+     * owning course; a trial row does not count. Free content is always open.
+     * @param ownerContent Content row that owns the challenge (null when unknown).
+     * @param userId Submitter whose enrollment is checked.
+     * @throws ChallengePremiumLockedException when the submitter is not enrolled.
+     */
+    private async assertChallengeUnlocked(
+        ownerContent: ContentEntity | null,
+        userId: string,
+    ): Promise<void> {
+        if (!ownerContent?.isPremium) {
+            return
+        }
+        const courseId = ownerContent.module?.course?.id
+        const unlocked = courseId
+            ? await this.userService.checkEnrollment(
+                userId,
+                courseId,
+            )
+            : false
+        if (!unlocked) {
+            throw new ChallengePremiumLockedException({
+                contentId: ownerContent.id,
+            })
+        }
+    }
+
     /** Process the command. */
     protected override async process(
         command: SubmitChallengeSubmissionCommand,
@@ -210,8 +238,8 @@ export class SubmitChallengeSubmissionHandler
                 id: challengeSubmission.challengeId,
             })
         }
-        // challenges are open ONLY inside FREE (non-premium) content for now -- a
-        // premium content's challenge requires purchasing the course first
+        // a premium content's challenge is open only to a learner enrolled in the
+        // owning course; free content is open to everyone
         const ownerContent = await this.entityManager.findOne(ContentEntity,
             {
                 where: {
@@ -219,16 +247,26 @@ export class SubmitChallengeSubmissionHandler
                         id: challenge.id,
                     },
                 },
+                relations: {
+                    module: {
+                        course: true,
+                    },
+                },
                 select: {
                     id: true,
                     isPremium: true,
+                    module: {
+                        id: true,
+                        course: {
+                            id: true,
+                        },
+                    },
                 },
             })
-        if (ownerContent?.isPremium) {
-            throw new ChallengePremiumLockedException({
-                contentId: ownerContent.id,
-            })
-        }
+        await this.assertChallengeUnlocked(
+            ownerContent,
+            user.id,
+        )
         /**
      * Resolve the course (challenge -> content -> module -> course) and
      * resolve-or-create the trial enrollment (user x course) up front so we can
@@ -806,16 +844,26 @@ export class SubmitChallengeSubmissionHandler
                         id: challengeId,
                     },
                 },
+                relations: {
+                    module: {
+                        course: true,
+                    },
+                },
                 select: {
                     id: true,
                     isPremium: true,
+                    module: {
+                        id: true,
+                        course: {
+                            id: true,
+                        },
+                    },
                 },
             })
-        if (ownerContent?.isPremium) {
-            throw new ChallengePremiumLockedException({
-                contentId: ownerContent.id,
-            })
-        }
+        await this.assertChallengeUnlocked(
+            ownerContent,
+            user.id,
+        )
         const course = await this.entityManager.findOne(CourseEntity,
             {
                 where: {

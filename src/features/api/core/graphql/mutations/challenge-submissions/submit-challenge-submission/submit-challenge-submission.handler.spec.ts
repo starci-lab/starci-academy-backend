@@ -115,7 +115,7 @@ describe("SubmitChallengeSubmissionHandler",
     >
   >
         let userService: jest.Mocked<
-    Pick<UserService, "resolveOrCreateTrialEnrollment">
+    Pick<UserService, "resolveOrCreateTrialEnrollment" | "checkEnrollment">
   >
 
         beforeEach(async () => {
@@ -160,10 +160,12 @@ describe("SubmitChallengeSubmissionHandler",
             // best-effort trial-enrollment resolution -- resolves null by default so
             // tests that never reach the enrollment step stay inert; tests that do
             // reach it override with mockResolvedValueOnce per-case
+            // premium challenges stay locked unless a test grants enrollment explicitly
             userService = {
                 resolveOrCreateTrialEnrollment: jest.fn().mockResolvedValue(null),
+                checkEnrollment: jest.fn().mockResolvedValue(false),
             } as unknown as jest.Mocked<
-      Pick<UserService, "resolveOrCreateTrialEnrollment">
+      Pick<UserService, "resolveOrCreateTrialEnrollment" | "checkEnrollment">
     >
 
             module = await Test.createTestingModule({
@@ -426,7 +428,45 @@ describe("SubmitChallengeSubmissionHandler",
                 // nothing is enqueued without a url to grade
                 expect(enqueueGitV2.enqueue).not.toHaveBeenCalled()
             })
-        it("blocks challenges owned by premium content before resolving a course",
+        it("blocks a premium challenge for a submitter not enrolled in the owning course",
+            async () => {
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-1",
+                        challengeId: "chal-1",
+                        type: SubmissionType.GithubUrl,
+                    })
+                    .mockResolvedValueOnce({
+                        id: "chal-1",
+                    })
+                    .mockResolvedValueOnce({
+                        id: "content-1",
+                        isPremium: true,
+                        module: {
+                            id: "module-1",
+                            course: {
+                                id: "course-1",
+                            },
+                        },
+                    })
+
+                await expect(
+                    handler.execute(
+                        new SubmitChallengeSubmissionCommand({
+                            request: {
+                                challengeSubmissionId: "sub-1",
+                            },
+                            user: fakeUser("user-1"),
+                        }),
+                    ),
+                ).rejects.toBeInstanceOf(ChallengePremiumLockedException)
+                expect(userService.checkEnrollment).toHaveBeenCalledWith(
+                    "user-1",
+                    "course-1",
+                )
+                expect(userService.resolveOrCreateTrialEnrollment).not.toHaveBeenCalled()
+            })
+        it("blocks a premium challenge whose owning course cannot be resolved",
             async () => {
                 entityManager.findOne
                     .mockResolvedValueOnce({
@@ -452,7 +492,59 @@ describe("SubmitChallengeSubmissionHandler",
                         }),
                     ),
                 ).rejects.toBeInstanceOf(ChallengePremiumLockedException)
+                expect(userService.checkEnrollment).not.toHaveBeenCalled()
                 expect(userService.resolveOrCreateTrialEnrollment).not.toHaveBeenCalled()
+            })
+        it("lets an enrolled learner past the premium gate",
+            async () => {
+                entityManager.findOne
+                    .mockResolvedValueOnce({
+                        id: "sub-1",
+                        challengeId: "chal-1",
+                        type: SubmissionType.GithubUrl,
+                    })
+                    .mockResolvedValueOnce({
+                        id: "chal-1",
+                        verified: false,
+                    })
+                    .mockResolvedValueOnce({
+                        id: "content-1",
+                        isPremium: true,
+                        module: {
+                            id: "module-1",
+                            course: {
+                                id: "course-1",
+                            },
+                        },
+                    })
+                    // course lookup
+                    .mockResolvedValueOnce({
+                        id: "course-1",
+                    })
+                    // inside the tx: no existing user submission row
+                    .mockResolvedValueOnce(null)
+                userService.checkEnrollment.mockResolvedValueOnce(true)
+
+                // the gate opens; the flow then stops on the missing github url,
+                // proving the premium lock was not the blocker
+                await expect(
+                    handler.execute(
+                        new SubmitChallengeSubmissionCommand({
+                            request: {
+                                challengeSubmissionId: "sub-1",
+                            },
+                            user: fakeUser("user-1"),
+                        }),
+                    ),
+                ).rejects.toBeInstanceOf(SubmissionUrlInvalidException)
+                expect(userService.checkEnrollment).toHaveBeenCalledWith(
+                    "user-1",
+                    "course-1",
+                )
+                expect(userService.resolveOrCreateTrialEnrollment).toHaveBeenCalledWith(
+                    "user-1",
+                    "course-1",
+                )
             })
         it("enqueues Google Docs submissions and trims an updated URL",
             async () => {

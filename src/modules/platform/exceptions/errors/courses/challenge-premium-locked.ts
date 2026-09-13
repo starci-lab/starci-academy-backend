@@ -12,9 +12,9 @@ export interface ChallengePremiumLockedExceptionMetadata extends AbstractExcepti
 }
 
 /**
- * Thrown when a learner tries to attempt a challenge whose owning content is
- * premium. Challenges are currently open ONLY inside non-premium (free) content;
- * a premium content's challenge requires purchasing the course first.
+ * Thrown when a learner opens or attempts a challenge whose owning content is
+ * premium without being enrolled in the owning course. Free content's
+ * challenges are open to everyone; a trial row does not count as enrollment.
  */
 export class ChallengePremiumLockedException extends AbstractException {
     constructor({
