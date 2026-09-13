@@ -80,6 +80,17 @@ services:
       BREVO_SMTP_PASSWORD_FILE: ${BREVO_SMTP_PASSWORD_FILE:-/usr/src/app/.mount/terraform/brevo-smtp-api-key.key}
       ENCRYPTION_KEY_FILE: ${ENCRYPTION_KEY_FILE:-/usr/src/app/.mount/terraform/encryption-key.key}
       GCP_SERVICE_ACCOUNT_JSON_FILE: ${GCP_SERVICE_ACCOUNT_JSON_FILE:-/usr/src/app/.mount/terraform/gcp-service-account.json}
+      # Pointers dropped by the 2026-08-10 pointer refactor; every file below exists on the VPS
+      # mount and the Stripe client refuses to construct without its key (boot crash-loop).
+      DATA_GIT_TOKEN_FILE: ${DATA_GIT_TOKEN_FILE:-/usr/src/app/.mount/terraform/data-git-token.key}
+      ADMIN_API_KEY_FILE: ${ADMIN_API_KEY_FILE:-/usr/src/app/.mount/terraform/admin-api-key.key}
+      STRIPE_SECRET_KEY_FILE: ${STRIPE_SECRET_KEY_FILE:-/usr/src/app/.mount/terraform/stripe-secret-key.key}
+      STRIPE_WEBHOOK_SECRET_FILE: ${STRIPE_WEBHOOK_SECRET_FILE:-/usr/src/app/.mount/terraform/stripe-webhook-secret.key}
+      PAYPAL_CLIENT_ID_FILE: ${PAYPAL_CLIENT_ID_FILE:-/usr/src/app/.mount/terraform/paypal-client-id.key}
+      PAYPAL_CLIENT_SECRET_FILE: ${PAYPAL_CLIENT_SECRET_FILE:-/usr/src/app/.mount/terraform/paypal-client-secret.key}
+      PAYPAL_WEBHOOK_ID_FILE: ${PAYPAL_WEBHOOK_ID_FILE:-/usr/src/app/.mount/terraform/paypal-webhook-id.key}
+      NOWPAYMENTS_API_KEY_FILE: ${NOWPAYMENTS_API_KEY_FILE:-/usr/src/app/.mount/terraform/nowpayments-api-key.key}
+      NOWPAYMENTS_IPN_SECRET_FILE: ${NOWPAYMENTS_IPN_SECRET_FILE:-/usr/src/app/.mount/terraform/nowpayments-ipn-secret.key}
 
       SYNCHRONIZER_ENABLE: ${SYNCHRONIZER_ENABLE:-false}
 
