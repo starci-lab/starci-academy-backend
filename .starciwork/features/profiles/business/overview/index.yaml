@@ -1,0 +1,61 @@
+schema: work/node@2
+id: starci-next.features.profiles.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "profiles: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.profiles.manage-private-learning-profile
+  - starci-next.business.srs.functional-requirements.profiles.publish-career-profile
+  - starci-next.business.srs.functional-requirements.profiles.revise-or-withdraw-sharing
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-profiles
+      feature: profiles
+      title: profiles business overview
+      product: StarCiNext
+      goal: Manage the private learning profile and its evidence; Publish selected career evidence to a
+        chosen audience; Revise evidence sharing and propagate its access consequences
+      actors:
+        - learner
+      inScope:
+        - requirementRef: FR-PROFILE-01
+          title: Manage the private learning profile and its evidence
+        - requirementRef: FR-PROFILE-02
+          title: Publish selected career evidence to a chosen audience
+        - requirementRef: FR-PROFILE-03
+          title: Revise evidence sharing and propagate its access consequences
+      relatedJourneyRefs:
+        - CJ-01
+        - CJ-05
+        - CJ-07
+        - CJ-08
+      ownedSharedDefinitionRefs:
+        - BR-PRIVACY
+        - NFR-PRIV
+        - DATA-profile
+        - DATA-share-grant
+        - D08
+        - CJ-07
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "10.1"
+            - "12"
+businessOverview:
+  purpose: Manage the private learning profile and its evidence; Publish selected career evidence to a
+    chosen audience; Revise evidence sharing and propagate its access consequences
+  customerUnderstanding: StarCiNext profiles serves learner through the requirements and journeys owned by this feature.
+  desiredOutcome: Manage the private learning profile and its evidence; Publish selected career
+    evidence to a chosen audience; Revise evidence sharing and propagate its access consequences
+  scope: Manage the private learning profile and its evidence; Publish selected career evidence to a
+    chosen audience; Revise evidence sharing and propagate its access consequences
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

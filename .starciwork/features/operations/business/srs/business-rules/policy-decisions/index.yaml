@@ -1,0 +1,22 @@
+schema: work/node@2
+id: starci-next.features.operations.business.srs.business-rules.policy-decisions
+kind: business
+required: true
+description: "policy-decisions: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: policy-decisions
+      title: policy-decisions
+      status: draft
+      children:
+        - path: academy-transition/index.yaml
+          workRef: starci-next.business.srs.business-rules.policy-decisions.academy-transition
+          title: Academy-to-Next transition decision
+        - path: delivery-and-service-targets/index.yaml
+          workRef: starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+          title: Release, budget and measurable service targets
+        - path: release-scope/index.yaml
+          workRef: starci-next.business.srs.business-rules.policy-decisions.release-scope
+          title: First cohort and release scope

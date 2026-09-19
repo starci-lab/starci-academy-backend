@@ -1,0 +1,58 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+kind: business
+required: true
+state: todo
+description: Offer matrix, price and allowance
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-policy-decision@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: D02
+      title: Offer matrix, price and allowance
+      decisionStatus: open
+      accountableRole: Product owner with commercial owner
+      ownerAssignmentStatus: Proposed accountable business role; named person not assigned by this document.
+      question: Which offer versions include which content, AI/review allowance and other benefits, at
+        what price and billing interval?
+      requiredDecisions:
+        - Approve price/currency/period for each purchasable offer.
+        - Define allowance unit, reset/carryover and concurrent-consumption rules.
+      safeDisposition: No purchasable offer or chargeable allowance is activated from an unspecified value.
+      affectedFeatureRefs:
+        - FR-CON-01
+        - FR-RAG-01
+        - FR-RAG-02
+        - FR-CH-01
+        - FR-CH-02
+        - FR-CH-03
+        - FR-PROJ-01
+        - FR-PROJ-02
+        - FR-PROJ-03
+        - FR-INT-01
+        - FR-INT-02
+        - FR-CV-01
+        - FR-CV-02
+        - FR-SUB-01
+        - FR-SUB-02
+        - FR-SUB-03
+        - FR-SUB-04
+        - FR-SUB-05
+        - FR-OPS-01
+        - FR-OPS-02
+      affectedDataRefs:
+        - DATA-entitlement
+        - DATA-usage
+        - DATA-offer
+        - DATA-subscription
+        - DATA-purchase
+      affectedNfrRefs:
+        - NFR-COST
+      closureEvidence: Record the authorized owner decision, effective date/version, affected release
+        scope and updated acceptance criteria. Document generation or schema validation cannot close
+        this decision.
+      featureOwner: commerce
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

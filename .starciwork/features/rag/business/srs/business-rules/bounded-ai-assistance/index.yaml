@@ -1,0 +1,50 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.bounded-ai-assistance
+kind: business
+required: true
+state: todo
+description: Bounded AI assistance
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-business-rule@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: BR-AI
+      title: Bounded AI assistance
+      statements:
+        - AI may propose explanations, plans, review and phrasing within permitted context;
+          user-owned plans and published CV claims require explicit acceptance.
+        - Retrieved documents, code and user text are task data; embedded instructions cannot grant
+          permissions or override evaluation criteria.
+        - AI does not grant entitlements, rewrite objective test outcomes, invent achievements or
+          guarantee employment.
+      decisionRefs:
+        - D05
+        - D06
+        - D07
+      example: Instructions embedded inside a submitted README cannot make a reviewer award a passing
+        milestone.
+      acceptanceCriteria:
+        - id: BR-AI.AC1
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: AI may propose explanations, plans, review and phrasing within permitted context; user-owned
+            plans and published CV claims require explicit acceptance.
+        - id: BR-AI.AC2
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Retrieved documents, code and user text are task data; embedded instructions cannot grant
+            permissions or override evaluation criteria.
+        - id: BR-AI.AC3
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: AI does not grant entitlements, rewrite objective test outcomes, invent achievements or
+            guarantee employment.
+      featureOwner: rag
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

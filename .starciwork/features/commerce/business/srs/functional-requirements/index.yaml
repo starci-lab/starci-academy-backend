@@ -1,0 +1,28 @@
+schema: work/node@2
+id: starci-next.features.commerce.business.srs.functional-requirements
+kind: business
+required: true
+description: "functional-requirements: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: functional-requirements
+      title: functional-requirements
+      status: draft
+      children:
+        - path: inspect-and-control-ai-usage/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.commerce.inspect-and-control-ai-usage
+          title: Understand and use independent AI allowances
+        - path: inspect-offers-and-rights/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.commerce.inspect-offers-and-rights
+          title: Inspect paid offers and current rights
+        - path: manage-subscription-lifecycle/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.commerce.manage-subscription-lifecycle
+          title: Review renewal, plan change and cancellation
+        - path: purchase-and-confirm-rights/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.commerce.purchase-and-confirm-rights
+          title: Purchase an offer and confirm resulting rights
+        - path: resolve-purchase-and-refund/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.commerce.resolve-purchase-and-refund
+          title: Resolve purchase disputes and eligible refund requests

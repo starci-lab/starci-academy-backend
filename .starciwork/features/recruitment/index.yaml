@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.recruitment
+kind: business
+required: true
+description: "recruitment: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: recruitment
+    title: recruitment
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.recruitment.business
+        title: "recruitment: business scope and SRS"

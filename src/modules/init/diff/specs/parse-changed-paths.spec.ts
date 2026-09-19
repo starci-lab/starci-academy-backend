@@ -224,6 +224,10 @@ describe("parseDataGitDiff",
             () => {
                 it.each([
                     [
+                        "concepts/event-loop/en.md",
+                        "concepts",
+                    ],
+                    [
                         "foundations/categories/devops.yaml",
                         "foundations",
                     ],

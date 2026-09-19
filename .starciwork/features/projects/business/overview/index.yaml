@@ -1,0 +1,58 @@
+schema: work/node@2
+id: starci-next.features.projects.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "projects: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.projects.define-project-and-milestones
+  - starci-next.business.srs.functional-requirements.projects.submit-milestone-evidence
+  - starci-next.business.srs.functional-requirements.projects.review-and-improve-project
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-projects
+      feature: projects
+      title: projects business overview
+      product: StarCiNext
+      goal: Define a personal project and milestone criteria; Submit project evidence for a milestone;
+        Review a milestone and verify improvements
+      actors:
+        - learner
+      inScope:
+        - requirementRef: FR-PROJ-01
+          title: Define a personal project and milestone criteria
+        - requirementRef: FR-PROJ-02
+          title: Submit project evidence for a milestone
+        - requirementRef: FR-PROJ-03
+          title: Review a milestone and verify improvements
+      relatedJourneyRefs:
+        - CJ-01
+        - CJ-05
+        - CJ-12
+      ownedSharedDefinitionRefs:
+        - BR-EVIDENCE
+        - DATA-review
+        - DATA-project
+        - DATA-evidence
+        - CJ-05
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "7"
+businessOverview:
+  purpose: Define a personal project and milestone criteria; Submit project evidence for a milestone;
+    Review a milestone and verify improvements
+  customerUnderstanding: StarCiNext projects serves learner through the requirements and journeys owned by this feature.
+  desiredOutcome: Define a personal project and milestone criteria; Submit project evidence for a
+    milestone; Review a milestone and verify improvements
+  scope: Define a personal project and milestone criteria; Submit project evidence for a milestone;
+    Review a milestone and verify improvements
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

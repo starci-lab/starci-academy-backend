@@ -1,0 +1,22 @@
+schema: work/node@2
+id: starci-next.features.projects.business.srs.functional-requirements
+kind: business
+required: true
+description: "functional-requirements: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: functional-requirements
+      title: functional-requirements
+      status: draft
+      children:
+        - path: define-project-and-milestones/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.projects.define-project-and-milestones
+          title: Define a personal project and milestone criteria
+        - path: review-and-improve-project/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.projects.review-and-improve-project
+          title: Review a milestone and verify improvements
+        - path: submit-milestone-evidence/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.projects.submit-milestone-evidence
+          title: Submit project evidence for a milestone

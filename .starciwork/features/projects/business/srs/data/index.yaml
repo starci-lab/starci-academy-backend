@@ -1,0 +1,22 @@
+schema: work/node@2
+id: starci-next.features.projects.business.srs.data
+kind: business
+required: true
+description: "data: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: data
+      title: data
+      status: draft
+      children:
+        - path: learning-evidence/index.yaml
+          workRef: starci-next.business.srs.data.learning-evidence
+          title: Versioned source, demo or learning proof
+        - path: project/index.yaml
+          workRef: starci-next.business.srs.data.project
+          title: Personal project and milestones
+        - path: review/index.yaml
+          workRef: starci-next.business.srs.data.review
+          title: AI, human or peer review and request

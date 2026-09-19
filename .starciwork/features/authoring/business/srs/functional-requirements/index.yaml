@@ -1,0 +1,22 @@
+schema: work/node@2
+id: starci-next.features.authoring.business.srs.functional-requirements
+kind: business
+required: true
+description: "functional-requirements: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: functional-requirements
+      title: functional-requirements
+      status: draft
+      children:
+        - path: author-and-publish-concept/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.authoring.author-and-publish-concept
+          title: Author, review and publish versioned Concepts
+        - path: curate-learning-sources/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.authoring.curate-learning-sources
+          title: Curate and withdraw knowledge sources used by RAG
+        - path: manage-assessment-and-rubric/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.authoring.manage-assessment-and-rubric
+          title: Publish assessment and review criteria

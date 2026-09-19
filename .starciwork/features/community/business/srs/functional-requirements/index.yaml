@@ -1,0 +1,25 @@
+schema: work/node@2
+id: starci-next.features.community.business.srs.functional-requirements
+kind: business
+required: true
+description: "functional-requirements: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: functional-requirements
+      title: functional-requirements
+      status: draft
+      children:
+        - path: discuss-in-context/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.community.discuss-in-context
+          title: Discuss a concept, challenge or project in context
+        - path: participate-in-learning-group/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.community.participate-in-learning-group
+          title: Join and participate in scoped learning groups
+        - path: peer-review-and-showcase/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.community.peer-review-and-showcase
+          title: Share work and provide attributed peer feedback
+        - path: report-and-moderate/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.community.report-and-moderate
+          title: Report content and review moderation outcomes

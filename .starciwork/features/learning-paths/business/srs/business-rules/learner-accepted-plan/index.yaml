@@ -1,0 +1,45 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.learner-accepted-plan
+kind: business
+required: true
+state: todo
+description: Learner-controlled plan changes
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.release-scope
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-business-rule@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: BR-PLAN
+      title: Learner-controlled plan changes
+      statements:
+        - Goal, experience and availability supplied by the learner remain distinguishable from
+          measured competency.
+        - Proposed plans and revisions are reviewed before becoming the accepted version.
+        - Progress references actual criteria/evidence; changing a plan retains earlier history and
+          explains new gaps.
+      decisionRefs:
+        - D01
+        - D05
+      example: Rejecting an AI plan revision leaves the current accepted learning plan intact.
+      acceptanceCriteria:
+        - id: BR-PLAN.AC1
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Goal, experience and availability supplied by the learner remain distinguishable from measured
+            competency.
+        - id: BR-PLAN.AC2
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Proposed plans and revisions are reviewed before becoming the accepted version.
+        - id: BR-PLAN.AC3
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Progress references actual criteria/evidence; changing a plan retains earlier history and
+            explains new gaps.
+      featureOwner: learning-paths
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

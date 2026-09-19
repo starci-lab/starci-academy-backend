@@ -1,0 +1,397 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.authoring.author-and-publish-concept
+kind: business
+required: true
+state: todo
+description: Author, review and publish versioned Concepts
+refs:
+  - starci-next.business.srs.business-rules.concept-composition
+  - starci-next.business.srs.business-rules.version-bound-history
+  - starci-next.business.srs.business-rules.source-trust-and-access
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.data.concept
+  - starci-next.business.srs.data.category
+  - starci-next.business.srs.data.assessment
+  - starci-next.business.srs.data.content-source
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.grounding-and-ai-boundaries
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.multilingual-content-consistency
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.non-functional-requirements.untrusted-submission-safety
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.community-policy
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+  - starci-next.business.srs.business-rules.policy-decisions.release-scope
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-AUTH-01
+      title: Author, review and publish versioned Concepts
+      domain: authoring
+      goal: Author, review and publish versioned Concepts
+      priority: release-priority-awaits-D01
+      actors:
+        - author-editor
+      preconditions:
+        - The actor holds the relevant content/assessment review or publication authority.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-AUTH-01.IN1
+          name: conceptCandidate
+          validation: Structured draft, category/prerequisite links and language versions
+          dataRefs:
+            - DATA-concept
+            - DATA-category
+            - DATA-assessment
+            - DATA-content-source
+        - id: FR-AUTH-01.IN2
+          name: editorialDecision
+          validation: Exact source candidate and authorized review/publication choice
+          dataRefs:
+            - DATA-concept
+            - DATA-category
+            - DATA-assessment
+            - DATA-content-source
+      outputs:
+        - name: result-1
+          fromStep: FR-AUTH-01.MAIN.S1
+          meaning: Capture outcomes, prerequisites, category links and structured teaching sections
+          effect: Draft content is visible only to authorized collaborators.
+        - name: result-2
+          fromStep: FR-AUTH-01.MAIN.S2
+          meaning: Validate required content and related source/rubric versions
+          effect: Broken or incomplete required sections are identified.
+        - name: result-3
+          fromStep: FR-AUTH-01.MAIN.S3
+          meaning: Allow an authorized reviewer to assess content and source quality
+          effect: Review identifies the exact candidate version.
+        - name: result-4
+          fromStep: FR-AUTH-01.MAIN.S4
+          meaning: Expose the approved version under its configured audience and content rights
+          effect: The publication retains author, reviewer and prior version lineage.
+        - name: result-5
+          fromStep: FR-AUTH-01.MAIN.S5
+          meaning: Show old and new version relationships and affected dependencies
+          effect: Existing submissions keep their original content/rubric references.
+      businessRuleRefs:
+        - BR-CONCEPT
+        - BR-VERSION
+        - BR-SOURCES
+        - BR-RIGHTS
+      dataRefs:
+        - DATA-concept
+        - DATA-category
+        - DATA-assessment
+        - DATA-content-source
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-AI
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-LANGUAGE
+        - NFR-AUDIT
+        - NFR-SUBMISSION
+      decisionRefs:
+        - D05
+        - D06
+        - D08
+        - D11
+        - D09
+        - D07
+        - D03
+        - D12
+        - D01
+      directPolicyRefs:
+        - D05
+        - D06
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-AUTH-01.MAIN
+        trigger: Create or edit a draft concept
+        steps:
+          - id: FR-AUTH-01.MAIN.S1
+            actor: author-editor
+            request: Create or edit a draft concept
+            systemResponse: Capture outcomes, prerequisites, category links and structured teaching sections
+            businessEffect: Draft content is visible only to authorized collaborators.
+            acceptanceRefs:
+              - FR-AUTH-01.AC.M1
+          - id: FR-AUTH-01.MAIN.S2
+            actor: author-editor
+            request: Attach examples, diagrams/simulations, practice and assessments
+            systemResponse: Validate required content and related source/rubric versions
+            businessEffect: Broken or incomplete required sections are identified.
+            acceptanceRefs:
+              - FR-AUTH-01.AC.M2
+          - id: FR-AUTH-01.MAIN.S3
+            actor: author-editor
+            request: Submit the candidate for editorial review
+            systemResponse: Allow an authorized reviewer to assess content and source quality
+            businessEffect: Review identifies the exact candidate version.
+            acceptanceRefs:
+              - FR-AUTH-01.AC.M3
+          - id: FR-AUTH-01.MAIN.S4
+            actor: author-editor
+            request: Approve and publish the reviewed version
+            systemResponse: Expose the approved version under its configured audience and content rights
+            businessEffect: The publication retains author, reviewer and prior version lineage.
+            acceptanceRefs:
+              - FR-AUTH-01.AC.M4
+          - id: FR-AUTH-01.MAIN.S5
+            actor: author-editor
+            request: Inspect existing learner references after publication
+            systemResponse: Show old and new version relationships and affected dependencies
+            businessEffect: Existing submissions keep their original content/rubric references.
+            acceptanceRefs:
+              - FR-AUTH-01.AC.M5
+        end:
+          type: completed-main-flow
+          outcome: Existing submissions keep their original content/rubric references.
+      alternativeFlows:
+        - id: FR-AUTH-01.ALT1
+          title: The editor requests revisions
+          fromStep: FR-AUTH-01.MAIN.S3
+          condition: The editor requests revisions
+          steps:
+            - id: FR-AUTH-01.ALT1.S1
+              actor: author-editor
+              request: Return the candidate to draft with feedback
+              systemResponse: Retain the current published version
+              businessEffect: No incomplete replacement is published.
+              acceptanceRefs:
+                - FR-AUTH-01.AC.ALT1
+          resume:
+            type: end
+            outcome: No incomplete replacement is published.
+          postconditions:
+            - No incomplete replacement is published.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-AUTH-01.AC.ALT1
+      exceptionFlows:
+        - id: FR-AUTH-01.EX1
+          title: The candidate changed after approval
+          fromStep: FR-AUTH-01.MAIN.S4
+          condition: The candidate changed after approval
+          steps:
+            - id: FR-AUTH-01.EX1.S1
+              actor: author-editor
+              request: Publish the changed candidate
+              systemResponse: Require review of the new version
+              businessEffect: No approval of one version is reused for another.
+              acceptanceRefs:
+                - FR-AUTH-01.AC.EX1
+          resume:
+            type: end
+            outcome: No approval of one version is reused for another.
+          postconditions:
+            - No approval of one version is reused for another.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-AUTH-01.AC.EX1
+        - id: FR-AUTH-01.EX2
+          title: A required source, example or translation link is invalid
+          fromStep: FR-AUTH-01.MAIN.S2
+          condition: A required source, example or translation link is invalid
+          steps:
+            - id: FR-AUTH-01.EX2.S1
+              actor: author-editor
+              request: Submit the candidate
+              systemResponse: Show the exact invalid relationship
+              businessEffect: No false complete-content or equivalent-translation claim.
+              acceptanceRefs:
+                - FR-AUTH-01.AC.EX2
+          resume:
+            type: end
+            outcome: No false complete-content or equivalent-translation claim.
+          postconditions:
+            - No false complete-content or equivalent-translation claim.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-AUTH-01.AC.EX2
+      postconditions:
+        success:
+          - Draft content is visible only to authorized collaborators.
+          - Broken or incomplete required sections are identified.
+          - Review identifies the exact candidate version.
+          - The publication retains author, reviewer and prior version lineage.
+          - Existing submissions keep their original content/rubric references.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No approval of one version is reused for another.
+          - No false complete-content or equivalent-translation claim.
+      acceptanceCriteria:
+        - id: FR-AUTH-01.AC.M1
+          flowRef: FR-AUTH-01.MAIN
+          stepRefs:
+            - FR-AUTH-01.MAIN.S1
+          given:
+            - The actor holds the relevant content/assessment review or publication authority.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Create or edit a draft concept
+          then:
+            - Capture outcomes, prerequisites, category links and structured teaching sections
+            - Draft content is visible only to authorized collaborators.
+        - id: FR-AUTH-01.AC.M2
+          flowRef: FR-AUTH-01.MAIN
+          stepRefs:
+            - FR-AUTH-01.MAIN.S2
+          given:
+            - The previous main-flow step FR-AUTH-01.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Attach examples, diagrams/simulations, practice and assessments
+          then:
+            - Validate required content and related source/rubric versions
+            - Broken or incomplete required sections are identified.
+        - id: FR-AUTH-01.AC.M3
+          flowRef: FR-AUTH-01.MAIN
+          stepRefs:
+            - FR-AUTH-01.MAIN.S3
+          given:
+            - The previous main-flow step FR-AUTH-01.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Submit the candidate for editorial review
+          then:
+            - Allow an authorized reviewer to assess content and source quality
+            - Review identifies the exact candidate version.
+        - id: FR-AUTH-01.AC.M4
+          flowRef: FR-AUTH-01.MAIN
+          stepRefs:
+            - FR-AUTH-01.MAIN.S4
+          given:
+            - The previous main-flow step FR-AUTH-01.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Approve and publish the reviewed version
+          then:
+            - Expose the approved version under its configured audience and content rights
+            - The publication retains author, reviewer and prior version lineage.
+        - id: FR-AUTH-01.AC.M5
+          flowRef: FR-AUTH-01.MAIN
+          stepRefs:
+            - FR-AUTH-01.MAIN.S5
+          given:
+            - The previous main-flow step FR-AUTH-01.MAIN.S4 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect existing learner references after publication
+          then:
+            - Show old and new version relationships and affected dependencies
+            - Existing submissions keep their original content/rubric references.
+        - id: FR-AUTH-01.AC.ALT1
+          flowRef: FR-AUTH-01.ALT1
+          stepRefs:
+            - FR-AUTH-01.ALT1.S1
+          given:
+            - Execution reaches FR-AUTH-01.MAIN.S3.
+            - The editor requests revisions
+          when: Return the candidate to draft with feedback
+          then:
+            - Retain the current published version
+            - No incomplete replacement is published.
+        - id: FR-AUTH-01.AC.EX1
+          flowRef: FR-AUTH-01.EX1
+          stepRefs:
+            - FR-AUTH-01.EX1.S1
+          given:
+            - Execution reaches FR-AUTH-01.MAIN.S4.
+            - The candidate changed after approval
+          when: Publish the changed candidate
+          then:
+            - Require review of the new version
+            - No approval of one version is reused for another.
+        - id: FR-AUTH-01.AC.EX2
+          flowRef: FR-AUTH-01.EX2
+          stepRefs:
+            - FR-AUTH-01.EX2.S1
+          given:
+            - Execution reaches FR-AUTH-01.MAIN.S2.
+            - A required source, example or translation link is invalid
+          when: Submit the candidate
+          then:
+            - Show the exact invalid relationship
+            - No false complete-content or equivalent-translation claim.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AI
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LANGUAGE
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-SUBMISSION
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: authoring
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "4.1"
+            - "12"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Create or edit a draft concept

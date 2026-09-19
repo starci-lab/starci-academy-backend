@@ -1,0 +1,157 @@
+schema: work/node@2
+id: starci-next.business.srs.customer-journeys.purchase-use-and-lifecycle
+kind: business
+required: true
+state: todo
+description: Inspect, buy, use and manage subscription rights
+refs:
+  - starci-next.business.srs.functional-requirements.commerce.inspect-offers-and-rights
+  - starci-next.business.srs.functional-requirements.commerce.purchase-and-confirm-rights
+  - starci-next.business.srs.functional-requirements.commerce.inspect-and-control-ai-usage
+  - starci-next.business.srs.functional-requirements.commerce.manage-subscription-lifecycle
+  - starci-next.business.srs.functional-requirements.commerce.resolve-purchase-and-refund
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-customer-journey@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: CJ-09
+      title: Inspect, buy, use and manage subscription rights
+      actor: learner
+      entry: A learner wants an offered capability and needs to understand price, rights and limits.
+      preconditions:
+        - The actor can enter the relevant personal/organization context.
+        - Each referenced feature establishes its own prerequisites, current permissions and
+          approved policy before its consequential action.
+      stages:
+        - id: CJ-09.S1
+          actorAction: Compare the approved offer with current rights
+          requirementRef: FR-SUB-01
+          flowRef: FR-SUB-01.MAIN
+          acceptanceRefs:
+            - FR-SUB-01.AC.M1
+            - FR-SUB-01.AC.M2
+            - FR-SUB-01.AC.M3
+            - FR-SUB-01.AC.M4
+          outcome: Content benefits, AI allowance and lifecycle terms are explicit.
+          nextStep: CJ-09.S2
+        - id: CJ-09.S2
+          actorAction: Confirm purchase and inspect settlement/activation
+          requirementRef: FR-SUB-02
+          flowRef: FR-SUB-02.MAIN
+          acceptanceRefs:
+            - FR-SUB-02.AC.M1
+            - FR-SUB-02.AC.M2
+            - FR-SUB-02.AC.M3
+            - FR-SUB-02.AC.M4
+            - FR-SUB-02.AC.M5
+          outcome: Intent, paid status and effective right are distinguished.
+          nextStep: CJ-09.S3
+        - id: CJ-09.S3
+          actorAction: Use an eligible AI capability and inspect usage
+          requirementRef: FR-SUB-05
+          flowRef: FR-SUB-05.MAIN
+          acceptanceRefs:
+            - FR-SUB-05.AC.M1
+            - FR-SUB-05.AC.M2
+            - FR-SUB-05.AC.M3
+            - FR-SUB-05.AC.M4
+          outcome: Consumption follows an identified request and policy.
+          nextStep: CJ-09.S4
+        - id: CJ-09.S4
+          actorAction: Review renewal/change/cancellation
+          requirementRef: FR-SUB-03
+          flowRef: FR-SUB-03.MAIN
+          acceptanceRefs:
+            - FR-SUB-03.AC.M1
+            - FR-SUB-03.AC.M2
+            - FR-SUB-03.AC.M3
+            - FR-SUB-03.AC.M4
+          outcome: Effective impact is previewed before confirmation.
+          nextStep: CJ-09.S5
+        - id: CJ-09.S5
+          actorAction: Resolve an eligible payment/benefit concern
+          requirementRef: FR-SUB-04
+          flowRef: FR-SUB-04.MAIN
+          acceptanceRefs:
+            - FR-SUB-04.AC.M1
+            - FR-SUB-04.AC.M2
+            - FR-SUB-04.AC.M3
+            - FR-SUB-04.AC.M4
+          outcome: Corrections and refunds require authoritative evidence and approved policy.
+          nextStep: null
+      branches:
+        - id: CJ-09.B1
+          atStageRefs:
+            - CJ-09.S2
+          requirementRef: FR-SUB-02
+          flowRef: FR-SUB-02.EX1
+          condition: Payment is pending or its response is lost
+          handling: Pending or lost payment response is reconciled through the original purchase before
+            another payment action.
+          acceptanceRefs:
+            - FR-SUB-02.AC.EX1
+          outcome:
+            - Do not initiate a second charge just because the first result is unknown.
+        - id: CJ-09.B2
+          atStageRefs:
+            - CJ-09.S2
+          requirementRef: FR-SUB-02
+          flowRef: FR-SUB-02.EX2
+          condition: The same confirmed settlement is delivered repeatedly
+          handling: Repeated confirmation returns one benefit effect.
+          acceptanceRefs:
+            - FR-SUB-02.AC.EX2
+          outcome:
+            - No duplicate benefit or duplicate usage allowance.
+        - id: CJ-09.B3
+          atStageRefs:
+            - CJ-09.S2
+          requirementRef: FR-SUB-02
+          flowRef: FR-SUB-02.EX3
+          condition: Payment is confirmed but benefit activation has failed
+          handling: Paid-but-not-activated remains a tracked recovery claim.
+          acceptanceRefs:
+            - FR-SUB-02.AC.EX3
+          outcome:
+            - Preserve the paid claim; do not demand repurchase.
+        - id: CJ-09.B4
+          atStageRefs:
+            - CJ-09.S3
+          requirementRef: FR-SUB-05
+          flowRef: FR-SUB-05.ALT1
+          condition: AI allowance is exhausted but content access is active
+          handling: Exhausted AI allowance still permits independently entitled reading.
+          acceptanceRefs:
+            - FR-SUB-05.AC.ALT1
+          outcome:
+            - No forced extra purchase to read already entitled content.
+        - id: CJ-09.B5
+          atStageRefs:
+            - CJ-09.S4
+          requirementRef: FR-SUB-03
+          flowRef: FR-SUB-03.EX2
+          condition: Renewal fails or confirmation is unknown
+          handling: Unknown renewal and access follow the approved grace/expiry policy, not a guessed
+            duration.
+          acceptanceRefs:
+            - FR-SUB-03.AC.EX2
+          outcome:
+            - Do not invent grace duration or erase learning data.
+      exit: The learner can identify the financial result, currently effective rights, future schedule and
+        usage outcome, including unresolved states.
+      observations:
+        - A stage starts when the user reaches that feature with its prerequisites satisfied; the
+          overview does not bypass required project/evidence preparation.
+        - A referenced pending, cancelled or denied branch changes the journey outcome and must not
+          be reported as full-path success.
+      acceptanceCriteria:
+        - id: CJ-09.AC1
+          given: A learner wants an offered capability and needs to understand price, rights and limits.
+          when: Complete each relevant stage under its declared prerequisites and inspect branch outcomes.
+          then: The learner can identify the financial result, currently effective rights, future schedule and
+            usage outcome, including unresolved states.
+      featureOwner: commerce
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

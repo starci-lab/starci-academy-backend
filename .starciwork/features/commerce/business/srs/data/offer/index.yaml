@@ -1,0 +1,95 @@
+schema: work/node@2
+id: starci-next.business.srs.data.offer
+kind: business
+required: true
+state: todo
+description: Versioned commercial offer
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-data-definition@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: DATA-offer
+      title: Versioned commercial offer
+      modelLevel: Proposed logical business contract; physical storage, indexes and APIs belong to SDS.
+      owner: commercial owner
+      fields:
+        - name: id
+          meaning: Stable logical record identity
+          validation: Required, unique and not changed by a state transition
+          classification: context-scoped
+        - name: version
+          meaning: Record/content revision used for attribution and confirmation
+          validation: Identify the reviewed version; changed content must not impersonate an earlier revision
+          classification: context-scoped
+        - name: benefitMatrix
+          meaning: Included content/actions/allowance
+          validation: Explicit included/excluded capabilities and approved limits
+          classification: published
+        - name: priceAndPeriod
+          meaning: Amount, currency and billing interval
+          validation: Required approved values before purchase; no hardcoded proposed amount
+          classification: published
+        - name: lifecycleTerms
+          meaning: Renewal, change, cancellation and refund policy
+          validation: Approved version linked before purchase
+          classification: published
+        - name: availability
+          meaning: Permitted audience and purchase window
+          validation: Explicit state and audience constraints
+          classification: published
+      relations:
+        - dataRef: DATA-entitlement
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-subscription
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-purchase
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+      states:
+        - draft
+        - approved
+        - available
+        - retired
+      transitions:
+        - id: DATA-offer.T1
+          from: draft
+          to: approved
+          event: Approve commercial candidate
+          guard: D02 and D03 complete for the candidate
+        - id: DATA-offer.T2
+          from: approved
+          to: available
+          event: Authorize sale
+          guard: Reviewed terms and fulfillment capability ready
+        - id: DATA-offer.T3
+          from: available
+          to: retired
+          event: Stop new purchases
+          guard: Existing purchases retain their terms
+      invariants:
+        - A proposal with unresolved price or terms is not purchasable.
+      decisionRefs:
+        - D02
+        - D03
+      privacy:
+        access: Apply current owner, role, resource and audience grants. A selected-public field is exposed
+          only after authorized publication.
+        retention: D08 selects retention/export/closure behavior. No storage duration or automatic deletion
+          policy is inferred.
+        referenceWithdrawal: Preserve permitted provenance while preventing newly unauthorized source
+          access; retained snapshots require approved D08 purpose and scope.
+      validationCases:
+        - given: An actor without current rights references this offer.
+          when: Read or mutate the record.
+          then: Deny the unauthorized action without disclosing restricted fields.
+        - given: A record in a declared state and an attributed authorized event.
+          when: Apply a listed transition.
+          then: Require its guard, retain the prior version attribution and reject a transition unsupported by
+            policy.
+      featureOwner: commerce
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

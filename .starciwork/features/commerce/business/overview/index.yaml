@@ -1,0 +1,77 @@
+schema: work/node@2
+id: starci-next.features.commerce.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "commerce: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.commerce.inspect-offers-and-rights
+  - starci-next.business.srs.functional-requirements.commerce.purchase-and-confirm-rights
+  - starci-next.business.srs.functional-requirements.commerce.manage-subscription-lifecycle
+  - starci-next.business.srs.functional-requirements.commerce.resolve-purchase-and-refund
+  - starci-next.business.srs.functional-requirements.commerce.inspect-and-control-ai-usage
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-commerce
+      feature: commerce
+      title: commerce business overview
+      product: StarCiNext
+      goal: Inspect paid offers and current rights; Purchase an offer and confirm resulting rights; Review
+        renewal, plan change and cancellation; Resolve purchase disputes and eligible refund
+        requests; Understand and use independent AI allowances
+      actors:
+        - learner
+        - operations
+      inScope:
+        - requirementRef: FR-SUB-01
+          title: Inspect paid offers and current rights
+        - requirementRef: FR-SUB-02
+          title: Purchase an offer and confirm resulting rights
+        - requirementRef: FR-SUB-03
+          title: Review renewal, plan change and cancellation
+        - requirementRef: FR-SUB-04
+          title: Resolve purchase disputes and eligible refund requests
+        - requirementRef: FR-SUB-05
+          title: Understand and use independent AI allowances
+      relatedJourneyRefs:
+        - CJ-09
+        - CJ-13
+      ownedSharedDefinitionRefs:
+        - BR-USAGE
+        - BR-COMMERCE
+        - NFR-COST
+        - DATA-entitlement
+        - DATA-usage
+        - DATA-offer
+        - DATA-subscription
+        - DATA-purchase
+        - D02
+        - D03
+        - D07
+        - CJ-09
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "11.1"
+            - "11.2"
+businessOverview:
+  purpose: Inspect paid offers and current rights; Purchase an offer and confirm resulting rights;
+    Review renewal, plan change and cancellation; Resolve purchase disputes and eligible refund
+    requests; Understand and use independent AI allowances
+  customerUnderstanding: StarCiNext commerce serves learner, operations through the requirements and
+    journeys owned by this feature.
+  desiredOutcome: Inspect paid offers and current rights; Purchase an offer and confirm resulting
+    rights; Review renewal, plan change and cancellation; Resolve purchase disputes and eligible
+    refund requests; Understand and use independent AI allowances
+  scope: Inspect paid offers and current rights; Purchase an offer and confirm resulting rights;
+    Review renewal, plan change and cancellation; Resolve purchase disputes and eligible refund
+    requests; Understand and use independent AI allowances
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

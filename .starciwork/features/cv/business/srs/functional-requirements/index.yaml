@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.cv.business.srs.functional-requirements
+kind: business
+required: true
+description: "functional-requirements: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: functional-requirements
+      title: functional-requirements
+      status: draft
+      children:
+        - path: compose-cv/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.cv.compose-cv
+          title: Compose and approve a CV from selected experience
+        - path: export-and-share-cv/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.cv.export-and-share-cv
+          title: Export or share a selected CV version

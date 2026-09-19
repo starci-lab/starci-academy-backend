@@ -1,0 +1,360 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.operations.resolve-account-and-benefit-case
+kind: business
+required: true
+state: todo
+description: Resolve scoped support cases with attributable outcomes
+refs:
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.business-rules.settlement-and-effective-rights
+  - starci-next.business.srs.data.support-case
+  - starci-next.business.srs.data.account
+  - starci-next.business.srs.data.entitlement
+  - starci-next.business.srs.data.purchase
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.allowance-and-cost-visibility
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-OPS-01
+      title: Resolve scoped support cases with attributable outcomes
+      domain: operations
+      goal: Resolve scoped support cases with attributable outcomes
+      priority: release-priority-awaits-D01
+      actors:
+        - member
+        - operations
+      preconditions:
+        - The requester and scoped operator purpose are identifiable; consequential changes require
+          the applicable policy.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-OPS-01.IN1
+          name: supportSubject
+          validation: Account/benefit issue with verified requester and relevant evidence
+          dataRefs:
+            - DATA-support-case
+            - DATA-account
+            - DATA-entitlement
+            - DATA-purchase
+        - id: FR-OPS-01.IN2
+          name: resolutionAction
+          validation: Authorized correction or pending-policy decision within case scope
+          dataRefs:
+            - DATA-support-case
+            - DATA-account
+            - DATA-entitlement
+            - DATA-purchase
+      outputs:
+        - name: result-1
+          fromStep: FR-OPS-01.MAIN.S1
+          meaning: Acknowledge a scoped case and capture only relevant permitted context
+          effect: The reporter can follow the case without exposing other accounts.
+        - name: result-2
+          fromStep: FR-OPS-01.MAIN.S2
+          meaning: Limit access to the assigned purpose and role
+          effect: Every privileged read/change is attributable.
+        - name: result-3
+          fromStep: FR-OPS-01.MAIN.S3
+          meaning: Recheck authority, current state and applicable policy
+          effect: Unsupported grants or commercial decisions require the named policy owner.
+        - name: result-4
+          fromStep: FR-OPS-01.MAIN.S4
+          meaning: Explain corrected, pending or declined result and any continuation
+          effect: A closed case cannot falsely claim an unresolved benefit is fixed.
+      businessRuleRefs:
+        - BR-RIGHTS
+        - BR-PRIVACY
+        - BR-COMMERCE
+      dataRefs:
+        - DATA-support-case
+        - DATA-account
+        - DATA-entitlement
+        - DATA-purchase
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-COST
+        - NFR-AUDIT
+      decisionRefs:
+        - D03
+        - D08
+        - D11
+        - D02
+        - D05
+        - D07
+        - D12
+      directPolicyRefs:
+        - D03
+        - D08
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-OPS-01.MAIN
+        trigger: Submit an account, access or benefit issue
+        steps:
+          - id: FR-OPS-01.MAIN.S1
+            actor: member
+            request: Submit an account, access or benefit issue
+            systemResponse: Acknowledge a scoped case and capture only relevant permitted context
+            businessEffect: The reporter can follow the case without exposing other accounts.
+            acceptanceRefs:
+              - FR-OPS-01.AC.M1
+          - id: FR-OPS-01.MAIN.S2
+            actor: operations
+            request: Have an authorized operator inspect relevant evidence
+            systemResponse: Limit access to the assigned purpose and role
+            businessEffect: Every privileged read/change is attributable.
+            acceptanceRefs:
+              - FR-OPS-01.AC.M2
+          - id: FR-OPS-01.MAIN.S3
+            actor: member
+            request: Have the operator propose and apply an authorized resolution
+            systemResponse: Recheck authority, current state and applicable policy
+            businessEffect: Unsupported grants or commercial decisions require the named policy owner.
+            acceptanceRefs:
+              - FR-OPS-01.AC.M3
+          - id: FR-OPS-01.MAIN.S4
+            actor: member
+            request: Inspect the case outcome
+            systemResponse: Explain corrected, pending or declined result and any continuation
+            businessEffect: A closed case cannot falsely claim an unresolved benefit is fixed.
+            acceptanceRefs:
+              - FR-OPS-01.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: A closed case cannot falsely claim an unresolved benefit is fixed.
+      alternativeFlows:
+        - id: FR-OPS-01.ALT1
+          title: The case belongs to another authorized team
+          fromStep: FR-OPS-01.MAIN.S3
+          condition: The case belongs to another authorized team
+          steps:
+            - id: FR-OPS-01.ALT1.S1
+              actor: member
+              request: Transfer the scoped case with reason
+              systemResponse: Preserve its status and user-visible continuity
+              businessEffect: No duplicate contradictory resolution.
+              acceptanceRefs:
+                - FR-OPS-01.AC.ALT1
+          resume:
+            type: end
+            outcome: No duplicate contradictory resolution.
+          postconditions:
+            - No duplicate contradictory resolution.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-OPS-01.AC.ALT1
+      exceptionFlows:
+        - id: FR-OPS-01.EX1
+          title: The operator requests unrelated private work
+          fromStep: FR-OPS-01.MAIN.S2
+          condition: The operator requests unrelated private work
+          steps:
+            - id: FR-OPS-01.EX1.S1
+              actor: member
+              request: Inspect outside the case purpose
+              systemResponse: Deny and record the unauthorized attempt
+              businessEffect: No support role becomes unlimited account access.
+              acceptanceRefs:
+                - FR-OPS-01.AC.EX1
+          resume:
+            type: end
+            outcome: No support role becomes unlimited account access.
+          postconditions:
+            - No support role becomes unlimited account access.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-OPS-01.AC.EX1
+        - id: FR-OPS-01.EX2
+          title: The policy needed for resolution is missing
+          fromStep: FR-OPS-01.MAIN.S3
+          condition: The policy needed for resolution is missing
+          steps:
+            - id: FR-OPS-01.EX2.S1
+              actor: member
+              request: Resolve the case
+              systemResponse: Keep the case awaiting the identified policy decision
+              businessEffect: No invented refund, legacy entitlement or privacy policy.
+              acceptanceRefs:
+                - FR-OPS-01.AC.EX2
+          resume:
+            type: end
+            outcome: No invented refund, legacy entitlement or privacy policy.
+          postconditions:
+            - No invented refund, legacy entitlement or privacy policy.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-OPS-01.AC.EX2
+      postconditions:
+        success:
+          - The reporter can follow the case without exposing other accounts.
+          - Every privileged read/change is attributable.
+          - Unsupported grants or commercial decisions require the named policy owner.
+          - A closed case cannot falsely claim an unresolved benefit is fixed.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No support role becomes unlimited account access.
+          - No invented refund, legacy entitlement or privacy policy.
+      acceptanceCriteria:
+        - id: FR-OPS-01.AC.M1
+          flowRef: FR-OPS-01.MAIN
+          stepRefs:
+            - FR-OPS-01.MAIN.S1
+          given:
+            - The requester and scoped operator purpose are identifiable; consequential changes
+              require the applicable policy.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Submit an account, access or benefit issue
+          then:
+            - Acknowledge a scoped case and capture only relevant permitted context
+            - The reporter can follow the case without exposing other accounts.
+        - id: FR-OPS-01.AC.M2
+          flowRef: FR-OPS-01.MAIN
+          stepRefs:
+            - FR-OPS-01.MAIN.S2
+          given:
+            - The previous main-flow step FR-OPS-01.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Have an authorized operator inspect relevant evidence
+          then:
+            - Limit access to the assigned purpose and role
+            - Every privileged read/change is attributable.
+        - id: FR-OPS-01.AC.M3
+          flowRef: FR-OPS-01.MAIN
+          stepRefs:
+            - FR-OPS-01.MAIN.S3
+          given:
+            - The previous main-flow step FR-OPS-01.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Have the operator propose and apply an authorized resolution
+          then:
+            - Recheck authority, current state and applicable policy
+            - Unsupported grants or commercial decisions require the named policy owner.
+        - id: FR-OPS-01.AC.M4
+          flowRef: FR-OPS-01.MAIN
+          stepRefs:
+            - FR-OPS-01.MAIN.S4
+          given:
+            - The previous main-flow step FR-OPS-01.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect the case outcome
+          then:
+            - Explain corrected, pending or declined result and any continuation
+            - A closed case cannot falsely claim an unresolved benefit is fixed.
+        - id: FR-OPS-01.AC.ALT1
+          flowRef: FR-OPS-01.ALT1
+          stepRefs:
+            - FR-OPS-01.ALT1.S1
+          given:
+            - Execution reaches FR-OPS-01.MAIN.S3.
+            - The case belongs to another authorized team
+          when: Transfer the scoped case with reason
+          then:
+            - Preserve its status and user-visible continuity
+            - No duplicate contradictory resolution.
+        - id: FR-OPS-01.AC.EX1
+          flowRef: FR-OPS-01.EX1
+          stepRefs:
+            - FR-OPS-01.EX1.S1
+          given:
+            - Execution reaches FR-OPS-01.MAIN.S2.
+            - The operator requests unrelated private work
+          when: Inspect outside the case purpose
+          then:
+            - Deny and record the unauthorized attempt
+            - No support role becomes unlimited account access.
+        - id: FR-OPS-01.AC.EX2
+          flowRef: FR-OPS-01.EX2
+          stepRefs:
+            - FR-OPS-01.EX2.S1
+          given:
+            - Execution reaches FR-OPS-01.MAIN.S3.
+            - The policy needed for resolution is missing
+          when: Resolve the case
+          then:
+            - Keep the case awaiting the identified policy decision
+            - No invented refund, legacy entitlement or privacy policy.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-COST
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: operations
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "11.2"
+            - "12"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Submit an account, access or benefit issue

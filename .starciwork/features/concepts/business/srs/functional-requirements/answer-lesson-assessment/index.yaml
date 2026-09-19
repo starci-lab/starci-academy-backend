@@ -1,0 +1,384 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.concepts.answer-lesson-assessment
+kind: business
+required: true
+state: todo
+description: Answer concept quizzes and interview-style questions
+refs:
+  - starci-next.business.srs.business-rules.assessment-provenance
+  - starci-next.business.srs.business-rules.activity-versus-mastery
+  - starci-next.business.srs.business-rules.bounded-ai-assistance
+  - starci-next.business.srs.data.concept
+  - starci-next.business.srs.data.assessment
+  - starci-next.business.srs.data.submission
+  - starci-next.business.srs.data.review
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.multilingual-content-consistency
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+  - starci-next.business.srs.business-rules.policy-decisions.release-scope
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-CON-03
+      title: Answer concept quizzes and interview-style questions
+      domain: concepts
+      goal: Answer concept quizzes and interview-style questions
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - The selected published content and applicable content-access rules are identifiable.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-CON-03.IN1
+          name: assessmentVersion
+          validation: The shown question and evaluation criteria
+          dataRefs:
+            - DATA-concept
+            - DATA-assessment
+            - DATA-submission
+            - DATA-review
+        - id: FR-CON-03.IN2
+          name: answer
+          validation: Required answer fields for the selected question; draft remains editable
+          dataRefs:
+            - DATA-concept
+            - DATA-assessment
+            - DATA-submission
+            - DATA-review
+      outputs:
+        - name: result-1
+          fromStep: FR-CON-03.MAIN.S1
+          meaning: Show the question, attempt rules and relevant rubric/answer version
+          effect: The assessment is linked to its concept version.
+        - name: result-2
+          fromStep: FR-CON-03.MAIN.S2
+          meaning: Keep the draft answer editable before submission
+          effect: No score is assigned to an unsubmitted draft.
+        - name: result-3
+          fromStep: FR-CON-03.MAIN.S3
+          meaning: Evaluate according to the selected assessment method and record the attempt
+          effect: Objective scoring and AI feedback retain distinct provenance.
+        - name: result-4
+          fromStep: FR-CON-03.MAIN.S4
+          meaning: Show the result, reasoning tied to the rubric and areas to revisit
+          effect: The learner can distinguish correct results, feedback and unresolved evaluation.
+        - name: result-5
+          fromStep: FR-CON-03.MAIN.S5
+          meaning: Open a new permitted attempt or the relevant explanation
+          effect: Earlier attempts retain their own answer and rubric versions.
+      businessRuleRefs:
+        - BR-EVIDENCE
+        - BR-MASTERY
+        - BR-AI
+      dataRefs:
+        - DATA-concept
+        - DATA-assessment
+        - DATA-submission
+        - DATA-review
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-LANGUAGE
+        - NFR-AUDIT
+      decisionRefs:
+        - D05
+        - D07
+        - D06
+        - D08
+        - D11
+        - D03
+        - D12
+        - D01
+      directPolicyRefs:
+        - D05
+        - D07
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-CON-03.MAIN
+        trigger: Choose a quiz or interview-style question within a concept
+        steps:
+          - id: FR-CON-03.MAIN.S1
+            actor: learner
+            request: Choose a quiz or interview-style question within a concept
+            systemResponse: Show the question, attempt rules and relevant rubric/answer version
+            businessEffect: The assessment is linked to its concept version.
+            acceptanceRefs:
+              - FR-CON-03.AC.M1
+          - id: FR-CON-03.MAIN.S2
+            actor: learner
+            request: Enter or select an answer
+            systemResponse: Keep the draft answer editable before submission
+            businessEffect: No score is assigned to an unsubmitted draft.
+            acceptanceRefs:
+              - FR-CON-03.AC.M2
+          - id: FR-CON-03.MAIN.S3
+            actor: learner
+            request: Submit the answer
+            systemResponse: Evaluate according to the selected assessment method and record the attempt
+            businessEffect: Objective scoring and AI feedback retain distinct provenance.
+            acceptanceRefs:
+              - FR-CON-03.AC.M3
+          - id: FR-CON-03.MAIN.S4
+            actor: learner
+            request: Read feedback and explanations
+            systemResponse: Show the result, reasoning tied to the rubric and areas to revisit
+            businessEffect: The learner can distinguish correct results, feedback and unresolved evaluation.
+            acceptanceRefs:
+              - FR-CON-03.AC.M4
+          - id: FR-CON-03.MAIN.S5
+            actor: learner
+            request: Choose to retry or return to the lesson
+            systemResponse: Open a new permitted attempt or the relevant explanation
+            businessEffect: Earlier attempts retain their own answer and rubric versions.
+            acceptanceRefs:
+              - FR-CON-03.AC.M5
+        end:
+          type: completed-main-flow
+          outcome: Earlier attempts retain their own answer and rubric versions.
+      alternativeFlows:
+        - id: FR-CON-03.ALT1
+          title: The learner leaves before submission
+          fromStep: FR-CON-03.MAIN.S2
+          condition: The learner leaves before submission
+          steps:
+            - id: FR-CON-03.ALT1.S1
+              actor: learner
+              request: Keep or discard the draft explicitly
+              systemResponse: Show that the question has not been assessed
+              businessEffect: No completed attempt or score is invented.
+              acceptanceRefs:
+                - FR-CON-03.AC.ALT1
+          resume:
+            type: end
+            outcome: No completed attempt or score is invented.
+          postconditions:
+            - No completed attempt or score is invented.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-CON-03.AC.ALT1
+      exceptionFlows:
+        - id: FR-CON-03.EX1
+          title: The answer is missing required information
+          fromStep: FR-CON-03.MAIN.S3
+          condition: The answer is missing required information
+          steps:
+            - id: FR-CON-03.EX1.S1
+              actor: learner
+              request: Submit the incomplete answer
+              systemResponse: Identify the missing answer fields and retain the draft
+              businessEffect: No completed evaluation.
+              acceptanceRefs:
+                - FR-CON-03.AC.EX1
+          resume:
+            type: end
+            outcome: No completed evaluation.
+          postconditions:
+            - No completed evaluation.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-CON-03.AC.EX1
+        - id: FR-CON-03.EX2
+          title: The evaluator is unavailable
+          fromStep: FR-CON-03.MAIN.S3
+          condition: The evaluator is unavailable
+          steps:
+            - id: FR-CON-03.EX2.S1
+              actor: learner
+              request: Request the result of the submitted attempt
+              systemResponse: Show evaluation pending/error and the permitted continuation
+              businessEffect: The attempt remains available; infrastructure failure is not an incorrect answer.
+              acceptanceRefs:
+                - FR-CON-03.AC.EX2
+          resume:
+            type: end
+            outcome: The attempt remains available; infrastructure failure is not an incorrect answer.
+          postconditions:
+            - The attempt remains available; infrastructure failure is not an incorrect answer.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-CON-03.AC.EX2
+      postconditions:
+        success:
+          - The assessment is linked to its concept version.
+          - No score is assigned to an unsubmitted draft.
+          - Objective scoring and AI feedback retain distinct provenance.
+          - The learner can distinguish correct results, feedback and unresolved evaluation.
+          - Earlier attempts retain their own answer and rubric versions.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No completed evaluation.
+          - The attempt remains available; infrastructure failure is not an incorrect answer.
+      acceptanceCriteria:
+        - id: FR-CON-03.AC.M1
+          flowRef: FR-CON-03.MAIN
+          stepRefs:
+            - FR-CON-03.MAIN.S1
+          given:
+            - The selected published content and applicable content-access rules are identifiable.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Choose a quiz or interview-style question within a concept
+          then:
+            - Show the question, attempt rules and relevant rubric/answer version
+            - The assessment is linked to its concept version.
+        - id: FR-CON-03.AC.M2
+          flowRef: FR-CON-03.MAIN
+          stepRefs:
+            - FR-CON-03.MAIN.S2
+          given:
+            - The previous main-flow step FR-CON-03.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Enter or select an answer
+          then:
+            - Keep the draft answer editable before submission
+            - No score is assigned to an unsubmitted draft.
+        - id: FR-CON-03.AC.M3
+          flowRef: FR-CON-03.MAIN
+          stepRefs:
+            - FR-CON-03.MAIN.S3
+          given:
+            - The previous main-flow step FR-CON-03.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Submit the answer
+          then:
+            - Evaluate according to the selected assessment method and record the attempt
+            - Objective scoring and AI feedback retain distinct provenance.
+        - id: FR-CON-03.AC.M4
+          flowRef: FR-CON-03.MAIN
+          stepRefs:
+            - FR-CON-03.MAIN.S4
+          given:
+            - The previous main-flow step FR-CON-03.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Read feedback and explanations
+          then:
+            - Show the result, reasoning tied to the rubric and areas to revisit
+            - The learner can distinguish correct results, feedback and unresolved evaluation.
+        - id: FR-CON-03.AC.M5
+          flowRef: FR-CON-03.MAIN
+          stepRefs:
+            - FR-CON-03.MAIN.S5
+          given:
+            - The previous main-flow step FR-CON-03.MAIN.S4 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Choose to retry or return to the lesson
+          then:
+            - Open a new permitted attempt or the relevant explanation
+            - Earlier attempts retain their own answer and rubric versions.
+        - id: FR-CON-03.AC.ALT1
+          flowRef: FR-CON-03.ALT1
+          stepRefs:
+            - FR-CON-03.ALT1.S1
+          given:
+            - Execution reaches FR-CON-03.MAIN.S2.
+            - The learner leaves before submission
+          when: Keep or discard the draft explicitly
+          then:
+            - Show that the question has not been assessed
+            - No completed attempt or score is invented.
+        - id: FR-CON-03.AC.EX1
+          flowRef: FR-CON-03.EX1
+          stepRefs:
+            - FR-CON-03.EX1.S1
+          given:
+            - Execution reaches FR-CON-03.MAIN.S3.
+            - The answer is missing required information
+          when: Submit the incomplete answer
+          then:
+            - Identify the missing answer fields and retain the draft
+            - No completed evaluation.
+        - id: FR-CON-03.AC.EX2
+          flowRef: FR-CON-03.EX2
+          stepRefs:
+            - FR-CON-03.EX2.S1
+          given:
+            - Execution reaches FR-CON-03.MAIN.S3.
+            - The evaluator is unavailable
+          when: Request the result of the submitted attempt
+          then:
+            - Show evaluation pending/error and the permitted continuation
+            - The attempt remains available; infrastructure failure is not an incorrect answer.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LANGUAGE
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: concepts
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "4.1"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Choose a quiz or interview-style question within a concept

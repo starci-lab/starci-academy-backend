@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.challenges.business.srs.data
+kind: business
+required: true
+description: "data: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: data
+      title: data
+      status: draft
+      children:
+        - path: submission/index.yaml
+          workRef: starci-next.business.srs.data.submission
+          title: Versioned learner attempt
+        - path: test-result/index.yaml
+          workRef: starci-next.business.srs.data.test-result
+          title: Objective execution result

@@ -1,0 +1,48 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.policy-decisions.community-policy
+kind: business
+required: true
+state: todo
+description: Community, groups, moderation and curation policy
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-policy-decision@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: D09
+      title: Community, groups, moderation and curation policy
+      decisionStatus: open
+      accountableRole: Community owner with content owner
+      ownerAssignmentStatus: Proposed accountable business role; named person not assigned by this document.
+      question: Who may admit members, moderate, appeal, recognize contributions and approve community
+        knowledge for reuse?
+      requiredDecisions:
+        - Define group admission and contribution visibility.
+        - Define report handling, appeal and moderation authority.
+        - Define curation consent and contribution recognition rules.
+      safeDisposition: Reports remain allegations; contribution popularity alone cannot establish truth,
+        misconduct or competence.
+      affectedFeatureRefs:
+        - FR-RAG-01
+        - FR-RAG-02
+        - FR-COM-01
+        - FR-COM-02
+        - FR-COM-03
+        - FR-GAME-01
+        - FR-AUTH-01
+        - FR-AUTH-02
+        - FR-COM-04
+      affectedDataRefs:
+        - DATA-moderation-case
+        - DATA-discussion
+        - DATA-activity-award
+        - DATA-content-source
+        - DATA-learning-group
+      affectedNfrRefs: []
+      closureEvidence: Record the authorized owner decision, effective date/version, affected release
+        scope and updated acceptance criteria. Document generation or schema validation cannot close
+        this decision.
+      featureOwner: community
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

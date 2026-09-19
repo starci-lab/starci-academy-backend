@@ -1,0 +1,123 @@
+schema: work/node@2
+id: starci-next.business.srs.customer-journeys.author-publish-and-maintain
+kind: business
+required: true
+state: todo
+description: Author, assess and maintain learning content
+refs:
+  - starci-next.business.srs.functional-requirements.authoring.author-and-publish-concept
+  - starci-next.business.srs.functional-requirements.authoring.manage-assessment-and-rubric
+  - starci-next.business.srs.functional-requirements.authoring.curate-learning-sources
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-customer-journey@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: CJ-11
+      title: Author, assess and maintain learning content
+      actor: author-editor
+      entry: An authorized author prepares a new Concept or a revision.
+      preconditions:
+        - The actor can enter the relevant personal/organization context.
+        - Each referenced feature establishes its own prerequisites, current permissions and
+          approved policy before its consequential action.
+      stages:
+        - id: CJ-11.S1
+          actorAction: Draft structured teaching content and source relationships
+          requirementRef: FR-AUTH-01
+          flowRef: FR-AUTH-01.MAIN
+          acceptanceRefs:
+            - FR-AUTH-01.AC.M1
+            - FR-AUTH-01.AC.M2
+            - FR-AUTH-01.AC.M3
+            - FR-AUTH-01.AC.M4
+            - FR-AUTH-01.AC.M5
+          outcome: The candidate version is inspectable for completeness.
+          nextStep: CJ-11.S2
+        - id: CJ-11.S2
+          actorAction: Review the assessment and rubric candidate
+          requirementRef: FR-AUTH-03
+          flowRef: FR-AUTH-03.MAIN
+          acceptanceRefs:
+            - FR-AUTH-03.AC.M1
+            - FR-AUTH-03.AC.M2
+            - FR-AUTH-03.AC.M3
+            - FR-AUTH-03.AC.M4
+          outcome: Objective checks, judgment and assistance rules are explicit.
+          nextStep: CJ-11.S3
+        - id: CJ-11.S3
+          actorAction: Review source trust and reuse permission
+          requirementRef: FR-AUTH-02
+          flowRef: FR-AUTH-02.MAIN
+          acceptanceRefs:
+            - FR-AUTH-02.AC.M1
+            - FR-AUTH-02.AC.M2
+            - FR-AUTH-02.AC.M3
+            - FR-AUTH-02.AC.M4
+          outcome: Only approved permitted versions can become trusted sources.
+          nextStep: CJ-11.S4
+        - id: CJ-11.S4
+          actorAction: Approve and publish the exact content candidate
+          requirementRef: FR-AUTH-01
+          flowRef: FR-AUTH-01.MAIN
+          acceptanceRefs:
+            - FR-AUTH-01.AC.M1
+            - FR-AUTH-01.AC.M2
+            - FR-AUTH-01.AC.M3
+            - FR-AUTH-01.AC.M4
+            - FR-AUTH-01.AC.M5
+          outcome: Existing learner evidence retains original version relationships.
+          nextStep: null
+      branches:
+        - id: CJ-11.B1
+          atStageRefs:
+            - CJ-11.S1
+            - CJ-11.S4
+          requirementRef: FR-AUTH-01
+          flowRef: FR-AUTH-01.ALT1
+          condition: The editor requests revisions
+          handling: Requested revisions return to draft while the previous publication remains available.
+          acceptanceRefs:
+            - FR-AUTH-01.AC.ALT1
+          outcome:
+            - No incomplete replacement is published.
+        - id: CJ-11.B2
+          atStageRefs:
+            - CJ-11.S1
+            - CJ-11.S4
+          requirementRef: FR-AUTH-01
+          flowRef: FR-AUTH-01.EX1
+          condition: The candidate changed after approval
+          handling: Changed content after approval requires review of the changed candidate.
+          acceptanceRefs:
+            - FR-AUTH-01.AC.EX1
+          outcome:
+            - No approval of one version is reused for another.
+        - id: CJ-11.B3
+          atStageRefs:
+            - CJ-11.S2
+          requirementRef: FR-AUTH-03
+          flowRef: FR-AUTH-03.EX1
+          condition: An active attempt references the retired version
+          handling: An active attempt referencing a retired version receives an explicit continuation policy.
+          acceptanceRefs:
+            - FR-AUTH-03.AC.EX1
+          outcome:
+            - Do not silently grade against a replacement rubric.
+      exit: Published content and assessment have approved versions, source provenance and an explicit
+        relationship to existing learner history.
+      observations:
+        - A stage starts when the user reaches that feature with its prerequisites satisfied; the
+          overview does not bypass required project/evidence preparation.
+        - A referenced pending, cancelled or denied branch changes the journey outcome and must not
+          be reported as full-path success.
+      acceptanceCriteria:
+        - id: CJ-11.AC1
+          given: An authorized author prepares a new Concept or a revision.
+          when: Complete each relevant stage under its declared prerequisites and inspect branch outcomes.
+          then: Published content and assessment have approved versions, source provenance and an explicit
+            relationship to existing learner history.
+      featureOwner: authoring
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

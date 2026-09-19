@@ -1,0 +1,68 @@
+schema: work/node@2
+id: starci-next.features.authoring.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "authoring: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.authoring.author-and-publish-concept
+  - starci-next.business.srs.functional-requirements.authoring.curate-learning-sources
+  - starci-next.business.srs.functional-requirements.authoring.manage-assessment-and-rubric
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-authoring
+      feature: authoring
+      title: authoring business overview
+      product: StarCiNext
+      goal: Author, review and publish versioned Concepts; Curate and withdraw knowledge sources used by
+        RAG; Publish assessment and review criteria
+      actors:
+        - author-editor
+      inScope:
+        - requirementRef: FR-AUTH-01
+          title: Author, review and publish versioned Concepts
+        - requirementRef: FR-AUTH-02
+          title: Curate and withdraw knowledge sources used by RAG
+        - requirementRef: FR-AUTH-03
+          title: Publish assessment and review criteria
+      relatedJourneyRefs:
+        - CJ-03
+        - CJ-10
+        - CJ-11
+      ownedSharedDefinitionRefs:
+        - BR-VERSION
+        - BR-SOURCES
+        - NFR-INTEGRITY
+        - DATA-assessment
+        - DATA-content-source
+        - D05
+        - D06
+        - CJ-11
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "4.1"
+            - "12"
+            - "5"
+            - "9.2"
+            - "6"
+            - "7"
+            - "8.1"
+businessOverview:
+  purpose: Author, review and publish versioned Concepts; Curate and withdraw knowledge sources used
+    by RAG; Publish assessment and review criteria
+  customerUnderstanding: StarCiNext authoring serves author-editor through the requirements and
+    journeys owned by this feature.
+  desiredOutcome: Author, review and publish versioned Concepts; Curate and withdraw knowledge sources
+    used by RAG; Publish assessment and review criteria
+  scope: Author, review and publish versioned Concepts; Curate and withdraw knowledge sources used by
+    RAG; Publish assessment and review criteria
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

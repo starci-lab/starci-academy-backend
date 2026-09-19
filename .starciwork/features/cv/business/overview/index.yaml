@@ -1,0 +1,49 @@
+schema: work/node@2
+id: starci-next.features.cv.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "cv: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.cv.compose-cv
+  - starci-next.business.srs.functional-requirements.cv.export-and-share-cv
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-cv
+      feature: cv
+      title: cv business overview
+      product: StarCiNext
+      goal: Compose and approve a CV from selected experience; Export or share a selected CV version
+      actors:
+        - learner
+      inScope:
+        - requirementRef: FR-CV-01
+          title: Compose and approve a CV from selected experience
+        - requirementRef: FR-CV-02
+          title: Export or share a selected CV version
+      relatedJourneyRefs:
+        - CJ-01
+        - CJ-06
+        - CJ-07
+      ownedSharedDefinitionRefs:
+        - BR-CV
+        - DATA-cv
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "8.2"
+            - "10.1"
+businessOverview:
+  purpose: Compose and approve a CV from selected experience; Export or share a selected CV version
+  customerUnderstanding: StarCiNext cv serves learner through the requirements and journeys owned by this feature.
+  desiredOutcome: Compose and approve a CV from selected experience; Export or share a selected CV version
+  scope: Compose and approve a CV from selected experience; Export or share a selected CV version
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

@@ -1,0 +1,51 @@
+schema: work/node@2
+id: starci-next.features.interviews.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "interviews: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.interviews.practice-interview
+  - starci-next.business.srs.functional-requirements.interviews.review-and-repeat-interview
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-interviews
+      feature: interviews
+      title: interviews business overview
+      product: StarCiNext
+      goal: Practice an interview against a chosen role or project; Use interview feedback to plan and
+        repeat practice
+      actors:
+        - learner
+      inScope:
+        - requirementRef: FR-INT-01
+          title: Practice an interview against a chosen role or project
+        - requirementRef: FR-INT-02
+          title: Use interview feedback to plan and repeat practice
+      relatedJourneyRefs:
+        - CJ-01
+        - CJ-06
+      ownedSharedDefinitionRefs:
+        - DATA-interview
+        - CJ-06
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "8.1"
+businessOverview:
+  purpose: Practice an interview against a chosen role or project; Use interview feedback to plan and
+    repeat practice
+  customerUnderstanding: StarCiNext interviews serves learner through the requirements and journeys owned by this feature.
+  desiredOutcome: Practice an interview against a chosen role or project; Use interview feedback to
+    plan and repeat practice
+  scope: Practice an interview against a chosen role or project; Use interview feedback to plan and
+    repeat practice
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

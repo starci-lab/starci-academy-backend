@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.rag.business
+kind: business
+required: true
+description: "rag: business scope and SRS"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: feature-business
+      title: rag business
+      status: draft
+      children:
+        - path: overview/index.yaml
+          workRef: starci-next.features.rag.business.overview
+          title: "rag: goals, scope and shared ownership"
+        - path: srs/index.yaml
+          workRef: starci-next.features.rag.business.srs
+          title: "rag: Software Requirements Specification"

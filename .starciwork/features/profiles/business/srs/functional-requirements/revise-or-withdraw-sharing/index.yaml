@@ -1,0 +1,358 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.profiles.revise-or-withdraw-sharing
+kind: business
+required: true
+state: todo
+description: Revise evidence sharing and propagate its access consequences
+refs:
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.business-rules.version-bound-history
+  - starci-next.business.srs.business-rules.assessment-provenance
+  - starci-next.business.srs.data.share-grant
+  - starci-next.business.srs.data.profile
+  - starci-next.business.srs.data.cv
+  - starci-next.business.srs.data.application
+  - starci-next.business.srs.data.learning-evidence
+  - starci-next.business.srs.data.rag-session
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-PROFILE-03
+      title: Revise evidence sharing and propagate its access consequences
+      domain: profiles
+      goal: Revise evidence sharing and propagate its access consequences
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - The actor owns the profile or holds explicitly scoped representation authority.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-PROFILE-03.IN1
+          name: currentSharing
+          validation: Existing grants and dependent profile/CV/application uses
+          dataRefs:
+            - DATA-share-grant
+            - DATA-profile
+            - DATA-cv
+            - DATA-application
+            - DATA-evidence
+            - DATA-rag-session
+        - id: FR-PROFILE-03.IN2
+          name: scopeChange
+          validation: Reviewed reduction, replacement or withdrawal with current revision
+          dataRefs:
+            - DATA-share-grant
+            - DATA-profile
+            - DATA-cv
+            - DATA-application
+            - DATA-evidence
+            - DATA-rag-session
+      outputs:
+        - name: result-1
+          fromStep: FR-PROFILE-03.MAIN.S1
+          meaning: Show active audiences and known dependent presentations
+          effect: The learner can identify affected profile, CV, RAG and recruiting uses.
+        - name: result-2
+          fromStep: FR-PROFILE-03.MAIN.S2
+          meaning: Explain future access changes and limits for already disclosed material
+          effect: No false promise to erase third-party copies.
+        - name: result-3
+          fromStep: FR-PROFILE-03.MAIN.S3
+          meaning: Record the new sharing state and invalidate future unauthorized use
+          effect: Old grants cannot authorize new retrieval or disclosure.
+        - name: result-4
+          fromStep: FR-PROFILE-03.MAIN.S4
+          meaning: Show changed visibility and historical version labels under the selected policy
+          effect: Current access and historical attribution remain distinct.
+      businessRuleRefs:
+        - BR-PRIVACY
+        - BR-VERSION
+        - BR-EVIDENCE
+      dataRefs:
+        - DATA-share-grant
+        - DATA-profile
+        - DATA-cv
+        - DATA-application
+        - DATA-evidence
+        - DATA-rag-session
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-AUDIT
+      decisionRefs:
+        - D08
+        - D05
+        - D07
+        - D11
+        - D03
+        - D12
+      directPolicyRefs:
+        - D08
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-PROFILE-03.MAIN
+        trigger: Open current profile/evidence sharing settings
+        steps:
+          - id: FR-PROFILE-03.MAIN.S1
+            actor: learner
+            request: Open current profile/evidence sharing settings
+            systemResponse: Show active audiences and known dependent presentations
+            businessEffect: The learner can identify affected profile, CV, RAG and recruiting uses.
+            acceptanceRefs:
+              - FR-PROFILE-03.AC.M1
+          - id: FR-PROFILE-03.MAIN.S2
+            actor: learner
+            request: Preview a scope reduction, replacement or withdrawal
+            systemResponse: Explain future access changes and limits for already disclosed material
+            businessEffect: No false promise to erase third-party copies.
+            acceptanceRefs:
+              - FR-PROFILE-03.AC.M2
+          - id: FR-PROFILE-03.MAIN.S3
+            actor: learner
+            request: Confirm the selected change
+            systemResponse: Record the new sharing state and invalidate future unauthorized use
+            businessEffect: Old grants cannot authorize new retrieval or disclosure.
+            acceptanceRefs:
+              - FR-PROFILE-03.AC.M3
+          - id: FR-PROFILE-03.MAIN.S4
+            actor: learner
+            request: Inspect affected presentations
+            systemResponse: Show changed visibility and historical version labels under the selected policy
+            businessEffect: Current access and historical attribution remain distinct.
+            acceptanceRefs:
+              - FR-PROFILE-03.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: Current access and historical attribution remain distinct.
+      alternativeFlows:
+        - id: FR-PROFILE-03.ALT1
+          title: The learner retains the existing sharing scope
+          fromStep: FR-PROFILE-03.MAIN.S2
+          condition: The learner retains the existing sharing scope
+          steps:
+            - id: FR-PROFILE-03.ALT1.S1
+              actor: learner
+              request: Cancel the change
+              systemResponse: Return to the current sharing settings
+              businessEffect: No access change.
+              acceptanceRefs:
+                - FR-PROFILE-03.AC.ALT1
+          resume:
+            type: end
+            outcome: No access change.
+          postconditions:
+            - No access change.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-PROFILE-03.AC.ALT1
+      exceptionFlows:
+        - id: FR-PROFILE-03.EX1
+          title: The sharing configuration changed after preview
+          fromStep: FR-PROFILE-03.MAIN.S3
+          condition: The sharing configuration changed after preview
+          steps:
+            - id: FR-PROFILE-03.EX1.S1
+              actor: learner
+              request: Confirm the stale change
+              systemResponse: Require a current preview
+              businessEffect: No scope is accidentally expanded.
+              acceptanceRefs:
+                - FR-PROFILE-03.AC.EX1
+          resume:
+            type: end
+            outcome: No scope is accidentally expanded.
+          postconditions:
+            - No scope is accidentally expanded.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-PROFILE-03.AC.EX1
+        - id: FR-PROFILE-03.EX2
+          title: A derived view or RAG context still references withdrawn evidence
+          fromStep: FR-PROFILE-03.MAIN.S4
+          condition: A derived view or RAG context still references withdrawn evidence
+          steps:
+            - id: FR-PROFILE-03.EX2.S1
+              actor: learner
+              request: Request a new read or answer
+              systemResponse: Check current permission before use and withhold unauthorized content
+              businessEffect: Delayed refresh does not extend old sharing rights.
+              acceptanceRefs:
+                - FR-PROFILE-03.AC.EX2
+          resume:
+            type: end
+            outcome: Delayed refresh does not extend old sharing rights.
+          postconditions:
+            - Delayed refresh does not extend old sharing rights.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-PROFILE-03.AC.EX2
+      postconditions:
+        success:
+          - The learner can identify affected profile, CV, RAG and recruiting uses.
+          - No false promise to erase third-party copies.
+          - Old grants cannot authorize new retrieval or disclosure.
+          - Current access and historical attribution remain distinct.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No scope is accidentally expanded.
+          - Delayed refresh does not extend old sharing rights.
+      acceptanceCriteria:
+        - id: FR-PROFILE-03.AC.M1
+          flowRef: FR-PROFILE-03.MAIN
+          stepRefs:
+            - FR-PROFILE-03.MAIN.S1
+          given:
+            - The actor owns the profile or holds explicitly scoped representation authority.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open current profile/evidence sharing settings
+          then:
+            - Show active audiences and known dependent presentations
+            - The learner can identify affected profile, CV, RAG and recruiting uses.
+        - id: FR-PROFILE-03.AC.M2
+          flowRef: FR-PROFILE-03.MAIN
+          stepRefs:
+            - FR-PROFILE-03.MAIN.S2
+          given:
+            - The previous main-flow step FR-PROFILE-03.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Preview a scope reduction, replacement or withdrawal
+          then:
+            - Explain future access changes and limits for already disclosed material
+            - No false promise to erase third-party copies.
+        - id: FR-PROFILE-03.AC.M3
+          flowRef: FR-PROFILE-03.MAIN
+          stepRefs:
+            - FR-PROFILE-03.MAIN.S3
+          given:
+            - The previous main-flow step FR-PROFILE-03.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Confirm the selected change
+          then:
+            - Record the new sharing state and invalidate future unauthorized use
+            - Old grants cannot authorize new retrieval or disclosure.
+        - id: FR-PROFILE-03.AC.M4
+          flowRef: FR-PROFILE-03.MAIN
+          stepRefs:
+            - FR-PROFILE-03.MAIN.S4
+          given:
+            - The previous main-flow step FR-PROFILE-03.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect affected presentations
+          then:
+            - Show changed visibility and historical version labels under the selected policy
+            - Current access and historical attribution remain distinct.
+        - id: FR-PROFILE-03.AC.ALT1
+          flowRef: FR-PROFILE-03.ALT1
+          stepRefs:
+            - FR-PROFILE-03.ALT1.S1
+          given:
+            - Execution reaches FR-PROFILE-03.MAIN.S2.
+            - The learner retains the existing sharing scope
+          when: Cancel the change
+          then:
+            - Return to the current sharing settings
+            - No access change.
+        - id: FR-PROFILE-03.AC.EX1
+          flowRef: FR-PROFILE-03.EX1
+          stepRefs:
+            - FR-PROFILE-03.EX1.S1
+          given:
+            - Execution reaches FR-PROFILE-03.MAIN.S3.
+            - The sharing configuration changed after preview
+          when: Confirm the stale change
+          then:
+            - Require a current preview
+            - No scope is accidentally expanded.
+        - id: FR-PROFILE-03.AC.EX2
+          flowRef: FR-PROFILE-03.EX2
+          stepRefs:
+            - FR-PROFILE-03.EX2.S1
+          given:
+            - Execution reaches FR-PROFILE-03.MAIN.S4.
+            - A derived view or RAG context still references withdrawn evidence
+          when: Request a new read or answer
+          then:
+            - Check current permission before use and withhold unauthorized content
+            - Delayed refresh does not extend old sharing rights.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: profiles
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "10.1"
+            - "12"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Open current profile/evidence sharing settings

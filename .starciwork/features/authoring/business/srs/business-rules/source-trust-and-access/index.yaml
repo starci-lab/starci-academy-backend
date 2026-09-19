@@ -1,0 +1,48 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.source-trust-and-access
+kind: business
+required: true
+state: todo
+description: Source trust and access
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.community-policy
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-business-rule@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: BR-SOURCES
+      title: Source trust and access
+      statements:
+        - An answer identifies source class and version and can cite only material permitted for
+          this user and task.
+        - Community contributions remain unverified until authorized curation of the exact version
+          and valid reuse permission.
+        - Insufficient, conflicting or withdrawn sources require an explicit limitation/correction
+          path; no fabricated citation.
+      decisionRefs:
+        - D06
+        - D09
+      example: A popular forum answer conflicting with a lesson stays an unresolved source conflict until
+        content review.
+      acceptanceCriteria:
+        - id: BR-SOURCES.AC1
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: An answer identifies source class and version and can cite only material permitted for this
+            user and task.
+        - id: BR-SOURCES.AC2
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Community contributions remain unverified until authorized curation of the exact version and
+            valid reuse permission.
+        - id: BR-SOURCES.AC3
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Insufficient, conflicting or withdrawn sources require an explicit limitation/correction path;
+            no fabricated citation.
+      featureOwner: authoring
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

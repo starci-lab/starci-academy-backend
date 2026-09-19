@@ -1,0 +1,48 @@
+schema: work/node@2
+id: starci-next.business.srs.non-functional-requirements.authorization-isolation
+kind: business
+required: true
+state: todo
+description: Authorization and isolation
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-non-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: NFR-SEC
+      title: Authorization and isolation
+      scope:
+        - all
+      requirement: Every protected read, mutation, citation, group action and operator action enforces
+        current resource/action/audience rights.
+      decisionRefs:
+        - D08
+        - D11
+      measurement:
+        metric: No unauthorized content or business effect in the defined deny matrix; measure denials and
+          disclosures separately.
+        conditions: Use owner, stranger, revoked member, foreign organization, expired content right and
+          scoped operator fixtures; change rights between viewing and confirming.
+        thresholdStatus: Quantitative/policy targets referenced above are open; deterministic invariants
+          below are reviewable now.
+        evidenceRequired: Record scenario, input/source/policy versions, environment/load, observation
+          timestamps, actual outcomes and metric calculation; do not substitute a document check for
+          runtime evidence.
+      acceptanceCriteria:
+        - id: NFR-SEC.AC1
+          given: Use owner, stranger, revoked member, foreign organization, expired content right and scoped
+            operator fixtures; change rights between viewing and confirming.
+          when: Attempt direct access, shared links, RAG continuation and operations using each denied
+            context.
+          then: Each denied action withholds protected content and makes no unauthorized mutation; authorized
+            counterpart actions still succeed.
+      tradeoffBoundary: SDS proposes optimizations and capacity choices within these obligations. Privacy,
+        consent, financial truth and evidence provenance cannot be relaxed to improve latency or
+        cost.
+      featureOwner: identity
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

@@ -1,0 +1,25 @@
+schema: work/node@2
+id: starci-next.features.recruitment.business.srs.functional-requirements
+kind: business
+required: true
+description: "functional-requirements: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: functional-requirements
+      title: functional-requirements
+      status: draft
+      children:
+        - path: apply-with-selected-evidence/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.recruitment.apply-with-selected-evidence
+          title: Apply using reviewed profile and CV versions
+        - path: discover-and-explain-matches/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.recruitment.discover-and-explain-matches
+          title: Discover opportunities and explain evidence-based matches
+        - path: handle-application-and-contact/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.recruitment.handle-application-and-contact
+          title: Review applications and conduct permitted recruitment contact
+        - path: manage-organization-and-opportunity/index.yaml
+          workRef: starci-next.business.srs.functional-requirements.recruitment.manage-organization-and-opportunity
+          title: Manage an organization profile and recruitment opportunity

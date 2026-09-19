@@ -1,0 +1,366 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.projects.submit-milestone-evidence
+kind: business
+required: true
+state: todo
+description: Submit project evidence for a milestone
+refs:
+  - starci-next.business.srs.business-rules.assessment-provenance
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.business-rules.one-logical-effect
+  - starci-next.business.srs.data.project
+  - starci-next.business.srs.data.submission
+  - starci-next.business.srs.data.learning-evidence
+  - starci-next.business.srs.data.usage
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.grounding-and-ai-boundaries
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.allowance-and-cost-visibility
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.non-functional-requirements.untrusted-submission-safety
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-PROJ-02
+      title: Submit project evidence for a milestone
+      domain: projects
+      goal: Submit project evidence for a milestone
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - The learner owns the project proposal or the evidence to be reviewed.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-PROJ-02.IN1
+          name: milestoneVersion
+          validation: Selected accepted milestone and criteria
+          dataRefs:
+            - DATA-project
+            - DATA-submission
+            - DATA-evidence
+            - DATA-usage
+        - id: FR-PROJ-02.IN2
+          name: evidencePackage
+          validation: Owned/permitted source, demo, run instructions and exact revision
+          dataRefs:
+            - DATA-project
+            - DATA-submission
+            - DATA-evidence
+            - DATA-usage
+      outputs:
+        - name: result-1
+          fromStep: FR-PROJ-02.MAIN.S1
+          meaning: Show its criteria and required evidence
+          effect: The learner sees which project and milestone revision is targeted.
+        - name: result-2
+          fromStep: FR-PROJ-02.MAIN.S2
+          meaning: Preview the submission and intended reviewer visibility
+          effect: Only permitted material is included.
+        - name: result-3
+          fromStep: FR-PROJ-02.MAIN.S3
+          meaning: Record a versioned submission and begin checking input completeness
+          effect: A receipt identifies the same submitted package.
+        - name: result-4
+          fromStep: FR-PROJ-02.MAIN.S4
+          meaning: Identify inaccessible or missing evidence, or show ready for review
+          effect: Input readiness is distinct from a successful project result.
+      businessRuleRefs:
+        - BR-EVIDENCE
+        - BR-PRIVACY
+        - BR-REPEAT
+      dataRefs:
+        - DATA-project
+        - DATA-submission
+        - DATA-evidence
+        - DATA-usage
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-AI
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-COST
+        - NFR-AUDIT
+        - NFR-SUBMISSION
+      decisionRefs:
+        - D07
+        - D08
+        - D05
+        - D03
+        - D11
+        - D06
+        - D12
+        - D02
+      directPolicyRefs:
+        - D07
+        - D08
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-PROJ-02.MAIN
+        trigger: Open the selected milestone
+        steps:
+          - id: FR-PROJ-02.MAIN.S1
+            actor: learner
+            request: Open the selected milestone
+            systemResponse: Show its criteria and required evidence
+            businessEffect: The learner sees which project and milestone revision is targeted.
+            acceptanceRefs:
+              - FR-PROJ-02.AC.M1
+          - id: FR-PROJ-02.MAIN.S2
+            actor: learner
+            request: Attach source, demo, run instructions and supporting evidence
+            systemResponse: Preview the submission and intended reviewer visibility
+            businessEffect: Only permitted material is included.
+            acceptanceRefs:
+              - FR-PROJ-02.AC.M2
+          - id: FR-PROJ-02.MAIN.S3
+            actor: learner
+            request: Submit the reviewed package
+            systemResponse: Record a versioned submission and begin checking input completeness
+            businessEffect: A receipt identifies the same submitted package.
+            acceptanceRefs:
+              - FR-PROJ-02.AC.M3
+          - id: FR-PROJ-02.MAIN.S4
+            actor: learner
+            request: Inspect readiness for review
+            systemResponse: Identify inaccessible or missing evidence, or show ready for review
+            businessEffect: Input readiness is distinct from a successful project result.
+            acceptanceRefs:
+              - FR-PROJ-02.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: Input readiness is distinct from a successful project result.
+      alternativeFlows:
+        - id: FR-PROJ-02.ALT1
+          title: The learner cancels before submission
+          fromStep: FR-PROJ-02.MAIN.S2
+          condition: The learner cancels before submission
+          steps:
+            - id: FR-PROJ-02.ALT1.S1
+              actor: learner
+              request: Cancel the package
+              systemResponse: Keep permitted drafts according to the stated draft behavior
+              businessEffect: No review is started.
+              acceptanceRefs:
+                - FR-PROJ-02.AC.ALT1
+          resume:
+            type: end
+            outcome: No review is started.
+          postconditions:
+            - No review is started.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-PROJ-02.AC.ALT1
+      exceptionFlows:
+        - id: FR-PROJ-02.EX1
+          title: A repository/demo cannot be accessed or evidence is missing
+          fromStep: FR-PROJ-02.MAIN.S4
+          condition: A repository/demo cannot be accessed or evidence is missing
+          steps:
+            - id: FR-PROJ-02.EX1.S1
+              actor: learner
+              request: Inspect the completeness report
+              systemResponse: List the exact evidence needed and how to resubmit
+              businessEffect: Keep the submitted revision; no invented implementation finding.
+              acceptanceRefs:
+                - FR-PROJ-02.AC.EX1
+          resume:
+            type: end
+            outcome: Keep the submitted revision; no invented implementation finding.
+          postconditions:
+            - Keep the submitted revision; no invented implementation finding.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-PROJ-02.AC.EX1
+        - id: FR-PROJ-02.EX2
+          title: The same submission key is reused with different content
+          fromStep: FR-PROJ-02.MAIN.S3
+          condition: The same submission key is reused with different content
+          steps:
+            - id: FR-PROJ-02.EX2.S1
+              actor: learner
+              request: Submit the changed package
+              systemResponse: Return a conflict requiring an explicit new revision
+              businessEffect: Do not overwrite the original submission.
+              acceptanceRefs:
+                - FR-PROJ-02.AC.EX2
+          resume:
+            type: end
+            outcome: Do not overwrite the original submission.
+          postconditions:
+            - Do not overwrite the original submission.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-PROJ-02.AC.EX2
+      postconditions:
+        success:
+          - The learner sees which project and milestone revision is targeted.
+          - Only permitted material is included.
+          - A receipt identifies the same submitted package.
+          - Input readiness is distinct from a successful project result.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - Keep the submitted revision; no invented implementation finding.
+          - Do not overwrite the original submission.
+      acceptanceCriteria:
+        - id: FR-PROJ-02.AC.M1
+          flowRef: FR-PROJ-02.MAIN
+          stepRefs:
+            - FR-PROJ-02.MAIN.S1
+          given:
+            - The learner owns the project proposal or the evidence to be reviewed.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open the selected milestone
+          then:
+            - Show its criteria and required evidence
+            - The learner sees which project and milestone revision is targeted.
+        - id: FR-PROJ-02.AC.M2
+          flowRef: FR-PROJ-02.MAIN
+          stepRefs:
+            - FR-PROJ-02.MAIN.S2
+          given:
+            - The previous main-flow step FR-PROJ-02.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Attach source, demo, run instructions and supporting evidence
+          then:
+            - Preview the submission and intended reviewer visibility
+            - Only permitted material is included.
+        - id: FR-PROJ-02.AC.M3
+          flowRef: FR-PROJ-02.MAIN
+          stepRefs:
+            - FR-PROJ-02.MAIN.S3
+          given:
+            - The previous main-flow step FR-PROJ-02.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Submit the reviewed package
+          then:
+            - Record a versioned submission and begin checking input completeness
+            - A receipt identifies the same submitted package.
+        - id: FR-PROJ-02.AC.M4
+          flowRef: FR-PROJ-02.MAIN
+          stepRefs:
+            - FR-PROJ-02.MAIN.S4
+          given:
+            - The previous main-flow step FR-PROJ-02.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect readiness for review
+          then:
+            - Identify inaccessible or missing evidence, or show ready for review
+            - Input readiness is distinct from a successful project result.
+        - id: FR-PROJ-02.AC.ALT1
+          flowRef: FR-PROJ-02.ALT1
+          stepRefs:
+            - FR-PROJ-02.ALT1.S1
+          given:
+            - Execution reaches FR-PROJ-02.MAIN.S2.
+            - The learner cancels before submission
+          when: Cancel the package
+          then:
+            - Keep permitted drafts according to the stated draft behavior
+            - No review is started.
+        - id: FR-PROJ-02.AC.EX1
+          flowRef: FR-PROJ-02.EX1
+          stepRefs:
+            - FR-PROJ-02.EX1.S1
+          given:
+            - Execution reaches FR-PROJ-02.MAIN.S4.
+            - A repository/demo cannot be accessed or evidence is missing
+          when: Inspect the completeness report
+          then:
+            - List the exact evidence needed and how to resubmit
+            - Keep the submitted revision; no invented implementation finding.
+        - id: FR-PROJ-02.AC.EX2
+          flowRef: FR-PROJ-02.EX2
+          stepRefs:
+            - FR-PROJ-02.EX2.S1
+          given:
+            - Execution reaches FR-PROJ-02.MAIN.S3.
+            - The same submission key is reused with different content
+          when: Submit the changed package
+          then:
+            - Return a conflict requiring an explicit new revision
+            - Do not overwrite the original submission.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AI
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-COST
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-SUBMISSION
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: projects
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "7"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Open the selected milestone

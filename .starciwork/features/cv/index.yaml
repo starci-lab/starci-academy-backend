@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.cv
+kind: business
+required: true
+description: "cv: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: cv
+    title: cv
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.cv.business
+        title: "cv: business scope and SRS"

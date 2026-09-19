@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.profiles.business
+kind: business
+required: true
+description: "profiles: business scope and SRS"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: feature-business
+      title: profiles business
+      status: draft
+      children:
+        - path: overview/index.yaml
+          workRef: starci-next.features.profiles.business.overview
+          title: "profiles: goals, scope and shared ownership"
+        - path: srs/index.yaml
+          workRef: starci-next.features.profiles.business.srs
+          title: "profiles: Software Requirements Specification"

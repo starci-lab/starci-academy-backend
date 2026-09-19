@@ -6,6 +6,8 @@
  * resolved instead of a fixed flashcard+foundations pair.
  */
 export interface DomainFlags {
+    /** Seed the standalone concepts domain (PostgreSQL only). */
+    concepts: boolean
     /** Run the global flashcard-deck pass (seed + ES sync). */
     flashcard: boolean
     /** Seed + sync the standalone foundations domain. */

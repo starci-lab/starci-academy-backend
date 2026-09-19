@@ -1,0 +1,46 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.evidence-based-cv
+kind: business
+required: true
+state: todo
+description: Evidence-based career claims
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-business-rule@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: BR-CV
+      title: Evidence-based career claims
+      statements:
+        - AI drafts from selected user-supplied facts and permitted evidence; it cannot invent
+          employer history, dates, skills or results.
+        - The learner reviews and edits the final version and intended audience before export or
+          sharing.
+        - Self-reported, supported and currently unverifiable claims remain distinguishable; source
+          changes do not silently rewrite an accepted CV.
+      decisionRefs:
+        - D08
+      example: An AI suggestion containing an unsupported achievement is flagged for correction before
+        acceptance.
+      acceptanceCriteria:
+        - id: BR-CV.AC1
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: AI drafts from selected user-supplied facts and permitted evidence; it cannot invent employer
+            history, dates, skills or results.
+        - id: BR-CV.AC2
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: The learner reviews and edits the final version and intended audience before export or
+            sharing.
+        - id: BR-CV.AC3
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Self-reported, supported and currently unverifiable claims remain distinguishable; source
+            changes do not silently rewrite an accepted CV.
+      featureOwner: cv
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

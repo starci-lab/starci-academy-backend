@@ -1,0 +1,374 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.authoring.curate-learning-sources
+kind: business
+required: true
+state: todo
+description: Curate and withdraw knowledge sources used by RAG
+refs:
+  - starci-next.business.srs.business-rules.source-trust-and-access
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.business-rules.version-bound-history
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.data.content-source
+  - starci-next.business.srs.data.concept
+  - starci-next.business.srs.data.discussion
+  - starci-next.business.srs.data.rag-session
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.grounding-and-ai-boundaries
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.multilingual-content-consistency
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.non-functional-requirements.untrusted-submission-safety
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.community-policy
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+  - starci-next.business.srs.business-rules.policy-decisions.release-scope
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-AUTH-02
+      title: Curate and withdraw knowledge sources used by RAG
+      domain: authoring
+      goal: Curate and withdraw knowledge sources used by RAG
+      priority: release-priority-awaits-D01
+      actors:
+        - author-editor
+      preconditions:
+        - The actor holds the relevant content/assessment review or publication authority.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-AUTH-02.IN1
+          name: sourceCandidate
+          validation: Origin, version, trust class, reuse rights and known conflicts
+          dataRefs:
+            - DATA-content-source
+            - DATA-concept
+            - DATA-discussion
+            - DATA-rag-session
+        - id: FR-AUTH-02.IN2
+          name: curationDecision
+          validation: Attributed reviewer decision on exact candidate
+          dataRefs:
+            - DATA-content-source
+            - DATA-concept
+            - DATA-discussion
+            - DATA-rag-session
+      outputs:
+        - name: result-1
+          fromStep: FR-AUTH-02.MAIN.S1
+          meaning: Show its origin, version, audience and current trust state
+          effect: A community contribution remains community content during review.
+        - name: result-2
+          fromStep: FR-AUTH-02.MAIN.S2
+          meaning: Capture the authorized reviewer rationale and applicable curation policy
+          effect: Private contributor data cannot be promoted without valid permission.
+        - name: result-3
+          fromStep: FR-AUTH-02.MAIN.S3
+          meaning: Record an attributable trust decision for the exact source version
+          effect: Only approved permitted sources enter the corresponding trusted collection.
+        - name: result-4
+          fromStep: FR-AUTH-02.MAIN.S4
+          meaning: Apply the current trust/access state to future answers and explain affected historical
+            citations
+          effect: Prior answer provenance is preserved without continuing unauthorized disclosure.
+      businessRuleRefs:
+        - BR-SOURCES
+        - BR-PRIVACY
+        - BR-VERSION
+        - BR-RIGHTS
+      dataRefs:
+        - DATA-content-source
+        - DATA-concept
+        - DATA-discussion
+        - DATA-rag-session
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-AI
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-LANGUAGE
+        - NFR-AUDIT
+        - NFR-SUBMISSION
+      decisionRefs:
+        - D06
+        - D09
+        - D08
+        - D11
+        - D05
+        - D07
+        - D03
+        - D12
+        - D01
+      directPolicyRefs:
+        - D06
+        - D09
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-AUTH-02.MAIN
+        trigger: Select a candidate official or community source
+        steps:
+          - id: FR-AUTH-02.MAIN.S1
+            actor: author-editor
+            request: Select a candidate official or community source
+            systemResponse: Show its origin, version, audience and current trust state
+            businessEffect: A community contribution remains community content during review.
+            acceptanceRefs:
+              - FR-AUTH-02.AC.M1
+          - id: FR-AUTH-02.MAIN.S2
+            actor: author-editor
+            request: Review accuracy, conflicts and permission to reuse
+            systemResponse: Capture the authorized reviewer rationale and applicable curation policy
+            businessEffect: Private contributor data cannot be promoted without valid permission.
+            acceptanceRefs:
+              - FR-AUTH-02.AC.M2
+          - id: FR-AUTH-02.MAIN.S3
+            actor: author-editor
+            request: Approve, reject or keep the candidate unresolved
+            systemResponse: Record an attributable trust decision for the exact source version
+            businessEffect: Only approved permitted sources enter the corresponding trusted collection.
+            acceptanceRefs:
+              - FR-AUTH-02.AC.M3
+          - id: FR-AUTH-02.MAIN.S4
+            actor: author-editor
+            request: Inspect source use or withdraw approval
+            systemResponse: Apply the current trust/access state to future answers and explain affected
+              historical citations
+            businessEffect: Prior answer provenance is preserved without continuing unauthorized disclosure.
+            acceptanceRefs:
+              - FR-AUTH-02.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: Prior answer provenance is preserved without continuing unauthorized disclosure.
+      alternativeFlows:
+        - id: FR-AUTH-02.ALT1
+          title: The source conflicts with an official lesson
+          fromStep: FR-AUTH-02.MAIN.S2
+          condition: The source conflicts with an official lesson
+          steps:
+            - id: FR-AUTH-02.ALT1.S1
+              actor: author-editor
+              request: Refer both claims for content resolution
+              systemResponse: Keep the conflict visible and the candidate unapproved
+              businessEffect: Community popularity does not decide source truth.
+              acceptanceRefs:
+                - FR-AUTH-02.AC.ALT1
+          resume:
+            type: end
+            outcome: Community popularity does not decide source truth.
+          postconditions:
+            - Community popularity does not decide source truth.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-AUTH-02.AC.ALT1
+      exceptionFlows:
+        - id: FR-AUTH-02.EX1
+          title: Reviewer authority or contributor consent was withdrawn
+          fromStep: FR-AUTH-02.MAIN.S3
+          condition: Reviewer authority or contributor consent was withdrawn
+          steps:
+            - id: FR-AUTH-02.EX1.S1
+              actor: author-editor
+              request: Approve the candidate
+              systemResponse: Refuse publication or reuse outside current rights
+              businessEffect: No automatic promotion from a reported or popular answer.
+              acceptanceRefs:
+                - FR-AUTH-02.AC.EX1
+          resume:
+            type: end
+            outcome: No automatic promotion from a reported or popular answer.
+          postconditions:
+            - No automatic promotion from a reported or popular answer.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-AUTH-02.AC.EX1
+        - id: FR-AUTH-02.EX2
+          title: A source was withdrawn after an answer used it
+          fromStep: FR-AUTH-02.MAIN.S4
+          condition: A source was withdrawn after an answer used it
+          steps:
+            - id: FR-AUTH-02.EX2.S1
+              actor: author-editor
+              request: Open the historical citation
+              systemResponse: Show current unavailability and historical provenance within current rights
+              businessEffect: Do not claim the withdrawn source remains currently verified.
+              acceptanceRefs:
+                - FR-AUTH-02.AC.EX2
+          resume:
+            type: end
+            outcome: Do not claim the withdrawn source remains currently verified.
+          postconditions:
+            - Do not claim the withdrawn source remains currently verified.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-AUTH-02.AC.EX2
+      postconditions:
+        success:
+          - A community contribution remains community content during review.
+          - Private contributor data cannot be promoted without valid permission.
+          - Only approved permitted sources enter the corresponding trusted collection.
+          - Prior answer provenance is preserved without continuing unauthorized disclosure.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No automatic promotion from a reported or popular answer.
+          - Do not claim the withdrawn source remains currently verified.
+      acceptanceCriteria:
+        - id: FR-AUTH-02.AC.M1
+          flowRef: FR-AUTH-02.MAIN
+          stepRefs:
+            - FR-AUTH-02.MAIN.S1
+          given:
+            - The actor holds the relevant content/assessment review or publication authority.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Select a candidate official or community source
+          then:
+            - Show its origin, version, audience and current trust state
+            - A community contribution remains community content during review.
+        - id: FR-AUTH-02.AC.M2
+          flowRef: FR-AUTH-02.MAIN
+          stepRefs:
+            - FR-AUTH-02.MAIN.S2
+          given:
+            - The previous main-flow step FR-AUTH-02.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Review accuracy, conflicts and permission to reuse
+          then:
+            - Capture the authorized reviewer rationale and applicable curation policy
+            - Private contributor data cannot be promoted without valid permission.
+        - id: FR-AUTH-02.AC.M3
+          flowRef: FR-AUTH-02.MAIN
+          stepRefs:
+            - FR-AUTH-02.MAIN.S3
+          given:
+            - The previous main-flow step FR-AUTH-02.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Approve, reject or keep the candidate unresolved
+          then:
+            - Record an attributable trust decision for the exact source version
+            - Only approved permitted sources enter the corresponding trusted collection.
+        - id: FR-AUTH-02.AC.M4
+          flowRef: FR-AUTH-02.MAIN
+          stepRefs:
+            - FR-AUTH-02.MAIN.S4
+          given:
+            - The previous main-flow step FR-AUTH-02.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect source use or withdraw approval
+          then:
+            - Apply the current trust/access state to future answers and explain affected historical
+              citations
+            - Prior answer provenance is preserved without continuing unauthorized disclosure.
+        - id: FR-AUTH-02.AC.ALT1
+          flowRef: FR-AUTH-02.ALT1
+          stepRefs:
+            - FR-AUTH-02.ALT1.S1
+          given:
+            - Execution reaches FR-AUTH-02.MAIN.S2.
+            - The source conflicts with an official lesson
+          when: Refer both claims for content resolution
+          then:
+            - Keep the conflict visible and the candidate unapproved
+            - Community popularity does not decide source truth.
+        - id: FR-AUTH-02.AC.EX1
+          flowRef: FR-AUTH-02.EX1
+          stepRefs:
+            - FR-AUTH-02.EX1.S1
+          given:
+            - Execution reaches FR-AUTH-02.MAIN.S3.
+            - Reviewer authority or contributor consent was withdrawn
+          when: Approve the candidate
+          then:
+            - Refuse publication or reuse outside current rights
+            - No automatic promotion from a reported or popular answer.
+        - id: FR-AUTH-02.AC.EX2
+          flowRef: FR-AUTH-02.EX2
+          stepRefs:
+            - FR-AUTH-02.EX2.S1
+          given:
+            - Execution reaches FR-AUTH-02.MAIN.S4.
+            - A source was withdrawn after an answer used it
+          when: Open the historical citation
+          then:
+            - Show current unavailability and historical provenance within current rights
+            - Do not claim the withdrawn source remains currently verified.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AI
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LANGUAGE
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-SUBMISSION
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: authoring
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "5"
+            - "9.2"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Select a candidate official or community source

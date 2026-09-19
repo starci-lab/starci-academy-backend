@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.authoring.business.srs.business-rules.policy-decisions
+kind: business
+required: true
+description: "policy-decisions: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: policy-decisions
+      title: policy-decisions
+      status: draft
+      children:
+        - path: evaluation-and-recognition/index.yaml
+          workRef: starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+          title: Assessment, mastery and activity recognition rules
+        - path: knowledge-and-ai-quality/index.yaml
+          workRef: starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+          title: Knowledge source and AI quality policy

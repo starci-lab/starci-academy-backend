@@ -1,0 +1,160 @@
+schema: work/node@2
+id: starci-next.business.srs.customer-journeys.plan-study-and-progress
+kind: business
+required: true
+state: todo
+description: Discover, study, assess and revise a plan
+refs:
+  - starci-next.business.srs.functional-requirements.learning-paths.choose-learning-plan
+  - starci-next.business.srs.functional-requirements.concepts.discover-concepts
+  - starci-next.business.srs.functional-requirements.concepts.study-structured-concept
+  - starci-next.business.srs.functional-requirements.concepts.answer-lesson-assessment
+  - starci-next.business.srs.functional-requirements.learning-paths.track-and-revise-progress
+  - starci-next.business.srs.functional-requirements.gamification.recognize-learning-activity
+  - starci-next.business.srs.functional-requirements.gamification.show-evidence-based-milestones
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-customer-journey@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: CJ-02
+      title: Discover, study, assess and revise a plan
+      actor: learner
+      entry: An authenticated learner has a goal or wants to revisit learning gaps.
+      preconditions:
+        - The actor can enter the relevant personal/organization context.
+        - Each referenced feature establishes its own prerequisites, current permissions and
+          approved policy before its consequential action.
+      stages:
+        - id: CJ-02.S1
+          actorAction: Choose and accept a learning plan
+          requirementRef: FR-PATH-01
+          flowRef: FR-PATH-01.MAIN
+          acceptanceRefs:
+            - FR-PATH-01.AC.M1
+            - FR-PATH-01.AC.M2
+            - FR-PATH-01.AC.M3
+            - FR-PATH-01.AC.M4
+            - FR-PATH-01.AC.M5
+          outcome: Milestones and criteria are reviewed.
+          nextStep: CJ-02.S2
+        - id: CJ-02.S2
+          actorAction: Discover Concepts across categories
+          requirementRef: FR-CON-01
+          flowRef: FR-CON-01.MAIN
+          acceptanceRefs:
+            - FR-CON-01.AC.M1
+            - FR-CON-01.AC.M2
+            - FR-CON-01.AC.M3
+            - FR-CON-01.AC.M4
+          outcome: Reusable content and prerequisites are visible.
+          nextStep: CJ-02.S3
+        - id: CJ-02.S3
+          actorAction: Study the selected Concept and language version
+          requirementRef: FR-CON-02
+          flowRef: FR-CON-02.MAIN
+          acceptanceRefs:
+            - FR-CON-02.AC.M1
+            - FR-CON-02.AC.M2
+            - FR-CON-02.AC.M3
+            - FR-CON-02.AC.M4
+            - FR-CON-02.AC.M5
+          outcome: Saved position and version context are retained.
+          nextStep: CJ-02.S4
+        - id: CJ-02.S4
+          actorAction: Answer an embedded assessment
+          requirementRef: FR-CON-03
+          flowRef: FR-CON-03.MAIN
+          acceptanceRefs:
+            - FR-CON-03.AC.M1
+            - FR-CON-03.AC.M2
+            - FR-CON-03.AC.M3
+            - FR-CON-03.AC.M4
+            - FR-CON-03.AC.M5
+          outcome: An attempt and versioned result are recorded.
+          nextStep: CJ-02.S5
+        - id: CJ-02.S5
+          actorAction: Review gaps and accept or decline a plan revision
+          requirementRef: FR-PATH-02
+          flowRef: FR-PATH-02.MAIN
+          acceptanceRefs:
+            - FR-PATH-02.AC.M1
+            - FR-PATH-02.AC.M2
+            - FR-PATH-02.AC.M3
+            - FR-PATH-02.AC.M4
+          outcome: The learner controls the current plan.
+          nextStep: CJ-02.S6
+        - id: CJ-02.S6
+          actorAction: Inspect eligible activity recognition
+          requirementRef: FR-GAME-01
+          flowRef: FR-GAME-01.MAIN
+          acceptanceRefs:
+            - FR-GAME-01.AC.M1
+            - FR-GAME-01.AC.M2
+            - FR-GAME-01.AC.M3
+            - FR-GAME-01.AC.M4
+          outcome: Awards explain the activity rather than certify competence.
+          nextStep: CJ-02.S7
+        - id: CJ-02.S7
+          actorAction: Inspect milestone evidence
+          requirementRef: FR-GAME-02
+          flowRef: FR-GAME-02.MAIN
+          acceptanceRefs:
+            - FR-GAME-02.AC.M1
+            - FR-GAME-02.AC.M2
+            - FR-GAME-02.AC.M3
+            - FR-GAME-02.AC.M4
+          outcome: Achieved and unsupported criteria are distinguished.
+          nextStep: null
+      branches:
+        - id: CJ-02.B1
+          atStageRefs:
+            - CJ-02.S2
+          requirementRef: FR-CON-01
+          flowRef: FR-CON-01.EX2
+          condition: The learner lacks the required content entitlement
+          handling: Restricted content routes to current rights/offer inspection without exposing it.
+          acceptanceRefs:
+            - FR-CON-01.AC.EX2
+          outcome:
+            - No access is granted through discovery previews.
+        - id: CJ-02.B2
+          atStageRefs:
+            - CJ-02.S3
+          requirementRef: FR-CON-02
+          flowRef: FR-CON-02.ALT1
+          condition: An alternate supported language exists
+          handling: A supported language switch keeps shared Concept identity and explicit version
+            equivalence.
+          acceptanceRefs:
+            - FR-CON-02.AC.ALT1
+          outcome:
+            - Concept identity remains shared; language-specific progress behavior is explicit.
+        - id: CJ-02.B3
+          atStageRefs:
+            - CJ-02.S5
+          requirementRef: FR-PATH-02
+          flowRef: FR-PATH-02.ALT1
+          condition: The learner keeps the current plan
+          handling: Declining a proposed revision continues the existing plan.
+          acceptanceRefs:
+            - FR-PATH-02.AC.ALT1
+          outcome:
+            - No plan change.
+      exit: The learner knows what was read, attempted and demonstrated, and has an explicit next learning
+        step.
+      observations:
+        - A stage starts when the user reaches that feature with its prerequisites satisfied; the
+          overview does not bypass required project/evidence preparation.
+        - A referenced pending, cancelled or denied branch changes the journey outcome and must not
+          be reported as full-path success.
+      acceptanceCriteria:
+        - id: CJ-02.AC1
+          given: An authenticated learner has a goal or wants to revisit learning gaps.
+          when: Complete each relevant stage under its declared prerequisites and inspect branch outcomes.
+          then: The learner knows what was read, attempted and demonstrated, and has an explicit next learning
+            step.
+      featureOwner: learning-paths
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

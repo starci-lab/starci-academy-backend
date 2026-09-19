@@ -1,0 +1,85 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+kind: business
+required: true
+state: todo
+description: Release, budget and measurable service targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-policy-decision@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: D12
+      title: Release, budget and measurable service targets
+      decisionStatus: open
+      accountableRole: Product owner with engineering and operations
+      ownerAssignmentStatus: Proposed accountable business role; named person not assigned by this document.
+      question: What release dates, budget, supported environment, load envelope, response-time,
+        availability and recovery targets are accepted?
+      requiredDecisions:
+        - Agree measurable targets and observation windows for each critical journey.
+        - Set AI task latency and cost budgets separately from interactive navigation.
+        - Approve supported accessibility and language acceptance scope.
+      safeDisposition: NFR measurement contracts are defined; unknown numeric thresholds are not reported
+        as passing.
+      affectedFeatureRefs:
+        - FR-ID-01
+        - FR-ID-02
+        - FR-CON-01
+        - FR-CON-02
+        - FR-CON-03
+        - FR-PATH-01
+        - FR-PATH-02
+        - FR-RAG-01
+        - FR-RAG-02
+        - FR-CH-01
+        - FR-CH-02
+        - FR-CH-03
+        - FR-PROJ-01
+        - FR-PROJ-02
+        - FR-PROJ-03
+        - FR-INT-01
+        - FR-INT-02
+        - FR-CV-01
+        - FR-CV-02
+        - FR-PROFILE-01
+        - FR-PROFILE-02
+        - FR-PROFILE-03
+        - FR-HIRE-01
+        - FR-HIRE-02
+        - FR-HIRE-03
+        - FR-HIRE-04
+        - FR-COM-01
+        - FR-COM-02
+        - FR-COM-03
+        - FR-GAME-01
+        - FR-GAME-02
+        - FR-SUB-01
+        - FR-SUB-02
+        - FR-SUB-03
+        - FR-SUB-04
+        - FR-SUB-05
+        - FR-AUTH-01
+        - FR-AUTH-02
+        - FR-AUTH-03
+        - FR-COM-04
+        - FR-MENT-01
+        - FR-MENT-02
+        - FR-OPS-01
+        - FR-OPS-02
+      affectedDataRefs:
+        - DATA-test-result
+      affectedNfrRefs:
+        - NFR-RELIABILITY
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-COST
+        - NFR-AUDIT
+        - NFR-SUBMISSION
+      closureEvidence: Record the authorized owner decision, effective date/version, affected release
+        scope and updated acceptance criteria. Document generation or schema validation cannot close
+        this decision.
+      featureOwner: operations
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

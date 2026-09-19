@@ -1,0 +1,58 @@
+schema: work/node@2
+id: starci-next.features.challenges.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "challenges: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.challenges.practice-with-hints
+  - starci-next.business.srs.functional-requirements.challenges.submit-code-and-evaluate
+  - starci-next.business.srs.functional-requirements.challenges.revise-and-compare-attempts
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-challenges
+      feature: challenges
+      title: challenges business overview
+      product: StarCiNext
+      goal: Start a challenge and choose incremental assistance; Submit a versioned solution and inspect
+        its evaluation; Revise a challenge solution and compare attempts
+      actors:
+        - learner
+      inScope:
+        - requirementRef: FR-CH-01
+          title: Start a challenge and choose incremental assistance
+        - requirementRef: FR-CH-02
+          title: Submit a versioned solution and inspect its evaluation
+        - requirementRef: FR-CH-03
+          title: Revise a challenge solution and compare attempts
+      relatedJourneyRefs:
+        - CJ-01
+        - CJ-04
+      ownedSharedDefinitionRefs:
+        - BR-HINTS
+        - NFR-SUBMISSION
+        - DATA-submission
+        - DATA-test-result
+        - CJ-04
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "6"
+            - "7"
+businessOverview:
+  purpose: Start a challenge and choose incremental assistance; Submit a versioned solution and
+    inspect its evaluation; Revise a challenge solution and compare attempts
+  customerUnderstanding: StarCiNext challenges serves learner through the requirements and journeys owned by this feature.
+  desiredOutcome: Start a challenge and choose incremental assistance; Submit a versioned solution and
+    inspect its evaluation; Revise a challenge solution and compare attempts
+  scope: Start a challenge and choose incremental assistance; Submit a versioned solution and inspect
+    its evaluation; Revise a challenge solution and compare attempts
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

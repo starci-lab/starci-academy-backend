@@ -1,0 +1,68 @@
+schema: work/node@2
+id: starci-next.features.community.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "community: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.community.discuss-in-context
+  - starci-next.business.srs.functional-requirements.community.peer-review-and-showcase
+  - starci-next.business.srs.functional-requirements.community.report-and-moderate
+  - starci-next.business.srs.functional-requirements.community.participate-in-learning-group
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-community
+      feature: community
+      title: community business overview
+      product: StarCiNext
+      goal: Discuss a concept, challenge or project in context; Share work and provide attributed peer
+        feedback; Report content and review moderation outcomes; Join and participate in scoped
+        learning groups
+      actors:
+        - member
+        - moderator
+      inScope:
+        - requirementRef: FR-COM-01
+          title: Discuss a concept, challenge or project in context
+        - requirementRef: FR-COM-02
+          title: Share work and provide attributed peer feedback
+        - requirementRef: FR-COM-03
+          title: Report content and review moderation outcomes
+        - requirementRef: FR-COM-04
+          title: Join and participate in scoped learning groups
+      relatedJourneyRefs:
+        - CJ-05
+        - CJ-10
+      ownedSharedDefinitionRefs:
+        - BR-COMMUNITY
+        - DATA-moderation-case
+        - DATA-discussion
+        - DATA-learning-group
+        - D09
+        - CJ-10
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "9.2"
+            - "7"
+businessOverview:
+  purpose: Discuss a concept, challenge or project in context; Share work and provide attributed peer
+    feedback; Report content and review moderation outcomes; Join and participate in scoped learning
+    groups
+  customerUnderstanding: StarCiNext community serves member, moderator through the requirements and
+    journeys owned by this feature.
+  desiredOutcome: Discuss a concept, challenge or project in context; Share work and provide
+    attributed peer feedback; Report content and review moderation outcomes; Join and participate in
+    scoped learning groups
+  scope: Discuss a concept, challenge or project in context; Share work and provide attributed peer
+    feedback; Report content and review moderation outcomes; Join and participate in scoped learning
+    groups
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

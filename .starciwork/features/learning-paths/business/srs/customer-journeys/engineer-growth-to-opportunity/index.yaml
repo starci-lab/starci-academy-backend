@@ -1,0 +1,225 @@
+schema: work/node@2
+id: starci-next.business.srs.customer-journeys.engineer-growth-to-opportunity
+kind: business
+required: true
+state: todo
+description: Engineer growth from goal to career opportunity
+refs:
+  - starci-next.business.srs.functional-requirements.identity.access-workspace
+  - starci-next.business.srs.functional-requirements.learning-paths.choose-learning-plan
+  - starci-next.business.srs.functional-requirements.concepts.study-structured-concept
+  - starci-next.business.srs.functional-requirements.rag.ask-grounded-question
+  - starci-next.business.srs.functional-requirements.challenges.submit-code-and-evaluate
+  - starci-next.business.srs.functional-requirements.projects.review-and-improve-project
+  - starci-next.business.srs.functional-requirements.gamification.show-evidence-based-milestones
+  - starci-next.business.srs.functional-requirements.profiles.publish-career-profile
+  - starci-next.business.srs.functional-requirements.interviews.practice-interview
+  - starci-next.business.srs.functional-requirements.cv.compose-cv
+  - starci-next.business.srs.functional-requirements.recruitment.discover-and-explain-matches
+  - starci-next.business.srs.functional-requirements.recruitment.apply-with-selected-evidence
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-customer-journey@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: CJ-01
+      title: Engineer growth from goal to career opportunity
+      actor: learner
+      entry: A learner wants to develop engineering capability, including Automation or AI Harness.
+      preconditions:
+        - The actor can enter the relevant personal/organization context.
+        - Each referenced feature establishes its own prerequisites, current permissions and
+          approved policy before its consequential action.
+      stages:
+        - id: CJ-01.S1
+          actorAction: Enter an authorized personal workspace
+          requirementRef: FR-ID-01
+          flowRef: FR-ID-01.MAIN
+          acceptanceRefs:
+            - FR-ID-01.AC.M1
+            - FR-ID-01.AC.M2
+            - FR-ID-01.AC.M3
+            - FR-ID-01.AC.M4
+          outcome: The learner can access their own work.
+          nextStep: CJ-01.S2
+        - id: CJ-01.S2
+          actorAction: Describe a goal and accept a reviewed learning plan
+          requirementRef: FR-PATH-01
+          flowRef: FR-PATH-01.MAIN
+          acceptanceRefs:
+            - FR-PATH-01.AC.M1
+            - FR-PATH-01.AC.M2
+            - FR-PATH-01.AC.M3
+            - FR-PATH-01.AC.M4
+            - FR-PATH-01.AC.M5
+          outcome: The learner has a versioned plan and starting milestone.
+          nextStep: CJ-01.S3
+        - id: CJ-01.S3
+          actorAction: Study the relevant structured Concept
+          requirementRef: FR-CON-02
+          flowRef: FR-CON-02.MAIN
+          acceptanceRefs:
+            - FR-CON-02.AC.M1
+            - FR-CON-02.AC.M2
+            - FR-CON-02.AC.M3
+            - FR-CON-02.AC.M4
+            - FR-CON-02.AC.M5
+          outcome: Reading and practice progress remain distinct.
+          nextStep: CJ-01.S4
+        - id: CJ-01.S4
+          actorAction: Ask a contextual question when stuck
+          requirementRef: FR-RAG-01
+          flowRef: FR-RAG-01.MAIN
+          acceptanceRefs:
+            - FR-RAG-01.AC.M1
+            - FR-RAG-01.AC.M2
+            - FR-RAG-01.AC.M3
+            - FR-RAG-01.AC.M4
+            - FR-RAG-01.AC.M5
+          outcome: A permitted grounded explanation or limitation enables the next learning choice.
+          nextStep: CJ-01.S5
+        - id: CJ-01.S5
+          actorAction: Submit practice code and inspect its result
+          requirementRef: FR-CH-02
+          flowRef: FR-CH-02.MAIN
+          acceptanceRefs:
+            - FR-CH-02.AC.M1
+            - FR-CH-02.AC.M2
+            - FR-CH-02.AC.M3
+            - FR-CH-02.AC.M4
+            - FR-CH-02.AC.M5
+          outcome: Objective execution and AI feedback are distinguishable.
+          nextStep: CJ-01.S6
+        - id: CJ-01.S6
+          actorAction: Review a project milestone and act on feedback
+          requirementRef: FR-PROJ-03
+          flowRef: FR-PROJ-03.MAIN
+          acceptanceRefs:
+            - FR-PROJ-03.AC.M1
+            - FR-PROJ-03.AC.M2
+            - FR-PROJ-03.AC.M3
+            - FR-PROJ-03.AC.M4
+            - FR-PROJ-03.AC.M5
+          outcome: A revised work version retains the original feedback chain.
+          nextStep: CJ-01.S7
+        - id: CJ-01.S7
+          actorAction: Inspect evidence-based milestone progress
+          requirementRef: FR-GAME-02
+          flowRef: FR-GAME-02.MAIN
+          acceptanceRefs:
+            - FR-GAME-02.AC.M1
+            - FR-GAME-02.AC.M2
+            - FR-GAME-02.AC.M3
+            - FR-GAME-02.AC.M4
+          outcome: The learner sees demonstrated criteria and remaining gaps.
+          nextStep: CJ-01.S8
+        - id: CJ-01.S8
+          actorAction: Select evidence for a career profile
+          requirementRef: FR-PROFILE-02
+          flowRef: FR-PROFILE-02.MAIN
+          acceptanceRefs:
+            - FR-PROFILE-02.AC.M1
+            - FR-PROFILE-02.AC.M2
+            - FR-PROFILE-02.AC.M3
+            - FR-PROFILE-02.AC.M4
+          outcome: The shared profile excludes private learning weaknesses.
+          nextStep: CJ-01.S9
+        - id: CJ-01.S9
+          actorAction: Practice an interview using permitted project context
+          requirementRef: FR-INT-01
+          flowRef: FR-INT-01.MAIN
+          acceptanceRefs:
+            - FR-INT-01.AC.M1
+            - FR-INT-01.AC.M2
+            - FR-INT-01.AC.M3
+            - FR-INT-01.AC.M4
+            - FR-INT-01.AC.M5
+          outcome: Feedback remains a practice result with criteria.
+          nextStep: CJ-01.S10
+        - id: CJ-01.S10
+          actorAction: Review evidence-based CV wording
+          requirementRef: FR-CV-01
+          flowRef: FR-CV-01.MAIN
+          acceptanceRefs:
+            - FR-CV-01.AC.M1
+            - FR-CV-01.AC.M2
+            - FR-CV-01.AC.M3
+            - FR-CV-01.AC.M4
+          outcome: An accepted CV reflects the learner chosen facts.
+          nextStep: CJ-01.S11
+        - id: CJ-01.S11
+          actorAction: Inspect explained opportunity matches
+          requirementRef: FR-HIRE-02
+          flowRef: FR-HIRE-02.MAIN
+          acceptanceRefs:
+            - FR-HIRE-02.AC.M1
+            - FR-HIRE-02.AC.M2
+            - FR-HIRE-02.AC.M3
+            - FR-HIRE-02.AC.M4
+          outcome: Matches show supporting evidence and gaps.
+          nextStep: CJ-01.S12
+        - id: CJ-01.S12
+          actorAction: Confirm an application with selected versions
+          requirementRef: FR-HIRE-03
+          flowRef: FR-HIRE-03.MAIN
+          acceptanceRefs:
+            - FR-HIRE-03.AC.M1
+            - FR-HIRE-03.AC.M2
+            - FR-HIRE-03.AC.M3
+            - FR-HIRE-03.AC.M4
+          outcome: Only the approved application information is sent.
+          nextStep: null
+      branches:
+        - id: CJ-01.B1
+          atStageRefs:
+            - CJ-01.S4
+          requirementRef: FR-RAG-01
+          flowRef: FR-RAG-01.EX1
+          condition: No sufficiently relevant and trusted source is found
+          handling: At the question stage, insufficient sources lead back to concept study or permitted source
+            review; the learner is not shown a fabricated answer.
+          acceptanceRefs:
+            - FR-RAG-01.AC.EX1
+          outcome:
+            - No fabricated citation or confident unsupported source claim.
+        - id: CJ-01.B2
+          atStageRefs:
+            - CJ-01.S6
+          requirementRef: FR-PROJ-03
+          flowRef: FR-PROJ-03.EX1
+          condition: Evidence cannot support a requested conclusion
+          handling: At project review, incomplete/unavailable evaluation stays visible; improve input or
+            follow recovery before claiming mastery.
+          acceptanceRefs:
+            - FR-PROJ-03.AC.EX1
+          outcome:
+            - No assertion that a feature works solely from its description.
+        - id: CJ-01.B3
+          atStageRefs:
+            - CJ-01.S12
+          requirementRef: FR-HIRE-03
+          flowRef: FR-HIRE-03.EX1
+          condition: The opportunity closed or consent changed
+          handling: At application confirmation, unavailable or changed opportunity/evidence is reviewed
+            before submission.
+          acceptanceRefs:
+            - FR-HIRE-03.AC.EX1
+          outcome:
+            - No submission under stale terms or unauthorized evidence.
+      exit: The learner has an attributable learning-to-career evidence chain and a deliberately submitted
+        application; employment is not guaranteed.
+      observations:
+        - A stage starts when the user reaches that feature with its prerequisites satisfied; the
+          overview does not bypass required project/evidence preparation.
+        - A referenced pending, cancelled or denied branch changes the journey outcome and must not
+          be reported as full-path success.
+      acceptanceCriteria:
+        - id: CJ-01.AC1
+          given: A learner wants to develop engineering capability, including Automation or AI Harness.
+          when: Complete each relevant stage under its declared prerequisites and inspect branch outcomes.
+          then: The learner has an attributable learning-to-career evidence chain and a deliberately submitted
+            application; employment is not guaranteed.
+      featureOwner: learning-paths
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

@@ -19,7 +19,7 @@ describe("SeedScopeService",
                                         2], milestones: [3]
                                 }
                             }
-                        }, cv: false, foundations: true, headhunting: false, aiModels: true, subscriptions: false, codingProblems: true, advertisements: false, changelog: false, blog: true, achievements: false, mockInterviewEq: true
+                        }, concepts: true, cv: false, foundations: true, headhunting: false, aiModels: true, subscriptions: false, codingProblems: true, advertisements: false, changelog: false, blog: true, achievements: false, mockInterviewEq: true
                     }
                 }
                 const service = new SeedScopeService({
@@ -27,6 +27,7 @@ describe("SeedScopeService",
                 } as never)
                 expect(service.isSeedersEnabled()).toBe(true)
                 expect(service.isCoursesFlashcardSeederEnabled()).toBe(false)
+                expect(service.isConceptsSeederEnabled()).toBe(true)
                 expect(service.isAiModelsCatalogSeederEnabled()).toBe(true)
                 expect(service.resolveCourseSeedScope()?.moduleIndexFilterByDisplayId?.get("course")).toEqual(new Set([1,
                     2]))

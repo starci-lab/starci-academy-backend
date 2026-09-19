@@ -1,0 +1,392 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.cv.export-and-share-cv
+kind: business
+required: true
+state: todo
+description: Export or share a selected CV version
+refs:
+  - starci-next.business.srs.business-rules.evidence-based-cv
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.business-rules.version-bound-history
+  - starci-next.business.srs.data.cv
+  - starci-next.business.srs.data.share-grant
+  - starci-next.business.srs.data.application
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.grounding-and-ai-boundaries
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.allowance-and-cost-visibility
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-CV-02
+      title: Export or share a selected CV version
+      domain: cv
+      goal: Export or share a selected CV version
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - The learner can inspect their own facts and selected evidence.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-CV-02.IN1
+          name: acceptedCvVersion
+          validation: Previously approved CV text and evidence references
+          dataRefs:
+            - DATA-cv
+            - DATA-share-grant
+            - DATA-application
+        - id: FR-CV-02.IN2
+          name: exportChoice
+          validation: Available format or reviewed sharing audience
+          dataRefs:
+            - DATA-cv
+            - DATA-share-grant
+            - DATA-application
+      outputs:
+        - name: result-1
+          fromStep: FR-CV-02.MAIN.S1
+          meaning: Show its text and included personal information
+          effect: A draft is clearly distinguished from an approved version.
+        - name: result-2
+          fromStep: FR-CV-02.MAIN.S2
+          meaning: Preview the artifact or sharing scope
+          effect: Background evidence permissions remain separate.
+        - name: result-3
+          fromStep: FR-CV-02.MAIN.S3
+          meaning: Produce the selected artifact or record the explicit share grant
+          effect: The result names the CV version and audience.
+        - name: result-4
+          fromStep: FR-CV-02.MAIN.S4
+          meaning: Show current access and the effect of withdrawal under policy
+          effect: The product distinguishes hosted access from copies already downloaded.
+      businessRuleRefs:
+        - BR-CV
+        - BR-PRIVACY
+        - BR-VERSION
+      dataRefs:
+        - DATA-cv
+        - DATA-share-grant
+        - DATA-application
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-AI
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-COST
+        - NFR-AUDIT
+      decisionRefs:
+        - D08
+        - D05
+        - D11
+        - D06
+        - D07
+        - D03
+        - D12
+        - D02
+      directPolicyRefs:
+        - D08
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-CV-02.MAIN
+        trigger: Select an approved CV version
+        steps:
+          - id: FR-CV-02.MAIN.S1
+            actor: learner
+            request: Select an approved CV version
+            systemResponse: Show its text and included personal information
+            businessEffect: A draft is clearly distinguished from an approved version.
+            acceptanceRefs:
+              - FR-CV-02.AC.M1
+          - id: FR-CV-02.MAIN.S2
+            actor: learner
+            request: Choose an offered export format or a permitted sharing audience
+            systemResponse: Preview the artifact or sharing scope
+            businessEffect: Background evidence permissions remain separate.
+            acceptanceRefs:
+              - FR-CV-02.AC.M2
+          - id: FR-CV-02.MAIN.S3
+            actor: learner
+            request: Confirm export or sharing
+            systemResponse: Produce the selected artifact or record the explicit share grant
+            businessEffect: The result names the CV version and audience.
+            acceptanceRefs:
+              - FR-CV-02.AC.M3
+          - id: FR-CV-02.MAIN.S4
+            actor: learner
+            request: Inspect the result and manage future access
+            systemResponse: Show current access and the effect of withdrawal under policy
+            businessEffect: The product distinguishes hosted access from copies already downloaded.
+            acceptanceRefs:
+              - FR-CV-02.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: The product distinguishes hosted access from copies already downloaded.
+      alternativeFlows:
+        - id: FR-CV-02.ALT1
+          title: The learner cancels before confirmation
+          fromStep: FR-CV-02.MAIN.S2
+          condition: The learner cancels before confirmation
+          steps:
+            - id: FR-CV-02.ALT1.S1
+              actor: learner
+              request: Cancel export/share
+              systemResponse: Return to the CV version
+              businessEffect: No new share grant.
+              acceptanceRefs:
+                - FR-CV-02.AC.ALT1
+          resume:
+            type: end
+            outcome: No new share grant.
+          postconditions:
+            - No new share grant.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-CV-02.AC.ALT1
+      exceptionFlows:
+        - id: FR-CV-02.EX1
+          title: Artifact generation fails
+          fromStep: FR-CV-02.MAIN.S3
+          condition: Artifact generation fails
+          steps:
+            - id: FR-CV-02.EX1.S1
+              actor: learner
+              request: Check export status
+              systemResponse: Retain the approved CV and allow the stated continuation
+              businessEffect: No empty or failed artifact is reported as a completed export.
+              acceptanceRefs:
+                - FR-CV-02.AC.EX1
+          resume:
+            type: end
+            outcome: No empty or failed artifact is reported as a completed export.
+          postconditions:
+            - No empty or failed artifact is reported as a completed export.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-CV-02.AC.EX1
+        - id: FR-CV-02.EX2
+          title: A recipient uses withdrawn hosted access
+          fromStep: FR-CV-02.MAIN.S4
+          condition: A recipient uses withdrawn hosted access
+          steps:
+            - id: FR-CV-02.EX2.S1
+              actor: learner
+              request: Open the old shared link
+              systemResponse: Refuse newly unauthorized access
+              businessEffect: Do not promise deletion of an external copy already obtained.
+              acceptanceRefs:
+                - FR-CV-02.AC.EX2
+          resume:
+            type: end
+            outcome: Do not promise deletion of an external copy already obtained.
+          postconditions:
+            - Do not promise deletion of an external copy already obtained.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-CV-02.AC.EX2
+        - id: FR-CV-02.EX3
+          title: Evidence or sharing permission changed after preview
+          fromStep: FR-CV-02.MAIN.S3
+          condition: Evidence or sharing permission changed after preview
+          steps:
+            - id: FR-CV-02.EX3.S1
+              actor: learner
+              request: Confirm the export or share
+              systemResponse: Require a revised review of affected claims and allowed source disclosure
+              businessEffect: No export/share under stale permission.
+              acceptanceRefs:
+                - FR-CV-02.AC.EX3
+          resume:
+            type: end
+            outcome: No export/share under stale permission.
+          postconditions:
+            - No export/share under stale permission.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-CV-02.AC.EX3
+      postconditions:
+        success:
+          - A draft is clearly distinguished from an approved version.
+          - Background evidence permissions remain separate.
+          - The result names the CV version and audience.
+          - The product distinguishes hosted access from copies already downloaded.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No empty or failed artifact is reported as a completed export.
+          - Do not promise deletion of an external copy already obtained.
+          - No export/share under stale permission.
+      acceptanceCriteria:
+        - id: FR-CV-02.AC.M1
+          flowRef: FR-CV-02.MAIN
+          stepRefs:
+            - FR-CV-02.MAIN.S1
+          given:
+            - The learner can inspect their own facts and selected evidence.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Select an approved CV version
+          then:
+            - Show its text and included personal information
+            - A draft is clearly distinguished from an approved version.
+        - id: FR-CV-02.AC.M2
+          flowRef: FR-CV-02.MAIN
+          stepRefs:
+            - FR-CV-02.MAIN.S2
+          given:
+            - The previous main-flow step FR-CV-02.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Choose an offered export format or a permitted sharing audience
+          then:
+            - Preview the artifact or sharing scope
+            - Background evidence permissions remain separate.
+        - id: FR-CV-02.AC.M3
+          flowRef: FR-CV-02.MAIN
+          stepRefs:
+            - FR-CV-02.MAIN.S3
+          given:
+            - The previous main-flow step FR-CV-02.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Confirm export or sharing
+          then:
+            - Produce the selected artifact or record the explicit share grant
+            - The result names the CV version and audience.
+        - id: FR-CV-02.AC.M4
+          flowRef: FR-CV-02.MAIN
+          stepRefs:
+            - FR-CV-02.MAIN.S4
+          given:
+            - The previous main-flow step FR-CV-02.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect the result and manage future access
+          then:
+            - Show current access and the effect of withdrawal under policy
+            - The product distinguishes hosted access from copies already downloaded.
+        - id: FR-CV-02.AC.ALT1
+          flowRef: FR-CV-02.ALT1
+          stepRefs:
+            - FR-CV-02.ALT1.S1
+          given:
+            - Execution reaches FR-CV-02.MAIN.S2.
+            - The learner cancels before confirmation
+          when: Cancel export/share
+          then:
+            - Return to the CV version
+            - No new share grant.
+        - id: FR-CV-02.AC.EX1
+          flowRef: FR-CV-02.EX1
+          stepRefs:
+            - FR-CV-02.EX1.S1
+          given:
+            - Execution reaches FR-CV-02.MAIN.S3.
+            - Artifact generation fails
+          when: Check export status
+          then:
+            - Retain the approved CV and allow the stated continuation
+            - No empty or failed artifact is reported as a completed export.
+        - id: FR-CV-02.AC.EX2
+          flowRef: FR-CV-02.EX2
+          stepRefs:
+            - FR-CV-02.EX2.S1
+          given:
+            - Execution reaches FR-CV-02.MAIN.S4.
+            - A recipient uses withdrawn hosted access
+          when: Open the old shared link
+          then:
+            - Refuse newly unauthorized access
+            - Do not promise deletion of an external copy already obtained.
+        - id: FR-CV-02.AC.EX3
+          flowRef: FR-CV-02.EX3
+          stepRefs:
+            - FR-CV-02.EX3.S1
+          given:
+            - Execution reaches FR-CV-02.MAIN.S3.
+            - Evidence or sharing permission changed after preview
+          when: Confirm the export or share
+          then:
+            - Require a revised review of affected claims and allowed source disclosure
+            - No export/share under stale permission.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AI
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-COST
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: cv
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "8.2"
+            - "10.1"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Select an approved CV version

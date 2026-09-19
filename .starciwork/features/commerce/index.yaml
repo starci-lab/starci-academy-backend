@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.commerce
+kind: business
+required: true
+description: "commerce: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: commerce
+    title: commerce
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.commerce.business
+        title: "commerce: business scope and SRS"

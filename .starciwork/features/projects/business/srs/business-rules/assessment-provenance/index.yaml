@@ -1,0 +1,46 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.assessment-provenance
+kind: business
+required: true
+state: todo
+description: Assessment provenance and limits
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-business-rule@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: BR-EVIDENCE
+      title: Assessment provenance and limits
+      statements:
+        - Every evaluation identifies its submitted evidence, method, assessor and criterion
+          versions.
+        - Runner outcomes, infrastructure failure, AI judgment and peer feedback retain different
+          result types.
+        - Incomplete evidence or unavailable evaluation yields a limited/pending/failed-process
+          result, never an invented pass or learner failure.
+      decisionRefs:
+        - D05
+        - D07
+      example: An AI explanation praising a solution does not override a failing objective test.
+      acceptanceCriteria:
+        - id: BR-EVIDENCE.AC1
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Every evaluation identifies its submitted evidence, method, assessor and criterion versions.
+        - id: BR-EVIDENCE.AC2
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Runner outcomes, infrastructure failure, AI judgment and peer feedback retain different result
+            types.
+        - id: BR-EVIDENCE.AC3
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Incomplete evidence or unavailable evaluation yields a limited/pending/failed-process result,
+            never an invented pass or learner failure.
+      featureOwner: projects
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

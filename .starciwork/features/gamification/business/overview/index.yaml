@@ -1,0 +1,54 @@
+schema: work/node@2
+id: starci-next.features.gamification.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "gamification: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.gamification.recognize-learning-activity
+  - starci-next.business.srs.functional-requirements.gamification.show-evidence-based-milestones
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-gamification
+      feature: gamification
+      title: gamification business overview
+      product: StarCiNext
+      goal: Recognize eligible learning and community activity; Show competency milestones with supporting
+        evidence
+      actors:
+        - learner
+      inScope:
+        - requirementRef: FR-GAME-01
+          title: Recognize eligible learning and community activity
+        - requirementRef: FR-GAME-02
+          title: Show competency milestones with supporting evidence
+      relatedJourneyRefs:
+        - CJ-01
+        - CJ-02
+        - CJ-10
+      ownedSharedDefinitionRefs:
+        - BR-MASTERY
+        - DATA-activity-award
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "9.1"
+            - "4.3"
+businessOverview:
+  purpose: Recognize eligible learning and community activity; Show competency milestones with
+    supporting evidence
+  customerUnderstanding: StarCiNext gamification serves learner through the requirements and journeys
+    owned by this feature.
+  desiredOutcome: Recognize eligible learning and community activity; Show competency milestones with
+    supporting evidence
+  scope: Recognize eligible learning and community activity; Show competency milestones with
+    supporting evidence
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

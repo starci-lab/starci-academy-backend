@@ -1,0 +1,360 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.recruitment.discover-and-explain-matches
+kind: business
+required: true
+state: todo
+description: Discover opportunities and explain evidence-based matches
+refs:
+  - starci-next.business.srs.business-rules.consented-recruitment
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.business-rules.assessment-provenance
+  - starci-next.business.srs.business-rules.bounded-ai-assistance
+  - starci-next.business.srs.data.opportunity
+  - starci-next.business.srs.data.profile
+  - starci-next.business.srs.data.learning-evidence
+  - starci-next.business.srs.data.share-grant
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.grounding-and-ai-boundaries
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-HIRE-02
+      title: Discover opportunities and explain evidence-based matches
+      domain: recruitment
+      goal: Discover opportunities and explain evidence-based matches
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - The actor can use personal discovery or a currently held organization role;
+          publication/contact requires its separate policy.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-HIRE-02.IN1
+          name: opportunityCriteria
+          validation: Role preferences or selected discovery criteria
+          dataRefs:
+            - DATA-opportunity
+            - DATA-profile
+            - DATA-evidence
+            - DATA-share-grant
+        - id: FR-HIRE-02.IN2
+          name: matchingEvidence
+          validation: Only candidate-approved profile/evidence scope
+          dataRefs:
+            - DATA-opportunity
+            - DATA-profile
+            - DATA-evidence
+            - DATA-share-grant
+      outputs:
+        - name: result-1
+          fromStep: FR-HIRE-02.MAIN.S1
+          meaning: Show available roles and their requirements
+          effect: A suggestion is not an application.
+        - name: result-2
+          fromStep: FR-HIRE-02.MAIN.S2
+          meaning: Explain which information will be used
+          effect: Private answers and drafts are not included without permission.
+        - name: result-3
+          fromStep: FR-HIRE-02.MAIN.S3
+          meaning: Explain supported matches, gaps and uncertainty from the allowed evidence
+          effect: AI inference is labeled separately from demonstrated qualifications.
+        - name: result-4
+          fromStep: FR-HIRE-02.MAIN.S4
+          meaning: Show the next action and its sharing implications
+          effect: Only an explicit application starts the application flow.
+      businessRuleRefs:
+        - BR-RECRUIT
+        - BR-PRIVACY
+        - BR-EVIDENCE
+        - BR-AI
+      dataRefs:
+        - DATA-opportunity
+        - DATA-profile
+        - DATA-evidence
+        - DATA-share-grant
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-AI
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-AUDIT
+      decisionRefs:
+        - D08
+        - D11
+        - D05
+        - D07
+        - D06
+        - D03
+        - D12
+      directPolicyRefs:
+        - D08
+        - D11
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-HIRE-02.MAIN
+        trigger: Browse active opportunities or request suggestions
+        steps:
+          - id: FR-HIRE-02.MAIN.S1
+            actor: learner
+            request: Browse active opportunities or request suggestions
+            systemResponse: Show available roles and their requirements
+            businessEffect: A suggestion is not an application.
+            acceptanceRefs:
+              - FR-HIRE-02.AC.M1
+          - id: FR-HIRE-02.MAIN.S2
+            actor: learner
+            request: Select permitted profile evidence for matching
+            systemResponse: Explain which information will be used
+            businessEffect: Private answers and drafts are not included without permission.
+            acceptanceRefs:
+              - FR-HIRE-02.AC.M2
+          - id: FR-HIRE-02.MAIN.S3
+            actor: learner
+            request: Inspect a suggested match
+            systemResponse: Explain supported matches, gaps and uncertainty from the allowed evidence
+            businessEffect: AI inference is labeled separately from demonstrated qualifications.
+            acceptanceRefs:
+              - FR-HIRE-02.AC.M3
+          - id: FR-HIRE-02.MAIN.S4
+            actor: learner
+            request: Choose to inspect, save or apply to an opportunity
+            systemResponse: Show the next action and its sharing implications
+            businessEffect: Only an explicit application starts the application flow.
+            acceptanceRefs:
+              - FR-HIRE-02.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: Only an explicit application starts the application flow.
+      alternativeFlows:
+        - id: FR-HIRE-02.ALT1
+          title: The learner disagrees with a suggested match
+          fromStep: FR-HIRE-02.MAIN.S3
+          condition: The learner disagrees with a suggested match
+          steps:
+            - id: FR-HIRE-02.ALT1.S1
+              actor: learner
+              request: Change criteria or browse manually
+              systemResponse: Offer the revised discovery path
+              businessEffect: No forced recommendation or application.
+              acceptanceRefs:
+                - FR-HIRE-02.AC.ALT1
+          resume:
+            type: end
+            outcome: No forced recommendation or application.
+          postconditions:
+            - No forced recommendation or application.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-HIRE-02.AC.ALT1
+      exceptionFlows:
+        - id: FR-HIRE-02.EX1
+          title: Evidence is insufficient or no opportunity matches
+          fromStep: FR-HIRE-02.MAIN.S3
+          condition: Evidence is insufficient or no opportunity matches
+          steps:
+            - id: FR-HIRE-02.EX1.S1
+              actor: learner
+              request: Inspect suggestions
+              systemResponse: State the gap or no-match result
+              businessEffect: No invented qualification or employment promise.
+              acceptanceRefs:
+                - FR-HIRE-02.AC.EX1
+          resume:
+            type: end
+            outcome: No invented qualification or employment promise.
+          postconditions:
+            - No invented qualification or employment promise.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-HIRE-02.AC.EX1
+        - id: FR-HIRE-02.EX2
+          title: Evidence sharing is withdrawn
+          fromStep: FR-HIRE-02.MAIN.S3
+          condition: Evidence sharing is withdrawn
+          steps:
+            - id: FR-HIRE-02.EX2.S1
+              actor: learner
+              request: Request a new match
+              systemResponse: Exclude withdrawn information
+              businessEffect: No new recruiting disclosure based on stale consent.
+              acceptanceRefs:
+                - FR-HIRE-02.AC.EX2
+          resume:
+            type: end
+            outcome: No new recruiting disclosure based on stale consent.
+          postconditions:
+            - No new recruiting disclosure based on stale consent.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-HIRE-02.AC.EX2
+      postconditions:
+        success:
+          - A suggestion is not an application.
+          - Private answers and drafts are not included without permission.
+          - AI inference is labeled separately from demonstrated qualifications.
+          - Only an explicit application starts the application flow.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No invented qualification or employment promise.
+          - No new recruiting disclosure based on stale consent.
+      acceptanceCriteria:
+        - id: FR-HIRE-02.AC.M1
+          flowRef: FR-HIRE-02.MAIN
+          stepRefs:
+            - FR-HIRE-02.MAIN.S1
+          given:
+            - The actor can use personal discovery or a currently held organization role;
+              publication/contact requires its separate policy.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Browse active opportunities or request suggestions
+          then:
+            - Show available roles and their requirements
+            - A suggestion is not an application.
+        - id: FR-HIRE-02.AC.M2
+          flowRef: FR-HIRE-02.MAIN
+          stepRefs:
+            - FR-HIRE-02.MAIN.S2
+          given:
+            - The previous main-flow step FR-HIRE-02.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Select permitted profile evidence for matching
+          then:
+            - Explain which information will be used
+            - Private answers and drafts are not included without permission.
+        - id: FR-HIRE-02.AC.M3
+          flowRef: FR-HIRE-02.MAIN
+          stepRefs:
+            - FR-HIRE-02.MAIN.S3
+          given:
+            - The previous main-flow step FR-HIRE-02.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect a suggested match
+          then:
+            - Explain supported matches, gaps and uncertainty from the allowed evidence
+            - AI inference is labeled separately from demonstrated qualifications.
+        - id: FR-HIRE-02.AC.M4
+          flowRef: FR-HIRE-02.MAIN
+          stepRefs:
+            - FR-HIRE-02.MAIN.S4
+          given:
+            - The previous main-flow step FR-HIRE-02.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Choose to inspect, save or apply to an opportunity
+          then:
+            - Show the next action and its sharing implications
+            - Only an explicit application starts the application flow.
+        - id: FR-HIRE-02.AC.ALT1
+          flowRef: FR-HIRE-02.ALT1
+          stepRefs:
+            - FR-HIRE-02.ALT1.S1
+          given:
+            - Execution reaches FR-HIRE-02.MAIN.S3.
+            - The learner disagrees with a suggested match
+          when: Change criteria or browse manually
+          then:
+            - Offer the revised discovery path
+            - No forced recommendation or application.
+        - id: FR-HIRE-02.AC.EX1
+          flowRef: FR-HIRE-02.EX1
+          stepRefs:
+            - FR-HIRE-02.EX1.S1
+          given:
+            - Execution reaches FR-HIRE-02.MAIN.S3.
+            - Evidence is insufficient or no opportunity matches
+          when: Inspect suggestions
+          then:
+            - State the gap or no-match result
+            - No invented qualification or employment promise.
+        - id: FR-HIRE-02.AC.EX2
+          flowRef: FR-HIRE-02.EX2
+          stepRefs:
+            - FR-HIRE-02.EX2.S1
+          given:
+            - Execution reaches FR-HIRE-02.MAIN.S3.
+            - Evidence sharing is withdrawn
+          when: Request a new match
+          then:
+            - Exclude withdrawn information
+            - No new recruiting disclosure based on stale consent.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AI
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: recruitment
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "10.2"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Browse active opportunities or request suggestions

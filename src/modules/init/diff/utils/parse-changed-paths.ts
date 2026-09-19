@@ -11,6 +11,7 @@ import type {
  * `templates` holds CV templates, so it gates the `cv` domain.
  */
 const DOMAIN_BY_TOP_LEVEL_DIR: Record<string, DataGitDomain> = {
+    concepts: "concepts",
     cv: "cv",
     templates: "cv",
     foundations: "foundations",

@@ -1,0 +1,398 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.commerce.inspect-and-control-ai-usage
+kind: business
+required: true
+state: todo
+description: Understand and use independent AI allowances
+refs:
+  - starci-next.business.srs.business-rules.capability-specific-usage
+  - starci-next.business.srs.business-rules.one-logical-effect
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.data.usage
+  - starci-next.business.srs.data.entitlement
+  - starci-next.business.srs.data.review
+  - starci-next.business.srs.data.rag-session
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.allowance-and-cost-visibility
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-SUB-05
+      title: Understand and use independent AI allowances
+      domain: commerce
+      goal: Understand and use independent AI allowances
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - The buyer account and current known rights are identifiable; commercial effects require
+          approved terms and authoritative evidence.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-SUB-05.IN1
+          name: requestedCapability
+          validation: AI/review action and its published allowance policy
+          dataRefs:
+            - DATA-usage
+            - DATA-entitlement
+            - DATA-review
+            - DATA-rag-session
+        - id: FR-SUB-05.IN2
+          name: operationChoice
+          validation: Identify request or retry and review the usage effect
+          dataRefs:
+            - DATA-usage
+            - DATA-entitlement
+            - DATA-review
+            - DATA-rag-session
+      outputs:
+        - name: result-1
+          fromStep: FR-SUB-05.MAIN.S1
+          meaning: Show the applicable allowance and known usage effect before confirmation
+          effect: Content reading rights are displayed separately.
+        - name: result-2
+          fromStep: FR-SUB-05.MAIN.S2
+          meaning: Check current allowance and associate usage with the identified operation
+          effect: Repeated submission of the same operation cannot consume allowance twice.
+        - name: result-3
+          fromStep: FR-SUB-05.MAIN.S3
+          meaning: Show accepted, processing, completed, failed or unknown result with corresponding usage
+            status
+          effect: Usage treatment is derived from the published outcome policy.
+        - name: result-4
+          fromStep: FR-SUB-05.MAIN.S4
+          meaning: Explain available retry, wait or commercial options under approved policy
+          effect: An AI limit does not revoke independent content access.
+      businessRuleRefs:
+        - BR-USAGE
+        - BR-REPEAT
+        - BR-RIGHTS
+      dataRefs:
+        - DATA-usage
+        - DATA-entitlement
+        - DATA-review
+        - DATA-rag-session
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-COST
+        - NFR-AUDIT
+      decisionRefs:
+        - D02
+        - D07
+        - D08
+        - D11
+        - D03
+        - D05
+        - D12
+      directPolicyRefs:
+        - D02
+        - D07
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-SUB-05.MAIN
+        trigger: Open a capability that consumes an AI or review allowance
+        steps:
+          - id: FR-SUB-05.MAIN.S1
+            actor: learner
+            request: Open a capability that consumes an AI or review allowance
+            systemResponse: Show the applicable allowance and known usage effect before confirmation
+            businessEffect: Content reading rights are displayed separately.
+            acceptanceRefs:
+              - FR-SUB-05.AC.M1
+          - id: FR-SUB-05.MAIN.S2
+            actor: learner
+            request: Confirm a permitted request
+            systemResponse: Check current allowance and associate usage with the identified operation
+            businessEffect: Repeated submission of the same operation cannot consume allowance twice.
+            acceptanceRefs:
+              - FR-SUB-05.AC.M2
+          - id: FR-SUB-05.MAIN.S3
+            actor: learner
+            request: Inspect processing and completion
+            systemResponse: Show accepted, processing, completed, failed or unknown result with corresponding
+              usage status
+            businessEffect: Usage treatment is derived from the published outcome policy.
+            acceptanceRefs:
+              - FR-SUB-05.AC.M3
+          - id: FR-SUB-05.MAIN.S4
+            actor: learner
+            request: Inspect remaining allowance or request continuation
+            systemResponse: Explain available retry, wait or commercial options under approved policy
+            businessEffect: An AI limit does not revoke independent content access.
+            acceptanceRefs:
+              - FR-SUB-05.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: An AI limit does not revoke independent content access.
+      alternativeFlows:
+        - id: FR-SUB-05.ALT1
+          title: AI allowance is exhausted but content access is active
+          fromStep: FR-SUB-05.MAIN.S4
+          condition: AI allowance is exhausted but content access is active
+          steps:
+            - id: FR-SUB-05.ALT1.S1
+              actor: learner
+              request: Return to a purchased lesson
+              systemResponse: Allow the independent content capability
+              businessEffect: No forced extra purchase to read already entitled content.
+              acceptanceRefs:
+                - FR-SUB-05.AC.ALT1
+          resume:
+            type: end
+            outcome: No forced extra purchase to read already entitled content.
+          postconditions:
+            - No forced extra purchase to read already entitled content.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-SUB-05.AC.ALT1
+      exceptionFlows:
+        - id: FR-SUB-05.EX1
+          title: Concurrent requests exceed the available allowance
+          fromStep: FR-SUB-05.MAIN.S2
+          condition: Concurrent requests exceed the available allowance
+          steps:
+            - id: FR-SUB-05.EX1.S1
+              actor: learner
+              request: Submit another request
+              systemResponse: Accept only the requests covered by approved limits and identify rejected/pending
+                requests
+              businessEffect: No negative or multiply allocated allowance.
+              acceptanceRefs:
+                - FR-SUB-05.AC.EX1
+          resume:
+            type: end
+            outcome: No negative or multiply allocated allowance.
+          postconditions:
+            - No negative or multiply allocated allowance.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-SUB-05.AC.EX1
+        - id: FR-SUB-05.EX2
+          title: The operation fails or completion is unknown
+          fromStep: FR-SUB-05.MAIN.S3
+          condition: The operation fails or completion is unknown
+          steps:
+            - id: FR-SUB-05.EX2.S1
+              actor: learner
+              request: Inspect the same operation before retrying
+              systemResponse: Show its actual state and usage disposition under D07
+              businessEffect: No fabricated successful review or automatic second charge.
+              acceptanceRefs:
+                - FR-SUB-05.AC.EX2
+          resume:
+            type: end
+            outcome: No fabricated successful review or automatic second charge.
+          postconditions:
+            - No fabricated successful review or automatic second charge.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-SUB-05.AC.EX2
+        - id: FR-SUB-05.EX3
+          title: The failed-request usage policy is undefined
+          fromStep: FR-SUB-05.MAIN.S1
+          condition: The failed-request usage policy is undefined
+          steps:
+            - id: FR-SUB-05.EX3.S1
+              actor: learner
+              request: Inspect the proposed paid operation
+              systemResponse: Show the unresolved terms and prevent an undisclosed paid usage commitment
+              businessEffect: D07 must be resolved before this charging behavior is activated.
+              acceptanceRefs:
+                - FR-SUB-05.AC.EX3
+          resume:
+            type: end
+            outcome: D07 must be resolved before this charging behavior is activated.
+          postconditions:
+            - D07 must be resolved before this charging behavior is activated.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-SUB-05.AC.EX3
+      postconditions:
+        success:
+          - Content reading rights are displayed separately.
+          - Repeated submission of the same operation cannot consume allowance twice.
+          - Usage treatment is derived from the published outcome policy.
+          - An AI limit does not revoke independent content access.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No negative or multiply allocated allowance.
+          - No fabricated successful review or automatic second charge.
+          - D07 must be resolved before this charging behavior is activated.
+      acceptanceCriteria:
+        - id: FR-SUB-05.AC.M1
+          flowRef: FR-SUB-05.MAIN
+          stepRefs:
+            - FR-SUB-05.MAIN.S1
+          given:
+            - The buyer account and current known rights are identifiable; commercial effects
+              require approved terms and authoritative evidence.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open a capability that consumes an AI or review allowance
+          then:
+            - Show the applicable allowance and known usage effect before confirmation
+            - Content reading rights are displayed separately.
+        - id: FR-SUB-05.AC.M2
+          flowRef: FR-SUB-05.MAIN
+          stepRefs:
+            - FR-SUB-05.MAIN.S2
+          given:
+            - The previous main-flow step FR-SUB-05.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Confirm a permitted request
+          then:
+            - Check current allowance and associate usage with the identified operation
+            - Repeated submission of the same operation cannot consume allowance twice.
+        - id: FR-SUB-05.AC.M3
+          flowRef: FR-SUB-05.MAIN
+          stepRefs:
+            - FR-SUB-05.MAIN.S3
+          given:
+            - The previous main-flow step FR-SUB-05.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect processing and completion
+          then:
+            - Show accepted, processing, completed, failed or unknown result with corresponding
+              usage status
+            - Usage treatment is derived from the published outcome policy.
+        - id: FR-SUB-05.AC.M4
+          flowRef: FR-SUB-05.MAIN
+          stepRefs:
+            - FR-SUB-05.MAIN.S4
+          given:
+            - The previous main-flow step FR-SUB-05.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect remaining allowance or request continuation
+          then:
+            - Explain available retry, wait or commercial options under approved policy
+            - An AI limit does not revoke independent content access.
+        - id: FR-SUB-05.AC.ALT1
+          flowRef: FR-SUB-05.ALT1
+          stepRefs:
+            - FR-SUB-05.ALT1.S1
+          given:
+            - Execution reaches FR-SUB-05.MAIN.S4.
+            - AI allowance is exhausted but content access is active
+          when: Return to a purchased lesson
+          then:
+            - Allow the independent content capability
+            - No forced extra purchase to read already entitled content.
+        - id: FR-SUB-05.AC.EX1
+          flowRef: FR-SUB-05.EX1
+          stepRefs:
+            - FR-SUB-05.EX1.S1
+          given:
+            - Execution reaches FR-SUB-05.MAIN.S2.
+            - Concurrent requests exceed the available allowance
+          when: Submit another request
+          then:
+            - Accept only the requests covered by approved limits and identify rejected/pending
+              requests
+            - No negative or multiply allocated allowance.
+        - id: FR-SUB-05.AC.EX2
+          flowRef: FR-SUB-05.EX2
+          stepRefs:
+            - FR-SUB-05.EX2.S1
+          given:
+            - Execution reaches FR-SUB-05.MAIN.S3.
+            - The operation fails or completion is unknown
+          when: Inspect the same operation before retrying
+          then:
+            - Show its actual state and usage disposition under D07
+            - No fabricated successful review or automatic second charge.
+        - id: FR-SUB-05.AC.EX3
+          flowRef: FR-SUB-05.EX3
+          stepRefs:
+            - FR-SUB-05.EX3.S1
+          given:
+            - Execution reaches FR-SUB-05.MAIN.S1.
+            - The failed-request usage policy is undefined
+          when: Inspect the proposed paid operation
+          then:
+            - Show the unresolved terms and prevent an undisclosed paid usage commitment
+            - D07 must be resolved before this charging behavior is activated.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-COST
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: commerce
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "11.1"
+            - "11.2"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Open a capability that consumes an AI or review allowance

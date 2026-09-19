@@ -1,0 +1,473 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.rag.ask-grounded-question
+kind: business
+required: true
+state: todo
+description: Ask a question with permitted learning context and sources
+refs:
+  - starci-next.business.srs.business-rules.bounded-ai-assistance
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.business-rules.source-trust-and-access
+  - starci-next.business.srs.business-rules.capability-specific-usage
+  - starci-next.business.srs.data.concept
+  - starci-next.business.srs.data.rag-session
+  - starci-next.business.srs.data.entitlement
+  - starci-next.business.srs.data.usage
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.grounding-and-ai-boundaries
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.multilingual-content-consistency
+  - starci-next.business.srs.non-functional-requirements.allowance-and-cost-visibility
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.community-policy
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+  - starci-next.business.srs.business-rules.policy-decisions.release-scope
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-RAG-01
+      title: Ask a question with permitted learning context and sources
+      domain: rag
+      goal: Ask a question with permitted learning context and sources
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - The learner has a question and can select a permitted learning context.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-RAG-01.IN1
+          name: question
+          validation: Learner question in the current task
+          dataRefs:
+            - DATA-concept
+            - DATA-rag-session
+            - DATA-entitlement
+            - DATA-usage
+        - id: FR-RAG-01.IN2
+          name: selectedContext
+          validation: Permitted Concept, attempt or review context and requested hint depth
+          dataRefs:
+            - DATA-concept
+            - DATA-rag-session
+            - DATA-entitlement
+            - DATA-usage
+      outputs:
+        - name: result-1
+          fromStep: FR-RAG-01.MAIN.S1
+          meaning: Show the learning context proposed for the question
+          effect: Only selected and permitted context is eligible.
+        - name: result-2
+          fromStep: FR-RAG-01.MAIN.S2
+          meaning: Check current content rights and applicable AI usage policy
+          effect: Record the question and its processing state under the learner scope.
+        - name: result-3
+          fromStep: FR-RAG-01.MAIN.S3
+          meaning: Use permitted source versions and distinguish cited content from additional explanation
+          effect: Sources and answer provenance stay attached to the response.
+        - name: result-4
+          fromStep: FR-RAG-01.MAIN.S4
+          meaning: Navigate to the permitted source section or evaluate a new question under current rights
+          effect: A citation does not bypass restricted content access.
+        - name: result-5
+          fromStep: FR-RAG-01.MAIN.S5
+          meaning: Retain the relevant conversation context and original activity
+          effect: The answer does not itself change grades or entitlements.
+      businessRuleRefs:
+        - BR-AI
+        - BR-RIGHTS
+        - BR-PRIVACY
+        - BR-SOURCES
+        - BR-USAGE
+      dataRefs:
+        - DATA-concept
+        - DATA-rag-session
+        - DATA-entitlement
+        - DATA-usage
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-AI
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-LANGUAGE
+        - NFR-COST
+        - NFR-AUDIT
+      decisionRefs:
+        - D06
+        - D07
+        - D08
+        - D11
+        - D05
+        - D09
+        - D02
+        - D03
+        - D12
+        - D01
+      directPolicyRefs:
+        - D06
+        - D07
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-RAG-01.MAIN
+        trigger: Ask a question from a concept, practice workspace or feedback view
+        steps:
+          - id: FR-RAG-01.MAIN.S1
+            actor: learner
+            request: Ask a question from a concept, practice workspace or feedback view
+            systemResponse: Show the learning context proposed for the question
+            businessEffect: Only selected and permitted context is eligible.
+            acceptanceRefs:
+              - FR-RAG-01.AC.M1
+          - id: FR-RAG-01.MAIN.S2
+            actor: learner
+            request: Submit the question
+            systemResponse: Check current content rights and applicable AI usage policy
+            businessEffect: Record the question and its processing state under the learner scope.
+            acceptanceRefs:
+              - FR-RAG-01.AC.M2
+          - id: FR-RAG-01.MAIN.S3
+            actor: learner
+            request: Receive an answer or a stated limitation
+            systemResponse: Use permitted source versions and distinguish cited content from additional explanation
+            businessEffect: Sources and answer provenance stay attached to the response.
+            acceptanceRefs:
+              - FR-RAG-01.AC.M3
+          - id: FR-RAG-01.MAIN.S4
+            actor: learner
+            request: Open a cited source or ask a follow-up
+            systemResponse: Navigate to the permitted source section or evaluate a new question under current
+              rights
+            businessEffect: A citation does not bypass restricted content access.
+            acceptanceRefs:
+              - FR-RAG-01.AC.M4
+          - id: FR-RAG-01.MAIN.S5
+            actor: learner
+            request: Return to the learning activity
+            systemResponse: Retain the relevant conversation context and original activity
+            businessEffect: The answer does not itself change grades or entitlements.
+            acceptanceRefs:
+              - FR-RAG-01.AC.M5
+        end:
+          type: completed-main-flow
+          outcome: The answer does not itself change grades or entitlements.
+      alternativeFlows:
+        - id: FR-RAG-01.ALT1
+          title: The learner wants a hint rather than a full solution
+          fromStep: FR-RAG-01.MAIN.S1
+          condition: The learner wants a hint rather than a full solution
+          steps:
+            - id: FR-RAG-01.ALT1.S1
+              actor: learner
+              request: Select the permitted hint depth
+              systemResponse: Provide incremental assistance within the activity policy
+              businessEffect: A full solution is not forced on the learner.
+              acceptanceRefs:
+                - FR-RAG-01.AC.ALT1
+          resume:
+            type: main-step
+            stepRef: FR-RAG-01.MAIN.S2
+          postconditions:
+            - A full solution is not forced on the learner.
+          continuation: Continue at FR-RAG-01.MAIN.S2.
+          acceptanceRefs:
+            - FR-RAG-01.AC.ALT1
+      exceptionFlows:
+        - id: FR-RAG-01.EX1
+          title: No sufficiently relevant and trusted source is found
+          fromStep: FR-RAG-01.MAIN.S3
+          condition: No sufficiently relevant and trusted source is found
+          steps:
+            - id: FR-RAG-01.EX1.S1
+              actor: learner
+              request: Review the answer state
+              systemResponse: State the evidence gap and identify a permitted next step
+              businessEffect: No fabricated citation or confident unsupported source claim.
+              acceptanceRefs:
+                - FR-RAG-01.AC.EX1
+          resume:
+            type: end
+            outcome: No fabricated citation or confident unsupported source claim.
+          postconditions:
+            - No fabricated citation or confident unsupported source claim.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-RAG-01.AC.EX1
+        - id: FR-RAG-01.EX2
+          title: Retrieval is unavailable
+          fromStep: FR-RAG-01.MAIN.S3
+          condition: Retrieval is unavailable
+          steps:
+            - id: FR-RAG-01.EX2.S1
+              actor: learner
+              request: Check the same question status
+              systemResponse: Distinguish service failure from no relevant content
+              businessEffect: Preserve the question; usage/retry follows the declared policy.
+              acceptanceRefs:
+                - FR-RAG-01.AC.EX2
+          resume:
+            type: end
+            outcome: Preserve the question; usage/retry follows the declared policy.
+          postconditions:
+            - Preserve the question; usage/retry follows the declared policy.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-RAG-01.AC.EX2
+        - id: FR-RAG-01.EX3
+          title: Rights or sharing consent changed since an earlier turn
+          fromStep: FR-RAG-01.MAIN.S4
+          condition: Rights or sharing consent changed since an earlier turn
+          steps:
+            - id: FR-RAG-01.EX3.S1
+              actor: learner
+              request: Ask a new follow-up
+              systemResponse: Use only currently permitted context
+              businessEffect: Private or newly restricted text is not exposed through conversation continuity.
+              acceptanceRefs:
+                - FR-RAG-01.AC.EX3
+          resume:
+            type: end
+            outcome: Private or newly restricted text is not exposed through conversation continuity.
+          postconditions:
+            - Private or newly restricted text is not exposed through conversation continuity.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-RAG-01.AC.EX3
+        - id: FR-RAG-01.EX4
+          title: Retrieved text asks the assistant to reveal private data or override product rules
+          fromStep: FR-RAG-01.MAIN.S3
+          condition: Retrieved text asks the assistant to reveal private data or override product rules
+          steps:
+            - id: FR-RAG-01.EX4.S1
+              actor: learner
+              request: Process the source as task data
+              systemResponse: Ignore the embedded authority claim and answer only within permitted task context
+              businessEffect: No disclosure, role change, score change or external action caused by source
+                instructions.
+              acceptanceRefs:
+                - FR-RAG-01.AC.EX4
+          resume:
+            type: end
+            outcome: No disclosure, role change, score change or external action caused by source instructions.
+          postconditions:
+            - No disclosure, role change, score change or external action caused by source
+              instructions.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-RAG-01.AC.EX4
+      postconditions:
+        success:
+          - Only selected and permitted context is eligible.
+          - Record the question and its processing state under the learner scope.
+          - Sources and answer provenance stay attached to the response.
+          - A citation does not bypass restricted content access.
+          - The answer does not itself change grades or entitlements.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No fabricated citation or confident unsupported source claim.
+          - Preserve the question; usage/retry follows the declared policy.
+          - Private or newly restricted text is not exposed through conversation continuity.
+          - No disclosure, role change, score change or external action caused by source
+            instructions.
+      acceptanceCriteria:
+        - id: FR-RAG-01.AC.M1
+          flowRef: FR-RAG-01.MAIN
+          stepRefs:
+            - FR-RAG-01.MAIN.S1
+          given:
+            - The learner has a question and can select a permitted learning context.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Ask a question from a concept, practice workspace or feedback view
+          then:
+            - Show the learning context proposed for the question
+            - Only selected and permitted context is eligible.
+        - id: FR-RAG-01.AC.M2
+          flowRef: FR-RAG-01.MAIN
+          stepRefs:
+            - FR-RAG-01.MAIN.S2
+          given:
+            - The previous main-flow step FR-RAG-01.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Submit the question
+          then:
+            - Check current content rights and applicable AI usage policy
+            - Record the question and its processing state under the learner scope.
+        - id: FR-RAG-01.AC.M3
+          flowRef: FR-RAG-01.MAIN
+          stepRefs:
+            - FR-RAG-01.MAIN.S3
+          given:
+            - The previous main-flow step FR-RAG-01.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Receive an answer or a stated limitation
+          then:
+            - Use permitted source versions and distinguish cited content from additional explanation
+            - Sources and answer provenance stay attached to the response.
+        - id: FR-RAG-01.AC.M4
+          flowRef: FR-RAG-01.MAIN
+          stepRefs:
+            - FR-RAG-01.MAIN.S4
+          given:
+            - The previous main-flow step FR-RAG-01.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open a cited source or ask a follow-up
+          then:
+            - Navigate to the permitted source section or evaluate a new question under current
+              rights
+            - A citation does not bypass restricted content access.
+        - id: FR-RAG-01.AC.M5
+          flowRef: FR-RAG-01.MAIN
+          stepRefs:
+            - FR-RAG-01.MAIN.S5
+          given:
+            - The previous main-flow step FR-RAG-01.MAIN.S4 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Return to the learning activity
+          then:
+            - Retain the relevant conversation context and original activity
+            - The answer does not itself change grades or entitlements.
+        - id: FR-RAG-01.AC.ALT1
+          flowRef: FR-RAG-01.ALT1
+          stepRefs:
+            - FR-RAG-01.ALT1.S1
+          given:
+            - Execution reaches FR-RAG-01.MAIN.S1.
+            - The learner wants a hint rather than a full solution
+          when: Select the permitted hint depth
+          then:
+            - Provide incremental assistance within the activity policy
+            - A full solution is not forced on the learner.
+            - Continue at FR-RAG-01.MAIN.S2 with current authority and reviewed context.
+        - id: FR-RAG-01.AC.EX1
+          flowRef: FR-RAG-01.EX1
+          stepRefs:
+            - FR-RAG-01.EX1.S1
+          given:
+            - Execution reaches FR-RAG-01.MAIN.S3.
+            - No sufficiently relevant and trusted source is found
+          when: Review the answer state
+          then:
+            - State the evidence gap and identify a permitted next step
+            - No fabricated citation or confident unsupported source claim.
+        - id: FR-RAG-01.AC.EX2
+          flowRef: FR-RAG-01.EX2
+          stepRefs:
+            - FR-RAG-01.EX2.S1
+          given:
+            - Execution reaches FR-RAG-01.MAIN.S3.
+            - Retrieval is unavailable
+          when: Check the same question status
+          then:
+            - Distinguish service failure from no relevant content
+            - Preserve the question; usage/retry follows the declared policy.
+        - id: FR-RAG-01.AC.EX3
+          flowRef: FR-RAG-01.EX3
+          stepRefs:
+            - FR-RAG-01.EX3.S1
+          given:
+            - Execution reaches FR-RAG-01.MAIN.S4.
+            - Rights or sharing consent changed since an earlier turn
+          when: Ask a new follow-up
+          then:
+            - Use only currently permitted context
+            - Private or newly restricted text is not exposed through conversation continuity.
+        - id: FR-RAG-01.AC.EX4
+          flowRef: FR-RAG-01.EX4
+          stepRefs:
+            - FR-RAG-01.EX4.S1
+          given:
+            - Execution reaches FR-RAG-01.MAIN.S3.
+            - Retrieved text asks the assistant to reveal private data or override product rules
+          when: Process the source as task data
+          then:
+            - Ignore the embedded authority claim and answer only within permitted task context
+            - No disclosure, role change, score change or external action caused by source
+              instructions.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AI
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LANGUAGE
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-COST
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: rag
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "5"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Ask a question from a concept, practice workspace or feedback view

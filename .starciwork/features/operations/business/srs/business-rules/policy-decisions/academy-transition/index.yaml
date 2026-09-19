@@ -1,0 +1,35 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.policy-decisions.academy-transition
+kind: business
+required: true
+state: todo
+description: Academy-to-Next transition decision
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-policy-decision@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: D04
+      title: Academy-to-Next transition decision
+      decisionStatus: deferred
+      accountableRole: Product owner with commercial and data owners
+      ownerAssignmentStatus: Proposed accountable business role; named person not assigned by this document.
+      question: If an Academy transition is included later, which purchased rights and ongoing work carry
+        forward, and how are disputes resolved?
+      requiredDecisions:
+        - Confirm whether transition is in a release scope.
+        - Obtain a separately authorized inventory and approve the mapping before implementation.
+      safeDisposition: Deferred by current instruction to focus on StarCiNext. Old code is not a source of
+        target behavior; no legacy mapping, reset or deletion is specified here.
+      affectedFeatureRefs: []
+      affectedDataRefs:
+        - DATA-entitlement
+        - DATA-support-case
+      affectedNfrRefs: []
+      closureEvidence: Record the authorized owner decision, effective date/version, affected release
+        scope and updated acceptance criteria. Document generation or schema validation cannot close
+        this decision.
+      featureOwner: operations
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

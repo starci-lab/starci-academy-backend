@@ -1,0 +1,16 @@
+schema: work/node@2
+id: starci-next.features.operations.business.srs.data
+kind: business
+required: true
+description: "data: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: data
+      title: data
+      status: draft
+      children:
+        - path: support-case/index.yaml
+          workRef: starci-next.business.srs.data.support-case
+          title: Scoped support and personal-data request

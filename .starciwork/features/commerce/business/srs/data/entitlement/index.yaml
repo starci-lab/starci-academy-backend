@@ -1,0 +1,100 @@
+schema: work/node@2
+id: starci-next.business.srs.data.entitlement
+kind: business
+required: true
+state: todo
+description: Effective capability entitlement
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.academy-transition
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-data-definition@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: DATA-entitlement
+      title: Effective capability entitlement
+      modelLevel: Proposed logical business contract; physical storage, indexes and APIs belong to SDS.
+      owner: benefit owner; scoped commercial operations
+      fields:
+        - name: id
+          meaning: Stable logical record identity
+          validation: Required, unique and not changed by a state transition
+          classification: context-scoped
+        - name: version
+          meaning: Record/content revision used for attribution and confirmation
+          validation: Identify the reviewed version; changed content must not impersonate an earlier revision
+          classification: context-scoped
+        - name: beneficiary
+          meaning: Account or approved scope receiving the right
+          validation: Must identify one authorized beneficiary
+          classification: private
+        - name: capabilityScope
+          meaning: Content or action authorized
+          validation: Explicit resource/action boundaries; no implied AI allowance
+          classification: restricted
+        - name: grantBasis
+          meaning: Purchase, role or authorized benefit decision
+          validation: Link to authoritative basis and approved terms
+          classification: restricted
+        - name: effectiveWindow
+          meaning: Start/end or policy-governed effective boundary
+          validation: Must agree with confirmed lifecycle terms
+          classification: private
+      relations:
+        - dataRef: DATA-account
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-purchase
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-subscription
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+        - dataRef: DATA-offer
+          meaning: Referenced business identity/version; lookup never grants access by itself.
+      states:
+        - pending
+        - active
+        - expired
+        - revoked
+      transitions:
+        - id: DATA-entitlement.T1
+          from: pending
+          to: active
+          event: Confirm authorized grant basis
+          guard: Required settlement or grant approval exists
+        - id: DATA-entitlement.T2
+          from: active
+          to: expired
+          event: Reach approved end boundary
+          guard: Apply D03 effective-date policy
+        - id: DATA-entitlement.T3
+          from: active
+          to: revoked
+          event: Apply authorized withdrawal
+          guard: Reason and policy basis recorded
+      invariants:
+        - Purchase intent cannot establish an active paid right.
+        - An AI usage limit does not expire an independent reading right.
+      decisionRefs:
+        - D02
+        - D03
+        - D04
+      privacy:
+        access: Apply current owner, role, resource and audience grants. A selected-public field is exposed
+          only after authorized publication.
+        retention: D08 selects retention/export/closure behavior. No storage duration or automatic deletion
+          policy is inferred.
+        referenceWithdrawal: Preserve permitted provenance while preventing newly unauthorized source
+          access; retained snapshots require approved D08 purpose and scope.
+      validationCases:
+        - given: An actor without current rights references this entitlement.
+          when: Read or mutate the record.
+          then: Deny the unauthorized action without disclosing restricted fields.
+        - given: A record in a declared state and an attributed authorized event.
+          when: Apply a listed transition.
+          then: Require its guard, retain the prior version attribution and reject a transition unsupported by
+            policy.
+      featureOwner: commerce
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

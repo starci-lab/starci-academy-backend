@@ -1,0 +1,123 @@
+schema: work/node@2
+id: starci-next.business.srs.customer-journeys.mentor-request-and-review
+kind: business
+required: true
+state: todo
+description: Present mentor expertise and deliver scoped review
+refs:
+  - starci-next.business.srs.functional-requirements.identity.access-workspace
+  - starci-next.business.srs.functional-requirements.mentoring.manage-mentor-presence
+  - starci-next.business.srs.functional-requirements.mentoring.request-and-deliver-scoped-review
+  - starci-next.business.srs.functional-requirements.projects.review-and-improve-project
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-customer-journey@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: CJ-12
+      title: Present mentor expertise and deliver scoped review
+      actor: learner and mentor
+      entry: A learner wants human feedback on selected evidence from an eligible mentor.
+      preconditions:
+        - The actor can enter the relevant personal/organization context.
+        - Each referenced feature establishes its own prerequisites, current permissions and
+          approved policy before its consequential action.
+      stages:
+        - id: CJ-12.S1
+          actorAction: Have the mentor enter their held role context
+          requirementRef: FR-ID-01
+          flowRef: FR-ID-01.MAIN
+          acceptanceRefs:
+            - FR-ID-01.AC.M1
+            - FR-ID-01.AC.M2
+            - FR-ID-01.AC.M3
+            - FR-ID-01.AC.M4
+          outcome: Being a mentor grants no private learner access.
+          nextStep: CJ-12.S2
+        - id: CJ-12.S2
+          actorAction: Have the mentor review expertise and support scope
+          requirementRef: FR-MENT-01
+          flowRef: FR-MENT-01.MAIN
+          acceptanceRefs:
+            - FR-MENT-01.AC.M1
+            - FR-MENT-01.AC.M2
+            - FR-MENT-01.AC.M3
+            - FR-MENT-01.AC.M4
+          outcome: Only supported claims and approved service commitments appear.
+          nextStep: CJ-12.S3
+        - id: CJ-12.S3
+          actorAction: Have the learner select evidence and request review
+          requirementRef: FR-MENT-02
+          flowRef: FR-MENT-02.MAIN
+          acceptanceRefs:
+            - FR-MENT-02.AC.M1
+            - FR-MENT-02.AC.M2
+            - FR-MENT-02.AC.M3
+            - FR-MENT-02.AC.M4
+            - FR-MENT-02.AC.M5
+          outcome: The mentor receives only the consented scope after eligible acceptance.
+          nextStep: CJ-12.S4
+        - id: CJ-12.S4
+          actorAction: Have the learner use attributable feedback in a new revision
+          requirementRef: FR-PROJ-03
+          flowRef: FR-PROJ-03.MAIN
+          acceptanceRefs:
+            - FR-PROJ-03.AC.M1
+            - FR-PROJ-03.AC.M2
+            - FR-PROJ-03.AC.M3
+            - FR-PROJ-03.AC.M4
+            - FR-PROJ-03.AC.M5
+          outcome: The original work and feedback remain linked.
+          nextStep: null
+      branches:
+        - id: CJ-12.B1
+          atStageRefs:
+            - CJ-12.S2
+          requirementRef: FR-MENT-01
+          flowRef: FR-MENT-01.ALT1
+          condition: Mentor service policy is not yet enabled
+          handling: Without an enabled service policy the profile makes no paid availability or response-time
+            promise.
+          acceptanceRefs:
+            - FR-MENT-01.AC.ALT1
+          outcome:
+            - No fee or SLA is invented.
+        - id: CJ-12.B2
+          atStageRefs:
+            - CJ-12.S3
+          requirementRef: FR-MENT-02
+          flowRef: FR-MENT-02.ALT1
+          condition: The mentor declines or the learner cancels before acceptance
+          handling: Declined/cancelled requests do not become delivered services.
+          acceptanceRefs:
+            - FR-MENT-02.AC.ALT1
+          outcome:
+            - No fabricated delivered service; any fee handling follows D10.
+        - id: CJ-12.B3
+          atStageRefs:
+            - CJ-12.S3
+          requirementRef: FR-MENT-02
+          flowRef: FR-MENT-02.EX1
+          condition: The learner withdraws the review permission
+          handling: Withdrawn evidence access prevents further private review.
+          acceptanceRefs:
+            - FR-MENT-02.AC.EX1
+          outcome:
+            - No new access through stored request references.
+      exit: A delivered human review identifies its evidence, reviewer and limits, or the request clearly
+        ends/waits under the approved service policy.
+      observations:
+        - A stage starts when the user reaches that feature with its prerequisites satisfied; the
+          overview does not bypass required project/evidence preparation.
+        - A referenced pending, cancelled or denied branch changes the journey outcome and must not
+          be reported as full-path success.
+      acceptanceCriteria:
+        - id: CJ-12.AC1
+          given: A learner wants human feedback on selected evidence from an eligible mentor.
+          when: Complete each relevant stage under its declared prerequisites and inspect branch outcomes.
+          then: A delivered human review identifies its evidence, reviewer and limits, or the request clearly
+            ends/waits under the approved service policy.
+      featureOwner: mentoring
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

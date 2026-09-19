@@ -1,0 +1,340 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.identity.access-workspace
+kind: business
+required: true
+state: todo
+description: Access the product in an authorized role
+refs:
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.data.account
+  - starci-next.business.srs.data.organization
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-ID-01
+      title: Access the product in an authorized role
+      domain: identity
+      goal: Access the product in an authorized role
+      priority: release-priority-awaits-D01
+      actors:
+        - member
+      preconditions:
+        - The configured identity capability and current role-grant authority are identifiable.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-ID-01.IN1
+          name: identityProof
+          validation: Proof for the configured identity capability; verification required, never include
+            secrets in public records
+          dataRefs:
+            - DATA-account
+            - DATA-organization
+        - id: FR-ID-01.IN2
+          name: roleContext
+          validation: An actually held personal or organization role; selecting it grants no new role
+          dataRefs:
+            - DATA-account
+            - DATA-organization
+      outputs:
+        - name: result-1
+          fromStep: FR-ID-01.MAIN.S1
+          meaning: Explain the required identity and available sign-in path
+          effect: No private information is disclosed.
+        - name: result-2
+          fromStep: FR-ID-01.MAIN.S2
+          meaning: Establish the verified account or return an explicit failure
+          effect: An authenticated session exists only after verification.
+        - name: result-3
+          fromStep: FR-ID-01.MAIN.S3
+          meaning: Show only roles and memberships currently held
+          effect: The selected context is associated with the session.
+        - name: result-4
+          fromStep: FR-ID-01.MAIN.S4
+          meaning: Check current action/resource rights and show permitted content
+          effect: The member can act only in the selected authorized scope.
+      businessRuleRefs:
+        - BR-RIGHTS
+        - BR-PRIVACY
+      dataRefs:
+        - DATA-account
+        - DATA-organization
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-AUDIT
+      decisionRefs:
+        - D11
+        - D08
+        - D05
+        - D03
+        - D07
+        - D12
+      directPolicyRefs:
+        - D11
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-ID-01.MAIN
+        trigger: Open a protected product area
+        steps:
+          - id: FR-ID-01.MAIN.S1
+            actor: member
+            request: Open a protected product area
+            systemResponse: Explain the required identity and available sign-in path
+            businessEffect: No private information is disclosed.
+            acceptanceRefs:
+              - FR-ID-01.AC.M1
+          - id: FR-ID-01.MAIN.S2
+            actor: member
+            request: Provide authentication through the configured identity capability
+            systemResponse: Establish the verified account or return an explicit failure
+            businessEffect: An authenticated session exists only after verification.
+            acceptanceRefs:
+              - FR-ID-01.AC.M2
+          - id: FR-ID-01.MAIN.S3
+            actor: member
+            request: Choose a personal or organization role context
+            systemResponse: Show only roles and memberships currently held
+            businessEffect: The selected context is associated with the session.
+            acceptanceRefs:
+              - FR-ID-01.AC.M3
+          - id: FR-ID-01.MAIN.S4
+            actor: member
+            request: Open the requested area
+            systemResponse: Check current action/resource rights and show permitted content
+            businessEffect: The member can act only in the selected authorized scope.
+            acceptanceRefs:
+              - FR-ID-01.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: The member can act only in the selected authorized scope.
+      alternativeFlows:
+        - id: FR-ID-01.ALT1
+          title: The account has several roles
+          fromStep: FR-ID-01.MAIN.S3
+          condition: The account has several roles
+          steps:
+            - id: FR-ID-01.ALT1.S1
+              actor: member
+              request: Switch to another held role
+              systemResponse: Show the resources and actions permitted in that role
+              businessEffect: No membership or permission is granted by switching.
+              acceptanceRefs:
+                - FR-ID-01.AC.ALT1
+          resume:
+            type: end
+            outcome: No membership or permission is granted by switching.
+          postconditions:
+            - No membership or permission is granted by switching.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-ID-01.AC.ALT1
+      exceptionFlows:
+        - id: FR-ID-01.EX1
+          title: Identity verification fails or expires
+          fromStep: FR-ID-01.MAIN.S2
+          condition: Identity verification fails or expires
+          steps:
+            - id: FR-ID-01.EX1.S1
+              actor: member
+              request: Try to establish the session
+              systemResponse: Explain how to retry authentication without disclosing account secrets
+              businessEffect: No protected session or product mutation.
+              acceptanceRefs:
+                - FR-ID-01.AC.EX1
+          resume:
+            type: end
+            outcome: No protected session or product mutation.
+          postconditions:
+            - No protected session or product mutation.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-ID-01.AC.EX1
+        - id: FR-ID-01.EX2
+          title: Membership is revoked while an area is open
+          fromStep: FR-ID-01.MAIN.S4
+          condition: Membership is revoked while an area is open
+          steps:
+            - id: FR-ID-01.EX2.S1
+              actor: member
+              request: Refresh or perform a protected action
+              systemResponse: Deny newly unauthorized access and show the loss of access
+              businessEffect: Previously displayed private data is not redistributed; no new unauthorized effect.
+              acceptanceRefs:
+                - FR-ID-01.AC.EX2
+          resume:
+            type: end
+            outcome: Previously displayed private data is not redistributed; no new unauthorized effect.
+          postconditions:
+            - Previously displayed private data is not redistributed; no new unauthorized effect.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-ID-01.AC.EX2
+      postconditions:
+        success:
+          - No private information is disclosed.
+          - An authenticated session exists only after verification.
+          - The selected context is associated with the session.
+          - The member can act only in the selected authorized scope.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No protected session or product mutation.
+          - Previously displayed private data is not redistributed; no new unauthorized effect.
+      acceptanceCriteria:
+        - id: FR-ID-01.AC.M1
+          flowRef: FR-ID-01.MAIN
+          stepRefs:
+            - FR-ID-01.MAIN.S1
+          given:
+            - The configured identity capability and current role-grant authority are identifiable.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open a protected product area
+          then:
+            - Explain the required identity and available sign-in path
+            - No private information is disclosed.
+        - id: FR-ID-01.AC.M2
+          flowRef: FR-ID-01.MAIN
+          stepRefs:
+            - FR-ID-01.MAIN.S2
+          given:
+            - The previous main-flow step FR-ID-01.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Provide authentication through the configured identity capability
+          then:
+            - Establish the verified account or return an explicit failure
+            - An authenticated session exists only after verification.
+        - id: FR-ID-01.AC.M3
+          flowRef: FR-ID-01.MAIN
+          stepRefs:
+            - FR-ID-01.MAIN.S3
+          given:
+            - The previous main-flow step FR-ID-01.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Choose a personal or organization role context
+          then:
+            - Show only roles and memberships currently held
+            - The selected context is associated with the session.
+        - id: FR-ID-01.AC.M4
+          flowRef: FR-ID-01.MAIN
+          stepRefs:
+            - FR-ID-01.MAIN.S4
+          given:
+            - The previous main-flow step FR-ID-01.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open the requested area
+          then:
+            - Check current action/resource rights and show permitted content
+            - The member can act only in the selected authorized scope.
+        - id: FR-ID-01.AC.ALT1
+          flowRef: FR-ID-01.ALT1
+          stepRefs:
+            - FR-ID-01.ALT1.S1
+          given:
+            - Execution reaches FR-ID-01.MAIN.S3.
+            - The account has several roles
+          when: Switch to another held role
+          then:
+            - Show the resources and actions permitted in that role
+            - No membership or permission is granted by switching.
+        - id: FR-ID-01.AC.EX1
+          flowRef: FR-ID-01.EX1
+          stepRefs:
+            - FR-ID-01.EX1.S1
+          given:
+            - Execution reaches FR-ID-01.MAIN.S2.
+            - Identity verification fails or expires
+          when: Try to establish the session
+          then:
+            - Explain how to retry authentication without disclosing account secrets
+            - No protected session or product mutation.
+        - id: FR-ID-01.AC.EX2
+          flowRef: FR-ID-01.EX2
+          stepRefs:
+            - FR-ID-01.EX2.S1
+          given:
+            - Execution reaches FR-ID-01.MAIN.S4.
+            - Membership is revoked while an area is open
+          when: Refresh or perform a protected action
+          then:
+            - Deny newly unauthorized access and show the loss of access
+            - Previously displayed private data is not redistributed; no new unauthorized effect.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: identity
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "2"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Open a protected product area

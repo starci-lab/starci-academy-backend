@@ -1,0 +1,135 @@
+schema: work/node@2
+id: starci-next.business.srs.customer-journeys.ask-check-and-correct
+kind: business
+required: true
+state: todo
+description: Ask, verify and correct a learning answer
+refs:
+  - starci-next.business.srs.functional-requirements.rag.ask-grounded-question
+  - starci-next.business.srs.functional-requirements.rag.report-and-correct-answer
+  - starci-next.business.srs.functional-requirements.authoring.curate-learning-sources
+  - starci-next.business.srs.functional-requirements.concepts.study-structured-concept
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-customer-journey@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: CJ-03
+      title: Ask, verify and correct a learning answer
+      actor: learner with content reviewer
+      entry: The learner has a question in a permitted Concept, attempt or review context.
+      preconditions:
+        - The actor can enter the relevant personal/organization context.
+        - Each referenced feature establishes its own prerequisites, current permissions and
+          approved policy before its consequential action.
+      stages:
+        - id: CJ-03.S1
+          actorAction: Ask with selected context and inspect citations
+          requirementRef: FR-RAG-01
+          flowRef: FR-RAG-01.MAIN
+          acceptanceRefs:
+            - FR-RAG-01.AC.M1
+            - FR-RAG-01.AC.M2
+            - FR-RAG-01.AC.M3
+            - FR-RAG-01.AC.M4
+            - FR-RAG-01.AC.M5
+          outcome: The answer distinguishes source-backed claims and limitations.
+          nextStep: CJ-03.S2
+        - id: CJ-03.S2
+          actorAction: Report a disputed claim with permitted context
+          requirementRef: FR-RAG-02
+          flowRef: FR-RAG-02.MAIN
+          acceptanceRefs:
+            - FR-RAG-02.AC.M1
+            - FR-RAG-02.AC.M2
+            - FR-RAG-02.AC.M3
+            - FR-RAG-02.AC.M4
+          outcome: A tracked case preserves the answer and source version.
+          nextStep: CJ-03.S3
+        - id: CJ-03.S3
+          actorAction: Have an authorized editor inspect the source dispute
+          requirementRef: FR-AUTH-02
+          flowRef: FR-AUTH-02.MAIN
+          acceptanceRefs:
+            - FR-AUTH-02.AC.M1
+            - FR-AUTH-02.AC.M2
+            - FR-AUTH-02.AC.M3
+            - FR-AUTH-02.AC.M4
+          outcome: Trust and reuse decisions are explicit.
+          nextStep: CJ-03.S4
+        - id: CJ-03.S4
+          actorAction: Inspect the correction or unresolved outcome
+          requirementRef: FR-RAG-02
+          flowRef: FR-RAG-02.MAIN
+          acceptanceRefs:
+            - FR-RAG-02.AC.M1
+            - FR-RAG-02.AC.M2
+            - FR-RAG-02.AC.M3
+            - FR-RAG-02.AC.M4
+          outcome: The learner sees what changed and what remains uncertain.
+          nextStep: CJ-03.S5
+        - id: CJ-03.S5
+          actorAction: Return to the relevant learning activity
+          requirementRef: FR-CON-02
+          flowRef: FR-CON-02.MAIN
+          acceptanceRefs:
+            - FR-CON-02.AC.M1
+            - FR-CON-02.AC.M2
+            - FR-CON-02.AC.M3
+            - FR-CON-02.AC.M4
+            - FR-CON-02.AC.M5
+          outcome: Learning continues from the known Concept context.
+          nextStep: null
+      branches:
+        - id: CJ-03.B1
+          atStageRefs:
+            - CJ-03.S1
+          requirementRef: FR-RAG-01
+          flowRef: FR-RAG-01.EX2
+          condition: Retrieval is unavailable
+          handling: A retrieval outage follows status/retry policy; it is not described as absence of
+            knowledge.
+          acceptanceRefs:
+            - FR-RAG-01.AC.EX2
+          outcome:
+            - Preserve the question; usage/retry follows the declared policy.
+        - id: CJ-03.B2
+          atStageRefs:
+            - CJ-03.S3
+          requirementRef: FR-AUTH-02
+          flowRef: FR-AUTH-02.ALT1
+          condition: The source conflicts with an official lesson
+          handling: Conflicting community content stays unapproved while the responsible reviewer resolves the
+            claim.
+          acceptanceRefs:
+            - FR-AUTH-02.AC.ALT1
+          outcome:
+            - Community popularity does not decide source truth.
+        - id: CJ-03.B3
+          atStageRefs:
+            - CJ-03.S1
+          requirementRef: FR-RAG-01
+          flowRef: FR-RAG-01.EX3
+          condition: Rights or sharing consent changed since an earlier turn
+          handling: A follow-up after consent withdrawal uses only currently permitted context.
+          acceptanceRefs:
+            - FR-RAG-01.AC.EX3
+          outcome:
+            - Private or newly restricted text is not exposed through conversation continuity.
+      exit: The question is answered with provenance or remains explicitly limited, and the learner can
+        continue without unsupported source claims.
+      observations:
+        - A stage starts when the user reaches that feature with its prerequisites satisfied; the
+          overview does not bypass required project/evidence preparation.
+        - A referenced pending, cancelled or denied branch changes the journey outcome and must not
+          be reported as full-path success.
+      acceptanceCriteria:
+        - id: CJ-03.AC1
+          given: The learner has a question in a permitted Concept, attempt or review context.
+          when: Complete each relevant stage under its declared prerequisites and inspect branch outcomes.
+          then: The question is answered with provenance or remains explicitly limited, and the learner can
+            continue without unsupported source claims.
+      featureOwner: rag
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

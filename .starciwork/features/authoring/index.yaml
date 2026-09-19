@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.authoring
+kind: business
+required: true
+description: "authoring: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: authoring
+    title: authoring
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.authoring.business
+        title: "authoring: business scope and SRS"

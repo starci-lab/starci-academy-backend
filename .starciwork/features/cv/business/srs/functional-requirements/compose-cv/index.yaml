@@ -1,0 +1,396 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.cv.compose-cv
+kind: business
+required: true
+state: todo
+description: Compose and approve a CV from selected experience
+refs:
+  - starci-next.business.srs.business-rules.evidence-based-cv
+  - starci-next.business.srs.business-rules.assessment-provenance
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.business-rules.bounded-ai-assistance
+  - starci-next.business.srs.data.cv
+  - starci-next.business.srs.data.profile
+  - starci-next.business.srs.data.learning-evidence
+  - starci-next.business.srs.data.project
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.grounding-and-ai-boundaries
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.allowance-and-cost-visibility
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-CV-01
+      title: Compose and approve a CV from selected experience
+      domain: cv
+      goal: Compose and approve a CV from selected experience
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - The learner can inspect their own facts and selected evidence.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-CV-01.IN1
+          name: selectedFacts
+          validation: User-supplied experience and allowed evidence for a target role
+          dataRefs:
+            - DATA-cv
+            - DATA-profile
+            - DATA-evidence
+            - DATA-project
+        - id: FR-CV-01.IN2
+          name: wordingAndApproval
+          validation: Learner edits and acceptance of the exact reviewed draft
+          dataRefs:
+            - DATA-cv
+            - DATA-profile
+            - DATA-evidence
+            - DATA-project
+      outputs:
+        - name: result-1
+          fromStep: FR-CV-01.MAIN.S1
+          meaning: Show the items available for inclusion and their provenance
+          effect: Private background evidence is not automatically made public.
+        - name: result-2
+          fromStep: FR-CV-01.MAIN.S2
+          meaning: Produce an editable CV proposal grounded in selected information
+          effect: Unverified details are flagged for learner confirmation.
+        - name: result-3
+          fromStep: FR-CV-01.MAIN.S3
+          meaning: Keep changes visibly attributable to the learner or proposed assistance
+          effect: No invented job title, dates or impact figures are asserted as fact.
+        - name: result-4
+          fromStep: FR-CV-01.MAIN.S4
+          meaning: Record the exact text and selected evidence references
+          effect: Only the approved version is ready for export or sharing.
+      businessRuleRefs:
+        - BR-CV
+        - BR-EVIDENCE
+        - BR-PRIVACY
+        - BR-AI
+      dataRefs:
+        - DATA-cv
+        - DATA-profile
+        - DATA-evidence
+        - DATA-project
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-AI
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-COST
+        - NFR-AUDIT
+      decisionRefs:
+        - D08
+        - D05
+        - D07
+        - D06
+        - D11
+        - D03
+        - D12
+        - D02
+      directPolicyRefs:
+        - D08
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-CV-01.MAIN
+        trigger: Choose a target role and owned experience/project evidence
+        steps:
+          - id: FR-CV-01.MAIN.S1
+            actor: learner
+            request: Choose a target role and owned experience/project evidence
+            systemResponse: Show the items available for inclusion and their provenance
+            businessEffect: Private background evidence is not automatically made public.
+            acceptanceRefs:
+              - FR-CV-01.AC.M1
+          - id: FR-CV-01.MAIN.S2
+            actor: learner
+            request: Request wording or structure assistance
+            systemResponse: Produce an editable CV proposal grounded in selected information
+            businessEffect: Unverified details are flagged for learner confirmation.
+            acceptanceRefs:
+              - FR-CV-01.AC.M2
+          - id: FR-CV-01.MAIN.S3
+            actor: learner
+            request: Edit wording and fill missing factual details
+            systemResponse: Keep changes visibly attributable to the learner or proposed assistance
+            businessEffect: No invented job title, dates or impact figures are asserted as fact.
+            acceptanceRefs:
+              - FR-CV-01.AC.M3
+          - id: FR-CV-01.MAIN.S4
+            actor: learner
+            request: Review and approve the CV version
+            systemResponse: Record the exact text and selected evidence references
+            businessEffect: Only the approved version is ready for export or sharing.
+            acceptanceRefs:
+              - FR-CV-01.AC.M4
+        end:
+          type: completed-main-flow
+          outcome: Only the approved version is ready for export or sharing.
+      alternativeFlows:
+        - id: FR-CV-01.ALT1
+          title: The learner prefers to write manually
+          fromStep: FR-CV-01.MAIN.S2
+          condition: The learner prefers to write manually
+          steps:
+            - id: FR-CV-01.ALT1.S1
+              actor: learner
+              request: Edit without AI assistance
+              systemResponse: Allow the learner to compose the CV directly
+              businessEffect: Approval remains explicit.
+              acceptanceRefs:
+                - FR-CV-01.AC.ALT1
+          resume:
+            type: main-step
+            stepRef: FR-CV-01.MAIN.S3
+          postconditions:
+            - Approval remains explicit.
+          continuation: Continue at FR-CV-01.MAIN.S3.
+          acceptanceRefs:
+            - FR-CV-01.AC.ALT1
+      exceptionFlows:
+        - id: FR-CV-01.EX1
+          title: Selected evidence is withdrawn or inconsistent
+          fromStep: FR-CV-01.MAIN.S2
+          condition: Selected evidence is withdrawn or inconsistent
+          steps:
+            - id: FR-CV-01.EX1.S1
+              actor: learner
+              request: Generate a CV proposal
+              systemResponse: Identify unavailable or conflicting claims for review
+              businessEffect: No unsupported achievement is silently inserted.
+              acceptanceRefs:
+                - FR-CV-01.AC.EX1
+          resume:
+            type: end
+            outcome: No unsupported achievement is silently inserted.
+          postconditions:
+            - No unsupported achievement is silently inserted.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-CV-01.AC.EX1
+        - id: FR-CV-01.EX2
+          title: The underlying CV changed while being reviewed
+          fromStep: FR-CV-01.MAIN.S4
+          condition: The underlying CV changed while being reviewed
+          steps:
+            - id: FR-CV-01.EX2.S1
+              actor: learner
+              request: Approve the stale version
+              systemResponse: Show the conflict and require review of the current draft
+              businessEffect: No silent overwrite of another edit.
+              acceptanceRefs:
+                - FR-CV-01.AC.EX2
+          resume:
+            type: end
+            outcome: No silent overwrite of another edit.
+          postconditions:
+            - No silent overwrite of another edit.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-CV-01.AC.EX2
+        - id: FR-CV-01.EX3
+          title: AI proposes a fact absent from the selected information
+          fromStep: FR-CV-01.MAIN.S2
+          condition: AI proposes a fact absent from the selected information
+          steps:
+            - id: FR-CV-01.EX3.S1
+              actor: learner
+              request: Review the generated wording
+              systemResponse: Flag the unsupported statement and request correction or valid learner-supplied facts
+              businessEffect: No invented employer, date or achievement is accepted as verified evidence.
+              acceptanceRefs:
+                - FR-CV-01.AC.EX3
+          resume:
+            type: end
+            outcome: No invented employer, date or achievement is accepted as verified evidence.
+          postconditions:
+            - No invented employer, date or achievement is accepted as verified evidence.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-CV-01.AC.EX3
+      postconditions:
+        success:
+          - Private background evidence is not automatically made public.
+          - Unverified details are flagged for learner confirmation.
+          - No invented job title, dates or impact figures are asserted as fact.
+          - Only the approved version is ready for export or sharing.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No unsupported achievement is silently inserted.
+          - No silent overwrite of another edit.
+          - No invented employer, date or achievement is accepted as verified evidence.
+      acceptanceCriteria:
+        - id: FR-CV-01.AC.M1
+          flowRef: FR-CV-01.MAIN
+          stepRefs:
+            - FR-CV-01.MAIN.S1
+          given:
+            - The learner can inspect their own facts and selected evidence.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Choose a target role and owned experience/project evidence
+          then:
+            - Show the items available for inclusion and their provenance
+            - Private background evidence is not automatically made public.
+        - id: FR-CV-01.AC.M2
+          flowRef: FR-CV-01.MAIN
+          stepRefs:
+            - FR-CV-01.MAIN.S2
+          given:
+            - The previous main-flow step FR-CV-01.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Request wording or structure assistance
+          then:
+            - Produce an editable CV proposal grounded in selected information
+            - Unverified details are flagged for learner confirmation.
+        - id: FR-CV-01.AC.M3
+          flowRef: FR-CV-01.MAIN
+          stepRefs:
+            - FR-CV-01.MAIN.S3
+          given:
+            - The previous main-flow step FR-CV-01.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Edit wording and fill missing factual details
+          then:
+            - Keep changes visibly attributable to the learner or proposed assistance
+            - No invented job title, dates or impact figures are asserted as fact.
+        - id: FR-CV-01.AC.M4
+          flowRef: FR-CV-01.MAIN
+          stepRefs:
+            - FR-CV-01.MAIN.S4
+          given:
+            - The previous main-flow step FR-CV-01.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Review and approve the CV version
+          then:
+            - Record the exact text and selected evidence references
+            - Only the approved version is ready for export or sharing.
+        - id: FR-CV-01.AC.ALT1
+          flowRef: FR-CV-01.ALT1
+          stepRefs:
+            - FR-CV-01.ALT1.S1
+          given:
+            - Execution reaches FR-CV-01.MAIN.S2.
+            - The learner prefers to write manually
+          when: Edit without AI assistance
+          then:
+            - Allow the learner to compose the CV directly
+            - Approval remains explicit.
+            - Continue at FR-CV-01.MAIN.S3 with current authority and reviewed context.
+        - id: FR-CV-01.AC.EX1
+          flowRef: FR-CV-01.EX1
+          stepRefs:
+            - FR-CV-01.EX1.S1
+          given:
+            - Execution reaches FR-CV-01.MAIN.S2.
+            - Selected evidence is withdrawn or inconsistent
+          when: Generate a CV proposal
+          then:
+            - Identify unavailable or conflicting claims for review
+            - No unsupported achievement is silently inserted.
+        - id: FR-CV-01.AC.EX2
+          flowRef: FR-CV-01.EX2
+          stepRefs:
+            - FR-CV-01.EX2.S1
+          given:
+            - Execution reaches FR-CV-01.MAIN.S4.
+            - The underlying CV changed while being reviewed
+          when: Approve the stale version
+          then:
+            - Show the conflict and require review of the current draft
+            - No silent overwrite of another edit.
+        - id: FR-CV-01.AC.EX3
+          flowRef: FR-CV-01.EX3
+          stepRefs:
+            - FR-CV-01.EX3.S1
+          given:
+            - Execution reaches FR-CV-01.MAIN.S2.
+            - AI proposes a fact absent from the selected information
+          when: Review the generated wording
+          then:
+            - Flag the unsupported statement and request correction or valid learner-supplied facts
+            - No invented employer, date or achievement is accepted as verified evidence.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AI
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-COST
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: cv
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "8.2"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Choose a target role and owned experience/project evidence

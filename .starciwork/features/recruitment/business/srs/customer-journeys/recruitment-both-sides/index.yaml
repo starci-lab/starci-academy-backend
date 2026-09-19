@@ -1,0 +1,133 @@
+schema: work/node@2
+id: starci-next.business.srs.customer-journeys.recruitment-both-sides
+kind: business
+required: true
+state: todo
+description: Candidate application and organization processing
+refs:
+  - starci-next.business.srs.functional-requirements.recruitment.manage-organization-and-opportunity
+  - starci-next.business.srs.functional-requirements.recruitment.discover-and-explain-matches
+  - starci-next.business.srs.functional-requirements.recruitment.apply-with-selected-evidence
+  - starci-next.business.srs.functional-requirements.recruitment.handle-application-and-contact
+  - starci-next.business.srs.functional-requirements.profiles.revise-or-withdraw-sharing
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-customer-journey@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: CJ-08
+      title: Candidate application and organization processing
+      actor: candidate and organization representative
+      entry: A candidate seeks a role and an authorized organization wants to receive applications.
+      preconditions:
+        - The actor can enter the relevant personal/organization context.
+        - Each referenced feature establishes its own prerequisites, current permissions and
+          approved policy before its consequential action.
+      stages:
+        - id: CJ-08.S1
+          actorAction: Have the representative prepare a permitted opportunity
+          requirementRef: FR-HIRE-01
+          flowRef: FR-HIRE-01.MAIN
+          acceptanceRefs:
+            - FR-HIRE-01.AC.M1
+            - FR-HIRE-01.AC.M2
+            - FR-HIRE-01.AC.M3
+            - FR-HIRE-01.AC.M4
+            - FR-HIRE-01.AC.M5
+          outcome: Organization identity and authority are visible.
+          nextStep: CJ-08.S2
+        - id: CJ-08.S2
+          actorAction: Have the candidate inspect matching evidence and gaps
+          requirementRef: FR-HIRE-02
+          flowRef: FR-HIRE-02.MAIN
+          acceptanceRefs:
+            - FR-HIRE-02.AC.M1
+            - FR-HIRE-02.AC.M2
+            - FR-HIRE-02.AC.M3
+            - FR-HIRE-02.AC.M4
+          outcome: Discovery alone shares no candidate application.
+          nextStep: CJ-08.S3
+        - id: CJ-08.S3
+          actorAction: Have the candidate confirm selected application content
+          requirementRef: FR-HIRE-03
+          flowRef: FR-HIRE-03.MAIN
+          acceptanceRefs:
+            - FR-HIRE-03.AC.M1
+            - FR-HIRE-03.AC.M2
+            - FR-HIRE-03.AC.M3
+            - FR-HIRE-03.AC.M4
+          outcome: The reviewed opportunity and disclosure versions are linked.
+          nextStep: CJ-08.S4
+        - id: CJ-08.S4
+          actorAction: Have an authorized representative inspect and act on the application
+          requirementRef: FR-HIRE-04
+          flowRef: FR-HIRE-04.MAIN
+          acceptanceRefs:
+            - FR-HIRE-04.AC.M1
+            - FR-HIRE-04.AC.M2
+            - FR-HIRE-04.AC.M3
+            - FR-HIRE-04.AC.M4
+          outcome: Only permitted candidate information and contact actions are available.
+          nextStep: CJ-08.S5
+        - id: CJ-08.S5
+          actorAction: Have the candidate revise/withdraw sharing when needed
+          requirementRef: FR-PROFILE-03
+          flowRef: FR-PROFILE-03.MAIN
+          acceptanceRefs:
+            - FR-PROFILE-03.AC.M1
+            - FR-PROFILE-03.AC.M2
+            - FR-PROFILE-03.AC.M3
+            - FR-PROFILE-03.AC.M4
+          outcome: Future access follows current consent and approved retained-use policy.
+          nextStep: null
+      branches:
+        - id: CJ-08.B1
+          atStageRefs:
+            - CJ-08.S1
+          requirementRef: FR-HIRE-01
+          flowRef: FR-HIRE-01.EX1
+          condition: Representation or publication authority is missing
+          handling: Missing representation authority prevents unauthorized organization publishing.
+          acceptanceRefs:
+            - FR-HIRE-01.AC.EX1
+          outcome:
+            - No false organization verification.
+        - id: CJ-08.B2
+          atStageRefs:
+            - CJ-08.S3
+          requirementRef: FR-HIRE-03
+          flowRef: FR-HIRE-03.ALT1
+          condition: The learner cancels before submission
+          handling: The candidate can leave the application draft without sending it.
+          acceptanceRefs:
+            - FR-HIRE-03.AC.ALT1
+          outcome:
+            - No application or recruiter contact.
+        - id: CJ-08.B3
+          atStageRefs:
+            - CJ-08.S4
+          requirementRef: FR-HIRE-04
+          flowRef: FR-HIRE-04.EX1
+          condition: Recruiter authority or candidate contact permission is absent
+          handling: Lost organization or candidate access prevents new unauthorized reads/contact.
+          acceptanceRefs:
+            - FR-HIRE-04.AC.EX1
+          outcome:
+            - No foreign application mutation or unauthorized contact.
+      exit: An application has an attributable processing/contact state; candidate consent and
+        organization scope remain enforceable.
+      observations:
+        - A stage starts when the user reaches that feature with its prerequisites satisfied; the
+          overview does not bypass required project/evidence preparation.
+        - A referenced pending, cancelled or denied branch changes the journey outcome and must not
+          be reported as full-path success.
+      acceptanceCriteria:
+        - id: CJ-08.AC1
+          given: A candidate seeks a role and an authorized organization wants to receive applications.
+          when: Complete each relevant stage under its declared prerequisites and inspect branch outcomes.
+          then: An application has an attributable processing/contact state; candidate consent and
+            organization scope remain enforceable.
+      featureOwner: recruitment
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

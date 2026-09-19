@@ -1,0 +1,418 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.commerce.purchase-and-confirm-rights
+kind: business
+required: true
+state: todo
+description: Purchase an offer and confirm resulting rights
+refs:
+  - starci-next.business.srs.business-rules.settlement-and-effective-rights
+  - starci-next.business.srs.business-rules.one-logical-effect
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.data.offer
+  - starci-next.business.srs.data.purchase
+  - starci-next.business.srs.data.subscription
+  - starci-next.business.srs.data.entitlement
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.allowance-and-cost-visibility
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-SUB-02
+      title: Purchase an offer and confirm resulting rights
+      domain: commerce
+      goal: Purchase an offer and confirm resulting rights
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+      preconditions:
+        - The buyer account and current known rights are identifiable; commercial effects require
+          approved terms and authoritative evidence.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-SUB-02.IN1
+          name: reviewedOffer
+          validation: Exact approved amount, currency, period and terms
+          dataRefs:
+            - DATA-offer
+            - DATA-purchase
+            - DATA-subscription
+            - DATA-entitlement
+        - id: FR-SUB-02.IN2
+          name: purchaseConfirmation
+          validation: Explicit buyer choice and identifiable payment intent
+          dataRefs:
+            - DATA-offer
+            - DATA-purchase
+            - DATA-subscription
+            - DATA-entitlement
+      outputs:
+        - name: result-1
+          fromStep: FR-SUB-02.MAIN.S1
+          meaning: Show the exact payable amount, currency and selected version
+          effect: The purchase is associated with the authenticated buyer.
+        - name: result-2
+          fromStep: FR-SUB-02.MAIN.S2
+          meaning: Create an identifiable purchase and show the available payment action
+          effect: Request acceptance does not mean payment succeeded.
+        - name: result-3
+          fromStep: FR-SUB-02.MAIN.S3
+          meaning: Show confirmed, pending, failed or unknown settlement from authoritative evidence
+          effect: A return page or learner assertion alone does not prove payment.
+        - name: result-4
+          fromStep: FR-SUB-02.MAIN.S4
+          meaning: Apply the purchased benefit once when settlement and approved terms permit it
+          effect: The confirmed purchase is linked to its resulting entitlement.
+        - name: result-5
+          fromStep: FR-SUB-02.MAIN.S5
+          meaning: Check the currently effective right and display the available benefit
+          effect: Receipt, settlement and activation status remain inspectable.
+      businessRuleRefs:
+        - BR-COMMERCE
+        - BR-REPEAT
+        - BR-RIGHTS
+      dataRefs:
+        - DATA-offer
+        - DATA-purchase
+        - DATA-subscription
+        - DATA-entitlement
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-COST
+        - NFR-AUDIT
+      decisionRefs:
+        - D02
+        - D03
+        - D08
+        - D11
+        - D07
+        - D05
+        - D12
+      directPolicyRefs:
+        - D02
+        - D03
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-SUB-02.MAIN
+        trigger: Review an available offer and its terms
+        steps:
+          - id: FR-SUB-02.MAIN.S1
+            actor: learner
+            request: Review an available offer and its terms
+            systemResponse: Show the exact payable amount, currency and selected version
+            businessEffect: The purchase is associated with the authenticated buyer.
+            acceptanceRefs:
+              - FR-SUB-02.AC.M1
+          - id: FR-SUB-02.MAIN.S2
+            actor: learner
+            request: Confirm the purchase request
+            systemResponse: Create an identifiable purchase and show the available payment action
+            businessEffect: Request acceptance does not mean payment succeeded.
+            acceptanceRefs:
+              - FR-SUB-02.AC.M2
+          - id: FR-SUB-02.MAIN.S3
+            actor: learner
+            request: Complete the payment action and return
+            systemResponse: Show confirmed, pending, failed or unknown settlement from authoritative evidence
+            businessEffect: A return page or learner assertion alone does not prove payment.
+            acceptanceRefs:
+              - FR-SUB-02.AC.M3
+          - id: FR-SUB-02.MAIN.S4
+            actor: learner
+            request: Inspect confirmed settlement and rights
+            systemResponse: Apply the purchased benefit once when settlement and approved terms permit it
+            businessEffect: The confirmed purchase is linked to its resulting entitlement.
+            acceptanceRefs:
+              - FR-SUB-02.AC.M4
+          - id: FR-SUB-02.MAIN.S5
+            actor: learner
+            request: Open a purchased capability
+            systemResponse: Check the currently effective right and display the available benefit
+            businessEffect: Receipt, settlement and activation status remain inspectable.
+            acceptanceRefs:
+              - FR-SUB-02.AC.M5
+        end:
+          type: completed-main-flow
+          outcome: Receipt, settlement and activation status remain inspectable.
+      alternativeFlows:
+        - id: FR-SUB-02.ALT1
+          title: The learner abandons payment before settlement
+          fromStep: FR-SUB-02.MAIN.S2
+          condition: The learner abandons payment before settlement
+          steps:
+            - id: FR-SUB-02.ALT1.S1
+              actor: learner
+              request: Return without completing payment
+              systemResponse: Show an unpaid/pending purchase according to the known evidence
+              businessEffect: No right is granted merely for creating a purchase.
+              acceptanceRefs:
+                - FR-SUB-02.AC.ALT1
+          resume:
+            type: end
+            outcome: No right is granted merely for creating a purchase.
+          postconditions:
+            - No right is granted merely for creating a purchase.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-SUB-02.AC.ALT1
+      exceptionFlows:
+        - id: FR-SUB-02.EX1
+          title: Payment is pending or its response is lost
+          fromStep: FR-SUB-02.MAIN.S3
+          condition: Payment is pending or its response is lost
+          steps:
+            - id: FR-SUB-02.EX1.S1
+              actor: learner
+              request: Reopen the same purchase
+              systemResponse: Show the known state and a reconciliation path
+              businessEffect: Do not initiate a second charge just because the first result is unknown.
+              acceptanceRefs:
+                - FR-SUB-02.AC.EX1
+          resume:
+            type: end
+            outcome: Do not initiate a second charge just because the first result is unknown.
+          postconditions:
+            - Do not initiate a second charge just because the first result is unknown.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-SUB-02.AC.EX1
+        - id: FR-SUB-02.EX2
+          title: The same confirmed settlement is delivered repeatedly
+          fromStep: FR-SUB-02.MAIN.S4
+          condition: The same confirmed settlement is delivered repeatedly
+          steps:
+            - id: FR-SUB-02.EX2.S1
+              actor: learner
+              request: Inspect the purchase again
+              systemResponse: Return the existing purchase and benefit outcome
+              businessEffect: No duplicate benefit or duplicate usage allowance.
+              acceptanceRefs:
+                - FR-SUB-02.AC.EX2
+          resume:
+            type: end
+            outcome: No duplicate benefit or duplicate usage allowance.
+          postconditions:
+            - No duplicate benefit or duplicate usage allowance.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-SUB-02.AC.EX2
+        - id: FR-SUB-02.EX3
+          title: Payment is confirmed but benefit activation has failed
+          fromStep: FR-SUB-02.MAIN.S4
+          condition: Payment is confirmed but benefit activation has failed
+          steps:
+            - id: FR-SUB-02.EX3.S1
+              actor: learner
+              request: Open purchased content
+              systemResponse: Show paid/activation-pending and a tracked recovery path
+              businessEffect: Preserve the paid claim; do not demand repurchase.
+              acceptanceRefs:
+                - FR-SUB-02.AC.EX3
+          resume:
+            type: end
+            outcome: Preserve the paid claim; do not demand repurchase.
+          postconditions:
+            - Preserve the paid claim; do not demand repurchase.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-SUB-02.AC.EX3
+      postconditions:
+        success:
+          - The purchase is associated with the authenticated buyer.
+          - Request acceptance does not mean payment succeeded.
+          - A return page or learner assertion alone does not prove payment.
+          - The confirmed purchase is linked to its resulting entitlement.
+          - Receipt, settlement and activation status remain inspectable.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - Do not initiate a second charge just because the first result is unknown.
+          - No duplicate benefit or duplicate usage allowance.
+          - Preserve the paid claim; do not demand repurchase.
+      acceptanceCriteria:
+        - id: FR-SUB-02.AC.M1
+          flowRef: FR-SUB-02.MAIN
+          stepRefs:
+            - FR-SUB-02.MAIN.S1
+          given:
+            - The buyer account and current known rights are identifiable; commercial effects
+              require approved terms and authoritative evidence.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Review an available offer and its terms
+          then:
+            - Show the exact payable amount, currency and selected version
+            - The purchase is associated with the authenticated buyer.
+        - id: FR-SUB-02.AC.M2
+          flowRef: FR-SUB-02.MAIN
+          stepRefs:
+            - FR-SUB-02.MAIN.S2
+          given:
+            - The previous main-flow step FR-SUB-02.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Confirm the purchase request
+          then:
+            - Create an identifiable purchase and show the available payment action
+            - Request acceptance does not mean payment succeeded.
+        - id: FR-SUB-02.AC.M3
+          flowRef: FR-SUB-02.MAIN
+          stepRefs:
+            - FR-SUB-02.MAIN.S3
+          given:
+            - The previous main-flow step FR-SUB-02.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Complete the payment action and return
+          then:
+            - Show confirmed, pending, failed or unknown settlement from authoritative evidence
+            - A return page or learner assertion alone does not prove payment.
+        - id: FR-SUB-02.AC.M4
+          flowRef: FR-SUB-02.MAIN
+          stepRefs:
+            - FR-SUB-02.MAIN.S4
+          given:
+            - The previous main-flow step FR-SUB-02.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Inspect confirmed settlement and rights
+          then:
+            - Apply the purchased benefit once when settlement and approved terms permit it
+            - The confirmed purchase is linked to its resulting entitlement.
+        - id: FR-SUB-02.AC.M5
+          flowRef: FR-SUB-02.MAIN
+          stepRefs:
+            - FR-SUB-02.MAIN.S5
+          given:
+            - The previous main-flow step FR-SUB-02.MAIN.S4 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Open a purchased capability
+          then:
+            - Check the currently effective right and display the available benefit
+            - Receipt, settlement and activation status remain inspectable.
+        - id: FR-SUB-02.AC.ALT1
+          flowRef: FR-SUB-02.ALT1
+          stepRefs:
+            - FR-SUB-02.ALT1.S1
+          given:
+            - Execution reaches FR-SUB-02.MAIN.S2.
+            - The learner abandons payment before settlement
+          when: Return without completing payment
+          then:
+            - Show an unpaid/pending purchase according to the known evidence
+            - No right is granted merely for creating a purchase.
+        - id: FR-SUB-02.AC.EX1
+          flowRef: FR-SUB-02.EX1
+          stepRefs:
+            - FR-SUB-02.EX1.S1
+          given:
+            - Execution reaches FR-SUB-02.MAIN.S3.
+            - Payment is pending or its response is lost
+          when: Reopen the same purchase
+          then:
+            - Show the known state and a reconciliation path
+            - Do not initiate a second charge just because the first result is unknown.
+        - id: FR-SUB-02.AC.EX2
+          flowRef: FR-SUB-02.EX2
+          stepRefs:
+            - FR-SUB-02.EX2.S1
+          given:
+            - Execution reaches FR-SUB-02.MAIN.S4.
+            - The same confirmed settlement is delivered repeatedly
+          when: Inspect the purchase again
+          then:
+            - Return the existing purchase and benefit outcome
+            - No duplicate benefit or duplicate usage allowance.
+        - id: FR-SUB-02.AC.EX3
+          flowRef: FR-SUB-02.EX3
+          stepRefs:
+            - FR-SUB-02.EX3.S1
+          given:
+            - Execution reaches FR-SUB-02.MAIN.S4.
+            - Payment is confirmed but benefit activation has failed
+          when: Open purchased content
+          then:
+            - Show paid/activation-pending and a tracked recovery path
+            - Preserve the paid claim; do not demand repurchase.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-COST
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: commerce
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "11.2"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Review an available offer and its terms

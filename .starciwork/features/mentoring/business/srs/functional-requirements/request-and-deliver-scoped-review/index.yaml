@@ -1,0 +1,389 @@
+schema: work/node@2
+id: starci-next.business.srs.functional-requirements.mentoring.request-and-deliver-scoped-review
+kind: business
+required: true
+state: todo
+description: Request mentor review of selected learning evidence
+refs:
+  - starci-next.business.srs.business-rules.assessment-provenance
+  - starci-next.business.srs.business-rules.purpose-bound-sharing
+  - starci-next.business.srs.business-rules.current-resource-rights
+  - starci-next.business.srs.data.review
+  - starci-next.business.srs.data.learning-evidence
+  - starci-next.business.srs.data.share-grant
+  - starci-next.business.srs.data.profile
+  - starci-next.business.srs.non-functional-requirements.authorization-isolation
+  - starci-next.business.srs.non-functional-requirements.privacy-consent
+  - starci-next.business.srs.non-functional-requirements.history-and-result-integrity
+  - starci-next.business.srs.non-functional-requirements.uncertainty-and-recovery
+  - starci-next.business.srs.non-functional-requirements.repeat-and-concurrency
+  - starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+  - starci-next.business.srs.non-functional-requirements.accessible-and-clear-flows
+  - starci-next.business.srs.non-functional-requirements.explainable-and-auditable-outcomes
+  - starci-next.business.srs.non-functional-requirements.untrusted-submission-safety
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.mentor-service
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.subscription-policy
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: FR-MENT-02
+      title: Request mentor review of selected learning evidence
+      domain: mentoring
+      goal: Request mentor review of selected learning evidence
+      priority: release-priority-awaits-D01
+      actors:
+        - learner
+        - mentor
+      preconditions:
+        - The held mentor role or learner request scope is identifiable; service commitments require
+          enabled terms.
+        - Each protected step checks the acting identity, current resource/action/audience rights
+          and any applicable entitlement.
+        - Policy-dependent effects run only with the relevant approved policy; unresolved values
+          remain explicit decision dependencies and do not block writing/reviewing this draft.
+      inputs:
+        - id: FR-MENT-02.IN1
+          name: reviewSelection
+          validation: Eligible mentor and exact evidence shared for the request
+          dataRefs:
+            - DATA-review
+            - DATA-evidence
+            - DATA-share-grant
+            - DATA-profile
+        - id: FR-MENT-02.IN2
+          name: requestConsent
+          validation: Reviewed purpose, audience and enabled service terms
+          dataRefs:
+            - DATA-review
+            - DATA-evidence
+            - DATA-share-grant
+            - DATA-profile
+      outputs:
+        - name: result-1
+          fromStep: FR-MENT-02.MAIN.S1
+          meaning: Show the intended reviewer, evidence versions and share scope
+          effect: The learner private profile is excluded unless explicitly selected.
+        - name: result-2
+          fromStep: FR-MENT-02.MAIN.S2
+          meaning: Create the request only under enabled mentor policy
+          effect: Consent is scoped to this evidence and purpose.
+        - name: result-3
+          fromStep: FR-MENT-02.MAIN.S3
+          meaning: Show the request disposition and any approved completion expectation
+          effect: A sent request is not an accepted service or completed review.
+        - name: result-4
+          fromStep: FR-MENT-02.MAIN.S4
+          meaning: Link feedback to the viewed evidence and rubric with reviewer attribution
+          effect: Human feedback is distinguishable from AI output and objective tests.
+        - name: result-5
+          fromStep: FR-MENT-02.MAIN.S5
+          meaning: Retain the review and link the learner next attempt
+          effect: Feedback alone does not change private source work or guarantee certification.
+      businessRuleRefs:
+        - BR-EVIDENCE
+        - BR-PRIVACY
+        - BR-RIGHTS
+      dataRefs:
+        - DATA-review
+        - DATA-evidence
+        - DATA-share-grant
+        - DATA-profile
+      nonFunctionalRefs:
+        - NFR-SEC
+        - NFR-PRIV
+        - NFR-INTEGRITY
+        - NFR-RELIABILITY
+        - NFR-REPEAT
+        - NFR-LATENCY
+        - NFR-USABILITY
+        - NFR-AUDIT
+        - NFR-SUBMISSION
+      decisionRefs:
+        - D08
+        - D10
+        - D11
+        - D05
+        - D07
+        - D03
+        - D12
+        - D06
+      directPolicyRefs:
+        - D08
+        - D10
+      decisionTreatment: Direct policy refs affect the named feature behavior; inherited refs govern
+        cross-cutting rules and measurement targets. Open policies are not selected by this draft.
+      mainFlow:
+        id: FR-MENT-02.MAIN
+        trigger: Choose a mentor and the evidence requiring feedback
+        steps:
+          - id: FR-MENT-02.MAIN.S1
+            actor: learner
+            request: Choose a mentor and the evidence requiring feedback
+            systemResponse: Show the intended reviewer, evidence versions and share scope
+            businessEffect: The learner private profile is excluded unless explicitly selected.
+            acceptanceRefs:
+              - FR-MENT-02.AC.M1
+          - id: FR-MENT-02.MAIN.S2
+            actor: learner
+            request: Review available support terms and consent to the request
+            systemResponse: Create the request only under enabled mentor policy
+            businessEffect: Consent is scoped to this evidence and purpose.
+            acceptanceRefs:
+              - FR-MENT-02.AC.M2
+          - id: FR-MENT-02.MAIN.S3
+            actor: mentor
+            request: Have the mentor accept or decline the request
+            systemResponse: Show the request disposition and any approved completion expectation
+            businessEffect: A sent request is not an accepted service or completed review.
+            acceptanceRefs:
+              - FR-MENT-02.AC.M3
+          - id: FR-MENT-02.MAIN.S4
+            actor: mentor
+            request: Have the authorized mentor submit feedback
+            systemResponse: Link feedback to the viewed evidence and rubric with reviewer attribution
+            businessEffect: Human feedback is distinguishable from AI output and objective tests.
+            acceptanceRefs:
+              - FR-MENT-02.AC.M4
+          - id: FR-MENT-02.MAIN.S5
+            actor: learner
+            request: Read feedback and choose a revision
+            systemResponse: Retain the review and link the learner next attempt
+            businessEffect: Feedback alone does not change private source work or guarantee certification.
+            acceptanceRefs:
+              - FR-MENT-02.AC.M5
+        end:
+          type: completed-main-flow
+          outcome: Feedback alone does not change private source work or guarantee certification.
+      alternativeFlows:
+        - id: FR-MENT-02.ALT1
+          title: The mentor declines or the learner cancels before acceptance
+          fromStep: FR-MENT-02.MAIN.S3
+          condition: The mentor declines or the learner cancels before acceptance
+          steps:
+            - id: FR-MENT-02.ALT1.S1
+              actor: learner
+              request: Inspect the request
+              systemResponse: Show the declined/cancelled state and permitted next action
+              businessEffect: No fabricated delivered service; any fee handling follows D10.
+              acceptanceRefs:
+                - FR-MENT-02.AC.ALT1
+          resume:
+            type: end
+            outcome: No fabricated delivered service; any fee handling follows D10.
+          postconditions:
+            - No fabricated delivered service; any fee handling follows D10.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-MENT-02.AC.ALT1
+      exceptionFlows:
+        - id: FR-MENT-02.EX1
+          title: The learner withdraws the review permission
+          fromStep: FR-MENT-02.MAIN.S4
+          condition: The learner withdraws the review permission
+          steps:
+            - id: FR-MENT-02.EX1.S1
+              actor: learner
+              request: Open the work to continue review
+              systemResponse: Deny further access and mark the request unable to continue
+              businessEffect: No new access through stored request references.
+              acceptanceRefs:
+                - FR-MENT-02.AC.EX1
+          resume:
+            type: end
+            outcome: No new access through stored request references.
+          postconditions:
+            - No new access through stored request references.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-MENT-02.AC.EX1
+        - id: FR-MENT-02.EX2
+          title: Fees, availability or service policy is undefined
+          fromStep: FR-MENT-02.MAIN.S2
+          condition: Fees, availability or service policy is undefined
+          steps:
+            - id: FR-MENT-02.EX2.S1
+              actor: learner
+              request: Confirm an unavailable service
+              systemResponse: Explain the pending D10 policy
+              businessEffect: No paid request or response deadline is promised.
+              acceptanceRefs:
+                - FR-MENT-02.AC.EX2
+          resume:
+            type: end
+            outcome: No paid request or response deadline is promised.
+          postconditions:
+            - No paid request or response deadline is promised.
+          continuation: This flow instance ends with the stated outcome. A permitted correction, status lookup
+            or deliberate new request follows the response and current policy; it does not imply a
+            successful main outcome.
+          acceptanceRefs:
+            - FR-MENT-02.AC.EX2
+      postconditions:
+        success:
+          - The learner private profile is excluded unless explicitly selected.
+          - Consent is scoped to this evidence and purpose.
+          - A sent request is not an accepted service or completed review.
+          - Human feedback is distinguishable from AI output and objective tests.
+          - Feedback alone does not change private source work or guarantee certification.
+        failure:
+          - Only effects explicitly completed before the branch remain, with their original
+            attribution.
+          - No rejected or unresolved operation is presented as the successful main outcome.
+          - No new access through stored request references.
+          - No paid request or response deadline is promised.
+      acceptanceCriteria:
+        - id: FR-MENT-02.AC.M1
+          flowRef: FR-MENT-02.MAIN
+          stepRefs:
+            - FR-MENT-02.MAIN.S1
+          given:
+            - The held mentor role or learner request scope is identifiable; service commitments
+              require enabled terms.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Choose a mentor and the evidence requiring feedback
+          then:
+            - Show the intended reviewer, evidence versions and share scope
+            - The learner private profile is excluded unless explicitly selected.
+        - id: FR-MENT-02.AC.M2
+          flowRef: FR-MENT-02.MAIN
+          stepRefs:
+            - FR-MENT-02.MAIN.S2
+          given:
+            - The previous main-flow step FR-MENT-02.MAIN.S1 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Review available support terms and consent to the request
+          then:
+            - Create the request only under enabled mentor policy
+            - Consent is scoped to this evidence and purpose.
+        - id: FR-MENT-02.AC.M3
+          flowRef: FR-MENT-02.MAIN
+          stepRefs:
+            - FR-MENT-02.MAIN.S3
+          given:
+            - The previous main-flow step FR-MENT-02.MAIN.S2 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Have the mentor accept or decline the request
+          then:
+            - Show the request disposition and any approved completion expectation
+            - A sent request is not an accepted service or completed review.
+        - id: FR-MENT-02.AC.M4
+          flowRef: FR-MENT-02.MAIN
+          stepRefs:
+            - FR-MENT-02.MAIN.S4
+          given:
+            - The previous main-flow step FR-MENT-02.MAIN.S3 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Have the authorized mentor submit feedback
+          then:
+            - Link feedback to the viewed evidence and rubric with reviewer attribution
+            - Human feedback is distinguishable from AI output and objective tests.
+        - id: FR-MENT-02.AC.M5
+          flowRef: FR-MENT-02.MAIN
+          stepRefs:
+            - FR-MENT-02.MAIN.S5
+          given:
+            - The previous main-flow step FR-MENT-02.MAIN.S4 completed with its stated result.
+            - Each protected step checks the acting identity, current resource/action/audience
+              rights and any applicable entitlement.
+            - Policy-dependent effects run only with the relevant approved policy; unresolved values
+              remain explicit decision dependencies and do not block writing/reviewing this draft.
+          when: Read feedback and choose a revision
+          then:
+            - Retain the review and link the learner next attempt
+            - Feedback alone does not change private source work or guarantee certification.
+        - id: FR-MENT-02.AC.ALT1
+          flowRef: FR-MENT-02.ALT1
+          stepRefs:
+            - FR-MENT-02.ALT1.S1
+          given:
+            - Execution reaches FR-MENT-02.MAIN.S3.
+            - The mentor declines or the learner cancels before acceptance
+          when: Inspect the request
+          then:
+            - Show the declined/cancelled state and permitted next action
+            - No fabricated delivered service; any fee handling follows D10.
+        - id: FR-MENT-02.AC.EX1
+          flowRef: FR-MENT-02.EX1
+          stepRefs:
+            - FR-MENT-02.EX1.S1
+          given:
+            - Execution reaches FR-MENT-02.MAIN.S4.
+            - The learner withdraws the review permission
+          when: Open the work to continue review
+          then:
+            - Deny further access and mark the request unable to continue
+            - No new access through stored request references.
+        - id: FR-MENT-02.AC.EX2
+          flowRef: FR-MENT-02.EX2
+          stepRefs:
+            - FR-MENT-02.EX2.S1
+          given:
+            - Execution reaches FR-MENT-02.MAIN.S2.
+            - Fees, availability or service policy is undefined
+          when: Confirm an unavailable service
+          then:
+            - Explain the pending D10 policy
+            - No paid request or response deadline is promised.
+      nonFunctionalApplication:
+        - id: NFR-SEC
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-PRIV
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-INTEGRITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-RELIABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-REPEAT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-LATENCY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-USABILITY
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-AUDIT
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+        - id: NFR-SUBMISSION
+          scope: Main flow and every alternative/exception, including re-entry and current-rights checks.
+      designHandoff: SDS must map these requirement/flow/step IDs to actual entry points, boundaries, data
+        operations, failure paths and verification evidence. This SRS chooses no monolith,
+        microservice, source file, queue or database design.
+      featureOwner: mentoring
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "2"
+            - "7"
+            - "10.1"
+        - artifact: SRC-BRIEF
+          sections:
+            - "4"
+            - "5"
+            - "6"
+            - "7"
+      trigger: Choose a mentor and the evidence requiring feedback

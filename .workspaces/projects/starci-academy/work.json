@@ -1,0 +1,18 @@
+{
+  "schema": "starci/workspace-binding@1",
+  "project": "starci-academy",
+  "repositories": {
+    "be": {
+      "pathFromSource": ".",
+      "gitRepository": "https://github.com/starci-lab/starci-academy-backend"
+    },
+    "fe": {
+      "pathFromSource": "../starci-academy-fe",
+      "gitRepository": "https://github.com/starci-lab/starci-academy-fe.git"
+    }
+  },
+  "work": {
+    "ownerRole": "be",
+    "pathFromRepository": ".starciwork"
+  }
+}

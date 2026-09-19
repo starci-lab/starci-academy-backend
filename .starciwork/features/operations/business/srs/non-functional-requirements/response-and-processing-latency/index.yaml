@@ -1,0 +1,46 @@
+schema: work/node@2
+id: starci-next.business.srs.non-functional-requirements.response-and-processing-latency
+kind: business
+required: true
+state: todo
+description: Interactive and AI processing latency
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-non-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: NFR-LATENCY
+      title: Interactive and AI processing latency
+      scope:
+        - all
+      requirement: Learners can distinguish accepted work from ongoing AI, code evaluation or payment
+        processing without losing their place.
+      decisionRefs:
+        - D12
+      measurement:
+        metric: Measure p50/p95/p99 from user action to acknowledgement, first useful answer and terminal
+          result separately; numeric budgets are open in D12.
+        conditions: Measure cold/warm navigation and short/large allowed inputs across agreed
+          device/network/load profiles; include timeout/cancelled cohorts in reporting.
+        thresholdStatus: Quantitative/policy targets referenced above are open; deterministic invariants
+          below are reviewable now.
+        evidenceRequired: Record scenario, input/source/policy versions, environment/load, observation
+          timestamps, actual outcomes and metric calculation; do not substitute a document check for
+          runtime evidence.
+      acceptanceCriteria:
+        - id: NFR-LATENCY.AC1
+          given: Measure cold/warm navigation and short/large allowed inputs across agreed device/network/load
+            profiles; include timeout/cancelled cohorts in reporting.
+          when: Run discovery, lesson resume, RAG answer, code evaluation, project review and payment status
+            journeys under the agreed envelope.
+          then: Acknowledgement and processing states are distinguishable; drafts/context survive recoverable
+            delay; latency acceptance awaits approved per-operation budgets.
+      tradeoffBoundary: SDS proposes optimizations and capacity choices within these obligations. Privacy,
+        consent, financial truth and evidence provenance cannot be relaxed to improve latency or
+        cost.
+      featureOwner: operations
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

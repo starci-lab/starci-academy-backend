@@ -1,0 +1,16 @@
+schema: work/node@2
+id: starci-next.features.interviews.business.srs.data
+kind: business
+required: true
+description: "data: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: data
+      title: data
+      status: draft
+      children:
+        - path: interview/index.yaml
+          workRef: starci-next.business.srs.data.interview
+          title: Practice interview session

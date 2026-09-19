@@ -1,0 +1,19 @@
+schema: work/node@2
+id: starci-next.features.interviews.business
+kind: business
+required: true
+description: "interviews: business scope and SRS"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: feature-business
+      title: interviews business
+      status: draft
+      children:
+        - path: overview/index.yaml
+          workRef: starci-next.features.interviews.business.overview
+          title: "interviews: goals, scope and shared ownership"
+        - path: srs/index.yaml
+          workRef: starci-next.features.interviews.business.srs
+          title: "interviews: Software Requirements Specification"

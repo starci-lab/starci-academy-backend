@@ -115,10 +115,16 @@ import {
 import {
     ProSubscriptionQueriesModule,
 } from "./pro-subscription/pro-subscription.module"
+import {
+    ConceptsQueriesModule,
+} from "./concepts/concepts.module"
 
 @Module({
     imports: [
         ProSubscriptionQueriesModule,
+        ConceptsQueriesModule.register({
+            isGlobal: true,
+        }),
         AuthenticationQueriesModule.register({
             isGlobal: true,
         }),

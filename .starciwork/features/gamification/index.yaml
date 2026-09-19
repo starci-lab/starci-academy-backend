@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.gamification
+kind: business
+required: true
+description: "gamification: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: gamification
+    title: gamification
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.gamification.business
+        title: "gamification: business scope and SRS"

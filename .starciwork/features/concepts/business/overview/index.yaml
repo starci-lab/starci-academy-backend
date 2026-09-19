@@ -1,0 +1,58 @@
+schema: work/node@2
+id: starci-next.features.concepts.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "concepts: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.concepts.discover-concepts
+  - starci-next.business.srs.functional-requirements.concepts.study-structured-concept
+  - starci-next.business.srs.functional-requirements.concepts.answer-lesson-assessment
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-concepts
+      feature: concepts
+      title: concepts business overview
+      product: StarCiNext
+      goal: Discover concepts by category and learning need; Study a structured and versioned concept;
+        Answer concept quizzes and interview-style questions
+      actors:
+        - learner
+      inScope:
+        - requirementRef: FR-CON-01
+          title: Discover concepts by category and learning need
+        - requirementRef: FR-CON-02
+          title: Study a structured and versioned concept
+        - requirementRef: FR-CON-03
+          title: Answer concept quizzes and interview-style questions
+      relatedJourneyRefs:
+        - CJ-01
+        - CJ-02
+        - CJ-03
+      ownedSharedDefinitionRefs:
+        - BR-CONCEPT
+        - NFR-LANGUAGE
+        - DATA-concept
+        - DATA-category
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "4.1"
+            - "4.2"
+businessOverview:
+  purpose: Discover concepts by category and learning need; Study a structured and versioned concept;
+    Answer concept quizzes and interview-style questions
+  customerUnderstanding: StarCiNext concepts serves learner through the requirements and journeys owned by this feature.
+  desiredOutcome: Discover concepts by category and learning need; Study a structured and versioned
+    concept; Answer concept quizzes and interview-style questions
+  scope: Discover concepts by category and learning need; Study a structured and versioned concept;
+    Answer concept quizzes and interview-style questions
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.

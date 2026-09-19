@@ -1,0 +1,55 @@
+schema: work/node@2
+id: starci-next.business.srs.non-functional-requirements.allowance-and-cost-visibility
+kind: business
+required: true
+state: todo
+description: Allowance and cost control
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.commercial-offers
+  - starci-next.business.srs.business-rules.policy-decisions.failed-ai-usage
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-non-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: NFR-COST
+      title: Allowance and cost control
+      scope:
+        - rag
+        - challenges
+        - projects
+        - interviews
+        - cv
+        - commerce
+        - operations
+      requirement: AI/review consumption is explainable per request, bounded by approved allowance and
+        independent of unrelated content rights.
+      decisionRefs:
+        - D02
+        - D07
+        - D12
+      measurement:
+        metric: Measure operation counts, counted/released/pending usage and cost per approved operation
+          class; prices, limits and aggregate budgets await D02/D07/D12.
+        conditions: Exercise completed, failed, cancelled, unknown and duplicate requests, including
+          concurrent requests at an allowance boundary.
+        thresholdStatus: Quantitative/policy targets referenced above are open; deterministic invariants
+          below are reviewable now.
+        evidenceRequired: Record scenario, input/source/policy versions, environment/load, observation
+          timestamps, actual outcomes and metric calculation; do not substitute a document check for
+          runtime evidence.
+      acceptanceCriteria:
+        - id: NFR-COST.AC1
+          given: Exercise completed, failed, cancelled, unknown and duplicate requests, including concurrent
+            requests at an allowance boundary.
+          when: Compare operation outcomes with usage history and the presented allowance.
+          then: Every usage effect has a request and rule version; duplicate requests do not count twice;
+            undefined charging behavior is not offered as an approved contract.
+      tradeoffBoundary: SDS proposes optimizations and capacity choices within these obligations. Privacy,
+        consent, financial truth and evidence provenance cannot be relaxed to improve latency or
+        cost.
+      featureOwner: commerce
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

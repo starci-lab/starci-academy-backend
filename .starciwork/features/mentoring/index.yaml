@@ -1,0 +1,14 @@
+schema: work/node@2
+id: starci-next.features.mentoring
+kind: business
+required: true
+description: "mentoring: feature-owned specification"
+extensions:
+  starci:
+    schema: starci/feature@1
+    feature: mentoring
+    title: mentoring
+    children:
+      - path: business/index.yaml
+        workRef: starci-next.features.mentoring.business
+        title: "mentoring: business scope and SRS"

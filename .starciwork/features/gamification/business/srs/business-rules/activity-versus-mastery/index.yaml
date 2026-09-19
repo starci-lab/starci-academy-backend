@@ -1,0 +1,46 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.activity-versus-mastery
+kind: business
+required: true
+state: todo
+description: Activity and mastery are distinct
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-business-rule@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: BR-MASTERY
+      title: Activity and mastery are distinct
+      statements:
+        - Reading, attempts, objective test outcomes, AI/human feedback and demonstrated
+          competencies are separate dimensions.
+        - An achieved criterion must identify applicable evidence and approved rubric; XP, streak or
+          attempt count alone does not certify competence.
+        - Unavailable evidence and changed criteria must expose verification limits without silently
+          rewriting history.
+      decisionRefs:
+        - D05
+      example: A learner with a long reading streak and no passing evidence remains unassessed for the
+        required practical criterion.
+      acceptanceCriteria:
+        - id: BR-MASTERY.AC1
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Reading, attempts, objective test outcomes, AI/human feedback and demonstrated competencies
+            are separate dimensions.
+        - id: BR-MASTERY.AC2
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: An achieved criterion must identify applicable evidence and approved rubric; XP, streak or
+            attempt count alone does not certify competence.
+        - id: BR-MASTERY.AC3
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Unavailable evidence and changed criteria must expose verification limits without silently
+            rewriting history.
+      featureOwner: gamification
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

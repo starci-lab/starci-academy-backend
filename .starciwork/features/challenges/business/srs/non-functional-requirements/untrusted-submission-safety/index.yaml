@@ -1,0 +1,54 @@
+schema: work/node@2
+id: starci-next.business.srs.non-functional-requirements.untrusted-submission-safety
+kind: business
+required: true
+state: todo
+description: Untrusted code and evidence safety
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+  - starci-next.business.srs.business-rules.policy-decisions.knowledge-and-ai-quality
+  - starci-next.business.srs.business-rules.policy-decisions.delivery-and-service-targets
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-non-functional-requirement@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: NFR-SUBMISSION
+      title: Untrusted code and evidence safety
+      scope:
+        - challenges
+        - projects
+        - interviews
+        - authoring
+        - mentoring
+      requirement: Submitted code, URLs and artifacts remain untrusted inputs; evaluation must not expose
+        platform secrets, another learner work or uncontrolled resource access.
+      decisionRefs:
+        - D05
+        - D06
+        - D12
+      measurement:
+        metric: No unauthorized read/write, secret disclosure or uncontrolled execution in approved
+          adversarial cases; resource and input-size budgets await D12.
+        conditions: Use malicious code, infinite execution, oversized files, inaccessible evidence,
+          secret-bearing submissions and links to nonpermitted resources.
+        thresholdStatus: Quantitative/policy targets referenced above are open; deterministic invariants
+          below are reviewable now.
+        evidenceRequired: Record scenario, input/source/policy versions, environment/load, observation
+          timestamps, actual outcomes and metric calculation; do not substitute a document check for
+          runtime evidence.
+      acceptanceCriteria:
+        - id: NFR-SUBMISSION.AC1
+          given: Use malicious code, infinite execution, oversized files, inaccessible evidence,
+            secret-bearing submissions and links to nonpermitted resources.
+          when: Submit for evaluation and request feedback or preview.
+          then: Unsafe/unavailable evidence receives an explicit rejected/limited/process-failure outcome
+            without learner pass/fail fabrication; private payloads are not redistributed to other
+            users or source collections.
+      tradeoffBoundary: SDS proposes optimizations and capacity choices within these obligations. Privacy,
+        consent, financial truth and evidence provenance cannot be relaxed to improve latency or
+        cost.
+      featureOwner: challenges
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

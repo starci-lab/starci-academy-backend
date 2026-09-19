@@ -53,6 +53,11 @@ export class SeedScopeService {
         return this.seeders().courses.interview.enabled
     }
 
+    /** Whether standalone concept and section seeding is enabled. */
+    isConceptsSeederEnabled(): boolean {
+        return this.seeders().concepts
+    }
+
     /** Whether CV mount seeding is enabled. */
     isCvSeederEnabled(): boolean {
         return this.seeders().cv

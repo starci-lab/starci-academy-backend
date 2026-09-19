@@ -1,0 +1,42 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.incremental-assistance
+kind: business
+required: true
+state: todo
+description: Incremental assistance
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.evaluation-and-recognition
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-business-rule@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: BR-HINTS
+      title: Incremental assistance
+      statements:
+        - A learner can request permitted hints without being forced to view a full solution.
+        - Solution use and assistance depth are recorded as assessment context; their effect on
+          evaluation requires the approved rule.
+        - Viewing a solution is not proof of independent practical competence.
+      decisionRefs:
+        - D05
+      example: The first hint can point to the relevant concept while leaving the implementation problem
+        to the learner.
+      acceptanceCriteria:
+        - id: BR-HINTS.AC1
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: A learner can request permitted hints without being forced to view a full solution.
+        - id: BR-HINTS.AC2
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Solution use and assistance depth are recorded as assessment context; their effect on
+            evaluation requires the approved rule.
+        - id: BR-HINTS.AC3
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Viewing a solution is not proof of independent practical competence.
+      featureOwner: challenges
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

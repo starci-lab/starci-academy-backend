@@ -1,0 +1,28 @@
+schema: work/node@2
+id: starci-next.features.commerce.business.srs.data
+kind: business
+required: true
+description: "data: owned specification items"
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-aggregate@1
+      section: data
+      title: data
+      status: draft
+      children:
+        - path: entitlement/index.yaml
+          workRef: starci-next.business.srs.data.entitlement
+          title: Effective capability entitlement
+        - path: offer/index.yaml
+          workRef: starci-next.business.srs.data.offer
+          title: Versioned commercial offer
+        - path: purchase/index.yaml
+          workRef: starci-next.business.srs.data.purchase
+          title: Purchase and authoritative financial outcome
+        - path: subscription/index.yaml
+          workRef: starci-next.business.srs.data.subscription
+          title: Subscription agreement and effective schedule
+        - path: usage/index.yaml
+          workRef: starci-next.business.srs.data.usage
+          title: AI/review usage disposition

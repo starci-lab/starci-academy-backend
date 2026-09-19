@@ -1,0 +1,46 @@
+schema: work/node@2
+id: starci-next.business.srs.business-rules.current-resource-rights
+kind: business
+required: true
+state: todo
+description: Current resource rights
+refs:
+  - starci-next.business.srs.business-rules.policy-decisions.privacy-and-sharing
+  - starci-next.business.srs.business-rules.policy-decisions.recruitment-trust
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-business-rule@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: BR-RIGHTS
+      title: Current resource rights
+      statements:
+        - "A role or UI link is not permission by itself: evaluate the acting account, current
+          context, requested action, target resource and effective rights."
+        - A lost membership, expired entitlement or withdrawn consent affects subsequent protected
+          actions, including AI source use and shared links.
+        - Organization and support authority is scoped; neither can self-grant a foreign role.
+      decisionRefs:
+        - D08
+        - D11
+      example: "A former organization member opens a saved candidate link: the current right must be
+        checked and unauthorized candidate details withheld."
+      acceptanceCriteria:
+        - id: BR-RIGHTS.AC1
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: "A role or UI link is not permission by itself: evaluate the acting account, current context,
+            requested action, target resource and effective rights."
+        - id: BR-RIGHTS.AC2
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: A lost membership, expired entitlement or withdrawn consent affects subsequent protected
+            actions, including AI source use and shared links.
+        - id: BR-RIGHTS.AC3
+          given: A feature reaches a condition governed by this rule.
+          when: The governed business outcome is produced or inspected.
+          then: Organization and support authority is scoped; neither can self-grant a foreign role.
+      featureOwner: identity
+      ownership: Defined once in this feature. Other features reference the stable
+        requirement/data/journey ID and current Work node ID.

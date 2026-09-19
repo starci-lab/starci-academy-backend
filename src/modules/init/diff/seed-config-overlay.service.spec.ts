@@ -58,12 +58,13 @@ describe("SeedDiffOverlayService",
                         })
                     })
 
-                it("keeps every standalone domain off + never reindexes (full path)",
+                it("seeds concepts but keeps other standalone domains off and never reindexes",
                     () => {
                         const config = service.buildFullConfig([
                             "fullstack-mastery",
                         ])
 
+                        expect(config.seeders.concepts).toBe(true)
                         expect(config.seeders.foundations).toBe(false)
                         expect(config.seeders.cv).toBe(false)
                         expect(config.seeders.codingProblems).toBe(false)
@@ -71,6 +72,15 @@ describe("SeedDiffOverlayService",
                         expect(config.synchronizers.flashcards.elasticsearch).toBe(false)
                         // coarse full path never drops indices -- only sync.reindex does
                         expect(config.synchronizers.reindex).toEqual([])
+                    })
+
+                it("seeds concepts without enabling courses when a full snapshot has no courses",
+                    () => {
+                        const config = service.buildFullConfig([])
+
+                        expect(config.seeders.concepts).toBe(true)
+                        expect(config.seeders.courses.enabled).toBe(false)
+                        expect(Object.keys(config.seeders.courses.tracks)).toHaveLength(0)
                     })
             })
 
@@ -158,6 +168,21 @@ describe("SeedDiffOverlayService",
                         expect(result.overlay).not.toBeNull()
                         expect(result.overlay?.seeders.foundations).toBe(true)
                         expect(result.overlay?.synchronizers.foundations.elasticsearch).toBe(true)
+                        expect(result.courseCount).toBe(0)
+                        expect(result.domainCount).toBe(1)
+                    })
+
+                it("seeds a concepts-only diff without enabling courses or a sync sink",
+                    () => {
+                        const diff = emptyDiff()
+                        diff.changedDomains.add("concepts")
+
+                        const result = service.buildDiffConfig(diff)
+
+                        expect(result.overlay?.seeders.concepts).toBe(true)
+                        expect(result.overlay?.seeders.courses.enabled).toBe(false)
+                        expect(result.overlay?.seeders.courses.tracks).toBeDefined()
+                        expect(Object.keys(result.overlay?.seeders.courses.tracks ?? [])).toHaveLength(0)
                         expect(result.courseCount).toBe(0)
                         expect(result.domainCount).toBe(1)
                     })

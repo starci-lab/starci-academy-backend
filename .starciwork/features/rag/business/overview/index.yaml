@@ -1,0 +1,54 @@
+schema: work/node@2
+id: starci-next.features.rag.business.overview
+kind: business-overview
+required: true
+state: todo
+description: "rag: goals, scope and shared ownership"
+refs:
+  - starci-next.business.srs.functional-requirements.rag.ask-grounded-question
+  - starci-next.business.srs.functional-requirements.rag.report-and-correct-answer
+extensions:
+  work3:
+    srs:
+      schema: starci/srs-feature-overview@1
+      status: draft
+      authority: proposed-detail-from-accepted-product-scope
+      id: OVERVIEW-rag
+      feature: rag
+      title: rag business overview
+      product: StarCiNext
+      goal: Ask a question with permitted learning context and sources; Report an incorrect or conflicting
+        learning answer
+      actors:
+        - learner
+      inScope:
+        - requirementRef: FR-RAG-01
+          title: Ask a question with permitted learning context and sources
+        - requirementRef: FR-RAG-02
+          title: Report an incorrect or conflicting learning answer
+      relatedJourneyRefs:
+        - CJ-01
+        - CJ-03
+      ownedSharedDefinitionRefs:
+        - BR-AI
+        - NFR-AI
+        - DATA-rag-session
+        - CJ-03
+      outsideThisFeature: Other product capabilities are owned by their own features. Follow explicit
+        references for shared definitions and cross-feature journeys; the feature does not duplicate
+        their ownership.
+      productScopeRef: OVERVIEW
+      authorityRefs:
+        - artifact: SRC-BUSINESS
+          sections:
+            - "5"
+            - "9.2"
+businessOverview:
+  purpose: Ask a question with permitted learning context and sources; Report an incorrect or
+    conflicting learning answer
+  customerUnderstanding: StarCiNext rag serves learner through the requirements and journeys owned by this feature.
+  desiredOutcome: Ask a question with permitted learning context and sources; Report an incorrect or
+    conflicting learning answer
+  scope: Ask a question with permitted learning context and sources; Report an incorrect or
+    conflicting learning answer
+  openQuestions: Policy decisions referenced by this draft remain open until their accountable owners accept them.
