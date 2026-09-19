@@ -1,0 +1,21 @@
+{
+  "baseline": "d4cec1d5613f3d4fc132eaa86ec42827c3bc701b",
+  "files": [
+    {
+      "path": "scripts/plan-chain.mjs",
+      "before": "0dd1d4cb331af5e33b5f4d22ee21c1274460cece540ee3eb4b52261065937bb9",
+      "after": "eff2c878b6457471ef6cffe094b4df1e4240b98fdb95e4bc4575c38ce1320261"
+    },
+    {
+      "path": "scripts/plan-chain.spec.mjs",
+      "before": "9bd57cbaa891ba0a30dc321b7b9dbef5f5a8fc242fdf550d74fc0c586d5f7413",
+      "after": "178a6db536e84db211d444576c819f9ae2bb3f93adb53fb4a615070728d25943"
+    }
+  ],
+  "proof": {
+    "plannerTests": 29,
+    "preflightSelfTest": "passed",
+    "actualPreview": "actual-preview.json",
+    "scope": "focused only; no full suite or publication"
+  }
+}

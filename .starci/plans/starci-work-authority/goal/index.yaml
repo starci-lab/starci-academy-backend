@@ -1,0 +1,100 @@
+schema: starci/plan-goal@1
+planDigest: d27e8c494368fff551b583a8ca9e3774b5bd71c866e83d7ccf5e7fa133bff0de
+plan:
+  schema: starci/plan@1
+  id: starci-work-authority
+  requestId: 01a0815f-da8b-7980-ac12-7e013ec09bbc
+  originalRequest: code khi nào cũng legacy, .work là source of trust; nâng trc rồi cook tiếp nhé;
+    work là source of trust, done => quyền lực
+  finalOutcome: StarCi treats validated done Work as the sole downstream execution authority and
+    treats inspected code only as legacy observation and gap evidence, so code can never rewrite or
+    silently narrow accepted Work intent.
+  business:
+    action: reuse
+    outcome: Preserve accepted product business intent unchanged; this runtime repair changes only how
+      authority is derived and propagated.
+    targets: []
+  architecture:
+    action: reuse
+    outcome: Preserve the current runtime structure while making the Work-state trust boundary explicit
+      in canonical instructions and specification semantics.
+    targets: []
+  implementation:
+    action: change
+    outcome: Tighten StarCi skill, business operator, specification contract and validator tests so only
+      validated done Work can authorize downstream behavior while code remains non-authoritative
+      legacy observation.
+    targets:
+      - nivo.maintenance.starci-work-authority
+  uat:
+    action: reuse
+    outcome: No browser UAT applies; verify the runtime with focused specification regressions, the full
+      test suite and a clean generated-build check.
+    targets: []
+  exclusions:
+    - No Nivo product source, Accounting architecture, backend, frontend or UAT changes in this Plan.
+    - No relaxation of evidence, acceptance, dependency or stale-state gates.
+    - No rewriting of accepted Work from inspected code.
+    - No push, release, deployment or package publication.
+    - No deletion of generated site directories or unrelated working-tree content.
+  workflows:
+    - id: prepare-starci-work-authority
+      workflow: prepare-work
+      purpose: Create one bounded maintenance Work leaf that states the Work-state authority rule and its
+        proof obligations without changing product Work.
+      input: The approved source-of-trust rule and the existing validated maintenance branch.
+      output: A valid todo maintenance leaf for the runtime repair.
+      criteria:
+        - work-valid
+      workTargets:
+        - nivo.maintenance.starci-work-authority
+      paths:
+        - .work/maintenance/starci-work-authority/index.yaml
+      resources: []
+      dependsOn: []
+      estimate:
+        minMinutes: 5
+        maxMinutes: 10
+        assumptions: The existing maintenance branch remains valid and no repository resource is required to
+          create the selected scope.
+      selection:
+        requestQuote: work là source of trust
+        codeChange: false
+        verification: none
+        separateDeliverable: false
+    - id: repair-starci-work-authority
+      workflow: update-knowledge
+      purpose: Encode and enforce that validated done Work is downstream authority and inspected code is
+        legacy observation only.
+      input: The accepted prepared maintenance leaf and the user-approved authority rule.
+      output: Updated canonical instructions, operator semantics, validator regression coverage and
+        rebuilt current .dist artifacts.
+      criteria:
+        - knowledge-valid
+      workTargets:
+        - nivo.maintenance.starci-work-authority
+      paths:
+        - .claude/SKILL.md
+        - .claude/ops/business.decide/operator.json
+        - .claude/specifications/contract.json
+        - .claude/specifications/validate.mjs
+        - .claude/tests/specifications.spec.mjs
+        - .claude/tests/build-entry.spec.mjs
+        - .claude/.dist/ops/business.decide/operator.json
+        - .claude/.dist/specifications/contract.json
+        - .claude/.dist/manifest.json
+      resources: []
+      dependsOn:
+        - prepare-starci-work-authority
+      estimate:
+        minMinutes: 20
+        maxMinutes: 40
+        assumptions: The repair remains instruction/contract/validator scoped and existing tests need no
+          unrelated refactor.
+      selection:
+        requestQuote: nâng trc rồi cook tiếp nhé
+        codeChange: true
+        verification: unit-component
+        separateDeliverable: true
+  openQuestions: []
+jobs: {}

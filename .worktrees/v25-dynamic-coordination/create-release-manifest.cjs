@@ -1,0 +1,37 @@
+const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_process'),crypto=require('node:crypto');
+const support=__dirname,root=path.join(support,'.claude'),sourceRoot=path.resolve(support,'../../.claude'),sha=bytes=>'sha256:'+crypto.createHash('sha256').update(bytes).digest('hex');
+const git=(...args)=>cp.execFileSync('git',['-C',root,...args],{maxBuffer:64*1024*1024,stdio:['ignore','pipe','pipe']});
+const baseline='7e13c6b02622b3c06a6ed04eedd418749ad00215';
+if(git('rev-parse','HEAD').toString().trim()!==baseline)throw Error('candidate base changed');
+if(cp.execFileSync('git',['-C',sourceRoot,'rev-parse','HEAD'],{encoding:'utf8'}).trim()!==baseline)throw Error('live Source baseline changed before adoption inventory');
+const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json')));
+if(pkg.version!=='2.5.0-rc.9')throw Error('unexpected candidate version');
+const result=JSON.parse(fs.readFileSync(path.join(support,'full-suite-result.json')));
+if(result.exitCode!==0)throw Error('complete integrated npm test has not passed');
+const packageResult=JSON.parse(fs.readFileSync(path.join(support,'package-result.json')));
+if(packageResult.exitCode!==0)throw Error('packed installation verification has not passed');
+const combinedResult=JSON.parse(fs.readFileSync(path.join(support,'combined-lifecycle-result.json')));
+if(combinedResult.exitCode!==0)throw Error('actual combined portfolio lifecycle has not passed');
+cp.execFileSync(process.execPath,[path.join(support,'test-payload-inventory.cjs'),'after'],{stdio:'inherit'});
+const testedPayload=JSON.parse(fs.readFileSync(path.join(support,'tested-payload-after.json')));
+const suiteText=fs.readFileSync(path.join(support,'full-suite-final.log'),'utf8');
+const testSummary=Object.fromEntries([...suiteText.matchAll(/ℹ (tests|pass|fail|skipped) (\d+)/g)].map(match=>[match[1],Number(match[2])]));
+if(!testSummary.tests||testSummary.tests!==testSummary.pass||testSummary.fail!==0||testSummary.skipped!==0)throw Error('complete suite summary is not all passed without skips');
+const docs=Number(/docs:check ok — (\d+) generated files match the tree/.exec(suiteText)?.[1]);
+if(!docs)throw Error('generated documentation check is absent');
+const changed=[...new Set([...git('diff','--name-only','-z','HEAD').toString().split('\0'),...git('ls-files','--others','--exclude-standard','-z').toString().split('\0')].filter(Boolean))].sort();
+const files=changed.map(ref=>{
+ if(path.isAbsolute(ref)||ref.split('/').includes('..'))throw Error('unsafe candidate inventory');
+ const file=path.join(root,ref);if(!fs.existsSync(file)||!fs.lstatSync(file).isFile())throw Error('unexpected removed/linked candidate path '+ref);
+ let base=null;try{base=git('show',baseline+':'+ref);}catch{}
+ const liveFile=path.join(sourceRoot,ref),live=fs.existsSync(liveFile)?fs.readFileSync(liveFile):null;
+ if(Boolean(base)!==Boolean(live)||base&&base.toString().replace(/\r\n/g,'\n')!==live.toString().replace(/\r\n/g,'\n'))throw Error('live scoped path changed from Git baseline '+ref);
+ return{path:ref,before:live?sha(live):null,beforeGit:base?sha(base):null,after:sha(fs.readFileSync(file)),source:file};
+});
+const provenance={};for(const ref of ['rebase-rc7/applied.json','rebase-rc8/applied.json','rebase-rc8/release-manifest.json','proof-review-integration/focused-manifest.json','proof-review-integration/applied.json','output-templates-provenance.json','feedback-measurement-manifest.json','retry-order-integration/applied.json','retry-order-integration/result.json'])provenance[ref]=sha(fs.readFileSync(path.join(support,ref)));
+const logs=['tested-payload-before.json','tested-payload-after.json','coordinator-output-precheck.log','combined-lifecycle-final.log','incorporation-typed-id-final.log','coordination-history-final.log','coordination-id-final.log','coordinator-admission-final.log','coordination-scope-regression.log','coordination-inflight-first.log','feedback-measurement-second.log','feedback-accepted-browser.log','readonly-prerequisite-final.log','full-suite-first-failure/full-suite-final.log','full-suite-first-failure/tested-payload-before.json','full-suite-final.log','pack-final.json','install-final.log','doctor-final.log','packed-inventory.json'];
+const evidence=Object.fromEntries(logs.map(ref=>[ref,sha(fs.readFileSync(path.join(support,ref)))]));
+const briefFiles=fs.readdirSync(path.join(root,'operators')).map(id=>path.join(root,'operators',id,'brief.md')).filter(file=>fs.existsSync(file));
+const manifest={version:1,status:'sealed',candidate:root,baseline,packageVersion:pkg.version,files,deleted:[],fingerprint:sha(JSON.stringify(files)),provenance,evidence,validation:{testedPayload:{files:testedPayload.files.length,fingerprint:testedPayload.fingerprint},combined:combinedResult,fullSuite:{...result,summary:testSummary,generatedDocs:docs},package:packageResult,operatorBriefs:briefFiles.length,maxBriefBytes:Math.max(...briefFiles.map(file=>fs.statSync(file).size))},publication:'Not published. Parent owns final review, coherent adoption and publication.'};
+fs.writeFileSync(path.join(support,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
+console.log(JSON.stringify({files:files.length,fingerprint:manifest.fingerprint,manifest:sha(fs.readFileSync(path.join(support,'manifest.json'))),version:pkg.version},null,2));

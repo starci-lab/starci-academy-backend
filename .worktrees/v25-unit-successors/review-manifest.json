@@ -1,0 +1,114 @@
+{
+  "version": 1,
+  "baseline": "550cb449468780902bae1d12099cd0969790f523",
+  "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-unit-successors\\.claude",
+  "request": {
+    "ref": "request.json",
+    "sha256": "fdb685b08d16334d8d63708f756af35240f676c6b9caa2c11f392b0ab2207daa"
+  },
+  "status": "Focused post-RC10 patch ready for review; rebase and source-review current-delivery guard integration remain before publication.",
+  "files": [
+    {
+      "file": "scripts/plan-history.mjs",
+      "sha256": "d4d206fee2a4eb78386376306d68504ce23ab9c89810eed9386eca95daf80542"
+    },
+    {
+      "file": "scripts/unit-successor-fixture.mjs",
+      "sha256": "8d4699d79474ea632a026606f1f7499a734794c07400b4b58778f37daf988b6d"
+    },
+    {
+      "file": "scripts/unit-successor.spec.mjs",
+      "sha256": "38f55d7beeabcc0b229973ddd7491c0fa51a2a61900c9b15cba52746852c3d0d"
+    }
+  ],
+  "patch": {
+    "ref": "unit-successor.patch",
+    "sha256": "11f956fb11c7136482741d8a5f1f9bdf29100d4918e99c59f483dfe00ab3a8f2"
+  },
+  "tests": [
+    {
+      "command": "node --test scripts/unit-successor.spec.mjs",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 152261.6862,
+      "log": "unit-successor-final.log",
+      "helperSha256": "d4d206fee2a4eb78386376306d68504ce23ab9c89810eed9386eca95daf80542",
+      "coverage": "Genuine current bind, confirmed architecture and independent critique, accepted backend plan and public unit expansion; two actual red source commits, changed real methods, public typed retries, matched source commit, current consumer open, exact history retention and pending/failed/cycle/duplicate/unit/input/operator/seal negatives."
+    },
+    {
+      "command": "node --test scripts/workflow-reentry.spec.mjs scripts/plan-edit.spec.mjs scripts/plan-history.spec.mjs",
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 394130.5671,
+      "log": "unit-successor-neighbor.log",
+      "helperSha256": "2b3a64d6712f2b91978f65711673b02d207226f946511cea5b526e55ec374118",
+      "coverage": "Initial extracted retry guard and unit successor snapshot; final D4D lineage strengthening has the focused lifecycle and native proof above."
+    }
+  ],
+  "nativeProbe": {
+    "script": "probe-native.mjs",
+    "scriptSha256": "2a55e8d7ffcb76af941905d8ba66d3ab3c39e897be3eb9497fe2d1f030da7b6a",
+    "log": "native-unit-final.log",
+    "helperSha256": "d4d206fee2a4eb78386376306d68504ce23ab9c89810eed9386eca95daf80542",
+    "result": {
+      "sessionId": "20260905-nivo-accounting-01a07247",
+      "consumer": "40/1",
+      "active": {
+        "ref": "runtime/history/plans/d5ef5267d999debe3e773007fa79f4562c4e415aab56e879ec1ee346e176e44e.json",
+        "hash": "sha256:d5ef5267d999debe3e773007fa79f4562c4e415aab56e879ec1ee346e176e44e"
+      },
+      "resolved": [
+        {
+          "dependency": "32/1",
+          "proof": "32/1"
+        },
+        {
+          "dependency": "34/1",
+          "proof": "39/1"
+        },
+        {
+          "dependency": "36/1",
+          "proof": "36/1"
+        }
+      ],
+      "admission": [],
+      "error": null,
+      "preserved": true,
+      "verifiedFiles": 18,
+      "inventoryBefore": "491a03cecdab24e60fdd5326c6b3c7c08e197979996815df7c9bb20c5f783526",
+      "inventoryAfter": "491a03cecdab24e60fdd5326c6b3c7c08e197979996815df7c9bb20c5f783526"
+    },
+    "limit": "Read-only unit and plan admission proof; it does not execute or accept the next native source operator."
+  },
+  "logs": [
+    {
+      "ref": "unit-successor-final.log",
+      "sha256": "c71ecfdbc5d009f28b555c4bbe440670bada31d6daed8204852af4c28008d87b"
+    },
+    {
+      "ref": "unit-successor-neighbor.log",
+      "sha256": "69936d650aa49af488ed60d4691f3fbd6e9da104232d3d96a5e5f04dd6427b29"
+    },
+    {
+      "ref": "native-unit-probe.log",
+      "sha256": "816714293960f8152d7849f2b40363957e62800cf659d7613bc808928570291f"
+    },
+    {
+      "ref": "native-unit-final.log",
+      "sha256": "bdbd4481b2922cd7794c451672b4a64cecaf70a3e30312da85ef181f568598ed"
+    }
+  ],
+  "checks": [
+    "node --check passed",
+    "git diff --check passed",
+    "No live/native/product changes",
+    "No frozen RC10 changes",
+    "No version changes, commits or publication"
+  ],
+  "remaining": [
+    "Rebase onto published RC10 after root completes its frozen release",
+    "Join the existing fresh producer delivery retirement guard and prove a current unit dependency remains blocked by source review"
+  ]
+}

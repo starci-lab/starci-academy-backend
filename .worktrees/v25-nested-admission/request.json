@@ -1,0 +1,12 @@
+{
+  "target": "2.5.0-rc.2",
+  "baseline": "3d15e85da4b46301ed77796d03296dbf843ac071",
+  "updateClassification": "Q1 enforcement conflict: nested exchange owns no separate mission goal or re-entry; existing parent proof law must govern it.",
+  "authority": "Parent /root delegated the existing user-authorized immediate runtime repair; no live or peer ledger writes.",
+  "version": 1,
+  "scope": [
+    "Bind nested exchange admission to its accepted owning parent and existing nested law",
+    "Preserve ordinary parent goal/re-entry admission",
+    "Positive, malformed, cross-parent and stale proof regressions"
+  ]
+}

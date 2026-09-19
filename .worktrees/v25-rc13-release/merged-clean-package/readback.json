@@ -1,0 +1,9 @@
+{
+  "indexTree": "51f0b0fc00f832cec56fec4619143ef0253e3916",
+  "version": "2.5.0-rc.13",
+  "packedFiles": 743,
+  "installedFiles": 738,
+  "archiveSha256": "bc6810a461e78bce899a8407486d50a55d80c8236f2f0fefa048a43ffc3de32f",
+  "matches": true,
+  "fullSuite": "Separate live process 92206; this package check does not establish test completion or publication."
+}

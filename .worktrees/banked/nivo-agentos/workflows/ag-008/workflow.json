@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "id": "AG-008",
+  "title": "Tạo, cài và quản lý đúng hai module Chatbot/Kế toán",
+  "project": "nivo",
+  "scope": "agentos",
+  "priority": "P1",
+  "phase": 1,
+  "type": "verify",
+  "status": "blocked",
+  "statusMeaning": "Waiting for prerequisite evidence; no execution has started.",
+  "dependsOn": [
+    "AG-004",
+    "AG-006"
+  ],
+  "why": "Reuse the existing open registry and shared shell, but present exactly the two selected module offers in this release. Keep existing other-kind data compatible without making those kinds launch requirements.",
+  "decisionQuestions": [],
+  "acceptance": [
+    "Only the selected Chatbot and Accounting offers are in the release scope; no duplicate accounting or chatbot offer.",
+    "Each module has immutable kind, common settings, shared chat and its own workbench.",
+    "Owner-bound create/install/retry is idempotent and validates version/digest.",
+    "Existing deferred-kind installations are not deleted or silently rebound.",
+    "Run two real creation/install journeys, not four synthetic registry projections."
+  ],
+  "evidenceRefs": [
+    "source:.worktrees/businesses/features/agentos-module-management/rules.md",
+    "be:apps/agentos-controlplane/src/module-operations/module-operation-adapter-registry.service.ts",
+    "be:src/tests/e2e/nivo/agentos-module-operations.e2e-spec.ts",
+    "be:src/modules/bussiness/agentos-module-studio/agentos-module-registry.service.ts"
+  ],
+  "testTargets": [
+    "src/tests/e2e/nivo/agentos-solution-module-install.e2e-spec.ts",
+    "src/tests/e2e/nivo/agentos-solution-module-concurrency.e2e-spec.ts"
+  ],
+  "goalDraft": {
+    "version": 1,
+    "language": "vi",
+    "goal": "Tạo, cài và quản lý đúng hai module Chatbot/Kế toán",
+    "includes": [
+      "Tạo, cài và quản lý đúng hai module Chatbot/Kế toán",
+      "Exactly two modules: Chatbot and Accounting; supporting AgentOS flows only."
+    ],
+    "excludes": [
+      "Template App and Expert Academy",
+      "Unrelated source, shared credentials and production deployment",
+      "Treating a fixture, a mock or an old receipt as a completed live action",
+      "Standalone Scheduling, Knowledge Hub, Sales Copilot and broad SMB workbenches"
+    ],
+    "doneWhen": [
+      {
+        "producedBy": "api.verify",
+        "evidence": "The named API cases run against the served head and read back results through the API."
+      },
+      {
+        "producedBy": "uat.verify",
+        "evidence": "The corresponding owner journey passes through the real surface at the same delivery."
+      }
+    ],
+    "sourceRef": "user:2026-09-05 final scope: exactly two modules, one accounting and one chatbot; business flows included; Template App later"
+  },
+  "execution": {
+    "roles": [
+      "be",
+      "fe"
+    ],
+    "env": "dev",
+    "deriveChainAtActivation": true,
+    "exclusiveWriteAliases": [
+      "@worktrees/sessions/central-runtime"
+    ],
+    "liveEffects": "No live effect is authorized by banking. At activation use environment declarations and the exact mission scope; real outbound messages require explicit user authorization.",
+    "seeding": "A dedicated owner and stranger, per-flow run namespace, deterministic IDs, exact marker/owner checks on reuse and dependency-safe cleanup. Fixture history is labelled and cannot stand for Test, Apply, payment or provider success. Create fixtures only for the selected Chatbot and Accounting modules; knowledge fixtures are supporting inputs, not a third module.",
+    "failureRouting": "Read the executing operator stop and current .claude/routing.json; this card defines no alternate routes.",
+    "publication": "If source is changed, include git.publish only in the activated scope and derive all required gates. Backend business changes also require business.reconcile where a published promise applies."
+  },
+  "activation": {
+    "sessionId": null,
+    "startedAt": null,
+    "completedAt": null,
+    "receiptRefs": []
+  },
+  "modules": [
+    "chatbot",
+    "accounting"
+  ]
+}

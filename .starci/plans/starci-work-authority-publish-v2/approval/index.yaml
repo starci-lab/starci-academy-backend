@@ -1,0 +1,25 @@
+schema: starci/plan-approval@1
+planDigest: 24a2884dbb62eb2f2d08a21ddbe4f765f388b7e0f9417a36cfee7596e75085f4
+jobs:
+  prepare-starci-work-authority:
+    status: recorded
+    presentation:
+      messageId: msg_0a5aed68754fb053016aa01b0e342487d0a870e8303b503d9b
+      goalDigest: 2b51dd3cfd1bbf6078ff99520546d574e7c3f71b3763e4bc3ea90f835dbd7b47
+      planDigest: 24a2884dbb62eb2f2d08a21ddbe4f765f388b7e0f9417a36cfee7596e75085f4
+    receipts:
+      - actor: user
+        phase: goal
+        digest: 2b51dd3cfd1bbf6078ff99520546d574e7c3f71b3763e4bc3ea90f835dbd7b47
+        approved: true
+        messageId: 01a0816a-2d62-7b13-b812-c481165371dc
+        quote: duyệt v2
+        replyTo: msg_0a5aed68754fb053016aa01b0e342487d0a870e8303b503d9b
+  repair-starci-work-authority:
+    status: pending
+    presentation: null
+    receipts: []
+  publish-starci-work-authority:
+    status: pending
+    presentation: null
+    receipts: []

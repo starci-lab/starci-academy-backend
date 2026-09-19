@@ -1,0 +1,76 @@
+{
+  "runId": "20260906-140700-2d512c4",
+  "approval": null,
+  "feature": "nivo-agentic-os-landing",
+  "flow": "discover-nivo-agentic-os",
+  "env": "dev",
+  "commit": "2d512c46247f6873a1dbbb0f370bd87ab107c593",
+  "frozenAt": "2026-09-06T07:07:05.000Z",
+  "flowRoot": "D:/Repositories/starci-academy-backend/.worktrees/uat/nivo-agentic-os-landing/discover-nivo-agentic-os",
+  "snapshotRef": ".worktrees/uat/nivo-agentic-os-landing/discover-nivo-agentic-os/snapshot.json",
+  "snapshotFingerprint": "sha256:fb1827770d9b71a60ff81b797be485c89fa974f2404743fc539d7314516d9f05",
+  "lease": {
+    "leaseRef": "uat-lease://20260906001926-nivo-851c458d/discover-nivo-agentic-os/20260906-140700-2d512c4",
+    "exclusive": true,
+    "expiresAt": "2026-09-06T08:30:00.000Z"
+  },
+  "admission": [
+    { "kind": "frontend-surface-audit", "ref": "step-9/parallel-1/response/response.md", "commit": "2d512c46247f6873a1dbbb0f370bd87ab107c593", "role": "fe" },
+    { "kind": "quality-verification", "ref": "step-10/parallel-1/response/response.md", "commit": "2d512c46247f6873a1dbbb0f370bd87ab107c593", "role": "fe" }
+  ],
+  "accounts": [],
+  "fixtureNamespace": "uat-20260906-140700-2d512c4",
+  "seed": null,
+  "cases": [
+    {
+      "caseId": "public-landing-discovery",
+      "order": 1,
+      "as": "anonymous",
+      "assertions": [
+        "hero-promise-visible",
+        "responsibility-loop-visible",
+        "human-ai-system-roles-visible",
+        "multi-instance-meaning-visible",
+        "secondary-cta-works",
+        "primary-cta-works",
+        "offer-price-accurate",
+        "responsive-controls-usable"
+      ]
+    }
+  ],
+  "flowSource": "planned",
+  "golden": {
+    "state": "candidate",
+    "ref": ".worktrees/uat/nivo-agentic-os-landing/discover-nivo-agentic-os/snapshots/snapshot.json",
+    "approvedBy": null,
+    "env": "dev"
+  },
+  "isolation": {
+    "sessionId": "20260906001926-nivo-851c458d",
+    "browserProfileRef": ".worktrees/sessions/20260906001926-nivo-851c458d/browser/20260906-140700-2d512c4",
+    "servedHead": "2d512c46247f6873a1dbbb0f370bd87ab107c593",
+    "servedContainsCommit": true,
+    "ancestryEvidenceRef": "response/artifacts/ancestry.json",
+    "seededIds": [],
+    "rollbackIds": []
+  },
+  "auditScope": {
+    "mode": "primary-surfaces",
+    "surfaces": [
+      { "id": "nivo-agentic-os-landing", "type": "page", "route": "/", "priority": "primary", "matrixIds": ["landing-wide", "landing-narrow"] }
+    ],
+    "deferredStates": ["focus-visible", "hover", "keyboard focus remains visible", "loaded", "public static content is immediately readable"],
+    "deferrals": [
+      { "state": "focus-visible", "reason": "Primary audit captured the default landing surface; focused keyboard interaction is walked in UAT." },
+      { "state": "hover", "reason": "Primary audit captured the default landing surface; pointer hover is secondary to the two journey CTA checks." },
+      { "state": "keyboard focus remains visible", "reason": "The CSS focus rule is source-checked here; live keyboard traversal is reserved for UAT." },
+      { "state": "loaded", "reason": "The public page is server-rendered with no asynchronous loading state; the default capture is the settled surface." },
+      { "state": "public static content is immediately readable", "reason": "The default settled capture proves content presence; this coverage phrase is not a separately addressable render state." }
+    ],
+    "coverageClaim": "selected-surfaces"
+  },
+  "access": "anonymous",
+  "fixtures": "none",
+  "sourceRoles": "frontend",
+  "provenance": { "fe": "2d512c46247f6873a1dbbb0f370bd87ab107c593" }
+}

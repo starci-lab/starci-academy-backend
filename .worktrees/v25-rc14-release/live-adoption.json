@@ -1,0 +1,69 @@
+{
+  "baseline": "22490eb85dedcd0894b59c648cac2b8b37b419af",
+  "changes": [
+    {
+      "path": "INDEX.md",
+      "before": "bede3d4de2425709589f1a23529b9990d70ae05254353b1dd63cf483b711dd58",
+      "after": "22cefc79bf6a2e23d561c93830187999427aeb23ed98cdd98089ac1cec57a774"
+    },
+    {
+      "path": "INDEX.vi.md",
+      "before": "f60bf7cbd55a11a240d9bbce38f6936d41642cd685dfd85ce51da98e278ef86b",
+      "after": "a02224a44f90f95e14cf756a504aa69991489d9b4987def6e57c380bf36d0cf2"
+    },
+    {
+      "path": "package.json",
+      "before": "526685063b7c96e02cfd72bea70eab1b66915c105507d922042cd9d5ae6fbb58",
+      "after": "9edbc2edef8d30094d99a00acf0a9ce97006620708b5a3db3e5744981b739590"
+    },
+    {
+      "path": "scripts/business-registry.mjs",
+      "before": "52bd079b7979d3d98c2e6c62758ec464faf76c006dc53e22b5de1347377b10b2",
+      "after": "297a961295a328c6c478b4a5330f2816392d1c85205ad3af2bb81e36693cb87f"
+    },
+    {
+      "path": "scripts/business-registry.spec.mjs",
+      "before": "6555593f6db51d82f4267832fe042344ecb26813407db36874c21681ebb11b8e",
+      "after": "5155f6a02de139fc7b6b70826d258bfd9f370a775b625a7da7ded373d820e679"
+    },
+    {
+      "path": "scripts/mission-history.spec.mjs",
+      "before": "b4c15998c06d2301cf658fe842721f6066b5378e7b16b3db07ecbb144a69f63e",
+      "after": "f086246cfe2ccee6c71c6510ea2688a8dd1dc2eff281d3471d5f1bc5dbffaeff"
+    },
+    {
+      "path": "scripts/plan-history.mjs",
+      "before": "285684c4b377f5e4ac4ea1a33c5d1a959e0242e6957f4fda911842a5ec00438d",
+      "after": "befeee94496c95acce95960688595a5187b279eacd8f48e4d93731d8e9b8a973"
+    },
+    {
+      "path": "scripts/session-lock.mjs",
+      "before": "5446a5e24dc7800fbe4c3cc447f548737302c6e31d9606f640cfb5d8a119d022",
+      "after": "18831506bd45feb513c8e7c34428583f56c2278eb20e1c835d7b6f3c64e45ffc"
+    },
+    {
+      "path": "scripts/session-lock.spec.mjs",
+      "before": "484b0dce86ee484c4470c59faaf16442f2bf48884e61c542b411f75858bd01b5",
+      "after": "9a4046eed93c4aaf05d8fb81529cd722b150c4d6e646a7ecacb52ff625562206"
+    },
+    {
+      "path": "scripts/v22-runtime.spec.mjs",
+      "before": "e60b4a0fb64ecbe586c6e4e1b51a36103d7cca4fdeebe2025f90e3b280465435",
+      "after": "ae931344989d806d594733f20ba7b36515f12820ff5dcf0ae2046b588362c666"
+    }
+  ],
+  "test": {
+    "status": "complete",
+    "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-rc14-release\\verified-host\\.claude",
+    "startedAt": "2026-09-07T02:52:56.996Z",
+    "runnerPid": 45612,
+    "playwrightHost": "D:\\Repositories\\starci-academy-backend",
+    "treeHash": "1d9b3dadfddfbbb684c9b605f06b520ff7470c1f9eb7d7d98422247df333b1fb",
+    "childPid": 30288,
+    "exitCode": 0,
+    "signal": null,
+    "endedAt": "2026-09-07T03:09:34.727Z",
+    "testedTreeUnchanged": true
+  },
+  "at": "2026-09-07T03:10:58.570Z"
+}

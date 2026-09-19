@@ -1,0 +1,9 @@
+[
+  {
+    "cell": "17/1",
+    "candidateErrors": [
+      "PLAN_GOAL_UNBOUND: the invocation must bind the current reviewed logical goal mapping"
+    ],
+    "liveErrors": []
+  }
+]

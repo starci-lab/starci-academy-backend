@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "id": "AG-014",
+  "title": "Đóng quyền truy cập đang mở khi Stop, hết hạn hoặc recovery",
+  "project": "nivo",
+  "scope": "agentos",
+  "priority": "P0",
+  "phase": 1,
+  "type": "implementation",
+  "status": "blocked",
+  "statusMeaning": "Waiting for prerequisite evidence; no execution has started.",
+  "dependsOn": [
+    "AG-004"
+  ],
+  "why": "The inspected n8n proxy validates launch access on HTTP requests and WebSocket upgrade, but the established socket forwarding loop has no ongoing revocation check.",
+  "decisionQuestions": [],
+  "acceptance": [
+    "A live WebSocket loses access within the confirmed revocation bound after Stop, expiry, deletion, suspension or recovery.",
+    "Foreign, expired and replayed launch sessions fail; valid sessions continue until revoked.",
+    "Close both upstream/browser resources and prove no post-revocation frame reaches the application.",
+    "Recheck both OpenClaw and n8n launch behavior; no provider credential reaches the browser."
+  ],
+  "evidenceRefs": [
+    "be:apps/agentos-controlplane/src/n8n-access/n8n-access-proxy.service.ts",
+    "source:.worktrees/businesses/features/agentos-workspace-recovery/model.json"
+  ],
+  "testTargets": [
+    "src/tests/e2e/nivo/agent-workspace-app-launch.e2e-spec.ts",
+    "src/tests/e2e/nivo/agentos-openclaw-control-ui-launch.e2e-spec.ts"
+  ],
+  "goalDraft": {
+    "version": 1,
+    "language": "vi",
+    "goal": "Đóng quyền truy cập đang mở khi Stop, hết hạn hoặc recovery",
+    "includes": [
+      "Đóng quyền truy cập đang mở khi Stop, hết hạn hoặc recovery",
+      "Exactly two modules: Chatbot and Accounting; supporting AgentOS flows only."
+    ],
+    "excludes": [
+      "Template App and Expert Academy",
+      "Unrelated source, shared credentials and production deployment",
+      "Treating a fixture, a mock or an old receipt as a completed live action",
+      "Standalone Scheduling, Knowledge Hub, Sales Copilot and broad SMB workbenches"
+    ],
+    "doneWhen": [
+      {
+        "producedBy": "backend.generate",
+        "evidence": "One bounded source receipt closes the named behavior gap on its session branch."
+      },
+      {
+        "producedBy": "quality.verify",
+        "evidence": "The required repository gates pass at the delivered head."
+      },
+      {
+        "producedBy": "api.verify",
+        "evidence": "Positive and negative API cases read back the resulting state at the served head."
+      },
+      {
+        "producedBy": "uat.verify",
+        "evidence": "The corresponding real user journey is walked at the delivered head."
+      }
+    ],
+    "sourceRef": "user:2026-09-05 final scope: exactly two modules, one accounting and one chatbot; business flows included; Template App later"
+  },
+  "execution": {
+    "roles": [
+      "be",
+      "fe"
+    ],
+    "env": "dev",
+    "deriveChainAtActivation": true,
+    "exclusiveWriteAliases": [
+      "@workspaces/be",
+      "@workspaces/fe"
+    ],
+    "liveEffects": "No live effect is authorized by banking. At activation use environment declarations and the exact mission scope; real outbound messages require explicit user authorization.",
+    "seeding": "A dedicated owner and stranger, per-flow run namespace, deterministic IDs, exact marker/owner checks on reuse and dependency-safe cleanup. Fixture history is labelled and cannot stand for Test, Apply, payment or provider success. Create fixtures only for the selected Chatbot and Accounting modules; knowledge fixtures are supporting inputs, not a third module.",
+    "failureRouting": "Read the executing operator stop and current .claude/routing.json; this card defines no alternate routes.",
+    "publication": "If source is changed, include git.publish only in the activated scope and derive all required gates. Backend business changes also require business.reconcile where a published promise applies."
+  },
+  "activation": {
+    "sessionId": null,
+    "startedAt": null,
+    "completedAt": null,
+    "receiptRefs": []
+  },
+  "modules": [
+    "chatbot",
+    "accounting"
+  ]
+}

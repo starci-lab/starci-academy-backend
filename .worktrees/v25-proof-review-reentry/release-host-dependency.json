@@ -1,0 +1,8 @@
+{
+  "playwright": {
+    "link": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-proof-review-reentry\\.tools\\playwright",
+    "target": "D:\\Repositories\\starci-academy-backend\\.tools\\playwright"
+  },
+  "networkInstall": false,
+  "createdAt": "2026-09-06T14:20:03.689Z"
+}

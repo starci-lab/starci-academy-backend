@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "id": "AG-011",
+  "title": "Hoàn thiện module Kế toán: chứng từ → phân loại → duyệt → ghi sổ",
+  "project": "nivo",
+  "scope": "agentos",
+  "priority": "P1",
+  "phase": 2,
+  "type": "implementation",
+  "status": "blocked",
+  "statusMeaning": "Waiting for prerequisite evidence; no execution has started.",
+  "dependsOn": [
+    "AG-001",
+    "AG-006",
+    "AG-008"
+  ],
+  "why": "finance-copilot/accounting exists as a manifest, setup fields, finance-approval widget and a refusal for external mutations. Extend it into the confirmed Accounting MVP with evidence, durable bookkeeping, approvals and truthful outcomes; do not create an unrelated third module.",
+  "decisionQuestions": [],
+  "acceptance": [
+    "Every amount carries currency and evidence; ambiguous inflow remains unclassified.",
+    "Cash receipt, revenue recognition, invoice and withholding remain separate facts.",
+    "No self-approval; named approver and thresholds bind the action and its version.",
+    "Duplicate webhook/import cannot double-count; closed periods require amendments.",
+    "Provide a read-back bookkeeping/approval result or explicit provider refusal; do not label it payment executed.",
+    "Date-sensitive tax/accounting rules need owner-validated current sources before activation; this backlog asserts no current legal rates.",
+    "Provide the agreed cash/inflow/expense/receivable view and reconciliation/export with record-level evidence; period close and corrections remain auditable."
+  ],
+  "evidenceRefs": [
+    "be:apps/agentos-controlplane/src/module-operations/module-operation-adapter-registry.service.ts",
+    "be:business.md",
+    "be:docs/requirements/business/cash-book.md"
+  ],
+  "testTargets": [
+    "src/tests/e2e/controlplane/money-model.e2e-spec.ts",
+    "src/tests/e2e/controlplane/expense-capture.e2e-spec.ts",
+    "src/tests/e2e/controlplane/expense-deductibility.e2e-spec.ts"
+  ],
+  "goalDraft": {
+    "version": 1,
+    "language": "vi",
+    "goal": "Hoàn thiện module Kế toán: chứng từ → phân loại → duyệt → ghi sổ",
+    "includes": [
+      "Hoàn thiện module Kế toán: chứng từ → phân loại → duyệt → ghi sổ",
+      "Exactly two modules: Chatbot and Accounting; supporting AgentOS flows only."
+    ],
+    "excludes": [
+      "Template App and Expert Academy",
+      "Unrelated source, shared credentials and production deployment",
+      "Treating a fixture, a mock or an old receipt as a completed live action",
+      "Standalone Scheduling, Knowledge Hub, Sales Copilot and broad SMB workbenches"
+    ],
+    "doneWhen": [
+      {
+        "producedBy": "backend.generate",
+        "evidence": "One bounded source receipt closes the named behavior gap on its session branch."
+      },
+      {
+        "producedBy": "quality.verify",
+        "evidence": "The required repository gates pass at the delivered head."
+      },
+      {
+        "producedBy": "api.verify",
+        "evidence": "Positive and negative API cases read back the resulting state at the served head."
+      },
+      {
+        "producedBy": "uat.verify",
+        "evidence": "The corresponding real user journey is walked at the delivered head."
+      }
+    ],
+    "sourceRef": "user:2026-09-05 final scope: exactly two modules, one accounting and one chatbot; business flows included; Template App later"
+  },
+  "execution": {
+    "roles": [
+      "be",
+      "fe"
+    ],
+    "env": "dev",
+    "deriveChainAtActivation": true,
+    "exclusiveWriteAliases": [
+      "@workspaces/be",
+      "@workspaces/fe"
+    ],
+    "liveEffects": "No live effect is authorized by banking. At activation use environment declarations and the exact mission scope; real outbound messages require explicit user authorization.",
+    "seeding": "A dedicated owner and stranger, per-flow run namespace, deterministic IDs, exact marker/owner checks on reuse and dependency-safe cleanup. Fixture history is labelled and cannot stand for Test, Apply, payment or provider success. Create fixtures only for the selected Chatbot and Accounting modules; knowledge fixtures are supporting inputs, not a third module.",
+    "failureRouting": "Read the executing operator stop and current .claude/routing.json; this card defines no alternate routes.",
+    "publication": "If source is changed, include git.publish only in the activated scope and derive all required gates. Backend business changes also require business.reconcile where a published promise applies."
+  },
+  "activation": {
+    "sessionId": null,
+    "startedAt": null,
+    "completedAt": null,
+    "receiptRefs": []
+  },
+  "modules": [
+    "chatbot",
+    "accounting"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "ownerSession": "20260905155158-nivo-87e4a31b",
+  "ownerTask": "01a06fc3-212e-7a41-94f1-93d4192a51de",
+  "baseline": "8d9b530924521ca0b5933440fb61c68804886013",
+  "authority": "The user explicitly requested dynamic extraction of shared work into a new workflow during v2.5 execution; parent /root authorized this isolated runtime candidate and will review and publish it.",
+  "scope": ["sealed coordinated assignments and atomic repository-relative ownership transfer", "selective consumer dependency parking and exact accepted producer wake", "accepted current producer import and consumer regression/combined-head proof", "three-workflow lifecycle and adversarial regressions", "rebase the exact published RC.4 delta before final proof"],
+  "excluded": ["live runtime edits", "peer ledger or source edits", "product architecture changes", "new message envelope", "publication"]
+}

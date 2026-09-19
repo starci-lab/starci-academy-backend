@@ -1,0 +1,22 @@
+[
+  {
+    "id": "8c8b0006-0429-4268-aa15-000000000026",
+    "installation_id": "8c8b0003-0429-4268-aa15-000000000026",
+    "created_by_user_id": "1054fab9-ca3e-44c2-b2de-754fd458d6fb",
+    "version": 1,
+    "snapshot": {
+      "businessIdentity": "Fictional Setup QA",
+      "goal": "Review a prepared module setup",
+      "audience": "QA owner",
+      "trigger": "Historical setup trigger",
+      "guardrail": "No live actions"
+    },
+    "digest": "924a24b20ea3fbff7783f52a6551cbb6be353130e6572a2bbb76c52df8ec368e",
+    "idempotency_key": "uat-module-setup-042915-26-context-1",
+    "source_setup_session_id": "8c8b0004-0429-4268-aa15-000000000026",
+    "created_at": "2026-09-04T12:00:13.000Z",
+    "updated_at": "2026-09-04T12:00:13.000Z",
+    "namespace": "uat-module-setup-042915-26",
+    "is_uat": true
+  }
+]

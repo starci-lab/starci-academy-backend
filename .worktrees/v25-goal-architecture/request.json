@@ -1,0 +1,10 @@
+{
+  "ownerSession": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905155158-nivo-87e4a31b",
+  "source": "D:/Repositories/starci-academy-backend/.claude",
+  "baseline": "5f874f80bac7617c19de75173f951e5e1c80ec8a",
+  "goal": "Render an evidence-labelled architecture diagram within existing initial and corrected goal confirmation.",
+  "scope": ["Isolated candidate only", "Existing discovery schema, scope presentation and owning validation", "Focused tests and English/Vietnamese discovery documentation"],
+  "requirements": ["No live runtime, product or peer ledger writes", "No new operator or execution authority", "Keep discovered versus proposed/unverified statements explicit", "No overlap with unit-successor plan files", "No release or version change"],
+  "authority": "Root delegated the user's explicit initial architecture diagram improvement under the existing root mission.",
+  "parentRequest": "D:/Repositories/starci-academy-backend/.worktrees/v25-goal-partitions/request.json"
+}

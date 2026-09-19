@@ -1,0 +1,34 @@
+{
+  "baseline": "f9c74f7117cae2de3db14bc11e04024262a1acc6",
+  "files": [
+    {
+      "path": "scripts/json-schema.mjs",
+      "before": "sha256:c03e9c890f6fdbed04e1dfb574ea8c49fe8c617b74f5a3d810e920156cd7c8c9",
+      "after": "sha256:f1c47d5ea38bfb36022a3901d2dd5116fc98857ab49e3878c96e02173e947a33"
+    },
+    {
+      "path": "scripts/json-schema.spec.mjs",
+      "before": "sha256:f828f342aa68badeff436b395301bb07bea1c8fccedaab5206347725251c06a6",
+      "after": "sha256:5524d0d1948cf955e6da21c419c62f74940be5472e5fc70449659fcb5cf98e03"
+    },
+    {
+      "path": "templates/kinds/architecture-source-review.schema.json",
+      "before": "sha256:a1e03a3940d1772fe370bf7368e464dddead8fe8adbf2a8c08f20d3b7d866e2f",
+      "after": "sha256:45e1b1fdcc9d173ae19114129cf70c05ea3db08025b82aa81018d7090e7f9148"
+    }
+  ],
+  "focused": {
+    "passed": 8,
+    "failed": 0,
+    "command": "node --test scripts/json-schema.spec.mjs scripts/architecture-source-review.spec.mjs",
+    "log": "focused-attempt-3.log",
+    "hash": "sha256:828acabc7495fa446fe67645a5926d020ac720b7f97363f9a8907707cc10e47c"
+  },
+  "actualProof": "actual-gate-proof.json",
+  "boundaries": [
+    "Only schema-declared source-text content bypasses traversal regex.",
+    "Reference hygiene default and universal caps unchanged.",
+    "No live runtime or peer ledger mutation."
+  ],
+  "note": "Earlier attempt2 log retained; first8/8 earlier output in tool transcript only."
+}

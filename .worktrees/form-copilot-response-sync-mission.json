@@ -1,0 +1,74 @@
+{
+  "language": "vi",
+  "goal": "Mirror the current linked Google Form response sheet into PostgreSQL and keep its recorded response count synchronized without inventing rows or rewriting Form Copilot job history.",
+  "target": "Form Copilot backend, PostgreSQL response mirror, production API and the linked owner-controlled Google response sheet.",
+  "includes": [
+    "Read the linked sheet CSV source and validate its fixed 53-column response contract",
+    "Atomically upsert the complete response mirror and record source count, digest, freshness and sync errors",
+    "Expose read-only reconciliation status while preserving existing fixed_batches and fixed_jobs audit history",
+    "Deploy the verified migration and worker to the existing production VPS",
+    "Verify that PostgreSQL mirrored response count equals the live Google Responses count without submitting a new response"
+  ],
+  "excludes": [
+    "Changing Google Form answers, deleting responses or changing Sheet sharing",
+    "Reclassifying uncertain jobs without row-level evidence",
+    "Sending any new Google Form response",
+    "Publishing raw response contents through the public API or frontend"
+  ],
+  "outputs": [
+    "PostgreSQL response mirror and sync-state migration",
+    "Periodic backend synchronization and read-only reconciliation metadata",
+    "Parser, atomic replacement and failure-regression tests",
+    "Production deployment and count-parity evidence"
+  ],
+  "doneWhen": [
+    { "evidence": "The backend validates and atomically mirrors every linked-sheet response while preserving job history and failing closed on malformed input.", "producedBy": "backend.generate" },
+    { "evidence": "The additive production migration is applied once without deleting or rewriting existing batch and job history.", "producedBy": "migration.release" },
+    { "evidence": "Typecheck, tests and production build pass for the response synchronization change.", "producedBy": "quality.verify" },
+    { "evidence": "The verified image is deployed healthy to the declared Form Copilot production domains.", "producedBy": "release.deploy" },
+    { "evidence": "A read-only production check proves the PostgreSQL mirror count equals the live owner-visible Google Responses count with no new submission.", "producedBy": "uat.verify" }
+  ],
+  "verification": "Exercise valid and malformed CSV fixtures locally, verify transaction rollback and history preservation, deploy once, then compare production reconciliation metadata with the owner-visible Google Responses total.",
+  "example": "When Google Forms shows 216 responses, the latest successful sync reports 216 mirrored rows with the same source digest and leaves fixed_jobs unchanged.",
+  "sourceRef": "thread:01a04cb0-efee-77c3-80e9-9e36b2ab5a54#response-sync",
+  "discovery": {
+    "version": 1,
+    "stage": "deploy",
+    "repositories": [
+      {
+        "role": "be",
+        "project": "form-copilot",
+        "repository": "https://github.com/starci-lab/starci-academy-backend",
+        "routeRef": ".workspaces/local/routes/form-copilot/be/config.json",
+        "head": "b92a8c9b5e084ae9d6445ff38b2dd001d37a78b9"
+      }
+    ],
+    "impacts": [
+      {
+        "id": "response-mirror",
+        "role": "be",
+        "routes": ["GET /api/fixed/reconciliation", "Linked Google Sheet CSV sync"],
+        "code": ["tools/form-copilot/apps/api/src/fixed", "tools/form-copilot/packages/contracts/src/fixed.ts"],
+        "behavior": "A validated response-sheet snapshot replaces the PostgreSQL mirror atomically while fixed job and batch audit history remains independent and unchanged.",
+        "tags": ["feature", "business", "architecture", "backend", "data", "api", "browser", "runtime"],
+        "evidence": ["Parser and transaction regression tests", "Production read-only count parity against the owner-visible response total"]
+      }
+    ],
+    "destinations": [
+      { "role": "be", "kind": "environment", "target": "production form.doanhnghieptayson.vn and api.form.doanhnghieptayson.vn" }
+    ],
+    "unresolved": [],
+    "lanes": {
+      "business": { "status": "planned", "reason": "The response mirror has an explicit non-authoritative relation to job history.", "owner": "be", "inputs": ["Owner-visible Google response source"], "outputs": ["Response mirror business boundary"], "verification": ["No job-history rewrite and no fabricated response"], "dependsOn": [] },
+      "architecture": { "status": "planned", "reason": "CSV ingestion, transaction ownership and failure retention cross external and database boundaries.", "owner": "be", "inputs": ["Business boundary", "Current PostgreSQL repository"], "outputs": ["Atomic synchronization design"], "verification": ["Malformed input cannot replace last good mirror"], "dependsOn": ["business"] },
+      "backend": { "status": "planned", "reason": "The API service needs a parser, scheduler and repository operations.", "owner": "be", "inputs": ["Atomic synchronization design"], "outputs": ["Response synchronization service"], "verification": ["Unit and integration tests"], "dependsOn": ["architecture"] },
+      "data": { "status": "planned", "reason": "Additive response and sync-state tables are required.", "owner": "be", "inputs": ["Backend row model"], "outputs": ["Idempotent PostgreSQL migration"], "verification": ["Existing fixed_batches and fixed_jobs remain unchanged"], "dependsOn": ["backend"] },
+      "api": { "status": "planned", "reason": "Operators need safe reconciliation metadata without raw answers.", "owner": "be", "inputs": ["Backend sync state", "Database counts"], "outputs": ["Read-only reconciliation endpoint"], "verification": ["Contract and controller tests"], "dependsOn": ["backend", "data"] },
+      "interface": { "status": "not-applicable", "reason": "No frontend or response-content UI is authorized in this mission." },
+      "audit": { "status": "not-applicable", "reason": "No rendered interface changes are included." },
+      "uat": { "status": "planned", "reason": "Production parity must be observed against the browser-owned response count.", "owner": "be", "inputs": ["Production API reconciliation metadata", "Owner-visible Google Responses count"], "outputs": ["Read-only parity receipt"], "verification": ["Counts match without a new submission"], "dependsOn": ["api", "data"] },
+      "quality": { "status": "planned", "reason": "Deployment requires one frozen technical gate.", "owner": "be", "inputs": ["Backend and schema changes"], "outputs": ["Quality receipt"], "verification": ["Typecheck, tests and production build"], "dependsOn": ["backend"] },
+      "reconciliation": { "status": "planned", "reason": "Delivered behavior must reconcile to the no-fabrication business boundary.", "owner": "be", "inputs": ["API, UAT and quality evidence"], "outputs": ["Reconciled delivery"], "verification": ["Every promise maps to source and evidence"], "dependsOn": ["api", "uat", "quality"] }
+    }
+  }
+}

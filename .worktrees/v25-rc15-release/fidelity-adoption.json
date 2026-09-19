@@ -1,0 +1,144 @@
+{
+  "at": "2026-09-07T03:18:23.944Z",
+  "files": [
+    {
+      "path": "docs/reference/kinds.mdx",
+      "before": "sha256:e1192f344b013ba8dad1330294e5c7d5b2988a410472a5a5075d8bbf2ead0d23",
+      "after": "sha256:f62c177e02fc8f51858c31cff24e9090aa1917070ab2008850cdd3fc97ae6590",
+      "category": "generated"
+    },
+    {
+      "path": "docs/reference/operators/interface-audit.mdx",
+      "before": "sha256:5a886b35b143b3b3e64af9bc926325388c94ca52eea5a7af6d83b74f06d8634f",
+      "after": "sha256:80ca75ccf7bbc5891bc8becbc284e210c2058314ea8339d7500e615fa3c4458b",
+      "category": "generated"
+    },
+    {
+      "path": "docs/reference/operators/interface-draw.mdx",
+      "before": "sha256:a7821d6e9c804ac5d1b6ee51d1785edd90416da798b63efc2083f4fb8378f9d1",
+      "after": "sha256:e6a194fe983d14240b6ab42c5afe14e9f7a59ae38d832a172ebbd7a0771b9aa2",
+      "category": "generated"
+    },
+    {
+      "path": "docs/reference/operators/interface-generate.mdx",
+      "before": "sha256:2966f766e38d1990b01ba0fe126e09abb3a5917e4ffee2b0d2b73138c9b21a0d",
+      "after": "sha256:5424c34c5eb1a5dd0782ca71c4780cdda39693ed30ac70a91804b8c142bda821",
+      "category": "generated"
+    },
+    {
+      "path": "docs/vi/reference/kinds.mdx",
+      "before": "sha256:d09f951d28ec422595bc1162122566a4695b2a58ea25afd13d63134bc653806c",
+      "after": "sha256:891a1c36549cb9df4eeb74f8cd65048b25df07c82db770d8b61cdfe5ab8c323d",
+      "category": "generated"
+    },
+    {
+      "path": "docs/vi/reference/operators/interface-audit.mdx",
+      "before": "sha256:6c19c71ce2d46680de55d585d5246d5885a0f37a691f0910f150039868428ba6",
+      "after": "sha256:65b367f1ae7976fb225ef42c3674cf7048176fc0c9384214037cca152163693c",
+      "category": "generated"
+    },
+    {
+      "path": "docs/vi/reference/operators/interface-draw.mdx",
+      "before": "sha256:b9be8e10fef56db1cce5c82750cac2d7f04875f291335d58c729c970964b8d91",
+      "after": "sha256:a156022c21ede8e7a893fcf19da8064c7003f71c2c51e4de8be58fdd5aab7f18",
+      "category": "generated"
+    },
+    {
+      "path": "docs/vi/reference/operators/interface-generate.mdx",
+      "before": "sha256:29ebccb695cb1cfaa8d8c795888e90fcd7778a96c3b4b36beaa6599dd8b20708",
+      "after": "sha256:44f69437645ac835799c0c6045512cd1e9e4287195fffff07475ce815f4e15ab",
+      "category": "generated"
+    },
+    {
+      "path": "operators/interface-audit/operator.md",
+      "before": "sha256:0476dac5ed1f0926a0aa20208bd3282a99115fe21bc03fcf7984133de41d40fa",
+      "after": "sha256:d016a6406fdcb7d5738c881d976af2b8bae720a69d63e597a07a5dde9f3b3cb0",
+      "category": "authored"
+    },
+    {
+      "path": "operators/interface-audit/operator.vi.md",
+      "before": "sha256:cfc80effdf1927a95749cb1d4d7b5cc12465767e3b517b200d413ee1d08adccf",
+      "after": "sha256:46ea1a186578162afbdf903a961eb56209325f01ea60d78fd8895e74af099394",
+      "category": "authored"
+    },
+    {
+      "path": "operators/interface-draw/operator.md",
+      "before": "sha256:c0439a7632e524980b75d72ac205d14ca5e923829eabb74787807191010286e8",
+      "after": "sha256:ee5737195ce7d4d4129b1bc89959eda640b5ec66c64d838af31cb13f91bb4cce",
+      "category": "authored"
+    },
+    {
+      "path": "operators/interface-draw/operator.vi.md",
+      "before": "sha256:ff772b853a493ef1ed8c285d0054d3b32ac95906b5be760d664cd63289895f30",
+      "after": "sha256:eb5df88c089df8efc413de12bb822dd7a822b0468f900c4cabf41c661e2efccc",
+      "category": "authored"
+    },
+    {
+      "path": "operators/interface-draw/self-test.mjs",
+      "before": "sha256:3e672554e13b03b887a0752e052543e4dc65b408c4cbd31bc5aff1e7123029e8",
+      "after": "sha256:8e85c3ffa9c82af05fe475af60b21c2985d6202f6b7223998e2a6a674e6f1cfe",
+      "category": "test"
+    },
+    {
+      "path": "operators/interface-generate/operator.md",
+      "before": "sha256:0429ef8cc444b56f1bbb13c244df30ab8f21db0c11cde38053da9d7840178b56",
+      "after": "sha256:aa70a4c9a139a2ca39eeb7d76c2874481d136753f5cd95c85134b3903a314ec7",
+      "category": "authored"
+    },
+    {
+      "path": "operators/interface-generate/operator.vi.md",
+      "before": "sha256:cb67845795325bf4c26098d3e4c1fa17691f0c0920061c0f7f8e26374688d906",
+      "after": "sha256:d7020c6407a1b5af712024b871f7247fba9a6fc62925acce865a565283aae5cf",
+      "category": "authored"
+    },
+    {
+      "path": "scripts/art-direction.mjs",
+      "before": "sha256:f31ecff227c0cf8efd2ea046b364fed833abcacaf71882d1f4013ce9ef2d3a8f",
+      "after": "sha256:0636b43903b2b33a5780d6a7f3fd2a8c129a494e7b59cd8e33cbacbbabf0d046",
+      "category": "authored"
+    },
+    {
+      "path": "scripts/art-direction.spec.mjs",
+      "before": "sha256:dcbd351705a958a3999af9780d2cd83d85d946e74109b039d15a7f63363e0c93",
+      "after": "sha256:7347f7c828aed09e37b5b89efc106478432b82840c1ba46415583b0c9d843fb4",
+      "category": "test"
+    },
+    {
+      "path": "scripts/art-visual-proof.mjs",
+      "before": null,
+      "after": "sha256:049aed36c640c1265f8a6aff001527dbd33f3485a1ac1fdfd5f6cc3554323d85",
+      "category": "authored"
+    },
+    {
+      "path": "scripts/art-visual-proof.spec.mjs",
+      "before": null,
+      "after": "sha256:a0385d95203c44b9894cdb3a43bf8208fbc3efee48b82cba6490473992d6a9e5",
+      "category": "test"
+    },
+    {
+      "path": "templates/kinds/art-direction-adoption.schema.json",
+      "before": "sha256:f416139ae9ea009066f0588b2d5679129781735338b5b79e5052fcc10b38e1da",
+      "after": "sha256:d8666ef6d1437b2c854dcda9cd90cb58487d3cc131e2c92a6b14ed6b27a65f92",
+      "category": "authored"
+    },
+    {
+      "path": "templates/kinds/art-direction-brief.schema.json",
+      "before": "sha256:da716fd59c00bfb8f890daf9fd8403ab0d19dd6c055df7538e0adfec2d127614",
+      "after": "sha256:0133ab220571aa92cce42fd323b39a4b33e9fd1659b0fe62c441b03ccae6a412",
+      "category": "authored"
+    },
+    {
+      "path": "templates/kinds/art-direction-fidelity.schema.json",
+      "before": "sha256:0ff7a3aee556efeaf297d07024b59ad3f63770aea2b4a2117cf3177cb7093037",
+      "after": "sha256:4a1c53012eb83e6dbb5239aebb7e19884d3eaee6499c254028a7c4f328483776",
+      "category": "authored"
+    },
+    {
+      "path": "templates/kinds/frontend-art-direction.schema.json",
+      "before": "sha256:1c6dad5c057fce6171aded85434a835ded4c129955ba9304bbd0be8d9b52476b",
+      "after": "sha256:29f4f43439ce69caeeed0148e751a3353d5ad59ac87c5d572be0eaf4e8441238",
+      "category": "authored"
+    }
+  ],
+  "manifestHash": "sha256:def5feabc194a51d1fb2d5186db3b3491a90b37625076fe4119f8f6d5b270428"
+}

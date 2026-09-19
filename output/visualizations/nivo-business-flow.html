@@ -1,0 +1,101 @@
+<div id="nivo-business-flow">
+  <div class="viz-controls">
+    <label class="form-label" for="nivo-scenario">Luồng nghiệp vụ
+      <select class="form-select" id="nivo-scenario">
+        <option value="config">Setup · sửa cấu hình</option>
+        <option value="setup">Setup · chat và chạy thử</option>
+        <option value="chat">Giao tiếp · chat và action</option>
+        <option value="offline">Sự cố · engine tạm dừng</option>
+        <option value="restore">Phục hồi · snapshot và backup</option>
+      </select>
+    </label>
+    <span class="text-small">Phương án đang phân tích</span>
+  </div>
+  <div class="viz-row" id="nivo-ownership"></div>
+  <svg id="nivo-sequence" role="img" aria-labelledby="nivo-flow-title nivo-flow-desc">
+    <title id="nivo-flow-title">Luồng nghiệp vụ Nivo</title>
+    <desc id="nivo-flow-desc"></desc>
+  </svg>
+  <div class="text-small" id="nivo-state" aria-live="polite"></div>
+</div>
+<style>
+#nivo-business-flow { color:var(--foreground); }
+#nivo-business-flow #nivo-ownership { margin:12px 0; }
+#nivo-business-flow #nivo-sequence { width:100%; display:block; overflow:visible; }
+#nivo-business-flow .lane { stroke:var(--border); stroke-width:1; }
+#nivo-business-flow .route { stroke:var(--viz-series-1); stroke-width:2; fill:none; }
+#nivo-business-flow .async { stroke-dasharray:5 4; }
+#nivo-business-flow .lane-label { fill:var(--foreground); font-weight:500; }
+#nivo-business-flow text { fill:var(--foreground); font-family:inherit; font-size:var(--font-size-base); }
+#nivo-business-flow .stage-num { fill:var(--muted-foreground); }
+#nivo-business-flow .stage-line { stroke:var(--border); stroke-width:1; }
+#nivo-business-flow .point { fill:var(--viz-series-1); }
+#nivo-business-flow #nivo-state { padding-top:10px; }
+</style>
+<script>
+(() => {
+const root=document.getElementById('nivo-business-flow');
+const svg=root.querySelector('#nivo-sequence');
+const select=root.querySelector('#nivo-scenario');
+const data={
+ config:{owner:'Core giữ bản cấu hình · Engine giữ phiên bản đã áp dụng',state:'Đã lưu cấu hình ≠ engine đã áp dụng.',steps:[
+  ['Người dùng → Core','Đổi tên / chỉnh cấu hình nháp',0,1],
+  ['Core','Kiểm tra quyền · lưu phiên bản nháp',1,1],
+  ['Người dùng → Core','Chọn Áp dụng',0,1],
+  ['Core → Engine','Gửi phiên bản cấu hình',1,2],
+  ['Engine → Core','Xác nhận phiên bản đã áp dụng',2,1,true],
+  ['Core → Người dùng','Hiển thị trạng thái thực tế',1,0]]},
+ setup:{owner:'Nháp setup tách khỏi bot đang hoạt động',state:'Chạy thử không tự kích hoạt cấu hình mới.',steps:[
+  ['Người dùng → Core','Chat yêu cầu setup / bổ sung tài liệu',0,1],
+  ['Core → Engine','Yêu cầu suy luận hoặc chạy thử',1,2],
+  ['Engine','Dùng AI / tri thức trong phạm vi bot',2,2],
+  ['Engine → Core','Trả đề xuất / kết quả thử',2,1],
+  ['Core → Người dùng','Hiển thị nháp · chờ chọn Áp dụng',1,0]]},
+ chat:{owner:'Engine xử lý · một nơi giữ dữ liệu nghiệp vụ chính',state:'Đã tiếp nhận ≠ đã thực hiện. Kết quả chưa rõ phải đối soát.',steps:[
+  ['Người dùng → Core','Gửi tin nhắn + mã yêu cầu',0,1],
+  ['Core → Engine','Kiểm tra quyền · chuyển đúng bot',1,2],
+  ['Engine → Dữ liệu','Chống trùng · lưu tin nhắn',2,3],
+  ['Engine','Trả lời hoặc gọi công cụ được phép',2,2],
+  ['Engine → Dữ liệu','Lưu kết quả + sự kiện cần đồng bộ',2,3],
+  ['Engine → Core','Đồng bộ kết quả / tiến độ',2,1,true],
+  ['Core → Người dùng','Hiển thị phản hồi',1,0]]},
+ offline:{owner:'Dữ liệu bền vững độc lập với tiến trình engine',state:'Bản đọc đồng bộ có thể trễ; không tự báo action thành công.',steps:[
+  ['Người dùng → Core','Mở chat / gửi yêu cầu',0,1],
+  ['Core','Phát hiện engine chưa sẵn sàng',1,1],
+  ['Core → Người dùng','Hiển thị bản đọc gần nhất, nếu có',1,0],
+  ['Core → Người dùng','Action: đang chờ hoặc tạm không nhận',1,0],
+  ['Core → Engine','Kết nối lại · kiểm tra yêu cầu cũ',1,2],
+  ['Engine → Dữ liệu','Đối soát trước khi xử lý tiếp',2,3]]},
+ restore:{owner:'Kho backup độc lập · snapshot có phiên bản',state:'Khôi phục trạng thái không có nghĩa gửi lại tin hay ghi lại bút toán.',steps:[
+  ['Core → Engine','Khóa writer cũ · mở phiên phục hồi',1,2],
+  ['Engine → Dữ liệu','Khôi phục backup đã kiểm chứng',2,3],
+  ['Engine → Dữ liệu','Khôi phục phần thay đổi sau mốc',2,3],
+  ['Engine','Đối soát action dang dở / chưa rõ',2,2],
+  ['Engine → Core','Đồng bộ lại từ checkpoint',2,1,true],
+  ['Core → Người dùng','Mở lại sau khi kiểm tra dữ liệu',1,0]]}
+};
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,text){const n=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs||{}))n.setAttribute(k,String(v));if(text!==undefined)n.textContent=text;svg.appendChild(n);return n;}
+function lines(text,max){const words=text.split(' '),out=[];let line='';for(const word of words){if((line+' '+word).trim().length>max&&line){out.push(line);line=word;}else line=(line+' '+word).trim();}if(line)out.push(line);return out;}
+function draw(){
+ const d=data[select.value],w=Math.max(280,Math.floor(root.getBoundingClientRect().width));
+ const narrow=w<500,row=narrow?130:108,top=55,h=top+d.steps.length*row;
+ svg.replaceChildren();svg.setAttribute('viewBox',`0 0 ${w} ${h}`);svg.setAttribute('height',String(h));
+ const title=el('title',{id:'nivo-flow-title'},select.options[select.selectedIndex].text);
+ el('desc',{id:'nivo-flow-desc'},d.steps.map((s,i)=>`${i+1}. ${s[0]}: ${s[1]}`).join('. '));
+ const xs=[.10,.36,.64,.90].map(x=>x*w),labels=['Người dùng','Core','Engine','Dữ liệu'];
+ labels.forEach((label,i)=>{el('text',{x:i===0?4:i===3?w-4:xs[i],y:20,'text-anchor':i===0?'start':i===3?'end':'middle',class:'lane-label'},label);el('line',{x1:xs[i],x2:xs[i],y1:32,y2:h-8,class:'lane'});});
+ d.steps.forEach((s,i)=>{
+   const y=top+i*row;el('rect',{x:0,y:y-12,width:w,height:narrow?67:46,fill:'var(--background)'});
+   const desc=lines(`${i+1}. ${s[1]}`,narrow?38:82);
+   desc.forEach((t,j)=>el('text',{x:4,y:y+j*20},t));
+   const ay=y+(narrow?80:63),a=xs[s[2]],b=xs[s[3]];
+   if(a===b){const dir=a>w*.7?-1:1;el('path',{d:`M ${a} ${ay-8} h ${dir*24} v 16 h ${-dir*24}`,class:'route'});el('circle',{cx:a,cy:ay+8,r:3,class:'point'});}
+   else {el('line',{x1:a,y1:ay,x2:b,y2:ay,class:'route'+(s[4]?' async':'')});const dir=b>a?1:-1;el('path',{d:`M ${b-dir*7} ${ay-4} L ${b} ${ay} L ${b-dir*7} ${ay+4}`,class:'route'});el('circle',{cx:a,cy:ay,r:3,class:'point'});}
+ });
+ root.querySelector('#nivo-ownership').textContent=d.owner;
+ root.querySelector('#nivo-state').textContent=d.state+' Nét đứt: đồng bộ bất đồng bộ.';
+}
+select.addEventListener('change',draw);new ResizeObserver(draw).observe(root);draw();
+})();
+</script>

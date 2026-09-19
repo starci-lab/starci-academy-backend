@@ -1,0 +1,128 @@
+{
+  "status": "sealed",
+  "baseline": "886c1cafea34f0782881b9297f62a8742f30ba36",
+  "version": "2.5.0-rc.8",
+  "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-proof-review-reentry\\.claude",
+  "files": [
+    {
+      "path": "INDEX.md",
+      "before": "sha256:9eb3b07876fda131b974c9b5764ecf824b62c5765bf2b7c7a5e413aeb2660b48",
+      "after": "sha256:4e9ce284ba0e495b9db63472d2b2927504fbb686afb101a57b671ccd675be9fe",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-proof-review-reentry\\.claude\\INDEX.md"
+    },
+    {
+      "path": "INDEX.vi.md",
+      "before": "sha256:a2cf9b9d519a964d38e09328d23e6107ba7f02d0e35307622ca61e8025009736",
+      "after": "sha256:2d430f39e6efe9ab2770b7f97e7c998c822e428541174e545c5e88b52f8f32f6",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-proof-review-reentry\\.claude\\INDEX.vi.md"
+    },
+    {
+      "path": "package.json",
+      "before": "sha256:e4f7222eeafe4852341ab759ee47d4a79e6807cfc8b745a0e3f8069c8454cef1",
+      "after": "sha256:f32c8351fff579f91e963167210eaeed1fdb0686e144e7519ccbab150a12c41f",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-proof-review-reentry\\.claude\\package.json"
+    },
+    {
+      "path": "scripts/plan-history.mjs",
+      "before": "sha256:f35ff4bf1d34fd1fe9c1f2f9b60026f4a9c8a1b42c9918726ad850a1819ea211",
+      "after": "sha256:58440e5bfdde01703f8bca6f1f8a7e93aa2ee7d50af48454c3bbd6e69c7cc353",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-proof-review-reentry\\.claude\\scripts\\plan-history.mjs"
+    },
+    {
+      "path": "scripts/workflow-reentry.spec.mjs",
+      "before": "sha256:e24bec3c853232ecf2f6fa1cf635fb2748c2e706571fb4bfbf2ca6aa066b68da",
+      "after": "sha256:f5601329fa3a82e1b0efc969e1b214f13fcd82cec679f5a21423ee832bfdd061",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-proof-review-reentry\\.claude\\scripts\\workflow-reentry.spec.mjs"
+    },
+    {
+      "path": "tests/evidence/20260906-source-proof-review-reentry.md",
+      "before": null,
+      "after": "sha256:193a852b01a7659e428cae114d38015316a13550cb7f9f17fbadc98de9e2328f",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-proof-review-reentry\\.claude\\tests\\evidence\\20260906-source-proof-review-reentry.md"
+    },
+    {
+      "path": "workflows/README.md",
+      "before": "sha256:e81b1a031cc4e5758eb77d6692f06ae0c79373d9104b5427e5504b2916a5699f",
+      "after": "sha256:a077a9acb9384cca4744f5ee0934555299387bace05a7ac97395c734b8e3558f",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-proof-review-reentry\\.claude\\workflows\\README.md"
+    },
+    {
+      "path": "workflows/README.vi.md",
+      "before": "sha256:783566781701c38beb74cb3239597493757cbb206d1418937608549184aef3a4",
+      "after": "sha256:17e6557e01b3f52a3367d6d589d4b7b957054a84a7e43eefb3122241684938b6",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-proof-review-reentry\\.claude\\workflows\\README.vi.md"
+    }
+  ],
+  "deleted": [],
+  "generatedPaths": [],
+  "reviewedAt": "2026-09-06T14:23:41.341Z",
+  "sealedAt": "2026-09-06T14:30:21.678Z",
+  "proof": {
+    "fullTest": {
+      "command": "npm test",
+      "exit": 0,
+      "tests": 449,
+      "pass": 449,
+      "fail": 0,
+      "skip": 0,
+      "log": "release-full.log",
+      "logHash": "sha256:cd787aeab8bb337cfab21b48081f95a171cd809c8b566ebb01f2fa6c547b620b",
+      "run": "release-full-run.json",
+      "startedAt": "2026-09-06T14:20:30.356Z",
+      "endedAt": "2026-09-06T14:29:25.972Z",
+      "testedTreeUnchanged": true
+    },
+    "docs": {
+      "exit": 0,
+      "generated": 76,
+      "source": "full npm test docs:check"
+    },
+    "package": {
+      "file": "starci-skills-2.5.0-rc.8.tgz",
+      "sha256": "sha256:d479fb8ae9ddeeb87b4871185361e69dbe38cf6b0bbd8c5b482d06e2fa2cd979",
+      "npmShasum": "7318e2c337792b05be921c8becb46cb25c00425d",
+      "npmIntegrity": "sha512-mzIebnaG+E4lCU8Qt/iHQoIb85wI2GQyFqDnLZecfz8NI5Bq+us3DvrXjOXcc3cQpHzPXWneL8+ndMRiUiBUxQ==",
+      "manifest": "release-pack.json",
+      "exit": 0,
+      "cache": "release-npm-cache",
+      "firstAttempt": "release-pack-first.json retained default-cache EPERM"
+    },
+    "install": {
+      "package": "starci-skills-2.5.0-rc.8.tgz",
+      "version": "2.5.0-rc.8",
+      "tarballSha256": "d479fb8ae9ddeeb87b4871185361e69dbe38cf6b0bbd8c5b482d06e2fa2cd979",
+      "installExit": 0,
+      "payloadFilesByteIdentical": 675,
+      "defaultFullBootstrap": true,
+      "evidenceIncluded": true,
+      "host": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-proof-review-reentry\\release-installed-host",
+      "priorHarnessError": "Initial check assumed installed package.json; installer stores version in .starci-skills.json. Runtime installation succeeded unchanged.",
+      "proof": "release-install-proof.json",
+      "log": "release-install.log"
+    },
+    "doctor": {
+      "command": "doctor --quick",
+      "exit": 0,
+      "checks": 3,
+      "drift": 0,
+      "log": "release-doctor-quick.log"
+    },
+    "tree": {
+      "files": 903,
+      "inventory": "release-tested-tree.json",
+      "inventoryHash": "sha256:e66b36e6c39cdc662ccf95e792e7446422adb5a2eca25fb4ca2d8f78e469a5d6"
+    },
+    "focusedOriginal": {
+      "manifest": "focused-manifest.json",
+      "hash": "sha256:c558f0942dad2e12c48af38eff6ffe9676c73ed9e5445608e82e2e208924cdf5"
+    }
+  },
+  "limits": [
+    "No live runtime, peer ledger or product source writes",
+    "No commit or push performed",
+    "Intermediate RC.8 blocker fix; dynamic coordination remains RC.9 work",
+    "Fixture lifecycle evidence is not product UAT",
+    "Packed install verified byte-identical; installed doctor used quick mode, full npm test ran on identical candidate payload",
+    "Canonical native preview remains root-owned after guarded adoption"
+  ]
+}

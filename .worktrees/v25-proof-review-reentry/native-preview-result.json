@@ -1,0 +1,11 @@
+{
+  "command": "plan-history.mjs preview",
+  "session": "20260905-nivo-accounting-01a07247",
+  "flags": "accounting-flags.json",
+  "exit": 0,
+  "previewHash": "sha256:47d498d2a92dc57cc01f2d0af229e4e5803ccabbd89da3f5a566546e99c3ab0c",
+  "runtime": "2.5.0-rc.8",
+  "log": "native-preview-rc8.log",
+  "ledgerMutated": false,
+  "note": "CLI prints forecast prose followed by JSON; initial display parser assumed pure JSON. Native preview itself succeeded."
+}

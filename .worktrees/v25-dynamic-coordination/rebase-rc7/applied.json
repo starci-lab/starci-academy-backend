@@ -1,0 +1,54 @@
+{
+  "head": "886c1cafea34f0782881b9297f62a8742f30ba36",
+  "merges": [
+    {
+      "path": "scripts/validate-chain.mjs",
+      "base": "sha256:10db1cd5fc6a1d976925f1655bd169093c6f2f2f0b12cec6792c0e03662e4513",
+      "ours": "sha256:a34cfabc0b6f673bbbc81ccdb7a31d67728ce52a92ce618a62b64896752ad80f",
+      "upstream": "sha256:13ff036c6a29d05f5dc59b59ba554bcd24cb9de84ad653ba25ebcbfde50349ec",
+      "merged": "sha256:7ed865c0a751fc61de19600838bb5389454d9a81478382ae787dfe127224c723",
+      "conflict": false
+    },
+    {
+      "path": "scripts/validate-request.mjs",
+      "base": "sha256:b76c2ac3f77dd854304db11075d59bfb4cd91db4ff553c0225135c485e3b2497",
+      "ours": "sha256:5b0092712f5c0fb14f8ac5e944c5ff9e7f262190db414d6ddc68d58660a31fe7",
+      "upstream": "sha256:056222e58c25e7e5e0c164a70d32c9fc1e705a60dccc3c674b3c2edb943a6875",
+      "merged": "sha256:1dd20f4a8c3e5f7a832867895b71d7a38708fdc5f2ce183a5ec4854f1bf7ed75",
+      "conflict": false
+    },
+    {
+      "path": "scripts/workspace-checkout.mjs",
+      "base": "sha256:640e0a65e9291903095aa8bf20fdbebf56027c2ed300d9a80723108b2f080338",
+      "ours": "sha256:69d2e6eec7a2cb063494fa7230eb917c85a773e76ecd90fa7f7eafd9419747f6",
+      "upstream": "sha256:86b613a49c7e85c24032383867edd7121351cee85ebb493451ebeee955d1798b",
+      "merged": "sha256:2a59e1a111bed8271c74e249ed826fc045618ac08ec1fcd5c0efae4354634395",
+      "conflict": false
+    },
+    {
+      "path": "workflows/README.md",
+      "base": "sha256:46923ea5e759e5c50dba914bd00e2e046ec0de51ef942785d7fa51a5149dac9a",
+      "ours": "sha256:5b24bc32842c4ebd9c27d7c78d3aff531cc35a90eb0a00b38631c6771eb47f7a",
+      "upstream": "sha256:e81b1a031cc4e5758eb77d6692f06ae0c79373d9104b5427e5504b2916a5699f",
+      "merged": "sha256:7680040f8dda00c5f0e66df2ac21fe60bdb78fa30175063b91b49aee4f027542",
+      "conflict": false
+    },
+    {
+      "path": "workflows/README.vi.md",
+      "base": "sha256:87c511d39c9f4984677e7bb2e243ae96d84531e727ce2261eaeb6f8043a06ac3",
+      "ours": "sha256:4bb3a1599ebcc4a83f906ffb60e65543cdd71397f29ff2701ca240ccb58de03b",
+      "upstream": "sha256:783566781701c38beb74cb3239597493757cbb206d1418937608549184aef3a4",
+      "merged": "sha256:da00688de3206a32bae218c8b05965e2f23f3570b4000cbf41c14c5965a42596",
+      "conflict": false
+    }
+  ],
+  "checkedUpstreamFiles": 12,
+  "lineEndingOnly": [
+    {
+      "path": "tests/evidence/20260906-workflow-reentry.md",
+      "manifestSha256": "sha256:b92b59601d981e8b11bf2ffff13e210d311ec153e37017bdc4da29235607cb0d",
+      "publishedGitSha256": "sha256:8423757da090d3ca666423c5f71fe32f755a164bc06669c0d7f02c29becb0a89"
+    }
+  ],
+  "appliedAt": "2026-09-06T13:14:18.084Z"
+}

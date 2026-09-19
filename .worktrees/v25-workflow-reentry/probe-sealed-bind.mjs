@@ -1,0 +1,17 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {sealedWorkspaceBindingErrors} from './.claude/scripts/validate-request.mjs';
+const session='D:/Repositories/nivo-backend/.worktrees/sessions/20260905160512-nivo-ca563924';
+const stateFile=session+'/state.json';
+const requestFile=session+'/step-12/parallel-1/request/request.json';
+const before={state:fs.readFileSync(stateFile),request:fs.readFileSync(requestFile)};
+const state=JSON.parse(before.state),request=JSON.parse(before.request);
+const errors=await sealedWorkspaceBindingErrors(session,state,request);
+assert.ok(Array.isArray(errors),'the actual matched bind must use sealed validation');
+assert.deepEqual(errors,[]);
+assert.deepEqual(fs.readFileSync(stateFile),before.state);
+assert.deepEqual(fs.readFileSync(requestFile),before.request);
+const hash=v=>createHash('sha256').update(v).digest('hex');
+fs.writeFileSync(new URL('./actual-sealed-bind.json',import.meta.url),JSON.stringify({observedAt:new Date().toISOString(),kind:'read-only native historical bind proof only; not retry or product UAT',session,cell:'12/1',stateHash:hash(before.state),requestHash:hash(before.request),errors},null,2)+'\n');
+console.log('Actual Chatbot12 sealed history valid; peer files unchanged. Retry/rebind still requires separate proof.');

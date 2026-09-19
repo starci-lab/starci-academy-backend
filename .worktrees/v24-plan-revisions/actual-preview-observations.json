@@ -1,0 +1,418 @@
+[
+  {
+    "id": "20260905160512-nivo-ca563924",
+    "missionVersion": 4,
+    "flags": {
+      "roles": [
+        "be",
+        "fe"
+      ]
+    },
+    "previewHash": "sha256:86c7e081c7f6dda4fd194831edab07407d4cb1784d9c52900113d8899b57ad0f",
+    "stepCount": 16,
+    "forecast": {
+      "chain": [
+        [
+          "23/1"
+        ],
+        [
+          "24/1",
+          "24/2"
+        ],
+        [
+          "25/1",
+          "25/2"
+        ],
+        [
+          "26/1",
+          "26/2"
+        ],
+        [
+          "27/1"
+        ],
+        [
+          "28/1"
+        ],
+        [
+          "29/1"
+        ],
+        [
+          "30/1"
+        ],
+        [
+          "31/1"
+        ],
+        [
+          "32/1"
+        ],
+        [
+          "33/1"
+        ],
+        [
+          "34/1"
+        ],
+        [
+          "35/1"
+        ],
+        [
+          "36/1"
+        ],
+        [
+          "37/1"
+        ],
+        [
+          "38/1"
+        ]
+      ],
+      "steps": {
+        "23/1": "environment.preflight",
+        "24/1": "workspace.bind",
+        "24/2": "workspace.bind",
+        "25/1": "business.decide",
+        "25/2": "uat.plan",
+        "26/1": "architecture.decide",
+        "26/2": "data.plan",
+        "27/1": "backend.generate",
+        "28/1": "interface.generate",
+        "29/1": "runtime.serve",
+        "30/1": "identity.provision",
+        "31/1": "data.seed",
+        "32/1": "interface.audit",
+        "33/1": "quality.verify",
+        "34/1": "quality.verify",
+        "35/1": "api.verify",
+        "36/1": "uat.verify",
+        "37/1": "business.reconcile",
+        "38/1": "git.publish"
+      },
+      "goals": {
+        "23/1": {
+          "prerequisite": "24/1"
+        },
+        "24/1": {
+          "prerequisite": "25/1"
+        },
+        "24/2": {
+          "prerequisite": "25/1"
+        },
+        "25/1": {
+          "doneWhen": 0
+        },
+        "25/2": {
+          "prerequisite": "26/2"
+        },
+        "26/1": {
+          "doneWhen": 8
+        },
+        "26/2": {
+          "prerequisite": "27/1"
+        },
+        "27/1": {
+          "doneWhen": 9
+        },
+        "28/1": {
+          "doneWhen": 11
+        },
+        "29/1": {
+          "doneWhen": 1
+        },
+        "30/1": {
+          "prerequisite": "31/1"
+        },
+        "31/1": {
+          "doneWhen": 10
+        },
+        "32/1": {
+          "doneWhen": 12
+        },
+        "33/1": {
+          "doneWhen": 2
+        },
+        "34/1": {
+          "doneWhen": 4
+        },
+        "35/1": {
+          "doneWhen": 5
+        },
+        "36/1": {
+          "doneWhen": 3
+        },
+        "37/1": {
+          "doneWhen": 6
+        },
+        "38/1": {
+          "doneWhen": 7
+        }
+      },
+      "reasons": {
+        "23/1": "opens the chain: api.verify, backend.generate, business.decide, business.reconcile, data.seed, git.publish, identity.provision, interface.audit, interface.generate, runtime.serve, uat.verify hold browsercontrol, container, database, git, host, sourcewrite",
+        "24/1": "binds @workspaces/be, which business.decide requires; binds @workspaces/be, which uat.verify requires; produces route, which uat.verify requires; binds @workspaces/be, which api.verify requires; binds @workspaces/be, which business.reconcile requires; produces workspace-route-binding, which git.publish requires; binds @workspaces/be, which architecture.decide requires; binds @workspaces/be, which backend.generate requires; binds @workspaces/be, which data.plan requires; binds @workspaces/be, which the mission declares",
+        "24/2": "binds @workspaces/fe, which uat.verify requires; produces route, which uat.verify requires; produces workspace-route-binding, which git.publish requires; binds @workspaces/fe, which interface.generate requires; binds @workspaces/fe, which interface.audit requires; binds @workspaces/fe, which the mission declares",
+        "25/1": "evidence for done-when 0: \"Lời hứa Chatbot đa-instance, second-brain boundary, quyền, create idempotency, failure và handoff được đóng băng.\"",
+        "25/2": "produces uat-plan, which uat.verify requires; produces uat-case-sheet, which uat.verify requires",
+        "26/1": "evidence for done-when 8: \"The frozen publish scope has a validator-accepted architecture.decide outcome.\"; produces architecture-decision, which backend.generate requires",
+        "26/2": "produces seed-plan, which data.seed requires",
+        "27/1": "evidence for done-when 9: \"The frozen publish scope has a validator-accepted backend.generate outcome.\"; produces backend-source-application, which business.reconcile requires; produces changes, which git.publish requires",
+        "28/1": "evidence for done-when 11: \"The frozen publish scope has a validator-accepted interface.generate outcome.\"; produces changes, which git.publish requires; produces frontend-source-application, which interface.audit requires; produces frontend-presentation-resolution, which interface.audit requires; produces frontend-direction-decision, which interface.audit requires",
+        "29/1": "evidence for done-when 1: \"Đúng frontend/backend commit được phục vụ khỏe trên các cổng Nivo được khai báo.\"; produces platform-operation-receipt, which api.verify requires",
+        "30/1": "produces uat-account, which uat.verify requires",
+        "31/1": "evidence for done-when 10: \"The frozen publish scope has a validator-accepted data.seed outcome.\"; produces seed-receipt, which uat.verify requires",
+        "32/1": "evidence for done-when 12: \"The frozen publish scope has a validator-accepted interface.audit outcome.\"; produces frontend-surface-audit, which uat.verify requires; the long-flow law: interface.generate writes a surface that git.publish publishes, so it is audited and walked first",
+        "33/1": "evidence for done-when 2: \"Frontend Chatbot và audit admission đạt quality gates ở đúng served head trước browser UAT.\"; produces quality-verification, which uat.verify requires",
+        "34/1": "evidence for done-when 4: \"Backend Chatbot đạt quality gates sau UAT, tạo cầu admission sang served-client API verification.\"; produces quality-verification, which git.publish requires",
+        "35/1": "evidence for done-when 5: \"API suite chạy như client trên runtime thật chứng minh multi-instance contract, replay-safe create, owner/cross-instance/cross-tenant isolation, version gates và namespace cleanup.\"",
+        "36/1": "evidence for done-when 3: \"Browser UAT chứng minh hai Chatbot cùng OS, replay/create mới, isolation, setup, test, apply, hội thoại, handoff, resolve và denial states.\"; the long-flow law: interface.generate writes a surface that git.publish publishes, so it is audited and walked first",
+        "37/1": "evidence for done-when 6: \"Lời hứa Chatbot được reconcile với source, browser UAT và served API evidence ở đúng heads.\"",
+        "38/1": "evidence for done-when 7: \"Các commit Chatbot đã được publish theo git policy không force sau khi gate và UAT đạt yêu cầu.\""
+      },
+      "dependencies": {
+        "23/1": [],
+        "24/1": [
+          "23/1"
+        ],
+        "24/2": [
+          "23/1"
+        ],
+        "25/1": [
+          "23/1",
+          "24/1",
+          "24/2"
+        ],
+        "25/2": [
+          "23/1",
+          "24/1",
+          "24/2"
+        ],
+        "26/1": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "25/1"
+        ],
+        "26/2": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "25/2"
+        ],
+        "27/1": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "25/1",
+          "25/2",
+          "26/1",
+          "26/2"
+        ],
+        "28/1": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "25/1",
+          "25/2",
+          "26/1",
+          "26/2",
+          "27/1"
+        ],
+        "29/1": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "27/1",
+          "28/1"
+        ],
+        "30/1": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "29/1"
+        ],
+        "31/1": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "26/2",
+          "27/1",
+          "29/1",
+          "30/1"
+        ],
+        "32/1": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "25/2",
+          "26/2",
+          "28/1",
+          "29/1",
+          "30/1",
+          "31/1"
+        ],
+        "33/1": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "27/1",
+          "28/1",
+          "29/1",
+          "32/1"
+        ],
+        "34/1": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "27/1",
+          "28/1",
+          "29/1",
+          "32/1",
+          "33/1"
+        ],
+        "35/1": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "25/2",
+          "27/1",
+          "29/1",
+          "30/1",
+          "31/1",
+          "33/1",
+          "34/1"
+        ],
+        "36/1": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "25/2",
+          "29/1",
+          "30/1",
+          "31/1",
+          "32/1",
+          "33/1",
+          "35/1"
+        ],
+        "37/1": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "27/1",
+          "28/1",
+          "33/1",
+          "34/1",
+          "35/1",
+          "36/1"
+        ],
+        "38/1": [
+          "23/1",
+          "24/1",
+          "24/2",
+          "27/1",
+          "28/1",
+          "32/1",
+          "33/1",
+          "34/1",
+          "35/1",
+          "36/1",
+          "37/1"
+        ]
+      },
+      "requestRefs": {
+        "23/1": "step-23/parallel-1/request/request.json",
+        "24/1": "step-24/parallel-1/request/request.json",
+        "24/2": "step-24/parallel-2/request/request.json",
+        "25/1": "step-25/parallel-1/request/request.json",
+        "25/2": "step-25/parallel-2/request/request.json",
+        "26/1": "step-26/parallel-1/request/request.json",
+        "26/2": "step-26/parallel-2/request/request.json",
+        "27/1": "step-27/parallel-1/request/request.json",
+        "28/1": "step-28/parallel-1/request/request.json",
+        "29/1": "step-29/parallel-1/request/request.json",
+        "30/1": "step-30/parallel-1/request/request.json",
+        "31/1": "step-31/parallel-1/request/request.json",
+        "32/1": "step-32/parallel-1/request/request.json",
+        "33/1": "step-33/parallel-1/request/request.json",
+        "34/1": "step-34/parallel-1/request/request.json",
+        "35/1": "step-35/parallel-1/request/request.json",
+        "36/1": "step-36/parallel-1/request/request.json",
+        "37/1": "step-37/parallel-1/request/request.json",
+        "38/1": "step-38/parallel-1/request/request.json"
+      },
+      "nodes": {
+        "23/1": "environment.preflight",
+        "24/1": "workspace.bind#be",
+        "24/2": "workspace.bind#fe",
+        "25/1": "business.decide",
+        "25/2": "uat.plan",
+        "26/1": "architecture.decide",
+        "26/2": "data.plan",
+        "27/1": "backend.generate",
+        "28/1": "interface.generate",
+        "29/1": "runtime.serve",
+        "30/1": "identity.provision",
+        "31/1": "data.seed",
+        "32/1": "interface.audit",
+        "33/1": "quality.verify",
+        "34/1": "quality.verify#4",
+        "35/1": "api.verify",
+        "36/1": "uat.verify",
+        "37/1": "business.reconcile",
+        "38/1": "git.publish"
+      },
+      "presets": {
+        "23/1": {
+          "roles": [
+            "be",
+            "fe"
+          ],
+          "runtimeRoles": [
+            "be",
+            "fe"
+          ]
+        },
+        "24/1": {
+          "role": "be"
+        },
+        "24/2": {
+          "role": "fe"
+        }
+      },
+      "fanout": {},
+      "imports": {},
+      "dropped": [
+        "data.seed → workspace.bind#be (Next) would close a cycle",
+        "identity.provision → workspace.bind#be (Next) would close a cycle",
+        "data.seed → workspace.bind#fe (Next) would close a cycle",
+        "identity.provision → workspace.bind#fe (Next) would close a cycle",
+        "architecture.decide → business.decide (optional architecture-decision) would close a cycle",
+        "quality.verify → uat.plan (Next) would close a cycle",
+        "quality.verify#4 → uat.plan (Next) would close a cycle",
+        "runtime.serve → uat.plan (Next) would close a cycle",
+        "uat.verify → data.plan (Next) would close a cycle",
+        "business.reconcile → backend.generate (optional business-reconciliation) would close a cycle",
+        "api.verify → backend.generate (Next) would close a cycle",
+        "business.reconcile → backend.generate (Next) would close a cycle",
+        "uat.verify → backend.generate (Next) would close a cycle",
+        "interface.audit → interface.generate (optional frontend-surface-audit) would close a cycle",
+        "interface.audit → interface.generate (optional findings) would close a cycle",
+        "uat.verify → interface.generate (optional findings) would close a cycle",
+        "uat.verify → interface.generate (Next) would close a cycle",
+        "git.publish → runtime.serve (Next) would close a cycle",
+        "uat.verify → quality.verify (optional uat-flow-verification) would close a cycle",
+        "uat.verify → quality.verify#4 (optional uat-flow-verification) would close a cycle"
+      ],
+      "ends": "git.publish"
+    },
+    "readOnly": true
+  },
+  {
+    "id": "20260905-nivo-accounting-01a07247",
+    "missionVersion": 4,
+    "flags": {
+      "roles": [
+        "be",
+        "fe"
+      ]
+    },
+    "error": "backend.generate could run next, and no Next table of interface.plan permits any of them",
+    "readOnly": true
+  }
+]

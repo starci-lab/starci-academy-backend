@@ -7,7 +7,12 @@
     "kind": "sibling",
     "directory": "nivo-backend",
     "gitRepository": "https://github.com/starci-lab/nivo-backend.git",
-    "branch": "main"
+    "branch": "main",
+    "gitPolicy": {
+      "worktreeBranches": "session-only",
+      "mutationBranch": "main",
+      "incomingBranchRefs": "merge-into-mutation-branch"
+    }
   },
   "context": {
     "instructions": [],

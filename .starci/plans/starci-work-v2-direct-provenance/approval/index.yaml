@@ -1,0 +1,15 @@
+schema: starci/plan-approval@1
+planDigest: e02e020be8923e9fed2c02b002d7d59d67e139616e6c8a9f12fe0ab97b4a4fa6
+jobs:
+  prepare-direct-provenance-repair:
+    status: pending
+    presentation: null
+    receipts: []
+  repair-direct-provenance-validator:
+    status: pending
+    presentation: null
+    receipts: []
+  publish-direct-provenance-repair:
+    status: pending
+    presentation: null
+    receipts: []

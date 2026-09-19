@@ -1,0 +1,94 @@
+{
+  "baseline": "8a3e1cdc43298d51b547947fcdbae57b919f855b",
+  "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-workflow-reentry\\.claude",
+  "files": [
+    {
+      "path": "INDEX.md",
+      "before": "sha256:3dba04e62de68dd544aa0141cdf866b33f17d5ec0edd996c19978c660da50be0",
+      "after": "sha256:9eb3b07876fda131b974c9b5764ecf824b62c5765bf2b7c7a5e413aeb2660b48"
+    },
+    {
+      "path": "INDEX.vi.md",
+      "before": "sha256:87aa35889350f7095586109b5856d1d84c1dc8ff0a276d43a001345e7d0a54c1",
+      "after": "sha256:a2cf9b9d519a964d38e09328d23e6107ba7f02d0e35307622ca61e8025009736"
+    },
+    {
+      "path": "operators/workspace-bind/validate.mjs",
+      "before": "sha256:c1e94dbda0ae9f4c1ae284077300ac58e6233ffd09193c29e40673a82782623c",
+      "after": "sha256:9458f94827491b47f2a86a0d158e0d29fc9d3206ca4f76d222601ba0873659cd"
+    },
+    {
+      "path": "package.json",
+      "before": "sha256:3aba80ca049517430e8882f1158910f727ab523bebfcaeb6982997141b4ce69f",
+      "after": "sha256:e4f7222eeafe4852341ab759ee47d4a79e6807cfc8b745a0e3f8069c8454cef1"
+    },
+    {
+      "path": "scripts/plan-history.mjs",
+      "before": "sha256:45f7c2c873f09cfd8f3ab37166928c808b346750ac29f29689b9823677ff77ca",
+      "after": "sha256:f35ff4bf1d34fd1fe9c1f2f9b60026f4a9c8a1b42c9918726ad850a1819ea211"
+    },
+    {
+      "path": "scripts/validate-chain.mjs",
+      "before": "sha256:10db1cd5fc6a1d976925f1655bd169093c6f2f2f0b12cec6792c0e03662e4513",
+      "after": "sha256:13ff036c6a29d05f5dc59b59ba554bcd24cb9de84ad653ba25ebcbfde50349ec"
+    },
+    {
+      "path": "scripts/validate-request.mjs",
+      "before": "sha256:b76c2ac3f77dd854304db11075d59bfb4cd91db4ff553c0225135c485e3b2497",
+      "after": "sha256:056222e58c25e7e5e0c164a70d32c9fc1e705a60dccc3c674b3c2edb943a6875"
+    },
+    {
+      "path": "scripts/workflow-reentry.spec.mjs",
+      "before": null,
+      "after": "sha256:e24bec3c853232ecf2f6fa1cf635fb2748c2e706571fb4bfbf2ca6aa066b68da"
+    },
+    {
+      "path": "scripts/workspace-checkout.mjs",
+      "before": "sha256:640e0a65e9291903095aa8bf20fdbebf56027c2ed300d9a80723108b2f080338",
+      "after": "sha256:86b613a49c7e85c24032383867edd7121351cee85ebb493451ebeee955d1798b"
+    },
+    {
+      "path": "tests/evidence/20260906-workflow-reentry.md",
+      "before": null,
+      "after": "sha256:59fe61ba41810f9a76ba957a13b9c706d8ed5fcec280b39801bcb60810dbeefd"
+    },
+    {
+      "path": "workflows/README.md",
+      "before": "sha256:46923ea5e759e5c50dba914bd00e2e046ec0de51ef942785d7fa51a5149dac9a",
+      "after": "sha256:e81b1a031cc4e5758eb77d6692f06ae0c79373d9104b5427e5504b2916a5699f"
+    },
+    {
+      "path": "workflows/README.vi.md",
+      "before": "sha256:87c511d39c9f4984677e7bb2e243ae96d84531e727ce2261eaeb6f8043a06ac3",
+      "after": "sha256:783566781701c38beb74cb3239597493757cbb206d1418937608549184aef3a4"
+    }
+  ],
+  "deleted": [],
+  "proof": {
+    "focused": {
+      "log": "final-focused.log",
+      "sha256": "sha256:67db2cda5745d54755db10f0886c2e883d9c7f23e05f29fb1f081b340a7b4963",
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "skip": 0
+    },
+    "relatedBaseline": {
+      "log": "related-first.log",
+      "tests": 21,
+      "pass": 21,
+      "fail": 0
+    },
+    "docs": {
+      "command": "node docs/scripts/generate-docs.mjs --check",
+      "result": "76 generated files match",
+      "generatedDelta": []
+    },
+    "full": "Root owns final exact-tree full suite; not yet claimed"
+  },
+  "limits": [
+    "Runtime fixtures only, not product UAT.",
+    "Actual native preview requires the bound live Source after guarded adoption; candidate acceptance cannot impersonate it.",
+    "Source-history retry supplies no old-window source credit and keeps one-commit apply policy."
+  ]
+}

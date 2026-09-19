@@ -1,0 +1,855 @@
+{
+  "sourceFlags": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905-nivo-accounting-01a07247/runtime/support/repair-17-runtime-be-head/flags.json",
+  "previewHash": "sha256:983f920bc53f25c891c25b7575a32cdf2a1eef8373eca439f3c43d3843ceadda",
+  "preview": "[17/1 environment.preflight] planned (not executed or verified): prerequisite: 20/1 · source: state.json#mission:v5/prerequisite:20/1\n[17/1 environment.preflight] opens the chain: api.verify, backend.generate, business.decide, business.reconcile, data.seed, git.publish, identity.provision, interface.audit, interface.generate, runtime.serve, uat.verify hold browsercontrol, container, database, git, host, sourcewrite · roles=[\"be\",\"fe\"] runtimeRoles=[\"be\",\"fe\"] · dependencies: none · request: step-17/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[18/1 runtime.serve] planned (not executed or verified): prerequisite: 19/1 · source: state.json#mission:v5/prerequisite:19/1\n[18/1 runtime.serve] opens the chain: api.verify, backend.generate, business.decide, business.reconcile, data.seed, git.publish, identity.provision, interface.audit, interface.generate, runtime.serve, uat.verify hold browsercontrol, container, database, git, host, sourcewrite · routeKey=\"nivo/be\" env=\"dev\" operation=\"serve\" commit=\"5adaf96fc4d4deffbd2460ce18e0b84c897ce17b\" approval=\".stacks/dev/environment.json#sha256:fc15b1d4c0e5e1bbddd6f9433a798c3be5d75b31615cfb5ee0824f476f404e4e\" desiredState={\"planSha256\":\"sha256:c7d5e3c2bc473790e2917469d6857cd7182eb7301f6b576b117050bc73094e7d\",\"serviceKind\":\"runtime\",\"resourceRefs\":[\"nivo/be\"],\"effects\":[\"attest-runtime-entry\"],\"mutableResourceRefs\":[\"nivo/be\"],\"observationOnlyResourceRefs\":[]} portClaims=[] · dependencies: 17/1 · request: step-18/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[19/1 environment.preflight] planned (not executed or verified): prerequisite: 20/1 · source: state.json#mission:v5/prerequisite:20/1\n[19/1 environment.preflight] opens the chain: api.verify, backend.generate, business.decide, business.reconcile, data.seed, git.publish, identity.provision, interface.audit, interface.generate, runtime.serve, uat.verify hold browsercontrol, container, database, git, host, sourcewrite · project=\"nivo\" roles=[\"be\",\"fe\"] env=\"dev\" flow=null runtimeRoles=[\"be\",\"fe\"] · dependencies: 18/1 · request: step-19/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[20/1 workspace.bind] planned (not executed or verified): prerequisite: 21/1 · source: state.json#mission:v5/prerequisite:21/1\n[20/1 workspace.bind] binds @workspaces/be, which uat.verify requires; produces route, which uat.verify requires; binds @workspaces/be, which api.verify requires; binds @workspaces/be, which business.reconcile requires; binds @workspaces/be, which business.decide requires; binds @workspaces/be, which architecture.decide requires; binds @workspaces/be, which backend.generate requires; binds @workspaces/be, which data.plan requires; produces workspace-route-binding, which git.publish requires; binds @workspaces/be, which backend.plan requires; binds @workspaces/be, which the mission declares · role=\"be\" · dependencies: 19/1 · request: step-20/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[20/2 workspace.bind] planned (not executed or verified): prerequisite: 21/1 · source: state.json#mission:v5/prerequisite:21/1\n[20/2 workspace.bind] binds @workspaces/fe, which interface.generate requires; binds @workspaces/fe, which interface.audit requires; produces route, which interface.audit requires; binds @workspaces/fe, which uat.verify requires; produces workspace-route-binding, which git.publish requires; binds @workspaces/fe, which interface.plan requires; binds @workspaces/fe, which the mission declares · role=\"fe\" · dependencies: 19/1 · request: step-20/parallel-2/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[21/1 business.decide] planned (not executed or verified): doneWhen:8 The frozen implement scope has a validator-accepted business.decide outcome. · source: state.json#mission:v5/doneWhen:8\n[21/1 business.decide] evidence for done-when 8: \"The frozen implement scope has a validator-accepted business.decide outcome.\" · dependencies: 19/1, 20/1, 20/2 · request: step-21/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[22/1 business.decide] planned (not executed or verified): doneWhen:12 Business authority permits N module installations per OS/workspace/company; type entitlement is not singleton, exact replay deduplicates itself, and distinct creates make new instances. · source: state.json#mission:v5/doneWhen:12\n[22/1 business.decide] evidence for done-when 12: \"Business authority permits N module installations per OS/workspace/company; type entitlement is not singleton, exact replay deduplicates itself, and distinct creates make new instances.\" · dependencies: 19/1, 20/1, 20/2, 21/1 · request: step-22/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[23/1 architecture.decide] planned (not executed or verified): doneWhen:9 The frozen implement scope has a validator-accepted architecture.decide outcome. · source: state.json#mission:v5/doneWhen:9\n[23/1 architecture.decide] evidence for done-when 9: \"The frozen implement scope has a validator-accepted architecture.decide outcome.\"; produces architecture-decision, which backend.generate requires · dependencies: 19/1, 20/1, 20/2, 21/1, 22/1 · request: step-23/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[24/1 architecture.decide] planned (not executed or verified): doneWhen:13 Architecture isolates Accounting by tenant, workspace and installationId, keeps instance ledgers separate, and prevents one business event from being duplicated across ledgers. · source: state.json#mission:v5/doneWhen:13\n[24/1 architecture.decide] evidence for done-when 13: \"Architecture isolates Accounting by tenant, workspace and installationId, keeps instance ledgers separate, and prevents one business event from being duplicated across ledgers.\"; produces architecture-decision, which backend.plan requires · dependencies: 19/1, 20/1, 20/2, 21/1, 22/1, 23/1 · request: step-24/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[25/1 backend.plan] planned (not executed or verified): prerequisite: 26/1 · source: state.json#mission:v5/prerequisite:26/1\n[25/1 backend.plan] lists the units backend.generate fans out over, one unit per branch · dependencies: 19/1, 20/1, 20/2, 21/1, 22/1, 23/1, 24/1 · request: step-25/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[26/1 backend.generate] planned (not executed or verified): doneWhen:10 The frozen implement scope has a validator-accepted backend.generate outcome. · source: state.json#mission:v5/doneWhen:10\n[26/1 backend.generate] evidence for done-when 10: \"The frozen implement scope has a validator-accepted backend.generate outcome.\"; evidence for done-when 14: \"Backend returns one installation for exact create replay, creates another for a distinct request, isolates instances, and adds no inferred legal, tax or billing semantics.\"; produces backend-source-application, which business.reconcile requires; produces changes, which git.publish requires · fanout: units · dependencies: 19/1, 20/1, 20/2, 21/1, 23/1, 24/1, 25/1 · request: step-26/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[27/1 interface.plan] planned (not executed or verified): prerequisite: 28/1 · source: state.json#mission:v5/prerequisite:28/1\n[27/1 interface.plan] lists the units interface.generate fans out over, one unit per branch · dependencies: 19/1, 20/1, 20/2, 21/1, 22/1, 25/1 · request: step-27/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[28/1 interface.generate] planned (not executed or verified): doneWhen:0 Frontend workbench Kế toán hiện thực đầy đủ hành trình và các trạng thái loading/empty/error/permission trên session branch frontend. · source: state.json#mission:v5/doneWhen:0\n[28/1 interface.generate] evidence for done-when 0: \"Frontend workbench Kế toán hiện thực đầy đủ hành trình và các trạng thái loading/empty/error/permission trên session branch frontend.\"; evidence for done-when 15: \"Frontend AgentOS navigation lists, selects, creates and enters multiple Accounting installations within one workspace without collapsing them into one module-type singleton.\"; produces frontend-source-application, which interface.audit requires; produces frontend-presentation-resolution, which interface.audit requires; produces frontend-direction-decision, which interface.audit requires; produces changes, which git.publish requires · fanout: units · dependencies: 19/1, 20/1, 20/2, 21/1, 22/1, 23/1, 24/1, 26/1, 27/1 · request: step-28/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[29/1 runtime.serve] planned (not executed or verified): doneWhen:1 Các committed heads frontend/backend của Kế toán được serve trên đúng product ports. · source: state.json#mission:v5/doneWhen:1\n[29/1 runtime.serve] evidence for done-when 1: \"Các committed heads frontend/backend của Kế toán được serve trên đúng product ports.\"; produces platform-operation-receipt, which api.verify requires · dependencies: 19/1, 20/1, 20/2, 26/1, 28/1 · request: step-29/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[30/1 identity.provision] planned (not executed or verified): prerequisite: 32/1 · source: state.json#mission:v5/prerequisite:32/1\n[30/1 identity.provision] produces uat-account, which uat.verify requires · dependencies: 19/1, 20/1, 20/2, 29/1 · request: step-30/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[30/2 uat.plan] planned (not executed or verified): doneWhen:18 Current UAT planning names the multi-install creation, selection, navigation and isolation journey with explicit desktop/mobile cases. · source: state.json#mission:v5/doneWhen:18\n[30/2 uat.plan] evidence for done-when 18: \"Current UAT planning names the multi-install creation, selection, navigation and isolation journey with explicit desktop/mobile cases.\"; produces uat-plan, which uat.verify requires; produces uat-case-sheet, which uat.verify requires; lists the units uat.verify fans out over, one unit per branch · dependencies: 19/1, 20/1, 20/2, 25/1, 27/1, 29/1 · request: step-30/parallel-2/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[31/1 data.plan] planned (not executed or verified): doneWhen:16 The current data plan provides attributable preconditions for two Accounting installations in one OS/workspace without pre-creating the outcomes under test. · source: state.json#mission:v5/doneWhen:16\n[31/1 data.plan] evidence for done-when 16: \"The current data plan provides attributable preconditions for two Accounting installations in one OS/workspace without pre-creating the outcomes under test.\"; produces seed-plan, which data.seed requires · dependencies: 19/1, 20/1, 20/2, 27/1, 30/2 · request: step-31/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[32/1 data.seed] planned (not executed or verified): doneWhen:11 The frozen implement scope has a validator-accepted data.seed outcome. · source: state.json#mission:v5/doneWhen:11\n[32/1 data.seed] evidence for done-when 11: \"The frozen implement scope has a validator-accepted data.seed outcome.\"; produces seed-receipt, which uat.verify requires · dependencies: 19/1, 20/1, 20/2, 26/1, 29/1, 30/1, 31/1 · request: step-32/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[33/1 interface.audit] planned (not executed or verified): doneWhen:2 Bề mặt Kế toán đã render đạt audit UI/Grammar và có bằng chứng đo/capture cho các trạng thái thuộc hành trình. · source: state.json#mission:v5/doneWhen:2\n[33/1 interface.audit] evidence for done-when 2: \"Bề mặt Kế toán đã render đạt audit UI/Grammar và có bằng chứng đo/capture cho các trạng thái thuộc hành trình.\"; produces frontend-surface-audit, which uat.verify requires; the long-flow law: interface.generate writes a surface that git.publish publishes, so it is audited and walked first · dependencies: 19/1, 20/1, 20/2, 27/1, 28/1, 29/1, 30/1, 32/1 · request: step-33/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[34/1 quality.verify] planned (not executed or verified): doneWhen:3 Frontend Kế toán vượt qua các quality gates phù hợp tại served head. · source: state.json#mission:v5/doneWhen:3\n[34/1 quality.verify] evidence for done-when 3: \"Frontend Kế toán vượt qua các quality gates phù hợp tại served head.\"; produces quality-verification, which uat.verify requires · dependencies: 19/1, 20/1, 20/2, 26/1, 28/1, 29/1, 33/1 · request: step-34/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[35/1 quality.verify] planned (not executed or verified): doneWhen:5 Backend Kế toán vượt qua các quality gates phù hợp tại served head. · source: state.json#mission:v5/doneWhen:5\n[35/1 quality.verify] evidence for done-when 5: \"Backend Kế toán vượt qua các quality gates phù hợp tại served head.\"; produces quality-verification, which git.publish requires · dependencies: 19/1, 20/1, 20/2, 26/1, 28/1, 29/1, 33/1, 34/1 · request: step-35/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[36/1 api.verify] planned (not executed or verified): doneWhen:6 Owning API lưu và đọc lại đúng vòng đời chứng từ Kế toán với amount/currency/evidence, idempotency, quyền owner/approver, không tự duyệt và điều chỉnh kỳ có lịch sử. · source: state.json#mission:v5/doneWhen:6\n[36/1 api.verify] evidence for done-when 6: \"Owning API lưu và đọc lại đúng vòng đời chứng từ Kế toán với amount/currency/evidence, idempotency, quyền owner/approver, không tự duyệt và điều chỉnh kỳ có lịch sử.\" · dependencies: 19/1, 20/1, 20/2, 26/1, 29/1, 30/1, 30/2, 32/1, 34/1, 35/1 · request: step-36/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[37/1 api.verify] planned (not executed or verified): doneWhen:17 API proof covers two Accounting instances, exact replay, distinct create, cross-instance authorization/data/ledger isolation, and no duplicated business event across ledgers. · source: state.json#mission:v5/doneWhen:17\n[37/1 api.verify] evidence for done-when 17: \"API proof covers two Accounting instances, exact replay, distinct create, cross-instance authorization/data/ledger isolation, and no duplicated business event across ledgers.\" · dependencies: 19/1, 20/1, 20/2, 26/1, 29/1, 30/1, 30/2, 32/1, 34/1, 35/1, 36/1 · request: step-37/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[38/1 uat.verify] planned (not executed or verified): doneWhen:4 Người dùng hoàn thành được hành trình setup → nhận/kiểm tra/phân loại → duyệt → ghi sổ → đối soát/báo cáo/xuất → điều chỉnh trên UI thật ở desktop và mobile, kể cả loading/empty/error/permission. · source: state.json#mission:v5/doneWhen:4\n[38/1 uat.verify] evidence for done-when 4: \"Người dùng hoàn thành được hành trình setup → nhận/kiểm tra/phân loại → duyệt → ghi sổ → đối soát/báo cáo/xuất → điều chỉnh trên UI thật ở desktop và mobile, kể cả loading/empty/error/permission.\"; evidence for done-when 19: \"A user completes multi-install Accounting creation, selection and navigation on the real frontend and observes isolated instance state on desktop and mobile.\"; the long-flow law: interface.generate writes a surface that git.publish publishes, so it is audited and walked first · fanout: units · dependencies: 19/1, 20/1, 20/2, 29/1, 30/1, 30/2, 32/1, 33/1, 34/1, 36/1, 37/1 · request: step-38/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[39/1 business.reconcile] planned (not executed or verified): doneWhen:7 Delivery Kế toán được đối chiếu với scope đã xác nhận, nêu rõ phần đã chứng minh và phần còn chưa chứng minh. · source: state.json#mission:v5/doneWhen:7\n[39/1 business.reconcile] evidence for done-when 7: \"Delivery Kế toán được đối chiếu với scope đã xác nhận, nêu rõ phần đã chứng minh và phần còn chưa chứng minh.\" · dependencies: 19/1, 20/1, 20/2, 26/1, 28/1, 34/1, 35/1, 36/1, 37/1, 38/1 · request: step-39/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[40/1 git.publish] planned (not executed or verified): doneWhen:20 Backend Accounting đã được publish không force từ session branch lên https://github.com/starci-lab/nivo-backend.git#main sau khi toàn bộ gate hiện hành đạt. · source: state.json#mission:v5/doneWhen:20\n[40/1 git.publish] evidence for done-when 20: \"Backend Accounting đã được publish không force từ session branch lên https://github.com/starci-lab/nivo-backend.git#main sau khi toàn bộ gate hiện hành đạt.\" · dependencies: 19/1, 20/1, 20/2, 26/1, 28/1, 33/1, 34/1, 35/1, 36/1, 37/1, 38/1, 39/1 · request: step-40/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\n[41/1 git.publish] planned (not executed or verified): doneWhen:21 Frontend Accounting đã được publish không force từ session branch lên https://github.com/starci-lab/nivo-fe.git#main sau khi toàn bộ gate hiện hành đạt. · source: state.json#mission:v5/doneWhen:21\n[41/1 git.publish] evidence for done-when 21: \"Frontend Accounting đã được publish không force từ session branch lên https://github.com/starci-lab/nivo-fe.git#main sau khi toàn bộ gate hiện hành đạt.\" · dependencies: 19/1, 20/1, 20/2, 26/1, 28/1, 34/1, 35/1, 36/1, 37/1, 38/1, 39/1, 40/1 · request: step-41/parallel-1/request/request.json (pending expected.criteria and environment isolationId/mode/workspace/reads/writes/exclusive/outputRoot; freeze before dispatch)\ndelivery stage: publish\nhandoff business: planned · The corrected multi-install promise supersedes singleton semantics and must become current Accounting authority before downstream decisions. · owner: be · inputs: Immutable prior Accounting receipts as history and the explicit v4 multi-instance correction authority · outputs: Validator-accepted corrected Accounting multi-install business authority · verification: Coverage distinguishes module-type entitlement, exact replay, distinct create, installation isolation and excluded legal/tax/billing semantics · depends on: \nhandoff architecture: planned · The prior transactional boundary must be re-decided for N Accounting installations and tenant + workspace + installationId isolation. · owner: be · inputs: Corrected v4 business authority and immutable prior architecture evidence · outputs: Validator-accepted multi-install Accounting architecture boundary · verification: Per-install ownership, ledger separation, event non-duplication, currency/correction invariants and shared Studio ownership remain explicit · depends on: business\nhandoff backend: planned · The backend must replace singleton create/read assumptions with explicit multi-install identities and isolation while preserving the accepted Accounting lifecycle. · owner: be · inputs: Corrected business and architecture authorities, current backend head and prior bounded correction findings · outputs: Backend implementation for exact replay versus distinct create plus per-install authorization, data, ledger and event isolation · verification: Focused unit and PostgreSQL 16 tests prove two instances, replay/new-create distinction, cross-instance denial, non-mixed ledgers and event non-duplication · depends on: architecture\nhandoff data: planned · API and browser journeys require attributable preconditions for two Accounting installations without fixture-derived create, ledger or isolation outcomes. · owner: be · inputs: Accepted identity and seed plans plus repaired backend contract · outputs: Reversible tenant/workspace/installation-scoped preconditions for two Accounting instances only · verification: Repeat seed is idempotent and no tested instance-create, cross-instance denial or ledger outcome is prewritten · depends on: backend\nhandoff api: planned · The corrected mission requires owning-API creation and isolation proof across two installations through the served GraphQL boundary. · owner: be · inputs: Served repaired backend and namespaced Accounting preconditions · outputs: Append-only Accounting API E2E run covering two installations, exact replay, distinct create and cross-instance isolation · verification: Replay returns the same installation, distinct create returns another, foreign-instance access fails, ledgers do not mix and one event is not duplicated · depends on: backend, data\nhandoff interface: planned · The frontend must expose multi-install list/create/select/navigation while keeping each Accounting workbench bound to one installationId. · owner: fe · inputs: Corrected v4 business/architecture authority and current AgentOS module workspace · outputs: Installed AgentOS UI that navigates multiple Accounting installations and preserves each instance's workbench · verification: No new app or inferred company semantics; desktop/mobile create, select and installationId-bound navigation are explicit · depends on: business, architecture\nhandoff audit: planned · The rendered Accounting surface still needs independent Grammar, accessibility and responsive measurement. · owner: fe · inputs: Served installed Accounting workbench and accepted interface direction · outputs: Validator-accepted frontend surface audit with captures and measurements · verification: Desktop and 390px mobile layouts, accessibility, contrast, hierarchy and overflow are measured on the real route · depends on: interface\nhandoff uat: planned · A real user must create, replay, create distinctly, select and navigate two Accounting installations and observe isolation on desktop and mobile. · owner: fe · inputs: Served API/UI heads, accepted API proof, surface audit and namespaced preconditions · outputs: Declarative browser-walk records, captures and a validator-accepted Accounting UAT receipt · verification: Exact replay retains one installation, distinct create yields another, navigation switches installationId and visible data/permission states never bleed · depends on: api, audit, data\nhandoff quality: planned · Both routed repositories require their applicable delivery gates at the exact heads used by API and browser evidence. · owner: be · inputs: Accounting backend repair and accepted frontend implementation · outputs: Independent backend and frontend quality-verification receipts · verification: Repository lint, architecture, typecheck, build and applicable unit/container suites pass without unrelated writes · depends on: backend, interface\nhandoff reconciliation: planned · The final handoff must reconcile against v4 authority, with singleton-era receipts retained only as historical evidence. · owner: be · inputs: Accepted business authority, API E2E, UAT and both quality receipts · outputs: Validator-accepted business reconciliation and exact backend/frontend outcome heads · verification: Every mission inclusion and exclusion is accounted for and only validator-accepted evidence is claimed · depends on: api, uat, quality\nends: git.publish",
+  "flags": {
+    "edit": {
+      "kind": "repair",
+      "cell": "17/1",
+      "wall": "runtime.be.head",
+      "requirements": {
+        "routeKey": "nivo/be",
+        "env": "dev",
+        "operation": "serve",
+        "commit": "5adaf96fc4d4deffbd2460ce18e0b84c897ce17b",
+        "approval": ".stacks/dev/environment.json#sha256:fc15b1d4c0e5e1bbddd6f9433a798c3be5d75b31615cfb5ee0824f476f404e4e",
+        "desiredState": {
+          "planSha256": "sha256:c7d5e3c2bc473790e2917469d6857cd7182eb7301f6b576b117050bc73094e7d",
+          "serviceKind": "runtime",
+          "resourceRefs": [
+            "nivo/be"
+          ],
+          "effects": [
+            "attest-runtime-entry"
+          ],
+          "mutableResourceRefs": [
+            "nivo/be"
+          ],
+          "observationOnlyResourceRefs": []
+        },
+        "portClaims": []
+      }
+    }
+  },
+  "forecast": {
+    "chain": [
+      [
+        "17/1"
+      ],
+      [
+        "18/1"
+      ],
+      [
+        "19/1"
+      ],
+      [
+        "20/1",
+        "20/2"
+      ],
+      [
+        "21/1"
+      ],
+      [
+        "22/1"
+      ],
+      [
+        "23/1"
+      ],
+      [
+        "24/1"
+      ],
+      [
+        "25/1"
+      ],
+      [
+        "26/1"
+      ],
+      [
+        "27/1"
+      ],
+      [
+        "28/1"
+      ],
+      [
+        "29/1"
+      ],
+      [
+        "30/1",
+        "30/2"
+      ],
+      [
+        "31/1"
+      ],
+      [
+        "32/1"
+      ],
+      [
+        "33/1"
+      ],
+      [
+        "34/1"
+      ],
+      [
+        "35/1"
+      ],
+      [
+        "36/1"
+      ],
+      [
+        "37/1"
+      ],
+      [
+        "38/1"
+      ],
+      [
+        "39/1"
+      ],
+      [
+        "40/1"
+      ],
+      [
+        "41/1"
+      ]
+    ],
+    "steps": {
+      "17/1": "environment.preflight",
+      "20/1": "workspace.bind",
+      "20/2": "workspace.bind",
+      "21/1": "business.decide",
+      "22/1": "business.decide",
+      "23/1": "architecture.decide",
+      "24/1": "architecture.decide",
+      "25/1": "backend.plan",
+      "26/1": "backend.generate",
+      "27/1": "interface.plan",
+      "28/1": "interface.generate",
+      "29/1": "runtime.serve",
+      "30/1": "identity.provision",
+      "30/2": "uat.plan",
+      "31/1": "data.plan",
+      "32/1": "data.seed",
+      "33/1": "interface.audit",
+      "34/1": "quality.verify",
+      "35/1": "quality.verify",
+      "36/1": "api.verify",
+      "37/1": "api.verify",
+      "38/1": "uat.verify",
+      "39/1": "business.reconcile",
+      "40/1": "git.publish",
+      "41/1": "git.publish",
+      "18/1": "runtime.serve",
+      "19/1": "environment.preflight"
+    },
+    "goals": {
+      "17/1": {
+        "prerequisite": "20/1"
+      },
+      "20/1": {
+        "prerequisite": "21/1"
+      },
+      "20/2": {
+        "prerequisite": "21/1"
+      },
+      "21/1": {
+        "doneWhen": 8
+      },
+      "22/1": {
+        "doneWhen": 12
+      },
+      "23/1": {
+        "doneWhen": 9
+      },
+      "24/1": {
+        "doneWhen": 13
+      },
+      "25/1": {
+        "prerequisite": "26/1"
+      },
+      "26/1": {
+        "doneWhen": 10
+      },
+      "27/1": {
+        "prerequisite": "28/1"
+      },
+      "28/1": {
+        "doneWhen": 0
+      },
+      "29/1": {
+        "doneWhen": 1
+      },
+      "30/1": {
+        "prerequisite": "32/1"
+      },
+      "30/2": {
+        "doneWhen": 18
+      },
+      "31/1": {
+        "doneWhen": 16
+      },
+      "32/1": {
+        "doneWhen": 11
+      },
+      "33/1": {
+        "doneWhen": 2
+      },
+      "34/1": {
+        "doneWhen": 3
+      },
+      "35/1": {
+        "doneWhen": 5
+      },
+      "36/1": {
+        "doneWhen": 6
+      },
+      "37/1": {
+        "doneWhen": 17
+      },
+      "38/1": {
+        "doneWhen": 4
+      },
+      "39/1": {
+        "doneWhen": 7
+      },
+      "40/1": {
+        "doneWhen": 20
+      },
+      "41/1": {
+        "doneWhen": 21
+      },
+      "18/1": {
+        "prerequisite": "19/1"
+      },
+      "19/1": {
+        "prerequisite": "20/1"
+      }
+    },
+    "reasons": {
+      "17/1": "opens the chain: api.verify, backend.generate, business.decide, business.reconcile, data.seed, git.publish, identity.provision, interface.audit, interface.generate, runtime.serve, uat.verify hold browsercontrol, container, database, git, host, sourcewrite",
+      "20/1": "binds @workspaces/be, which uat.verify requires; produces route, which uat.verify requires; binds @workspaces/be, which api.verify requires; binds @workspaces/be, which business.reconcile requires; binds @workspaces/be, which business.decide requires; binds @workspaces/be, which architecture.decide requires; binds @workspaces/be, which backend.generate requires; binds @workspaces/be, which data.plan requires; produces workspace-route-binding, which git.publish requires; binds @workspaces/be, which backend.plan requires; binds @workspaces/be, which the mission declares",
+      "20/2": "binds @workspaces/fe, which interface.generate requires; binds @workspaces/fe, which interface.audit requires; produces route, which interface.audit requires; binds @workspaces/fe, which uat.verify requires; produces workspace-route-binding, which git.publish requires; binds @workspaces/fe, which interface.plan requires; binds @workspaces/fe, which the mission declares",
+      "21/1": "evidence for done-when 8: \"The frozen implement scope has a validator-accepted business.decide outcome.\"",
+      "22/1": "evidence for done-when 12: \"Business authority permits N module installations per OS/workspace/company; type entitlement is not singleton, exact replay deduplicates itself, and distinct creates make new instances.\"",
+      "23/1": "evidence for done-when 9: \"The frozen implement scope has a validator-accepted architecture.decide outcome.\"; produces architecture-decision, which backend.generate requires",
+      "24/1": "evidence for done-when 13: \"Architecture isolates Accounting by tenant, workspace and installationId, keeps instance ledgers separate, and prevents one business event from being duplicated across ledgers.\"; produces architecture-decision, which backend.plan requires",
+      "25/1": "lists the units backend.generate fans out over, one unit per branch",
+      "26/1": "evidence for done-when 10: \"The frozen implement scope has a validator-accepted backend.generate outcome.\"; evidence for done-when 14: \"Backend returns one installation for exact create replay, creates another for a distinct request, isolates instances, and adds no inferred legal, tax or billing semantics.\"; produces backend-source-application, which business.reconcile requires; produces changes, which git.publish requires",
+      "27/1": "lists the units interface.generate fans out over, one unit per branch",
+      "28/1": "evidence for done-when 0: \"Frontend workbench Kế toán hiện thực đầy đủ hành trình và các trạng thái loading/empty/error/permission trên session branch frontend.\"; evidence for done-when 15: \"Frontend AgentOS navigation lists, selects, creates and enters multiple Accounting installations within one workspace without collapsing them into one module-type singleton.\"; produces frontend-source-application, which interface.audit requires; produces frontend-presentation-resolution, which interface.audit requires; produces frontend-direction-decision, which interface.audit requires; produces changes, which git.publish requires",
+      "29/1": "evidence for done-when 1: \"Các committed heads frontend/backend của Kế toán được serve trên đúng product ports.\"; produces platform-operation-receipt, which api.verify requires",
+      "30/1": "produces uat-account, which uat.verify requires",
+      "30/2": "evidence for done-when 18: \"Current UAT planning names the multi-install creation, selection, navigation and isolation journey with explicit desktop/mobile cases.\"; produces uat-plan, which uat.verify requires; produces uat-case-sheet, which uat.verify requires; lists the units uat.verify fans out over, one unit per branch",
+      "31/1": "evidence for done-when 16: \"The current data plan provides attributable preconditions for two Accounting installations in one OS/workspace without pre-creating the outcomes under test.\"; produces seed-plan, which data.seed requires",
+      "32/1": "evidence for done-when 11: \"The frozen implement scope has a validator-accepted data.seed outcome.\"; produces seed-receipt, which uat.verify requires",
+      "33/1": "evidence for done-when 2: \"Bề mặt Kế toán đã render đạt audit UI/Grammar và có bằng chứng đo/capture cho các trạng thái thuộc hành trình.\"; produces frontend-surface-audit, which uat.verify requires; the long-flow law: interface.generate writes a surface that git.publish publishes, so it is audited and walked first",
+      "34/1": "evidence for done-when 3: \"Frontend Kế toán vượt qua các quality gates phù hợp tại served head.\"; produces quality-verification, which uat.verify requires",
+      "35/1": "evidence for done-when 5: \"Backend Kế toán vượt qua các quality gates phù hợp tại served head.\"; produces quality-verification, which git.publish requires",
+      "36/1": "evidence for done-when 6: \"Owning API lưu và đọc lại đúng vòng đời chứng từ Kế toán với amount/currency/evidence, idempotency, quyền owner/approver, không tự duyệt và điều chỉnh kỳ có lịch sử.\"",
+      "37/1": "evidence for done-when 17: \"API proof covers two Accounting instances, exact replay, distinct create, cross-instance authorization/data/ledger isolation, and no duplicated business event across ledgers.\"",
+      "38/1": "evidence for done-when 4: \"Người dùng hoàn thành được hành trình setup → nhận/kiểm tra/phân loại → duyệt → ghi sổ → đối soát/báo cáo/xuất → điều chỉnh trên UI thật ở desktop và mobile, kể cả loading/empty/error/permission.\"; evidence for done-when 19: \"A user completes multi-install Accounting creation, selection and navigation on the real frontend and observes isolated instance state on desktop and mobile.\"; the long-flow law: interface.generate writes a surface that git.publish publishes, so it is audited and walked first",
+      "39/1": "evidence for done-when 7: \"Delivery Kế toán được đối chiếu với scope đã xác nhận, nêu rõ phần đã chứng minh và phần còn chưa chứng minh.\"",
+      "40/1": "evidence for done-when 20: \"Backend Accounting đã được publish không force từ session branch lên https://github.com/starci-lab/nivo-backend.git#main sau khi toàn bộ gate hiện hành đạt.\"",
+      "41/1": "evidence for done-when 21: \"Frontend Accounting đã được publish không force từ session branch lên https://github.com/starci-lab/nivo-fe.git#main sau khi toàn bộ gate hiện hành đạt.\"",
+      "18/1": "opens the chain: api.verify, backend.generate, business.decide, business.reconcile, data.seed, git.publish, identity.provision, interface.audit, interface.generate, runtime.serve, uat.verify hold browsercontrol, container, database, git, host, sourcewrite",
+      "19/1": "opens the chain: api.verify, backend.generate, business.decide, business.reconcile, data.seed, git.publish, identity.provision, interface.audit, interface.generate, runtime.serve, uat.verify hold browsercontrol, container, database, git, host, sourcewrite"
+    },
+    "dependencies": {
+      "17/1": [],
+      "20/1": [
+        "19/1"
+      ],
+      "20/2": [
+        "19/1"
+      ],
+      "21/1": [
+        "19/1",
+        "20/1",
+        "20/2"
+      ],
+      "22/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "21/1"
+      ],
+      "23/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "21/1",
+        "22/1"
+      ],
+      "24/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "21/1",
+        "22/1",
+        "23/1"
+      ],
+      "25/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "21/1",
+        "22/1",
+        "23/1",
+        "24/1"
+      ],
+      "26/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "21/1",
+        "23/1",
+        "24/1",
+        "25/1"
+      ],
+      "27/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "21/1",
+        "22/1",
+        "25/1"
+      ],
+      "28/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "21/1",
+        "22/1",
+        "23/1",
+        "24/1",
+        "26/1",
+        "27/1"
+      ],
+      "29/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "26/1",
+        "28/1"
+      ],
+      "30/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "29/1"
+      ],
+      "30/2": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "25/1",
+        "27/1",
+        "29/1"
+      ],
+      "31/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "27/1",
+        "30/2"
+      ],
+      "32/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "26/1",
+        "29/1",
+        "30/1",
+        "31/1"
+      ],
+      "33/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "27/1",
+        "28/1",
+        "29/1",
+        "30/1",
+        "32/1"
+      ],
+      "34/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "26/1",
+        "28/1",
+        "29/1",
+        "33/1"
+      ],
+      "35/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "26/1",
+        "28/1",
+        "29/1",
+        "33/1",
+        "34/1"
+      ],
+      "36/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "26/1",
+        "29/1",
+        "30/1",
+        "30/2",
+        "32/1",
+        "34/1",
+        "35/1"
+      ],
+      "37/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "26/1",
+        "29/1",
+        "30/1",
+        "30/2",
+        "32/1",
+        "34/1",
+        "35/1",
+        "36/1"
+      ],
+      "38/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "29/1",
+        "30/1",
+        "30/2",
+        "32/1",
+        "33/1",
+        "34/1",
+        "36/1",
+        "37/1"
+      ],
+      "39/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "26/1",
+        "28/1",
+        "34/1",
+        "35/1",
+        "36/1",
+        "37/1",
+        "38/1"
+      ],
+      "40/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "26/1",
+        "28/1",
+        "33/1",
+        "34/1",
+        "35/1",
+        "36/1",
+        "37/1",
+        "38/1",
+        "39/1"
+      ],
+      "41/1": [
+        "19/1",
+        "20/1",
+        "20/2",
+        "26/1",
+        "28/1",
+        "34/1",
+        "35/1",
+        "36/1",
+        "37/1",
+        "38/1",
+        "39/1",
+        "40/1"
+      ],
+      "18/1": [
+        "17/1"
+      ],
+      "19/1": [
+        "18/1"
+      ]
+    },
+    "handoffs": {
+      "27/1": "22/1"
+    },
+    "evidenceDependencies": {
+      "17/1": [],
+      "20/1": [
+        "19/1"
+      ],
+      "20/2": [
+        "19/1"
+      ],
+      "21/1": [
+        "20/1",
+        "20/2",
+        "19/1"
+      ],
+      "22/1": [
+        "21/1",
+        "20/1",
+        "20/2",
+        "19/1"
+      ],
+      "23/1": [
+        "20/1",
+        "20/2",
+        "19/1",
+        "21/1",
+        "22/1"
+      ],
+      "24/1": [
+        "23/1",
+        "20/1",
+        "20/2",
+        "19/1",
+        "21/1",
+        "22/1"
+      ],
+      "25/1": [
+        "20/1",
+        "23/1",
+        "24/1",
+        "20/2",
+        "19/1",
+        "21/1",
+        "22/1"
+      ],
+      "26/1": [
+        "20/1",
+        "23/1",
+        "25/1",
+        "20/2",
+        "19/1",
+        "24/1",
+        "21/1"
+      ],
+      "27/1": [
+        "20/2",
+        "20/1",
+        "19/1",
+        "21/1",
+        "22/1"
+      ],
+      "28/1": [
+        "20/2",
+        "27/1",
+        "20/1",
+        "19/1",
+        "21/1",
+        "22/1",
+        "23/1",
+        "24/1",
+        "26/1"
+      ],
+      "29/1": [
+        "20/1",
+        "20/2",
+        "19/1",
+        "26/1",
+        "28/1"
+      ],
+      "30/1": [
+        "20/1",
+        "20/2",
+        "19/1"
+      ],
+      "30/2": [
+        "20/1",
+        "20/2",
+        "19/1",
+        "27/1"
+      ],
+      "31/1": [
+        "20/1",
+        "20/2",
+        "19/1",
+        "30/2",
+        "27/1"
+      ],
+      "32/1": [
+        "31/1",
+        "20/1",
+        "20/2",
+        "19/1",
+        "26/1",
+        "30/1"
+      ],
+      "33/1": [
+        "20/2",
+        "28/1",
+        "20/1",
+        "19/1",
+        "30/1",
+        "29/1",
+        "32/1",
+        "27/1"
+      ],
+      "34/1": [
+        "20/1",
+        "20/2",
+        "19/1",
+        "26/1",
+        "28/1",
+        "29/1",
+        "33/1"
+      ],
+      "35/1": [
+        "34/1",
+        "20/1",
+        "20/2",
+        "19/1",
+        "26/1",
+        "28/1",
+        "29/1",
+        "33/1"
+      ],
+      "36/1": [
+        "20/1",
+        "29/1",
+        "20/2",
+        "19/1",
+        "26/1",
+        "32/1",
+        "30/1",
+        "34/1",
+        "35/1",
+        "30/2"
+      ],
+      "37/1": [
+        "36/1",
+        "20/1",
+        "29/1",
+        "20/2",
+        "19/1",
+        "26/1",
+        "32/1",
+        "30/1",
+        "34/1",
+        "35/1",
+        "30/2"
+      ],
+      "38/1": [
+        "20/1",
+        "20/2",
+        "33/1",
+        "34/1",
+        "30/1",
+        "30/2",
+        "32/1",
+        "19/1",
+        "36/1",
+        "37/1"
+      ],
+      "39/1": [
+        "20/1",
+        "26/1",
+        "20/2",
+        "19/1",
+        "36/1",
+        "37/1",
+        "38/1",
+        "34/1",
+        "35/1",
+        "28/1"
+      ],
+      "40/1": [
+        "20/2",
+        "20/1",
+        "28/1",
+        "26/1",
+        "34/1",
+        "35/1",
+        "33/1",
+        "38/1",
+        "19/1",
+        "39/1"
+      ],
+      "41/1": [
+        "40/1",
+        "20/2",
+        "20/1",
+        "28/1",
+        "26/1",
+        "34/1",
+        "35/1",
+        "19/1",
+        "39/1"
+      ],
+      "18/1": [
+        "17/1"
+      ],
+      "19/1": [
+        "18/1"
+      ]
+    },
+    "requestRefs": {
+      "17/1": "step-17/parallel-1/request/request.json",
+      "20/1": "step-20/parallel-1/request/request.json",
+      "20/2": "step-20/parallel-2/request/request.json",
+      "21/1": "step-21/parallel-1/request/request.json",
+      "22/1": "step-22/parallel-1/request/request.json",
+      "23/1": "step-23/parallel-1/request/request.json",
+      "24/1": "step-24/parallel-1/request/request.json",
+      "25/1": "step-25/parallel-1/request/request.json",
+      "26/1": "step-26/parallel-1/request/request.json",
+      "27/1": "step-27/parallel-1/request/request.json",
+      "28/1": "step-28/parallel-1/request/request.json",
+      "29/1": "step-29/parallel-1/request/request.json",
+      "30/1": "step-30/parallel-1/request/request.json",
+      "30/2": "step-30/parallel-2/request/request.json",
+      "31/1": "step-31/parallel-1/request/request.json",
+      "32/1": "step-32/parallel-1/request/request.json",
+      "33/1": "step-33/parallel-1/request/request.json",
+      "34/1": "step-34/parallel-1/request/request.json",
+      "35/1": "step-35/parallel-1/request/request.json",
+      "36/1": "step-36/parallel-1/request/request.json",
+      "37/1": "step-37/parallel-1/request/request.json",
+      "38/1": "step-38/parallel-1/request/request.json",
+      "39/1": "step-39/parallel-1/request/request.json",
+      "40/1": "step-40/parallel-1/request/request.json",
+      "41/1": "step-41/parallel-1/request/request.json",
+      "18/1": "step-18/parallel-1/request/request.json",
+      "19/1": "step-19/parallel-1/request/request.json"
+    },
+    "nodes": {
+      "17/1": "environment.preflight",
+      "20/1": "workspace.bind#be",
+      "20/2": "workspace.bind#fe",
+      "21/1": "business.decide",
+      "22/1": "business.decide#12",
+      "23/1": "architecture.decide",
+      "24/1": "architecture.decide#13",
+      "25/1": "backend.plan",
+      "26/1": "backend.generate",
+      "27/1": "interface.plan",
+      "28/1": "interface.generate",
+      "29/1": "runtime.serve",
+      "30/1": "identity.provision",
+      "30/2": "uat.plan",
+      "31/1": "data.plan",
+      "32/1": "data.seed",
+      "33/1": "interface.audit",
+      "34/1": "quality.verify",
+      "35/1": "quality.verify#5",
+      "36/1": "api.verify",
+      "37/1": "api.verify#17",
+      "38/1": "uat.verify",
+      "39/1": "business.reconcile",
+      "40/1": "git.publish",
+      "41/1": "git.publish#21",
+      "18/1": "environment.preflight:repair:runtime.be.head",
+      "19/1": "environment.preflight:resume:17/1"
+    },
+    "presets": {
+      "17/1": {
+        "roles": [
+          "be",
+          "fe"
+        ],
+        "runtimeRoles": [
+          "be",
+          "fe"
+        ]
+      },
+      "20/1": {
+        "role": "be"
+      },
+      "20/2": {
+        "role": "fe"
+      },
+      "18/1": {
+        "routeKey": "nivo/be",
+        "env": "dev",
+        "operation": "serve",
+        "commit": "5adaf96fc4d4deffbd2460ce18e0b84c897ce17b",
+        "approval": ".stacks/dev/environment.json#sha256:fc15b1d4c0e5e1bbddd6f9433a798c3be5d75b31615cfb5ee0824f476f404e4e",
+        "desiredState": {
+          "planSha256": "sha256:c7d5e3c2bc473790e2917469d6857cd7182eb7301f6b576b117050bc73094e7d",
+          "serviceKind": "runtime",
+          "resourceRefs": [
+            "nivo/be"
+          ],
+          "effects": [
+            "attest-runtime-entry"
+          ],
+          "mutableResourceRefs": [
+            "nivo/be"
+          ],
+          "observationOnlyResourceRefs": []
+        },
+        "portClaims": []
+      },
+      "19/1": {
+        "project": "nivo",
+        "roles": [
+          "be",
+          "fe"
+        ],
+        "env": "dev",
+        "flow": null,
+        "runtimeRoles": [
+          "be",
+          "fe"
+        ]
+      }
+    },
+    "fanout": {
+      "26/1": "units",
+      "28/1": "units",
+      "38/1": "units"
+    },
+    "imports": {},
+    "dropped": [
+      "data.seed → workspace.bind#be (Next) would close a cycle",
+      "identity.provision → workspace.bind#be (Next) would close a cycle",
+      "data.seed → workspace.bind#fe (Next) would close a cycle",
+      "identity.provision → workspace.bind#fe (Next) would close a cycle",
+      "architecture.decide → business.decide (optional architecture-decision) would close a cycle",
+      "architecture.decide → business.decide#12 (optional architecture-decision) would close a cycle",
+      "business.reconcile → backend.generate (optional business-reconciliation) would close a cycle",
+      "api.verify → backend.generate (Next) would close a cycle",
+      "api.verify#17 → backend.generate (Next) would close a cycle",
+      "business.reconcile → backend.generate (Next) would close a cycle",
+      "uat.verify → backend.generate (Next) would close a cycle",
+      "interface.audit → interface.plan (Next) would close a cycle",
+      "interface.audit → interface.generate (optional frontend-surface-audit) would close a cycle",
+      "interface.audit → interface.generate (optional findings) would close a cycle",
+      "uat.verify → interface.generate (optional findings) would close a cycle",
+      "uat.plan → interface.generate (Next) would close a cycle",
+      "uat.verify → interface.generate (Next) would close a cycle",
+      "git.publish → runtime.serve (Next) would close a cycle",
+      "git.publish#21 → runtime.serve (Next) would close a cycle",
+      "quality.verify → uat.plan (Next) would close a cycle",
+      "quality.verify#5 → uat.plan (Next) would close a cycle",
+      "uat.verify → data.plan (Next) would close a cycle",
+      "uat.verify → quality.verify (optional uat-flow-verification) would close a cycle",
+      "uat.verify → quality.verify#5 (optional uat-flow-verification) would close a cycle"
+    ],
+    "ends": "git.publish",
+    "resumes": {
+      "19/1": "17/1"
+    },
+    "units": {},
+    "repairs": {
+      "18/1": {
+        "source": "17/1",
+        "wall": "runtime.be.head",
+        "role": "be",
+        "project": "nivo",
+        "env": "dev",
+        "commit": "5adaf96fc4d4deffbd2460ce18e0b84c897ce17b",
+        "resume": "19/1"
+      }
+    },
+    "repairDependencies": {
+      "19/1": "18/1"
+    }
+  },
+  "errors": []
+}

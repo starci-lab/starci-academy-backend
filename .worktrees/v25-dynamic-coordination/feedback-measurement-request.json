@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "parent": "request.json",
+  "authority": "Root approved fixture-only measured trusted activation to handler state change to actual visible feedback across render frames; dynamic owner delegated only BASE_PAGE instrumentation, judge and isolated measurement regression.",
+  "scope": [
+    "scripts/workflow-interface-fixture.mjs",
+    "scripts/workflow-verifier-fixture.mjs",
+    "scripts/workflow-feedback-measurement.spec.mjs"
+  ],
+  "constraints": [
+    "Keep the existing 100ms threshold",
+    "No production browser runner changes",
+    "No fixed synthetic elapsed values or disconnected requestAnimationFrame timing",
+    "Retain run9 failure and original scopes",
+    "No live or peer writes"
+  ],
+  "before": {
+    "scripts/workflow-interface-fixture.mjs": "sha256:cb5c6aba807640b841e7d2c16d161a3612f32081ec5d6047e1bfb16760df728d",
+    "scripts/workflow-verifier-fixture.mjs": "sha256:d60bf8cea23910d46c4b7bc731bf7685ac3b9d7dcbf77882d7c385f03571839f"
+  },
+  "at": "2026-09-06T14:34:55.287Z"
+}

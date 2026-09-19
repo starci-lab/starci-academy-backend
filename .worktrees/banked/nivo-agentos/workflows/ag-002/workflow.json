@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "id": "AG-002",
+  "title": "Tiếp nhận bản sửa BE đã publish và kiểm lại Setup ở head cuối",
+  "project": "nivo",
+  "scope": "agentos",
+  "priority": "P0",
+  "phase": 0,
+  "type": "verify",
+  "status": "ready",
+  "statusMeaning": "The brief can be picked up for planning; runtime readiness and authorization are checked in a fresh session.",
+  "dependsOn": [],
+  "why": "Publication session 20260905-102233-nivo-be-publish-reachability records ca60f419 on origin/main with quality gates passed. Reuse this delivery instead of reapplying the old ab36b8d6 commit; the remaining outcome is a current served API and Setup journey proof.",
+  "decisionQuestions": [],
+  "acceptance": [
+    "Validate/import the original publication and quality producers; verify current main contains ca60f419.",
+    "Do not replay the old merge conflict or require ab36b8d6 ancestry: ca60f419 reapplies its three-path change.",
+    "Owned workspace without an instance returns nullable runtime and an honest unprovisioned state; foreign owner is denied through served API cases.",
+    "Rewalk the interrupted Setup deep link on the final FE/BE delivery and record exact served heads."
+  ],
+  "evidenceRefs": [
+    "source:.worktrees/sessions/20260905-102233-nivo-be-publish-reachability/state.json",
+    "source:.claude/tests/evidence/20260905-nivo-reachability-fix.md",
+    "be:src/features/core/api/core/graphql/queries/agent-workspace/my-agent-workspace-control-center/my-agent-workspace-control-center.handler.ts",
+    "source:.worktrees/sessions/20260905-102233-nivo-be-publish-reachability/step-5/parallel-1/response/response.json"
+  ],
+  "testTargets": [
+    "src/tests/e2e/nivo/agentos-workspace-control-center.e2e-spec.ts"
+  ],
+  "goalDraft": {
+    "version": 1,
+    "language": "vi",
+    "goal": "Tiếp nhận bản sửa BE đã publish và kiểm lại Setup ở head cuối",
+    "includes": [
+      "Tiếp nhận bản sửa BE đã publish và kiểm lại Setup ở head cuối",
+      "Exactly two modules: Chatbot and Accounting; supporting AgentOS flows only."
+    ],
+    "excludes": [
+      "Template App and Expert Academy",
+      "Unrelated source, shared credentials and production deployment",
+      "Treating a fixture, a mock or an old receipt as a completed live action",
+      "Standalone Scheduling, Knowledge Hub, Sales Copilot and broad SMB workbenches"
+    ],
+    "doneWhen": [
+      {
+        "producedBy": "api.verify",
+        "evidence": "Owned null-instance and foreign-owner API cases pass at the served backend containing the published fix."
+      },
+      {
+        "producedBy": "uat.verify",
+        "evidence": "The real Setup deep-link journey passes on the final served FE/BE heads."
+      }
+    ],
+    "sourceRef": "user:2026-09-05 final scope: exactly two modules, one accounting and one chatbot; business flows included; Template App later"
+  },
+  "execution": {
+    "roles": [
+      "be",
+      "fe"
+    ],
+    "env": "dev",
+    "deriveChainAtActivation": true,
+    "exclusiveWriteAliases": [
+      "@worktrees/sessions/central-runtime"
+    ],
+    "liveEffects": "No live effect is authorized by banking. At activation use environment declarations and the exact mission scope; real outbound messages require explicit user authorization.",
+    "seeding": "A dedicated owner and stranger, per-flow run namespace, deterministic IDs, exact marker/owner checks on reuse and dependency-safe cleanup. Fixture history is labelled and cannot stand for Test, Apply, payment or provider success. Create fixtures only for the selected Chatbot and Accounting modules; knowledge fixtures are supporting inputs, not a third module.",
+    "failureRouting": "Read the executing operator stop and current .claude/routing.json; this card defines no alternate routes.",
+    "publication": "If source is changed, include git.publish only in the activated scope and derive all required gates. Backend business changes also require business.reconcile where a published promise applies."
+  },
+  "activation": {
+    "sessionId": null,
+    "startedAt": null,
+    "completedAt": null,
+    "receiptRefs": []
+  },
+  "modules": [
+    "chatbot",
+    "accounting"
+  ]
+}

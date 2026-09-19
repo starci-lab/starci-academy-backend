@@ -1,0 +1,181 @@
+[
+  {
+    "id": "8c8b0003-0429-4268-aa15-000000000026",
+    "agent_workspace_id": "8c8b0002-0429-4268-aa15-000000000026",
+    "module_key": "custom:8c8b0003-0429-4268-aa15-000000000026",
+    "module_version": "1",
+    "kind_key": "generic-agent",
+    "kind_version": "1.0.0",
+    "workbench_key": "generic-workbench",
+    "workbench_version": "1.0.0",
+    "manifest_digest": "c01139a575e99a216559ead42c6e3b5d5df2bb96fd6d8a1e2fffd323b6985464",
+    "idempotency_key": "uat-module-setup-042915-26-install",
+    "display_name": "Dedicated Setup QA generic agent",
+    "runtime_manifest": {
+      "schemaVersion": 1,
+      "kind": {
+        "key": "generic-agent",
+        "version": "1.0.0"
+      },
+      "workbench": {
+        "key": "generic-workbench",
+        "version": "1.0.0"
+      },
+      "test": {
+        "workbench": {
+          "key": "generic-sandbox",
+          "version": "1.0.0"
+        },
+        "contract": {
+          "key": "generic-sandbox-contract",
+          "version": "1.0.0"
+        },
+        "sandboxAdapter": {
+          "key": "declarative-scenario",
+          "version": "1.0.0"
+        },
+        "evidenceWidget": {
+          "key": "nivo.test-evidence",
+          "version": "1.0.0"
+        },
+        "scenarios": [
+          {
+            "key": "context-present",
+            "label": "Context readiness",
+            "description": "Verify the selected immutable context has business content.",
+            "fixture": {},
+            "assertions": [
+              {
+                "key": "context-present",
+                "label": "Selected context is not empty",
+                "source": "context",
+                "path": "",
+                "operator": "present",
+                "severity": "fail"
+              }
+            ]
+          }
+        ]
+      },
+      "operations": {
+        "replyContract": {
+          "key": "generic-reply",
+          "version": "1.0.0"
+        },
+        "taskContract": {
+          "key": "generic-task",
+          "version": "1.0.0"
+        },
+        "toolSchema": {
+          "key": "generic-actions",
+          "version": "1.0.0"
+        },
+        "proactiveWidget": {
+          "key": "nivo.generic-task",
+          "version": "1.0.0"
+        },
+        "setupFields": [
+          "businessIdentity",
+          "goal",
+          "audience",
+          "trigger",
+          "guardrail"
+        ]
+      },
+      "widgets": [
+        {
+          "component": "nivo.metric",
+          "version": "1.0.0",
+          "allowedProps": [
+            "label",
+            "value",
+            "trend"
+          ],
+          "actions": []
+        },
+        {
+          "component": "nivo.data-table",
+          "version": "1.0.0",
+          "allowedProps": [
+            "columns",
+            "rows",
+            "emptyLabel"
+          ],
+          "actions": [
+            {
+              "key": "select-row",
+              "inputKeys": [
+                "rowId"
+              ]
+            }
+          ]
+        },
+        {
+          "component": "nivo.action-form",
+          "version": "1.0.0",
+          "allowedProps": [
+            "title",
+            "fields",
+            "submitLabel"
+          ],
+          "actions": [
+            {
+              "key": "submit",
+              "inputKeys": [
+                "values"
+              ]
+            }
+          ]
+        },
+        {
+          "component": "nivo.test-evidence",
+          "version": "1.0.0",
+          "allowedProps": [
+            "status",
+            "summary",
+            "assertions"
+          ],
+          "actions": []
+        },
+        {
+          "component": "nivo.generic-task",
+          "version": "1.0.0",
+          "allowedProps": [
+            "taskId",
+            "title",
+            "summary",
+            "priority",
+            "status",
+            "evidence"
+          ],
+          "actions": [
+            {
+              "key": "open-task",
+              "inputKeys": [
+                "taskId"
+              ]
+            }
+          ]
+        }
+      ],
+      "config": {
+        "diagnostics": [
+          "context",
+          "sessions",
+          "widgets"
+        ]
+      }
+    },
+    "settings": {},
+    "settings_version": 1,
+    "active_context_version_id": null,
+    "live_enabled": false,
+    "operating_mode": "assist",
+    "status": "requested",
+    "model_profile_ref": "nivo-default",
+    "created_at": "2026-09-04T12:00:02.000Z",
+    "updated_at": "2026-09-04T12:00:02.000Z",
+    "namespace": "uat-module-setup-042915-26",
+    "is_uat": true
+  }
+]

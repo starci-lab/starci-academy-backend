@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "id": "AG-019",
+  "title": "Thay khoảng trống e2e bằng bằng chứng API và browser thật",
+  "project": "nivo",
+  "scope": "agentos",
+  "priority": "P0",
+  "phase": 3,
+  "type": "verify",
+  "status": "blocked",
+  "statusMeaning": "Waiting for prerequisite evidence; no execution has started.",
+  "dependsOn": [
+    "AG-005",
+    "AG-007",
+    "AG-008",
+    "AG-009",
+    "AG-011",
+    "AG-012",
+    "AG-013",
+    "AG-015"
+  ],
+  "why": "The named module e2e files include mock DDL and registry assertions. Preserve those useful tests and add or adapt a served-client lane for the actual journeys.",
+  "decisionQuestions": [],
+  "acceptance": [
+    "Classify every relevant suite as static, unit, database integration, served API, browser or real provider.",
+    "The api.verify lane uses the repository suite as a client and reads results back through APIs on its run namespace.",
+    "Browser walks act through real controls with one entry navigation, captures and measured state.",
+    "A passed happy path cannot close both modules, their failure states, ownership or phone coverage.",
+    "Record exact served/source heads, runner output, case results, cleanup and accepted limitations."
+  ],
+  "evidenceRefs": [
+    "be:src/tests/e2e/nivo/agentos-module-test-evidence.e2e-spec.ts",
+    "be:src/tests/e2e/nivo/agentos-module-operations.e2e-spec.ts",
+    "source:.claude/tests/evidence/20260905-nivo-reachability-fix.md"
+  ],
+  "testTargets": [
+    "src/tests/e2e/nivo/agentos-module-test-evidence.e2e-spec.ts",
+    "src/tests/e2e/nivo/agentos-module-studio-runtime.e2e-spec.ts",
+    "src/tests/e2e/nivo/agentos-module-operations.e2e-spec.ts"
+  ],
+  "goalDraft": {
+    "version": 1,
+    "language": "vi",
+    "goal": "Thay khoảng trống e2e bằng bằng chứng API và browser thật",
+    "includes": [
+      "Thay khoảng trống e2e bằng bằng chứng API và browser thật",
+      "Exactly two modules: Chatbot and Accounting; supporting AgentOS flows only."
+    ],
+    "excludes": [
+      "Template App and Expert Academy",
+      "Unrelated source, shared credentials and production deployment",
+      "Treating a fixture, a mock or an old receipt as a completed live action",
+      "Standalone Scheduling, Knowledge Hub, Sales Copilot and broad SMB workbenches"
+    ],
+    "doneWhen": [
+      {
+        "producedBy": "api.verify",
+        "evidence": "The named API cases run against the served head and read back results through the API."
+      },
+      {
+        "producedBy": "uat.verify",
+        "evidence": "The corresponding owner journey passes through the real surface at the same delivery."
+      }
+    ],
+    "sourceRef": "user:2026-09-05 final scope: exactly two modules, one accounting and one chatbot; business flows included; Template App later"
+  },
+  "execution": {
+    "roles": [
+      "be",
+      "fe"
+    ],
+    "env": "dev",
+    "deriveChainAtActivation": true,
+    "exclusiveWriteAliases": [
+      "@worktrees/sessions/central-runtime"
+    ],
+    "liveEffects": "No live effect is authorized by banking. At activation use environment declarations and the exact mission scope; real outbound messages require explicit user authorization.",
+    "seeding": "A dedicated owner and stranger, per-flow run namespace, deterministic IDs, exact marker/owner checks on reuse and dependency-safe cleanup. Fixture history is labelled and cannot stand for Test, Apply, payment or provider success. Create fixtures only for the selected Chatbot and Accounting modules; knowledge fixtures are supporting inputs, not a third module.",
+    "failureRouting": "Read the executing operator stop and current .claude/routing.json; this card defines no alternate routes.",
+    "publication": "If source is changed, include git.publish only in the activated scope and derive all required gates. Backend business changes also require business.reconcile where a published promise applies."
+  },
+  "activation": {
+    "sessionId": null,
+    "startedAt": null,
+    "completedAt": null,
+    "receiptRefs": []
+  },
+  "modules": [
+    "chatbot",
+    "accounting"
+  ]
+}

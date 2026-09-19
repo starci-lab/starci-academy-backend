@@ -1,0 +1,16 @@
+{
+  "manifest": ".worktrees/v25-goal-architecture/review-manifest.json",
+  "digest": "65414a5b0b1dad179749110fae9ad6b713a1a34c1aee77a0d74280eba551da39",
+  "paths": [
+    "resources/interaction.json",
+    "scripts/mission-scope.mjs",
+    "scripts/scope-architecture.mjs",
+    "scripts/scope-presentation.mjs",
+    "scripts/scope-presentation.spec.mjs",
+    "templates/kinds/goal-discovery.schema.json",
+    "templates/step/state.schema.json",
+    "workflows/discovery.md",
+    "workflows/discovery.vi.md"
+  ],
+  "readback": true
+}

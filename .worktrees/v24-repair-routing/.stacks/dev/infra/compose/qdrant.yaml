@@ -1,0 +1,22 @@
+# Qdrant — vector store for content RAG, chat grounding and interview grounding.
+#
+# v1.10+ is required, not preferred: `@qdrant/js-client-rest` (via
+# QdrantVectorStore) speaks the Universal Query API (`POST /points/query`),
+# which arrived in v1.10. On an older build that endpoint 404s and
+# ContentRagRetrievalService swallows the error — so the symptom is silently
+# empty results across three features, not a failure anyone can see.
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.10.1
+    container_name: ${STARCI_CONTAINER_PREFIX:-starci-}qdrant
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:-REPLACE_ME}
+    ports:
+      - "${STARCI_PORT_QDRANT}:6333"
+      - "${STARCI_PORT_QDRANTGRPC}:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    restart: unless-stopped
+
+volumes:
+  qdrant-data:

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "parentRequest": "request.json",
+  "baseline": "886c1cafea34f0782881b9297f62a8742f30ba36",
+  "ownerSession": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905155158-nivo-87e4a31b",
+  "authority": "Root explicitly instructed isolated minimal RC.8 release preparation under existing user-authorized immediate runtime repairs; no live, peer, commit or push actions.",
+  "scope": [
+    "Verify original four-file seal",
+    "Prepare 2.5.0-rc.8 package and EN/VI lineage plus dated evidence",
+    "Run generators, complete npm test, packed clean install and doctor",
+    "Return exact reviewed candidate manifest"
+  ],
+  "limitations": [
+    "Intermediate source-proof-review blocker fix; not final 2.5 completion",
+    "No coordinator onboarding or dynamic-coordination runtime included",
+    "Prior focused proof manifests remain unchanged"
+  ],
+  "at": "2026-09-06T14:19:03.961Z"
+}

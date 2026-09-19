@@ -1,0 +1,12 @@
+{
+  "version": "2.5.0-rc.4",
+  "head": "6563115c7984fae3e83256e750bc0f51d7cf4f4e",
+  "remoteReadback": "6563115c7984fae3e83256e750bc0f51d7cf4f4e",
+  "manifestSha256": "426a3e973fc5240adcafa7b0fd012167dae40312708d7b78df0aea27843ac37b",
+  "fullTests": 439,
+  "skipped": 0,
+  "generatedDocs": 76,
+  "actualPreviewHash": "sha256:b270a14754c3ed9a6d05a7c5307d8e63a1db943cc516cf5b0f03b041546b893e",
+  "sessionValidation": "valid",
+  "publishedAt": "2026-09-06T10:27:34.8559506Z"
+}

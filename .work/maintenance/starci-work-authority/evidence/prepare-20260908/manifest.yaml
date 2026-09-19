@@ -1,0 +1,12 @@
+schema: work/evidence@1
+id: nivo.maintenance.starci-work-authority.prepare.20260908
+nodeId: nivo.maintenance.starci-work-authority
+inputDigest: 086017dff1fcb3436cb3da7a0ec82812314e8c6bc8c7d809f3a8cf040d0f31b3
+outcome: pass
+assertions:
+  - id: work-scope-prepared
+    outcome: pass
+    observation: The selected maintenance leaf exists in todo state, states the approved Work-state authority boundary, changes no runtime source and preserves the approved effect ceiling.
+assets:
+  - path: scope-review.md
+    sha256: fec1680aaa3945ccc4bf92675987f0b1cce0352ab47ecdc0991e5a2ac48c62af

@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-09-07T06:35:05.0144832+07:00",
+  "verification": "Get-Process and Win32_Process repeatedly found no original handles; no terminal test summary",
+  "missingProcessIds": [
+    79788,
+    104676,
+    36024,
+    77140
+  ],
+  "priorRecordPreserved": true,
+  "status": "interrupted"
+}

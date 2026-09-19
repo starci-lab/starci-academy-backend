@@ -1,0 +1,12 @@
+{
+  "version": "2.5.0-rc.1",
+  "head": "3d15e85da4b46301ed77796d03296dbf843ac071",
+  "remoteReadback": "3d15e85da4b46301ed77796d03296dbf843ac071",
+  "manifestSha256": "8cb3f4631d9f2858497e284d8f8267f6794c25d81327ae30f6b21f94465b1494",
+  "test": "full-release.log",
+  "exitCode": 0,
+  "scriptsPassed": 433,
+  "skipped": 0,
+  "generatedDocs": 76,
+  "productCompletion": false
+}

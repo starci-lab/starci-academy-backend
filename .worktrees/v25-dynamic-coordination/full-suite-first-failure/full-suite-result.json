@@ -1,0 +1,7 @@
+{
+  "payloadInventory": "tested-payload-before.json",
+  "exitCode": 1,
+  "startedAt": "2026-09-06T15:05:19.0078050Z",
+  "log": "full-suite-final.log",
+  "finishedAt": "2026-09-06T15:19:44.0683555Z"
+}

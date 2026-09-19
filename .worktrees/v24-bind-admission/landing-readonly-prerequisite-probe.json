@@ -1,0 +1,6 @@
+{
+  "ledgerChanged": false,
+  "errors": [
+    "GOAL_SOURCE_UNBOUND: request project/role is outside the frozen discovery"
+  ]
+}

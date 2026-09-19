@@ -189,3 +189,6 @@ eslint_out*.json
 
 # local pnpm content store
 /.pnpm-store/
+
+# host tool installs outside the runtime tree (Playwright + Chromium for browsercontrol mode playwright)
+.tools/

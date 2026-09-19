@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "id": "AG-007",
+  "title": "Khép luồng đăng ký → ví → mua AgentOS → cấp phát",
+  "project": "nivo",
+  "scope": "agentos",
+  "priority": "P1",
+  "phase": 1,
+  "type": "verify",
+  "status": "blocked",
+  "statusMeaning": "Waiting for prerequisite evidence; no execution has started.",
+  "dependsOn": [
+    "AG-004"
+  ],
+  "why": "Core identity, wallet, payment and AgentOS provisioning paths and suites exist; prove the complete customer outcome and failure compensation at one served delivery.",
+  "decisionQuestions": [],
+  "acceptance": [
+    "Signup/signin/OTP/reset returns the user to the intended AgentOS entry.",
+    "Order payment, wallet debit and provisioning are idempotent under duplicate requests/webhooks.",
+    "Pre-provision failure preserves or restores the money truth; post-payment failure is visible and retryable.",
+    "One account with multiple instances retains separate plans, credit grants and ownership.",
+    "Quota exhaustion/top-up/renewal have explicit user states and do not charge another workspace."
+  ],
+  "evidenceRefs": [
+    "be:biz.md",
+    "be:src/modules/bussiness/catalog-fulfillment/real-agent-workspace-fulfillment.service.ts"
+  ],
+  "testTargets": [
+    "src/tests/e2e/nivo/wallet-payment.e2e-spec.ts",
+    "src/tests/e2e/nivo/paid-before-provisioned.e2e-spec.ts",
+    "src/tests/e2e/nivo/instance-top-up.e2e-spec.ts",
+    "src/tests/e2e/nivo/agent-workspace-plan-change.e2e-spec.ts"
+  ],
+  "goalDraft": {
+    "version": 1,
+    "language": "vi",
+    "goal": "Khép luồng đăng ký → ví → mua AgentOS → cấp phát",
+    "includes": [
+      "Khép luồng đăng ký → ví → mua AgentOS → cấp phát",
+      "Exactly two modules: Chatbot and Accounting; supporting AgentOS flows only."
+    ],
+    "excludes": [
+      "Template App and Expert Academy",
+      "Unrelated source, shared credentials and production deployment",
+      "Treating a fixture, a mock or an old receipt as a completed live action",
+      "Standalone Scheduling, Knowledge Hub, Sales Copilot and broad SMB workbenches"
+    ],
+    "doneWhen": [
+      {
+        "producedBy": "api.verify",
+        "evidence": "The named API cases run against the served head and read back results through the API."
+      },
+      {
+        "producedBy": "uat.verify",
+        "evidence": "The corresponding owner journey passes through the real surface at the same delivery."
+      }
+    ],
+    "sourceRef": "user:2026-09-05 final scope: exactly two modules, one accounting and one chatbot; business flows included; Template App later"
+  },
+  "execution": {
+    "roles": [
+      "be",
+      "fe"
+    ],
+    "env": "dev",
+    "deriveChainAtActivation": true,
+    "exclusiveWriteAliases": [
+      "@worktrees/sessions/central-runtime"
+    ],
+    "liveEffects": "No live effect is authorized by banking. At activation use environment declarations and the exact mission scope; real outbound messages require explicit user authorization.",
+    "seeding": "A dedicated owner and stranger, per-flow run namespace, deterministic IDs, exact marker/owner checks on reuse and dependency-safe cleanup. Fixture history is labelled and cannot stand for Test, Apply, payment or provider success. Create fixtures only for the selected Chatbot and Accounting modules; knowledge fixtures are supporting inputs, not a third module.",
+    "failureRouting": "Read the executing operator stop and current .claude/routing.json; this card defines no alternate routes.",
+    "publication": "If source is changed, include git.publish only in the activated scope and derive all required gates. Backend business changes also require business.reconcile where a published promise applies."
+  },
+  "activation": {
+    "sessionId": null,
+    "startedAt": null,
+    "completedAt": null,
+    "receiptRefs": []
+  },
+  "modules": [
+    "chatbot",
+    "accounting"
+  ]
+}

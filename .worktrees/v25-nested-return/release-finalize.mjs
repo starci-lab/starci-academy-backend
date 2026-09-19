@@ -1,0 +1,3 @@
+import fs from 'node:fs';
+const file='.claude/INDEX.vi.md';let text=fs.readFileSync(file,'utf8');text=text.replace('## Dòng dõi\n','## Dòng dõi\n\n2.5.0-rc.3 (2026-09-06): nested return đã niêm phong và vấn đề toàn vẹn review đã khai báo vào lại qua invocation cùng owner và review độc lập mới, giữ nguyên proof gốc cùng quyền hạn goal hiện tại.\n');fs.writeFileSync(file,text);
+const request=JSON.parse(fs.readFileSync('request.json'));request.scope.push('Explicit integrity re-review with exact hashed owning-session disclosure, no questioned proof credited as approval or delivery');request.authority+=' Parent explicitly approved bounded integrity re-review without resetting the confirmed user goal.';fs.writeFileSync('request.json',JSON.stringify(request,null,2)+'\n');

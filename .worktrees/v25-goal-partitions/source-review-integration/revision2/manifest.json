@@ -1,0 +1,68 @@
+{
+  "status": "provisional-before-FE-test",
+  "files": [
+    {
+      "path": "scripts/source-review.mjs",
+      "before": "sha256:ccebfad38b55855416cc73db0ee65cf96a704cd15868cb65b08b18ece9644fb8",
+      "after": "sha256:a4aeca5063532fafc90c0e8bafe69060f770ba83f7a40a295e5b133214a044d4",
+      "donor": "sha256:a4aeca5063532fafc90c0e8bafe69060f770ba83f7a40a295e5b133214a044d4",
+      "status": 0
+    },
+    {
+      "path": "scripts/source-review.spec.mjs",
+      "before": "sha256:17c331fb90cd9733d09bc80ef4caf3eb2442c549bb072f89f6ac902f27cfa6d1",
+      "after": "sha256:7d57014398769d94d41031cc933942f69b0a6edcd26c86f9d0f8cb6c44ad4537",
+      "donor": "sha256:7d57014398769d94d41031cc933942f69b0a6edcd26c86f9d0f8cb6c44ad4537",
+      "status": 0
+    },
+    {
+      "path": "scripts/source-review-fixture.mjs",
+      "before": "sha256:e5675c74378f98016c518198dee802048f15b276580808e1add50f4dfa756419",
+      "after": "sha256:55dc3603b8217b066c261cb108c35fc7a8ab745650bfd9aaa0bb4d936116b695",
+      "donor": "sha256:55dc3603b8217b066c261cb108c35fc7a8ab745650bfd9aaa0bb4d936116b695",
+      "status": 0
+    },
+    {
+      "path": "scripts/workflow-source-fixture.mjs",
+      "before": "sha256:6f585e6a26897dc168748af5cde395af425a8b9020ea08024a551391478e5e8d",
+      "after": "sha256:6f585e6a26897dc168748af5cde395af425a8b9020ea08024a551391478e5e8d",
+      "donor": "sha256:6f585e6a26897dc168748af5cde395af425a8b9020ea08024a551391478e5e8d",
+      "status": 0
+    },
+    {
+      "path": "scripts/workflow-interface-fixture.mjs",
+      "before": "sha256:2fe0978bf64eabc34562efc7c5f92790b397a8687b2c8ccdbcdda36356562eb7",
+      "after": "sha256:3264dddceb5a7c96fd625c335b78e23da584733d1b861d6cc6939459ca864134",
+      "donor": "sha256:3264dddceb5a7c96fd625c335b78e23da584733d1b861d6cc6939459ca864134",
+      "status": 0
+    },
+    {
+      "path": "scripts/producer-import.mjs",
+      "before": "sha256:87f94dc9fd986335d2995d83c4456e80a187bb2002fd3e506c5d0041a53fa731",
+      "after": "sha256:006316294d1882c64ff6dc38b3e22d9b6e34d00467b7a8d7752b7e0654816906",
+      "donor": "sha256:006316294d1882c64ff6dc38b3e22d9b6e34d00467b7a8d7752b7e0654816906",
+      "status": 0
+    },
+    {
+      "path": "scripts/validate-request.mjs",
+      "before": "sha256:1dd20f4a8c3e5f7a832867895b71d7a38708fdc5f2ce183a5ec4854f1bf7ed75",
+      "after": "sha256:5cf1e4dfbb991e5be54333760ca70da6db2cd8beb16cb32df24bae1b26d1565b",
+      "donor": "sha256:5cf1e4dfbb991e5be54333760ca70da6db2cd8beb16cb32df24bae1b26d1565b",
+      "status": 0
+    },
+    {
+      "path": "scripts/workflow-coordination.mjs",
+      "before": "sha256:78130ac7a380451c95c38810639fcf032425b79a573b4174121ca8c4abd575dd",
+      "after": "sha256:322ea2410b2e9da01b91c02494b3bd90412225b332f0084ef6e2c9f75ee6a6b7",
+      "donor": "sha256:322ea2410b2e9da01b91c02494b3bd90412225b332f0084ef6e2c9f75ee6a6b7",
+      "status": 0
+    },
+    {
+      "path": "scripts/plan-history.mjs",
+      "before": "sha256:067a68e4b80fbe9e4c97356194c5465b9d911b953a0daad9387212951fe04733",
+      "after": "sha256:067a68e4b80fbe9e4c97356194c5465b9d911b953a0daad9387212951fe04733",
+      "donor": "sha256:144cc3dca54d3e0476f03a5b9d06e42bf19856dc1d7c8d1b49fe055d4c7f8089",
+      "status": 0
+    }
+  ]
+}

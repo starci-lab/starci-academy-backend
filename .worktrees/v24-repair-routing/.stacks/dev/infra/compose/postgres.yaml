@@ -1,0 +1,39 @@
+# PostgreSQL — primary datasource. TypeORM `synchronize` builds the schema on
+# first boot.
+#
+# The published port is an interpolation, never a literal: the value comes from
+# metadata.json (basePort + portOffset) through the env file `npm run compose`
+# generates. A literal would be a second source of truth and would drift the
+# first time the offset changes.
+#
+# The credentials arrive as compose variables rather than as `*_FILE` pointers.
+# That asymmetry is deliberate: the app reads its secrets from files because it
+# runs a tree of third-party code, while this container runs one vendor binary
+# and the postgres image cannot take a password from a file at all. The value
+# itself is minted by `npm run secret:gen` and lives encrypted in
+# `.stacks/dev/runtime/files/` — the `:-` defaults below are obvious
+# placeholders, not credentials, and a stack that boots on them is a stack
+# whose secrets were never generated.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ${STARCI_CONTAINER_PREFIX:-starci-}postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-REPLACE_ME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-REPLACE_ME}
+      POSTGRES_DB: ${POSTGRES_DB:-starci-academy}
+    ports:
+      - "${STARCI_PORT_POSTGRES}:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER:-REPLACE_ME} -d ${POSTGRES_DB:-starci-academy}
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pg-data:

@@ -1,0 +1,137 @@
+{
+  "status": "ready-for-review-not-release",
+  "baseline": "7e13c6b02622b3c06a6ed04eedd418749ad00215",
+  "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-goal-partitions\\.claude",
+  "request": "request.json",
+  "pendingBaseline": {
+    "target": "final published RC.9 before release",
+    "files": [
+      {
+        "path": "scripts/plan-history.mjs",
+        "sha256": "sha256:ac59319bcefe99114e30c3ee9c6a7c91396bae7a5f3e9e397f62ca2384f1a997"
+      },
+      {
+        "path": "scripts/workflow-reentry.spec.mjs",
+        "sha256": "sha256:2a414aa509aad710e04000de6e65c2d203e68e07002d88974b8b38e7c26c79ef"
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": "scripts/goal-partition-tiers.spec.mjs",
+      "before": null,
+      "after": "sha256:dcf74b7ea82061cfbcd261eb072489c4f0a9c509ecd9e653c855eba696b930a0",
+      "category": "authored"
+    },
+    {
+      "path": "scripts/goal-partitions.mjs",
+      "before": null,
+      "after": "sha256:00bafa01305c2ff798e60fe226b46250c20564365dafa02a7d2bfc1022ce3eb1",
+      "category": "authored"
+    },
+    {
+      "path": "scripts/goal-partitions.spec.mjs",
+      "before": null,
+      "after": "sha256:2783cc4625e525fb19e80cc9a211a721cd26d0283867a3b104751bc932ec8680",
+      "category": "authored"
+    },
+    {
+      "path": "scripts/goal-route-partitions.spec.mjs",
+      "before": null,
+      "after": "sha256:c506c3498d1235edeaa58524942444ff4ea362f801b7c6b001c03a831140a774",
+      "category": "authored"
+    },
+    {
+      "path": "scripts/plan-chain.mjs",
+      "before": "sha256:ac2d2b6155a6e6dc1ea67111214857203f5937bd51e7dfe35590ac3cbfa2d2bb",
+      "after": "sha256:0dd1d4cb331af5e33b5f4d22ee21c1274460cece540ee3eb4b52261065937bb9",
+      "category": "authored"
+    },
+    {
+      "path": "scripts/plan-history.mjs",
+      "before": "sha256:58440e5bfdde01703f8bca6f1f8a7e93aa2ee7d50af48454c3bbd6e69c7cc353",
+      "after": "sha256:20f52657694ad1380fd8dc1c0919f61dc74c9d4fca86226d5e07fbd2e4a9cba2",
+      "category": "authored-plus-reviewed-RC9-input"
+    },
+    {
+      "path": "scripts/validate-response.mjs",
+      "before": "sha256:e6c5766f0c2ff3927fc3b012a0f26f45c8321d8c1d186a1d9433b6ef8ebcbcf0",
+      "after": "sha256:e360ede2eb6201298c0c97fc4ca51e586a44574639d5a6f139f041189f202aaf",
+      "category": "authored"
+    },
+    {
+      "path": "scripts/validate-session.mjs",
+      "before": "sha256:3b1a59a64515da80d3ee2f09a0727063c5cc4f23b875aff8c4ced81094115261",
+      "after": "sha256:aa04e6c5711c8c3ee90e970cc30ee94751cbd2ba3d6de29335fb18ee23bf388b",
+      "category": "authored"
+    },
+    {
+      "path": "scripts/workflow-portfolio-heads.spec.mjs",
+      "before": "sha256:4f8ebe58a392cc258237e3eb4d7e7252bf0c0c27f39931fef8ecbe845a2cfcf2",
+      "after": "sha256:17bfb8d2d317cc2ddf9280e5187325fd75d4351374a28543f9bbf8e66db9a9d7",
+      "category": "authored"
+    },
+    {
+      "path": "scripts/workflow-reentry.spec.mjs",
+      "before": "sha256:f5601329fa3a82e1b0efc969e1b214f13fcd82cec679f5a21423ee832bfdd061",
+      "after": "sha256:2a414aa509aad710e04000de6e65c2d203e68e07002d88974b8b38e7c26c79ef",
+      "category": "reviewed-RC9-input"
+    },
+    {
+      "path": "scripts/workflow-verification.mjs",
+      "before": "sha256:1203ac37936494c795d4434bf78ef79e70189f1ae5c769d5313575f91a245673",
+      "after": "sha256:c801e40380905e70b99e9dbbab0ca635ed08246569f67774e8382e3fff648976",
+      "category": "authored"
+    },
+    {
+      "path": "templates/step/response.schema.json",
+      "before": "sha256:7d9cb1894c05d3326f67650163a9392f76fb46874c1e0a544046b9220acd57fc",
+      "after": "sha256:c6cadd19a92d29dba92664bcb0513ea1274de6372483537a8d2aa2b7d7640a95",
+      "category": "authored"
+    },
+    {
+      "path": "workflows/README.md",
+      "before": "sha256:a077a9acb9384cca4744f5ee0934555299387bace05a7ac97395c734b8e3558f",
+      "after": "sha256:87093ac8f224fbea6bea9568aebf3d01ab714e464c856d693e9770a0151eefd2",
+      "category": "authored"
+    },
+    {
+      "path": "workflows/README.vi.md",
+      "before": "sha256:17e6557e01b3f52a3367d6d589d4b7b957054a84a7e43eefb3122241684938b6",
+      "after": "sha256:1f930e94e112dd26373553b8cb46b9af459f77fa75195a21d99e2d9ae6807f2f",
+      "category": "authored"
+    }
+  ],
+  "deleted": [],
+  "proof": {
+    "affected": {
+      "exitCode": 0,
+      "tests": 11,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "log": "affected-final.log",
+      "logSha256": "sha256:ebae5aa02d2366eef00ab12bade6bd79e6cbe4952bac2caa4d4209a37f22ec00"
+    },
+    "templates": {
+      "templates": 35,
+      "documents": 178
+    },
+    "briefs": {
+      "operators": 27,
+      "byteBudget": 3072
+    },
+    "docs": {
+      "files": 76,
+      "exitCode": 0
+    },
+    "fullSuite": null,
+    "packageInstall": null
+  },
+  "limits": [
+    "No live runtime, peer ledger, product source or publication mutation.",
+    "19 seed units use actual current invocation acceptance and isolated JSON fixture storage, not product UAT.",
+    "UAT tier test accepts the actual plan; it does not claim browser verification.",
+    "Coordinator partition proof selection fixtures are selection tests; native workflow.verify integration requires final RC.9 rebase and combined validation."
+  ]
+}

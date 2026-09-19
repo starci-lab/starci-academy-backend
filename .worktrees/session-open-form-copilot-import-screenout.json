@@ -1,0 +1,44 @@
+{
+  "project": "form-copilot",
+  "sessionId": "20260906-form-copilot-import-screenout",
+  "topology": {"mode": "solo"},
+  "hostBinding": {
+    "kind": "codex-task",
+    "hostId": "01a04cb0-efee-77c3-80e9-9e36b2ab5a54",
+    "worktree": "D:\\Repositories\\starci-academy-backend",
+    "sourcePromptRef": "thread:01a04cb0-efee-77c3-80e9-9e36b2ab5a54#import-approval"
+  },
+  "mission": {
+    "language": "vi",
+    "goal": "Import the local Form Copilot source into this routed repository, support legitimate early-close submissions as screened_out outcomes, verify the build, and redeploy the verified release.",
+    "target": "tools/form-copilot, its backend/frontend workspace routes, PostgreSQL history, and the existing Form Copilot VPS deployment.",
+    "includes": [
+      "Import source files while excluding node_modules, local secrets, generated artifacts and build output",
+      "Declare and hydrate form-copilot be and fe routes against the current repository",
+      "Submit disqualifying responses through the destination-owned early-close path",
+      "Persist screened_out with terminal page and close reason and never retry a confirmed screen-out",
+      "Run deterministic tests and production build, then deploy the verified release to the existing VPS"
+    ],
+    "excludes": [
+      "Publishing a new GitHub repository",
+      "Changing source workbook answers or inventing respondent data",
+      "Sending additional live Google Form responses during development",
+      "Redesigning unrelated interface or scheduling behavior"
+    ],
+    "outputs": [
+      "Routed Form Copilot source under tools/form-copilot",
+      "Worker and PostgreSQL support for completed and screened_out terminal outcomes",
+      "Regression tests and build evidence",
+      "Deployed release and health verification"
+    ],
+    "doneWhen": [
+      {"evidence":"Both Form Copilot routes bind to a clean session worktree containing the imported source.","producedBy":"workspace.bind"},
+      {"evidence":"A disqualifying fixture is submitted and persisted as screened_out with no retry while an ordinary fixture remains completed.","producedBy":"backend.generate"},
+      {"evidence":"Targeted tests and production build pass against the changed source.","producedBy":"quality.verify"},
+      {"evidence":"The existing production domains serve the verified release and health checks pass.","producedBy":"release.deploy"}
+    ],
+    "verification": "Validate route declarations, run deterministic worker and repository tests for both terminal outcomes, run the full project check, package without secrets, deploy through the existing VPS procedure, and verify authenticated HTTPS health without creating a live form response.",
+    "example": "A disqualifying answer reaches Google's confirmation page, is stored as screened_out with its terminal reason, and is not retried; a qualified response still stores completed.",
+    "sourceRef": "thread:01a04cb0-efee-77c3-80e9-9e36b2ab5a54#import-approval"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "purpose": "read-only busy predicate comparison; no commit or lease",
+  "publishedBusy": true,
+  "candidateBusy": false,
+  "settled": [
+    "26/1"
+  ],
+  "proofErrors": [],
+  "activeSlots": 0,
+  "activeLeases": 0
+}

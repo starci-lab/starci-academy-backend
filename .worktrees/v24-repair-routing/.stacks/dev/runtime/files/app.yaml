@@ -1,0 +1,149 @@
+# =============================================================================
+#  StarCi Academy — Application Runtime Config (app.yaml)
+# =============================================================================
+#
+#  File này được mount vào container tại `.mount/config/app.yaml` và parse bởi
+#  `MountFilesystemService.appConfig()` qua `js-yaml`. Mọi giá trị ở đây có
+#  thể chỉnh **không cần code change** — chỉ cần:
+#    1. Sửa file này trong mount source (terraform / k8s ConfigMap).
+#    2. Redeploy pod HOẶC chạy lại seeder để DB pickup config mới.
+#
+#  KHÁC với env vars:
+#    - Env vars (xem `src/modules/env/config.ts`) = infra-level: paths,
+#      hostnames, ports, file mount locations, time thresholds, feature flags.
+#    - File này = business / runtime catalog: payment IDs, grading thresholds —
+#      những thứ ops cần xem được lúc deploy.
+#
+#  ⚠️  KHÔNG commit secret thật vào repo. File này có thể chứa public ID
+#      (PayOS clientId, Sentry DSN public), nhưng KEY thật phải nằm trong
+#      `.mount/terraform/*.key` hoặc `.mount/keys/*.key` (chỉ mount, không commit).
+#
+#  ℹ️  AI models KHÔNG còn ở đây nữa. Catalog model sống trong `.mount/data/ai-models/`
+#      (markdown en/vi) → seeder upsert vào bảng `ai_models`. Runtime (KeyStore +
+#      UseApi) đọc trực tiếp từ DB (cache in-memory qua TypeORM query cache).
+# =============================================================================
+# -----------------------------------------------------------------------------
+# Sentry — Error reporting & APM
+# -----------------------------------------------------------------------------
+# DSN là public — Sentry xác thực bằng project ID + token nội bộ, không sao
+# nếu lộ ra. Đổi khi chuyển project Sentry.
+sentryDsn: https://10a49f99c7f4a4002175f55b87e4e952@o4510097305042944.ingest.de.sentry.io/4511914723901520
+# -----------------------------------------------------------------------------
+# PayOS — Payment gateway (Vietnam)
+# -----------------------------------------------------------------------------
+# clientId    : ID public, có thể xem ở PayOS dashboard → Integration
+# checksumKey : KEY để verify webhook signature. CÓ THỂ public theo PayOS docs
+#               (không phải secret payment) — nhưng nếu PayOS đổi policy thì
+#               chuyển sang `.mount/terraform/payos-api-key.key`.
+payos:
+    clientId: 65997973-7455-4af9-8ee5-fa1ba6f10ba3
+    checksumKey: a22b1730fb8ef2fd376e984c7ca19e943db23414f0ad9a5618f460fd286179db
+# -----------------------------------------------------------------------------
+# systemConfig — Course/task grading thresholds
+# -----------------------------------------------------------------------------
+# passThreshold = ngưỡng pass cho 1 challenge / 1 milestone task.
+# Giá trị 0..1 (vd: 0.8 = 80 điểm trên 100).
+# Đổi sẽ ảnh hưởng tới existing submission attempts — chỉ submission MỚI
+# sau khi reload mới dùng threshold mới.
+systemConfig:
+    challenge:
+        # Challenge bài tập code submission — 80% là pass mặc định.
+        passThreshold: 0.8
+    task:
+        # Milestone task (personal project review) — cũng 80%.
+        passThreshold: 0.8
+    course:
+        # Phase khởi điểm khi seed course_metadata lần đầu (Pioneer đã sale hết → Early Bird).
+        # CHỈ áp dụng khi chưa có metadata; phase đã advance theo enroll thì giữ nguyên.
+        defaultPricingPhase: earlyBird
+# =============================================================================
+#  subscriptions.tiers — AI Subscription catalog (Plus / Pro / Max)
+# =============================================================================
+#
+#  Mỗi entry = 1 gói AI subscription bán theo tháng (VND). Caps credit là **TỔNG**
+#  của gói — tier **GHI ĐÈ** base free (nâng gói = thay cap, KHÔNG cộng dồn). Xem `AiSubTier`.
+#
+#  Mount data (cùng convention markdown như courses / ai-models):
+#    `.mount/data/subcriptions/<index>-<tier>/{en,vi}.md`
+#
+#  Init `CatalogSeederService` đọc mount folder → merge vào
+#  `MountStorageService.appConfig` khi có file hợp lệ (ưu tiên mount data).
+#
+#  Fields:
+#
+#    tier            (enum string)   "plus" | "pro" | "max"
+#    displayName     (string, opt)   Nhãn UI — mặc định capitalize tier
+#    description     (string)        Tagline đối tượng/mục đích hiển thị trên card tier
+#    priceVnd        (int)           Giá tháng (VND) — cổng nội địa (PayOS/Sepay)
+#    priceUsd        (float)         Giá tháng (USD, dollars) — cổng quốc tế
+#                                    (Stripe/PayPal/NOWPayments). KHÔNG quy đổi runtime.
+#    creditsPer5h    (int)           TỔNG credits / cửa sổ 5 giờ (tier GHI ĐÈ base free, KHÔNG cộng dồn)
+#    creditsPerWeek  (int)           TỔNG credits / tuần (tier ghi đè base free)
+#    popular         (bool, opt)     Badge "phổ biến nhất" (thường chỉ Pro)
+#    enabled         (bool)          `false` = ẩn tier, không xóa config
+# =============================================================================
+subscriptions:
+    tiers:
+        - tier: plus
+          # Plus — entry tier (250/5h, 2500/week — tổng, ghi đè base free)
+          displayName: Plus
+          # audience/purpose tagline
+          description: For regular learners — enough AI credits for daily use.
+          priceVnd: 99000
+          # adjust real USD price
+          priceUsd: 3.99
+          creditsPer5h: 250
+          creditsPerWeek: 2500
+          enabled: true
+        - tier: pro
+          # Pro — most popular (500/5h, 5000/week — tổng, ghi đè base free)
+          displayName: Pro
+          # audience/purpose tagline
+          description: For serious learners — generous credits, best value.
+          priceVnd: 199000
+          # adjust real USD price
+          priceUsd: 7.99
+          creditsPer5h: 500
+          creditsPerWeek: 5000
+          popular: true
+          enabled: true
+        - tier: max
+          # Max — power user (2000/5h, 20000/week — tổng, ghi đè base free)
+          displayName: Max
+          # audience/purpose tagline
+          description: For power users — maximum credits, no limits.
+          priceVnd: 499000
+          # adjust real USD price
+          priceUsd: 19.99
+          creditsPer5h: 2000
+          creditsPerWeek: 20000
+          enabled: true
+# =============================================================================
+#  membership — Community membership ($5/month equivalent)
+#  Unlocks: premium tech blog + private community + course discount.
+#    priceVnd                    (int)    Monthly price (VND) — domestic gateways
+#    priceUsd                    (float)  Monthly price (USD) — international gateways
+#    courseDiscountPercent       (int)    % off course checkout for active members
+#    freeMonthsOnCoursePurchase  (int)    Free months auto-granted on any course buy
+#    enabled                     (bool)   false = hide membership purchase
+# =============================================================================
+membership:
+    priceVnd: 129000
+    priceUsd: 5
+    courseDiscountPercent: 20
+    freeMonthsOnCoursePurchase: 3
+    enabled: true
+
+# Unified offer for new learners. Legacy products remain readable/grantable for
+# existing and already-pending purchases, but new checkout endpoints use this.
+proSubscription:
+    planId: pro
+    displayName: StarCi Pro
+    description: Full learner access to courses, community, AI and mock interviews.
+    priceVnd: 229000
+    billingPeriodMonths: 1
+    offerRevision: pro-v1-20260901
+    creditsPer5h: 1200
+    creditsPerWeek: 6000
+    enabled: true
+legacySalesMode: pro-only

@@ -1,0 +1,18 @@
+{
+  "version": "2.5.0-rc.6",
+  "head": "8a3e1cdc43298d51b547947fcdbae57b919f855b",
+  "remote": "https://github.com/starci183/starci-skills.git",
+  "branch": "main",
+  "readbackMatched": true,
+  "observedAt": "2026-09-06T11:35:59.3791868Z",
+  "manifestHash": "sha256:defbe2a1ed7222e5e192552eca1bc65a1b5ba7d12732c1502a3d1f86e0406a42",
+  "tests": {
+    "skipped": 0,
+    "docs": 76,
+    "failed": 0,
+    "passed": 442
+  },
+  "actualPlanCases": 9,
+  "liveAccountingResponse": "valid",
+  "productUatComplete": false
+}

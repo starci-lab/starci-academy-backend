@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import {createHash} from 'node:crypto';
+const sha=bytes=>'sha256:'+createHash('sha256').update(bytes).digest('hex');
+const m=JSON.parse(fs.readFileSync('manifest-draft.json'));
+if(m.treeHash!=='sha256:6478237f0035f5fd565d35270777623925c0f0f40c5fc1e829e7928b41a5ddf5')throw Error('Candidate changed during full test');
+m.status='sealed candidate; final exact tree passed full npm test';
+m.proof.fullResult={exitCode:0,tests:439,pass:439,fail:0,skipped:0,generatedDocs:76};
+m.proof.focusedResult={exitCode:0,tests:8,pass:8};
+m.proof.relatedResult={exitCode:0,tests:16,pass:16};
+m.proof.pack={file:'pack-dry-run-local-cache.json',exitCode:0,version:'2.5.0-rc.3',entryCount:677,requiredRuntimePaths:8,repositoryOnlyEvidence:'tests/evidence/20260906-nested-review-return.md',initialDefaultCacheFailure:'pack-dry-run.err retains default npm cache EPERM; rerun used only candidate support cache'};
+m.proof.logs=Object.fromEntries(['full-final.log','focused-release.log','related-final.log','accounting-preview.log','pack-dry-run-local-cache.json'].map(file=>[file,sha(fs.readFileSync(file))]));
+fs.writeFileSync('manifest.json',JSON.stringify(m,null,2)+'\n');console.log(JSON.stringify({manifestHash:sha(fs.readFileSync('manifest.json')),treeHash:m.treeHash,paths:m.files.length,full:m.proof.fullResult},null,2));

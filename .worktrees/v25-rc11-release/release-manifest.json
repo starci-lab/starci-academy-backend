@@ -1,0 +1,294 @@
+{
+  "status": "sealed",
+  "baseline": "5f874f80bac7617c19de75173f951e5e1c80ec8a",
+  "version": "2.5.0-rc.11",
+  "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-rc11-release\\.claude",
+  "files": [
+    {
+      "path": "INDEX.md",
+      "before": "sha256:10bcedacdfab9ffc993bd54284e00f919a777beee7f126c8e663f070d74db1c1",
+      "after": "sha256:ea51e20cef6474567f937e3da77311a50d5753ad17bc4e91179d569388aeb08b"
+    },
+    {
+      "path": "INDEX.vi.md",
+      "before": "sha256:5565190e5bc75f44c92dcfc45f19c25e9555ed2c5adc66ea3da61df2415f3356",
+      "after": "sha256:4bf301eed365df2b6a04fb1917c1001004a77d41fe52872bbd7291d29cc07dc7"
+    },
+    {
+      "path": "package.json",
+      "before": "sha256:2f341055ff811616b251ebf9d790018de3d6b7c7bcc9899c5864de47ddf56a80",
+      "after": "sha256:ebb3edcbbbf8588b177b8241b4e62ffb5b135dc508a9e3575c150813058f4b57"
+    },
+    {
+      "path": "resources/interaction.json",
+      "before": "sha256:5b3671475d739cc936755138f6842035895ce3e5355250024d7572c1444fa4e4",
+      "after": "sha256:d316034c41ee84aa9f3f8263188181a813edbb2e1b8c59ee3df6610fd7e8f68d"
+    },
+    {
+      "path": "scripts/goal-partitions.mjs",
+      "before": "sha256:514e64f5b697a8a34134cb325e5fa1d0b5de3f360957ba6ff4d0442a64f69cd4",
+      "after": "sha256:a45568264d6128ed312785006252fe9a1afa70c75cd1be749af076ffd192983d"
+    },
+    {
+      "path": "scripts/mission-scope.mjs",
+      "before": "sha256:f24cd6021e2f1a399c4a6015c6cb38b9c551be75976c4206e6d3f3d6d0112a3c",
+      "after": "sha256:3102ff635859cad3bf52599dad39f078d4206b790300e7958a114967a4e85f54"
+    },
+    {
+      "path": "scripts/nested-return-fixture.mjs",
+      "before": null,
+      "after": "sha256:8f32bab48b6ee455f32cda69ad3c29e988d5cef05560b0b4035798d2e91c8a07"
+    },
+    {
+      "path": "scripts/nested-return.spec.mjs",
+      "before": "sha256:14be45310ce0b93c55f375b2f27b81a6b522b381965c4beea82bec204297309c",
+      "after": "sha256:b39b6edeca132529207163a45d753ddf4ecc9198bbe8cbc9b0778de701be51cc"
+    },
+    {
+      "path": "scripts/plan-history.mjs",
+      "before": "sha256:348bfd70aa1ab491762951a2603015197fb53be98f24d07a7bf98c7735bb6c36",
+      "after": "sha256:189ba3aebbff6b28d1c7357928b06af482ad1d57019ccdd2d0e8086f2386fb80"
+    },
+    {
+      "path": "scripts/prior-mission-waits.spec.mjs",
+      "before": null,
+      "after": "sha256:1b8db14696d0e25c6b010e7b65acc65b7aa96db2f77e33f028216154fff62ca7"
+    },
+    {
+      "path": "scripts/resolved-waiting.mjs",
+      "before": "sha256:60b953f92e9197091a6049ae20a191c63041b9cbbca0d7973cb7b04e82162686",
+      "after": "sha256:cf5cd100da979f4b9380caa8aedabc262923899380e223dc62ff7b0e9304e54a"
+    },
+    {
+      "path": "scripts/resolved-waiting.spec.mjs",
+      "before": "sha256:6995fc5f25236563d3f24fb249d1777d600c9fc5b17ab5298f27a1cdb5601cb1",
+      "after": "sha256:6bea81379fa7564b673d594a17a22d9a0783fe8538c4f63c6ce8625d7d8a620d"
+    },
+    {
+      "path": "scripts/scope-architecture.mjs",
+      "before": null,
+      "after": "sha256:4e358584e0f5c04e5deae4c8853944e6be18dca74d276b360277d8570625a523"
+    },
+    {
+      "path": "scripts/scope-presentation.mjs",
+      "before": "sha256:9e6efe3246773386992d385c3bd09c7486a11791b713c766d1434afbc167872c",
+      "after": "sha256:bfedaf0d8ec3a6a354d1fce219794f120176e57cf402d809df5a12387644f66b"
+    },
+    {
+      "path": "scripts/scope-presentation.spec.mjs",
+      "before": "sha256:e076f285794de3f1996aa55ce6f4ef28e8c92803dd2319b02c12fdca10f29a45",
+      "after": "sha256:329aa063527f9f77d0111675360c2d4768b69774b00ac8edcd3c5996788bfc03"
+    },
+    {
+      "path": "scripts/session-correction.spec.mjs",
+      "before": "sha256:fb2064395f578afc219d8677f10455108e1b0e5d757563954a1d6c3c69347762",
+      "after": "sha256:43e49571a9e33a2a00f36261c219341d0507b164004f66ec9c3f5588b462fc9d"
+    },
+    {
+      "path": "scripts/session-open.mjs",
+      "before": "sha256:57a0356c9aa0a559bb03f2d6a2aababd030d626db946fb243603e047b0cd9649",
+      "after": "sha256:7c35e6e9b9604011ca8c29b8a7e91fdce0d74c5fd55824c089b2296ec17dfe81"
+    },
+    {
+      "path": "scripts/unit-successor-fixture.mjs",
+      "before": null,
+      "after": "sha256:8d4699d79474ea632a026606f1f7499a734794c07400b4b58778f37daf988b6d"
+    },
+    {
+      "path": "scripts/unit-successor-review.spec.mjs",
+      "before": null,
+      "after": "sha256:b02f6161d51be846bb04d36ad1e3ba5f2ccc8e171a8944dbb3dc93cfbd70fc1f"
+    },
+    {
+      "path": "scripts/unit-successor.spec.mjs",
+      "before": null,
+      "after": "sha256:8cf8c51d059ba1cb5c28990186f4ede37b5cb11fdaeadedde7666b8ff740b413"
+    },
+    {
+      "path": "templates/kinds/goal-discovery.schema.json",
+      "before": "sha256:4d8992eac6325e29ff7ee9187907fd71c44bc63ec936a4f6bf64f2fcb9b5dcfe",
+      "after": "sha256:c40c93b0214c20963b83de1982f23c482825b442e88099703c865c7cbc25a3e5"
+    },
+    {
+      "path": "templates/step/state.schema.json",
+      "before": "sha256:b8c2ff096dcb743af2e7e9270c34c0ad6ae8ef0e9625c5ed1afa646d276b017a",
+      "after": "sha256:c9d77cc0cb119b89f4e5acd688943ee15073ba502d758628061fa5d422c6ad20"
+    },
+    {
+      "path": "tests/evidence/20260907-goal-presentation-and-prior-waits.md",
+      "before": null,
+      "after": "sha256:fd633ef06595050ba4b4c2f03c156fd55a19d10ebb5cdf36c2f4fe97790f11ab"
+    },
+    {
+      "path": "tests/evidence/20260907-unit-successor-reentry.md",
+      "before": null,
+      "after": "sha256:a2a2f8333f67623fd0094803ae5d7fe331c7d96166256764548af25b1eeebcd0"
+    },
+    {
+      "path": "workflows/discovery.md",
+      "before": "sha256:683e78f3410099e691751f34ffec1140d3d55f63a3f831ee107f5cb9768ff495",
+      "after": "sha256:4c9d5dcfc4db13d8474f6714a081c39455f63c29addf1dd6af6ab76c8a40fa22"
+    },
+    {
+      "path": "workflows/discovery.vi.md",
+      "before": "sha256:6b00b7ad860a8ae31855d569e1767ffd5ad37f2e3888d400f0726bb5074d4e3b",
+      "after": "sha256:96e6e82c3a71af2d6202e3707085ea70196767cdd0f073b00199b0cf37a5b103"
+    },
+    {
+      "path": "workflows/README.md",
+      "before": "sha256:16f1d98959b6eaa2fe6fb600637006249283a539c66655a7b7d579c7f11382f3",
+      "after": "sha256:40928fce9f39def2a9bd120755c96fbf900fc5c0d48184b74daebc708ef07992"
+    },
+    {
+      "path": "workflows/README.vi.md",
+      "before": "sha256:a9b4e44151c5354ee686d497be95972353a5897429839ea59278a6e82bd6d68e",
+      "after": "sha256:d9dfc82ac64d813cac2e9b1b7ebaccf396ad51fd307d045a3aec3117216872e6"
+    }
+  ],
+  "deleted": [],
+  "proof": {
+    "full": {
+      "status": "complete",
+      "startedAt": "2026-09-06T23:35:05.918Z",
+      "baseline": "5f874f80bac7617c19de75173f951e5e1c80ec8a",
+      "treeHash": "43cc1dffb2d033408be1ba123c15efa0e88626fc0fce02eda0e20b4a39c34fe1",
+      "environment": {
+        "STARCI_WALK_HOST_ROOT": "D:\\Repositories\\starci-academy-backend",
+        "npm_config_cache": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-rc11-release\\npm-cache"
+      },
+      "pid": 33412,
+      "endedAt": "2026-09-06T23:49:48.360Z",
+      "exitCode": 0,
+      "signal": null,
+      "testedTreeUnchanged": true,
+      "tests": 569,
+      "pass": 569,
+      "fail": 0,
+      "skipped": 0,
+      "log": {
+        "path": "release-full.log",
+        "sha256": "sha256:e93a52c3d588513e8194487ea200321ade86f2db53275db6353578887093a783"
+      }
+    },
+    "package": {
+      "matches": true,
+      "packedFiles": 722,
+      "installedFilesChecked": 717,
+      "archiveSha256": "9af6fe2867ec5b44ebc11357f2b01fa780924e9e8495f816a964fa80d05a6828",
+      "pack": {
+        "path": "release-pack-final.log",
+        "sha256": "sha256:e321deecf76a9a48498a625947b5c51fd60ded30860238a02d02288cf2580732"
+      },
+      "install": {
+        "path": "release-install-final.log",
+        "sha256": "sha256:d952aab60c2f6048cd30e442b9e64e52f0b567f51e50e0be3238cc1b9c4386bd"
+      },
+      "doctor": {
+        "path": "release-doctor.log",
+        "sha256": "sha256:544a1c8b67e2b66421fb1a0dec7400aef23c2fadbfec3b2ef6e06d0baaf6613e"
+      }
+    },
+    "integration": {
+      "baseline": "5f874f80bac7617c19de75173f951e5e1c80ec8a",
+      "diagram": {
+        "manifest": ".worktrees/v25-goal-architecture/review-manifest.json",
+        "digest": "65414a5b0b1dad179749110fae9ad6b713a1a34c1aee77a0d74280eba551da39",
+        "paths": [
+          "resources/interaction.json",
+          "scripts/mission-scope.mjs",
+          "scripts/scope-architecture.mjs",
+          "scripts/scope-presentation.mjs",
+          "scripts/scope-presentation.spec.mjs",
+          "templates/kinds/goal-discovery.schema.json",
+          "templates/step/state.schema.json",
+          "workflows/discovery.md",
+          "workflows/discovery.vi.md"
+        ],
+        "readback": true
+      },
+      "unit": {
+        "manifest": ".worktrees/v25-unit-successors/review-manifest-rc11.json",
+        "sha256": "8107cc955236868818c7790688cf287a12c6d9dfb3e4e002bf18b8a29c1b34a9"
+      },
+      "priorWaits": {
+        "manifest": ".worktrees/v25-prior-waits-lifecycle/review-manifest.json",
+        "sha256": "2c613b09b5c2de14f9c8b190578d31dd6ac459d359b8d1845096cc1a1ccf8b58"
+      },
+      "paths": [
+        {
+          "path": "INDEX.md",
+          "hash": "6f83900594f1ff928d51a1a23dc84968c13377def825b5d5bb585e1e0a6312eb"
+        },
+        {
+          "path": "INDEX.vi.md",
+          "hash": "a9942bdf73bb8dec40a0c58fc681cdf4bafdf6a20b6dfb91520607532d5f82bf"
+        },
+        {
+          "path": "package.json",
+          "hash": "5f6de32888b3f7944e66ec42960c16cf5482e5abaeb65b375303650361b1e813"
+        },
+        {
+          "path": "scripts/goal-partitions.mjs",
+          "hash": "a45568264d6128ed312785006252fe9a1afa70c75cd1be749af076ffd192983d"
+        },
+        {
+          "path": "scripts/plan-history.mjs",
+          "hash": "189ba3aebbff6b28d1c7357928b06af482ad1d57019ccdd2d0e8086f2386fb80"
+        },
+        {
+          "path": "scripts/unit-successor-fixture.mjs",
+          "hash": "8d4699d79474ea632a026606f1f7499a734794c07400b4b58778f37daf988b6d"
+        },
+        {
+          "path": "scripts/unit-successor-review.spec.mjs",
+          "hash": "b02f6161d51be846bb04d36ad1e3ba5f2ccc8e171a8944dbb3dc93cfbd70fc1f"
+        },
+        {
+          "path": "scripts/unit-successor.spec.mjs",
+          "hash": "8cf8c51d059ba1cb5c28990186f4ede37b5cb11fdaeadedde7666b8ff740b413"
+        },
+        {
+          "path": "tests/evidence/20260907-unit-successor-reentry.md",
+          "hash": "a2a2f8333f67623fd0094803ae5d7fe331c7d96166256764548af25b1eeebcd0"
+        },
+        {
+          "path": "workflows/README.md",
+          "hash": "40928fce9f39def2a9bd120755c96fbf900fc5c0d48184b74daebc708ef07992"
+        },
+        {
+          "path": "workflows/README.vi.md",
+          "hash": "d9dfc82ac64d813cac2e9b1b7ebaccf396ad51fd307d045a3aec3117216872e6"
+        },
+        {
+          "path": "scripts/resolved-waiting.mjs",
+          "hash": "cf5cd100da979f4b9380caa8aedabc262923899380e223dc62ff7b0e9304e54a"
+        },
+        {
+          "path": "scripts/session-open.mjs",
+          "hash": "7c35e6e9b9604011ca8c29b8a7e91fdce0d74c5fd55824c089b2296ec17dfe81"
+        },
+        {
+          "path": "scripts/session-correction.spec.mjs",
+          "hash": "43e49571a9e33a2a00f36261c219341d0507b164004f66ec9c3f5588b462fc9d"
+        },
+        {
+          "path": "scripts/nested-return.spec.mjs",
+          "hash": "b39b6edeca132529207163a45d753ddf4ecc9198bbe8cbc9b0778de701be51cc"
+        },
+        {
+          "path": "scripts/nested-return-fixture.mjs",
+          "hash": "8f32bab48b6ee455f32cda69ad3c29e988d5cef05560b0b4035798d2e91c8a07"
+        },
+        {
+          "path": "scripts/prior-mission-waits.spec.mjs",
+          "hash": "1b8db14696d0e25c6b010e7b65acc65b7aa96db2f77e33f028216154fff62ca7"
+        }
+      ],
+      "readback": true
+    }
+  },
+  "limitations": [
+    "Runtime regressions and diagram render proof do not prove product API/PG16/UAT or storage recovery.",
+    "No production deployment."
+  ]
+}

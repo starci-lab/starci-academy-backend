@@ -1,0 +1,10 @@
+{
+  "version": "2.5.0-rc.16",
+  "packedFiles": 763,
+  "installedFiles": 758,
+  "archiveSha256": "bfb4332101802ce4ee2ad2360f96ca04317ddd98dc65c6068ea199b2e1784b94",
+  "exactPayloadAndInstalledBytes": true,
+  "manifestVerifiedUsingInstallerLFNormalization": true,
+  "fullSuite": "pending integrated-run-1",
+  "published": false
+}

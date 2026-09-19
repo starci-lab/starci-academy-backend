@@ -1,0 +1,59 @@
+{
+  "status": "sealed-review-only",
+  "scope": "Conditional current integration recovery, no history or mission-version bypass.",
+  "files": [
+    {
+      "path": "docs/reference/operators/runtime-serve.mdx",
+      "beforeSha256": "07da0bd51b770a72611bd7d2ee9fdcf01265f1d2166d34c44a48ef8ba9522a66",
+      "afterSha256": "04c061769e581c7b99362eaa11d907f49b203d8af4814489e030a4e62cd4b261"
+    },
+    {
+      "path": "docs/vi/reference/operators/runtime-serve.mdx",
+      "beforeSha256": "a05b10dc9530b8ed18ef49604f5d039b66755da1d7875936c9c3893982bb971b",
+      "afterSha256": "f6edc7b7b44c109e8f652bd8101871f47aa23c6fb95d8098908cd73c34231b68"
+    },
+    {
+      "path": "operators/runtime-serve/operator.md",
+      "beforeSha256": "9cbb926e70099113d81cbe238287e43a242cbf11fd6f45c7060fb9c0baa9269d",
+      "afterSha256": "9d5ecefc690337a31987c0a40d61e789c1b81964bbf81cc43ffb3f1de2bc2aed"
+    },
+    {
+      "path": "operators/runtime-serve/operator.vi.md",
+      "beforeSha256": "314584c9aff6d996c9bc8a6d2effb2b8d1ef0b2bae4e6b9bbed01b96579eb3e2",
+      "afterSha256": "a6eccb4448decd459dc64ce8434110d495184dc9d4830f2caa930cd76201ff49"
+    },
+    {
+      "path": "scripts/validate-chain.mjs",
+      "beforeSha256": "eb2dc3d2e335fb2eee060cdee66c8a4e9579ae282c3e05b1435c999f20131edf",
+      "afterSha256": "796b7e8f40240065e8c4bd04340a16b34b989b0a752251f1852bbb4e7f9d7564"
+    },
+    {
+      "path": "scripts/integration-recovery.mjs",
+      "beforeSha256": null,
+      "afterSha256": "d552ee1e88bd8429203d9a80d0253cccbf83d02b97af89523122a077c7e5c907"
+    },
+    {
+      "path": "scripts/integration-recovery.spec.mjs",
+      "beforeSha256": null,
+      "afterSha256": "75f2f8796da1129d8fcc65407e9f83429c0ad4b8f121c53f9fb4e66ab7584d3b"
+    }
+  ],
+  "validation": {
+    "log": "focused-final.log",
+    "logSha256": "9e6c8c391c9309c09e14601fb78c823665d6063933cf02aac0577d2dbc63a992",
+    "tests": 16,
+    "pass": 16,
+    "fail": 0,
+    "skip": 0,
+    "docs": 76,
+    "validators": [
+      "operator",
+      "templates"
+    ],
+    "actualProbe": "actual-accounting-probe.json",
+    "actualProbeBeforeMissionChange": "Default fulloperator acceptance/seals all4branches passed under then-current missionv3; synthetic in-memory choice only.",
+    "latestActualProbe": "actual-accounting-probe-final.json",
+    "currentLimit": "Current missionv4 invalid/unconfirmed and immutablev3 request acceptance compared againstv4; gate refuses correctly; this patch does not address mission-version validation."
+  },
+  "liveEdits": false
+}

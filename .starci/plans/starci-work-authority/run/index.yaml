@@ -1,0 +1,19 @@
+schema: starci/plan-run@1
+planDigest: d27e8c494368fff551b583a8ca9e3774b5bd71c866e83d7ccf5e7fa133bff0de
+status: awaiting-plan-approval
+jobs:
+  prepare-starci-work-authority:
+    workflow: prepare-work
+    status: planned
+    dependsOn: []
+    requests: {}
+    responses: {}
+    evidence: []
+  repair-starci-work-authority:
+    workflow: update-knowledge
+    status: planned
+    dependsOn:
+      - prepare-starci-work-authority
+    requests: {}
+    responses: {}
+    evidence: []

@@ -1,0 +1,13 @@
+{
+  "status": "complete",
+  "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-rc14-release\\final-host\\.claude",
+  "startedAt": "2026-09-07T02:32:09.116Z",
+  "runnerPid": 4112,
+  "playwrightHost": "D:\\Repositories\\starci-academy-backend",
+  "treeHash": "b689641166b5af5f2acf18beaee1bd40c6c4d6407257f3db13cca5533258774e",
+  "childPid": 47868,
+  "exitCode": 1,
+  "signal": null,
+  "endedAt": "2026-09-07T02:47:24.997Z",
+  "testedTreeUnchanged": true
+}

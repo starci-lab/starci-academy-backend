@@ -1,0 +1,17 @@
+{
+  "edit": {
+    "kind": "retry",
+    "cell": "19/1",
+    "rebind": {
+      "source": "12/1",
+      "writeRoots": [
+        "apps/agentos-controlplane/src/chatbot",
+        "apps/agentos-controlplane/src/config.ts",
+        "apps/agentos-controlplane/src/instance-db",
+        "src/modules/bussiness/agentos-chatbot",
+        "apps/agentos-controlplane/src/module-runtime/chatbot-runtime-projection.service.ts",
+        "src/modules/platform/databases/postgresql/primary/migrations/1790989400000-chatbot-dispatch-settlement.ts"
+      ]
+    }
+  }
+}

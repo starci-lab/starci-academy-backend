@@ -1,0 +1,5 @@
+schema: starci/plan-index@1
+id: starci-work-authority-publish
+goal: goal/index.yaml
+approval: approval/index.yaml
+run: run/index.yaml

@@ -1,0 +1,14 @@
+{
+  "version": "2.5.0-rc.8",
+  "head": "7e13c6b02622b3c06a6ed04eedd418749ad00215",
+  "remoteMain": "7e13c6b02622b3c06a6ed04eedd418749ad00215",
+  "fullTests": 449,
+  "skipped": 0,
+  "docs": 76,
+  "manifest": "release-manifest.json",
+  "manifestHash": "sha256:a6f21afceb35b4fddb001674a9671124b3ce2d0657c44a300421f41814ce9857",
+  "nativePreview": "native-preview-result.json",
+  "adoption": "adoption.json",
+  "productionDeploy": false,
+  "verifiedAt": "2026-09-06T14:32:44.2114538Z"
+}

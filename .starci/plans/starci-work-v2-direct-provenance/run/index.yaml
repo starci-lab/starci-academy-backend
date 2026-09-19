@@ -1,0 +1,27 @@
+schema: starci/plan-run@1
+planDigest: e02e020be8923e9fed2c02b002d7d59d67e139616e6c8a9f12fe0ab97b4a4fa6
+status: awaiting-plan-approval
+jobs:
+  prepare-direct-provenance-repair:
+    workflow: prepare-work
+    status: planned
+    dependsOn: []
+    requests: {}
+    responses: {}
+    evidence: []
+  repair-direct-provenance-validator:
+    workflow: update-knowledge
+    status: planned
+    dependsOn:
+      - prepare-direct-provenance-repair
+    requests: {}
+    responses: {}
+    evidence: []
+  publish-direct-provenance-repair:
+    workflow: publish-code
+    status: planned
+    dependsOn:
+      - repair-direct-provenance-validator
+    requests: {}
+    responses: {}
+    evidence: []

@@ -1,0 +1,9 @@
+{
+  "status": "complete",
+  "pid": 61552,
+  "startedAt": "2026-09-06T14:20:30.356Z",
+  "endedAt": "2026-09-06T14:29:25.972Z",
+  "exitCode": 0,
+  "signal": null,
+  "testedTreeUnchanged": true
+}

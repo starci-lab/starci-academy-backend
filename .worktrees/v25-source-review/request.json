@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "ownerSession": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905155158-nivo-87e4a31b",
+  "ownerTask": "01a06fc3-212e-7a41-94f1-93d4192a51de",
+  "baseline": "550cb449468780902bae1d12099cd0969790f523",
+  "authority": "Root approved isolated post-acceptance source review and typed source repair implementation; Astra owns RC.10 integration and root owns review/publication.",
+  "scope": ["source-only quality review of exact accepted source proofs", "typed source repair from actual in-boundary red gate", "preserved current authority, goal/member obligations, original accepted evidence and normal commits", "exact repaired BE input substitution into FE", "focused authentic lifecycle and negative tests"],
+  "excluded": ["live runtime writes", "peer ledger or product changes", "frozen RC.9 edits", "version changes", "publication"]
+}

@@ -1,0 +1,24 @@
+schema: starci/cell-response@1
+cell: prepare-work
+requestDigest: 9c1d2b2cb090c1c365c0d272f315ae1c35668dd8ada1e8a905e3ffbff4db3906
+goalDigest: 2b51dd3cfd1bbf6078ff99520546d574e7c3f71b3763e4bc3ea90f835dbd7b47
+scopeDigest: d4f027ac7ce41ea58ce38dd037a7b186ac7c942787f0ff29aa48f5d9c586e639
+op: workspace.manage
+operation: prepare
+status: pass
+outputs:
+  workRef: nivo.maintenance.starci-work-authority
+criteria:
+  - id: work-valid
+    status: pass
+    observation: The selected todo maintenance leaf exists with the approved Work-state authority boundary and the complete workspace validator reports no errors.
+    evidence:
+      - prepare-scope-review
+      - prepare-manifest
+artifacts:
+  - id: prepare-scope-review
+    path: maintenance/starci-work-authority/evidence/prepare-20260908/scope-review.md
+    sha256: fec1680aaa3945ccc4bf92675987f0b1cce0352ab47ecdc0991e5a2ac48c62af
+  - id: prepare-manifest
+    path: maintenance/starci-work-authority/evidence/prepare-20260908/manifest.yaml
+    sha256: 23738be74ef2fb20ddc8b5edf719d5895a4202526f4baaa02a51cffc59900cdf

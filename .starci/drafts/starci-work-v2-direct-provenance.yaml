@@ -1,0 +1,103 @@
+schema: starci/plan@1
+id: starci-work-v2-direct-provenance
+requestId: 01a08166-2769-7ce2-b45b-319c13a7dcc9
+originalRequest: duyệt nâng `.claude` , push
+finalOutcome: StarCi validates direct observed-source provenance on canonical work/node@2 records without requiring legacy repository resource manifests, while retaining all graph, ownership, evidence, acceptance and completion gates, then publishes the verified repair to origin/main.
+business:
+  action: reuse
+  outcome: Preserve the approved Accounting promise and all Nivo product behavior unchanged.
+  targets: []
+architecture:
+  action: reuse
+  outcome: Preserve the current StarCi runtime architecture and canonical direct-provenance Work v2 contract.
+  targets: []
+implementation:
+  action: change
+  outcome: Align the core workspace validator and regression fixtures with direct sourceRefs for work/node@2, rebuild generated artifacts, and commit only the scoped runtime repair.
+  targets:
+    - starci.maintenance.work-v2-direct-provenance
+uat:
+  action: reuse
+  outcome: Browser UAT is not applicable; verify with focused provenance regressions, the full runtime test suite and generated-build checks.
+  targets: []
+exclusions:
+  - No changes to Nivo backend or frontend product source.
+  - No repository resource manifests or underscore-prefixed Work directories.
+  - No relaxation of dangling-reference, ownership, cycle, dependency, evidence, acceptance or completion gates.
+  - No broad admission of invalid specifications.
+  - No deployment or package publication; publication is limited to a non-force push of the verified repair commit to origin/main.
+  - No deletion or modification of unrelated generated site directories.
+workflows:
+  - id: prepare-direct-provenance-repair
+    workflow: prepare-work
+    purpose: Create one bounded maintenance Work leaf for the direct-provenance validator repair.
+    input: The reproduced mismatch between the work/node@2 direct sourceRefs contract and core validator behavior.
+    output: A valid todo maintenance leaf defining the exact repair and proof obligations.
+    criteria:
+      - work-valid
+    workTargets:
+      - starci.maintenance.work-v2-direct-provenance
+    paths:
+      - .work/maintenance/work-v2-direct-provenance/index.yaml
+    resources:
+      - .work/maintenance/work-v2-direct-provenance/index.yaml
+    dependsOn: []
+    estimate:
+      minMinutes: 5
+      maxMinutes: 10
+      assumptions: The host Work remains valid and the new maintenance leaf has no product dependency.
+    selection:
+      requestQuote: nâng `.claude`
+      codeChange: false
+      verification: none
+      separateDeliverable: false
+  - id: repair-direct-provenance-validator
+    workflow: update-knowledge
+    purpose: Make canonical work/node@2 observed sources validate directly without legacy resource bindings and preserve every unrelated gate.
+    input: The accepted maintenance leaf and the isolated failing Accounting validation result.
+    output: A focused core validator change, updated regression fixtures, rebuilt artifacts and one verified local commit.
+    criteria:
+      - knowledge-valid
+    workTargets:
+      - starci.maintenance.work-v2-direct-provenance
+    paths:
+      - starci:core/index.mjs
+      - starci:tests/specifications.spec.mjs
+      - starci:.dist/manifest.json
+    resources: []
+    dependsOn:
+      - prepare-direct-provenance-repair
+    estimate:
+      minMinutes: 15
+      maxMinutes: 30
+      assumptions: Legacy work/node@1 compatibility can remain explicitly version-scoped and no unrelated validator refactor is needed.
+    selection:
+      requestQuote: nâng `.claude`
+      codeChange: true
+      verification: unit-component
+      separateDeliverable: true
+  - id: publish-direct-provenance-repair
+    workflow: publish-code
+    purpose: Publish the single accepted and tested runtime repair commit to origin/main.
+    input: The accepted update-knowledge result, exact commit SHA, clean scoped diff and verified remote identity.
+    output: Remote origin/main readback resolving to the exact accepted repair commit.
+    criteria:
+      - publish-pass
+      - work-valid
+    workTargets:
+      - starci.maintenance.work-v2-direct-provenance
+    paths: []
+    resources:
+      - https://github.com/starci183/starci-skills.git#main
+    dependsOn:
+      - repair-direct-provenance-validator
+    estimate:
+      minMinutes: 3
+      maxMinutes: 10
+      assumptions: The remote accepts a fast-forward non-force push and origin/main does not change after final verification.
+    selection:
+      requestQuote: push
+      codeChange: false
+      verification: none
+      separateDeliverable: true
+openQuestions: []
