@@ -1,4 +1,4 @@
-schema: work/node@2
+schema: work/node@1
 id: starci-next.business.srs.functional-requirements.identity.access-workspace
 kind: business
 required: true

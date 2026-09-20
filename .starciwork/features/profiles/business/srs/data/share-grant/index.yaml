@@ -1,4 +1,4 @@
-schema: work/node@2
+schema: work/node@1
 id: starci-next.business.srs.data.share-grant
 kind: business
 required: true

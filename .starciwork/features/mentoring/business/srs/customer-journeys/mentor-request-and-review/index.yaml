@@ -1,4 +1,4 @@
-schema: work/node@2
+schema: work/node@1
 id: starci-next.business.srs.customer-journeys.mentor-request-and-review
 kind: business
 required: true

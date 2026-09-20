@@ -1,4 +1,4 @@
-schema: work/node@2
+schema: work/node@1
 id: starci-next.features.challenges.business.srs.non-functional-requirements
 kind: business
 required: true

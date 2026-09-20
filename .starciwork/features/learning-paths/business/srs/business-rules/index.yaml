@@ -1,4 +1,4 @@
-schema: work/node@2
+schema: work/node@1
 id: starci-next.features.learning-paths.business.srs.business-rules
 kind: business
 required: true
