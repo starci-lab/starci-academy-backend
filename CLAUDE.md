@@ -2,7 +2,7 @@
 
 <!-- starci:prompt-entry -->
 Before planning, reading target source, or running a skill, read
-[`<Source>/.claude/SKILL.md`](.claude/SKILL.md) and follow its build and load order.
+[`<Source>/.claude/SKILL.md`](.claude/SKILL.md) and follow its load order — the runtime tree is canonical source, there is no build step.
 
 `<Source>` is the single host repository that owns this bootstrap and the `.claude` runtime. A routed
 repository checkout or Git worktree follows that Source; do not rebind `<Source>` to it or expect it to
