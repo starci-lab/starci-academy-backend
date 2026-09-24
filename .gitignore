@@ -148,6 +148,8 @@ scratch/
 !.stacks/**/*.enc
 !.stacks/*/infra/compose/**
 !.stacks/*/environment.json
+# The stack declaration (starci/application-stacks@1): services, hosts and custody PATHS only, no values.
+!.stacks/application-stacks.yaml
 # Reusable, credential-free development seed recipes.
 !.stacks/*/seeds/**/*.md
 !.stacks/*/seeds/**/*.ps1
