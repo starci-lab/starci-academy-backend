@@ -1,0 +1,5 @@
+Error: PLAN_GOAL_UNBOUND: the invocation must bind the current reviewed logical goal mapping
+    at acceptedCurrent (file:///D:/Repositories/starci-academy-backend/.worktrees/v25-proof-review-reentry/.claude/scripts/plan-history.mjs:67:35)
+    at async editForecast (file:///D:/Repositories/starci-academy-backend/.worktrees/v25-proof-review-reentry/.claude/scripts/plan-history.mjs:165:73)
+    at async previewRevision (file:///D:/Repositories/starci-academy-backend/.worktrees/v25-proof-review-reentry/.claude/scripts/plan-history.mjs:332:85)
+    at async file:///D:/Repositories/starci-academy-backend/[eval1]:3:5

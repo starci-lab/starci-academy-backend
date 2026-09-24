@@ -7,15 +7,23 @@
     "kind": "sibling",
     "directory": "nivo-charts",
     "gitRepository": "https://github.com/starci-lab/nivo-charts.git",
-    "branch": "main"
+    "branch": "main",
+    "gitPolicy": {
+      "worktreeBranches": "session-only",
+      "mutationBranch": "main",
+      "incomingBranchRefs": "merge-into-mutation-branch"
+    }
   },
   "context": {
     "instructions": [],
+    "contract": null,
+    "contractSource": null,
     "manifests": [
       "charts/agentos/Chart.yaml",
       "charts/expert-academy/Chart.yaml",
       "charts/mmo/Chart.yaml"
     ],
     "grammarId": null
-  }
+  },
+  "schemaRevision": 2
 }

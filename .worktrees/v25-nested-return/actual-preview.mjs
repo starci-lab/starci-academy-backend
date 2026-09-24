@@ -1,0 +1,3 @@
+import fs from 'node:fs';
+const flags={edit:{kind:'resume',cell:'26/1',integrity:{ref:'runtime/support/critique-26-integrity-disclosure.json',hash:'sha256:a0b088ebc5c928f15158bb9c2d45416f62c00f6c3cddf46c3d0066359787dd55'}}};
+fs.writeFileSync('accounting-flags.json',JSON.stringify(flags,null,2)+'\n');

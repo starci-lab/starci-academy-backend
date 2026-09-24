@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "kind": {
+    "key": "generic-agent",
+    "version": "1.0.0"
+  },
+  "workbench": {
+    "key": "generic-workbench",
+    "version": "1.0.0"
+  },
+  "test": {
+    "workbench": {
+      "key": "generic-sandbox",
+      "version": "1.0.0"
+    },
+    "contract": {
+      "key": "generic-sandbox-contract",
+      "version": "1.0.0"
+    },
+    "sandboxAdapter": {
+      "key": "declarative-scenario",
+      "version": "1.0.0"
+    },
+    "evidenceWidget": {
+      "key": "nivo.test-evidence",
+      "version": "1.0.0"
+    },
+    "scenarios": [
+      {
+        "key": "context-present",
+        "label": "Context readiness",
+        "description": "Verify the selected immutable context has business content.",
+        "fixture": {},
+        "assertions": [
+          {
+            "key": "context-present",
+            "label": "Selected context is not empty",
+            "source": "context",
+            "path": "",
+            "operator": "present",
+            "severity": "fail"
+          }
+        ]
+      }
+    ]
+  },
+  "operations": {
+    "replyContract": {
+      "key": "generic-reply",
+      "version": "1.0.0"
+    },
+    "taskContract": {
+      "key": "generic-task",
+      "version": "1.0.0"
+    },
+    "toolSchema": {
+      "key": "generic-actions",
+      "version": "1.0.0"
+    },
+    "proactiveWidget": {
+      "key": "nivo.generic-task",
+      "version": "1.0.0"
+    },
+    "setupFields": [
+      "businessIdentity",
+      "goal",
+      "audience",
+      "trigger",
+      "guardrail"
+    ]
+  },
+  "widgets": [
+    {
+      "component": "nivo.metric",
+      "version": "1.0.0",
+      "allowedProps": [
+        "label",
+        "value",
+        "trend"
+      ],
+      "actions": []
+    },
+    {
+      "component": "nivo.data-table",
+      "version": "1.0.0",
+      "allowedProps": [
+        "columns",
+        "rows",
+        "emptyLabel"
+      ],
+      "actions": [
+        {
+          "key": "select-row",
+          "inputKeys": [
+            "rowId"
+          ]
+        }
+      ]
+    },
+    {
+      "component": "nivo.action-form",
+      "version": "1.0.0",
+      "allowedProps": [
+        "title",
+        "fields",
+        "submitLabel"
+      ],
+      "actions": [
+        {
+          "key": "submit",
+          "inputKeys": [
+            "values"
+          ]
+        }
+      ]
+    },
+    {
+      "component": "nivo.test-evidence",
+      "version": "1.0.0",
+      "allowedProps": [
+        "status",
+        "summary",
+        "assertions"
+      ],
+      "actions": []
+    },
+    {
+      "component": "nivo.generic-task",
+      "version": "1.0.0",
+      "allowedProps": [
+        "taskId",
+        "title",
+        "summary",
+        "priority",
+        "status",
+        "evidence"
+      ],
+      "actions": [
+        {
+          "key": "open-task",
+          "inputKeys": [
+            "taskId"
+          ]
+        }
+      ]
+    }
+  ],
+  "config": {
+    "diagnostics": [
+      "context",
+      "sessions",
+      "widgets"
+    ]
+  }
+}

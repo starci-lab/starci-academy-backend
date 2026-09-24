@@ -1,0 +1,14 @@
+[
+  {
+    "id": "8c8b0002-0429-4268-aa15-000000000026",
+    "catalog_order_id": "8c8b0001-0429-4268-aa15-000000000026",
+    "instance_id": null,
+    "name": "Dedicated fictional Setup QA workspace",
+    "status": "active",
+    "external_workspace_ref": null,
+    "created_at": "2026-09-04T12:00:01.000Z",
+    "updated_at": "2026-09-04T12:00:01.000Z",
+    "namespace": "uat-module-setup-042915-26",
+    "is_uat": true
+  }
+]

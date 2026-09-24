@@ -1,0 +1,12 @@
+{
+  "status": "complete",
+  "baseline": "af89c78fc0035b179182a5c615ee38bc4e4742af",
+  "startedAt": "2026-09-07T00:55:24.401Z",
+  "treeHash": "a1b2964319026a7943ef55100f04767924448229fa5a6550a7192bcd8a6bb358",
+  "runnerPid": 44096,
+  "pid": 45888,
+  "endedAt": "2026-09-07T01:08:15.286Z",
+  "exitCode": 0,
+  "signal": null,
+  "testedTreeUnchanged": true
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "../../.claude/readiness/initialization/workspaces/ports.schema.json",
+  "version": 1,
+  "project": "form-copilot",
+  "offset": 74,
+  "applications": {
+    "main": 0
+  }
+}

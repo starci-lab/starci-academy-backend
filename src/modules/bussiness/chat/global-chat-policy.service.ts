@@ -1,6 +1,10 @@
 import {
-    Injectable 
+    Injectable,
+    Optional,
 } from "@nestjs/common"
+import {
+    ProSubscriptionService,
+} from "../pro-subscription/pro-subscription.service"
 import type {
     EntityManager 
 } from "typeorm"
@@ -35,13 +39,17 @@ export class GlobalChatPolicyService {
     @InjectPrimaryPostgreSQLEntityManager()
     private readonly entityManager: EntityManager,
     private readonly membershipService: MembershipService,
+    @Optional()
+    private readonly proSubscriptionService?: ProSubscriptionService,
     ) {}
 
     async assertCanRead(
         params: GlobalChatPolicyParams,
     ): Promise<ChatParticipationEntity | null> {
         const { conversationId, user } = params
-        if (!(await this.membershipService.isActive(user.id))) {
+        const entitled = await this.membershipService.isActive(user.id)
+            || await this.proSubscriptionService?.isActive(user.id)
+        if (!entitled) {
             throw new ChatMembershipRequiredException({
                 userId: user.id,
             })

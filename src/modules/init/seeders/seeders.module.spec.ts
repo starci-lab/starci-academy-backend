@@ -10,6 +10,15 @@ import {
 import {
     CourseParserService
 } from "./courses/parsers/course.service"
+import {
+    ConceptInsertService,
+} from "./concepts/insert.service"
+import {
+    ConceptParserService,
+} from "./concepts/parser.service"
+import {
+    ConceptSeederService,
+} from "./concepts/seeder.service"
 
 describe("SeedersModule",
     () => {
@@ -22,11 +31,17 @@ describe("SeedersModule",
                     ChallengeParserService,
                     ContentParserService,
                     CourseParserService,
+                    ConceptParserService,
+                    ConceptInsertService,
+                    ConceptSeederService,
                 ]))
                 expect(dynamicModule.exports).toEqual(expect.arrayContaining([
                     ChallengeParserService,
                     ContentParserService,
                     CourseParserService,
+                    ConceptParserService,
+                    ConceptInsertService,
+                    ConceptSeederService,
                 ]))
             })
     })

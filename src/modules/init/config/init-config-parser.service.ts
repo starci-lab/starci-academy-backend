@@ -180,7 +180,7 @@ export class InitConfigParserService {
         return {
             enabled,
             courses: {
-                enabled,
+                enabled: enabled && Object.keys(tracks).length > 0,
                 tracks,
                 flashcard: {
                     enabled: flashcardEnabled,
@@ -189,6 +189,7 @@ export class InitConfigParserService {
                     enabled: interviewEnabled,
                 },
             },
+            concepts: seed?.concepts ?? false,
             cv: seed?.cv ?? false,
             foundations: seed?.foundations ?? false,
             headhunting: seed?.headhunting ?? false,

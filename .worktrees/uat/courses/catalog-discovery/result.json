@@ -1,0 +1,12 @@
+{
+  "version": "7.0.0",
+  "feature": "courses",
+  "flow": "catalog-discovery",
+  "snapshotFingerprint": "sha256:52cf0c44926a31a73c54d8317ab9931ffa0865836981809d739646761e6b9dac",
+  "outcome": "passed",
+  "evidenceRefs": [
+    ".workspaces/local/migration-v6/worktrees-central-20260829/uat-reviews/courses/catalog-discovery/runs/run-20260829-03/result.json",
+    ".workspaces/local/migration-v6/worktrees-central-20260829/uat-reviews/courses/catalog-discovery/runs/run-20260829-03/screenshots/01-desktop-grid.full.png",
+    ".workspaces/local/migration-v6/worktrees-central-20260829/uat-reviews/courses/catalog-discovery/runs/run-20260829-03/screenshots/02-compact-list.full.png"
+  ]
+}

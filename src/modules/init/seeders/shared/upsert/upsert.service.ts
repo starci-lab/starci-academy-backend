@@ -54,6 +54,19 @@ export class UpsertService {
         private readonly winstonService: WinstonService,
     ) { }
 
+    /**
+     * Run a complete domain sync with one transaction-scoped upsert service.
+     * A failure in any parent, translation, or child write rolls back the whole snapshot.
+     */
+    async transaction<Result>(
+        work: (service: UpsertService) => Promise<Result>,
+    ): Promise<Result> {
+        return this.entityManager.transaction(async (entityManager) => work(
+            new UpsertService(entityManager,
+                this.winstonService),
+        ))
+    }
+
     /** Extract a human-readable entity name from an EntityTarget. */
     private entityName(
         target: EntityTarget<unknown>,

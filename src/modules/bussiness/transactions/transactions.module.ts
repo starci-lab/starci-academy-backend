@@ -18,8 +18,14 @@ import {
 import {
     TransactionGrantService,
 } from "./atomic/transaction-grant.service"
+import {
+    ProSubscriptionModule,
+} from "../pro-subscription/pro-subscription.module"
 
 @Module({
+    imports: [
+        ProSubscriptionModule,
+    ],
 })
 /**
  * Module for transaction management.

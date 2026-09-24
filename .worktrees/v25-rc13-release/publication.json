@@ -1,0 +1,21 @@
+{
+  "publishedAt": "2026-09-07T01:56:23.1993888Z",
+  "version": "2.5.0-rc.13",
+  "commit": "22490eb85dedcd0894b59c648cac2b8b37b419af",
+  "remote": "https://github.com/starci183/starci-skills.git",
+  "ref": "refs/heads/main",
+  "remoteReadbackMatches": true,
+  "tests": 583,
+  "passed": 583,
+  "skipped": 0,
+  "generatedDocs": 78,
+  "testedTreeUnchanged": true,
+  "proof": "integrated-run-1/result.json",
+  "package": "final-package/readback.json",
+  "sharedReview": "runtime/history/restatement-reviews/de69b6c8d84be747b19ec6c038244e0b7d0d59f27a19180ab2487ed0fb7eaee8.json",
+  "limitations": [
+    "Runtime release, not completion of product modules or product UAT",
+    "interface.draw remains separate in-progress work",
+    "No production deploy"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "status": "sealed",
+  "baseline": {
+    "manifest": "fidelity-manifest.json",
+    "sha256": "sha256:def5feabc194a51d1fb2d5186db3b3491a90b37625076fe4119f8f6d5b270428"
+  },
+  "candidate": "D:\\Repositories\\nivo-backend\\.worktrees\\sessions\\20260905155158-nivo-87e4a31b\\runtime\\support\\frontend-art-fidelity\\candidate\\.claude",
+  "files": [
+    {
+      "path": "docs/reference/operators/interface-draw.mdx",
+      "before": "sha256:e6a194fe983d14240b6ab42c5afe14e9f7a59ae38d832a172ebbd7a0771b9aa2",
+      "after": "sha256:5ee23ba85e8bcd298e238c7ee3ffa6331cf8836af28bd79265ecaa11b09f27de"
+    },
+    {
+      "path": "docs/vi/reference/operators/interface-draw.mdx",
+      "before": "sha256:a156022c21ede8e7a893fcf19da8064c7003f71c2c51e4de8be58fdd5aab7f18",
+      "after": "sha256:88f38b6bff650f96d4ccbe8da5c3d4cff5c3cb781c9f4e030eae0de679e38cfc"
+    },
+    {
+      "path": "operators/interface-draw/operator.md",
+      "before": "sha256:ee5737195ce7d4d4129b1bc89959eda640b5ec66c64d838af31cb13f91bb4cce",
+      "after": "sha256:2393c7ef18d614d6d82daa122efb8e596d311588ee3884d0a11c8dead1e5aad1"
+    },
+    {
+      "path": "operators/interface-draw/operator.vi.md",
+      "before": "sha256:eb5df88c089df8efc413de12bb822dd7a822b0468f900c4cabf41c661e2efccc",
+      "after": "sha256:fac301106fd20deb7ef4cf1b341c9809fc9bceb8b2ddbcf583597ed7d24eda7d"
+    }
+  ],
+  "deleted": [],
+  "reason": "Declare the existing read-only registry use at the actual Grammar binding step; no resource grant or runtime behavior added.",
+  "proof": {
+    "earlyGuards": {
+      "ref": "alias-repair-early-guards.log",
+      "sha256": "sha256:8dd6e837f50f77461776c8cde95946f4c9b5016147df7ca1f4e18cdc229d7b5d",
+      "exitCode": 0,
+      "checks": [
+        "routing",
+        "resources",
+        "knowledge citations",
+        "aliases",
+        "generated aliases",
+        "operators",
+        "helpers",
+        "defaults",
+        "operator index",
+        "operator briefs",
+        "helper index",
+        "helper briefs",
+        "templates",
+        "generated docs"
+      ]
+    },
+    "fullSuite": "Root owns integrated release; no full-suite claim"
+  },
+  "sealedAt": "2026-09-07T03:21:23.554Z"
+}

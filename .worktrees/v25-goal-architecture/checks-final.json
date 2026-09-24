@@ -1,0 +1,34 @@
+[
+  {
+    "args": [
+      "--test",
+      "scripts/scope-presentation.spec.mjs"
+    ],
+    "exitCode": 0
+  },
+  {
+    "args": [
+      "scripts/validate-resources.mjs"
+    ],
+    "exitCode": 0
+  },
+  {
+    "args": [
+      "scripts/validate-templates.mjs"
+    ],
+    "exitCode": 0
+  },
+  {
+    "args": [
+      "scripts/validate-knowledge-citations.mjs"
+    ],
+    "exitCode": 0
+  },
+  {
+    "args": [
+      "docs/scripts/generate-docs.mjs",
+      "--check"
+    ],
+    "exitCode": 0
+  }
+]

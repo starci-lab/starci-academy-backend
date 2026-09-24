@@ -1,0 +1,29 @@
+{
+  "status": "focused-passed",
+  "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v24-parallel-resume\\.claude",
+  "files": [
+    {
+      "path": "scripts/plan-history.mjs",
+      "before": "dd06970a43763959d2aaca92acd20ddb208639d70a731e82b857091aa9dfcf0c",
+      "after": "61c4aeb17e1bd93be654f826d8d4a7a32a2b740b0a70e388c3ff70d33e9ca450"
+    },
+    {
+      "path": "scripts/mission-history.spec.mjs",
+      "before": "f43195efaf8aed07ae9fe5d0f0424f8826a0ff2c30ef01c8940bed8049ed6e76",
+      "after": "b4c15998c06d2301cf658fe842721f6066b5378e7b16b3db07ecbb144a69f63e"
+    }
+  ],
+  "tests": {
+    "command": "node --test scripts/mission-history.spec.mjs scripts/plan-history.spec.mjs scripts/plan-edit.spec.mjs scripts/plan-handoff.spec.mjs",
+    "tests": 12,
+    "pass": 12,
+    "fail": 0,
+    "skip": 0,
+    "log": "focused.log",
+    "sha256": "fc6a8957767afbeedcaa28943cdf98124591fba9957dd35f38e75b763c4760b6"
+  },
+  "actualReadonlyProbe": {
+    "log": "actual-chatbot-readonly.log",
+    "result": "Refuses actual running 9/1 dispatch skeleton, which was opened after the initial blocker report. No actual ledger writes."
+  }
+}

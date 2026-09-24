@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "session": "20260905-150800-nivo-operations-fix",
+  "branch": "step-6/parallel-1",
+  "runId": "20260905-082130-793eaad",
+  "commit": "793eaad87513b32c799070a416fb30565c27c340",
+  "servedHead": "9693eee1dc3da4c4af7c0d20f979b59a0273126e",
+  "namespace": "uat-workspace-recovery-20260905-082130-793eaad",
+  "lanes": [
+    {
+      "lane": "contract",
+      "verdict": "pass",
+      "evidenceRefs": [
+        "response/data/cases.json",
+        "response/artifacts/api-output.txt"
+      ],
+      "statement": "all six cases the runner named held (6 passed, 6 total, exit 0), namespace-clean included: myAgentWorkspaceOperations now answers the owned unprovisioned workspace with success and an empty item list"
+    },
+    {
+      "lane": "data",
+      "verdict": "pass",
+      "evidenceRefs": [
+        "response/data/verdicts.json",
+        "response/artifacts/read-back.json"
+      ],
+      "statement": "the suite created no new record: it read the control centre and operations history of all three seeded workspaces through the API and drove one resume mutation on the owned, in-namespace due workspace, so nothing landed outside uat-workspace-recovery-20260905-082130-793eaad; the reads are kept in response/artifacts/read-back.json (owner: unprovisioned instance null and history success with 0 items, healthy recovery healthy, due recovery idle with RECOVERY_TARGET_UNAVAILABLE; stranger: the one not-found identity on both queries of the due workspace)"
+    },
+    {
+      "lane": "lifecycle",
+      "verdict": "pass",
+      "evidenceRefs": [
+        "response/data/verdicts.json",
+        "response/artifacts/store-after-cleanup.txt"
+      ],
+      "statement": "the namespace was verified read-only through the API, then removed by the seed's own rollback (twelve ids by exact id; the scheduler created no operation row, having stopped at RECOVERY_TARGET_UNAVAILABLE before dispatch, response/artifacts/store-before-cleanup.txt) and nothing else; every id counts zero afterwards; run records are kept"
+    }
+  ],
+  "cases": {
+    "runId": "20260905-082130-793eaad",
+    "flow": "workspace-recovery",
+    "commit": "793eaad87513b32c799070a416fb30565c27c340",
+    "servedHead": "9693eee1dc3da4c4af7c0d20f979b59a0273126e",
+    "servedContainsCommit": true,
+    "receiptRef": "step-4/parallel-1/response/response.md",
+    "endpoint": "http://127.0.0.1:3068/graphql",
+    "command": "npm run test:e2e:live -- --testMatch \"**/agentos-workspace-recovery.live-spec.ts\" --verbose --json --outputFile=response/artifacts/jest-result.json",
+    "commandRef": "package.json#scripts.test:e2e:live",
+    "exitCode": 0,
+    "outputRef": "response/artifacts/api-output.txt",
+    "namespace": "uat-workspace-recovery-20260905-082130-793eaad",
+    "account": {
+      "alias": "owner",
+      "username": "uat-workspace-recovery-owner-131026",
+      "credentialName": "uat-shared",
+      "credentialRef": ".stacks/dev/secrets/uat.enc",
+      "plaintextRecorded": false
+    },
+    "startedAt": "2026-09-05T08:30:45Z",
+    "cases": [
+      {
+        "caseId": "control-centre-null-instance: answers an owned workspace with no instance as unprovisioned",
+        "request": "POST /graphql myAgentWorkspaceControlCenter(workspaceId)",
+        "status": "pass",
+        "assertion": "answers an owned workspace with no instance as unprovisioned",
+        "durationMs": 16,
+        "evidenceRef": "response/artifacts/api-output.txt#L11"
+      },
+      {
+        "caseId": "recover-not-owner-refused: refuses a stranger's read and recovery intent with the one not-found identity",
+        "request": "POST /graphql myAgentWorkspaceControlCenter, manageAgentWorkspace(resume), myAgentWorkspaceOperations as the stranger",
+        "status": "pass",
+        "assertion": "refuses a stranger's read and recovery intent with the one not-found identity",
+        "durationMs": 52,
+        "evidenceRef": "response/artifacts/api-output.txt#L12"
+      },
+      {
+        "caseId": "recover-owned-admitted: admits the owner's recovery intent and reads the recovery row back once Core has answered",
+        "request": "POST /graphql manageAgentWorkspace(input: {agentWorkspaceId, action: resume}) then myAgentWorkspaceControlCenter polled until Core answers",
+        "status": "pass",
+        "assertion": "admits the owner's recovery intent and reads the recovery row back once Core has answered",
+        "durationMs": 18174,
+        "evidenceRef": "response/artifacts/api-output.txt#L13"
+      },
+      {
+        "caseId": "core-failure-reversed: records a Core failure on the recovery row, adopts no replacement target and leaves the workspace unchanged",
+        "request": "POST /graphql myAgentWorkspaceControlCenter and myAgentWorkspaceOperations after the Core answer",
+        "status": "pass",
+        "assertion": "records a Core failure on the recovery row, adopts no replacement target and leaves the workspace unchanged",
+        "durationMs": 10,
+        "evidenceRef": "response/artifacts/api-output.txt#L14"
+      },
+      {
+        "caseId": "recover-healthy-fenced: leaves a healthy workspace's recovery row untouched across the Core answer",
+        "request": "POST /graphql myAgentWorkspaceControlCenter and myAgentWorkspaceOperations of the healthy workspace",
+        "status": "pass",
+        "assertion": "leaves a healthy workspace's recovery row untouched across the Core answer",
+        "durationMs": 19,
+        "evidenceRef": "response/artifacts/api-output.txt#L15"
+      },
+      {
+        "caseId": "namespace-clean: leaves every workspace of the namespace as the seed placed it apart from the one intent the journey admitted",
+        "request": "POST /graphql myAgentWorkspaceControlCenter and myAgentWorkspaceOperations of every workspace of the namespace",
+        "status": "pass",
+        "assertion": "leaves every workspace of the namespace as the seed placed it apart from the one intent the journey admitted",
+        "durationMs": 54,
+        "evidenceRef": "response/artifacts/api-output.txt#L16"
+      }
+    ]
+  },
+  "verdicts": {
+    "runId": "20260905-082130-793eaad",
+    "commit": "793eaad87513b32c799070a416fb30565c27c340",
+    "servedHead": "9693eee1dc3da4c4af7c0d20f979b59a0273126e",
+    "namespace": "uat-workspace-recovery-20260905-082130-793eaad",
+    "flowRoot": "D:Repositoriesstarci-academy-backend.worktreese2eworkspace-recovery",
+    "resultRef": ".worktrees/e2e/workspace-recovery/runs/20260905-082130-793eaad/result.json",
+    "latestRef": ".worktrees/e2e/workspace-recovery/latest.json",
+    "historyRef": ".worktrees/e2e/workspace-recovery/history.md",
+    "lanes": [
+      {
+        "lane": "contract",
+        "verdict": "pass",
+        "evidenceRefs": [
+          "response/data/cases.json",
+          "response/artifacts/api-output.txt"
+        ],
+        "statement": "all six cases the runner named held (6 passed, 6 total, exit 0), namespace-clean included: myAgentWorkspaceOperations now answers the owned unprovisioned workspace with success and an empty item list"
+      },
+      {
+        "lane": "data",
+        "verdict": "pass",
+        "evidenceRefs": [
+          "response/data/verdicts.json",
+          "response/artifacts/read-back.json"
+        ],
+        "statement": "the suite created no new record: it read the control centre and operations history of all three seeded workspaces through the API and drove one resume mutation on the owned, in-namespace due workspace, so nothing landed outside uat-workspace-recovery-20260905-082130-793eaad; the reads are kept in response/artifacts/read-back.json (owner: unprovisioned instance null and history success with 0 items, healthy recovery healthy, due recovery idle with RECOVERY_TARGET_UNAVAILABLE; stranger: the one not-found identity on both queries of the due workspace)"
+      },
+      {
+        "lane": "lifecycle",
+        "verdict": "pass",
+        "evidenceRefs": [
+          "response/data/verdicts.json",
+          "response/artifacts/store-after-cleanup.txt"
+        ],
+        "statement": "the namespace was verified read-only through the API, then removed by the seed's own rollback (twelve ids by exact id; the scheduler created no operation row, having stopped at RECOVERY_TARGET_UNAVAILABLE before dispatch, response/artifacts/store-before-cleanup.txt) and nothing else; every id counts zero afterwards; run records are kept"
+      }
+    ],
+    "records": [],
+    "cleanup": {
+      "performed": true,
+      "verifiedReadOnly": true,
+      "namespace": "uat-workspace-recovery-20260905-082130-793eaad",
+      "runRecordsDeleted": false
+    }
+  }
+}

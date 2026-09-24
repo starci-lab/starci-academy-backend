@@ -63,6 +63,9 @@ import {
 import {
     UserService 
 } from "../user/user.service"
+import {
+    EffectiveLearnerAccessService,
+} from "../pro-subscription/effective-learner-access.service"
 import type {
     BuildSystemPromptParams,
     PageGroundingResult,
@@ -175,6 +178,7 @@ export class ContentAiService {
     private readonly s3ReadService: S3ReadService,
     private readonly s3NameResolverService: S3NameResolverService,
     private readonly userService: UserService,
+    private readonly effectiveLearnerAccessService: EffectiveLearnerAccessService,
     private readonly contentRagRetrievalService: CourseRagRetrievalService,
     ) {}
 
@@ -397,7 +401,7 @@ export class ContentAiService {
         const courseId = row?.module?.course?.id
         if (isPremium) {
             const entitled = courseId
-                ? await this.userService.checkEnrollment(userId,
+                ? await this.effectiveLearnerAccessService.hasCourseAccess(userId,
                     courseId)
                 : false
             if (!entitled) {
@@ -449,7 +453,7 @@ export class ContentAiService {
     // (also doubles as the additive BASE layer's key -- resolved ONCE here)
         const courseId = await this.resolveCourseIdOfTask(taskId)
         const entitled = courseId
-            ? await this.userService.checkEnrollment(userId,
+            ? await this.effectiveLearnerAccessService.hasCourseAccess(userId,
                 courseId)
             : false
         if (!entitled) {
@@ -493,7 +497,7 @@ export class ContentAiService {
     // gate (also doubles as the additive BASE layer's key -- resolved ONCE here)
         const courseId = await this.resolveCourseIdOfChallenge(challengeId)
         const entitled = courseId
-            ? await this.userService.checkEnrollment(userId,
+            ? await this.effectiveLearnerAccessService.hasCourseAccess(userId,
                 courseId)
             : false
         if (!entitled) {
@@ -537,7 +541,7 @@ export class ContentAiService {
     // gate (also doubles as the additive BASE layer's key -- resolved ONCE here)
         const courseId = await this.resolveCourseIdOfQuiz(quizId)
         const entitled = courseId
-            ? await this.userService.checkEnrollment(userId,
+            ? await this.effectiveLearnerAccessService.hasCourseAccess(userId,
                 courseId)
             : false
         if (!entitled) {
@@ -606,9 +610,9 @@ export class ContentAiService {
         courseId,
         question,
     }: ResolveBaseGroundingParams): Promise<string> {
-        const enrolled = await this.userService.checkEnrollment(userId,
+        const entitled = await this.effectiveLearnerAccessService.hasCourseAccess(userId,
             courseId)
-        if (enrolled) {
+        if (entitled) {
             const { excerpt } =
         await this.contentRagRetrievalService.retrieveCourseExcerpt({
             courseId,

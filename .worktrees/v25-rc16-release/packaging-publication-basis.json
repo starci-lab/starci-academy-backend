@@ -1,0 +1,96 @@
+{
+  "at": "2026-09-07T04:58:38.415Z",
+  "manifest": "D:\\Repositories\\nivo-backend\\.worktrees\\sessions\\20260905155158-nivo-87e4a31b\\runtime\\support\\art-installed-doctor\\provisional-manifest.json",
+  "delta": [
+    {
+      "path": "bin/starci-skills.mjs",
+      "before": "sha256:eb0170e0cb89c8fde4c6cc1087841a797fd9fb44f1a03c127bc00742e905beea",
+      "after": "sha256:523eba18df5d0f521eec6096e39c50c07dfca2639233f67dcf0dbd82eab7b4d3"
+    },
+    {
+      "path": "scripts/install-cli.spec.mjs",
+      "before": "sha256:d5f0e2f16505bdf42a7230c7846d0ea5943a534db4dc9d0f24ed56599b5345ac",
+      "after": "sha256:737c391e7c8282d1a0a70cd3fa3a54a438777b21d4217730589d15f33c248f16"
+    }
+  ],
+  "focusedProof": {
+    "installerFocused": {
+      "ref": "installer-focused.log",
+      "sha256": "sha256:584fe57e76716d65e382c6ada2572ed53f5dd375c999f506ce86c8bfd841aeed",
+      "exitCode": 0,
+      "tests": 15,
+      "pass": 15,
+      "skipped": 0
+    },
+    "packedInstalledTargeted": {
+      "ref": "packed-proof-2/installed-fixture.log",
+      "sha256": "sha256:ac2c297a3a55a6bf1811b2af80143ed03c7299c9976b4f4374621623c8ba165d",
+      "exitCode": 0,
+      "tests": 18,
+      "pass": 18,
+      "skipped": 0
+    },
+    "package": {
+      "path": "D:\\Repositories\\nivo-backend\\.worktrees\\sessions\\20260905155158-nivo-87e4a31b\\runtime\\support\\art-installed-doctor\\packed-proof-2\\starci-skills-2.5.0-rc.16.tgz",
+      "sha256": "sha256:eca7384e5b4418f1efc0001c622c97d0313d87146533c8ac593e7cc854b512ad",
+      "files": 763
+    },
+    "installed": {
+      "root": "D:\\Repositories\\nivo-backend\\.worktrees\\sessions\\20260905155158-nivo-87e4a31b\\runtime\\support\\art-installed-doctor\\packed-proof-2\\installed\\.claude",
+      "verifiedFiles": 762,
+      "metadataExact": true
+    },
+    "fullDoctor": {
+      "status": "running",
+      "ownerHandle": 39304,
+      "pid": 57604
+    }
+  },
+  "installedDoctorActual": {
+    "status": "failed",
+    "startedAt": "2026-09-07T04:20:44.744Z",
+    "runnerPid": 47752,
+    "root": "D:\\Repositories\\nivo-backend\\.worktrees\\sessions\\20260905155158-nivo-87e4a31b\\runtime\\support\\art-installed-doctor\\candidate\\.claude",
+    "stages": [
+      {
+        "name": "pack",
+        "exitCode": 0
+      },
+      {
+        "name": "unpack",
+        "exitCode": 0
+      },
+      {
+        "name": "init",
+        "exitCode": 0
+      },
+      {
+        "name": "installed-fixture",
+        "exitCode": 0
+      },
+      {
+        "name": "full-doctor",
+        "exitCode": 1,
+        "signal": null
+      }
+    ],
+    "archive": {
+      "path": "D:\\Repositories\\nivo-backend\\.worktrees\\sessions\\20260905155158-nivo-87e4a31b\\runtime\\support\\art-installed-doctor\\packed-proof-2\\starci-skills-2.5.0-rc.16.tgz",
+      "sha256": "sha256:eca7384e5b4418f1efc0001c622c97d0313d87146533c8ac593e7cc854b512ad",
+      "files": 763
+    },
+    "installed": {
+      "root": "D:\\Repositories\\nivo-backend\\.worktrees\\sessions\\20260905155158-nivo-87e4a31b\\runtime\\support\\art-installed-doctor\\packed-proof-2\\installed\\.claude",
+      "verifiedFiles": 762,
+      "metadataExact": true
+    },
+    "doctorPid": 57604,
+    "exitCode": 1,
+    "error": "Error: Full installed doctor failed\n    at file:///D:/Repositories/nivo-backend/.worktrees/sessions/20260905155158-nivo-87e4a31b/runtime/support/art-installed-doctor/run-packed.mjs:22:275\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "endedAt": "2026-09-07T04:37:50.500Z"
+  },
+  "authority": "User explicitly instructed: op fail also record and ignore, no more testing, record in TODO.md.",
+  "todo": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905155158-nivo-87e4a31b/TODO.md",
+  "claimsFullDoctorPass": false,
+  "claimsProductUatPass": false
+}

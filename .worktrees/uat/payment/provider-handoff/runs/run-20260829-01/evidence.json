@@ -1,0 +1,95 @@
+{
+  "version": "7.0.1",
+  "runId": "payment-provider-handoff-20260829-01",
+  "scope": {
+    "status": "frozen",
+    "unit": "flow",
+    "targetRefs": [
+      "surface:payment",
+      "flow:payment-provider-handoff"
+    ],
+    "inclusionRefs": [
+      "payment-review",
+      "provider-handoff-pending",
+      "provider-open-failure-recovery",
+      "webhook-verification"
+    ],
+    "exclusionRefs": [
+      "cart-content-reconstruction",
+      "course-detail",
+      "pricing-policy",
+      "live-financial-transaction"
+    ],
+    "writeRoots": [
+      "D:/Repositories/starci-academy-fe/src/components/overlays/commerce/CheckoutOverlay",
+      "D:/Repositories/starci-academy-fe/src/components/blocks/commerce/CartBlock",
+      "D:/Repositories/starci-academy-fe/src/messages",
+      "D:/Repositories/starci-academy-backend/.worktrees/uat/payment/provider-handoff"
+    ],
+    "externalMutation": false,
+    "approvalRef": null,
+    "completionProofRefs": [
+      "frontend-focused-tests",
+      "responsive-browser-screenshots",
+      "payos-webhook-http-e2e"
+    ],
+    "dimensions": [
+      {
+        "key": "frontend.ux-ui.change-level",
+        "value": "reconstruct",
+        "authorityRef": "request:current"
+      }
+    ],
+    "ambiguityRefs": []
+  },
+  "browserSessionRef": "iab:localhost-payment-uat",
+  "accountRef": "local-existing-authenticated-test-user",
+  "behavior": {
+    "outcome": "passed",
+    "evidence": [
+      "npm test -- --run CheckoutOverlay/component.spec.tsx CartBlock/index.spec.tsx: 2 files, 6 tests passed",
+      "npm run typecheck: passed",
+      "targeted eslint --max-warnings=0: passed",
+      "npm run test:e2e -- src/tests/e2e/payos-webhook.e2e-spec.ts: 1 suite, 3 tests passed"
+    ],
+    "webhookAssertions": [
+      "invalid signature returns 500 and does not enqueue reconciliation",
+      "verified pending PayOS POST /v1/payos/webhook returns 200 and enqueues the fast reconciliation lane once",
+      "probe, unsuccessful event, unknown reference, and replayed succeeded transaction return 200 without enqueue"
+    ],
+    "note": "The isolated E2E process exited 0 after stack cleanup; Jest reported a non-failing open-handle diagnostic after completion."
+  },
+  "ux": {
+    "outcome": "passed",
+    "evidence": [
+      "one supported PayOS method is presented as a selected fact rather than a fake choice",
+      "price, provider consequence, webhook-pending boundary, access consequence, primary handoff, and recovery are in decision order",
+      "missing checkout URL keeps the modal open, preserves the basket, announces a recoverable error, and permits retry",
+      "the frontend never claims payment success from the return URL"
+    ]
+  },
+  "ui": {
+    "outcome": "passed",
+    "aiFirst": "No AI synthesis was added to a simple payment decision.",
+    "rulesFirst": "Heading hierarchy, ordered consequences, dialog naming, primary/secondary actions, and responsive persistence passed visual and DOM review.",
+    "grammarLast": "Core modal uses one surface boundary, compact insets, exact separators, one accent-selected method, and stack-to-grid responsive treatment.",
+    "screenshots": [
+      {
+        "viewport": "wide:1440x1000",
+        "ref": ".worktrees/uat/payment/provider-handoff/runs/run-20260829-01/screenshots/01-wide-payment.png",
+        "sha256": "d18034281c1b723c5857ee8226cb08eb23bad6b5b21cfdb530520c43676b22a3"
+      },
+      {
+        "viewport": "intermediate:1024x768",
+        "ref": ".worktrees/uat/payment/provider-handoff/runs/run-20260829-01/screenshots/02-intermediate-payment.png",
+        "sha256": "a8b7e15bf7bc824294320b033cfe5a32bb0fcf883fa322950303785ab2e2bbc0"
+      },
+      {
+        "viewport": "compact:390x844",
+        "ref": ".worktrees/uat/payment/provider-handoff/runs/run-20260829-01/screenshots/03-compact-payment.png",
+        "sha256": "bfcdd787b1cf11bf9c51ab97046ad030a3a49ecfb7389d61f31d323543993e3f"
+      }
+    ]
+  },
+  "outcome": "passed"
+}

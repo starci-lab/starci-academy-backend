@@ -1,0 +1,41 @@
+# Copy this payload into ../runtime/config/seed.yaml for one full GitMount reseed.
+# Restore the runtime file to enable:false immediately after the init receipt succeeds.
+enable: true
+mode: none
+seed:
+    enabled: true
+    courses:
+        fullstack-mastery: { modules: all, milestones: true, flashcards: true, interview: true }
+        system-design-mastery: { modules: all, milestones: true, flashcards: true, interview: true }
+        devops-mastery: { modules: all, milestones: true, flashcards: true, interview: true }
+        ai-llm-mastery: { modules: all, milestones: true, flashcards: true, interview: true }
+        claude-mastery: { modules: all, milestones: true, flashcards: true, interview: true }
+    foundations: true
+    codingProblems: true
+    aiModels: true
+    cv: true
+    headhunting: true
+    subscriptions: true
+    advertisements: true
+    changelog: true
+    blog: true
+    achievements: true
+    mockInterviewEq: true
+sync:
+    enabled: true
+    reindex: all
+    sinks:
+        cdn: true
+        elasticsearch: true
+        repo: false
+    courses:
+        fullstack-mastery: all
+        system-design-mastery: all
+        devops-mastery: all
+        ai-llm-mastery: all
+        claude-mastery: all
+    foundations: true
+    codingProblems: true
+    flashcards: true
+    headhunting: true
+    cv: true

@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "id": "AG-004",
+  "title": "Lập bộ hành trình và fixture kiểm chứng AgentOS",
+  "project": "nivo",
+  "scope": "agentos",
+  "priority": "P0",
+  "phase": 1,
+  "type": "plan",
+  "status": "blocked",
+  "statusMeaning": "Waiting for prerequisite evidence; no execution has started.",
+  "dependsOn": [
+    "AG-001"
+  ],
+  "why": "Turn the included business flows into API and browser units with owner/stranger accounts, representative states and an exact cleanup boundary.",
+  "decisionQuestions": [],
+  "acceptance": [
+    "Include AgentOS purchase/provision/access plus exactly Chatbot and Accounting create/setup/test/apply/operate, failure, handoff, recovery and denial paths.",
+    "Separate DDL/registry tests from served API tests and external-provider tests.",
+    "Every flow has required state, input, expected persisted outcome, readback, failure behavior and cleanup.",
+    "Reusable history is imported through producer-import only when its bytes and bound heads validate."
+  ],
+  "evidenceRefs": [
+    "source:.worktrees/businesses/features/nivo-setup-fixture-isolation/model.json",
+    "be:src/tests/e2e/nivo/agentos-module-test-evidence.e2e-spec.ts",
+    "be:src/tests/e2e/nivo/agentos-module-operations.e2e-spec.ts",
+    "source:.claude/tests/evidence/20260905-nivo-reachability-fix.md"
+  ],
+  "testTargets": [],
+  "goalDraft": {
+    "version": 1,
+    "language": "vi",
+    "goal": "Lập bộ hành trình và fixture kiểm chứng AgentOS",
+    "includes": [
+      "Lập bộ hành trình và fixture kiểm chứng AgentOS",
+      "Exactly two modules: Chatbot and Accounting; supporting AgentOS flows only."
+    ],
+    "excludes": [
+      "Template App and Expert Academy",
+      "Unrelated source, shared credentials and production deployment",
+      "Treating a fixture, a mock or an old receipt as a completed live action",
+      "Standalone Scheduling, Knowledge Hub, Sales Copilot and broad SMB workbenches"
+    ],
+    "doneWhen": [
+      {
+        "producedBy": "uat.plan",
+        "evidence": "One units list and one UAT flow per included journey bind source heads, required states, seed namespaces and evidence gaps."
+      }
+    ],
+    "sourceRef": "user:2026-09-05 final scope: exactly two modules, one accounting and one chatbot; business flows included; Template App later"
+  },
+  "execution": {
+    "roles": [
+      "be",
+      "fe"
+    ],
+    "env": "dev",
+    "deriveChainAtActivation": true,
+    "exclusiveWriteAliases": [],
+    "liveEffects": "No live effect is authorized by banking. At activation use environment declarations and the exact mission scope; real outbound messages require explicit user authorization.",
+    "seeding": "A dedicated owner and stranger, per-flow run namespace, deterministic IDs, exact marker/owner checks on reuse and dependency-safe cleanup. Fixture history is labelled and cannot stand for Test, Apply, payment or provider success. Create fixtures only for the selected Chatbot and Accounting modules; knowledge fixtures are supporting inputs, not a third module.",
+    "failureRouting": "Read the executing operator stop and current .claude/routing.json; this card defines no alternate routes.",
+    "publication": "If source is changed, include git.publish only in the activated scope and derive all required gates. Backend business changes also require business.reconcile where a published promise applies."
+  },
+  "activation": {
+    "sessionId": null,
+    "startedAt": null,
+    "completedAt": null,
+    "receiptRefs": []
+  },
+  "modules": [
+    "chatbot",
+    "accounting"
+  ]
+}

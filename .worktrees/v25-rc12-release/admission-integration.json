@@ -1,0 +1,22 @@
+{
+  "baseline": "d4cec1d5613f3d4fc132eaa86ec42827c3bc701b",
+  "files": [
+    {
+      "path": "scripts/session-open.mjs",
+      "before": "7c35e6e9b9604011ca8c29b8a7e91fdce0d74c5fd55824c089b2296ec17dfe81",
+      "after": "81e911e09f7f2dbc8943c4a5110f1bf6b252147a7c088d3eebedc6cfe82eb537"
+    },
+    {
+      "path": "scripts/mission-size-admission.spec.mjs",
+      "before": null,
+      "after": "ac65c5c145ea1188d7f2938e1f4d2dd1836b50deb8d0240d5f13094f45ee3da7"
+    }
+  ],
+  "proof": {
+    "tests": 9,
+    "passed": 9,
+    "skipped": 0,
+    "log": "focused.log",
+    "scope": "focused only; no full suite or publication"
+  }
+}

@@ -1,0 +1,15 @@
+schema: starci/plan-approval@1
+planDigest: cc5997b825719743a1987c673209a0d2deb0f6f0ac7fff064650c8034cee644a
+jobs:
+  prepare-starci-work-authority:
+    status: pending
+    presentation: null
+    receipts: []
+  repair-starci-work-authority:
+    status: pending
+    presentation: null
+    receipts: []
+  publish-starci-work-authority:
+    status: pending
+    presentation: null
+    receipts: []

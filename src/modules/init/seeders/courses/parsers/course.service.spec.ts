@@ -286,6 +286,7 @@ describe("CourseParserService",
                         expect(parsed.originalPrice).toBe(0)
                         expect(parsed.mindMap).toBeNull()
                         expect(parsed.coverImageUrl).toBeUndefined()
+                        expect(parsed.playgroundPreviewImageUrl).toBeUndefined()
                         expect(parsed.prerequisites).toEqual([])
                         expect(parsed.valuePropositions).toEqual([])
                         expect(parsed.qnas).toEqual([])
@@ -482,6 +483,36 @@ describe("CourseParserService",
                     async () => {
                         await expect(parseCover("   ")).resolves.toBeUndefined()
                         expect(buildPublicObjectUrl).not.toHaveBeenCalled()
+                    })
+            })
+
+        describe("playgroundPreviewImageUrl",
+            () => {
+                it("persists a mounted Playground preview as a public MinIO URL",
+                    async () => {
+                        mount.clear()
+                        const markdown = [
+                            "# playgroundPreviewImageUrl",
+                            "assets/playgrounds/devops-playground-overview.png",
+                        ].join("\n")
+                        mountFile(`${COURSE_RELATIVE_PATH}/en.md`,
+                            markdown)
+                        mountFile(`${COURSE_RELATIVE_PATH}/vi.md`,
+                            markdown)
+
+                        const parsed = await service.parse({
+                            paths: [
+                                coursePath,
+                            ],
+                            courseIndex: 0,
+                        })
+
+                        expect(parsed.playgroundPreviewImageUrl)
+                            .toBe("https://minio.test/public/assets/playgrounds/devops-playground-overview.png")
+                        expect(buildPublicObjectUrl).toHaveBeenCalledWith({
+                            key: "assets/playgrounds/devops-playground-overview.png",
+                            provider: S3Provider.Minio,
+                        })
                     })
             })
 
@@ -867,17 +898,17 @@ describe("CourseParserService",
                         })).resolves.toBeNull()
                     })
 
-                it("resolves cover keys through MinIO while preserving absolute and empty values",
+                it("resolves authored image keys through MinIO while preserving absolute and empty values",
                     () => {
                         const resolver = service as unknown as {
-                            resolveCoverImageUrl: (value: string | null | undefined) => string | undefined
+                            resolvePublicImageUrl: (value: string | null | undefined) => string | undefined
                         }
 
-                        expect(resolver.resolveCoverImageUrl("https://cdn.test/course.png"))
+                        expect(resolver.resolvePublicImageUrl("https://cdn.test/course.png"))
                             .toBe("https://cdn.test/course.png")
-                        expect(resolver.resolveCoverImageUrl("///assets/course.png"))
+                        expect(resolver.resolvePublicImageUrl("///assets/course.png"))
                             .toBe("https://minio.test/public/assets/course.png")
-                        expect(resolver.resolveCoverImageUrl("   ")).toBeUndefined()
+                        expect(resolver.resolvePublicImageUrl("   ")).toBeUndefined()
                         expect(buildPublicObjectUrl).toHaveBeenCalledWith(expect.objectContaining({
                             key: "assets/course.png",
                         }))

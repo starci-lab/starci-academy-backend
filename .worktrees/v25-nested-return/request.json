@@ -1,0 +1,19 @@
+{
+  "excluded": [
+    "Live writes",
+    "Product source",
+    "Peer-ledger changes",
+    "Treating questioned critique as pristine"
+  ],
+  "updateClassification": "Q1 existing architecture repair rule and resolved-waiting enforcement conflict",
+  "scope": [
+    "Existing waiting parent plus exact accepted nested return to fresh same-operator repair",
+    "Preserve immutable parent and child proof",
+    "Diagnose and disclose compromised observation provenance; no mtime-based acceptance",
+    "Explicit integrity re-review with exact hashed owning-session disclosure, no questioned proof credited as approval or delivery"
+  ],
+  "target": "2.5.0-rc.3",
+  "version": 1,
+  "authority": "Parent /root delegated the existing user-authorized nested-return lifecycle repair; no live or peer writes. Parent explicitly approved bounded integrity re-review without resetting the confirmed user goal.",
+  "baseline": "f3782ad2a52161c02a337838f82742fa70d5dffd"
+}

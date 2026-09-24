@@ -1,0 +1,49 @@
+{
+  "observedAt": "2026-09-06T13:04:08.950Z",
+  "kind": "read-only native preview, no forecast commit or attempt opened",
+  "results": [
+    {
+      "name": "accounting",
+      "session": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905-nivo-accounting-01a07247",
+      "flags": {
+        "edit": {
+          "kind": "retry",
+          "cell": "34/1",
+          "correction": "source-history",
+          "revision": "8d9b3575b328febe2fa5e08fd762f44764591b9e"
+        }
+      },
+      "stateBefore": "sha256:fb883891ce9d0873b8795213810c0662fe99c2d06acc7a1149f3c44fd2c33258",
+      "previewHash": "sha256:eeddbfa8bc0535abeaeaf710e71e3cbdb07e956919cc5c31312c47f5cd67abce",
+      "ok": true,
+      "stateAfter": "sha256:fb883891ce9d0873b8795213810c0662fe99c2d06acc7a1149f3c44fd2c33258",
+      "stateUnchanged": true
+    },
+    {
+      "name": "chatbot",
+      "session": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905160512-nivo-ca563924",
+      "flags": {
+        "edit": {
+          "kind": "retry",
+          "cell": "19/1",
+          "rebind": {
+            "source": "12/1",
+            "writeRoots": [
+              "apps/agentos-controlplane/src/chatbot",
+              "apps/agentos-controlplane/src/config.ts",
+              "apps/agentos-controlplane/src/instance-db",
+              "src/modules/bussiness/agentos-chatbot",
+              "apps/agentos-controlplane/src/module-runtime/chatbot-runtime-projection.service.ts",
+              "src/modules/platform/databases/postgresql/primary/migrations/1790989400000-chatbot-dispatch-settlement.ts"
+            ]
+          }
+        }
+      },
+      "stateBefore": "sha256:f4d69ad48bbd0f89242bcd491b4ed365adc40b76586de7c4223f46218b2602f2",
+      "previewHash": "sha256:dd841cdfa359f0ce414639bb11ace16099041cd8c388b5e7ac983f9fb1390245",
+      "ok": true,
+      "stateAfter": "sha256:f4d69ad48bbd0f89242bcd491b4ed365adc40b76586de7c4223f46218b2602f2",
+      "stateUnchanged": true
+    }
+  ]
+}

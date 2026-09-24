@@ -28,6 +28,9 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
+import {
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
 import type {
@@ -91,11 +94,14 @@ describe("ContentsHandler",
         let entityManager: EntityManagerMock
         let search: jest.Mock
         let indicateName: jest.Mock
+        let hasCourseAccess: jest.Mock
 
         beforeEach(async () => {
             entityManager = makeEntityManagerMock()
             search = jest.fn()
             indicateName = jest.fn(() => "contents-en")
+            // effective paid access (active Pro or factual paid enrollment)
+            hasCourseAccess = jest.fn(async () => false)
 
             module = await Test.createTestingModule({
                 providers: [
@@ -112,6 +118,12 @@ describe("ContentsHandler",
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
+                    },
+                    {
+                        provide: EffectiveLearnerAccessService,
+                        useValue: {
+                            hasCourseAccess,
+                        },
                     },
                 ],
             }).compile()
@@ -170,8 +182,9 @@ describe("ContentsHandler",
                         ],
                     }),
                 )
-                // anonymous viewer -> no entitlement DB lookup at all
+                // anonymous viewer -> no entitlement lookup at all
                 expect(entityManager.findOne).not.toHaveBeenCalled()
+                expect(hasCourseAccess).not.toHaveBeenCalled()
             })
 
         it("locks premium items for a viewer who is not enrolled",
@@ -193,8 +206,6 @@ describe("ContentsHandler",
                             id: "course-1",
                         },
                     })
-                    // no enrollment for this viewer
-                    .mockResolvedValueOnce(null)
 
                 const result = await handler.execute(
                     new ContentsQuery({
@@ -212,6 +223,9 @@ describe("ContentsHandler",
                 )
 
                 const item = result.data[0]
+                // neither Pro nor a paid enrollment grants this course
+                expect(hasCourseAccess).toHaveBeenCalledWith("u1",
+                    "course-1")
                 // locked-for-you flag stays true and the body is truncated + ellipsised
                 expect(item.isPremium).toBe(true)
                 expect(item.body?.endsWith("...")).toBe(true)
@@ -240,10 +254,8 @@ describe("ContentsHandler",
                             id: "course-1",
                         },
                     })
-                    // an active enrollment grants full access
-                    .mockResolvedValueOnce({
-                        id: "enroll-1",
-                    })
+                // effective paid access grants full content
+                hasCourseAccess.mockResolvedValueOnce(true)
 
                 const result = await handler.execute(
                     new ContentsQuery({
@@ -261,6 +273,8 @@ describe("ContentsHandler",
                 )
 
                 const item = result.data[0]
+                expect(hasCourseAccess).toHaveBeenCalledWith("u1",
+                    "course-1")
                 // entitled -> unlocked and full body / assets preserved
                 expect(item.isPremium).toBe(false)
                 expect(item.body).toContain("tail")
@@ -277,7 +291,7 @@ describe("ContentsHandler",
                         }),
                     ]),
                 )
-                // module row is missing -> conservative deny, no enrollment lookup
+                // module row is missing -> conservative deny, no access lookup
                 entityManager.findOne.mockResolvedValueOnce(null)
 
                 const result = await handler.execute(
@@ -296,8 +310,9 @@ describe("ContentsHandler",
                 )
 
                 expect(result.data[0].isPremium).toBe(true)
-                // only the module lookup ran; the enrollment query was skipped
+                // only the module lookup ran; the access resolution was skipped
                 expect(entityManager.findOne).toHaveBeenCalledTimes(1)
+                expect(hasCourseAccess).not.toHaveBeenCalled()
             })
 
         it("handles ES total objects and trims an unclosed fenced preview in every body translation",

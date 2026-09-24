@@ -1,0 +1,98 @@
+{
+  "baseline": "5f874f80bac7617c19de75173f951e5e1c80ec8a",
+  "diagram": {
+    "manifest": ".worktrees/v25-goal-architecture/review-manifest.json",
+    "digest": "65414a5b0b1dad179749110fae9ad6b713a1a34c1aee77a0d74280eba551da39",
+    "paths": [
+      "resources/interaction.json",
+      "scripts/mission-scope.mjs",
+      "scripts/scope-architecture.mjs",
+      "scripts/scope-presentation.mjs",
+      "scripts/scope-presentation.spec.mjs",
+      "templates/kinds/goal-discovery.schema.json",
+      "templates/step/state.schema.json",
+      "workflows/discovery.md",
+      "workflows/discovery.vi.md"
+    ],
+    "readback": true
+  },
+  "unit": {
+    "manifest": ".worktrees/v25-unit-successors/review-manifest-rc11.json",
+    "sha256": "8107cc955236868818c7790688cf287a12c6d9dfb3e4e002bf18b8a29c1b34a9"
+  },
+  "priorWaits": {
+    "manifest": ".worktrees/v25-prior-waits-lifecycle/review-manifest.json",
+    "sha256": "2c613b09b5c2de14f9c8b190578d31dd6ac459d359b8d1845096cc1a1ccf8b58"
+  },
+  "paths": [
+    {
+      "path": "INDEX.md",
+      "hash": "6f83900594f1ff928d51a1a23dc84968c13377def825b5d5bb585e1e0a6312eb"
+    },
+    {
+      "path": "INDEX.vi.md",
+      "hash": "a9942bdf73bb8dec40a0c58fc681cdf4bafdf6a20b6dfb91520607532d5f82bf"
+    },
+    {
+      "path": "package.json",
+      "hash": "5f6de32888b3f7944e66ec42960c16cf5482e5abaeb65b375303650361b1e813"
+    },
+    {
+      "path": "scripts/goal-partitions.mjs",
+      "hash": "a45568264d6128ed312785006252fe9a1afa70c75cd1be749af076ffd192983d"
+    },
+    {
+      "path": "scripts/plan-history.mjs",
+      "hash": "189ba3aebbff6b28d1c7357928b06af482ad1d57019ccdd2d0e8086f2386fb80"
+    },
+    {
+      "path": "scripts/unit-successor-fixture.mjs",
+      "hash": "8d4699d79474ea632a026606f1f7499a734794c07400b4b58778f37daf988b6d"
+    },
+    {
+      "path": "scripts/unit-successor-review.spec.mjs",
+      "hash": "b02f6161d51be846bb04d36ad1e3ba5f2ccc8e171a8944dbb3dc93cfbd70fc1f"
+    },
+    {
+      "path": "scripts/unit-successor.spec.mjs",
+      "hash": "8cf8c51d059ba1cb5c28990186f4ede37b5cb11fdaeadedde7666b8ff740b413"
+    },
+    {
+      "path": "tests/evidence/20260907-unit-successor-reentry.md",
+      "hash": "a2a2f8333f67623fd0094803ae5d7fe331c7d96166256764548af25b1eeebcd0"
+    },
+    {
+      "path": "workflows/README.md",
+      "hash": "40928fce9f39def2a9bd120755c96fbf900fc5c0d48184b74daebc708ef07992"
+    },
+    {
+      "path": "workflows/README.vi.md",
+      "hash": "d9dfc82ac64d813cac2e9b1b7ebaccf396ad51fd307d045a3aec3117216872e6"
+    },
+    {
+      "path": "scripts/resolved-waiting.mjs",
+      "hash": "cf5cd100da979f4b9380caa8aedabc262923899380e223dc62ff7b0e9304e54a"
+    },
+    {
+      "path": "scripts/session-open.mjs",
+      "hash": "7c35e6e9b9604011ca8c29b8a7e91fdce0d74c5fd55824c089b2296ec17dfe81"
+    },
+    {
+      "path": "scripts/session-correction.spec.mjs",
+      "hash": "43e49571a9e33a2a00f36261c219341d0507b164004f66ec9c3f5588b462fc9d"
+    },
+    {
+      "path": "scripts/nested-return.spec.mjs",
+      "hash": "b39b6edeca132529207163a45d753ddf4ecc9198bbe8cbc9b0778de701be51cc"
+    },
+    {
+      "path": "scripts/nested-return-fixture.mjs",
+      "hash": "8f32bab48b6ee455f32cda69ad3c29e988d5cef05560b0b4035798d2e91c8a07"
+    },
+    {
+      "path": "scripts/prior-mission-waits.spec.mjs",
+      "hash": "1b8db14696d0e25c6b010e7b65acc65b7aa96db2f77e33f028216154fff62ca7"
+    }
+  ],
+  "readback": true
+}

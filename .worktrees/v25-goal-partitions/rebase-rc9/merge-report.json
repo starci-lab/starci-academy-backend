@@ -1,0 +1,123 @@
+{
+  "baseline": "550cb449468780902bae1d12099cd0969790f523",
+  "priorManifestSha256": "sha256:292587b3b5f8bdde3a8fe8396ac252954875aa5e90519aea3f3ffc2ed1b17024",
+  "files": [
+    {
+      "path": "scripts/goal-partition-tiers.spec.mjs",
+      "before": null,
+      "prior": "sha256:dcf74b7ea82061cfbcd261eb072489c4f0a9c509ecd9e653c855eba696b930a0",
+      "after": "sha256:dcf74b7ea82061cfbcd261eb072489c4f0a9c509ecd9e653c855eba696b930a0",
+      "method": "new-partition-file",
+      "status": 0
+    },
+    {
+      "path": "scripts/goal-partitions.mjs",
+      "before": null,
+      "prior": "sha256:00bafa01305c2ff798e60fe226b46250c20564365dafa02a7d2bfc1022ce3eb1",
+      "after": "sha256:00bafa01305c2ff798e60fe226b46250c20564365dafa02a7d2bfc1022ce3eb1",
+      "method": "new-partition-file",
+      "status": 0
+    },
+    {
+      "path": "scripts/goal-partitions.spec.mjs",
+      "before": null,
+      "prior": "sha256:2783cc4625e525fb19e80cc9a211a721cd26d0283867a3b104751bc932ec8680",
+      "after": "sha256:2783cc4625e525fb19e80cc9a211a721cd26d0283867a3b104751bc932ec8680",
+      "method": "new-partition-file",
+      "status": 0
+    },
+    {
+      "path": "scripts/goal-route-partitions.spec.mjs",
+      "before": null,
+      "prior": "sha256:c506c3498d1235edeaa58524942444ff4ea362f801b7c6b001c03a831140a774",
+      "after": "sha256:c506c3498d1235edeaa58524942444ff4ea362f801b7c6b001c03a831140a774",
+      "method": "new-partition-file",
+      "status": 0
+    },
+    {
+      "path": "scripts/plan-chain.mjs",
+      "before": "sha256:ac2d2b6155a6e6dc1ea67111214857203f5937bd51e7dfe35590ac3cbfa2d2bb",
+      "prior": "sha256:0dd1d4cb331af5e33b5f4d22ee21c1274460cece540ee3eb4b52261065937bb9",
+      "after": "sha256:0dd1d4cb331af5e33b5f4d22ee21c1274460cece540ee3eb4b52261065937bb9",
+      "method": "partition-only",
+      "status": 0
+    },
+    {
+      "path": "scripts/plan-history.mjs",
+      "before": "sha256:ac59319bcefe99114e30c3ee9c6a7c91396bae7a5f3e9e397f62ca2384f1a997",
+      "prior": "sha256:20f52657694ad1380fd8dc1c0919f61dc74c9d4fca86226d5e07fbd2e4a9cba2",
+      "after": "sha256:20f52657694ad1380fd8dc1c0919f61dc74c9d4fca86226d5e07fbd2e4a9cba2",
+      "method": "partition-only",
+      "status": 0
+    },
+    {
+      "path": "scripts/validate-response.mjs",
+      "before": "sha256:e6c5766f0c2ff3927fc3b012a0f26f45c8321d8c1d186a1d9433b6ef8ebcbcf0",
+      "prior": "sha256:e360ede2eb6201298c0c97fc4ca51e586a44574639d5a6f139f041189f202aaf",
+      "after": "sha256:e360ede2eb6201298c0c97fc4ca51e586a44574639d5a6f139f041189f202aaf",
+      "method": "partition-only",
+      "status": 0
+    },
+    {
+      "path": "scripts/validate-session.mjs",
+      "before": "sha256:6d0a58c89c05e09914757e9e001bc1ea40c099ca11465c883569d53c10ff4bb6",
+      "prior": "sha256:aa04e6c5711c8c3ee90e970cc30ee94751cbd2ba3d6de29335fb18ee23bf388b",
+      "after": "sha256:04eb732f0292cfcf3843746f4f384c7daa0cc39437d038feed6e976a5f515dea",
+      "method": "three-way",
+      "status": 0
+    },
+    {
+      "path": "scripts/workflow-portfolio-heads.spec.mjs",
+      "before": "sha256:4f8ebe58a392cc258237e3eb4d7e7252bf0c0c27f39931fef8ecbe845a2cfcf2",
+      "prior": "sha256:17bfb8d2d317cc2ddf9280e5187325fd75d4351374a28543f9bbf8e66db9a9d7",
+      "after": "sha256:17bfb8d2d317cc2ddf9280e5187325fd75d4351374a28543f9bbf8e66db9a9d7",
+      "method": "partition-only",
+      "status": 0
+    },
+    {
+      "path": "scripts/workflow-reentry.spec.mjs",
+      "before": "sha256:2a414aa509aad710e04000de6e65c2d203e68e07002d88974b8b38e7c26c79ef",
+      "prior": "sha256:2a414aa509aad710e04000de6e65c2d203e68e07002d88974b8b38e7c26c79ef",
+      "after": "sha256:2a414aa509aad710e04000de6e65c2d203e68e07002d88974b8b38e7c26c79ef",
+      "method": "unchanged-pending-input",
+      "status": 0
+    },
+    {
+      "path": "scripts/workflow-verification.mjs",
+      "before": "sha256:2cae40f3f194d2eaec46cbf392c50b5f09da3295a0f97c4aeaa8516ecbfd5f3a",
+      "prior": "sha256:c801e40380905e70b99e9dbbab0ca635ed08246569f67774e8382e3fff648976",
+      "after": "sha256:2e768c721abc7795920a577c42f033bdc2ffb627eeed7db0821ba00ab450cfd1",
+      "method": "three-way",
+      "status": 0
+    },
+    {
+      "path": "templates/step/response.schema.json",
+      "before": "sha256:7d9cb1894c05d3326f67650163a9392f76fb46874c1e0a544046b9220acd57fc",
+      "prior": "sha256:c6cadd19a92d29dba92664bcb0513ea1274de6372483537a8d2aa2b7d7640a95",
+      "after": "sha256:c6cadd19a92d29dba92664bcb0513ea1274de6372483537a8d2aa2b7d7640a95",
+      "method": "partition-only",
+      "status": 0
+    },
+    {
+      "path": "workflows/README.md",
+      "before": "sha256:0052ffc785bac01e2e4dd0de6d60938c5e255d21ff16da3588ba19ca181b098c",
+      "prior": "sha256:87093ac8f224fbea6bea9568aebf3d01ab714e464c856d693e9770a0151eefd2",
+      "after": "sha256:93f14f1fffb41b9a35f430cd412d20e9d30e1294bf07a630aa823ba6c0f495e2",
+      "method": "three-way",
+      "status": 0,
+      "resolution": "Both independent owning sections retained; conflict only appended sections."
+    },
+    {
+      "path": "workflows/README.vi.md",
+      "before": "sha256:0ec749308447e552b794964308e42d88ff5888817949a828706d408dd9c57929",
+      "prior": "sha256:1f930e94e112dd26373553b8cb46b9af459f77fa75195a21d99e2d9ae6807f2f",
+      "after": "sha256:08c118b9bf4058a768672e1882e27871bafd560fb1e084d61730847b7ebbdc5a",
+      "method": "three-way",
+      "status": 0,
+      "resolution": "Both independent owning sections retained; conflict only appended sections."
+    }
+  ],
+  "status": "rebased-awaiting-source-review-integration",
+  "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-goal-partitions\\.claude",
+  "obsolete": []
+}

@@ -112,9 +112,19 @@ import {
 import {
     RagPlaygroundQueriesModule,
 } from "./rag-playground/rag-playground.module"
+import {
+    ProSubscriptionQueriesModule,
+} from "./pro-subscription/pro-subscription.module"
+import {
+    ConceptsQueriesModule,
+} from "./concepts/concepts.module"
 
 @Module({
     imports: [
+        ProSubscriptionQueriesModule,
+        ConceptsQueriesModule.register({
+            isGlobal: true,
+        }),
         AuthenticationQueriesModule.register({
             isGlobal: true,
         }),

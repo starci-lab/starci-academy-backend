@@ -17,6 +17,9 @@ import {
     QueriesModule
 } from "./graphql/queries/queries.module"
 import {
+    ConceptsQueriesModule,
+} from "./graphql/queries/concepts/concepts.module"
+import {
     MutationsModule
 } from "./graphql/mutations/mutations.module"
 import {
@@ -158,8 +161,8 @@ describe("API core module composition",
                     module: MutationsModule
                 })]))
                 expect(imports).toHaveLength(2)
-                expect(queryImports).toHaveLength(36)
-                expect(mutationImports).toHaveLength(26)
+                expect(queryImports).toHaveLength(38)
+                expect(mutationImports).toHaveLength(27)
                 expect(QueriesModule.register({
                     isGlobal: true
                 }).global).toBeUndefined()
@@ -167,6 +170,9 @@ describe("API core module composition",
                     isGlobal: true
                 }).global).toBe(true)
                 expect(queryImports).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        module: ConceptsQueriesModule,
+                    }),
                     expect.objectContaining({
                         module: expect.any(Function),
                     }),
@@ -194,9 +200,12 @@ describe("API core module composition",
                 expect(queryFields).toEqual(expect.arrayContaining([
                     "learnAiCompanion",
                     "globalChatRoom",
+                    "proOffer",
+                    "myProSubscription",
                 ]))
                 expect(mutationFields).toEqual(expect.arrayContaining([
                     "resolveLearnAiCompanion",
+                    "purchaseProSubscription",
                 ]))
             })
     })

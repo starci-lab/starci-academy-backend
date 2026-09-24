@@ -40,8 +40,8 @@ import {
     NEW_CARD_STATE,
 } from "./flashcard-review.service"
 import {
-    UserService,
-} from "../user/user.service"
+    EffectiveLearnerAccessService,
+} from "../pro-subscription/effective-learner-access.service"
 
 /** SM-2 repetition count at/above which a card is considered "mastered". */
 const MASTERED_REPETITIONS = 2
@@ -60,7 +60,7 @@ export class FlashcardDeckReadService {
         private readonly elasticsearchService: ElasticsearchService,
         private readonly flashcardDeckResolver: FlashcardDeckResolverService,
         private readonly flashcardReviewService: FlashcardReviewService,
-        private readonly userService: UserService,
+        private readonly effectiveLearnerAccessService: EffectiveLearnerAccessService,
     ) { }
 
     /**
@@ -146,7 +146,7 @@ export class FlashcardDeckReadService {
         if (!userId || !courseId) {
             return false
         }
-        return await this.userService.checkEnrollment(
+        return await this.effectiveLearnerAccessService.hasCourseAccess(
             userId,
             courseId,
         )

@@ -1,0 +1,812 @@
+{
+  "version": 1,
+  "status": "sealed",
+  "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude",
+  "baseline": "7e13c6b02622b3c06a6ed04eedd418749ad00215",
+  "packageVersion": "2.5.0-rc.9",
+  "files": [
+    {
+      "path": "INDEX.md",
+      "before": "sha256:4e9ce284ba0e495b9db63472d2b2927504fbb686afb101a57b671ccd675be9fe",
+      "beforeGit": "sha256:4e9ce284ba0e495b9db63472d2b2927504fbb686afb101a57b671ccd675be9fe",
+      "after": "sha256:e2fa6c524ffc78e91bd12892a8a41d571e948e7660c90fce2af6f8759f6f9b9f",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\INDEX.md"
+    },
+    {
+      "path": "INDEX.vi.md",
+      "before": "sha256:2d430f39e6efe9ab2770b7f97e7c998c822e428541174e545c5e88b52f8f32f6",
+      "beforeGit": "sha256:2d430f39e6efe9ab2770b7f97e7c998c822e428541174e545c5e88b52f8f32f6",
+      "after": "sha256:4f13202cbea0fff141081a8bf8d596c0d287d96ec341aee158aad05470b12b6e",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\INDEX.vi.md"
+    },
+    {
+      "path": "docs/reference/operators/api-verify.mdx",
+      "before": "sha256:0f86249c28885b1a659e9d5070005f8d9af96a5ba184512ec8d17063481d6d59",
+      "beforeGit": "sha256:0f86249c28885b1a659e9d5070005f8d9af96a5ba184512ec8d17063481d6d59",
+      "after": "sha256:50052af3b5fcc946f9a984d224095bf84ecfce800ea2b90aa0c38fc6b53002a9",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\docs\\reference\\operators\\api-verify.mdx"
+    },
+    {
+      "path": "docs/reference/operators/backend-generate.mdx",
+      "before": "sha256:3a23b002332549b9137a13a668bf9ceb232aca0194703914fd79df6c7922979f",
+      "beforeGit": "sha256:3a23b002332549b9137a13a668bf9ceb232aca0194703914fd79df6c7922979f",
+      "after": "sha256:5810a0107c9e52328d97f4d7a6f323453ab9e9747edfea6b52bb01313d429d47",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\docs\\reference\\operators\\backend-generate.mdx"
+    },
+    {
+      "path": "docs/reference/operators/quality-verify.mdx",
+      "before": "sha256:d1333635019d88224774e188c38d066fd5a6439dba10abe406f8daa8f3acd2bf",
+      "beforeGit": "sha256:d1333635019d88224774e188c38d066fd5a6439dba10abe406f8daa8f3acd2bf",
+      "after": "sha256:5cbe6da4b439ff3dbdc93d39cdbdd81eb39fd2f7c4f6e14660d279d646a23d8e",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\docs\\reference\\operators\\quality-verify.mdx"
+    },
+    {
+      "path": "docs/reference/operators/uat-verify.mdx",
+      "before": "sha256:563cc5d05fead0ff4e915eaec402eb88c30ac2fc33a8183ba9f5ff8ca821a429",
+      "beforeGit": "sha256:563cc5d05fead0ff4e915eaec402eb88c30ac2fc33a8183ba9f5ff8ca821a429",
+      "after": "sha256:c22db7c5528c69d8779f94a081506761cdd2acfa53bca8a7e2860c24f7471c14",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\docs\\reference\\operators\\uat-verify.mdx"
+    },
+    {
+      "path": "docs/reference/operators/workflow-verify.mdx",
+      "before": "sha256:822a41246b875ed74bd74533eb9eaf611208d2b7d488a7bb0cef260b4fe41b62",
+      "beforeGit": "sha256:822a41246b875ed74bd74533eb9eaf611208d2b7d488a7bb0cef260b4fe41b62",
+      "after": "sha256:013ba9d1b8e90c6f0e031d139a164ae52a4186193150f198bb501aaa11c9ec25",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\docs\\reference\\operators\\workflow-verify.mdx"
+    },
+    {
+      "path": "docs/vi/reference/operators/api-verify.mdx",
+      "before": "sha256:b23e71db10b28a92a9bd1474e115f16d2f4cefd202946c994918b702b1671d42",
+      "beforeGit": "sha256:b23e71db10b28a92a9bd1474e115f16d2f4cefd202946c994918b702b1671d42",
+      "after": "sha256:252698930c2d6a15478338bace101c3349950ccd152120e600d9d9f8a970ee3a",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\docs\\vi\\reference\\operators\\api-verify.mdx"
+    },
+    {
+      "path": "docs/vi/reference/operators/backend-generate.mdx",
+      "before": "sha256:9ede21fcc19308dbd63785b10aa04589bee87c660b319ad1115e32688c818615",
+      "beforeGit": "sha256:9ede21fcc19308dbd63785b10aa04589bee87c660b319ad1115e32688c818615",
+      "after": "sha256:6ddee040ed8e9a6286219168255cdab69276af0427535c986cb040187d265920",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\docs\\vi\\reference\\operators\\backend-generate.mdx"
+    },
+    {
+      "path": "docs/vi/reference/operators/quality-verify.mdx",
+      "before": "sha256:6d619a7b19d0d71eebf6b2317ef6097ca7d3ca86190dd0e56db5eeb3dd02b755",
+      "beforeGit": "sha256:6d619a7b19d0d71eebf6b2317ef6097ca7d3ca86190dd0e56db5eeb3dd02b755",
+      "after": "sha256:4cf594be865ada5dedd9b3293770db2f1a3687c33e4e27b74f5493d6138e99f1",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\docs\\vi\\reference\\operators\\quality-verify.mdx"
+    },
+    {
+      "path": "docs/vi/reference/operators/uat-verify.mdx",
+      "before": "sha256:69f650f1a386a10336b15f242b01a7a5bc17db68d265aa4a1358a283a45cdc87",
+      "beforeGit": "sha256:69f650f1a386a10336b15f242b01a7a5bc17db68d265aa4a1358a283a45cdc87",
+      "after": "sha256:bc1da1ba8b12390e0433d3f71358d027304e6c65cf7b0cd49961b071dcba7911",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\docs\\vi\\reference\\operators\\uat-verify.mdx"
+    },
+    {
+      "path": "docs/vi/reference/operators/workflow-verify.mdx",
+      "before": "sha256:ad52dc66f0bf935048d8bf874dd97c99d1d390b31c2172b2843bafc931cb2661",
+      "beforeGit": "sha256:ad52dc66f0bf935048d8bf874dd97c99d1d390b31c2172b2843bafc931cb2661",
+      "after": "sha256:5ce7f929849901574596d3a78411c896e194f3d7e9576770c309f6dd82012f46",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\docs\\vi\\reference\\operators\\workflow-verify.mdx"
+    },
+    {
+      "path": "operators/api-verify/brief.md",
+      "before": "sha256:e64f778b07eb687bc34164022356576ed1c70ba923dfc6dffc39d4b0c13b8eb0",
+      "beforeGit": "sha256:e64f778b07eb687bc34164022356576ed1c70ba923dfc6dffc39d4b0c13b8eb0",
+      "after": "sha256:37663411b0c5dcb1ac50b31c9a1539309f228e135817b8695ecf84d909a59567",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\api-verify\\brief.md"
+    },
+    {
+      "path": "operators/api-verify/operator.md",
+      "before": "sha256:dc0dae8b4b9c26e3cbf2b80ce282608ab1c12e0f84a70a4212804d69a2cdfbf4",
+      "beforeGit": "sha256:f37217e048dc5fccd4adb869e911ff9e88afe74b3704d6cbc140d099ad5013cd",
+      "after": "sha256:d87f75f9fd8598bac15557eda570d1c3ac3ea8c961aa5831a905de04849e18ac",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\api-verify\\operator.md"
+    },
+    {
+      "path": "operators/api-verify/operator.vi.md",
+      "before": "sha256:a41658a1bc084c08710417ba8d9dfe894f8e14369527c8e365785976b7dbb2e3",
+      "beforeGit": "sha256:1244fe48c8a3332d98676e446f20ac860d4a70695ad0571d745c556795186daa",
+      "after": "sha256:68f4cc9bf02ab95e231bb694fa3aee585bce2b3d8c2c02e39180e576566ec4e9",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\api-verify\\operator.vi.md"
+    },
+    {
+      "path": "operators/architecture-decide/brief.md",
+      "before": "sha256:bc1f1cb275dfd21e3254a241b768e08b59161aaf050923802c1341f2052d0eea",
+      "beforeGit": "sha256:bc1f1cb275dfd21e3254a241b768e08b59161aaf050923802c1341f2052d0eea",
+      "after": "sha256:364ba705821217560e59ce1f30f1418c62f096e899b469945956ca9fda80cad2",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\architecture-decide\\brief.md"
+    },
+    {
+      "path": "operators/backend-generate/brief.md",
+      "before": "sha256:e200aca3e57c56e3b800b68593806854d6a3ba574688a2587b144b26cb572885",
+      "beforeGit": "sha256:e200aca3e57c56e3b800b68593806854d6a3ba574688a2587b144b26cb572885",
+      "after": "sha256:7afd01ed66c721c2c7efb51a79d0194320da3cf6c00134aa4c5e3baf7fea276e",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\backend-generate\\brief.md"
+    },
+    {
+      "path": "operators/backend-generate/operator.md",
+      "before": "sha256:6d611c55b80e0fcf5bc2f7dd686c83e6b32e4986f504c9b04d37fa97074e3920",
+      "beforeGit": "sha256:6d611c55b80e0fcf5bc2f7dd686c83e6b32e4986f504c9b04d37fa97074e3920",
+      "after": "sha256:83040b894f302b0deec7dadc01da5f055c6ce18ff92247fc0e7ce99f10c24065",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\backend-generate\\operator.md"
+    },
+    {
+      "path": "operators/backend-generate/operator.vi.md",
+      "before": "sha256:88f9fb548d44b9f04d0478734e4f1f10e300a31b14d4ef0b8c3488d203a918c5",
+      "beforeGit": "sha256:88f9fb548d44b9f04d0478734e4f1f10e300a31b14d4ef0b8c3488d203a918c5",
+      "after": "sha256:a60441dd960be78c34619fae11b3702f359e9601f707b224121ad19ec159a3e5",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\backend-generate\\operator.vi.md"
+    },
+    {
+      "path": "operators/backend-plan/brief.md",
+      "before": "sha256:208c282d42942ad2981d87c7ccd296657ee7699c04278cf27403ab9140255b2b",
+      "beforeGit": "sha256:208c282d42942ad2981d87c7ccd296657ee7699c04278cf27403ab9140255b2b",
+      "after": "sha256:723fb517148ebf7a0491f4c4626b4e0241c95e134823f23df64149932ce32202",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\backend-plan\\brief.md"
+    },
+    {
+      "path": "operators/business-decide/brief.md",
+      "before": "sha256:333b1aca9f80f8d6f87d778f57080e7925b76f6905d9478ebead3f9a9c94fa68",
+      "beforeGit": "sha256:333b1aca9f80f8d6f87d778f57080e7925b76f6905d9478ebead3f9a9c94fa68",
+      "after": "sha256:2cae9932bb439c5c994a12283f902238b8e3996b94aa9a6990f8015ee79867ca",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\business-decide\\brief.md"
+    },
+    {
+      "path": "operators/business-reconcile/brief.md",
+      "before": "sha256:43da23e7e3bbd70e17ab12c52ffaa4a4f7392a38660cabcbe869b3cb27d71777",
+      "beforeGit": "sha256:43da23e7e3bbd70e17ab12c52ffaa4a4f7392a38660cabcbe869b3cb27d71777",
+      "after": "sha256:c031722129ed8df600751c4d3270309f147467f4ec147d56b242fd31da76a4e1",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\business-reconcile\\brief.md"
+    },
+    {
+      "path": "operators/content-generate/brief.md",
+      "before": "sha256:66da4d6ba2586a915c36d1a097f3aeb43fc67bd7677a33e9e06fe4869eb1f02e",
+      "beforeGit": "sha256:66da4d6ba2586a915c36d1a097f3aeb43fc67bd7677a33e9e06fe4869eb1f02e",
+      "after": "sha256:b97baed7557d1254139e60451ae3fbfba8e5496f90e0918f360c77c64a82c6f9",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\content-generate\\brief.md"
+    },
+    {
+      "path": "operators/data-plan/brief.md",
+      "before": "sha256:1a69cead8280ab521fdcb6665b9d35fc643b259cf2cbc3c50fc9168f42dcb2a2",
+      "beforeGit": "sha256:1a69cead8280ab521fdcb6665b9d35fc643b259cf2cbc3c50fc9168f42dcb2a2",
+      "after": "sha256:6d25a8bfb65971a858f33279a96fdc55719c2634451f198e3efa36be3afaf9c6",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\data-plan\\brief.md"
+    },
+    {
+      "path": "operators/data-seed/brief.md",
+      "before": "sha256:ffbba21ba76d2f5c9b2c0c59fe734d8f4077841c0066373e210dd7171fa55a4a",
+      "beforeGit": "sha256:ffbba21ba76d2f5c9b2c0c59fe734d8f4077841c0066373e210dd7171fa55a4a",
+      "after": "sha256:b24044ab20ebef012db8dbbbb5c5bf7d4b4aa4bf78f8b0c05aef647132ec2187",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\data-seed\\brief.md"
+    },
+    {
+      "path": "operators/environment-preflight/brief.md",
+      "before": "sha256:505ba242aeedbdf753f8330e373341cf446e5817e4b4c03022a56533c2c5d864",
+      "beforeGit": "sha256:505ba242aeedbdf753f8330e373341cf446e5817e4b4c03022a56533c2c5d864",
+      "after": "sha256:781f36ccffcfd7f14ee2f1617586d20d4c6ad8fb8c1fe467935845a62dccfe43",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\environment-preflight\\brief.md"
+    },
+    {
+      "path": "operators/git-publish/brief.md",
+      "before": "sha256:26f2da626a12d88b12d543cb5b0a335cd6e6b5e3fb17202a0859ad8ebc90c8e4",
+      "beforeGit": "sha256:26f2da626a12d88b12d543cb5b0a335cd6e6b5e3fb17202a0859ad8ebc90c8e4",
+      "after": "sha256:6841625cf7c165fc781f29ad58f9239ca93b93a7e7b04250d1ae6b075c618c99",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\git-publish\\brief.md"
+    },
+    {
+      "path": "operators/identity-provision/brief.md",
+      "before": "sha256:1817c6a16eb25eaa22b575ef4b6e077bf2ccf73072f0fd4cd5f41594a59a82fa",
+      "beforeGit": "sha256:1817c6a16eb25eaa22b575ef4b6e077bf2ccf73072f0fd4cd5f41594a59a82fa",
+      "after": "sha256:064f4b20d57803d9ef0a1c0a053af4e106fd8063fa1190d7ba141abab783e37f",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\identity-provision\\brief.md"
+    },
+    {
+      "path": "operators/interface-audit/brief.md",
+      "before": "sha256:368514d67eb0f2dd369bbc4c21a778c124390fc7941e31c0c8602292b13f94e9",
+      "beforeGit": "sha256:368514d67eb0f2dd369bbc4c21a778c124390fc7941e31c0c8602292b13f94e9",
+      "after": "sha256:47b77b96cb971cea8b0870830ae26d40facbb5cfc677b2a41c83868aa5267b47",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\interface-audit\\brief.md"
+    },
+    {
+      "path": "operators/interface-fix/brief.md",
+      "before": "sha256:fbcbfa18f18740e87eea78bdd695f42d27548395da7aa50e14ee5632d155f13b",
+      "beforeGit": "sha256:fbcbfa18f18740e87eea78bdd695f42d27548395da7aa50e14ee5632d155f13b",
+      "after": "sha256:e36c42d4b0a80d28ec8e571f1cb4ff3df273414a555181287a94318e2b10c706",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\interface-fix\\brief.md"
+    },
+    {
+      "path": "operators/interface-generate/brief.md",
+      "before": "sha256:7455dd89ce589e3650143a88347e5e7637050ba3313f31e81cdd84bab7fd37f7",
+      "beforeGit": "sha256:7455dd89ce589e3650143a88347e5e7637050ba3313f31e81cdd84bab7fd37f7",
+      "after": "sha256:c78187a0f44e36632ea75682897d0696c14e71d2829c4dc69ba42ddd33146f8a",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\interface-generate\\brief.md"
+    },
+    {
+      "path": "operators/interface-plan/brief.md",
+      "before": "sha256:b2c2e97d39e9a4d4e8b0beaeac898612fa6d4d2e8c9f9f315823c408254faa75",
+      "beforeGit": "sha256:b2c2e97d39e9a4d4e8b0beaeac898612fa6d4d2e8c9f9f315823c408254faa75",
+      "after": "sha256:2c63845333c86cf8d702b51b1d2686cbafd9275f28c965626452bc2e8ae67b99",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\interface-plan\\brief.md"
+    },
+    {
+      "path": "operators/knowledge-repair/brief.md",
+      "before": "sha256:86eb1354cc5cab60e343a870629cdb1dc8822ea40510b11d6231d5d8e3da59f5",
+      "beforeGit": "sha256:86eb1354cc5cab60e343a870629cdb1dc8822ea40510b11d6231d5d8e3da59f5",
+      "after": "sha256:979043588bb4a0abe743d63a85998872c0547df69027918cfd2b87691551ab28",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\knowledge-repair\\brief.md"
+    },
+    {
+      "path": "operators/library-update/brief.md",
+      "before": "sha256:dc18cc8a041e9d0f2225db7024d4cc42dba4d3e53279cc751fc1d761ecac2877",
+      "beforeGit": "sha256:dc18cc8a041e9d0f2225db7024d4cc42dba4d3e53279cc751fc1d761ecac2877",
+      "after": "sha256:5558a6de9d4d01f8793b8f12c969496873a22a1adddcc15040ac3ce25832e7a1",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\library-update\\brief.md"
+    },
+    {
+      "path": "operators/migration-release/brief.md",
+      "before": "sha256:00df642a4ebb937795af1da98a0c6ca60645d32338661cbd6266b966675e497f",
+      "beforeGit": "sha256:00df642a4ebb937795af1da98a0c6ca60645d32338661cbd6266b966675e497f",
+      "after": "sha256:9dc8f722549ead12f5cfe981ec1b9036c5236588a07172eae574c54241b30577",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\migration-release\\brief.md"
+    },
+    {
+      "path": "operators/quality-verify/brief.md",
+      "before": "sha256:2cf0ce90b365cd2bf885704b6aa6b27e3a873eb6f6e81304d1d850967c6fdfeb",
+      "beforeGit": "sha256:2cf0ce90b365cd2bf885704b6aa6b27e3a873eb6f6e81304d1d850967c6fdfeb",
+      "after": "sha256:82d16b9f9237e004aa6f5b7f08b47aa573c3045688b291b5a95de2f5d7b0444f",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\quality-verify\\brief.md"
+    },
+    {
+      "path": "operators/quality-verify/operator.md",
+      "before": "sha256:7915a44e5ba11dbe13731df8b63103701443f7df3c12df9113251d713de5fa96",
+      "beforeGit": "sha256:7915a44e5ba11dbe13731df8b63103701443f7df3c12df9113251d713de5fa96",
+      "after": "sha256:e2d4ebabee0bce600eaf76480c0e560e62c7e782dbf33e1dfa4fba245276a4d9",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\quality-verify\\operator.md"
+    },
+    {
+      "path": "operators/quality-verify/operator.vi.md",
+      "before": "sha256:6f810d88b8129997e1898ee869e60039d2d35e75d3e4ce64ba4a27a09cb1e948",
+      "beforeGit": "sha256:6f810d88b8129997e1898ee869e60039d2d35e75d3e4ce64ba4a27a09cb1e948",
+      "after": "sha256:48a0dd6219e8e295fc83609f3c94f54de683c6b3163f5430451733ca96179c17",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\quality-verify\\operator.vi.md"
+    },
+    {
+      "path": "operators/release-deploy/brief.md",
+      "before": "sha256:bff72acec082294b609356e8e5973ba89447810876ba9fff275e5e849d50ef9a",
+      "beforeGit": "sha256:bff72acec082294b609356e8e5973ba89447810876ba9fff275e5e849d50ef9a",
+      "after": "sha256:bd2e5602c78b76d63d7dc3bd7bb1553eb5056f2d346970ac7b2d19d1bae2212b",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\release-deploy\\brief.md"
+    },
+    {
+      "path": "operators/runtime-serve/brief.md",
+      "before": "sha256:574149a6eb2985a39ef4f4db32a6db1e2048d32f135bd2ac085c24fcb2aaaace",
+      "beforeGit": "sha256:574149a6eb2985a39ef4f4db32a6db1e2048d32f135bd2ac085c24fcb2aaaace",
+      "after": "sha256:c3296d247c256f9d73c4e2a14df1adf9c5ebead3bd4bf9f612803ebc18a43958",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\runtime-serve\\brief.md"
+    },
+    {
+      "path": "operators/service-operate/brief.md",
+      "before": "sha256:e09960e4a8fc1da1773942476da4958430189772b6d55dce3e0e6e3fe7ea03cd",
+      "beforeGit": "sha256:e09960e4a8fc1da1773942476da4958430189772b6d55dce3e0e6e3fe7ea03cd",
+      "after": "sha256:488ed2bd296fd82c689d6b50bd0488af5d8390064543339b7ebdd4966c29e459",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\service-operate\\brief.md"
+    },
+    {
+      "path": "operators/uat-plan/brief.md",
+      "before": "sha256:cf7332f55d4d01868d7126c3a7be7d7452ea32c70d91a403d4c85dad4be05a7d",
+      "beforeGit": "sha256:cf7332f55d4d01868d7126c3a7be7d7452ea32c70d91a403d4c85dad4be05a7d",
+      "after": "sha256:68f12d8a4e6e26f1b61ee6d54eae54ef338891f6c9eb73650e7ee9f2e6e793e3",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\uat-plan\\brief.md"
+    },
+    {
+      "path": "operators/uat-verify/brief.md",
+      "before": "sha256:48ad6c1c52aea12cd901b55755a5ac575782000a5858decdb9e4da26692e1b9c",
+      "beforeGit": "sha256:48ad6c1c52aea12cd901b55755a5ac575782000a5858decdb9e4da26692e1b9c",
+      "after": "sha256:d22e489437c767f0cb0a553f4a310c0773b3dd32e2b4790dc93e1f285fab5f31",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\uat-verify\\brief.md"
+    },
+    {
+      "path": "operators/uat-verify/operator.md",
+      "before": "sha256:f31962e9a58bf8533070132deb8a3e0f533036fabec64de7388932ba42adbba4",
+      "beforeGit": "sha256:f31962e9a58bf8533070132deb8a3e0f533036fabec64de7388932ba42adbba4",
+      "after": "sha256:9965a622a8beed87d2fd920c4d9a36811918925c347cb7876d5db0fc07ffdca8",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\uat-verify\\operator.md"
+    },
+    {
+      "path": "operators/uat-verify/operator.vi.md",
+      "before": "sha256:e6f9e7aa747b69a74c99bc3cc8bd06c693eacb9f9cd6a48f39da39128a51bd1d",
+      "beforeGit": "sha256:e6f9e7aa747b69a74c99bc3cc8bd06c693eacb9f9cd6a48f39da39128a51bd1d",
+      "after": "sha256:94f830d29315e6119e50a5f3a7f42a1b2ff69e80154e86e686cadac8fcbeed0a",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\uat-verify\\operator.vi.md"
+    },
+    {
+      "path": "operators/workflow-verify/brief.md",
+      "before": "sha256:76adf7c1fba3bfcaecaa112743d5cf91926a9f0f947f32d0d7f1cbd64af5d0e3",
+      "beforeGit": "sha256:76adf7c1fba3bfcaecaa112743d5cf91926a9f0f947f32d0d7f1cbd64af5d0e3",
+      "after": "sha256:c80b49fe07ef217b17a997e34885fc2b47caaa51f845f25a8c61d3f163087f64",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\workflow-verify\\brief.md"
+    },
+    {
+      "path": "operators/workflow-verify/operator.md",
+      "before": "sha256:7c8264c2e5e8ee4bdd945105d5148e251b7e96c6b905cbe4dfc18b50d566b9f5",
+      "beforeGit": "sha256:7c8264c2e5e8ee4bdd945105d5148e251b7e96c6b905cbe4dfc18b50d566b9f5",
+      "after": "sha256:1d1c5dc26d311db1999a6f07936d1b1afbd73ee7236ebf91b73e239e79ba88a0",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\workflow-verify\\operator.md"
+    },
+    {
+      "path": "operators/workflow-verify/operator.vi.md",
+      "before": "sha256:fda0d071c17dc7b329d13b19989a38547bfa422eec5bbf98bf637b17d6c3a00a",
+      "beforeGit": "sha256:fda0d071c17dc7b329d13b19989a38547bfa422eec5bbf98bf637b17d6c3a00a",
+      "after": "sha256:8de046bf347f70de2092d8c7f09a3f9be181d112d33873b76a6ce652756b6be8",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\workflow-verify\\operator.vi.md"
+    },
+    {
+      "path": "operators/workspace-bind/brief.md",
+      "before": "sha256:756dbff80d8183f7684af602e3db7e774df682f0790f21577c853ff59e64573d",
+      "beforeGit": "sha256:756dbff80d8183f7684af602e3db7e774df682f0790f21577c853ff59e64573d",
+      "after": "sha256:b096ad54cb05df85e39fdd0c6918945b84b9dc2348c28c9293f9e1d60db16136",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\operators\\workspace-bind\\brief.md"
+    },
+    {
+      "path": "package.json",
+      "before": "sha256:f32c8351fff579f91e963167210eaeed1fdb0686e144e7519ccbab150a12c41f",
+      "beforeGit": "sha256:f32c8351fff579f91e963167210eaeed1fdb0686e144e7519ccbab150a12c41f",
+      "after": "sha256:395b8eaef5668f06bb617ebadcd6a7372bcde0c8d2f5423b9bf3f9f777be3010",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\package.json"
+    },
+    {
+      "path": "resources/orchestrator.json",
+      "before": "sha256:d35e8e9a38a669983890cd4a07667b78e6e8e8b8635838c65b412163945c5845",
+      "beforeGit": "sha256:630dcc9cdd30ecfe075cf974373868fb508a86d061f6b5b2a529662cde70908a",
+      "after": "sha256:71ccef2c87b4a273567225dd31732bd398cd639d4fb56d1552c29258231d8fd7",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\resources\\orchestrator.json"
+    },
+    {
+      "path": "scripts/generate-operator-briefs.mjs",
+      "before": "sha256:e959186fe86a43d5a397a52cb0e4691437c54a3d6a812dcc7ee97b5f06b1c4ce",
+      "beforeGit": "sha256:e959186fe86a43d5a397a52cb0e4691437c54a3d6a812dcc7ee97b5f06b1c4ce",
+      "after": "sha256:6d98a64a15d2c5124379da8ed8d327c211a7a46c8264f4aaa597ca5e72a8733d",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\generate-operator-briefs.mjs"
+    },
+    {
+      "path": "scripts/mission-history.mjs",
+      "before": "sha256:c19aa56e8b07f645ef5c8db51ee860edfe8165ca98574911805ad830742e8ceb",
+      "beforeGit": "sha256:c19aa56e8b07f645ef5c8db51ee860edfe8165ca98574911805ad830742e8ceb",
+      "after": "sha256:cc192eb2b7027b4010384c4caf4e8031480af5fdde701809c2f59182a17d5a63",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\mission-history.mjs"
+    },
+    {
+      "path": "scripts/mission-scope.mjs",
+      "before": "sha256:b6549a49f1ee2664668418ee13b574635d0a17411311fd9eb79c39e559160f93",
+      "beforeGit": "sha256:b6549a49f1ee2664668418ee13b574635d0a17411311fd9eb79c39e559160f93",
+      "after": "sha256:f24cd6021e2f1a399c4a6015c6cb38b9c551be75976c4206e6d3f3d6d0112a3c",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\mission-scope.mjs"
+    },
+    {
+      "path": "scripts/operator-output-templates.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:59a23bc5870733956fe2035f01d90c660d29e72c04cbaf042e61943380dbd640",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\operator-output-templates.spec.mjs"
+    },
+    {
+      "path": "scripts/plan-history.mjs",
+      "before": "sha256:58440e5bfdde01703f8bca6f1f8a7e93aa2ee7d50af48454c3bbd6e69c7cc353",
+      "beforeGit": "sha256:58440e5bfdde01703f8bca6f1f8a7e93aa2ee7d50af48454c3bbd6e69c7cc353",
+      "after": "sha256:ac59319bcefe99114e30c3ee9c6a7c91396bae7a5f3e9e397f62ca2384f1a997",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\plan-history.mjs"
+    },
+    {
+      "path": "scripts/producer-import.mjs",
+      "before": "sha256:93aadbb56281b27660bc3cb49d4feb89922a70c32d7706f96ee784fa60267f3d",
+      "beforeGit": "sha256:93aadbb56281b27660bc3cb49d4feb89922a70c32d7706f96ee784fa60267f3d",
+      "after": "sha256:87f94dc9fd986335d2995d83c4456e80a187bb2002fd3e506c5d0041a53fa731",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\producer-import.mjs"
+    },
+    {
+      "path": "scripts/producer-import.spec.mjs",
+      "before": "sha256:2138541fc722db839021271f5da5b053e818f0daccb478afe75ff7e336b0c80f",
+      "beforeGit": "sha256:2138541fc722db839021271f5da5b053e818f0daccb478afe75ff7e336b0c80f",
+      "after": "sha256:fc1d38ff075ae26350be94dd1a1865d1d139b4394bf8b5280ac92bcf0182ac59",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\producer-import.spec.mjs"
+    },
+    {
+      "path": "scripts/scope-presentation.mjs",
+      "before": "sha256:eb0552be2bd6748180068632b5ca00be59e987ae05721e36e097a88765168651",
+      "beforeGit": "sha256:eb0552be2bd6748180068632b5ca00be59e987ae05721e36e097a88765168651",
+      "after": "sha256:9e6efe3246773386992d385c3bd09c7486a11791b713c766d1434afbc167872c",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\scope-presentation.mjs"
+    },
+    {
+      "path": "scripts/session-cleanup.mjs",
+      "before": "sha256:2f427ed0809e7da32b3f6ab28e2335901adb096ca9431d25fe0c87c1442b9ecd",
+      "beforeGit": "sha256:2f427ed0809e7da32b3f6ab28e2335901adb096ca9431d25fe0c87c1442b9ecd",
+      "after": "sha256:b57d6535d977d358041a0558c7b900da191f7d578af9fa9c4ea01d0a7b7ec639",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\session-cleanup.mjs"
+    },
+    {
+      "path": "scripts/session-cleanup.spec.mjs",
+      "before": "sha256:60067d854057e5e7375d6cc50065c0334222d53467dd1cd6a9c6a3650f943df6",
+      "beforeGit": "sha256:60067d854057e5e7375d6cc50065c0334222d53467dd1cd6a9c6a3650f943df6",
+      "after": "sha256:71a9a772c4eb30fd3360096927bdd5c24c2224936581a450a23372dddcac2dfc",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\session-cleanup.spec.mjs"
+    },
+    {
+      "path": "scripts/session-lock.mjs",
+      "before": "sha256:8cc648efee82cc01edf55668fd65b2d78bc110f279b2235b105ccf7e051eb35b",
+      "beforeGit": "sha256:8cc648efee82cc01edf55668fd65b2d78bc110f279b2235b105ccf7e051eb35b",
+      "after": "sha256:5446a5e24dc7800fbe4c3cc447f548737302c6e31d9606f640cfb5d8a119d022",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\session-lock.mjs"
+    },
+    {
+      "path": "scripts/session-lock.spec.mjs",
+      "before": "sha256:bce452d35b315e01471e81d7f35318c63ccb74d9e18a1b34d7dc57e9ada635ad",
+      "beforeGit": "sha256:bce452d35b315e01471e81d7f35318c63ccb74d9e18a1b34d7dc57e9ada635ad",
+      "after": "sha256:484b0dce86ee484c4470c59faaf16442f2bf48884e61c542b411f75858bd01b5",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\session-lock.spec.mjs"
+    },
+    {
+      "path": "scripts/session-open.mjs",
+      "before": "sha256:5a0438ca44d42e5d9190859cce7a2ffd4e596fdac03a0707c2a8a02ed815609e",
+      "beforeGit": "sha256:5a0438ca44d42e5d9190859cce7a2ffd4e596fdac03a0707c2a8a02ed815609e",
+      "after": "sha256:57a0356c9aa0a559bb03f2d6a2aababd030d626db946fb243603e047b0cd9649",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\session-open.mjs"
+    },
+    {
+      "path": "scripts/validate-chain.mjs",
+      "before": "sha256:13ff036c6a29d05f5dc59b59ba554bcd24cb9de84ad653ba25ebcbfde50349ec",
+      "beforeGit": "sha256:13ff036c6a29d05f5dc59b59ba554bcd24cb9de84ad653ba25ebcbfde50349ec",
+      "after": "sha256:7ed865c0a751fc61de19600838bb5389454d9a81478382ae787dfe127224c723",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\validate-chain.mjs"
+    },
+    {
+      "path": "scripts/validate-request.mjs",
+      "before": "sha256:056222e58c25e7e5e0c164a70d32c9fc1e705a60dccc3c674b3c2edb943a6875",
+      "beforeGit": "sha256:056222e58c25e7e5e0c164a70d32c9fc1e705a60dccc3c674b3c2edb943a6875",
+      "after": "sha256:1dd20f4a8c3e5f7a832867895b71d7a38708fdc5f2ce183a5ec4854f1bf7ed75",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\validate-request.mjs"
+    },
+    {
+      "path": "scripts/validate-session.mjs",
+      "before": "sha256:3b1a59a64515da80d3ee2f09a0727063c5cc4f23b875aff8c4ced81094115261",
+      "beforeGit": "sha256:3b1a59a64515da80d3ee2f09a0727063c5cc4f23b875aff8c4ced81094115261",
+      "after": "sha256:6d0a58c89c05e09914757e9e001bc1ea40c099ca11465c883569d53c10ff4bb6",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\validate-session.mjs"
+    },
+    {
+      "path": "scripts/workflow-combined-lifecycle.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:ff5475f2d09cc2bcda7298f7ad893797ba9a234db26daf629b87e739f34ac5d3",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-combined-lifecycle.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-coordination-history.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:4930baa9b491bd62424f313460c6e1b54e89afaffd2a54cf59d12aca3305b282",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-coordination-history.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-coordination-rebind.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:f2d5cdea698738ebca9317c96d066474efa68c87a2780bd8b59a80584fa5c4f4",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-coordination-rebind.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-coordination-scope.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:92bf79a7a9d572f20fdf2553a6fbe0b8dd528bfe45d05fe22b64bb454c80554e",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-coordination-scope.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-coordination.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:78130ac7a380451c95c38810639fcf032425b79a573b4174121ca8c4abd575dd",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-coordination.mjs"
+    },
+    {
+      "path": "scripts/workflow-coordination.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:7199f88891e13780059b21cd0f8b284c5b0ad100caa233dd806da953399acf91",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-coordination.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-feedback-measurement.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:a1aad214f863a1ff38c11b63ff90b1822727dd897298608372d5b3ed707c53a1",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-feedback-measurement.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-incorporation-git.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:f80a2f3a29301c4add7f2062ce7a921786536b823e2a52a29289d1d7dcb72cd1",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-incorporation-git.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-incorporation.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:98ddb8d49eb00ca37cf830a0ae8d20394753623672e3884ab14e91079e4fdc78",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-incorporation.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-integration.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:5fed9d24e7dbb2098ae68f169f081aa2885fc2b82270ee8e72fcaecd16b291f4",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-integration.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-interface-fixture.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:2625f33fdf43b14ae4a2cb57e9686c487fb5c43bfab32813a5c45118ce70b791",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-interface-fixture.mjs"
+    },
+    {
+      "path": "scripts/workflow-interface-fixture.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:fb0effc5ffcc5b83c165fbff9ef949179510f3bc06652495ed3e4d92ccd1d383",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-interface-fixture.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-interface-grammar.fixture.json",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:56acba115b0ac3bf7aca2f8e1c965a8dd95069abf6cff26f9be65d0077537860",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-interface-grammar.fixture.json"
+    },
+    {
+      "path": "scripts/workflow-peer-scope.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:a6d5f1157946599d31cb707a544fc55e218d1b11bdaf2735405c13c4e71f2e89",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-peer-scope.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-reentry.spec.mjs",
+      "before": "sha256:f5601329fa3a82e1b0efc969e1b214f13fcd82cec679f5a21423ee832bfdd061",
+      "beforeGit": "sha256:f5601329fa3a82e1b0efc969e1b214f13fcd82cec679f5a21423ee832bfdd061",
+      "after": "sha256:2a414aa509aad710e04000de6e65c2d203e68e07002d88974b8b38e7c26c79ef",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-reentry.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-runtime-integration-fixture.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:03b04fc55c2a1430dc7923fb57a117752fcb74307b6b1a7ca00537e9eddffae6",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-runtime-integration-fixture.mjs"
+    },
+    {
+      "path": "scripts/workflow-runtime-integration-fixture.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:387468fc63765e23a8c6a312e23b7ce98115a2c70630d4a59077c62b50e7a983",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-runtime-integration-fixture.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-runtime-proof.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:7a9da2c81b1675f2b536e294f2ac349a545f118427e8869c571f3cecb2a272b8",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-runtime-proof.mjs"
+    },
+    {
+      "path": "scripts/workflow-runtime-proof.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:88d58db114934cd10b597ef09e28fa46afda28e741f1e5dca5d44a3b4f4b3867",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-runtime-proof.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-shared-source-fixture.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:a649220282e9723ac089a01c9049fb584812a34534ff4f8446cdefb91d1ae3e8",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-shared-source-fixture.mjs"
+    },
+    {
+      "path": "scripts/workflow-source-fixture.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:5d8f928dfacf8ef81b2b297ac472d1f4eb4ac457ba99101aa99ba15ae02c248b",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-source-fixture.mjs"
+    },
+    {
+      "path": "scripts/workflow-source-fixture.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:7a95bcef873bfcb3565a5fe770ca5cb8b2bf80ddd2239b795a1cbf8e659e9ddb",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-source-fixture.spec.mjs"
+    },
+    {
+      "path": "scripts/workflow-verification.mjs",
+      "before": "sha256:1203ac37936494c795d4434bf78ef79e70189f1ae5c769d5313575f91a245673",
+      "beforeGit": "sha256:1203ac37936494c795d4434bf78ef79e70189f1ae5c769d5313575f91a245673",
+      "after": "sha256:2cae40f3f194d2eaec46cbf392c50b5f09da3295a0f97c4aeaa8516ecbfd5f3a",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-verification.mjs"
+    },
+    {
+      "path": "scripts/workflow-verifier-fixture.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:6f5295427018e9589d69bcef96b826cf22a56168b88116719647511826fd9300",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-verifier-fixture.mjs"
+    },
+    {
+      "path": "scripts/workflow-verifier-fixture.spec.mjs",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:968fecd1bdcf2d964ff10b9bbd8b6444601e5f6d3ce3bbb3e42d84bf24f016c0",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workflow-verifier-fixture.spec.mjs"
+    },
+    {
+      "path": "scripts/workspace-checkout.mjs",
+      "before": "sha256:86b613a49c7e85c24032383867edd7121351cee85ebb493451ebeee955d1798b",
+      "beforeGit": "sha256:86b613a49c7e85c24032383867edd7121351cee85ebb493451ebeee955d1798b",
+      "after": "sha256:2a59e1a111bed8271c74e249ed826fc045618ac08ec1fcd5c0efae4354634395",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workspace-checkout.mjs"
+    },
+    {
+      "path": "scripts/workspace-checkout.spec.mjs",
+      "before": "sha256:632780d5f4f695ce91dbb594a931cb559bd03652c270090f72f31ad09a9734cb",
+      "beforeGit": "sha256:632780d5f4f695ce91dbb594a931cb559bd03652c270090f72f31ad09a9734cb",
+      "after": "sha256:88c4847e2b1e35dc8a59757af65527a9d8ae18226cb209a0dd0a44de2e2f6888",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\scripts\\workspace-checkout.spec.mjs"
+    },
+    {
+      "path": "templates/kinds/goal-discovery.schema.json",
+      "before": "sha256:f4a2ad560295efce62e080f7c776d5ba87fac45a1ca8b1b17ae0997812c865fe",
+      "beforeGit": "sha256:f4a2ad560295efce62e080f7c776d5ba87fac45a1ca8b1b17ae0997812c865fe",
+      "after": "sha256:4d8992eac6325e29ff7ee9187907fd71c44bc63ec936a4f6bf64f2fcb9b5dcfe",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\templates\\kinds\\goal-discovery.schema.json"
+    },
+    {
+      "path": "templates/kinds/workflow-peers.schema.json",
+      "before": "sha256:d4456f7b17845598bf6ad6d6c6c0cbece2b64d73f730013c815b23c18695094d",
+      "beforeGit": "sha256:d4456f7b17845598bf6ad6d6c6c0cbece2b64d73f730013c815b23c18695094d",
+      "after": "sha256:e87d4ac9bb3629e81a06b14f6fca3577def817d0643b386f25ce83e48d0d52a0",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\templates\\kinds\\workflow-peers.schema.json"
+    },
+    {
+      "path": "templates/kinds/workflow-verification-report.schema.json",
+      "before": "sha256:e75dc294d03eccccd28b24bca5e6afd47646a87eadbea7173b3f8c97d95f9658",
+      "beforeGit": "sha256:e75dc294d03eccccd28b24bca5e6afd47646a87eadbea7173b3f8c97d95f9658",
+      "after": "sha256:7619ef24c5283a0b665ce5ec2efe1aa7586c442593a2dc620454f062da971f23",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\templates\\kinds\\workflow-verification-report.schema.json"
+    },
+    {
+      "path": "templates/step/request.schema.json",
+      "before": "sha256:076a3c70f99264387d09159acf2b3d7facd98bd33798999161e1e62874dc9d90",
+      "beforeGit": "sha256:076a3c70f99264387d09159acf2b3d7facd98bd33798999161e1e62874dc9d90",
+      "after": "sha256:b0cead7b1e040802455c4a1c4b7e5ae465f047a6d465d3d4834b96835a184d26",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\templates\\step\\request.schema.json"
+    },
+    {
+      "path": "templates/step/state.schema.json",
+      "before": "sha256:3e9cf63d4f70219bf9de8729a1b23e8a1cda1f053b9fb8f92bd3534f8a2fcfd9",
+      "beforeGit": "sha256:3e9cf63d4f70219bf9de8729a1b23e8a1cda1f053b9fb8f92bd3534f8a2fcfd9",
+      "after": "sha256:b8c2ff096dcb743af2e7e9270c34c0ad6ae8ef0e9625c5ed1afa646d276b017a",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\templates\\step\\state.schema.json"
+    },
+    {
+      "path": "tests/evidence/20260906-dynamic-coordination.md",
+      "before": null,
+      "beforeGit": null,
+      "after": "sha256:60577d1013815daaeb7483441cd90cf267ef4798c41746b649ee8556561f1e40",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\tests\\evidence\\20260906-dynamic-coordination.md"
+    },
+    {
+      "path": "workflows/README.md",
+      "before": "sha256:a077a9acb9384cca4744f5ee0934555299387bace05a7ac97395c734b8e3558f",
+      "beforeGit": "sha256:a077a9acb9384cca4744f5ee0934555299387bace05a7ac97395c734b8e3558f",
+      "after": "sha256:0052ffc785bac01e2e4dd0de6d60938c5e255d21ff16da3588ba19ca181b098c",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\workflows\\README.md"
+    },
+    {
+      "path": "workflows/README.vi.md",
+      "before": "sha256:17e6557e01b3f52a3367d6d589d4b7b957054a84a7e43eefb3122241684938b6",
+      "beforeGit": "sha256:17e6557e01b3f52a3367d6d589d4b7b957054a84a7e43eefb3122241684938b6",
+      "after": "sha256:0ec749308447e552b794964308e42d88ff5888817949a828706d408dd9c57929",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\workflows\\README.vi.md"
+    },
+    {
+      "path": "workflows/discovery.md",
+      "before": "sha256:60a4a54da6708d8feabd1de152574c659e61bb27d777b599e6d0229d309ec675",
+      "beforeGit": "sha256:60a4a54da6708d8feabd1de152574c659e61bb27d777b599e6d0229d309ec675",
+      "after": "sha256:683e78f3410099e691751f34ffec1140d3d55f63a3f831ee107f5cb9768ff495",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\workflows\\discovery.md"
+    },
+    {
+      "path": "workflows/discovery.vi.md",
+      "before": "sha256:48cdd999eaceb54fe9eaf49d0f8d05cf1d6268ceb1f2985b8543ee78c7b59eda",
+      "beforeGit": "sha256:48cdd999eaceb54fe9eaf49d0f8d05cf1d6268ceb1f2985b8543ee78c7b59eda",
+      "after": "sha256:6b00b7ad860a8ae31855d569e1767ffd5ad37f2e3888d400f0726bb5074d4e3b",
+      "source": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\.claude\\workflows\\discovery.vi.md"
+    }
+  ],
+  "deleted": [],
+  "fingerprint": "sha256:115db5f457801cfe87e1c78178e05080f538a0c1131d199b825b487ec6ac70d7",
+  "provenance": {
+    "rebase-rc7/applied.json": "sha256:6c30f21361281a83f52d1c31188e43c220061dc8323aad699080dddc17eb58e2",
+    "rebase-rc8/applied.json": "sha256:24c3c358daba736228f60c0f5fabbf59e0b1c1cadf5bc30a0c91d0f021c1f2bd",
+    "rebase-rc8/release-manifest.json": "sha256:a6f21afceb35b4fddb001674a9671124b3ce2d0657c44a300421f41814ce9857",
+    "proof-review-integration/focused-manifest.json": "sha256:c558f0942dad2e12c48af38eff6ffe9676c73ed9e5445608e82e2e208924cdf5",
+    "proof-review-integration/applied.json": "sha256:0acba849d4622baf9036857de6cf551ec4681a8619509aad81c91dfb23de7864",
+    "output-templates-provenance.json": "sha256:f30a5c9dbfc326024f095d80abcb0976517d4fad19792c23440d7579cc62382e",
+    "feedback-measurement-manifest.json": "sha256:608190ffffe8c58051dc90c4327bd4da19309116ac59df95cba2035bc47348d2",
+    "retry-order-integration/applied.json": "sha256:b8cc712d43ae76bbe611450f364813d850a5ab5c186d14178e9ec40c19151b62",
+    "retry-order-integration/result.json": "sha256:f81a551d9e93aff0979192f676db00cdaf2b406d38ae7cc26305fc02c4d9d1c4"
+  },
+  "evidence": {
+    "tested-payload-before.json": "sha256:22b4acbc31dc46f48b5fb34315e14ec1135018561fedce7a383492b16ce4a1e4",
+    "tested-payload-after.json": "sha256:22b4acbc31dc46f48b5fb34315e14ec1135018561fedce7a383492b16ce4a1e4",
+    "coordinator-output-precheck.log": "sha256:968b6f76abdef0ef5372299a6483378225d21cbd3c6dbcbfbb511e0540a56464",
+    "combined-lifecycle-final.log": "sha256:a75ac5ee9469c3ad74da4863fcbceed26d3e4e67a82cbe28857973e25219af25",
+    "incorporation-typed-id-final.log": "sha256:f7458b72f3772f156f7e9049d4e9c5032b64bcad7ccddd9d604288ba25586958",
+    "coordination-history-final.log": "sha256:eebb221645c165c06994344509a971d4e21a37d9f2fe9ad1adf586077c8816d2",
+    "coordination-id-final.log": "sha256:f37fd5ce7988a057d250225c8d6e2c15641efe92e00105e75819ef6b7faf378c",
+    "coordinator-admission-final.log": "sha256:0c51f03af76d70518035e063bcabe455be466548c071c212a7e8d5411ed8cd30",
+    "coordination-scope-regression.log": "sha256:5058dee5273be6dcffd473727f3b152e62ecdeea3ef8a11a8e7054938f8f6924",
+    "coordination-inflight-first.log": "sha256:853e6867a249df28712a2db0820a57499dedfdeaa9fb0edb33263ce9b92d12fa",
+    "feedback-measurement-second.log": "sha256:d152aacb32d46fe922dfec194a4d130adc2118b79e925272c076beef2cb8ba1c",
+    "feedback-accepted-browser.log": "sha256:020dd9efb876aeee0bff8d94aed6935afd572a0ff4a4daaf7f1ff6e33a7adfdb",
+    "readonly-prerequisite-final.log": "sha256:aeeb69373346657b895262ada9a079b0be1aee9149fa1a253487c02c8379f276",
+    "full-suite-first-failure/full-suite-final.log": "sha256:c5de6784845d55cfaa40b28c6fc936ccb87d32616b9cdd3e5d320b494a3570de",
+    "full-suite-first-failure/tested-payload-before.json": "sha256:e0463c9b3ec5dae58f1df5ae5731b189464f5ed9b7d81d5f979cf60ee4a30195",
+    "full-suite-final.log": "sha256:5c5c661064dd3cf7deae22358d4b68dd22583465be1e3dfe6a74c259a2fb46d5",
+    "pack-final.json": "sha256:5b2089307b5fbac506a84181c1da1fa8bc9220c96a399fdf38d1a80c48618b08",
+    "install-final.log": "sha256:f8320267b7d39f063f9a93d8af73914006d3cdc4c67b92283708b2455db7bb44",
+    "doctor-final.log": "sha256:d546d908031d3776a0dbb16712369c1df64a2b93055a53f0a663af62f0c6e7f2",
+    "packed-inventory.json": "sha256:0ac67934b5ae604d21a58dcee4d0e754a3a669e3ac1309ed97dba21b1f8d2993"
+  },
+  "validation": {
+    "testedPayload": {
+      "files": 928,
+      "fingerprint": "sha256:e6f4a3ec22b804bf516dbdbcf2ea353a5f38fc800e247e41afb64087e7abbe61"
+    },
+    "combined": {
+      "exitCode": 0,
+      "startedAt": "2026-09-06T15:23:07.8880994Z",
+      "finishedAt": "2026-09-06T15:37:32.9897064Z",
+      "log": "full-suite-final.log",
+      "execution": "Actual workflow-combined-lifecycle.spec.mjs within the complete immutable npm test",
+      "payloadInventory": "tested-payload-before.json",
+      "baseline": "7e13c6b02622b3c06a6ed04eedd418749ad00215"
+    },
+    "fullSuite": {
+      "exitCode": 0,
+      "startedAt": "2026-09-06T15:23:07.8880994Z",
+      "finishedAt": "2026-09-06T15:37:32.4647654Z",
+      "log": "full-suite-final.log",
+      "payloadInventory": "tested-payload-before.json",
+      "baseline": "7e13c6b02622b3c06a6ed04eedd418749ad00215",
+      "summary": {
+        "tests": 554,
+        "pass": 554,
+        "fail": 0,
+        "skipped": 0
+      },
+      "generatedDocs": 76
+    },
+    "package": {
+      "exitCode": 0,
+      "startedAt": "2026-09-06T15:38:50.0663412Z",
+      "finishedAt": "2026-09-06T15:38:56.2563906Z",
+      "archive": "starci-skills-2.5.0-rc.9.tgz",
+      "installed": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-dynamic-coordination\\release-artifacts\\installed"
+    },
+    "operatorBriefs": 27,
+    "maxBriefBytes": 3069
+  },
+  "publication": "Not published. Parent owns final review, coherent adoption and publication."
+}

@@ -94,6 +94,16 @@ describe("primary PostgreSQL entity metadata contracts",
 
                 for (const index of storage.indices) {
                     expect(entityTargets.has(index.target)).toBe(true)
+                    if (index.synchronize === false) {
+                        // `@Index(name, { synchronize: false })` declares a migration-owned
+                        // index by name only, so `IndexMetadata.build` returns before it
+                        // ever reads a column selector. TypeORM's decorator parks the
+                        // options object in `columns` for that overload; retention only
+                        // needs the name, which is what we assert instead.
+                        expect(typeof index.name).toBe("string")
+                        expect(index.name?.length ?? 0).toBeGreaterThan(0)
+                        continue
+                    }
                     const properties = propertiesByTarget.get(index.target) ?? new Set<string>()
                     for (const property of resolvePropertyNames(index.columns)) {
                         expect(properties.has(property)).toBe(true)

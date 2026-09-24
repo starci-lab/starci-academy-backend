@@ -1,6 +1,10 @@
 import {
     Injectable,
+    Optional,
 } from "@nestjs/common"
+import {
+    ProSubscriptionService,
+} from "@modules/bussiness/pro-subscription/pro-subscription.service"
 import {
     type EntityManager,
 } from "typeorm"
@@ -98,6 +102,8 @@ export class AiEntitlementService {
         private readonly mountFilesystemService: MountFilesystemService,
         private readonly aiAutoQuotaConfigService: AiAutoQuotaConfigService,
         private readonly dayjsService: DayjsService,
+        @Optional()
+        private readonly proSubscriptionService?: ProSubscriptionService,
     ) { }
 
     /**
@@ -113,6 +119,7 @@ export class AiEntitlementService {
     async resolve({
         userId,
     }: ResolveEntitlementParams): Promise<AiEntitlement> {
+        const proActive = await this.proSubscriptionService?.isActive(userId) ?? false
         return this.entityManager.transaction(
             async (entityManager) => {
                 const subscription = await this.loadOrCreate(
@@ -121,7 +128,8 @@ export class AiEntitlementService {
                 )
                 this.applyWindowResets(subscription)
                 await entityManager.save(subscription)
-                return this.toEntitlement(subscription)
+                return this.toEntitlement(subscription,
+                    proActive)
             },
         )
     }
@@ -150,6 +158,7 @@ export class AiEntitlementService {
         completionTokens,
         attempts,
     }: ConsumeEntitlementParams): Promise<void> {
+        const proActive = await this.proSubscriptionService?.isActive(userId) ?? false
         await this.entityManager.transaction(
             async (entityManager) => {
                 if (cost > 0) {
@@ -194,7 +203,8 @@ export class AiEntitlementService {
                     const {
                         limit5h,
                         limitWeek,
-                    } = this.creditAllowance(tier)
+                    } = this.creditAllowance(tier,
+                        proActive)
                     const effectiveLimit5h = limit5h
                         + subscription.bonusCredit5h
                     const effectiveLimitWeek = limitWeek
@@ -298,6 +308,7 @@ export class AiEntitlementService {
     async snapshot({
         userId,
     }: ResolveEntitlementParams): Promise<AiQuotaSnapshot> {
+        const proActive = await this.proSubscriptionService?.isActive(userId) ?? false
         return this.entityManager.transaction(
             async (entityManager) => {
                 const subscription = await this.loadOrCreate(
@@ -312,7 +323,8 @@ export class AiEntitlementService {
                     entityManager,
                 )
                 return this.toSnapshot(subscription,
-                    unlocked)
+                    unlocked,
+                    proActive)
             },
         )
     }
@@ -361,6 +373,7 @@ export class AiEntitlementService {
     async getSettings({
         userId,
     }: ResolveEntitlementParams): Promise<AiSettings> {
+        const proActive = await this.proSubscriptionService?.isActive(userId) ?? false
         return this.entityManager.transaction(
             async (entityManager) => {
                 const subscription = await this.loadOrCreate(
@@ -375,7 +388,8 @@ export class AiEntitlementService {
                     entityManager,
                 )
                 return this.toSettings(subscription,
-                    unlocked)
+                    unlocked,
+                    proActive)
             },
         )
     }
@@ -492,6 +506,9 @@ export class AiEntitlementService {
         if (subscription && this.isPremiumActive(subscription)) {
             return true
         }
+        if (await this.proSubscriptionService?.isActive(userId)) {
+            return true
+        }
         return this.hasActiveEnrollment(userId,
             entityManager)
     }
@@ -582,11 +599,14 @@ export class AiEntitlementService {
     private toSettings(
         subscription: AiSubscriptionEntity,
         unlocked = false,
+        proActive = false,
     ): AiSettings {
         const canPremium = unlocked
-        const tier = this.isPremiumActive(subscription)
-            ? subscription.tier
-            : null
+        const tier = proActive
+            ? AiSubTier.Pro
+            : this.isPremiumActive(subscription)
+                ? subscription.tier
+                : null
 
         return {
             canPremium,
@@ -723,15 +743,19 @@ export class AiEntitlementService {
      */
     private toEntitlement(
         subscription: AiSubscriptionEntity,
+        proActive = false,
     ): AiEntitlement {
-        const tier = this.isPremiumActive(subscription)
-            ? subscription.tier
-            : null
+        const tier = proActive
+            ? AiSubTier.Pro
+            : this.isPremiumActive(subscription)
+                ? subscription.tier
+                : null
         const allowedCategories = TIER_ALLOWED_CATEGORIES[tier ?? "free"]
         const {
             limit5h,
             limitWeek,
-        } = this.creditAllowance(tier)
+        } = this.creditAllowance(tier,
+            proActive)
         // Coin-shop aiCredit top-up: magnitude-only extension of THIS window's
         // budget, never a model-category unlock (that stays tier-gated above)
         const effectiveLimit5h = limit5h + subscription.bonusCredit5h
@@ -761,7 +785,15 @@ export class AiEntitlementService {
      */
     private creditAllowance(
         tier: AiSubTier | null,
+        proActive = false,
     ): AiCreditAllowance {
+        const proOffer = this.mountFilesystemService.appConfig().proSubscription
+        if (proActive && proOffer) {
+            return {
+                limit5h: proOffer.creditsPer5h,
+                limitWeek: proOffer.creditsPerWeek,
+            }
+        }
         const tierConfig = tier ? this.findTierConfig(tier) : null
         // paid tier overrides the free base
         if (tierConfig) {
@@ -784,14 +816,18 @@ export class AiEntitlementService {
     private toSnapshot(
         subscription: AiSubscriptionEntity,
         unlocked = false,
+        proActive = false,
     ): AiQuotaSnapshot {
-        const tier = this.isPremiumActive(subscription)
-            ? subscription.tier
-            : null
+        const tier = proActive
+            ? AiSubTier.Pro
+            : this.isPremiumActive(subscription)
+                ? subscription.tier
+                : null
         const {
             limit5h,
             limitWeek,
-        } = this.creditAllowance(tier)
+        } = this.creditAllowance(tier,
+            proActive)
         // Coin-shop aiCredit top-up: magnitude-only extension of THIS window's
         // budget, folded into the shown limit (never a category unlock)
         const effectiveLimit5h = limit5h + subscription.bonusCredit5h
@@ -879,6 +915,7 @@ export class AiEntitlementService {
             category,
         }: SetCeilParams,
     ): Promise<AiQuotaSnapshot> {
+        const proActive = await this.proSubscriptionService?.isActive(userId) ?? false
         return this.entityManager.transaction(
             async (entityManager) => {
                 const subscription = await this.loadOrCreate(
@@ -899,7 +936,9 @@ export class AiEntitlementService {
                     ? overrides
                     : null
                 await entityManager.save(subscription)
-                return this.toSnapshot(subscription)
+                return this.toSnapshot(subscription,
+                    proActive,
+                    proActive)
             },
         )
     }

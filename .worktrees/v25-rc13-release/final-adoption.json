@@ -1,0 +1,37 @@
+{
+  "adoptedAt": "2026-09-07T01:54:47.162Z",
+  "counts": {
+    "tests": 583,
+    "pass": 583,
+    "fail": 0,
+    "skipped": 0
+  },
+  "testedTree": "76e29df796e9a60c9ddd0972c874bbc90b6b159825d6f42b907a18f223117f2f",
+  "package": {
+    "matches": true,
+    "version": "2.5.0-rc.13",
+    "packedFiles": 744,
+    "installedFiles": 739,
+    "archiveSha256": "d5ebf793a1ba0348fb7ae6de8b233dbef384bc09330f7de0d566de2f048a3501",
+    "fullSuite": "integrated-run-1; completion separate",
+    "published": false
+  },
+  "files": [
+    {
+      "path": "scripts/plan-history.mjs",
+      "before": "189ba3aebbff6b28d1c7357928b06af482ad1d57019ccdd2d0e8086f2386fb80",
+      "after": "285684c4b377f5e4ac4ea1a33c5d1a959e0242e6957f4fda911842a5ec00438d"
+    },
+    {
+      "path": "scripts/nested-return-fixture.mjs",
+      "before": "6892407a9d7617817f6a406f013c6418b8eb919f2aaab180edf21d57951768ec",
+      "after": "dab3f9982bdfaf56beddec68defe25a17166fb58b2b2515f401b8c5069f6cede"
+    },
+    {
+      "path": "scripts/restatement-reentry.spec.mjs",
+      "before": null,
+      "after": "9277d1819f5dea3e5c00538cd2ac31147d9e1049d40a46c02261032ea9e883bc"
+    }
+  ],
+  "published": false
+}

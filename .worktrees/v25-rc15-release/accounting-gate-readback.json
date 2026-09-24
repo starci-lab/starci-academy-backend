@@ -1,0 +1,8 @@
+{
+  "at": "2026-09-07T03:25:55.831Z",
+  "candidate": "final-host/.claude",
+  "toolEvidence": "exec chunk01ff96 exited0: request valid",
+  "request": "sha256:343a9a866878f8322c78e0d7ce008eb4cc2e1b0436a054605f9a38cfdc5edf21",
+  "snapshot": "sha256:20bf699e584d3aa5b1854c48302d182fa0b445cf87e737f352c85b772a6f1e47",
+  "limit": "Read-only candidate validation, not attempt admission or critique completion"
+}

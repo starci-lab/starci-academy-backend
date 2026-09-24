@@ -1,0 +1,19 @@
+{
+  "selected": "as-stated",
+  "selectedBy": "user",
+  "sourceRef": "thread:01a04cb0-efee-77c3-80e9-9e36b2ab5a54#response-sync-authority",
+  "authority": {
+    "kind": "scope-answer",
+    "sourceRef": "thread:01a04cb0-efee-77c3-80e9-9e36b2ab5a54#response-sync-authority",
+    "statement": "làm đi",
+    "scopeHash": "sha256:adea4c02228822448c5aa1ef090d06e675d16945786e323979f3c88eabecd931",
+    "presentedScopeHash": "sha256:adea4c02228822448c5aa1ef090d06e675d16945786e323979f3c88eabecd931",
+    "coverage": {
+      "goal": "làm đi",
+      "impact": "làm đi",
+      "destination": "làm đi",
+      "stage": "làm đi",
+      "verification": "làm đi"
+    }
+  }
+}

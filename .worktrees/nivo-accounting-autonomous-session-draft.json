@@ -1,0 +1,75 @@
+{
+  "sessionId": "20260908-nivo-accounting-autonomous",
+  "project": "nivo",
+  "topology": {
+    "mode": "solo"
+  },
+  "hostBinding": {
+    "kind": "codex-task",
+    "hostId": "current-codex-task",
+    "worktree": "D:\\Repositories\\starci-academy-backend\\.worktrees\\routed\\nivo-accounting-autonomous-20260908",
+    "sourcePromptRef": "codex-thread:current#continue-nivo-plan-20260908"
+  },
+  "mission": {
+    "language": "vi",
+    "goal": "Hoàn tất Nivo Accounting vận hành tự chủ trong phạm vi quyền được cấp, không cần người duyệt cho giao dịch thường lệ.",
+    "target": "Nivo Accounting backend, frontend workbench và bốn hành trình UAT cục bộ",
+    "includes": [
+      "Chốt business promise cho vận hành kế toán tự chủ",
+      "Thiết kế service principal, policy, Saga, CQRS và transactional outbox",
+      "Triển khai backend contract và migration forward-only",
+      "Thiết kế và triển khai Accounting workbench",
+      "Kiểm chứng bốn luồng UAT tuần tự bằng browser và backend readback"
+    ],
+    "excludes": [
+      "Chatbot control-plane",
+      "Production deployment hoặc production data mutation",
+      "Push hoặc force-push",
+      "Thay đổi ngoài Accounting"
+    ],
+    "outputs": [
+      "Business authority đã chốt",
+      "SDS Accounting có ownership và recovery cụ thể",
+      "Backend implementation và API contract đã kiểm chứng",
+      "Frontend workbench đã audit render",
+      "Bằng chứng UAT cho bốn hành trình và cleanup"
+    ],
+    "doneWhen": [
+      {
+        "evidence": "Business promise và coverage matrix được chấp nhận",
+        "producedBy": "business.decide"
+      },
+      {
+        "evidence": "SDS ánh xạ đầy đủ business flow sang service, store, contract và recovery",
+        "producedBy": "architecture.decide"
+      },
+      {
+        "evidence": "Backend autonomous Accounting và API contract vượt kiểm chứng",
+        "producedBy": "backend.generate"
+      },
+      {
+        "evidence": "Hướng UI Accounting được vẽ và duyệt trước implementation",
+        "producedBy": "interface.draw"
+      },
+      {
+        "evidence": "Frontend workbench thực thi đúng contract backend",
+        "producedBy": "interface.generate"
+      },
+      {
+        "evidence": "Render wide, intermediate và compact không còn visual blocker",
+        "producedBy": "interface.audit"
+      },
+      {
+        "evidence": "Quality gates backend và frontend có bằng chứng thật",
+        "producedBy": "quality.verify"
+      },
+      {
+        "evidence": "Bốn journey UAT tuần tự pass với readback và cleanup",
+        "producedBy": "uat.verify"
+      }
+    ],
+    "verification": "Chỉ nhận kết quả từ receipt hợp lệ; source, tests, render screenshot, browser journey, backend readback và cleanup đều phải là bằng chứng mới trên session branch.",
+    "example": "Một chứng từ đủ policy được post đúng một lần; replay trả kết quả cũ, thiếu policy tạo exception không có partial write.",
+    "sourceRef": "codex-thread:current#continue-nivo-plan-20260908"
+  }
+}

@@ -44,6 +44,9 @@ import {
 import {
     UserService,
 } from "../user/user.service"
+import {
+    EffectiveLearnerAccessService,
+} from "../pro-subscription/effective-learner-access.service"
 import type {
     ApplySm2Params,
     ApplySm2Result,
@@ -98,6 +101,7 @@ export class FlashcardReviewService {
         private readonly entityManager: EntityManager,
         private readonly flashcardDeckResolver: FlashcardDeckResolverService,
         private readonly userService: UserService,
+        private readonly effectiveLearnerAccessService: EffectiveLearnerAccessService,
     ) {}
 
     /**
@@ -571,8 +575,8 @@ export class FlashcardReviewService {
      * read premium cards from that course -- mirrors `ContentHandler.isEntitled`
      * (`content.handler.ts:283-300`). A batch of cards (due queue or an id-based
      * rehydrate) can span several courses, so this is checked per course rather
-     * than once for the whole batch; `UserService.checkEnrollment` is backed by a
-     * single per-user cached set, so repeat calls for the same user are cheap.
+     * than once for the whole batch; the centralized effective-access decision
+     * composes active Pro with factual legacy enrollment.
      *
      * @param cards - The loaded cards (each card's `deck.courseId` identifies its course).
      * @param userId - Active user id.
@@ -594,7 +598,7 @@ export class FlashcardReviewService {
             }
             entitledByCourseId.set(
                 courseId,
-                await this.userService.checkEnrollment(
+                await this.effectiveLearnerAccessService.hasCourseAccess(
                     userId,
                     courseId,
                 ),

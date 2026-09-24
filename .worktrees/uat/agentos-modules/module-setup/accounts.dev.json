@@ -1,0 +1,30 @@
+{
+  "env": "dev",
+  "flow": "module-setup",
+  "identity": "nivo/fe",
+  "accounts": {
+    "owner": {
+      "username": "uat-nivo-setup-042915",
+      "role": "customer",
+      "memberships": [
+        "realm:nivo",
+        "client:nivo-web"
+      ],
+      "providerAccountRef": "572f76e8-a997-452f-9abe-8cb61553aa4d",
+      "action": "reuse",
+      "observedAt": "2026-09-05T23:48:41.549Z",
+      "loginProof": {
+        "method": "browser",
+        "endpoint": "http://localhost:3067/vi/agentos/workspaces/8c8b0002-0429-4268-aa15-000000000026/modules/8c8b0003-0429-4268-aa15-000000000026/setup",
+        "outcome": "passed",
+        "evidenceRef": "response/data/walks/module-setup-owner-login/walk-result.json",
+        "verifiedAt": "2026-09-05T23:54:09.235Z"
+      },
+      "credentialName": "uat-shared",
+      "sealed": ".stacks/dev/secrets/uat.enc",
+      "provisionedBy": null,
+      "createdAt": "2026-09-04T11:25:05.538Z"
+    }
+  },
+  "plaintextRecorded": false
+}

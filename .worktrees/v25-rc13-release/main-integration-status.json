@@ -1,0 +1,11 @@
+{
+  "recordedAt": "2026-09-07T01:15:53.6354546Z",
+  "localCommit": "749d3073",
+  "remoteMainAtIntegration": "5f49d3c55de1ccb61ccca4a068fc0e84330fbb41",
+  "conflictResolution": "INDEX en/vi retain rc13 version and complete RC lineage; retain incoming landing.compose note as feature history",
+  "testHandle": 92206,
+  "testLog": "merged-main-full.log",
+  "status": "integrated-suite-running",
+  "published": false,
+  "unrelatedFindingsPreserved": true
+}

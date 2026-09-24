@@ -87,6 +87,9 @@ const buildContentAiService = (): ContentAiService =>
         {
         } as never,
         {
+            hasCourseAccess: jest.fn().mockResolvedValue(false),
+        } as never,
+        {
         } as never,
     )
 

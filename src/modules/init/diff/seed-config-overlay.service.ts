@@ -18,6 +18,7 @@ import type {
 
 /** All-off domain flags -- the baseline every builder starts from. */
 const NO_DOMAINS: DomainFlags = {
+    concepts: false,
     flashcard: false,
     foundations: false,
     cv: false,
@@ -71,11 +72,15 @@ export class SeedDiffOverlayService {
                 },
             }
         }
-        // coarse full reseed: standalone domains stay off (toggled only via the
-        // explicit seed:/sync: blocks or the diff path)
+        // A first/full snapshot must populate standalone concepts even when the
+        // source has no courses directory. Other standalone domains retain their
+        // existing explicit/diff-only behavior.
         return this.assemble(tracks,
             syncCourses,
-            NO_DOMAINS)
+            {
+                ...NO_DOMAINS,
+                concepts: true,
+            })
     }
 
     /**
@@ -168,6 +173,7 @@ export class SeedDiffOverlayService {
         flashcard: boolean,
     ): DomainFlags {
         return {
+            concepts: changedDomains.has("concepts"),
             flashcard,
             foundations: changedDomains.has("foundations"),
             cv: changedDomains.has("cv"),
@@ -201,7 +207,7 @@ export class SeedDiffOverlayService {
             seeders: {
                 enabled: true,
                 courses: {
-                    enabled: true,
+                    enabled: Object.keys(tracks).length > 0,
                     tracks,
                     flashcard: {
                         enabled: domains.flashcard,
@@ -214,6 +220,7 @@ export class SeedDiffOverlayService {
                         enabled: false,
                     },
                 },
+                concepts: domains.concepts,
                 cv: domains.cv,
                 foundations: domains.foundations,
                 headhunting: domains.headhunting,

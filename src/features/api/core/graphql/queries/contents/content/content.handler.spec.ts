@@ -34,6 +34,9 @@ import {
     UserService,
 } from "@modules/bussiness/user/user.service"
 import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
+import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
@@ -166,6 +169,12 @@ describe("ContentHandler",
                     {
                         provide: UserService,
                         useValue: userService,
+                    },
+                    {
+                        provide: EffectiveLearnerAccessService,
+                        useValue: {
+                            hasCourseAccess: userService.checkEnrollment,
+                        },
                     },
                     {
                         provide: createIoRedisKey(IoRedisInstanceKey.Cache),

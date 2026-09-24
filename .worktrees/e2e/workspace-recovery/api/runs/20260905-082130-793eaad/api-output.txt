@@ -1,0 +1,25 @@
+$ npm run test:e2e:live -- --testMatch "**/agentos-workspace-recovery.live-spec.ts" --verbose --json --outputFile=response/artifacts/jest-result.json
+# cwd D:/Repositories/nivo-be-ops-20260905-150800 @ 793eaad87513b32c799070a416fb30565c27c340
+# started 2026-09-05T08:30:45Z
+
+
+> nivo-backend@0.1.0 test:e2e:live
+> jest --config src/tests/e2e/jest-live.js --runInBand --testMatch **/agentos-workspace-recovery.live-spec.ts --verbose --json --outputFile=D:/Repositories/starci-academy-backend/.worktrees/sessions/20260905-150800-nivo-operations-fix/step-6/parallel-1/response/artifacts/jest-result.json
+
+PASS src/tests/e2e/nivo/agentos-workspace-recovery.live-spec.ts (19.315 s)
+  AgentOS workspace auto-recovery live GraphQL journey
+    √ control-centre-null-instance: answers an owned workspace with no instance as unprovisioned (16 ms)
+    √ recover-not-owner-refused: refuses a stranger's read and recovery intent with the one not-found identity (52 ms)
+    √ recover-owned-admitted: admits the owner's recovery intent and reads the recovery row back once Core has answered (18174 ms)
+    √ core-failure-reversed: records a Core failure on the recovery row, adopts no replacement target and leaves the workspace unchanged (10 ms)
+    √ recover-healthy-fenced: leaves a healthy workspace's recovery row untouched across the Core answer (19 ms)
+    √ namespace-clean: leaves every workspace of the namespace as the seed placed it apart from the one intent the journey admitted (54 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       6 passed, 6 total
+Snapshots:   0 total
+Time:        19.541 s
+Ran all test suites.
+Test results written to: ..\starci-academy-backend\.worktrees\sessions\20260905-150800-nivo-operations-fix\step-6\parallel-1\response\artifacts\jest-result.json
+
+# exit 0 at 2026-09-05T08:31:20Z

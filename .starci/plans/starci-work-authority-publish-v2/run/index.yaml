@@ -1,0 +1,82 @@
+schema: starci/plan-run@1
+planDigest: 24a2884dbb62eb2f2d08a21ddbe4f765f388b7e0f9417a36cfee7596e75085f4
+jobs:
+  prepare-starci-work-authority:
+    schema: starci/workflow-run@1
+    goalDigest: 2b51dd3cfd1bbf6078ff99520546d574e7c3f71b3763e4bc3ea90f835dbd7b47
+    scopeDigest: d4f027ac7ce41ea58ce38dd037a7b186ac7c942787f0ff29aa48f5d9c586e639
+    route: prepare-work
+    status: awaiting-acceptance
+    requests:
+      prepare-work:
+        schema: starci/cell-request@1
+        projectSkillPath: D:\Repositories\starci-academy-backend\.claude\SKILL.md
+        cell: prepare-work
+        op: workspace.manage
+        operation: prepare
+        goalDigest: 2b51dd3cfd1bbf6078ff99520546d574e7c3f71b3763e4bc3ea90f835dbd7b47
+        scopeDigest: d4f027ac7ce41ea58ce38dd037a7b186ac7c942787f0ff29aa48f5d9c586e639
+        workBindings: []
+        inputs:
+          request: Prepare the approved StarCi Work-state authority maintenance scope.
+        criteria:
+          - work-valid
+        outputSchema:
+          type: object
+          properties:
+            workRef:
+              type: string
+          required:
+            - workRef
+          additionalProperties: false
+        delegationPrompt: Open and invoke the project StarCi skill at
+          D:\Repositories\starci-academy-backend\.claude\SKILL.md. Execute workflow prepare-work,
+          approved goal 2b51dd3cfd1bbf6078ff99520546d574e7c3f71b3763e4bc3ea90f835dbd7b47, cell
+          prepare-work with operator workspace.manage. Use Work root
+          D:\Repositories\starci-academy-backend\.work and only the request-bound targets, inputs,
+          output schema, criteria and effect ceiling in this cell request. Return the exact typed
+          response; do not perform free-form successor work.
+    responses:
+      prepare-work:
+        schema: starci/cell-response@1
+        cell: prepare-work
+        requestDigest: 9c1d2b2cb090c1c365c0d272f315ae1c35668dd8ada1e8a905e3ffbff4db3906
+        goalDigest: 2b51dd3cfd1bbf6078ff99520546d574e7c3f71b3763e4bc3ea90f835dbd7b47
+        scopeDigest: d4f027ac7ce41ea58ce38dd037a7b186ac7c942787f0ff29aa48f5d9c586e639
+        op: workspace.manage
+        operation: prepare
+        status: pass
+        outputs:
+          workRef: nivo.maintenance.starci-work-authority
+        criteria:
+          - id: work-valid
+            status: pass
+            observation: The selected todo maintenance leaf exists with the approved Work-state authority
+              boundary and the complete workspace validator reports no errors.
+            evidence:
+              - prepare-scope-review
+              - prepare-manifest
+        artifacts:
+          - id: prepare-scope-review
+            path: maintenance/starci-work-authority/evidence/prepare-20260908/scope-review.md
+            sha256: fec1680aaa3945ccc4bf92675987f0b1cce0352ab47ecdc0991e5a2ac48c62af
+          - id: prepare-manifest
+            path: maintenance/starci-work-authority/evidence/prepare-20260908/manifest.yaml
+            sha256: 23738be74ef2fb20ddc8b5edf719d5895a4202526f4baaa02a51cffc59900cdf
+    resultDigest: 85daaf06dbb6e1800f7aab9f7c144c719efdf1aab4f1fa078f1315fe33403807
+  repair-starci-work-authority:
+    workflow: update-knowledge
+    status: planned
+    dependsOn:
+      - prepare-starci-work-authority
+    requests: {}
+    responses: {}
+    evidence: []
+  publish-starci-work-authority:
+    workflow: publish-code
+    status: planned
+    dependsOn:
+      - repair-starci-work-authority
+    requests: {}
+    responses: {}
+    evidence: []

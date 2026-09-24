@@ -1,0 +1,11 @@
+{
+  "version": "2.4.5",
+  "head": "38bc99dcaabdaabae4f5cfe43161144fba83d2d5",
+  "remoteReadbackMatches": true,
+  "branch": "main",
+  "scriptTests": { "passed": 431, "failed": 0, "skipped": 0 },
+  "generatedDocs": 76,
+  "accounting": { "missionVersion": 5, "officialPlanCommit": "783e5d40d2075642848158c4bef16d9607bfbe5a684e749c617747c7c3cc4cad", "sessionValidation": "valid", "firstPlannedCell": "17/1" },
+  "chatbot": { "actualCurrentAttempt": "9/1:a1", "parallelResumeFixPublished": true },
+  "resumeDispatched": true
+}

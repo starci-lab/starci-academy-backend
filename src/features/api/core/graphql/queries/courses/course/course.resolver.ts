@@ -21,6 +21,9 @@ import {
     UserService,
 } from "@modules/bussiness/user/user.service"
 import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
+import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
@@ -70,6 +73,7 @@ export class CourseResolver {
         private readonly courseStatsProjectionService: CourseStatsProjectionService,
         private readonly courseService: CourseService,
         private readonly userService: UserService,
+        private readonly effectiveLearnerAccessService: EffectiveLearnerAccessService,
     ) {}
 
     /**
@@ -145,10 +149,18 @@ export class CourseResolver {
         )
         if (!user) {
             course.isEnrolled = null
+            course.hasAccess = null
             return course
         }
-        course.isEnrolled = await this.userService.checkEnrollment(user.id,
-            course.id)
+        const [isEnrolled,
+            effectiveAccess] = await Promise.all([
+            this.userService.checkEnrollment(user.id,
+                course.id),
+            this.effectiveLearnerAccessService.resolveCourseAccess(user.id,
+                course.id),
+        ])
+        course.isEnrolled = isEnrolled
+        course.hasAccess = effectiveAccess.allowed
         return course
     }
 }

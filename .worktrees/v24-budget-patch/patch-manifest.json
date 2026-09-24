@@ -1,0 +1,43 @@
+{
+  "request": "D:/Repositories/starci-academy-backend/.worktrees/v24-budget-patch/request.json",
+  "status": "ready-not-applied",
+  "at": "2026-09-06T04:26:03.694Z",
+  "files": [
+    {
+      "path": "scripts/validate-request.mjs",
+      "beforeSha256": "31e0ffe7913044d42738531baed780eb2146218047ac64ea5167b1e21e4b6b97",
+      "afterSha256": "9254de41c3322fe993030b35a3a5ba041ce45139198f372bb28fc065d7e4a3fa"
+    },
+    {
+      "path": "scripts/validate-session.mjs",
+      "beforeSha256": "def7b0a91ec7f2bcf5322b8e55a0ee02c0de7f5c4b8c5e2228c0ecc9c7795765",
+      "afterSha256": "93f34124c3b095254e211af491e3e10224e559bf34b62854d7a712ba8a20bbaa"
+    },
+    {
+      "path": "templates/step/state.schema.json",
+      "beforeSha256": "1c4aa0238a34a8fea0ec99c5e33c4fe9cd4fbbd18976be76a291846f6a31a3c4",
+      "afterSha256": "ffbe6350141d8c4cba0038a615a8cf7ddf6eb0d853cae8022a4d1b4ee5f9c107"
+    },
+    {
+      "path": "resources/orchestrator.json",
+      "beforeSha256": "dd2dfc3ba1cce54ee585366904305e0f77f6bbcd576f756cc34c3183f7adbe9b",
+      "afterSha256": "99c60b8bf952f83d16fa000cbe411e8d5372c5aa237161618e7a82ebfdfb0f0b"
+    },
+    {
+      "path": "SKILL.md",
+      "beforeSha256": "855f3e9d17998f58ad03ddeac4f0d3f19b7a509dfb09397cf44400b16535deb6",
+      "afterSha256": "4cab52fa0c761050204aac5a71b3e2c5473b75e742abd713710866a2ed80fa92"
+    },
+    {
+      "path": "SKILL.vi.md",
+      "beforeSha256": "a7e7fb4209923f58e4ddab3e4d16d54c91fdc3f20ed78c9bf28c0797d544ebd4",
+      "afterSha256": "c19303dd98629b480eb912f075f0ecb45709827d0ced172b729a0a6632c714de"
+    },
+    {
+      "path": "scripts/validate-session.spec.mjs",
+      "beforeSha256": "b3ca5545a68450c3e3ad7b6fee6d885c51e931eb4eb26cf204f34c66a72d10db",
+      "afterSha256": "5baaa6f0e4ee4ee52c85a9e4aa04c47b56f2ae435d1869436c50f8317910e638"
+    }
+  ],
+  "applicationFailure": "First live copy refused EPERM; no files applied. Approval policy never prevents escalation."
+}

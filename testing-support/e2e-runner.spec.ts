@@ -67,7 +67,7 @@ const createFixture = (): RunnerFixture => {
             execPath: "C:/node/node.exe",
             env: {
                 E2E_STACK_PROFILE: "core",
-                POSTGRESQL_PRIMARY_HOST: "127.0.0.1",
+                POSTGRESQL_PRIMARY_HOST: "localhost",
             },
             cwd: () => "C:/repo",
             on: (signal, listener) => processEvents.on(signal,
@@ -122,7 +122,7 @@ describe("runE2e",
                         cwd: "C:/repo",
                         env: {
                             E2E_STACK_PROFILE: "core",
-                            POSTGRESQL_PRIMARY_HOST: "127.0.0.1",
+                            POSTGRESQL_PRIMARY_HOST: "localhost",
                         },
                         shell: false,
                         stdio: "inherit",

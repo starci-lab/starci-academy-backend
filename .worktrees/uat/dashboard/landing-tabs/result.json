@@ -1,0 +1,11 @@
+{
+  "version": "7.0.0",
+  "feature": "dashboard",
+  "flow": "landing-tabs",
+  "snapshotFingerprint": "sha256:f6ce50ff46c2270cc3552cc78b49dc3801c6a523a4c5c6a96c93758cd2b8209f",
+  "outcome": "passed",
+  "evidenceRefs": [
+    ".workspaces/local/migration-v6/worktrees-central-20260829/uat-reviews/dashboard/landing-tabs/runs/run-20260829-07/result.json",
+    ".workspaces/local/migration-v6/worktrees-central-20260829/uat-reviews/dashboard/landing-tabs/runs/run-20260829-07/screenshots/03-terminal-overview.full.png"
+  ]
+}

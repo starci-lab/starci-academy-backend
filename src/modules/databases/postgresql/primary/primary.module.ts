@@ -39,6 +39,12 @@ import {
     AiSubscriptionEntity
 } from "./entities/ai-subscription.entity"
 import {
+    ProEntitlementSourceEntity
+} from "./entities/pro-entitlement-source.entity"
+import {
+    ProSubscriptionEntity
+} from "./entities/pro-subscription.entity"
+import {
     BlogPostEntity
 } from "./entities/blog-post.entity"
 import {
@@ -197,6 +203,18 @@ import {
 import {
     CommunityPostEntity
 } from "./entities/community-post.entity"
+import {
+    ConceptSectionTranslationEntity
+} from "./entities/concept-section-translation.entity"
+import {
+    ConceptSectionEntity
+} from "./entities/concept-section.entity"
+import {
+    ConceptTranslationEntity
+} from "./entities/concept-translation.entity"
+import {
+    ConceptEntity
+} from "./entities/concept.entity"
 import {
     ConsultantTranslationEntity
 } from "./entities/consultant-translation.entity"
@@ -628,6 +646,10 @@ const PRIMARY_ENTITIES = [
     CourseEntity,
     CourseMetadataEntity,
     CourseTranslationEntity,
+    ConceptEntity,
+    ConceptTranslationEntity,
+    ConceptSectionEntity,
+    ConceptSectionTranslationEntity,
     PricingPhaseEntity,
     PrerequisiteEntity,
     PrerequisiteTranslationEntity,
@@ -748,6 +770,8 @@ const PRIMARY_ENTITIES = [
     AiModelTranslationEntity,
     AiSubscriptionEntity,
     MembershipEntity,
+    ProSubscriptionEntity,
+    ProEntitlementSourceEntity,
     InstallmentPlanEntity,
     CodingProblemEntity,
     CodingProblemTranslationEntity,

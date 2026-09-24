@@ -58,6 +58,14 @@ const VIETNAMESE_LETTER = /[À-ÃÈ-ÊÌÍÒ-ÕÙÚÝà-ãè-êìíò-õùúýĂ
 const VIETNAMESE_ENDONYM = /Tiếng Việt/
 /** Sanctioned: FUNCTIONAL Vietnamese the code matches or emits, with the reason stated inline. */
 const VIETNAMESE_OK_PRAGMA = /\bvn-ok:/
+/**
+ * The one place Vietnamese is content rather than commentary: a locale dictionary. A file
+ * under `messages/`, `locales/`/`locale/`, `lang/`, or named `*.lang.ts` IS the `vi` locale —
+ * policing it for Vietnamese would be policing it for existing. Code that lives next to a
+ * dictionary (i18n routing, loaders) is not a dictionary and is still checked, and specs
+ * never get this exemption: tests are written in English, full stop.
+ */
+const VIETNAMESE_LANG_FILE = /(?:^|[\\/])(?:messages|locales?|lang)[\\/]|\.lang\.[cm]?[tj]sx?$/i
 
 const noVietnamese = {
     meta: {
@@ -72,6 +80,10 @@ const noVietnamese = {
     },
     create(context) {
         const sourceCode = context.sourceCode || context.getSourceCode()
+
+        // Locale dictionaries hold the `vi` locale by definition — skip them entirely.
+        const filename = context.filename ?? context.getFilename()
+        if (VIETNAMESE_LANG_FILE.test(filename)) return {}
 
         // The bar is a stranger reading this repo: an engineer who does not speak Vietnamese
         // must be able to read every comment, JSDoc and literal in `src/` and `apps/`. So the

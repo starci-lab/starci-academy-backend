@@ -35,6 +35,8 @@ export interface CourseDataJson {
     originalPrice: number
     /** The cover image URL of the course. */
     coverImageUrl: string
+    /** Optional preview image URL for the course-owned Playground hub. */
+    playgroundPreviewImageUrl?: string
     /** The pricing phases of the course. */
     pricingPhases: Array<CoursePricingJson>
     /** The livestream sessions of the course. */

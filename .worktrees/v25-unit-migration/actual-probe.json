@@ -1,0 +1,143 @@
+{
+  "observedAt": "2026-09-06T11:17:19.301Z",
+  "requestSha256": "83e980f570a1f8cf70611a8484e87aa0bdbd50ceb72d17401b6d39a4f724f566",
+  "kind": "read-only actual accepted-plan regression; not product execution",
+  "results": [
+    {
+      "name": "published full-model gate reproduces the unit deadlock",
+      "passed": true,
+      "errors": [
+        "migration contract: declared operation initialize-accounting is missing",
+        "migration contract: declared operation ingest-accounting-document is missing",
+        "migration contract: declared operation submit-accounting-document is missing",
+        "migration contract: declared operation approve-accounting-document is missing",
+        "migration contract: declared operation post-accounting-document is missing",
+        "migration contract: declared operation reconcile-accounting is missing",
+        "migration contract: declared operation read-accounting-reconciliation-as-of is missing",
+        "migration contract: declared operation close-accounting-period is missing",
+        "migration contract: declared operation submit-accounting-correction is missing",
+        "migration contract: declared operation approve-accounting-correction is missing",
+        "migration contract: declared operation resolve-applied-accounting-context is missing",
+        "migration contract: declared operation install-agentos-solution-module is missing",
+        "migration contract: declared operation migrate-agentos-module-installation-cardinality is missing",
+        "migration contract: declared operation migrate-accounting-business-event-claims is missing"
+      ],
+      "operations": [
+        "initialize-accounting",
+        "ingest-accounting-document",
+        "submit-accounting-document",
+        "approve-accounting-document",
+        "post-accounting-document",
+        "reconcile-accounting",
+        "read-accounting-reconciliation-as-of",
+        "close-accounting-period",
+        "submit-accounting-correction",
+        "approve-accounting-correction",
+        "migrate-accounting-schema",
+        "resolve-applied-accounting-context",
+        "install-agentos-solution-module",
+        "migrate-agentos-module-installation-cardinality",
+        "migrate-accounting-business-event-claims"
+      ]
+    },
+    {
+      "name": "current accepted plan scopes the selected migration",
+      "passed": true,
+      "errors": [],
+      "operations": [
+        "migrate-accounting-schema"
+      ]
+    },
+    {
+      "name": "missing selected operation refused",
+      "passed": true,
+      "errors": [
+        "migration contract: declared operation migrate-accounting-schema is missing"
+      ],
+      "operations": [
+        "migrate-accounting-schema"
+      ]
+    },
+    {
+      "name": "dependent foreign operation refused",
+      "passed": true,
+      "errors": [
+        "migration contract: operation initialize-accounting was not declared by the producer"
+      ],
+      "operations": [
+        "migrate-accounting-schema"
+      ]
+    },
+    {
+      "name": "changed frozen writer refused",
+      "passed": true,
+      "errors": [
+        "migration contract: operation migrate-accounting-schema changed frozen writerRef"
+      ],
+      "operations": [
+        "migrate-accounting-schema"
+      ]
+    },
+    {
+      "name": "unknown selected unit refused",
+      "passed": true,
+      "errors": [
+        "migration contract: selected unit is not a planned backend module"
+      ],
+      "operations": []
+    },
+    {
+      "name": "missing plan binding refused",
+      "passed": true,
+      "errors": [
+        "migration contract: unit requires an exact backend-plan units input"
+      ],
+      "operations": []
+    },
+    {
+      "name": "unsplit contract still requires all operations",
+      "passed": true,
+      "errors": [
+        "migration contract: declared operation initialize-accounting is missing",
+        "migration contract: declared operation ingest-accounting-document is missing",
+        "migration contract: declared operation submit-accounting-document is missing",
+        "migration contract: declared operation approve-accounting-document is missing",
+        "migration contract: declared operation post-accounting-document is missing",
+        "migration contract: declared operation reconcile-accounting is missing",
+        "migration contract: declared operation read-accounting-reconciliation-as-of is missing",
+        "migration contract: declared operation close-accounting-period is missing",
+        "migration contract: declared operation submit-accounting-correction is missing",
+        "migration contract: declared operation approve-accounting-correction is missing",
+        "migration contract: declared operation resolve-applied-accounting-context is missing",
+        "migration contract: declared operation install-agentos-solution-module is missing",
+        "migration contract: declared operation migrate-agentos-module-installation-cardinality is missing",
+        "migration contract: declared operation migrate-accounting-business-event-claims is missing"
+      ],
+      "operations": [
+        "initialize-accounting",
+        "ingest-accounting-document",
+        "submit-accounting-document",
+        "approve-accounting-document",
+        "post-accounting-document",
+        "reconcile-accounting",
+        "read-accounting-reconciliation-as-of",
+        "close-accounting-period",
+        "submit-accounting-correction",
+        "approve-accounting-correction",
+        "migrate-accounting-schema",
+        "resolve-applied-accounting-context",
+        "install-agentos-solution-module",
+        "migrate-agentos-module-installation-cardinality",
+        "migrate-accounting-business-event-claims"
+      ]
+    },
+    {
+      "name": "unit checks only its own migration write roots",
+      "passed": true,
+      "errors": [],
+      "operations": [
+        "migrate-accounting-schema"
+      ]
+    }
+  ]
+}

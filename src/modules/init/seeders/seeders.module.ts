@@ -255,6 +255,27 @@ import {
     FoundationSeederService,
 } from "./foundations/seeder.service"
 import {
+    ConceptIdFactoryService,
+} from "./concepts/id-factories/concept.service"
+import {
+    ConceptSectionIdFactoryService,
+} from "./concepts/id-factories/concept-section.service"
+import {
+    ConceptInsertService,
+} from "./concepts/insert.service"
+import {
+    ConceptParserService,
+} from "./concepts/parser.service"
+import {
+    ConceptSectionPathService,
+} from "./concepts/path/concept-section.service"
+import {
+    ConceptPathService,
+} from "./concepts/path/concept.service"
+import {
+    ConceptSeederService,
+} from "./concepts/seeder.service"
+import {
     CatalogSeederService,
 } from "./catalog/catalog-seeder.service"
 import {
@@ -267,11 +288,17 @@ import {
     SubscriptionCatalogParserService,
 } from "./catalog/parsers/subscription-catalog.parser"
 import {
+    LearnerPlanCatalogParserService,
+} from "./catalog/parsers/learner-plan-catalog.parser"
+import {
     AiModelCatalogPathService,
 } from "./catalog/path/ai-model-catalog.path"
 import {
     SubscriptionCatalogPathService,
 } from "./catalog/path/subscription-catalog.path"
+import {
+    LearnerPlanCatalogPathService,
+} from "./catalog/path/learner-plan-catalog.path"
 import {
     ConsultantIdFactoryService,
 } from "./headhuntings/id-factories/consultant.service"
@@ -487,6 +514,13 @@ export class SeedersModule extends ConfigurableModuleClass {
             FoundationCategoryInsertService,
             FoundationInsertService,
             FoundationSeederService,
+            ConceptPathService,
+            ConceptSectionPathService,
+            ConceptIdFactoryService,
+            ConceptSectionIdFactoryService,
+            ConceptParserService,
+            ConceptInsertService,
+            ConceptSeederService,
             HeadhuntingCompanyPathService,
             ConsultantPathService,
             HeadhuntingCompanyIdFactoryService,
@@ -498,8 +532,10 @@ export class SeedersModule extends ConfigurableModuleClass {
             HeadhuntingSeederService,
             AiModelCatalogPathService,
             SubscriptionCatalogPathService,
+            LearnerPlanCatalogPathService,
             AiModelCatalogParserService,
             SubscriptionCatalogParserService,
+            LearnerPlanCatalogParserService,
             AiModelInsertService,
             CatalogSeederService,
             CodingProblemPathService,

@@ -1,0 +1,47 @@
+{
+  "at": "2026-09-07T03:59:03.348Z",
+  "manifest": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905155158-nivo-87e4a31b/runtime/support/art-combined-fixture/combined-fixture-manifest.json",
+  "files": [
+    {
+      "path": "scripts/art-direction-quality-fixture.mjs",
+      "before": "sha256:9c6bf43aea08d9e31701f95f14f6752dab5097ea327ff0ad4f0060afc97a68ab",
+      "after": "sha256:ce62ff8c7dde5c6c9f9424d817b900c7b15f40b99b2a45d92a4eb04f745ed229"
+    },
+    {
+      "path": "scripts/art-direction.spec.mjs",
+      "before": "sha256:7347f7c828aed09e37b5b89efc106478432b82840c1ba46415583b0c9d843fb4",
+      "after": "sha256:b81aa4de6f36485fdd39478a196205af87cd698238e4283ce41a05ea30ca6ee1"
+    },
+    {
+      "path": "scripts/workflow-art-fixture.mjs",
+      "before": null,
+      "after": "sha256:cefab2e1bcd32aad258c7dc8ef97d7658d76e43a1710b974f251ee1dde3145ab"
+    },
+    {
+      "path": "scripts/workflow-combined-lifecycle.spec.mjs",
+      "before": "sha256:ff5475f2d09cc2bcda7298f7ad893797ba9a234db26daf629b87e739f34ac5d3",
+      "after": "sha256:d0cf8242b9c280e5d51b34273412302d7b6b49253172296f65460e2d29f66c91"
+    }
+  ],
+  "proof": {
+    "combined": {
+      "ref": "combined-public-second.log",
+      "sha256": "sha256:3b911759c5aac9eebe8ecf94096c07eddcd90839cbfb31ececb87c01e3fe50d2",
+      "exitCode": 0,
+      "tests": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 0
+    },
+    "artCompatibility": {
+      "ref": "art-refactor-first.log",
+      "sha256": "sha256:762b4b87ac81f643456466b5d22e39a7ea563a677ec9590650d5e0c63b4fd1ae",
+      "exitCode": 0,
+      "tests": 3,
+      "pass": 3,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "published": false
+}

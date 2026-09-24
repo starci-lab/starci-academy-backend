@@ -1,0 +1,25 @@
+{
+  "ownerSession": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905155158-nivo-87e4a31b",
+  "source": "D:/Repositories/starci-academy-backend/.claude",
+  "baseline": "7e13c6b02622b3c06a6ed04eedd418749ad00215",
+  "pendingInputs": [
+    "reviewed retry-order plan-history.mjs AC59319BCEFE99114E30C3EE9C6A7C91396BAE7A5F3E9E397F62CA2384F1A997",
+    "reviewed retry-order workflow-reentry.spec.mjs 2A414AA509AAD710E04000DE6E65C2D203E68E07002D88974B8B38E7C26C79EF"
+  ],
+  "goal": "Preserve one confirmed goal while partitioning exact route delivery and accepted plan units; require complete accepted partition evidence for goal credit and closure.",
+  "scope": [
+    "Isolated candidate only",
+    "Existing immutable plan edits, admission and goal completion",
+    "Focused lifecycle and negative regressions",
+    "Workflow English and Vietnamese owning documentation"
+  ],
+  "requirements": [
+    "No live runtime, product or peer ledger writes",
+    "No fake runtime.plan or units producer",
+    "No changes to original scope or accepted contexts",
+    "No release before exact published RC.9 rebase and root review"
+  ],
+  "authority": "Root delegated RC.10 implementation in this support area under existing user authorization for complete workflows and immediate runtime fixes.",
+  "parentRequest": "D:/Repositories/starci-academy-backend/.worktrees/v25-proof-review-reentry/request.json",
+  "targetVersion": "RC.10 preparation; no release"
+}

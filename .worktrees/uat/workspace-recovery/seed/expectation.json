@@ -1,0 +1,75 @@
+{
+  "namespace": "uat-workspace-recovery-20260905-082130-793eaad",
+  "owner": {
+    "userId": "f7350543-e1f9-429e-8ed5-0381940e777c"
+  },
+  "workspaces": {
+    "unprovisioned": "15080002-0905-4268-aa15-000000000150",
+    "healthy": "15080013-0905-4268-aa15-000000000150",
+    "due": "15080023-0905-4268-aa15-000000000150"
+  },
+  "rows": [
+    {
+      "table": "catalog_orders",
+      "id": "15080001-0905-4268-aa15-000000000150",
+      "attribution": "owner"
+    },
+    {
+      "table": "agent_workspaces",
+      "id": "15080002-0905-4268-aa15-000000000150",
+      "attribution": "prefix"
+    },
+    {
+      "table": "catalog_orders",
+      "id": "15080011-0905-4268-aa15-000000000150",
+      "attribution": "owner"
+    },
+    {
+      "table": "instances",
+      "id": "15080012-0905-4268-aa15-000000000150",
+      "attribution": "owner"
+    },
+    {
+      "table": "agent_workspaces",
+      "id": "15080013-0905-4268-aa15-000000000150",
+      "attribution": "prefix"
+    },
+    {
+      "table": "jobs",
+      "id": "15080015-0905-4268-aa15-000000000150",
+      "attribution": "owner"
+    },
+    {
+      "table": "agent_workspace_recoveries",
+      "id": "15080014-0905-4268-aa15-000000000150",
+      "attribution": "owner"
+    },
+    {
+      "table": "catalog_orders",
+      "id": "15080021-0905-4268-aa15-000000000150",
+      "attribution": "owner"
+    },
+    {
+      "table": "instances",
+      "id": "15080022-0905-4268-aa15-000000000150",
+      "attribution": "owner"
+    },
+    {
+      "table": "agent_workspaces",
+      "id": "15080023-0905-4268-aa15-000000000150",
+      "attribution": "prefix"
+    },
+    {
+      "table": "jobs",
+      "id": "15080025-0905-4268-aa15-000000000150",
+      "attribution": "owner"
+    },
+    {
+      "table": "agent_workspace_recoveries",
+      "id": "15080024-0905-4268-aa15-000000000150",
+      "attribution": "owner"
+    }
+  ],
+  "expected": "every listed row present exactly once, owner rows under the owner account; agent_workspaces rows carry the namespace in name and the unit prefix 1310 in id",
+  "rollback": "the twelve ids in reverse insertion order, by exact id, nothing else"
+}

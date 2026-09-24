@@ -43,6 +43,9 @@ import {
     MembershipService,
 } from "@modules/membership/membership.service"
 import {
+    ProSubscriptionService,
+} from "@modules/bussiness/pro-subscription/pro-subscription.service"
+import {
     TransactionEntity,
 } from "@modules/databases/postgresql/primary/entities/transaction.entity"
 import {
@@ -67,6 +70,9 @@ import {
     Processor as Worker,
     WorkerHost,
 } from "@nestjs/bullmq"
+import {
+    Optional,
+} from "@nestjs/common"
 import {
     Job,
 } from "bullmq"
@@ -109,6 +115,8 @@ export class ReconcileTransactionWorker extends WorkerHost {
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly membershipService: MembershipService,
+        @Optional()
+        private readonly proSubscriptionService: ProSubscriptionService | undefined,
         private readonly winstonService: WinstonService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
         private readonly voucherService: VoucherService,
@@ -255,6 +263,17 @@ export class ReconcileTransactionWorker extends WorkerHost {
                     webBaseUrl: envConfig().web.baseUrl,
                 })
             }
+            return
+        }
+        case ActionType.ProSubscriptionPurchase: {
+            if (!this.proSubscriptionService) {
+                return
+            }
+            await this.proSubscriptionService.grantPaidPeriod({
+                userId: transaction.userId,
+                transactionId: transaction.id,
+                offerRevision: transaction.offerRevision ?? "unknown",
+            })
             return
         }
         // course enrollment: hand off to the enroll worker (marks tx succeeded).

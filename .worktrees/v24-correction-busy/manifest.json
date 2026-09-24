@@ -1,0 +1,18 @@
+{
+  "status": "focused-passed",
+  "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v24-correction-busy\\.claude",
+  "files": [
+    {
+      "path": "scripts/session-open.mjs",
+      "before": "be35e3e48f20274b59cb791cf2844ccad9e643772a2217306e81b9c374aa9002",
+      "after": "7218116882e67b541d532b83238e64e54ea8c5f51cfa5f4ea7fb2724114027ec"
+    },
+    {
+      "path": "scripts/session-correction.spec.mjs",
+      "before": null,
+      "after": "413dd6d58bfc737976717abbeb911daf3bc43917466ec69b532dd2971892b995"
+    }
+  ],
+  "proof": "focused.log",
+  "proofHash": "d70cb94d321f41adf01b2c632cfa5d51593111a708873cf5e20ccf87057b4ef4"
+}

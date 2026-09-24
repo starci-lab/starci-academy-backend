@@ -90,6 +90,8 @@ export enum ActionType {
      * Purchase a community membership (grants/extends membership on payment success).
      */
     MembershipPurchase = "membershipPurchase",
+    /** Purchase one month of the unified StarCi Pro learner subscription. */
+    ProSubscriptionPurchase = "proSubscriptionPurchase",
     /**
      * Pay one cycle of an installment plan (advances/tops up the plan on payment success).
      */

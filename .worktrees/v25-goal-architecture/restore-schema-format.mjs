@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {execFileSync} from 'node:child_process';
+const root=path.join(import.meta.dirname,'.claude');
+const ref='templates/kinds/goal-discovery.schema.json';
+const original=execFileSync('git',['show',`HEAD:${ref}`],{cwd:root,encoding:'utf8'});
+const value=JSON.parse(fs.readFileSync(path.join(root,ref),'utf8'));
+const architecture=JSON.stringify(value.properties.architecture,null,2).split('\n').map((line,i)=>i?'    '+line:line).join('\n');
+const output=original.replace(/\n  }\n}\s*$/,`,\n    "architecture": ${architecture}\n  }\n}\n`);
+if(JSON.stringify(JSON.parse(output))!==JSON.stringify(value)) throw Error('schema semantics changed');
+fs.writeFileSync(path.join(root,ref),output);

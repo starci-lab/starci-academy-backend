@@ -1,0 +1,18 @@
+schema: work/node@1
+id: nivo.maintenance.starci-work-authority
+kind: operations
+required: false
+state: todo
+assertions:
+  - work-is-source-of-trust
+  - done-grants-downstream-authority
+  - legacy-code-has-no-requirement-authority
+  - non-done-work-denies-downstream-authority
+description: |-
+  Purpose: make StarCi authority explicit and testable. Canonical Work is the source of trust for desired behavior. Inspected source code is always legacy/current-state observation and gap evidence, never requirement authority.
+
+  Scope: repair the StarCi skill, business operator, specification semantics and validation regressions, rebuild generated runtime artifacts, commit the verified repair and publish that one commit to origin/main.
+
+  Done when: the runtime states and enforces that only a validated Work node in effective done state, backed by current evidence and explicit acceptance, may authorize a downstream consumer. Todo, uninvestigate, stale, suspended, source comments, tests and observed behavior grant no authority. If code conflicts with accepted done Work, implementation changes to match Work; business Work is never rewritten to fit legacy code.
+
+  Limits: this maintenance item does not change Nivo product behavior, weaken evidence or dependency gates, deploy anything, publish a package, or authorize Accounting architecture/backend/frontend/UAT work.

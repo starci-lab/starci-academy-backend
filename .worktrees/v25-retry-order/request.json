@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "ownerSession": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905155158-nivo-87e4a31b",
+  "ownerTask": "01a06fc3-212e-7a41-94f1-93d4192a51de",
+  "baseline": "7e13c6b02622b3c06a6ed04eedd418749ad00215",
+  "authority": "Root explicitly authorized an isolated RC.8 runtime candidate to reproduce and correct the native retry preview/commit ordering mismatch; root owns review and publication.",
+  "scope": ["read-only native retry forecast evidence", "existing planner projection preserving accepted independent coordinates and dependency ordering", "focused public preview and commit regression"],
+  "excluded": ["live runtime writes", "peer ledger or product edits", "dynamic coordination changes", "publication"]
+}

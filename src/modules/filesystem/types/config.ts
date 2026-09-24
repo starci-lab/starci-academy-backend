@@ -140,6 +140,19 @@ export interface AppConfigMembership {
     enabled: boolean
 }
 
+/** Unified learner subscription sold to new customers. */
+export interface AppConfigProSubscription {
+    planId: "pro"
+    displayName: string
+    description: string
+    priceVnd: number
+    billingPeriodMonths: 1
+    offerRevision: string
+    creditsPer5h: number
+    creditsPerWeek: number
+    enabled: boolean
+}
+
 /** Root app config. */
 export interface AppConfig {
     sentryDsn: string
@@ -151,4 +164,8 @@ export interface AppConfig {
     subscriptions: AppConfigSubscriptions
     /** Community membership product + perks (blog/community/discount). */
     membership: AppConfigMembership
+    /** Dedicated 229k/month full-access learner offer. */
+    proSubscription?: AppConfigProSubscription
+    /** Controls creation of legacy AI/membership/course sale intents. */
+    legacySalesMode?: "legacy" | "pro-only" | "disabled"
 }

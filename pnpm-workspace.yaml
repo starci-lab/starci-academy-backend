@@ -1,5 +1,6 @@
 allowBuilds:
   '@apollo/protobufjs': set this to true or false
+  '@parcel/watcher': set this to true or false
   '@scarf/scarf': set this to true or false
   bufferutil: set this to true or false
   cpu-features: set this to true or false

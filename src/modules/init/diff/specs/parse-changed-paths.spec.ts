@@ -224,6 +224,10 @@ describe("parseDataGitDiff",
             () => {
                 it.each([
                     [
+                        "concepts/event-loop/en.md",
+                        "concepts",
+                    ],
+                    [
                         "foundations/categories/devops.yaml",
                         "foundations",
                     ],
@@ -249,6 +253,10 @@ describe("parseDataGitDiff",
                     ],
                     [
                         "subcriptions/tiers.yaml",
+                        "subscriptions",
+                    ],
+                    [
+                        "learner-plans/0-pro/en.md",
                         "subscriptions",
                     ],
                 ])("maps %s → domain %s",

@@ -1,0 +1,10 @@
+{
+  "takenAs": "reader, over the surface own rendered reads",
+  "note": "The scoped state as seed/README.md defines it, read through the product rather than the store.",
+  "apps": 1,
+  "workspaces": 1,
+  "pod": "refused (POD_REGISTRATION_MISSING_EXCEPTION)",
+  "domains": 0,
+  "walletVnd": 150000,
+  "invoicesUnpaid": 1
+}

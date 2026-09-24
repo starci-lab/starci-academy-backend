@@ -1,0 +1,78 @@
+{
+  "baseline": "af89c78fc0035b179182a5c615ee38bc4e4742af",
+  "manifestHash": "efd8ee5d00ad9bedff486a15155c0214aca0b80f601e9f92fe58d22634fb1f4a",
+  "files": [
+    {
+      "path": "resources/interaction.json",
+      "before": "sha256:d316034c41ee84aa9f3f8263188181a813edbb2e1b8c59ee3df6610fd7e8f68d",
+      "after": "sha256:fddb4567b292aafa150bef92ccc95ac9a5cd2efb9a281bb56b5312718df9f7f4"
+    },
+    {
+      "path": "resources/interaction.md",
+      "before": "sha256:47f669771e9d62508fea975928d1cd6472ca8a5aa9f6bb981fa1261fea3aca5c",
+      "after": "sha256:36b6dae13c669abc88de5cf12eee54bf3f8b2325c83ba2ed543caae173bce379"
+    },
+    {
+      "path": "resources/interaction.vi.md",
+      "before": "sha256:c362a0707a5ad0594f583b191cd9be01c6c3497ede994876dde7c2560f2d6550",
+      "after": "sha256:6092b73621d34a5c3b9cfaae43c3531518adf591043ef26ff5d53fa1da73932a"
+    },
+    {
+      "path": "scripts/restatement-choice.mjs",
+      "before": "sha256:3046f73cf94fabdc20c92dac3613e379888afdad3194013c54bcc8d1ac01da96",
+      "after": "sha256:26322ade3ffd2ff2463066b04aa7fa2cfd59ee7fcba8a0aed05051f7e323a590"
+    },
+    {
+      "path": "scripts/restatement-delegation.mjs",
+      "before": null,
+      "after": "sha256:e37f3583c2e4503ad033cd9c6b5c5d2333e9653030a35284d487e8c24f3aebba"
+    },
+    {
+      "path": "scripts/restatement-delegation.spec.mjs",
+      "before": null,
+      "after": "sha256:bd552745abb92ba674779905128fb47009850a075fde85c2aa53e8685edd8fd9"
+    },
+    {
+      "path": "scripts/session-cleanup.mjs",
+      "before": "sha256:b57d6535d977d358041a0558c7b900da191f7d578af9fa9c4ea01d0a7b7ec639",
+      "after": "sha256:451b3a2758b3c777ad83afda159e12d3ba70f9b2d84bb1be1d5fc2bbe1e7d34c"
+    },
+    {
+      "path": "scripts/validate-request.mjs",
+      "before": "sha256:9a34b606ab5cf59bee26164fd3f378ea213289ebf26656eeb27efc5d011cae2e",
+      "after": "sha256:12d887c834363d55c62509560f1cf3c2b026ac0e040c4470b2e58ec9ce883e0b"
+    },
+    {
+      "path": "scripts/workflow-source-fixture.mjs",
+      "before": "sha256:e4f42a693e5f44d4e42eb097eca515ded0300bf77e024c168af28adc81364d64",
+      "after": "sha256:d7f0db59fe7056400db8fd2488d9a26964c4e7976fa75be90f2319cee8de9b7a"
+    },
+    {
+      "path": "SKILL.md",
+      "before": "sha256:4cab52fa0c761050204aac5a71b3e2c5473b75e742abd713710866a2ed80fa92",
+      "after": "sha256:77e058fc1fb4203da7891ce59e3ab939392a2c3cf922d0b14c9ca05e20621d30"
+    },
+    {
+      "path": "SKILL.vi.md",
+      "before": "sha256:c19303dd98629b480eb912f075f0ecb45709827d0ced172b729a0a6632c714de",
+      "after": "sha256:bdc448b296f7e77c113aa88095dc6f00f460cf6a535c2de72114987f52cd7929"
+    },
+    {
+      "path": "templates/kinds/restatement-delegated-review.schema.json",
+      "before": null,
+      "after": "sha256:2e02bb291f4b2961e68c961885ebe4c263942e38fe8cc637949a26040f9c6a39"
+    },
+    {
+      "path": "templates/kinds/restatement-delegation.schema.json",
+      "before": null,
+      "after": "sha256:39e7a4583a7dff0ec9cd43f5f105463e5e91e6c1bccf8397a09721be89c150aa"
+    },
+    {
+      "path": "templates/step/state.schema.json",
+      "before": "sha256:c9d77cc0cb119b89f4e5acd688943ee15073ba502d758628061fa5d422c6ad20",
+      "after": "sha256:f462148e1f643b1da1693995626eabe86f9592b09cecd76aa8759e7373c0dd22"
+    }
+  ],
+  "integratedAt": "2026-09-07T00:54:45.411Z",
+  "published": false
+}

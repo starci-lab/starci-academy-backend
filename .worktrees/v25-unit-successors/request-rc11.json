@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "ownerSession": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905155158-nivo-87e4a31b",
+  "ownerTask": "01a06fc3-212e-7a41-94f1-93d4192a51de",
+  "baseline": "5f874f80bac7617c19de75173f951e5e1c80ec8a",
+  "previousRequest": "request.json",
+  "previousManifest": "review-manifest.json",
+  "authority": "Root authorized isolated RC11 integration on published RC10: rebase the bounded unit successor patch, join the existing current producer delivery guard, prove source-review retirement cannot provide fresh unit credit, and prepare evidence for root release.",
+  "scope": ["existing unit successor correction", "fresh current producer delivery guard at resolved unit consumption", "authentic source review retirement regression", "focused regression and candidate evidence"],
+  "excluded": ["live or peer ledger changes", "product source changes", "publication"]
+}

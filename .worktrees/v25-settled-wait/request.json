@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "baseline": "8d9b530924521ca0b5933440fb61c68804886013",
+  "target": "2.5.0-rc.4",
+  "authority": "Parent /root delegated the user-authorized current settled-wait busy-gate repair; candidate only, no live or peer writes.",
+  "scope": [
+    "Use verified settled waiting history in the existing mission busy gate",
+    "Preserve unresolved waits, leases, worker slots and immutable evidence checks",
+    "Extend real nested integrity lifecycle through a subsequent answered restatement and forecast commit"
+  ],
+  "updateClassification": "Q1: existing resolved-waiting completion law conflicts with busy consumer"
+}

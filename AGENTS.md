@@ -1,11 +1,27 @@
 # StarCi agent bootstrap
 
+<!-- starci:prompt-entry -->
 Before planning, reading target source, or running a skill, read
-[`<Source>/.claude/INDEX.md`](.claude/INDEX.md) completely and follow its load order.
+[`<Source>/.claude/CONTEXT.md`](.claude/CONTEXT.md) and follow its load order — the runtime tree is canonical source, there is no build step.
+
+Project lifecycle entry points are skills: `define-goal` (owner prompt → durable goal + op chain
+queued in `.starciwork/runtime.sqlite`) and `start-kernel` (claim a queued goal → boot its
+long-lived `[Kernel]` agent).
 
 `<Source>` is the single host repository that owns this bootstrap and the `.claude` runtime. A routed
 repository checkout or Git worktree follows that Source; do not rebind `<Source>` to it or expect it to
-contain another `.claude/INDEX.md`.
+contain another `.claude/CONTEXT.md`. The sibling `.workspaces/projects/<project>/work.json`
+binds target repositories and the project-owned `.starciwork`; use that mapping for both FE and BE.
 
-This file is only a bootstrap. Do not copy context, brainstorm, compiler, gate or skill rules into it:
-the entry routes, and a rule copied here becomes a second home that nobody remembers to update.
+Carry the resolved host, project binding and project skill path when delegating work or changing
+directories. A task opened outside the host must receive that context explicitly.
+This file locates the runtime; workflow selection, goal confirmation and evidence rules live there.
+<!-- /starci:prompt-entry -->
+
+## Environment gotchas
+
+- `ACP_BACKEND=windsurf` leaks into shells spawned from Devin Desktop and makes `devin` CLI take the
+  Windsurf auth branch, rejecting valid Devin credentials (`auth status` → "Not logged in").
+  Before spawning `devin` in a terminal: `Remove-Item Env:ACP_BACKEND` (PowerShell) or
+  `env -u ACP_BACKEND` (POSIX). Devin auth state lives in `%APPDATA%/devin/credentials.toml`;
+  `devin auth status` must be run without that env var to report correctly.

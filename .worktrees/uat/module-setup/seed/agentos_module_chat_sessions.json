@@ -1,0 +1,108 @@
+[
+  {
+    "id": "8c8b0004-0429-4268-aa15-000000000026",
+    "installation_id": "8c8b0003-0429-4268-aa15-000000000026",
+    "created_by_user_id": "1054fab9-ca3e-44c2-b2de-754fd458d6fb",
+    "mode": "setup",
+    "title": "Historical completed setup",
+    "is_archived": false,
+    "idempotency_key": "uat-module-setup-042915-26-r1",
+    "setup_revision": 1,
+    "setup_status": "completed",
+    "draft_snapshot": {
+      "businessIdentity": "Fictional Setup QA",
+      "goal": "Review a prepared module setup",
+      "audience": "QA owner",
+      "trigger": "Historical setup trigger",
+      "guardrail": "No live actions"
+    },
+    "draft_digest": "924a24b20ea3fbff7783f52a6551cbb6be353130e6572a2bbb76c52df8ec368e",
+    "gate_evidence": {
+      "schemaVersion": 1,
+      "contract": {
+        "key": "generic-reply",
+        "version": "1.0.0"
+      },
+      "gates": [
+        {
+          "key": "businessIdentity",
+          "passed": true
+        },
+        {
+          "key": "goal",
+          "passed": true
+        },
+        {
+          "key": "audience",
+          "passed": true
+        },
+        {
+          "key": "trigger",
+          "passed": true
+        },
+        {
+          "key": "guardrail",
+          "passed": true
+        }
+      ]
+    },
+    "completed_at": "2026-09-04T12:00:12.000Z",
+    "based_on_context_version_id": null,
+    "created_at": "2026-09-04T12:00:03.000Z",
+    "updated_at": "2026-09-04T12:00:12.000Z",
+    "namespace": "uat-module-setup-042915-26",
+    "is_uat": true
+  },
+  {
+    "id": "8c8b0005-0429-4268-aa15-000000000026",
+    "installation_id": "8c8b0003-0429-4268-aa15-000000000026",
+    "created_by_user_id": "1054fab9-ca3e-44c2-b2de-754fd458d6fb",
+    "mode": "setup",
+    "title": "Current open setup",
+    "is_archived": false,
+    "idempotency_key": "uat-module-setup-042915-26-r2",
+    "setup_revision": 2,
+    "setup_status": "open",
+    "draft_snapshot": {
+      "businessIdentity": "Fictional Setup QA",
+      "goal": "Review a prepared module setup",
+      "audience": "QA owner"
+    },
+    "draft_digest": "14f2c199c5d8e70b8c3941fcf0f2dba600f42d066236ca9e3b598123720e8dd8",
+    "gate_evidence": {
+      "schemaVersion": 1,
+      "contract": {
+        "key": "generic-reply",
+        "version": "1.0.0"
+      },
+      "gates": [
+        {
+          "key": "businessIdentity",
+          "passed": true
+        },
+        {
+          "key": "goal",
+          "passed": true
+        },
+        {
+          "key": "audience",
+          "passed": true
+        },
+        {
+          "key": "trigger",
+          "passed": false
+        },
+        {
+          "key": "guardrail",
+          "passed": false
+        }
+      ]
+    },
+    "completed_at": null,
+    "based_on_context_version_id": null,
+    "created_at": "2026-09-04T12:00:14.000Z",
+    "updated_at": "2026-09-04T12:00:14.000Z",
+    "namespace": "uat-module-setup-042915-26",
+    "is_uat": true
+  }
+]

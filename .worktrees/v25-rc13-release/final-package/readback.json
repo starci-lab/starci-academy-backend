@@ -1,0 +1,9 @@
+{
+  "matches": true,
+  "version": "2.5.0-rc.13",
+  "packedFiles": 744,
+  "installedFiles": 739,
+  "archiveSha256": "d5ebf793a1ba0348fb7ae6de8b233dbef384bc09330f7de0d566de2f048a3501",
+  "fullSuite": "integrated-run-1; completion separate",
+  "published": false
+}

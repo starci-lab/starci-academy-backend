@@ -1,0 +1,11 @@
+{
+  "parentRequest": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-goal-partitions\\request.json",
+  "baseline": "550cb449468780902bae1d12099cd0969790f523",
+  "authority": "Root directed exact published RC.9 rebase and isolated RC.10 integration with separately reviewed source-review patch; preserve prior manifests and all accepted peer history.",
+  "scope": [
+    "Isolated candidate and support only",
+    "No live, peer or product writes",
+    "No publication"
+  ],
+  "status": "preparation"
+}

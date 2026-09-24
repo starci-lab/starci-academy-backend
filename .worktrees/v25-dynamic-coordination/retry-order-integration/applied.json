@@ -1,0 +1,17 @@
+{
+  "baseline": "7e13c6b02622b3c06a6ed04eedd418749ad00215",
+  "rows": [
+    {
+      "path": "scripts/plan-history.mjs",
+      "before": "58440e5bfdde01703f8bca6f1f8a7e93aa2ee7d50af48454c3bbd6e69c7cc353",
+      "after": "ac59319bcefe99114e30c3ee9c6a7c91396bae7a5f3e9e397f62ca2384f1a997"
+    },
+    {
+      "path": "scripts/workflow-reentry.spec.mjs",
+      "before": "f5601329fa3a82e1b0efc969e1b214f13fcd82cec679f5a21423ee832bfdd061",
+      "after": "2a414aa509aad710e04000de6e65c2d203e68e07002d88974b8b38e7c26c79ef"
+    }
+  ],
+  "appliedAt": "2026-09-06T14:52:57.361Z",
+  "approval": "Parent root approved the exact two-file sealed patch."
+}

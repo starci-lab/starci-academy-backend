@@ -1,0 +1,21 @@
+diff --git a/scripts/session-open.mjs b/scripts/session-open.mjs
+index 23791c1c..5b87c8b5 100644
+--- a/scripts/session-open.mjs
++++ b/scripts/session-open.mjs
+@@ -98,7 +98,7 @@ export async function openSession(sessionsRoot, input, { sourceRoot = path.dirna
+     const sourceSessions = path.join(sourceRoot, '.worktrees', 'sessions');
+     if (!sameRoot(sourceSessions, sessionsRoot) && await findReusable(sourceSessions, input.hostBinding)) throw Error('WORKFLOW_RESET_REQUIRED: archive the old Source ledger before opening the fresh project workflow');
+     for (const name of await readdir(locatorRoot)) {
+-      if (!name.endsWith('.json')) continue;
++      if (name.startsWith('.') || !name.endsWith('.json')) continue;
+       const locator = await readWorkflowLocator(path.join(locatorRoot, name));
+       if (locator === null) continue;
+       const otherRoot = path.join(locator.ownerRoot, '.worktrees', 'sessions');
+@@ -215,6 +215,7 @@ export async function missionCorrectionBusy(session, state) {
+ 
+ export async function confirmSession(session, decision) {
+   session = path.resolve(session);
++  if (decision.authority?.kind === 'coordination-extraction') throw Error('GOAL_AUTHORITY_REQUIRED: derived scope is admitted only by the producer self-enrolment command');
+   if (!['as-stated', 'corrected', 'rejected'].includes(decision.selected)) throw new Error('decision.selected must be as-stated, corrected or rejected');
+   if (decision.selectedBy !== 'user' || !decision.sourceRef) throw new Error('confirmation must bind the user message in selectedBy:user and sourceRef');
+   const result = await mutateSession(session, async (state) => {

@@ -1,0 +1,500 @@
+{
+  "version": "2.3.2",
+  "baselineHead": "58805b70ba4fff114776449d5573016d9160ce93",
+  "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v23\\.claude",
+  "createdAt": "2026-09-06T01:13:06.451Z",
+  "status": "sealed",
+  "treeHash": "3532706ee76ffd547abc6713df42c32249ec185a0d78cd906ccdea4914ec096b",
+  "files": [
+    {
+      "path": "INDEX.md",
+      "action": "modify",
+      "previousLiveSha256": "27cb559e434f4f98d3da03a87896d06364a6e829d8c0f968ea6db16921ce831a",
+      "candidateSha256": "7bd896e7e9e76ca60701fe17ebb89f757bf451ceb360bb8abdae51a36e7988d1"
+    },
+    {
+      "path": "INDEX.vi.md",
+      "action": "modify",
+      "previousLiveSha256": "46000de7b05bbe7de35f77c1081c8777f502728878641f70f0cc90f7495b0064",
+      "candidateSha256": "ead49b0f8453c5dee1b29ba4a73c2a982a124baf59a4335401b5eec3883a2120"
+    },
+    {
+      "path": "docs/reference/kinds.mdx",
+      "action": "modify",
+      "previousLiveSha256": "6c057d11b98fb1bb3e93ca4bd34bd8b1234629010fd0b271fe296da93e97e4a0",
+      "candidateSha256": "d84c580058539913e312cd2b8eb121ab6e6358d55e3a382d55bcc23eec34f0e2"
+    },
+    {
+      "path": "docs/reference/operators/business-reconcile.mdx",
+      "action": "modify",
+      "previousLiveSha256": "9e6c8f8bba4262f20e3b90aa4b07cf1ef03e07b9d904e73e53b70443791afd23",
+      "candidateSha256": "253d2da96a9e1713885788c194a78f8d0679e4e002f2f9f143d600ee8a14be52"
+    },
+    {
+      "path": "docs/reference/operators/uat-plan.mdx",
+      "action": "modify",
+      "previousLiveSha256": "3de1e94b7251dd06eff1357dabc3ca39569e81b570727c242fce106a3393ddb1",
+      "candidateSha256": "c3849e566afd818cbad82297119302412838390fb76ac913ce46217f2677e3b1"
+    },
+    {
+      "path": "docs/reference/operators/uat-verify.mdx",
+      "action": "modify",
+      "previousLiveSha256": "8466fa00f081ec1ee66a2627056282a75d2bfa34aa3293921613a1df1de5c3cd",
+      "candidateSha256": "9b535ad557a0ce4e96226d37cb1a2a6a508db1d58d507de7f5be82f44247a76d"
+    },
+    {
+      "path": "docs/vi/reference/kinds.mdx",
+      "action": "modify",
+      "previousLiveSha256": "0ff673d78327f8106fb59a89e7de2ede680cdd76e95ac2eecea8318337f1ef28",
+      "candidateSha256": "c6699a06b82f4342199fb2d9377ee6bb9f79e75e8692681d2a0669d11b991100"
+    },
+    {
+      "path": "docs/vi/reference/operators/business-reconcile.mdx",
+      "action": "modify",
+      "previousLiveSha256": "3b407a8ced75896384d247ce9d153dded29c4201627626f1defd02e4bd27edfe",
+      "candidateSha256": "91af91c34f54bc988c5359460fbfd01ebeca0f260f5385f422e941e24d705f35"
+    },
+    {
+      "path": "docs/vi/reference/operators/uat-plan.mdx",
+      "action": "modify",
+      "previousLiveSha256": "7ffe7c86b1feb96264d5ef76e29cfd679730b6042dd3b0b05f88e0aa364ab6cd",
+      "candidateSha256": "d1fb811cf1f7647cd11823cd0c16d35b9015ebe99853a07498896129545cc0b2"
+    },
+    {
+      "path": "docs/vi/reference/operators/uat-verify.mdx",
+      "action": "modify",
+      "previousLiveSha256": "65be486bf3ad42a37363902868d48ed10d463e07472f72e4ffe1ee2c33127113",
+      "candidateSha256": "bde3b2b8b62c210c19c08697ad1baa70ee7e4e19465b9527148009fcd28c3f75"
+    },
+    {
+      "path": "operators/INDEX.md",
+      "action": "modify",
+      "previousLiveSha256": "803b2678c3c22fd92efeaf1589479bc6e3e2d379c307b54b7aca51735cbeacfb",
+      "candidateSha256": "731c0742c754fe8933806b012a160fec31aa97b98f007f567b2b270978fc1fbb"
+    },
+    {
+      "path": "operators/INDEX.vi.md",
+      "action": "modify",
+      "previousLiveSha256": "768ae8c36456ac520fa1f4f1bf307cf8619c6399fed6dd27821fd9bd5dac458d",
+      "candidateSha256": "de66b74f2b02f065205c99e82c34224dbad3510c31d9f51ca05802c6d300a77e"
+    },
+    {
+      "path": "operators/business-reconcile/brief.md",
+      "action": "modify",
+      "previousLiveSha256": "684ad6294970c9ea1ac5f3819861c5b7193ff691d404b98359c6d0c09686de2e",
+      "candidateSha256": "43da23e7e3bbd70e17ab12c52ffaa4a4f7392a38660cabcbe869b3cb27d71777"
+    },
+    {
+      "path": "operators/business-reconcile/operator.md",
+      "action": "modify",
+      "previousLiveSha256": "b19a6a9fc0891e519bd1002b057ba634df3ae17bb707bd749aaa90380077a755",
+      "candidateSha256": "caa6d3c1278490121d37162362ef4f8342c986a476260bb7fcc8e0148b32b71e"
+    },
+    {
+      "path": "operators/business-reconcile/operator.vi.md",
+      "action": "modify",
+      "previousLiveSha256": "57ff3d6a3c64f28c6a520521e3bcbad0dcc2d3d5f3ca754b4884ce8f93ff668e",
+      "candidateSha256": "e804a9b2e2ea2c886db8efb1d3ab08ece12e3b9426a0dd15ceb75a274dabc6b6"
+    },
+    {
+      "path": "operators/business-reconcile/self-test.mjs",
+      "action": "modify",
+      "previousLiveSha256": "8e08071a3f910223a60e73fcc96bae710f50cbc9b07e73c0700329c8e3aeb01e",
+      "candidateSha256": "e90eae83fed7193e5b0f218d3261dec9a65c8b2605c024afd725e3c00dfe6c0b"
+    },
+    {
+      "path": "operators/business-reconcile/validate.mjs",
+      "action": "modify",
+      "previousLiveSha256": "d63184a259156e64826f944fd2ba6c46aad852c275d44cde3dc947752991bd80",
+      "candidateSha256": "af976bb319112bb77fd4378e8707cb5882cc4f71567c0b1218b54d441d431d7e"
+    },
+    {
+      "path": "operators/uat-plan/brief.md",
+      "action": "modify",
+      "previousLiveSha256": "a726bc1f77e1825feaaa7431cd8f302544805519bbc4dd6b3fe5ad6a3c1e59e6",
+      "candidateSha256": "cf7332f55d4d01868d7126c3a7be7d7452ea32c70d91a403d4c85dad4be05a7d"
+    },
+    {
+      "path": "operators/uat-plan/operator.md",
+      "action": "modify",
+      "previousLiveSha256": "87cb1133f628674e58ed4dd8589d31936ee38d7f9b80524db86d125be396da09",
+      "candidateSha256": "181ec735e5a29222d06312444b1376fda41d068b92f8cde2833f4847accb9d4d"
+    },
+    {
+      "path": "operators/uat-plan/operator.vi.md",
+      "action": "modify",
+      "previousLiveSha256": "22bc5f23a448da71d3c30df35d06a0e101751ba5c17a8fa2a735741730dafe11",
+      "candidateSha256": "c200de3c561d6541e230e3717f8f34e28c5bb553a4e189820bb3d40f31ec89c1"
+    },
+    {
+      "path": "operators/uat-plan/self-test.mjs",
+      "action": "modify",
+      "previousLiveSha256": "cd9519f923c096fdea4e61e732ca614686fb60fcd3e03e18ffba38ae14112ce1",
+      "candidateSha256": "dd16fa020ddc75b1d8f3a88398e1155c492062f87d47d4ebdb7c06e2f658a6e3"
+    },
+    {
+      "path": "operators/uat-plan/validate.mjs",
+      "action": "modify",
+      "previousLiveSha256": "3631402fb17f9da365cf97b90091c79c290f30af6ea460221258fa63bb8895a2",
+      "candidateSha256": "38af352946fdab3d23778a0b6b581101397fea04935ab9d9976c25f4f040d5fd"
+    },
+    {
+      "path": "operators/uat-verify/brief.md",
+      "action": "modify",
+      "previousLiveSha256": "29717bc5312338185124a151b526c13bc534dc9180a4877bf5d22f2d0758d438",
+      "candidateSha256": "48ad6c1c52aea12cd901b55755a5ac575782000a5858decdb9e4da26692e1b9c"
+    },
+    {
+      "path": "operators/uat-verify/operator.md",
+      "action": "modify",
+      "previousLiveSha256": "358df9c3a044257616204a942c7b4c60f3ad72f91d36d2dc51e6baaa15aca3c8",
+      "candidateSha256": "ebc5662144620cdbe2d82a98d48c87f7e1719d7c840c39f051be5818f4837ffd"
+    },
+    {
+      "path": "operators/uat-verify/operator.vi.md",
+      "action": "modify",
+      "previousLiveSha256": "8ea4880b191248f93619024c4f2e2512567fc4223a452da8863fc79ab01cd91f",
+      "candidateSha256": "47e5896e28c4fe078756c79e9b135673755794cf1e1dbf116777dcf74b69a64f"
+    },
+    {
+      "path": "operators/uat-verify/self-test.mjs",
+      "action": "modify",
+      "previousLiveSha256": "f272e4be76327818f0b4feed10504aba87c68c8381277f13f847afea51e786ed",
+      "candidateSha256": "1026ef87439bfb11a1431f415e7d4166cb48c9f870f97385cc314936e5a9c88d"
+    },
+    {
+      "path": "operators/uat-verify/validate.mjs",
+      "action": "modify",
+      "previousLiveSha256": "c6dc50aa0b4ec9099c37a6658290a7122c5ca77bdbef546c9af6c84c08174abf",
+      "candidateSha256": "8b8697acb71bff29a7b6e282b878808c43a013c2f9a6cf51a89f2cc56c70647d"
+    },
+    {
+      "path": "package.json",
+      "action": "modify",
+      "previousLiveSha256": "e68ac9b4f265372f57e11eba3643da74254bca3328e3e1669938930b575d565a",
+      "candidateSha256": "65a9f97cb919b698cfe955387bba29a742e124bab43be54135f4ad44f9758915"
+    },
+    {
+      "path": "scripts/generate-operator-briefs.mjs",
+      "action": "modify",
+      "previousLiveSha256": "e3442d73ce319a75d79bcc4eb3567a98eb86f511bbe2843aa3a34f625293637f",
+      "candidateSha256": "e959186fe86a43d5a397a52cb0e4691437c54a3d6a812dcc7ee97b5f06b1c4ce"
+    },
+    {
+      "path": "scripts/generate-operators-index.mjs",
+      "action": "modify",
+      "previousLiveSha256": "7b0ef5ce820a91c9e6075093e9ccd626a0c743886634b8611692b9f4cfcf6c61",
+      "candidateSha256": "605e09a2ebbeba6199bdf0ce67b8b3faf9469427a3735bdd06236a4f036af03c"
+    },
+    {
+      "path": "scripts/operator-conditions.mjs",
+      "action": "add",
+      "previousLiveSha256": null,
+      "candidateSha256": "8b467cb72013e6f3992e69cd0df9ed4d588e8cfab835f1ac69a2c14e6de0b156"
+    },
+    {
+      "path": "scripts/operator-conditions.spec.mjs",
+      "action": "add",
+      "previousLiveSha256": null,
+      "candidateSha256": "d89fa4fcc473d4d9b419686ca7552f6c39cf488087a2bdff2cf803e89ebfb62e"
+    },
+    {
+      "path": "scripts/plan-chain.mjs",
+      "action": "modify",
+      "previousLiveSha256": "6588b3bfe54cb9b0d481f63dd1f6194c7bf96fa364df2cabcfcd48c89a6186db",
+      "candidateSha256": "5e7c07b29361f847fcf941ac9d5e38c60f468e8b5edb849d5464f8d035c34ef5"
+    },
+    {
+      "path": "scripts/plan-chain.spec.mjs",
+      "action": "modify",
+      "previousLiveSha256": "0e52595152e5a8e4f9ca2a0c913552ca1ef7b49228c075f9d002cd3488194762",
+      "candidateSha256": "81c5a85f98ea89bb3ecce4aa877804161ce89aeb28b53d4d5b79442a1a00e270"
+    },
+    {
+      "path": "scripts/resolved-waiting.spec.mjs",
+      "action": "modify",
+      "previousLiveSha256": "f132f5d1ffebba964938834c23b5d83f6e40ee50d6f618072a88f708405e25ef",
+      "candidateSha256": "6995fc5f25236563d3f24fb249d1777d600c9fc5b17ab5298f27a1cdb5601cb1"
+    },
+    {
+      "path": "scripts/session-cleanup.mjs",
+      "action": "modify",
+      "previousLiveSha256": "b1aae4adcf3038360a3208eb2b30585399af005039dafdf9b7b6df302fc420e5",
+      "candidateSha256": "adb142504ad9dc57cfcfb881fcf8355137898fd6dbc714220bd3cd65b1a0f585"
+    },
+    {
+      "path": "scripts/session-cleanup.spec.mjs",
+      "action": "modify",
+      "previousLiveSha256": "d0c1150f09dd2be393274416fb73f248433f2636758d1a0704012cf6365fe830",
+      "candidateSha256": "60067d854057e5e7375d6cc50065c0334222d53467dd1cd6a9c6a3650f943df6"
+    },
+    {
+      "path": "scripts/session-lock.mjs",
+      "action": "modify",
+      "previousLiveSha256": "2ce0a24c416a88d2c547405272497e006799aae98d1c2dea000e278ba0d5cfd5",
+      "candidateSha256": "a9fef64311d33ccf49bbda6f2386052461a22d0b10397e894fa494a19801d3c6"
+    },
+    {
+      "path": "scripts/session-migrate.mjs",
+      "action": "delete",
+      "previousLiveSha256": "1ef10cffac727fb13b5d7d65901b68624e40522eed1ce20e0fc866239c2d5ee6",
+      "candidateSha256": null
+    },
+    {
+      "path": "scripts/session-open.mjs",
+      "action": "modify",
+      "previousLiveSha256": "3cecc6c1b2fe12ec9823d51acae943ba0580dfc077d4ee70bfb6aa1467ca952d",
+      "candidateSha256": "2617f13440cd8eb6fa415bff4ecc77d8299df5db48029629b2f368f701c3b263"
+    },
+    {
+      "path": "scripts/uat-prerequisites.mjs",
+      "action": "add",
+      "previousLiveSha256": null,
+      "candidateSha256": "4323faf52808b14f782530fcc9f6f63723a9e42a5109869b78ad5d9492b0f9aa"
+    },
+    {
+      "path": "scripts/v22-runtime.spec.mjs",
+      "action": "modify",
+      "previousLiveSha256": "65b54de91a37ab5fffe07c41372ab46a5b0e4ddf7578bdb307126ba91bcb5904",
+      "candidateSha256": "f9ec99eda423cfee0dfa1de286bd4e9df668936e5ac096e54704f4b821ec0cfa"
+    },
+    {
+      "path": "scripts/v23-test-fixture.mjs",
+      "action": "modify",
+      "previousLiveSha256": "d17e157c87ad89e346e6916e4149c1b0ec4e02d5450f0cdd5e933d52ea7c7793",
+      "candidateSha256": "bc3298c30a057648989b0c9e822ab80908f07d5d03dae7e9e30f1a02993fc7cd"
+    },
+    {
+      "path": "scripts/v23-test-fixture.spec.mjs",
+      "action": "add",
+      "previousLiveSha256": null,
+      "candidateSha256": "f71a1eba0ae94fb0ce3c6c33179637b4cef7892b2798e1357c792d1ed92e225e"
+    },
+    {
+      "path": "scripts/v23-workflow.spec.mjs",
+      "action": "modify",
+      "previousLiveSha256": "74b73be0f7f2e32611b43b466f86d186e77b51ce6c8bbbf856ed9278c109eb06",
+      "candidateSha256": "98c798978581f3ed71cfbc5f17556e56d8dd9f962d2883b7c42483ab2d6719a6"
+    },
+    {
+      "path": "scripts/validate-chain.mjs",
+      "action": "modify",
+      "previousLiveSha256": "3ad512388da338eccefd7cc3abb078037aba9a45babafe83aa4beec8bc8152c7",
+      "candidateSha256": "eb2dc3d2e335fb2eee060cdee66c8a4e9579ae282c3e05b1435c999f20131edf"
+    },
+    {
+      "path": "scripts/validate-defaults.mjs",
+      "action": "modify",
+      "previousLiveSha256": "96555550dcd48649f2264316d52a45361300bdee89ea3b669cfc4cb4cc6b0b88",
+      "candidateSha256": "619b631f142d30d3fc6ced153fe57e1bcbac60697eee43f45bb2bcb1baa831e7"
+    },
+    {
+      "path": "scripts/validate-operator.mjs",
+      "action": "modify",
+      "previousLiveSha256": "aab3225c4a219e8a740833a1d6c3351c1199762b221567be8a2da83e9288db40",
+      "candidateSha256": "37fe5d43819462925c48168bf9c9b9e9e3f7abf97e042da4d38ec54dc8f99054"
+    },
+    {
+      "path": "scripts/validate-request.mjs",
+      "action": "modify",
+      "previousLiveSha256": "f8087023da54d844245824471c08f3c51acc49d7ded3784ad0be2517ffa93a70",
+      "candidateSha256": "31e0ffe7913044d42738531baed780eb2146218047ac64ea5167b1e21e4b6b97"
+    },
+    {
+      "path": "scripts/workflow-root.mjs",
+      "action": "modify",
+      "previousLiveSha256": "fc366c224a971fd44931e74e7abff0af924992aa5f418bf11674606c81190f23",
+      "candidateSha256": "0a9aac2f914a507b8ca9d84a77ec9dce84577124b55330f57b52e83b35825d25"
+    },
+    {
+      "path": "scripts/workflow-topology.mjs",
+      "action": "modify",
+      "previousLiveSha256": "59f6cde40536e753e4689c45c0b13c16d638b7ce9e97ecd377886c9aad096ccd",
+      "candidateSha256": "40932f9e8459c695b18d5512595a0b9a3a7bfd7759d5ed250d01f9d90be29472"
+    },
+    {
+      "path": "scripts/workflow-topology.spec.mjs",
+      "action": "modify",
+      "previousLiveSha256": "78df2784cad396279de1b4028d494ac5b2759c745e69cfd2ce9c9f1253777250",
+      "candidateSha256": "782ac305401acc0ea84a24105090d239f7823db51fd47954a9b8c5193233bddd"
+    },
+    {
+      "path": "scripts/workflow-verification.spec.mjs",
+      "action": "modify",
+      "previousLiveSha256": "82608efc4b27a5b2ad4bcac96fddbbdee65bf1fabbe85b7ac4c6ce600cae8316",
+      "candidateSha256": "799036b284d89cdd14bd9111df7ee8fd0cf4831f27b25fb553375e109903b602"
+    },
+    {
+      "path": "templates/kinds/uat-case-sheet.schema.json",
+      "action": "modify",
+      "previousLiveSha256": "b2b430b05654acea25a13d4208decb88feffc0ef294d5411e419e0409aac1351",
+      "candidateSha256": "321bf7ea1d7fc75d1c6942ce3a803222fae14e459bd0bf7d234fbe90fb9ee969"
+    },
+    {
+      "path": "templates/kinds/uat-flow-verification.skeleton.md",
+      "action": "modify",
+      "previousLiveSha256": "d561fdf4f9ae41917317a8130c1b11ee941d93616f91b0891850755580bfa79e",
+      "candidateSha256": "f500d9323649e16406ea3364ec7ac2404a024744034082447b5eaf40f0110505"
+    },
+    {
+      "path": "templates/kinds/uat-plan.contract.json",
+      "action": "modify",
+      "previousLiveSha256": "3d5fe79481b74a27751c8cc3da5bee5ed1d86d5e1207317a177bb265bb52f1f8",
+      "candidateSha256": "82a2c7d84d92cacf36c429bb968df41f17088041bf2f674bc196e8b729d23925"
+    },
+    {
+      "path": "templates/kinds/uat-snapshot.schema.json",
+      "action": "modify",
+      "previousLiveSha256": "65b9353723d5ba76e40ff8348d68268188499434985b7939c096c42789092029",
+      "candidateSha256": "0695b45ee6d19d2be898ac95a71710413da5538322e9d2d23e92ba78bb18ab7e"
+    },
+    {
+      "path": "templates/kinds/uat-verdicts.schema.json",
+      "action": "modify",
+      "previousLiveSha256": "f5d7160dcc0db45862ee32a5f4bf59c7ac7eff0b32749635c065c073a4eb65f9",
+      "candidateSha256": "ce7bd320c6ceb32e78735a95993365b1ff029cf911dac7eca258f4831e44221a"
+    },
+    {
+      "path": "templates/step/state.schema.json",
+      "action": "modify",
+      "previousLiveSha256": "7caa7f0c9d2a6361286ebcc840b62f5a4e81e78b55be496fac4e105fd886abde",
+      "candidateSha256": "1c4aa0238a34a8fea0ec99c5e33c4fe9cd4fbbd18976be76a291846f6a31a3c4"
+    },
+    {
+      "path": "templates/uat/README.md",
+      "action": "modify",
+      "previousLiveSha256": "50bbcb283e7734330453034d867f09e9877b56cd9bd547833017dfc32b1e1d23",
+      "candidateSha256": "7a7c5880597701058d4372fddc3e7d091229c2d033240bd46c3e1a8c85e99d4e"
+    },
+    {
+      "path": "templates/uat/flow.md",
+      "action": "modify",
+      "previousLiveSha256": "3291af2d9c0dcb0a3dcecd43f5bec88d962c2bec1700ea18834fbae9817439e6",
+      "candidateSha256": "425bb6111e2f472a71dc4ff628758dd8594b611df9f86277e45dfa1f98bb3026"
+    },
+    {
+      "path": "templates/uat/run.md",
+      "action": "modify",
+      "previousLiveSha256": "1910f1d1b6e62cb9e4bc830bb56c6ab52f07dd85ada8c04debcd6345fc90ec50",
+      "candidateSha256": "b63a8b1f46bdd2731993fb747d8ff4192025139c4334bb8e403c700b08634e64"
+    },
+    {
+      "path": "tests/evidence/20260906-current-public-workflows.md",
+      "action": "add",
+      "previousLiveSha256": null,
+      "candidateSha256": "6f6f71a013e055784e2d6784839c939732a52ef70f4a429b4ca6f467622e5e9f"
+    },
+    {
+      "path": "workflows/discovery.md",
+      "action": "modify",
+      "previousLiveSha256": "106c517bbd643a65c9c9e824f0a0fa8696cb35991290cd434081e2c52d001822",
+      "candidateSha256": "d33970d3917a7798b059859b1a9b6e1d3518863a6d33786046680854fda21131"
+    },
+    {
+      "path": "workflows/discovery.vi.md",
+      "action": "modify",
+      "previousLiveSha256": "e930b7b29363ebc7d229cdb6fa41c41c52b784383d3b9a4accdb05c6b9ed508e",
+      "candidateSha256": "8d6816c1211d0dd6d57280c1641f29f7833b7db9b2b137ac59bfc6734cc5baea"
+    }
+  ],
+  "ignored": [
+    {
+      "path": "operators/api-verify/operator.md",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "operators/api-verify/operator.vi.md",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "operators/backend-plan/operator.md",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "operators/backend-plan/operator.vi.md",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "operators/interface-plan/operator.md",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "operators/interface-plan/operator.vi.md",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "resources/delivery.json",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "scripts/sweep-presentation.mjs",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "templates/kinds/coverage.schema.json",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "templates/kinds/migration-release-input.schema.json",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "templates/kinds/migration-release-plan.schema.json",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "templates/kinds/migration-release-proof.schema.json",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "templates/kinds/migration-release-runner.schema.json",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "templates/kinds/platform-operation-receipt.contract.json",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "templates/kinds/probes.schema.json",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "templates/kinds/release-deployment.contract.json",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "templates/kinds/release-deployment.skeleton.md",
+      "reason": "already identical in live checkout"
+    },
+    {
+      "path": "tests/evidence/20260905-nivo-setup-uat-on-2.1.2.md",
+      "reason": "already identical in live checkout"
+    }
+  ],
+  "bytePrecheckAt": "2026-09-06T01:15:05.512Z",
+  "sealedAt": "2026-09-06T01:17:24.004Z",
+  "proofs": {
+    "full": {
+      "path": "v2.3.2-full.log",
+      "exitCode": 0,
+      "tests": 392,
+      "pass": 392,
+      "fail": 0,
+      "skip": 0,
+      "docs": 76,
+      "sha256": "b866f5253b708da9ff1c8740561d7bf0c9c8e4ccf9783117929c3ab6e4e589df"
+    },
+    "pack": {
+      "path": "v2.3.2-pack-proof.json",
+      "sha256": "035466fa9f11b055320fe32b9e48837c91130a131858056fa8f54f23f25878d1"
+    },
+    "tree": {
+      "path": "v2.3.2-tree.json",
+      "sha256": "43f589fac60c1f7653de8d08a196bc87fc08e363e7b889dd5cd104500f1d3ff4"
+    },
+    "preservedConcurrent": {
+      "path": "preserved-live-2.3.1.json",
+      "sha256": "214e3c931129897eaa32c2960fcdce6c9492c3081c8a3be63a9e9c66469148b0"
+    }
+  }
+}

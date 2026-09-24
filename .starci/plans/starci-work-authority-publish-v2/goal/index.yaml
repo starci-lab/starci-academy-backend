@@ -1,0 +1,191 @@
+schema: starci/plan-goal@1
+planDigest: 24a2884dbb62eb2f2d08a21ddbe4f765f388b7e0f9417a36cfee7596e75085f4
+plan:
+  schema: starci/plan@1
+  id: starci-work-authority-publish-v2
+  requestId: 01a08166-2769-7ce2-b45b-319c13a7dcc9
+  originalRequest: code khi nào cũng legacy, .work là source of trust; nâng trc rồi cook tiếp nhé;
+    work là source of trust, done => quyền lực; duyệt nâng .claude, push
+  finalOutcome: StarCi treats validated done Work as the sole downstream execution authority and
+    treats inspected code only as legacy observation and gap evidence, then publishes the verified
+    runtime repair to origin/main so subsequent Accounting work consumes the upgraded rules.
+  business:
+    action: reuse
+    outcome: Preserve accepted product business intent unchanged; this runtime repair changes only how
+      authority is derived and propagated.
+    targets: []
+  architecture:
+    action: reuse
+    outcome: Preserve the current runtime structure while making the Work-state trust boundary explicit
+      in canonical instructions and specification semantics.
+    targets: []
+  implementation:
+    action: change
+    outcome: Tighten StarCi skill, business operator, specification contract and validator tests so only
+      validated done Work can authorize downstream behavior while code remains non-authoritative
+      legacy observation, then commit the verified repair.
+    targets:
+      - nivo.maintenance.starci-work-authority
+  uat:
+    action: reuse
+    outcome: No browser UAT applies; verify the runtime with focused specification regressions, the full
+      test suite and a clean generated-build check.
+    targets: []
+  exclusions:
+    - No Nivo product source, Accounting architecture, backend, frontend or UAT changes in this Plan.
+    - No relaxation of evidence, acceptance, dependency or stale-state gates.
+    - No rewriting of accepted Work from inspected code.
+    - No release, deployment or package publication; publication is limited to pushing the one
+      verified repair commit to origin/main.
+    - No deletion of generated site directories or unrelated working-tree content.
+  workflows:
+    - id: prepare-starci-work-authority
+      workflow: prepare-work
+      purpose: Create one bounded maintenance Work leaf that states the Work-state authority rule and its
+        proof obligations without changing product Work.
+      input: The approved source-of-trust rule and the existing validated maintenance branch.
+      output: A valid todo maintenance leaf for the runtime repair.
+      criteria:
+        - work-valid
+      workTargets:
+        - nivo.maintenance.starci-work-authority
+      paths:
+        - .work/maintenance/starci-work-authority/index.yaml
+      resources:
+        - .work/maintenance/starci-work-authority/index.yaml
+      dependsOn: []
+      estimate:
+        minMinutes: 5
+        maxMinutes: 10
+        assumptions: The existing maintenance branch remains valid and no repository resource is required to
+          create the selected scope.
+      selection:
+        requestQuote: work là source of trust
+        codeChange: false
+        verification: none
+        separateDeliverable: false
+    - id: repair-starci-work-authority
+      workflow: update-knowledge
+      purpose: Encode and enforce that validated done Work is downstream authority and inspected code is
+        legacy observation only.
+      input: The accepted prepared maintenance leaf and the user-approved authority rule.
+      output: Updated canonical instructions, operator semantics, validator regression coverage and
+        rebuilt current .dist artifacts.
+      criteria:
+        - knowledge-valid
+      workTargets:
+        - nivo.maintenance.starci-work-authority
+      paths:
+        - starci:SKILL.md
+        - starci:ops/business.decide/operator.json
+        - starci:specifications/contract.json
+        - starci:specifications/validate.mjs
+        - starci:tests/specifications.spec.mjs
+        - starci:tests/build-entry.spec.mjs
+        - starci:.dist/ops/business.decide/operator.json
+        - starci:.dist/specifications/contract.json
+        - starci:.dist/manifest.json
+      resources: []
+      dependsOn:
+        - prepare-starci-work-authority
+      estimate:
+        minMinutes: 20
+        maxMinutes: 40
+        assumptions: The repair remains instruction/contract/validator scoped and existing tests need no
+          unrelated refactor.
+      selection:
+        requestQuote: nâng trc rồi cook tiếp nhé
+        codeChange: true
+        verification: unit-component
+        separateDeliverable: true
+    - id: publish-starci-work-authority
+      workflow: publish-code
+      purpose: Push the single accepted and tested StarCi runtime repair commit to the configured origin
+        main branch.
+      input: The accepted update-knowledge result, exact commit SHA, clean scoped diff and verified origin
+        identity.
+      output: Remote origin/main readback resolving to the exact accepted repair commit.
+      criteria:
+        - publish-pass
+        - work-valid
+      workTargets:
+        - nivo.maintenance.starci-work-authority
+      paths: []
+      resources:
+        - https://github.com/starci183/starci-skills.git#main
+      dependsOn:
+        - repair-starci-work-authority
+      estimate:
+        minMinutes: 3
+        maxMinutes: 10
+        assumptions: The remote accepts a fast-forward push and no newer origin/main commit appears after
+          verification.
+      selection:
+        requestQuote: push
+        codeChange: false
+        verification: none
+        separateDeliverable: true
+  openQuestions: []
+jobs:
+  prepare-starci-work-authority:
+    goal:
+      schema: starci/goal@1
+      id: prepare-starci-work-authority
+      workflow: prepare-work
+      requestId: 01a08166-2769-7ce2-b45b-319c13a7dcc9
+      originalRequest: code khi nào cũng legacy, .work là source of trust; nâng trc rồi cook tiếp nhé;
+        work là source of trust, done => quyền lực; duyệt nâng .claude, push
+      finalOutcome: Create one validated maintenance Work leaf that defines validated done Work as
+        downstream authority and inspected code as legacy observation only.
+      scope:
+        business:
+          - StarCi Work-state execution authority
+        paths: []
+        resources:
+          - .work/maintenance/starci-work-authority/index.yaml
+        exclusions:
+          - No Nivo product source, Accounting architecture, backend, frontend or UAT changes in
+            this Plan.
+          - No relaxation of evidence, acceptance, dependency or stale-state gates.
+          - No rewriting of accepted Work from inspected code.
+          - No release, deployment or package publication; publication is limited to pushing the one
+            verified repair commit to origin/main.
+          - No deletion of generated site directories or unrelated working-tree content.
+      criteria:
+        - work-valid
+      businessChanges:
+        - Create the selected maintenance leaf without changing any Nivo product behavior or .claude
+          source.
+      impacts: []
+      resourceEffects:
+        - target: .work/maintenance/starci-work-authority/index.yaml
+          operation: create
+          postcondition: A canonical todo maintenance leaf exists and the whole Work workspace validates.
+      inputs:
+        request: Prepare the approved StarCi Work-state authority maintenance scope.
+      cells:
+        - id: prepare-work
+          op: workspace.manage
+          operation: prepare
+          purpose: Create and validate the selected maintenance Work leaf only.
+          finalOutput: A canonical Work reference for the prepared maintenance leaf.
+          criteria:
+            - work-valid
+          inputs:
+            request:
+              from: request
+              key: request
+          outputSchema:
+            type: object
+            properties:
+              workRef:
+                type: string
+            required:
+              - workRef
+            additionalProperties: false
+      workTargets:
+        - nivo.maintenance.starci-work-authority
+    goalDigest: 2b51dd3cfd1bbf6078ff99520546d574e7c3f71b3763e4bc3ea90f835dbd7b47
+    scopeDigest: d4f027ac7ce41ea58ce38dd037a7b186ac7c942787f0ff29aa48f5d9c586e639
+    workRoot: D:\Repositories\starci-academy-backend\.work
+    repositories: {}

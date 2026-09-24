@@ -1,0 +1,16 @@
+{
+  "baseline": "f9c74f7117cae2de3db14bc11e04024262a1acc6",
+  "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-rc15-release\\host\\.claude",
+  "artFiles": 118,
+  "threeWayMerged": [
+    "scripts/plan-history.mjs"
+  ],
+  "pending": [
+    "source-content repair",
+    "visual fidelity repair",
+    "version and generators",
+    "full test",
+    "package install",
+    "publication"
+  ]
+}

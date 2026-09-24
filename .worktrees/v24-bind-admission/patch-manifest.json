@@ -1,0 +1,109 @@
+{
+  "status": "sealed-ready-not-applied",
+  "version": "2.4.2",
+  "request": "request.json",
+  "files": [
+    {
+      "path": "INDEX.md",
+      "beforeSha256": "236cab6ced3bf781aee8763f74a434f661bfadedb59fbafed204c4a11c70d95e",
+      "afterSha256": "1b8b6ca030df26d16c8aa86b88b6d482d81f1b2df8fa29b45916e2ab16cc75a5"
+    },
+    {
+      "path": "INDEX.vi.md",
+      "beforeSha256": "b82b3997b609d1d8748bd142964fc0d82d503c0e4d1067356c8ae325147ac475",
+      "afterSha256": "103c1eff2277b702dadf5299d2be6ec6aaa5058d445bd9f95a886e92a4ce8579"
+    },
+    {
+      "path": "docs/reference/operators/workspace-bind.mdx",
+      "beforeSha256": "5e0b409de3df59de9f0a3dcbad44b96980570d7b39572bd627f5e88ee584e621",
+      "afterSha256": "f00f78c974549bacb19a423461e1f18e848e37446550f9ed73fcd2bebeffd221"
+    },
+    {
+      "path": "docs/vi/reference/operators/workspace-bind.mdx",
+      "beforeSha256": "231f44173089bf789bd8bba8211d876aacb1cf5cfe3a8ebb16a678d9fa93b210",
+      "afterSha256": "d56d88039134e49c840b9dec1192165d55cb91a9abcb54589665d507b3d71d62"
+    },
+    {
+      "path": "operators/workspace-bind/operator.md",
+      "beforeSha256": "fd780a1c1c2ce04e3637058ee2bef2ae6bdab74566c73d094898b7544b1329eb",
+      "afterSha256": "856f6d5ad25d32cf5f3c6a40734c015621a8d8841fde181eb085c9ea71140575"
+    },
+    {
+      "path": "operators/workspace-bind/operator.vi.md",
+      "beforeSha256": "876131e689c70adeceb08a70affff7aa00c082f9068ddbb306b7d80d7f114293",
+      "afterSha256": "a6bed7839e461a54f0b137505f856741a9f48562e4d60ed96c76faa9bc96e956"
+    },
+    {
+      "path": "package.json",
+      "beforeSha256": "147958e87f96d073a17a6a3b3604ed0d08866ff2ae64ea4f40f19028f03d0461",
+      "afterSha256": "84c465915ca9ba34d8efcb82de31d2fb1159b3659ab812577d9151c28eb3d083"
+    },
+    {
+      "path": "scripts/attempt-gate.mjs",
+      "beforeSha256": "4ffbada68d1abd1fa3604e66257007dd16f672876cd7fadf53cd313b75f5846b",
+      "afterSha256": "ff254984b5a165e91519680c895e72e44dc5e2fa35b1aa634436cd91183fe223"
+    },
+    {
+      "path": "scripts/mission-scope.mjs",
+      "beforeSha256": "5ba606b18bb0e9e818e54009cced2242505b99b176a2fa55ae980b96287340f1",
+      "afterSha256": "7f837698004a50ea96d0c22d4a538bf072b1544767c54f15d120436db2a040b2"
+    },
+    {
+      "path": "scripts/session-lock.mjs",
+      "beforeSha256": "a9fef64311d33ccf49bbda6f2386052461a22d0b10397e894fa494a19801d3c6",
+      "afterSha256": "8cc648efee82cc01edf55668fd65b2d78bc110f279b2235b105ccf7e051eb35b"
+    },
+    {
+      "path": "scripts/validate-request.mjs",
+      "beforeSha256": "9254de41c3322fe993030b35a3a5ba041ce45139198f372bb28fc065d7e4a3fa",
+      "afterSha256": "04a31769908d043b3aef2ebefa85fa1dd69c8cda15512a19972ef81d649f099b"
+    },
+    {
+      "path": "scripts/workspace-checkout.mjs",
+      "beforeSha256": "17f365d839900c838e5beb52c183f11172448c9e42e3ffcc03447a1037ffa5b8",
+      "afterSha256": "640e0a65e9291903095aa8bf20fdbebf56027c2ed300d9a80723108b2f080338"
+    },
+    {
+      "path": "scripts/workspace-checkout.spec.mjs",
+      "beforeSha256": "5b5880668d24fd1ae4a99aee1e0f5c1eeb11ee9e4b3b16833907a7cbd6b166d0",
+      "afterSha256": "632780d5f4f695ce91dbb594a931cb559bd03652c270090f72f31ad09a9734cb"
+    },
+    {
+      "path": "workflows/discovery.md",
+      "beforeSha256": "d33970d3917a7798b059859b1a9b6e1d3518863a6d33786046680854fda21131",
+      "afterSha256": "d5449c48221115e1f9ca84d6fe78870ed066af085d1629211909723f81ce973e"
+    },
+    {
+      "path": "workflows/discovery.vi.md",
+      "beforeSha256": "8d6816c1211d0dd6d57280c1641f29f7833b7db9b2b137ac59bfc6734cc5baea",
+      "afterSha256": "64fce3dd8adfca98c04a3467ce1120febe5a4ead4d9ffa176b6125152844b4e7"
+    },
+    {
+      "path": "tests/evidence/20260906-bind-admission.md",
+      "beforeSha256": null,
+      "afterSha256": "d3ef9befae93c8bd8e8a145cab033733fd190b2da702f59e3e5cf2cf8dcc7f3d"
+    }
+  ],
+  "rootOwnedBookkeeping": [
+    "package.json",
+    "INDEX.md",
+    "INDEX.vi.md"
+  ],
+  "validation": {
+    "focused": "combined-focused-final.log",
+    "focusedSha256": "3301bb1d2a2b500b15ddc7142761b706896881fab7d44f9ce8848c3fe1829d34",
+    "tests": 37,
+    "pass": 37,
+    "fail": 0,
+    "skip": 0,
+    "officialOpen": "Real current session confirmation and Git worktree; failed open leaves state byte-identical, successful open freezes exact SHA and creates running attempt/receipt.",
+    "validators": [
+      "validate-operator",
+      "validate-templates"
+    ],
+    "docs": 76,
+    "actualReadOnly": "Root independently verified actual Landing2/1 read-only prerequisite on full host: zero errors. Sandbox-only local probe refused Git ownership; no trust relaxation.",
+    "fullSuite": "Root runs combined live suite after guarded adoption."
+  },
+  "liveEdits": false
+}

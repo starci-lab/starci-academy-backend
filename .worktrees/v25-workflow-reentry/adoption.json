@@ -1,0 +1,20 @@
+{
+  "adoptedAt": "2026-09-06T13:03:57.719Z",
+  "baseline": "8a3e1cdc43298d51b547947fcdbae57b919f855b",
+  "manifestHash": "sha256:8e04dc58258a703b8a2ea7ea23d2e1443568abaad587e2afa117116e6fe0fff2",
+  "paths": [
+    "INDEX.md",
+    "INDEX.vi.md",
+    "operators/workspace-bind/validate.mjs",
+    "package.json",
+    "scripts/plan-history.mjs",
+    "scripts/validate-chain.mjs",
+    "scripts/validate-request.mjs",
+    "scripts/workflow-reentry.spec.mjs",
+    "scripts/workspace-checkout.mjs",
+    "tests/evidence/20260906-workflow-reentry.md",
+    "workflows/README.md",
+    "workflows/README.vi.md"
+  ],
+  "readback": true
+}

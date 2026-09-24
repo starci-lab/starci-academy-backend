@@ -33,12 +33,13 @@ export class K8sAgentService extends BaseAgentService {
             deviceService)
     }
 
-    /** Snapshot local Kubernetes resources and report them for step verification. */
-    private report(): void {
+    /** Snapshot local Kubernetes resources; only explicit Verify snapshots may advance progress. */
+    private report(verificationRequested = false): void {
         void this.resources.snapshot()
             .then((resources) => this.socket.emit(EVENT.resourcesReport,
                 {
-                    resources 
+                    resources,
+                    verificationRequested,
                 }))
             .catch(() => { /* best-effort -- a failed snapshot never tears down the relay. */ })
     }
@@ -47,7 +48,7 @@ export class K8sAgentService extends BaseAgentService {
         this.socket.on(EVENT.stepVerified,
             () => this.report())
         this.socket.on(EVENT.verifyNow,
-            () => this.report())
+            () => this.report(true))
     }
 
     protected onPaired(): void {

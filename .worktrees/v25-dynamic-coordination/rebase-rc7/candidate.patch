@@ -1,0 +1,2409 @@
+diff --git a/docs/reference/operators/api-verify.mdx b/docs/reference/operators/api-verify.mdx
+index 048fb163..96b9197c 100644
+--- a/docs/reference/operators/api-verify.mdx
++++ b/docs/reference/operators/api-verify.mdx
+@@ -224,6 +224,7 @@ On `done`, print **Operator Result** as the case and lane verdict table from `re
+ | a case the runner named did not hold | `backend.generate` |
+ | the attested entry stopped answering, so the route is served again before the suite is run again | `runtime.serve` |
+ | the API journey is proven and the same delivery needs its browser journey checked | `uat.verify` |
++| the coordinator has accepted the integrated test tuple and must close its assigned workflows | `workflow.verify` |
+ 
+ ---
+ 
+diff --git a/docs/reference/operators/backend-generate.mdx b/docs/reference/operators/backend-generate.mdx
+index 1138ec28..1ea0ab2c 100644
+--- a/docs/reference/operators/backend-generate.mdx
++++ b/docs/reference/operators/backend-generate.mdx
+@@ -214,7 +214,7 @@ the publication was withheld. When it is absent the published head is the author
+ | `business-reconciliation` | `business.reconcile`; the discrepancies a reconciliation recorded against the delivered source, repaired under scope `fix` without widening the contract | no |
+ | `architecture-decision` | `architecture.decide`; the frozen mutation contract the implementation fills and may not widen, and the source of every operation this run restates | yes |
+ | `model` | `business.decide`; the head that branch modelled, when it has not been published yet | no |
+-| `backend-source-application` | a prior run of `backend.generate` for the same outcome; regression history, absent on the first run | no |
++| `backend-source-application` | a prior run for the same outcome, or the exact accepted shared producer named by the coordinated assignment; bind its original typed import before incorporating it | no |
+ | `units` | `backend.plan`; the module list whose one module this branch fills under scope full, named by `request.unit` | no |
+ 
+ ## Requirements
+diff --git a/docs/reference/operators/quality-verify.mdx b/docs/reference/operators/quality-verify.mdx
+index 5c1c4128..d6227b05 100644
+--- a/docs/reference/operators/quality-verify.mdx
++++ b/docs/reference/operators/quality-verify.mdx
+@@ -303,6 +303,7 @@ Print **Operator Result** as the gate table in `response/response.md`, linking e
+ | the gates are green and a person asked for the journey to be walked | `uat.verify` |
+ | the gates are green and the delivery must now be exercised as a client against the served runtime | `api.verify` |
+ | the gates are green and the mission names more than one journey, so the flows are named before one is walked per branch | `uat.plan` |
++| the coordinator has accepted the integrated test tuple and must close its assigned workflows | `workflow.verify` |
+ 
+ ---
+ 
+diff --git a/docs/reference/operators/uat-verify.mdx b/docs/reference/operators/uat-verify.mdx
+index abc1c5ad..d30c5e3e 100644
+--- a/docs/reference/operators/uat-verify.mdx
++++ b/docs/reference/operators/uat-verify.mdx
+@@ -357,6 +357,7 @@ On `done`, show the complete case result summary as **Operator Result**, choosin
+ | a valid seed receipt must be created or its exact namespace rolled back after any completed, failed or incomplete action attempt | `data.seed` |
+ | the UX lane fails: a person decides what the experience should be, and the flow is verified again only after that decision | `user` |
+ | the run produced the first baseline of this flow, so a person promotes the candidate before it is a reference | `user` |
++| the coordinator has accepted the integrated test tuple and must close its assigned workflows | `workflow.verify` |
+ 
+ ---
+ 
+diff --git a/docs/reference/operators/workflow-verify.mdx b/docs/reference/operators/workflow-verify.mdx
+index b6bf4b87..8fc6298c 100644
+--- a/docs/reference/operators/workflow-verify.mdx
++++ b/docs/reference/operators/workflow-verify.mdx
+@@ -134,6 +134,10 @@ fingerprints. It contains no message transcript, copied receipt, inferred succes
+ | --- | --- |
+ | the frozen portfolio is verified and the coordinator may conclude from the local matched receipt | `user` |
+ 
++For an active coordinated assignment, the version 2 peer inventory also freezes its assignment and exact original source incorporation, consumer regression and combined verification selectors. The verifier reads those original current accepted records under the explicit session contexts. Each consumer regression follows incorporation at the affected repository head; a separate accepted quality, API or UAT verification freezes a mandatory integrated criterion and the actual head tuple containing every producer and consumer contribution. Unrelated repository boundaries retain the normal peer proof requirements. The executable owner of these checks and automatic dependency readiness is scripts/workflow-coordination.mjs, under resources/orchestrator.json#workflowTopologies.coordination.
++
++The report retains each source consumer's sealed incorporation intent and actual merge receipt. Combined proof additionally joins actual API and browser endpoint records to two accepted runtime observations per role, bracketing each verifier. Those observations measure the serving checkout and process; pinned source contexts cannot substitute for served heads. A BE-only extraction still requires the consumers' delivered FE contributions in the combined runtime when their original missions include FE, without inventing an FE source application for the BE producer. The authoritative selectors are the existing request integration and peer/report schemas; `scripts/workflow-runtime-proof.mjs` verifies their measured joins.
++
+ ---
+ 
+ Source: [`operators/workflow-verify/operator.md`](https://github.com/starci183/starci-skills/blob/main/operators/workflow-verify/operator.md).
+diff --git a/docs/vi/reference/operators/api-verify.mdx b/docs/vi/reference/operators/api-verify.mdx
+index 2c17140f..70d11a89 100644
+--- a/docs/vi/reference/operators/api-verify.mdx
++++ b/docs/vi/reference/operators/api-verify.mdx
+@@ -225,6 +225,7 @@ Khi `done`, in **Operator Result** thành bảng verdict theo case và lane từ
+ | một case runner gọi tên không đứng vững | `backend.generate` |
+ | entry đã chứng thực thôi trả lời, nên route được phục vụ lại trước khi bộ kiểm chạy lại | `runtime.serve` |
+ | hành trình API đã được chứng minh và cùng bản giao cần kiểm tra hành trình trình duyệt | `uat.verify` |
++| điều phối đã chấp nhận bộ kiểm thử tích hợp và cần kết thúc các workflow được phân công | `workflow.verify` |
+ 
+ ---
+ 
+diff --git a/docs/vi/reference/operators/backend-generate.mdx b/docs/vi/reference/operators/backend-generate.mdx
+index 4d28e408..8be9b36d 100644
+--- a/docs/vi/reference/operators/backend-generate.mdx
++++ b/docs/vi/reference/operators/backend-generate.mdx
+@@ -204,7 +204,7 @@ publish bị giữ lại. Khi nó vắng, head đã publish là thẩm quyền.
+ | `business-reconciliation` | `business.reconcile`; những sai lệch mà một lần đối chiếu ghi nhận trên source đã giao, sửa dưới scope `fix` mà không nới contract | không |
+ | `architecture-decision` | `architecture.decide`; contract mutation đã đóng băng mà phần cài đặt điền vào và không được nới, và là nguồn của mọi operation lượt chạy này thuật lại | có |
+ | `model` | `business.decide`; head mà nhánh đó đã mô hình hoá, khi nó chưa được publish | không |
+-| `backend-source-application` | một lượt chạy trước của `backend.generate` cho cùng kết quả; lịch sử hồi quy, vắng mặt ở lần đầu | không |
++| `backend-source-application` | lượt trước cho cùng kết quả, hoặc producer chung được chấp nhận đúng theo phân công điều phối; gắn bản nhập có kiểu từ bản gốc trước khi tích hợp | không |
+ | `units` | `backend.plan`; danh sách module mà nhánh này điền đúng một module dưới scope full, gọi tên bằng `request.unit` | không |
+ 
+ ## Yêu cầu
+diff --git a/docs/vi/reference/operators/quality-verify.mdx b/docs/vi/reference/operators/quality-verify.mdx
+index 06f58067..46416e14 100644
+--- a/docs/vi/reference/operators/quality-verify.mdx
++++ b/docs/vi/reference/operators/quality-verify.mdx
+@@ -294,6 +294,7 @@ In **Operator Result** là bảng gate trong `response/response.md`, link từng
+ | các gate xanh và có người yêu cầu đi thử hành trình | `uat.verify` |
+ | các gate xanh và bản giao giờ phải được vận hành như một client đối với runtime đang phục vụ | `api.verify` |
+ | các gate xanh và nhiệm vụ nêu hơn một hành trình, nên các luồng được gọi tên trước khi mỗi nhánh đi một luồng | `uat.plan` |
++| điều phối đã chấp nhận bộ kiểm thử tích hợp và cần kết thúc các workflow được phân công | `workflow.verify` |
+ 
+ ---
+ 
+diff --git a/docs/vi/reference/operators/uat-verify.mdx b/docs/vi/reference/operators/uat-verify.mdx
+index ecaeeff7..1b0d7cc7 100644
+--- a/docs/vi/reference/operators/uat-verify.mdx
++++ b/docs/vi/reference/operators/uat-verify.mdx
+@@ -354,6 +354,7 @@ Khi `done`, hiện tổng quan đầy đủ kết quả các case làm **Operato
+ | cần tạo seed receipt hợp lệ hoặc rollback exact namespace sau attempt đã action, dù complete, failed hay incomplete | `data.seed` |
+ | làn UX fail: người quyết định trải nghiệm phải thế nào, và luồng chỉ được kiểm lại sau quyết định ấy | `user` |
+ | lượt chạy sinh ra bản tham chiếu đầu tiên của luồng, nên một con người nâng bản ứng viên trước khi nó thành chuẩn | `user` |
++| điều phối đã chấp nhận bộ kiểm thử tích hợp và cần kết thúc các workflow được phân công | `workflow.verify` |
+ 
+ ---
+ 
+diff --git a/docs/vi/reference/operators/workflow-verify.mdx b/docs/vi/reference/operators/workflow-verify.mdx
+index 631b70c4..32a9e777 100644
+--- a/docs/vi/reference/operators/workflow-verify.mdx
++++ b/docs/vi/reference/operators/workflow-verify.mdx
+@@ -133,6 +133,9 @@ diễn hay verdict một phần.
+ | --- | --- |
+ | portfolio đã đóng băng được kiểm và coordinator có thể kết luận từ receipt matched cục bộ | `user` |
+ 
++Khi có phân công điều phối đang hoạt động, danh sách peer phiên bản 2 đóng băng cả phân công và tọa độ bản gốc của tích hợp mã, hồi quy consumer và kiểm thử kết hợp. Bộ kiểm đọc đúng các bản ghi hiện hành đã được chấp nhận trong context phiên được khai báo. Hồi quy consumer chạy sau tích hợp tại head của kho liên quan; một lần quality, API hoặc UAT riêng đã được chấp nhận đóng băng tiêu chí tích hợp bắt buộc và bộ head thực chứa đủ đóng góp của producer cùng các consumer. Các kho không liên quan vẫn tuân thủ kiểm chứng peer thông thường. Chủ thực thi các gate và trạng thái sẵn sàng tự động là scripts/workflow-coordination.mjs, theo resources/orchestrator.json#workflowTopologies.coordination.
++Report giữ intent incorporation đã niêm phong và receipt merge thực tế của từng source consumer. Bằng chứng kết hợp còn nối endpoint API/browser thực tế với hai runtime observation được chấp nhận cho mỗi role, bao quanh từng verifier. Observation đo checkout và process đang phục vụ; context source đã pin không thay thế served HEAD. Khi mission consumer có FE, extraction chỉ BE vẫn phải giữ contribution FE trong runtime kết hợp, không tạo giả source application FE cho producer BE. Selector có thẩm quyền nằm trong schema request integration và peer/report hiện hữu; `scripts/workflow-runtime-proof.mjs` kiểm tra các phép nối đã đo.
++
+ ---
+ 
+ Nguồn: [`operators/workflow-verify/operator.vi.md`](https://github.com/starci183/starci-skills/blob/main/operators/workflow-verify/operator.vi.md). Chỉ tệp tiếng Anh mới là thẩm quyền runtime.
+diff --git a/operators/api-verify/brief.md b/operators/api-verify/brief.md
+index b1e13140..7dc3c072 100644
+--- a/operators/api-verify/brief.md
++++ b/operators/api-verify/brief.md
+@@ -14,10 +14,12 @@ Primary output: `api-verification`
+ 
+ ## Outputs
+ 
+-`api-verification` `response/response.md`
+-`api-cases` `response/data/cases.json`
+-`api-verdicts` `response/data/verdicts.json`
+-`api-output` `response/artifacts/api-output.txt`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`api-verification` `response/response.md` (md)
++`api-cases` `response/data/cases.json` (data)
++`api-verdicts` `response/data/verdicts.json` (data)
++`api-output` `response/artifacts/api-output.txt` (artifact)
+ 
+ ## Stops
+ 
+diff --git a/operators/api-verify/operator.md b/operators/api-verify/operator.md
+index 62695bb9..8e3e14c2 100644
+--- a/operators/api-verify/operator.md
++++ b/operators/api-verify/operator.md
+@@ -202,3 +202,4 @@ On `done`, print **Operator Result** as the case and lane verdict table from `re
+ | a case the runner named did not hold | `backend.generate` |
+ | the attested entry stopped answering, so the route is served again before the suite is run again | `runtime.serve` |
+ | the API journey is proven and the same delivery needs its browser journey checked | `uat.verify` |
++| the coordinator has accepted the integrated test tuple and must close its assigned workflows | `workflow.verify` |
+diff --git a/operators/api-verify/operator.vi.md b/operators/api-verify/operator.vi.md
+index 71c9ea10..103560e9 100644
+--- a/operators/api-verify/operator.vi.md
++++ b/operators/api-verify/operator.vi.md
+@@ -203,3 +203,4 @@ Khi `done`, in **Operator Result** thành bảng verdict theo case và lane từ
+ | một case runner gọi tên không đứng vững | `backend.generate` |
+ | entry đã chứng thực thôi trả lời, nên route được phục vụ lại trước khi bộ kiểm chạy lại | `runtime.serve` |
+ | hành trình API đã được chứng minh và cùng bản giao cần kiểm tra hành trình trình duyệt | `uat.verify` |
++| điều phối đã chấp nhận bộ kiểm thử tích hợp và cần kết thúc các workflow được phân công | `workflow.verify` |
+diff --git a/operators/architecture-decide/brief.md b/operators/architecture-decide/brief.md
+index b1145adb..24479863 100644
+--- a/operators/architecture-decide/brief.md
++++ b/operators/architecture-decide/brief.md
+@@ -14,12 +14,14 @@ Primary output: `architecture-decision`
+ 
+ ## Outputs
+ 
+-`architecture-decision` `response/response.md`
+-`restatement` `response/restatement.md`?
+-`current-state` `response/data/current-state.json`
+-`stack-model` `response/data/stack-model.json`
+-`alternatives` `response/artifacts/<decisionId>-alternatives.html`?
+-`independent-critique` `critique/response/critique.md`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`architecture-decision` `response/response.md` (md)
++`restatement` `response/restatement.md`? (md)
++`current-state` `response/data/current-state.json` (data)
++`stack-model` `response/data/stack-model.json` (data)
++`alternatives` `response/artifacts/<decisionId>-alternatives.html`? (artifact)
++`independent-critique` `critique/response/critique.md` (md)
+ 
+ ## Stops
+ 
+diff --git a/operators/backend-generate/brief.md b/operators/backend-generate/brief.md
+index c2cff363..924cb370 100644
+--- a/operators/backend-generate/brief.md
++++ b/operators/backend-generate/brief.md
+@@ -14,11 +14,13 @@ Primary output: `backend-source-application`
+ 
+ ## Outputs
+ 
+-`backend-source-application` `response/response.md`
+-`changes` `response/changes.md`
+-`mutations` `response/data/mutations.json`
+-`conformance` `response/data/conformance/<operationId>.<facet>.json`?
+-`proof` `response/data/proofs/<operationId>.<proofKind>.json`?
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`backend-source-application` `response/response.md` (md)
++`changes` `response/changes.md` (md)
++`mutations` `response/data/mutations.json` (data)
++`conformance` `response/data/conformance/<operationId>.<facet>.json`? (data)
++`proof` `response/data/proofs/<operationId>.<proofKind>.json`? (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/backend-generate/operator.md b/operators/backend-generate/operator.md
+index b7e28b56..b18832c3 100644
+--- a/operators/backend-generate/operator.md
++++ b/operators/backend-generate/operator.md
+@@ -192,7 +192,7 @@ the publication was withheld. When it is absent the published head is the author
+ | `business-reconciliation` | `business.reconcile`; the discrepancies a reconciliation recorded against the delivered source, repaired under scope `fix` without widening the contract | no |
+ | `architecture-decision` | `architecture.decide`; the frozen mutation contract the implementation fills and may not widen, and the source of every operation this run restates | yes |
+ | `model` | `business.decide`; the head that branch modelled, when it has not been published yet | no |
+-| `backend-source-application` | a prior run of `backend.generate` for the same outcome; regression history, absent on the first run | no |
++| `backend-source-application` | a prior run for the same outcome, or the exact accepted shared producer named by the coordinated assignment; bind its original typed import before incorporating it | no |
+ | `units` | `backend.plan`; the module list whose one module this branch fills under scope full, named by `request.unit` | no |
+ 
+ ## Requirements
+diff --git a/operators/backend-generate/operator.vi.md b/operators/backend-generate/operator.vi.md
+index 252d8d20..6a851571 100644
+--- a/operators/backend-generate/operator.vi.md
++++ b/operators/backend-generate/operator.vi.md
+@@ -182,7 +182,7 @@ publish bị giữ lại. Khi nó vắng, head đã publish là thẩm quyền.
+ | `business-reconciliation` | `business.reconcile`; những sai lệch mà một lần đối chiếu ghi nhận trên source đã giao, sửa dưới scope `fix` mà không nới contract | không |
+ | `architecture-decision` | `architecture.decide`; contract mutation đã đóng băng mà phần cài đặt điền vào và không được nới, và là nguồn của mọi operation lượt chạy này thuật lại | có |
+ | `model` | `business.decide`; head mà nhánh đó đã mô hình hoá, khi nó chưa được publish | không |
+-| `backend-source-application` | một lượt chạy trước của `backend.generate` cho cùng kết quả; lịch sử hồi quy, vắng mặt ở lần đầu | không |
++| `backend-source-application` | lượt trước cho cùng kết quả, hoặc producer chung được chấp nhận đúng theo phân công điều phối; gắn bản nhập có kiểu từ bản gốc trước khi tích hợp | không |
+ | `units` | `backend.plan`; danh sách module mà nhánh này điền đúng một module dưới scope full, gọi tên bằng `request.unit` | không |
+ 
+ ## Yêu cầu
+diff --git a/operators/backend-plan/brief.md b/operators/backend-plan/brief.md
+index d4d85969..3862185d 100644
+--- a/operators/backend-plan/brief.md
++++ b/operators/backend-plan/brief.md
+@@ -14,8 +14,10 @@ Primary output: `backend-plan`
+ 
+ ## Outputs
+ 
+-`backend-plan` `response/response.md`
+-`units` `response/data/units.json`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`backend-plan` `response/response.md` (md)
++`units` `response/data/units.json` (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/business-decide/brief.md b/operators/business-decide/brief.md
+index 513585bc..58fc88f6 100644
+--- a/operators/business-decide/brief.md
++++ b/operators/business-decide/brief.md
+@@ -14,11 +14,13 @@ Primary output: `business-promise-authority`
+ 
+ ## Outputs
+ 
+-`business-promise-authority` `response/response.md`
+-`restatement` `response/restatement.md`?
+-`claims` `response/data/claims.json`
+-`coverage-matrix` `response/data/coverage-matrix.json`
+-`model` `response/data/model.json`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`business-promise-authority` `response/response.md` (md)
++`restatement` `response/restatement.md`? (md)
++`claims` `response/data/claims.json` (data)
++`coverage-matrix` `response/data/coverage-matrix.json` (data)
++`model` `response/data/model.json` (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/business-reconcile/brief.md b/operators/business-reconcile/brief.md
+index e5c317e1..9f09b46f 100644
+--- a/operators/business-reconcile/brief.md
++++ b/operators/business-reconcile/brief.md
+@@ -14,9 +14,11 @@ Primary output: `business-reconciliation`
+ 
+ ## Outputs
+ 
+-`business-reconciliation` `response/response.md`
+-`claims` `response/data/claims.json`
+-`model` `response/data/model.json`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`business-reconciliation` `response/response.md` (md)
++`claims` `response/data/claims.json` (data)
++`model` `response/data/model.json` (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/content-generate/brief.md b/operators/content-generate/brief.md
+index 69a4e71b..c36457c6 100644
+--- a/operators/content-generate/brief.md
++++ b/operators/content-generate/brief.md
+@@ -14,14 +14,16 @@ Primary output: `content-generation-receipt`
+ 
+ ## Outputs
+ 
+-`content-generation-receipt` `response/response.md`
+-`content-brief` `response/brief.md`
+-`e2e` `response/data/e2e.json`?
+-`content-review` `review/response/review.md`
+-`article` `response/artifacts/article.<language>.md`
+-`image` `response/artifacts/image.<name>`?
+-`image-prompt` `response/artifacts/prompt.<name>.txt`?
+-`track` `response/artifacts/track.<language>.<extension>`?
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`content-generation-receipt` `response/response.md` (md)
++`content-brief` `response/brief.md` (md)
++`e2e` `response/data/e2e.json`? (data)
++`content-review` `review/response/review.md` (md)
++`article` `response/artifacts/article.<language>.md` (artifact)
++`image` `response/artifacts/image.<name>`? (artifact)
++`image-prompt` `response/artifacts/prompt.<name>.txt`? (artifact)
++`track` `response/artifacts/track.<language>.<extension>`? (artifact)
+ 
+ ## Stops
+ 
+diff --git a/operators/data-plan/brief.md b/operators/data-plan/brief.md
+index 7a9fad77..888c19e4 100644
+--- a/operators/data-plan/brief.md
++++ b/operators/data-plan/brief.md
+@@ -14,8 +14,10 @@ Primary output: `seed-plan`
+ 
+ ## Outputs
+ 
+-`seed-plan` `response/response.md`
+-`units` `response/data/units.json`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`seed-plan` `response/response.md` (md)
++`units` `response/data/units.json` (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/data-seed/brief.md b/operators/data-seed/brief.md
+index 3d3d69cc..40f2c113 100644
+--- a/operators/data-seed/brief.md
++++ b/operators/data-seed/brief.md
+@@ -14,7 +14,9 @@ Primary output: `seed-receipt`
+ 
+ ## Outputs
+ 
+-`seed-receipt` `response/response.md`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`seed-receipt` `response/response.md` (md)
+ 
+ ## Stops
+ 
+diff --git a/operators/environment-preflight/brief.md b/operators/environment-preflight/brief.md
+index 7614b0b5..9ef6d0c8 100644
+--- a/operators/environment-preflight/brief.md
++++ b/operators/environment-preflight/brief.md
+@@ -14,8 +14,10 @@ none
+ 
+ ## Outputs
+ 
+-`environment-readiness` `response/response.md`
+-`readiness-report` `response/data/readiness-report.json`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`environment-readiness` `response/response.md` (md)
++`readiness-report` `response/data/readiness-report.json` (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/git-publish/brief.md b/operators/git-publish/brief.md
+index bf50a6d0..4bf4f324 100644
+--- a/operators/git-publish/brief.md
++++ b/operators/git-publish/brief.md
+@@ -14,7 +14,9 @@ Primary output: `git-publication`
+ 
+ ## Outputs
+ 
+-`git-publication` `response/response.md`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`git-publication` `response/response.md` (md)
+ 
+ ## Stops
+ 
+diff --git a/operators/identity-provision/brief.md b/operators/identity-provision/brief.md
+index e62ca55f..5f0da637 100644
+--- a/operators/identity-provision/brief.md
++++ b/operators/identity-provision/brief.md
+@@ -14,10 +14,12 @@ Primary output: `uat-account`
+ 
+ ## Outputs
+ 
+-`platform-operation-receipt` `response/response.md`
+-`delta` `response/data/delta.json`
+-`checks` `response/data/checks.json`
+-`uat-account` `response/data/account.json`?
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`platform-operation-receipt` `response/response.md` (md)
++`delta` `response/data/delta.json` (data)
++`checks` `response/data/checks.json` (data)
++`uat-account` `response/data/account.json`? (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/interface-audit/brief.md b/operators/interface-audit/brief.md
+index 8a90eacf..d9ceae12 100644
+--- a/operators/interface-audit/brief.md
++++ b/operators/interface-audit/brief.md
+@@ -14,17 +14,19 @@ Primary output: `frontend-surface-audit`
+ 
+ ## Outputs
+ 
+-`frontend-surface-audit` `response/response.md`
+-`capture` `response/data/captures/<matrixId>.json`
+-`screenshot` `response/artifacts/<matrixId>.png`
+-`verdicts` `response/data/verdicts.json`
+-`findings` `response/data/findings.json`?
+-`uat-walk` `response/data/walks/<walk>/walk.json`?
+-`walk-result` `response/data/walks/<walk>/walk-result.json`?
+-`host` `response/artifacts/host.json`?
+-`knowledge-coverage` `response/data/knowledge-coverage.json`?
+-`family-understanding` `response/data/family-understanding.json`?
+-`knowledge-question` `response/data/knowledge-question.json`?
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`frontend-surface-audit` `response/response.md` (md)
++`capture` `response/data/captures/<matrixId>.json` (data)
++`screenshot` `response/artifacts/<matrixId>.png` (artifact)
++`verdicts` `response/data/verdicts.json` (data)
++`findings` `response/data/findings.json`? (data)
++`uat-walk` `response/data/walks/<walk>/walk.json`? (data)
++`walk-result` `response/data/walks/<walk>/walk-result.json`? (data)
++`host` `response/artifacts/host.json`? (artifact)
++`knowledge-coverage` `response/data/knowledge-coverage.json`? (data)
++`family-understanding` `response/data/family-understanding.json`? (data)
++`knowledge-question` `response/data/knowledge-question.json`? (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/interface-fix/brief.md b/operators/interface-fix/brief.md
+index 555becd3..eb8512c5 100644
+--- a/operators/interface-fix/brief.md
++++ b/operators/interface-fix/brief.md
+@@ -14,12 +14,14 @@ Primary output: `frontend-source-application`
+ 
+ ## Outputs
+ 
+-`frontend-source-application` `response/response.md`
+-`changes` `response/changes.md`
+-`writes` `response/data/writes.json`
+-`knowledge-question` `response/data/knowledge-question.json`?
+-`knowledge-coverage` `response/data/knowledge-coverage.json`?
+-`family-understanding` `response/data/family-understanding.json`?
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`frontend-source-application` `response/response.md` (md)
++`changes` `response/changes.md` (md)
++`writes` `response/data/writes.json` (data)
++`knowledge-question` `response/data/knowledge-question.json`? (data)
++`knowledge-coverage` `response/data/knowledge-coverage.json`? (data)
++`family-understanding` `response/data/family-understanding.json`? (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/interface-generate/brief.md b/operators/interface-generate/brief.md
+index cf599073..0d9f861a 100644
+--- a/operators/interface-generate/brief.md
++++ b/operators/interface-generate/brief.md
+@@ -14,21 +14,23 @@ Primary output: `frontend-source-application`
+ 
+ ## Outputs
+ 
+-`frontend-direction-decision` `response/direction.md`
+-`ui-coverage` `response/data/coverage.json`
+-`candidates` `response/artifacts/<candidateId>.html`?
+-`selected-candidate-capture` `response/artifacts/<candidateId>.<viewport>.png`
+-`direction-image` `response/artifacts/images/<slot>.png`?
+-`host` `response/artifacts/host.json`?
+-`knowledge-question` `response/data/knowledge-question.json`?
+-`knowledge-coverage` `response/data/knowledge-coverage.json`?
+-`family-understanding` `response/data/family-understanding.json`?
+-`frontend-presentation-resolution` `response/resolution.md`
+-`inventory` `response/data/inventory.json`
+-`resolved-tree` `response/artifacts/<target>.resolved.tsx`
+-`frontend-source-application` `response/response.md`
+-`changes` `response/changes.md`
+-`writes` `response/data/writes.json`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`frontend-direction-decision` `response/direction.md` (md)
++`ui-coverage` `response/data/coverage.json` (data)
++`candidates` `response/artifacts/<candidateId>.html`? (artifact)
++`selected-candidate-capture` `response/artifacts/<candidateId>.<viewport>.png` (artifact)
++`direction-image` `response/artifacts/images/<slot>.png`? (artifact)
++`host` `response/artifacts/host.json`? (artifact)
++`knowledge-question` `response/data/knowledge-question.json`? (data)
++`knowledge-coverage` `response/data/knowledge-coverage.json`? (data)
++`family-understanding` `response/data/family-understanding.json`? (data)
++`frontend-presentation-resolution` `response/resolution.md` (md)
++`inventory` `response/data/inventory.json` (data)
++`resolved-tree` `response/artifacts/<target>.resolved.tsx` (artifact)
++`frontend-source-application` `response/response.md` (md)
++`changes` `response/changes.md` (md)
++`writes` `response/data/writes.json` (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/interface-plan/brief.md b/operators/interface-plan/brief.md
+index e6705979..53c95c13 100644
+--- a/operators/interface-plan/brief.md
++++ b/operators/interface-plan/brief.md
+@@ -14,11 +14,13 @@ Primary output: `surface-map`
+ 
+ ## Outputs
+ 
+-`surface-map` `response/response.md`
+-`units` `response/data/units.json`
+-`knowledge-question` `response/data/knowledge-question.json`?
+-`knowledge-coverage` `response/data/knowledge-coverage.json`?
+-`family-understanding` `response/data/family-understanding.json`?
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`surface-map` `response/response.md` (md)
++`units` `response/data/units.json` (data)
++`knowledge-question` `response/data/knowledge-question.json`? (data)
++`knowledge-coverage` `response/data/knowledge-coverage.json`? (data)
++`family-understanding` `response/data/family-understanding.json`? (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/knowledge-repair/brief.md b/operators/knowledge-repair/brief.md
+index 23b759c5..c05ac452 100644
+--- a/operators/knowledge-repair/brief.md
++++ b/operators/knowledge-repair/brief.md
+@@ -14,7 +14,9 @@ Primary output: `knowledge-repair-receipt`
+ 
+ ## Outputs
+ 
+-`knowledge-repair-receipt` `response/data/knowledge-repair.json`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`knowledge-repair-receipt` `response/data/knowledge-repair.json` (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/library-update/brief.md b/operators/library-update/brief.md
+index b2452ef2..015086a8 100644
+--- a/operators/library-update/brief.md
++++ b/operators/library-update/brief.md
+@@ -14,16 +14,18 @@ Primary output: `library-source-application`
+ 
+ ## Outputs
+ 
+-`library-source-application` `response/data/library.json`?
+-`library-proof` `response/data/proofs/<phase>.json`?
+-`library-release` `response/data/release.json`?
+-`library-archive` `response/artifacts/release/<file>.tgz`?
+-`dependency-update` `response/data/dependency.json`?
+-`dependency-proof` `response/data/proofs/consumer-<phase>.json`?
+-`dependency-log` `response/artifacts/proofs/consumer-<phase>.log`?
+-`changes` `response/changes.md`
+-`knowledge-coverage` `response/data/knowledge-coverage.json`?
+-`family-understanding` `response/data/family-understanding.json`?
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`library-source-application` `response/data/library.json`? (data)
++`library-proof` `response/data/proofs/<phase>.json`? (data)
++`library-release` `response/data/release.json`? (data)
++`library-archive` `response/artifacts/release/<file>.tgz`? (artifact)
++`dependency-update` `response/data/dependency.json`? (data)
++`dependency-proof` `response/data/proofs/consumer-<phase>.json`? (data)
++`dependency-log` `response/artifacts/proofs/consumer-<phase>.log`? (artifact)
++`changes` `response/changes.md` (md)
++`knowledge-coverage` `response/data/knowledge-coverage.json`? (data)
++`family-understanding` `response/data/family-understanding.json`? (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/migration-release/brief.md b/operators/migration-release/brief.md
+index 1d12d611..e858e6f8 100644
+--- a/operators/migration-release/brief.md
++++ b/operators/migration-release/brief.md
+@@ -14,9 +14,11 @@ Primary output: `migration-release`
+ 
+ ## Outputs
+ 
+-`migration-release` `response/migration-release.md`
+-`migration-release-proof` `response/data/migration-release.json`
+-`migration-log` `response/artifacts/migration-<n>.log`?
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`migration-release` `response/migration-release.md` (md)
++`migration-release-proof` `response/data/migration-release.json` (data)
++`migration-log` `response/artifacts/migration-<n>.log`? (artifact)
+ 
+ ## Stops
+ 
+diff --git a/operators/quality-verify/brief.md b/operators/quality-verify/brief.md
+index 7d3679e0..e8b72216 100644
+--- a/operators/quality-verify/brief.md
++++ b/operators/quality-verify/brief.md
+@@ -14,10 +14,12 @@ Primary output: `quality-verification`
+ 
+ ## Outputs
+ 
+-`quality-verification` `response/response.md`
+-`gate-result` `response/data/gates/<gate>.json`
+-`coverage` `response/data/coverage.json`?
+-`audit-scope` `response/data/audit-scope.json`?
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`quality-verification` `response/response.md` (md)
++`gate-result` `response/data/gates/<gate>.json` (data)
++`coverage` `response/data/coverage.json`? (data)
++`audit-scope` `response/data/audit-scope.json`? (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/quality-verify/operator.md b/operators/quality-verify/operator.md
+index 00c867d2..217e8b13 100644
+--- a/operators/quality-verify/operator.md
++++ b/operators/quality-verify/operator.md
+@@ -281,3 +281,4 @@ Print **Operator Result** as the gate table in `response/response.md`, linking e
+ | the gates are green and a person asked for the journey to be walked | `uat.verify` |
+ | the gates are green and the delivery must now be exercised as a client against the served runtime | `api.verify` |
+ | the gates are green and the mission names more than one journey, so the flows are named before one is walked per branch | `uat.plan` |
++| the coordinator has accepted the integrated test tuple and must close its assigned workflows | `workflow.verify` |
+diff --git a/operators/quality-verify/operator.vi.md b/operators/quality-verify/operator.vi.md
+index 3b344081..27a936f0 100644
+--- a/operators/quality-verify/operator.vi.md
++++ b/operators/quality-verify/operator.vi.md
+@@ -272,3 +272,4 @@ In **Operator Result** là bảng gate trong `response/response.md`, link từng
+ | các gate xanh và có người yêu cầu đi thử hành trình | `uat.verify` |
+ | các gate xanh và bản giao giờ phải được vận hành như một client đối với runtime đang phục vụ | `api.verify` |
+ | các gate xanh và nhiệm vụ nêu hơn một hành trình, nên các luồng được gọi tên trước khi mỗi nhánh đi một luồng | `uat.plan` |
++| điều phối đã chấp nhận bộ kiểm thử tích hợp và cần kết thúc các workflow được phân công | `workflow.verify` |
+diff --git a/operators/release-deploy/brief.md b/operators/release-deploy/brief.md
+index 056c7f9b..ba350aaa 100644
+--- a/operators/release-deploy/brief.md
++++ b/operators/release-deploy/brief.md
+@@ -14,8 +14,10 @@ Primary output: `release-deployment`
+ 
+ ## Outputs
+ 
+-`release-deployment` `response/response.md`
+-`probes` `response/data/probes.json`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`release-deployment` `response/response.md` (md)
++`probes` `response/data/probes.json` (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/runtime-serve/brief.md b/operators/runtime-serve/brief.md
+index 8bff3756..5df206e4 100644
+--- a/operators/runtime-serve/brief.md
++++ b/operators/runtime-serve/brief.md
+@@ -14,10 +14,12 @@ Primary output: `platform-operation-receipt`
+ 
+ ## Outputs
+ 
+-`platform-operation-receipt` `response/response.md`
+-`delta` `response/data/delta.json`
+-`checks` `response/data/checks.json`
+-`changes` `response/changes.md`?
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`platform-operation-receipt` `response/response.md` (md)
++`delta` `response/data/delta.json` (data)
++`checks` `response/data/checks.json` (data)
++`changes` `response/changes.md`? (md)
+ 
+ ## Stops
+ 
+diff --git a/operators/service-operate/brief.md b/operators/service-operate/brief.md
+index c5525a76..81cb5a91 100644
+--- a/operators/service-operate/brief.md
++++ b/operators/service-operate/brief.md
+@@ -14,7 +14,9 @@ none
+ 
+ ## Outputs
+ 
+-`service-receipt` `response/response.md`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`service-receipt` `response/response.md` (md)
+ 
+ ## Stops
+ 
+diff --git a/operators/uat-plan/brief.md b/operators/uat-plan/brief.md
+index 1fd7ddcd..13a721ca 100644
+--- a/operators/uat-plan/brief.md
++++ b/operators/uat-plan/brief.md
+@@ -14,9 +14,11 @@ Primary output: `uat-plan`
+ 
+ ## Outputs
+ 
+-`uat-plan` `response/response.md`
+-`uat-case-sheet` `response/data/cases.json`
+-`units` `response/data/units.json`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`uat-plan` `response/response.md` (md)
++`uat-case-sheet` `response/data/cases.json` (data)
++`units` `response/data/units.json` (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/uat-verify/brief.md b/operators/uat-verify/brief.md
+index c7c7f5f2..da1813df 100644
+--- a/operators/uat-verify/brief.md
++++ b/operators/uat-verify/brief.md
+@@ -14,16 +14,18 @@ Primary output: `uat-flow-verification`
+ 
+ ## Outputs
+ 
+-`uat-flow-verification` `response/response.md`
+-`uat-snapshot` `response/data/snapshot.json`
+-`uat-capture` `response/data/captures/<case>.json`
+-`uat-verdicts` `response/data/verdicts.json`
+-`audit-scope` `response/data/audit-scope.json`?
+-`findings` `response/data/findings.json`?
+-`uat-walk` `response/data/walks/<walk>/walk.json`?
+-`walk-result` `response/data/walks/<walk>/walk-result.json`?
+-`screenshot` `response/artifacts/<case>.png`
+-`sheet` `response/artifacts/sheet.png`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`uat-flow-verification` `response/response.md` (md)
++`uat-snapshot` `response/data/snapshot.json` (data)
++`uat-capture` `response/data/captures/<case>.json` (data)
++`uat-verdicts` `response/data/verdicts.json` (data)
++`audit-scope` `response/data/audit-scope.json`? (data)
++`findings` `response/data/findings.json`? (data)
++`uat-walk` `response/data/walks/<walk>/walk.json`? (data)
++`walk-result` `response/data/walks/<walk>/walk-result.json`? (data)
++`screenshot` `response/artifacts/<case>.png` (artifact)
++`sheet` `response/artifacts/sheet.png` (artifact)
+ 
+ ## Stops
+ 
+diff --git a/operators/uat-verify/operator.md b/operators/uat-verify/operator.md
+index f3d9a0a4..7159b9c0 100644
+--- a/operators/uat-verify/operator.md
++++ b/operators/uat-verify/operator.md
+@@ -335,3 +335,4 @@ On `done`, show the complete case result summary as **Operator Result**, choosin
+ | a valid seed receipt must be created or its exact namespace rolled back after any completed, failed or incomplete action attempt | `data.seed` |
+ | the UX lane fails: a person decides what the experience should be, and the flow is verified again only after that decision | `user` |
+ | the run produced the first baseline of this flow, so a person promotes the candidate before it is a reference | `user` |
++| the coordinator has accepted the integrated test tuple and must close its assigned workflows | `workflow.verify` |
+diff --git a/operators/uat-verify/operator.vi.md b/operators/uat-verify/operator.vi.md
+index df01041c..24c4bc67 100644
+--- a/operators/uat-verify/operator.vi.md
++++ b/operators/uat-verify/operator.vi.md
+@@ -332,3 +332,4 @@ Khi `done`, hiện tổng quan đầy đủ kết quả các case làm **Operato
+ | cần tạo seed receipt hợp lệ hoặc rollback exact namespace sau attempt đã action, dù complete, failed hay incomplete | `data.seed` |
+ | làn UX fail: người quyết định trải nghiệm phải thế nào, và luồng chỉ được kiểm lại sau quyết định ấy | `user` |
+ | lượt chạy sinh ra bản tham chiếu đầu tiên của luồng, nên một con người nâng bản ứng viên trước khi nó thành chuẩn | `user` |
++| điều phối đã chấp nhận bộ kiểm thử tích hợp và cần kết thúc các workflow được phân công | `workflow.verify` |
+diff --git a/operators/workflow-verify/brief.md b/operators/workflow-verify/brief.md
+index 4f409363..1208e67c 100644
+--- a/operators/workflow-verify/brief.md
++++ b/operators/workflow-verify/brief.md
+@@ -14,7 +14,9 @@ none
+ 
+ ## Outputs
+ 
+-`workflow-verification-report` `response/data/workflow-verification-report.json`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`workflow-verification-report` `response/data/workflow-verification-report.json` (data)
+ 
+ ## Stops
+ 
+diff --git a/operators/workflow-verify/operator.md b/operators/workflow-verify/operator.md
+index ff27db44..22dcb8ee 100644
+--- a/operators/workflow-verify/operator.md
++++ b/operators/workflow-verify/operator.md
+@@ -111,3 +111,7 @@ fingerprints. It contains no message transcript, copied receipt, inferred succes
+ | When | Operator |
+ | --- | --- |
+ | the frozen portfolio is verified and the coordinator may conclude from the local matched receipt | `user` |
++
++For an active coordinated assignment, the version 2 peer inventory also freezes its assignment and exact original source incorporation, consumer regression and combined verification selectors. The verifier reads those original current accepted records under the explicit session contexts. Each consumer regression follows incorporation at the affected repository head; a separate accepted quality, API or UAT verification freezes a mandatory integrated criterion and the actual head tuple containing every producer and consumer contribution. Unrelated repository boundaries retain the normal peer proof requirements. The executable owner of these checks and automatic dependency readiness is scripts/workflow-coordination.mjs, under resources/orchestrator.json#workflowTopologies.coordination.
++
++The report retains each source consumer's sealed incorporation intent and actual merge receipt. Combined proof additionally joins actual API and browser endpoint records to two accepted runtime observations per role, bracketing each verifier. Those observations measure the serving checkout and process; pinned source contexts cannot substitute for served heads. A BE-only extraction still requires the consumers' delivered FE contributions in the combined runtime when their original missions include FE, without inventing an FE source application for the BE producer. The authoritative selectors are the existing request integration and peer/report schemas; `scripts/workflow-runtime-proof.mjs` verifies their measured joins.
+diff --git a/operators/workflow-verify/operator.vi.md b/operators/workflow-verify/operator.vi.md
+index 68c9cecb..b2072c40 100644
+--- a/operators/workflow-verify/operator.vi.md
++++ b/operators/workflow-verify/operator.vi.md
+@@ -110,3 +110,6 @@ diễn hay verdict một phần.
+ | Khi | Operator |
+ | --- | --- |
+ | portfolio đã đóng băng được kiểm và coordinator có thể kết luận từ receipt matched cục bộ | `user` |
++
++Khi có phân công điều phối đang hoạt động, danh sách peer phiên bản 2 đóng băng cả phân công và tọa độ bản gốc của tích hợp mã, hồi quy consumer và kiểm thử kết hợp. Bộ kiểm đọc đúng các bản ghi hiện hành đã được chấp nhận trong context phiên được khai báo. Hồi quy consumer chạy sau tích hợp tại head của kho liên quan; một lần quality, API hoặc UAT riêng đã được chấp nhận đóng băng tiêu chí tích hợp bắt buộc và bộ head thực chứa đủ đóng góp của producer cùng các consumer. Các kho không liên quan vẫn tuân thủ kiểm chứng peer thông thường. Chủ thực thi các gate và trạng thái sẵn sàng tự động là scripts/workflow-coordination.mjs, theo resources/orchestrator.json#workflowTopologies.coordination.
++Report giữ intent incorporation đã niêm phong và receipt merge thực tế của từng source consumer. Bằng chứng kết hợp còn nối endpoint API/browser thực tế với hai runtime observation được chấp nhận cho mỗi role, bao quanh từng verifier. Observation đo checkout và process đang phục vụ; context source đã pin không thay thế served HEAD. Khi mission consumer có FE, extraction chỉ BE vẫn phải giữ contribution FE trong runtime kết hợp, không tạo giả source application FE cho producer BE. Selector có thẩm quyền nằm trong schema request integration và peer/report hiện hữu; `scripts/workflow-runtime-proof.mjs` kiểm tra các phép nối đã đo.
+diff --git a/operators/workspace-bind/brief.md b/operators/workspace-bind/brief.md
+index 78f2273f..3e4582ed 100644
+--- a/operators/workspace-bind/brief.md
++++ b/operators/workspace-bind/brief.md
+@@ -14,8 +14,10 @@ none
+ 
+ ## Outputs
+ 
+-`workspace-route-binding` `response/response.md`
+-`route` `response/data/route.json`
++Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.
++
++`workspace-route-binding` `response/response.md` (md)
++`route` `response/data/route.json` (data)
+ 
+ ## Stops
+ 
+diff --git a/resources/orchestrator.json b/resources/orchestrator.json
+index 8399d351..07ee2de6 100644
+--- a/resources/orchestrator.json
++++ b/resources/orchestrator.json
+@@ -43,8 +43,13 @@
+         "lifecycle": "freeze the portfolio and independent peer goals; create or adopt the peer tasks; record each task id with owns, its legacy head or routed repository heads, and wake; exchange meaningful evidence and task events; let peers choose ordinary execution without per-operator approval; inspect cross-peer contracts and current proof, assign gaps or conflicts to their owner and verify recovery before concluding the portfolio",
+         "wait": "wait for completion, needs-attention or a meaningful message; a timeout or no update is no evidence. A known blocker must have an owner and a concrete recovery or external wake condition; repeatedly observing the same blocker without taking an available authorized repair action does not count as coordination progress",
+         "failure": "a blocked or failed peer is a repair obligation, not automatic user escalation: the peer diagnoses and repairs local failures; the coordinator owns resolving shared or unowned blockers through one named authorized resource owner, a verified fix and an evidence-bound resume; independent peers continue. Existing user authority remains effective. Material scope or authority deviation suspends only affected actions and is reported with evidence and the decision needed. Missing required authority or a genuine external dependency remains explicit; no owner fabricates evidence, bypasses a gate or overwrites another owner to unblock",
+-        "completion": "ordinary messages are sufficient for all coordinator-to-peer work; the completionOperator reads original accepted peer outcomes and emits a matched local receipt under the unchanged local mission receipt gate, with no cross-session message envelope or receipt import required; its frozen request maps every peer's owned scope and legacy single outcome head or exact per-repository outcome heads to coordinator doneWhen evidence, validates every original child goal independently, and requires one accepted proving row to bind the complete exact current repository-head tuple for that goal; a missing, unfinished, changed or unproven peer prevents portfolio close"
++        "completion": "ordinary messages are sufficient for all coordinator-to-peer work; the completionOperator reads original accepted peer outcomes and emits a matched local receipt under the unchanged local mission receipt gate, with no cross-session message envelope or receipt import required; its frozen request maps every peer's owned scope and single-repository outcome head or exact per-repository outcome heads to coordinator doneWhen evidence, validates every original child goal independently, and requires one accepted proving row to bind the complete exact current repository-head tuple for that goal; a missing, unfinished, changed or unproven peer prevents portfolio close"
+       }
++    },
++    "coordination": {
++      "state": "state.json#coordination",
++      "execution": "scripts/workflow-coordination.mjs",
++      "authority": "Only a coordinator retained assignment revision grants cross-workflow repository-relative source ownership. The Source workflows index discovers coordinators and never grants ownership. Peers self-enrol; a prepared extraction derives a new producer from exact original authorized impact and verified routes, without changing donor goals or claiming another user answer. One Source lock serializes enrolment, assignment activation, request admission and durable worker reservations. A transfer carves disjoint subtrees through explicit exclusions, waits only overlapping live reservations, and refuses stale donor writes; unrelated roots retain their authority. Only affected logical consumer nodes wait. An exact original current accepted producer and intact typed import are required; source dependencies also require the consumer-owned incorporate command to retain its frozen merge intent and actual Git receipt before those nodes become ready. Incorporation preserves local work and honors repository hooks/signing. Missing ownership discovery fails closed. Portfolio completion additionally requires each real source incorporation, subsequent consumer regression at the exact affected head, and an actual accepted verification of the integrated tuple containing all producer and consumer contributions. Ordinary messages carry locations only; legacy evidence, narrated success and a hash of independent regressions cannot satisfy these obligations."
+     }
+   },
+   "wait": "completion: a dispatched or isolated agent is awaited on its completion event and a chain route on its same-session prerequisite branch's accepted completion; a timed poll is not a step of any chain, and a wait that returns nothing is not evidence of anything",
+@@ -113,7 +118,7 @@
+     "grants": "operator.json → resources.tools: each @tools/<id> with one mode from resources/tools.json, and nothing the profile would otherwise permit. A tool whose only use the operator's mode forbids is not granted for that run: backend.generate and interface.generate under mode dry receive neither @tools/sourcewrite nor @tools/git",
+     "refs": "operator.md → Context table, resolved through alias/alias.json; an unlisted location is unreadable",
+     "requirements": "operator.md → Requirements table; fill defaults into request.json and obtain required values from the mission, existing decisions and declared inputs. Fields under agent.fills (project, runId and lease) come from the session. A missing default does not itself authorize a question: apply interactionPolicy. Unavailable required authorization still blocks under the existing operator gate; this communication rule supplies no grant.",
+-    "prompt": "rendered at dispatch (mode dispatch or isolated) from operators/<id>/brief.md (generated, at most briefBytes) plus request.json; the agent reads operator.md sections through @tools/fileread for the step it is on; never stored",
++    "prompt": "rendered at dispatch (mode dispatch or isolated) from operators/<id>/brief.md (generated, at most briefBytes) plus request.json; the agent reads operator.md sections through @tools/fileread for the step it is on; never stored. The generated brief output-template map names runtime instructions, separately from product Context aliases; read only the declared kind needed before writing or resuming its output. Use the current status and declared outputs to select kinds; a refusal must not claim undeclared successful outputs or evidence. Never preload unrelated templates or treat a skeleton as completed evidence. After an accepted waiting parent receives its accepted matched nested result, the orchestrator runs node scripts/worker-slots.mjs resume <parent-branch> <workerId> <ranProfile> and confirms acquisition before the author edits parent outputs; the accepted waiting bytes stay intact until this existing transition succeeds.",
+     "isolation": "per resources.mode: isolated starts with no inherited turns and sees only what request.json names; dispatch inherits the orchestrator's transcript for forkTurns.dispatch turns of its profile; inline is the orchestrator itself",
+     "writes": "only response/ of its own branch (step-N/parallel-M/response/); a nested-exchange agent writes only <exchange>/response/ of that branch; a source-writing operator also writes the session branch of its checkout under an exclusive lease (see sourceWrites)",
+     "profileRecord": "the orchestrator records response.json boundProfile (operator.json → resources.profile) and the active ranProfile on every v2.2 attempt, including when they are equal. boundProfile is known at attempt open; ranProfile is written when a worker is actually dispatched. validate-response requires both on the final receipt, rejects a boundProfile that is not the operator's, and accepts ranProfile only when it is that active binding or its configured active cross-runtime equivalent; retired profiles cannot run new attempts",
+@@ -144,7 +149,7 @@
+   "session": {
+     "root": "<Workflow>/.worktrees/sessions/<sessionId>/",
+     "id": "<yyyymmdd-HHMMss>-<project>-<first operator>, e.g. 20260903-142200-project-interface.generate",
+-    "manifest": "Every new state.json carries contractVersion starci/v2.2, hostBinding { kind, hostId, worktree, sourcePromptRef }, the selected workflow topology, lifecycle, a versioned mission with the eight-row scope data and explicit confirmation, attempts, workerSlots, leases, chain, steps, planned, requestHashes, choices, transitions, brief and budget. Every accepted attempt stores evidenceManifest with the accepted response hash and the exact request/response file inventory. scripts/session-open.mjs writes the draft before confirmation and reuses it by host kind, host id and absolute worktree. A v2.2.0 state without topology remains readable as evidence but cannot dispatch or close until session-open migrates it; legacy unmarked state remains readable evidence but cannot dispatch through the v2.2 gates.",
++    "manifest": "Every new state.json carries contractVersion starci/v2.2, hostBinding { kind, hostId, worktree, sourcePromptRef }, the selected workflow topology, lifecycle, a versioned mission with the eight-row scope data and explicit confirmation, attempts, workerSlots, leases, chain, steps, planned, requestHashes, choices, transitions, brief and budget. Every accepted attempt stores evidenceManifest with the accepted response hash and the exact request/response file inventory. scripts/session-open.mjs writes the draft before confirmation and reuses it by host kind, host id and absolute worktree. Old runtime states follow workflows/discovery.md: retain and archive their proof, then open a fresh current session before dispatch or successful close.",
+     "branch": "step-<N>/parallel-<M>/ — N is the position in the chain, M the parallel branch; parallel-1 always exists",
+     "branchLayout": [
+       "request/request.json",
+@@ -170,7 +175,7 @@
+       "close-success: goal achieved, operator done and git.publish do not close the user session. Only an explicit successful session-close signal calls scripts/session-cleanup.mjs. It writes and verifies @worktrees/done/<id>.md and @worktrees/done/<id>/bundle first, then deletes exactly sessions/<id>. Blocked, failed, waiting and active sessions remain resumable; no user worktree or branch is removed.",
+       "report: every turn the orchestrator ends with a person is one of resources/interaction.json#reportShapes in the display language (resources/settings.json#language over settings.example.json, default vi; interaction.json#language), recorded in brief.report; a hand-off to a peer task or session is a waiting branch with a wake condition in brief.peers, never the end of a turn"
+     ],
+-    "owner": "scripts/workflow-root.mjs resolves .workspaces/projects/<project>/workflow.json ownerRole against the hydrated canonical route. One project declaration owns requests and evidence across all routed roles; .claude, .workspaces, .stacks and the central runtime remain Source-owned. scripts/session-migrate.mjs preserves original evidence and disables the old ledger before activating its verified copy.",
++    "owner": "scripts/workflow-root.mjs resolves .workspaces/projects/<project>/workflow.json ownerRole against the hydrated canonical route. One project declaration owns requests and evidence across all routed roles; .claude, .workspaces, .stacks and the central runtime remain Source-owned. workflows/discovery.md governs legacy handling: retain and archive original evidence outside active coordinates, then open a fresh current session; no in-place migration or execution adapter grants current authority.",
+     "discovery": "resources/delivery.json and templates/kinds/goal-discovery.schema.json define impact-derived handoff coverage. scripts/mission-scope.mjs freezes the reviewed scope digest and provenance; stage bounds execution independently of planning reach."
+   },
+   "sourceWrites": {
+diff --git a/scripts/generate-operator-briefs.mjs b/scripts/generate-operator-briefs.mjs
+index 42dd8310..f32abade 100644
+--- a/scripts/generate-operator-briefs.mjs
++++ b/scripts/generate-operator-briefs.mjs
+@@ -27,8 +27,8 @@ export function renderBrief(pkg) {
+   // The Requirements are not repeated here: the orchestrator fills their defaults into request.json
+   // before dispatch (resources/orchestrator.json#agent.requirements), so the agent reads every value
+   // there. The Next table is the orchestrator's, not the agent's: an agent ends its branch and never
+-  // routes. The profile and dispatch mode are the orchestrator's too. Output types are not repeated
+-  // either; the file name carries them, and the kind contract is read at the step that writes it.
++  // routes. The profile and dispatch mode are the orchestrator's too. Output types select the
++  // canonical kind authority and its copyable skeleton at the step that writes or resumes it.
+   // An isolated agent (resources.mode) starts with an empty context: the brief says so in one line,
+   // because nothing else in its context could.
+   const isolated = pkg.manifest.resources?.mode === 'isolated';
+@@ -49,7 +49,9 @@ export function renderBrief(pkg) {
+     '',
+     '## Outputs',
+     '',
+-    (op.tables.outputs?.rows ?? []).map((r) => `\`${kindOf(r.kind)}\` \`${unquote(r.file)}\`${optional(r)}`).join('\n'),
++    'Before write/resume, read ../../templates/kinds/<kind>: md .contract.json + .skeleton.md; data .schema.json; artifact follows operator.md. Current-status declared kinds; evidence must exist.',
++    '',
++    (op.tables.outputs?.rows ?? []).map((r) => `\`${kindOf(r.kind)}\` \`${unquote(r.file)}\`${optional(r)} (${unquote(r.type)})`).join('\n'),
+     '',
+     '## Stops',
+     '',
+diff --git a/scripts/mission-history.mjs b/scripts/mission-history.mjs
+index db69daf6..0cd22390 100644
+--- a/scripts/mission-history.mjs
++++ b/scripts/mission-history.mjs
+@@ -10,6 +10,7 @@ const digest = bytes => `sha256:${createHash('sha256').update(bytes).digest('hex
+ const encode = value => `${JSON.stringify(value, null, 2)}\n`;
+ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+ export const invocationKey = request => `${request.step}/${request.parallel}${request.exchange ? `/${request.exchange}` : ''}`;
++export const missionChoiceSource = mission => mission?.confirmation?.authority?.kind === 'coordination-extraction' ? 'coordinator' : 'user';
+ 
+ export async function retainContext(session, kind, value) {
+   const bytes = encode(value); const hash = digest(bytes);
+@@ -38,7 +39,7 @@ export function readContext(session, address, kind) {
+ export async function retainMission(session, state, { root, mission = state.mission } = {}) {
+   const choice = state.choices?.[mission?.confirmation?.decisionId];
+   const errors = frozenScopeErrors({ ...state, mission }, root ? { root } : {});
+-  if (!choice || choice.selected !== 'as-stated' || choice.selectedBy !== 'user' || !choice.sourceRef || choice.sourceRef !== mission.confirmation?.sourceRef) errors.push('MISSION_HISTORY_UNBOUND: confirmed scope requires its exact retained user choice');
++  if (!choice || choice.selected !== 'as-stated' || choice.selectedBy !== missionChoiceSource(mission) || !choice.sourceRef || choice.sourceRef !== mission.confirmation?.sourceRef) errors.push('MISSION_HISTORY_UNBOUND: confirmed scope requires its exact retained authority');
+   if (errors.length) throw Error(errors.join('\n'));
+   state.missionSnapshots ??= {};
+   const value = { version: 1, sessionId: state.id, mission, choice };
+@@ -56,7 +57,7 @@ export function missionAt(session, state, version) {
+   const record = readContext(session, state.missionSnapshots?.[version], 'missions');
+   if (record.sessionId !== state.id || record.mission?.version !== version || record.mission.confirmation?.scopeHash !== scopeHash(record.mission)) throw Error('MISSION_HISTORY_UNBOUND: scope identity or confirmation hash differs');
+   const choice = record.choice;
+-  if (!choice || choice.selected !== 'as-stated' || choice.selectedBy !== 'user' || !choice.sourceRef || choice.sourceRef !== record.mission.confirmation.sourceRef) throw Error('MISSION_HISTORY_UNBOUND: snapshot contains no matching user confirmation');
++  if (!choice || choice.selected !== 'as-stated' || choice.selectedBy !== missionChoiceSource(record.mission) || !choice.sourceRef || choice.sourceRef !== record.mission.confirmation.sourceRef) throw Error('MISSION_HISTORY_UNBOUND: snapshot contains no matching confirmation authority');
+   return record;
+ }
+ 
+diff --git a/scripts/mission-scope.mjs b/scripts/mission-scope.mjs
+index ecf7e658..fdad3152 100644
+--- a/scripts/mission-scope.mjs
++++ b/scripts/mission-scope.mjs
+@@ -3,7 +3,8 @@ import { execFileSync } from 'node:child_process';
+ import path from 'node:path';
+ import { fileURLToPath } from 'node:url';
+ import { validateAgainst } from './json-schema.mjs';
+-import { contentHash, RUNTIME_REVISION, sameRoot } from './workflow-root.mjs';
++import { contentHash, digest, locateWorkflowSession, realPath, RUNTIME_REVISION, sameRoot, workflowOwnerErrors } from './workflow-root.mjs';
++import { canonicalRepository, repositoryPath, requestRoots } from './workflow-coordination.mjs';
+ import { parseOperatorMd, cellAliases } from './operator-md.mjs';
+ import { requiredWhen, requirementValues } from './operator-conditions.mjs';
+ import { resolveWorkspaceCheckout } from './workspace-checkout.mjs';
+@@ -58,7 +59,8 @@ export function scopeErrors(mission, { root = ROOT, complete = false } = {}) {
+ }
+ export function authorityErrors(mission, authority, root = ROOT) {
+   const errors = scopeErrors(mission, { root, complete: true });
+-  if (!authority || !['opening-scope', 'scope-answer', 'bank-approval'].includes(authority.kind)) errors.push('GOAL_AUTHORITY_REQUIRED: record opening-scope, scope-answer or bank-approval provenance');
++  if (!authority || !['opening-scope', 'scope-answer', 'bank-approval', 'coordination-extraction'].includes(authority.kind)) errors.push('GOAL_AUTHORITY_REQUIRED: record original user authority or a sealed coordination extraction');
++  if (authority?.kind === 'coordination-extraction' && (!authority.derivation?.coordinator?.sessionId || !authority.derivation?.preparation?.hash)) errors.push('GOAL_AUTHORITY_REQUIRED: derived scope requires its exact coordinator preparation');
+   if (authority?.scopeHash !== scopeHash(mission)) errors.push('GOAL_SCOPE_CHANGED: authority does not seal this exact mission version and impact');
+   if (!authority?.sourceRef || !authority?.statement?.trim()) errors.push('GOAL_AUTHORITY_REQUIRED: retain the actual authorizing statement and its message reference');
+   const fields = deliveryPolicy(root).authorityFields;
+@@ -99,7 +101,49 @@ export function frozenScopeErrors(state, { root = ROOT } = {}) {
+ export function deliveryTargets(mission, root = ROOT) {
+   if (!mission?.discovery) return [];
+   const stage = mission.discovery.stage; const policy = deliveryPolicy(root);
+-  return [...new Set(Object.entries(mission.discovery.lanes).filter(([, lane]) => lane.status === 'planned').flatMap(([id]) => policy.lanes[id]?.[stage === 'handoff' ? 'plan' : 'execute'] ?? []))];
++  const impacts = mission.discovery.impacts ?? [];
++  const localTags = new Set(impacts.filter(impact => !impact.producer).flatMap(impact => impact.tags));
++  const peerTags = new Set(impacts.filter(impact => impact.producer).flatMap(impact => impact.tags));
++  const local = Object.entries(mission.discovery.lanes).filter(([id, lane]) => lane.status === 'planned'
++    && (policy.lanes[id]?.when.some(tag => localTags.has(tag)) || !policy.lanes[id]?.when.some(tag => peerTags.has(tag))));
++  return [...new Set([...local.flatMap(([id]) => policy.lanes[id]?.[stage === 'handoff' ? 'plan' : 'execute'] ?? []),
++    ...(impacts.some(impact => impact.producer) ? ['workflow.verify'] : [])])];
++}
++
++// Peer impacts retain their actual product classification. These immutable scope selectors grant
++// verification responsibility only; executable writer ownership remains the assignment history.
++export function peerScopeErrors(state, { root = ROOT, current = true } = {}) {
++  const errors = [], impacts = state.mission?.discovery?.impacts?.filter(impact => impact.producer) ?? [];
++  if (!impacts.length) return errors;
++  if (state.topology?.mode !== 'coordinated') errors.push('GOAL_PEER_SCOPE: peer impact authority requires a coordinated workflow');
++  const seen = new Set();
++  for (const impact of impacts) try {
++    const selected = impact.producer;
++    if (selected.sessionId === state.id || seen.has(`${selected.sessionId}:${selected.impactId}`)) throw Error('a peer impact must be a distinct exact source selection');
++    seen.add(`${selected.sessionId}:${selected.impactId}`);
++    const source = state.workflowOwner?.sourceRoot;
++    const located = locateWorkflowSession(source, selected.sessionId);
++    const peer = JSON.parse(readFileSync(path.join(located.session, 'state.json'), 'utf8'));
++    const ownerErrors = workflowOwnerErrors(root, located.session, peer);
++    if (ownerErrors.length || peer.id !== selected.sessionId || peer.runtimeRevision !== RUNTIME_REVISION) throw Error('peer must have its original current workflow identity');
++    const address = selected.mission;
++    if (!/^sha256:[a-f0-9]{64}$/.test(address?.hash ?? '') || address.ref !== `runtime/history/missions/${address.hash.slice(7)}.json`) throw Error('peer mission requires its exact original content address');
++    const file = path.resolve(located.session, address.ref);
++    if (!realPath(file).startsWith(`${realPath(located.session)}${path.sep}`)) throw Error('peer mission escaped its original workflow');
++    const bytes = readFileSync(file), retained = JSON.parse(bytes);
++    if (digest(bytes) !== address.hash || retained.sessionId !== peer.id || JSON.stringify(peer.missionSnapshots?.[retained.mission.version]) !== JSON.stringify(address)) throw Error('peer scope differs from its original retained seal');
++    const mission = retained.mission;
++    if (mission.confirmation?.status !== 'confirmed' || mission.confirmation.scopeHash !== scopeHash(mission) || authorityErrors(mission, mission.confirmation.authority, root).length) throw Error('peer scope has no exact confirmed authority');
++    if (current && (peer.mission.confirmation?.status !== 'confirmed' || scopeHash(peer.mission) !== scopeHash(mission))) throw Error('peer scope changed or was revoked after selection');
++    const original = mission.discovery.impacts.find(item => item.id === selected.impactId);
++    if (!original || original.producer) throw Error('peer scope must select a directly owned impact');
++    const { id, producer, ...actual } = impact, { id: originalId, ...expected } = original;
++    if (contentHash(actual) !== contentHash(expected)) throw Error('peer impact changes the original role, routes, code, behavior, tags or evidence');
++    const declared = state.mission.discovery.repositories.find(repo => repo.role === impact.role);
++    const originalRepository = mission.discovery.repositories.find(repo => repo.role === original.role);
++    if (canonicalRepository(declared?.repository) !== canonicalRepository(originalRepository?.repository)) throw Error('peer impact crosses repository identity');
++  } catch (error) { errors.push(`GOAL_PEER_SCOPE: ${impact.id}: ${error.message}`); }
++  return errors;
+ }
+ export function completeDeliveryMission(mission, root = ROOT) {
+   if (!mission.discovery) return mission;
+@@ -110,6 +154,7 @@ export function completeDeliveryMission(mission, root = ROOT) {
+ export function deliveryRequestErrors(state, request, root = ROOT) {
+   if (state?.runtimeRevision !== RUNTIME_REVISION) return [];
+   const errors = frozenScopeErrors(state, { root });
++  errors.push(...peerScopeErrors(state, { root }));
+   const stage = state.mission.discovery?.stage;
+   const policy = deliveryPolicy(root);
+   if (!policy.stages[stage]?.includes(request.operatorId) && stage === 'handoff') errors.push(`DELIVERY_STAGE: ${request.operatorId} is not a handoff planning operation`);
+@@ -163,6 +208,19 @@ export function scopeBindingErrors(state, request, root = ROOT) {
+   // Binding a read-only context never adds a product write role to the confirmed mission.
+   const op = authoredOperator(root, request.operatorId);
+   const writeRoles = new Set((op?.tables.steps?.rows ?? []).flatMap(row => cellAliases(row.writes)).map(alias => /^@workspaces\/(fe|be)(?:\/|$)/.exec(alias)?.[1]).filter(Boolean));
+-  for (const role of writeRoles) if (!discovery.repositories.some(repository => repository.role === role && repository.project === state.project)) errors.push(`GOAL_SOURCE_UNBOUND: product source writes to ${role} are outside the frozen discovery; a prerequisite bind grants no write impact`);
++  for (const role of writeRoles) {
++    if (!discovery.repositories.some(repository => repository.role === role && repository.project === state.project)) errors.push(`GOAL_SOURCE_UNBOUND: product source writes to ${role} are outside the frozen discovery; a prerequisite bind grants no write impact`);
++    if (discovery.impacts.some(impact => impact.role === role && impact.producer) && !discovery.impacts.some(impact => impact.role === role && !impact.producer)) errors.push(`GOAL_SOURCE_UNBOUND: peer-owned ${role} impact grants coordinator verification, not source writes`);
++  }
++  if (discovery.impacts.some(impact => impact.producer) && request.environment?.writes?.length) try {
++    const contains=(parent,child)=>parent==='.'||parent===child||child.startsWith(parent+'/');
++    for(const wanted of requestRoots(state,request)){
++      const impacts=discovery.impacts.filter(impact=>canonicalRepository(discovery.repositories.find(repo=>repo.role===impact.role).repository)===wanted.repository);
++      if(!impacts.some(impact=>impact.producer))continue;
++      const local=impacts.filter(impact=>!impact.producer).flatMap(impact=>impact.code.map(repositoryPath));
++      const delegated=impacts.filter(impact=>impact.producer).flatMap(impact=>impact.code.map(repositoryPath));
++      if(!local.some(code=>contains(code,wanted.root))||delegated.some(code=>contains(code,wanted.root)||contains(wanted.root,code)))errors.push('GOAL_SOURCE_UNBOUND: declared coordinator writes overlap or exceed its local impact beside peer-owned source');
++    }
++  }catch(error){errors.push(`GOAL_SOURCE_UNBOUND: ${error.message}`);}
+   return errors;
+ }
+diff --git a/scripts/producer-import.mjs b/scripts/producer-import.mjs
+index 7fc7de4a..6c55088d 100644
+--- a/scripts/producer-import.mjs
++++ b/scripts/producer-import.mjs
+@@ -1,17 +1,21 @@
+-import { locateWorkflowSession, readSessionState, workflowRootOf } from './workflow-root.mjs';
++import { locateWorkflowSession, RUNTIME_REVISION } from './workflow-root.mjs';
+ import { existsSync, lstatSync, realpathSync, readdirSync, readFileSync, mkdirSync, writeFileSync, renameSync, rmSync } from 'node:fs';
+ import { createHash, randomUUID } from 'node:crypto';
++import { execFileSync } from 'node:child_process';
+ import path from 'node:path';
+ import { fileURLToPath } from 'node:url';
+ import { loadOperatorPackages, kindOf } from './operator-md.mjs';
+ import { packageForOrigin } from './retired-operators.mjs';
+ import { withSessionLock } from './session-lock.mjs';
++import { evidenceManifestErrors } from './evidence-manifest.mjs';
+ 
+ const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+ const ID=/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
+ const hash=b=>'sha256:'+createHash('sha256').update(b).digest('hex');
+ const json=p=>JSON.parse(readFileSync(p,'utf8'));
+ const positive=v=>Number.isSafeInteger(v)&&v>0;
++const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
++const currentMarked=(...documents)=>documents.some(value=>value?.contractVersion!==undefined||value?.runtimeRevision!==undefined);
+ const safeRelative=p=>typeof p==='string'&&p.length>0&&!path.isAbsolute(p)&&!path.win32.isAbsolute(p)&&!/[\\:\0]/.test(p)&&!p.split('/').some(s=>!s||s==='.'||s==='..');
+ function within(base,relative,{missing=false}={}){
+   if(!safeRelative(relative))throw Error('unsafe import path');
+@@ -54,7 +58,7 @@ function metadata(source,manifest){
+   if(request.sessionId!==manifest.sourceSessionId||request.step!==manifest.sourceStep||request.parallel!==manifest.sourceParallel||response.step!==manifest.sourceStep||response.parallel!==manifest.sourceParallel||request.operatorId!==response.operatorId||response.status!=='done')throw Error('origin is not the named completed producer');
+   return {request,response};
+ }
+-async function originAuthority(root,r,m){
++async function originalProducer(r,m){
+   if(r.archive){
+     const {verifyRetention}=await import('./session-cleanup.mjs');
+     const retained=await verifyRetention(r.archive,json(within(r.archive,'retention.json')));
+@@ -64,19 +68,86 @@ async function originAuthority(root,r,m){
+   const original=metadata(r.source,m),state=json(within(r.sourceSession,'state.json')),key=`${m.sourceStep}/${m.sourceParallel}`;
+   if(state.id!==m.sourceSessionId||state.steps?.[key]!==original.request.operatorId||state.requestHashes?.[key]!==hash(readFileSync(within(r.source,'request/request.json'))))throw Error('origin request does not match its original session operator and frozen request hash');
+   try{for(const refs of Object.values(original.response.fields??{}))for(const ref of Array.isArray(refs)?refs:[refs])if(!lstatSync(within(r.source,ref)).isFile())throw Error('not a file');}catch{throw Error('origin output is missing or unsafe');}
+-  // The origin's declared outputs and bytes are judged by this tree; its `next` is routing history of the tree that ran it, not an output (validate-response.mjs#validateResponse, origin).
++  return {...original,state,key};
++}
++async function currentProducerProof(root,r,m,original){
++  const {request,response,state,key}=original;
++  const {V22_CONTRACT}=await import('./validate-request.mjs');
++  if(state.runtimeRevision!==RUNTIME_REVISION||state.upgrade||state.contractVersion!==V22_CONTRACT||request.contractVersion!==V22_CONTRACT||response.contractVersion!==V22_CONTRACT)throw Error('current producer requires an original current runtime revision and matching contracts; legacy evidence is not current proof');
++  const attempt=state.attempts?.[key],ref=`step-${m.sourceStep}/parallel-${m.sourceParallel}`;
++  if(!attempt||attempt.status!=='matched'||!attempt.endedAt)throw Error('current producer has no matched accepted attempt');
++  if(request.exchange!==undefined||attempt.id!==request.attempt?.id||attempt.id!==response.attempt?.id||attempt.operatorId!==request.operatorId
++    ||attempt.number!==request.attempt?.number||attempt.number!==response.attempt?.number
++    ||attempt.kind!==request.attempt?.kind||attempt.previous!==request.attempt?.previous
++    ||attempt.expectedVersion!==request.expected?.version||attempt.expectedVersion!==response.attempt?.expectedVersion
++    ||attempt.expectedHash!==hash(Buffer.from(JSON.stringify(request.expected)))||!same(attempt.expected,request.expected)
++    ||!same(attempt.frozenInputs,request.frozenInputs)||attempt.requestRef!==`${ref}/request/request.json`||attempt.responseRef!==`${ref}/response/response.json`
++    ||response.comparison?.verdict!=='matched'||response.comparison?.next!=='advance'||!same(attempt.comparison,response.comparison))throw Error('current producer identity differs from its original accepted attempt');
++  const sealed=await evidenceManifestErrors(r.source,attempt.evidenceManifest);
++  if(sealed.length)throw Error('current producer accepted '+sealed.join('; '));
++  // Current receipts owe the complete output contract. Only request dispatch state is historical:
++  // the original operator law replays at acceptance phase, including its nested exchanges.
++  const {validateResponse}=await import('./validate-response.mjs');
++  const typed=await validateResponse(root,r.source,{requirements:request.requirements??{}});
++  if(typed.errors.length)throw Error('current producer fails its full typed output gate: '+typed.errors.slice(0,2).join('; '));
++  const {validateStep}=await import('./validate-step.mjs');
++  const checked=await validateStep(root,r.source,{origin:true,operator:true,requestPhase:'accept'});
++  if(checked.errors.length)throw Error('current producer fails its accepted operator gate: '+checked.errors.slice(0,2).join('; '));
++  const stable=await evidenceManifestErrors(r.source,attempt.evidenceManifest);
++  if(stable.length)throw Error('current producer changed during proof validation: '+stable.join('; '));
++  return {sessionId:m.sourceSessionId,step:m.sourceStep,parallel:m.sourceParallel,operatorId:request.operatorId,attemptId:attempt.id,
++    ref,requestRef:attempt.requestRef,requestHash:state.requestHashes[key],responseRef:attempt.responseRef,manifestFingerprint:attempt.evidenceManifest.fingerprint};
++}
++async function originAuthority(root,r,m,{requireCurrent=false}={}){
++  const original=await originalProducer(r,m);
++  // A current marker never falls back to the legacy compatibility gate, including partial downgrades.
++  if(currentMarked(original.request,original.response,original.state)){
++    await currentProducerProof(root,r,m,original);return original;
++  }
++  if(requireCurrent)throw Error('current receiver requires an original accepted current producer; legacy evidence is inspection-only');
++  // Legacy output-only compatibility is restricted to legacy inspection receivers. It cannot
++  // supply Inputs to a current workflow or satisfy the exported current proof checker.
+   const {validateResponse}=await import('./validate-response.mjs');
+   const result=await validateResponse(root,r.source,{requirements:original.request.requirements??{},origin:true});
+   if(result.errors.length)throw Error('origin response fails its typed output gate: '+result.errors.slice(0,2).join('; '));
+   return original;
+ }
++
++// Read-only exact original proof, shared by imports and coordinated consumer admission. References
++// are relative to the original session. Repository identity is the normalized Git common directory;
++// a context-only binding has no verified repository identity until a proving workspace supplies it.
++export async function acceptedProducerProof(root,sessionId,step,parallel,kind,{hostRoot=path.dirname(root)}={}){
++  if(!ID.test(sessionId)||![step,parallel].every(positive)||typeof kind!=='string'||!kind)throw Error('producer proof identity and kind must be explicit and strict');
++  const origin=locateWorkflowSession(hostRoot,sessionId);
++  const r={sourceSession:origin.session,source:within(origin.session,`step-${step}/parallel-${parallel}`),archive:origin.archive};
++  const m={sourceSessionId:sessionId,sourceStep:step,sourceParallel:parallel};
++  const original=await originalProducer(r,m),proof=await currentProducerProof(root,r,m,original);
++  const fields=original.response.fields?.[kind],refs=Array.isArray(fields)?fields:[fields];
++  const packages=await loadOperatorPackages(root),pkg=packages.find(item=>item.manifest.id===original.request.operatorId);
++  if(!refs.length||refs.some(ref=>typeof ref!=='string')||!pkg?.en.tables.outputs?.rows.some(row=>kindOf(row.kind)===kind))throw Error('producer proof kind was not emitted by its original operator');
++  const bindings=new Map((original.request.contexts??[]).filter(context=>/^@workspaces\//.test(context.alias)&&context.head)
++    .map(context=>[context.alias,{alias:context.alias,revision:context.head,worktree:null,repositoryHash:null}]));
++  const workspace=original.request.environment?.workspace,commits=original.response.commits??[];
++  let heads=[];
++  if(workspace){
++    if(!path.isAbsolute(workspace.worktree)||!workspace.alias||!/^[a-f0-9]{40}$/.test(workspace.revision??''))throw Error('producer proof workspace requires an absolute worktree, alias and full commit');
++    const git=args=>execFileSync('git',['-C',workspace.worktree,...args],{encoding:'utf8',windowsHide:true,timeout:10000,stdio:['ignore','pipe','pipe']}).trim();
++    const full=oid=>{if(!/^[a-f0-9]{40}$/.test(oid??''))throw Error('producer proof commit must be a full object ID');const resolved=git(['rev-parse','--verify',`${oid}^{commit}`]);if(resolved!==oid)throw Error('producer proof commit resolves to a different object');return resolved;};
++    const base=full(workspace.revision);heads=commits.map(full);
++    const common=git(['rev-parse','--git-common-dir']),real=realpathSync(path.isAbsolute(common)?common:path.resolve(workspace.worktree,common));
++    bindings.set(workspace.alias,{alias:workspace.alias,revision:heads.at(-1)??base,worktree:workspace.worktree,repositoryHash:hash(process.platform==='win32'?real.toLowerCase():real)});
++  }else if(commits.length)throw Error('producer proof commits have no proving workspace boundary');
++  const artifacts=refs.map(ref=>({ref:`${proof.ref}/${ref}`,sha256:original.state.attempts[`${step}/${parallel}`].evidenceManifest.files.find(file=>file.ref===ref)?.sha256}));
++  if(artifacts.some(artifact=>!artifact.sha256))throw Error('producer proof artifact is outside its accepted manifest');
++  return {...proof,sessionRoot:r.sourceSession,artifacts,artifactRefs:artifacts.map(artifact=>artifact.ref),bindings:[...bindings.values()].sort((a,b)=>a.alias.localeCompare(b.alias)),heads};
++}
+ function manifestShape(m){
+   const keys=['schemaVersion','sourceSessionId','sourceStep','sourceParallel','targetSessionId','targetStep','targetParallel','files'];
+   if(!m||typeof m!=='object'||Object.keys(m).sort().join()!==keys.sort().join()||m.schemaVersion!==1||!Array.isArray(m.files)||!m.files.length||m.files.length>512)throw Error('invalid import manifest shape');
+   const seen=new Set();for(const f of m.files){if(!f||Object.keys(f).sort().join()!=='path,sha256'||!safeRelative(f.path)||!/^(request|response)\//.test(f.path)||!/^sha256:[a-f0-9]{64}$/.test(f.sha256)||seen.has(f.path))throw Error('invalid import file inventory');seen.add(f.path);}
+ }
+ 
+-export async function validateImportedInput(root,session,inputRef,kind,{hostRoot=path.dirname(root),receivingSessionId=path.basename(session)}={}){
++export async function validateImportedInput(root,session,inputRef,kind,{hostRoot=path.dirname(root),receivingSessionId=path.basename(session),receivingContractVersion}={}){
+   const match=/^step-([1-9]\d*)\/parallel-([1-9]\d*)\/(?:[a-z][a-z-]*\/)?response\//.exec(inputRef);
+   // Existing local inputs keep their existing contract; this gate only owns explicit foreign imports.
+   if(!match)return [];
+@@ -91,7 +162,8 @@ export async function validateImportedInput(root,session,inputRef,kind,{hostRoot
+     if(path.resolve(r.target)!==path.resolve(branch))throw Error('import target is outside the Source session root');
+     within(r.targetSession,`step-${m.targetStep}/parallel-${m.targetParallel}/import.json`);
+     evidenceOnly(r.targetSession,m.targetStep,m.targetParallel);
+-    const origin=await originAuthority(root,r,m);metadata(r.target,m);
++    const receiver=json(within(r.targetSession,'state.json'));
++    const origin=await originAuthority(root,r,m,{requireCurrent:currentMarked(receiver,{contractVersion:receivingContractVersion})});metadata(r.target,m);
+     const original=inventory(r.source),copied=inventory(r.target),normalize=v=>JSON.stringify([...v].sort((a,b)=>a.path.localeCompare(b.path)));
+     if(normalize(original)!==normalize(m.files)||normalize(copied)!==normalize(m.files))throw Error('import bytes or origin inventory changed');
+     const relative=path.relative(r.target,within(session,inputRef)).split(path.sep).join('/');
+@@ -108,8 +180,10 @@ export async function importProducer({sourceSessionId,sourceStep,sourceParallel,
+   const locate=()=>roots(hostRoot,sourceSessionId,targetSessionId,sourceStep,sourceParallel,targetStep,targetParallel);
+   let r=locate();
+   withinEvidenceRange(targetStep,importStepBase(root));
++  let currentOrigin=false;
+   const snapshot=async()=>{
+-    await originAuthority(root,r,m);m.files=inventory(r.source);manifestShape(m);
++    const origin=await originAuthority(root,r,m,{requireCurrent:currentMarked(json(within(r.targetSession,'state.json')))});
++    currentOrigin=currentMarked(origin.request,origin.response,origin.state);m.files=inventory(r.source);manifestShape(m);
+     const bytes=m.files.map(f=>[f.path,readFileSync(within(r.source,f.path))]);
+     if(bytes.some(([p,b])=>hash(b)!==m.files.find(f=>f.path===p).sha256))throw Error('origin changed during import');
+     return bytes;
+@@ -125,6 +199,7 @@ export async function importProducer({sourceSessionId,sourceStep,sourceParallel,
+   return withSessionLock(r.targetSession,async()=>{
+     if(existsSync(r.target))throw Error('import target already exists; never overwrite evidence');
+     const receiver=json(within(r.targetSession,'state.json'));
++    if(currentMarked(receiver)&&!currentOrigin)throw Error('current receiver requires an original accepted current producer; legacy evidence is inspection-only');
+     if(receiver.contractVersion==='starci/v2.2' && (receiver.lifecycle?.phase!=='active'||receiver.status!=='running'))throw Error('import receiver must be an active running session');
+     evidenceOnly(r.targetSession,targetStep,targetParallel);
+     const stageRef=`step-${targetStep}/.parallel-${targetParallel}-import-${randomUUID()}`;
+diff --git a/scripts/producer-import.spec.mjs b/scripts/producer-import.spec.mjs
+index b7144e95..3f2c37df 100644
+--- a/scripts/producer-import.spec.mjs
++++ b/scripts/producer-import.spec.mjs
+@@ -1,18 +1,144 @@
+ import test from 'node:test';
+ import assert from 'node:assert/strict';
+-import { readFileSync, symlinkSync, unlinkSync, rmdirSync, cpSync, rmSync, readdirSync } from 'node:fs';
+-import { spawnSync } from 'node:child_process';
++import { readFileSync, symlinkSync, unlinkSync, rmdirSync, cpSync, rmSync, readdirSync, mkdtempSync } from 'node:fs';
++import { spawnSync, execFileSync } from 'node:child_process';
++import { tmpdir } from 'node:os';
+ import path from 'node:path';
+-import { fileURLToPath } from 'node:url';
+-import { importProducer, validateImportedInput } from './producer-import.mjs';
++import { fileURLToPath, pathToFileURL } from 'node:url';
++import { importProducer, validateImportedInput, acceptedProducerProof } from './producer-import.mjs';
+ import { validateRequest } from './validate-request.mjs';
+-import { producerImportFixture as fixture, HEAD, digest, write, read } from './producer-import-fixture.mjs';
++import { producerImportFixture, HEAD, digest, write, read } from './producer-import-fixture.mjs';
+ const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
++// Historical output compatibility is exercised in an unmarked evidence-only receiver. The
++// current receiver below is opened and confirmed through the actual session lifecycle.
++const fixture=()=>{const f=producerImportFixture();write(path.join(f.targetSession,'state.json'),{id:'receiver',steps:{},requestHashes:{},chain:[]});return f;};
++
++// A copied runtime keeps even the synthetic workflow-owner registry under this temporary host.
++// The producer goes through openAttempt and acceptAttempt: no passing ledger verdict is injected.
++async function currentFixture(t){
++  const host=mkdtempSync(path.join(tmpdir(),'producer-import-current-')),root=path.join(host,'.claude');
++  t.after(()=>{if(!path.resolve(host).startsWith(path.resolve(tmpdir())+path.sep))throw Error('unsafe fixture cleanup');rmSync(host,{recursive:true,force:true});});
++  for(const file of ['package.json',...read(path.join(ROOT,'package.json')).files])cpSync(path.join(ROOT,file),path.join(root,file),{recursive:true});
++  const moduleAt=ref=>import(pathToFileURL(path.join(root,ref)).href);
++  const [{openSession,confirmSession},{openAttempt,acceptAttempt},imports]=await Promise.all([moduleAt('scripts/v23-test-fixture.mjs'),moduleAt('scripts/attempt-gate.mjs'),moduleAt('scripts/producer-import.mjs')]);
++  const opened=await openSession(path.join(host,'.worktrees/sessions'),{sessionId:'current-origin',project:'imports',hostBinding:{kind:'codex-task',hostId:path.basename(host),worktree:host,sourcePromptRef:'user:fixture'},mission:{language:'en',goal:'Plan an attributable fixture unit.',target:'Declared seed plan',includes:['Seed planning'],excludes:['Product changes'],outputs:['Seed plan'],doneWhen:[{evidence:'One attributable seed unit is planned.',producedBy:'data.plan'}],verification:'Validate the plan and units.',sourceRef:'user:fixture'}});
++  await confirmSession(opened.session,{selected:'as-stated',selectedBy:'user',sourceRef:'user:approved'});
++  const sourceSession=opened.session,source=path.join(sourceSession,'step-1/parallel-1'),stateFile=path.join(sourceSession,'state.json');
++  const head=execFileSync('git',['-C',host,'rev-parse','HEAD'],{encoding:'utf8',windowsHide:true}).trim();
++  const contexts=[{alias:'@workspaces/be',head:null},{alias:'@worktrees/_templates',head:null},{alias:'@worktrees/uat/items',head:null}];
++  const request={contractVersion:'starci/v2.2',schemaVersion:9,operatorId:'data.plan',sessionId:opened.sessionId,step:1,parallel:1,contexts,requirements:{goal:'The fixture unit supports the declared journey.',feature:'items',env:'dev'},inputs:{},resume:null,goal:{doneWhen:0},attempt:{id:'1/1:a1',number:1,kind:'initial',previous:null},expected:{version:1,goalVersion:1,sourceRef:'state.json#mission:v1/doneWhen:0',criteria:[{id:'units',required:true,expected:'One attributable unit is planned.',verification:'Validate the plan and units.'}]},environment:{isolationId:'1/1:a1',mode:'isolated',workspace:{alias:'@workspaces/be',worktree:host,revision:head},reads:contexts.map(c=>c.alias),writes:[],exclusive:[],outputRoot:'response'},frozenInputs:[]};
++  const state=read(stateFile);state.chain=[['1/1']];state.steps={'1/1':'data.plan'};state.current='1/1';write(stateFile,state);
++  write(path.join(source,'request/request.json'),request);await openAttempt(source);
++  const unit={id:'first',kind:'table',goal:'The owned fixture is available.',inputs:[],dependsOn:[]};
++  const table=(name,columns,rows)=>`\n## ${name}\n\n| ${columns.join(' | ')} |\n| ${columns.map(()=> '---').join(' | ')} |\n${rows.map(row=>`| ${row.join(' | ')} |`).join('\n')}\n`;
++  write(path.join(source,'response/response.md'),'# seed-plan — items\n'+table('Units',['Unit','Serves','Namespace','Goal'],[['`first`','flow `first`','`uat-first`',unit.goal]])+table('Targets',['Unit','Store','Attribution','Volume','Rollback'],[['`first`','`items`','owner','2','Remove every record owned by the unit account.']])+table('Fixtures',['Unit','State','Action','JSON','SQL','Expected','Creates outcome'],[['`first`','valid','reuse','`.worktrees/uat/items/first/seed/records.json`','—','Two owned records read back.','false']])+table('Fallbacks taken',['Code','Action'],[]));
++  write(path.join(source,'response/data/units.json'),{schemaVersion:9,producedBy:'data.plan',units:[unit]});
++  const evidence=['response/response.md','response/data/units.json'];
++  write(path.join(source,'response/response.json'),{contractVersion:'starci/v2.2',schemaVersion:9,operatorId:'data.plan',step:1,parallel:1,status:'done',fields:{'seed-plan':evidence[0],units:evidence[1]},fallbacks:[],commits:[],next:['data.seed'],boundProfile:'sol-reviewer',ranProfile:'sol-reviewer',attempt:{id:'1/1:a1',number:1,expectedVersion:1},actual:{expectedVersion:1,observedAt:new Date().toISOString(),observations:[{criterionId:'units',observed:'The attributable unit is declared.',evidence}]},comparison:{expectedVersion:1,verdict:'matched',criteria:[{criterionId:'units',verdict:'matched',evidence,note:'The unit and target validate.'}],next:'advance'},goalCheck:{achieved:true,evidence},outcome:{summary:'An attributable fixture unit is planned.',primary:{kind:'document',label:'Seed plan',ref:evidence[0]}}});
++  assert.equal((await acceptAttempt(source)).state,'matched');
++  const receiver=await openSession(path.join(host,'.worktrees/sessions'),{sessionId:'current-receiver',project:'imports-receiver',hostBinding:{kind:'codex-task',hostId:`${path.basename(host)}-receiver`,worktree:host,sourcePromptRef:'user:receiver'},mission:{language:'en',goal:'Consume an accepted attributable fixture plan.',target:'Declared seed plan',includes:['Accepted plan inspection'],excludes:['Product changes'],outputs:['Verified plan input'],doneWhen:[{evidence:'The accepted fixture plan is available.',producedBy:'data.plan'}],verification:'Validate the original accepted producer and exact copied bytes.',sourceRef:'user:receiver'}});
++  await confirmSession(receiver.session,{selected:'as-stated',selectedBy:'user',sourceRef:'user:receiver-approved'});
++  const targetSession=receiver.session,target=path.join(targetSession,'step-100/parallel-1');
++  const args={sourceSessionId:opened.sessionId,sourceStep:1,sourceParallel:1,targetSessionId:'current-receiver',targetStep:100,targetParallel:1,root,hostRoot:host};
++  const proof=()=>imports.acceptedProducerProof(root,opened.sessionId,1,1,'units',{hostRoot:host});
++  const check=()=>imports.validateImportedInput(root,targetSession,'step-100/parallel-1/response/data/units.json','units',{hostRoot:host});
++  return {host,root,source,sourceSession,target,targetSession,stateFile,head,args,proof,check,moduleAt,...imports};
++}
++
++test('current imports use actual accepted proof and reject unaccepted, altered or semantically invalid producers',async t=>{
++  const f=await currentFixture(t),savedState=readFileSync(f.stateFile);
++  const files=['request/request.json','response/response.json','response/response.md','response/data/units.json'];
++  const originals=new Map(files.map(ref=>[ref,readFileSync(path.join(f.source,ref))]));
++  const restore=()=>{write(f.stateFile,savedState.toString());for(const [ref,bytes]of originals)write(path.join(f.source,ref),bytes.toString());};
++  await t.test('accepted artifact exposes exact identity, manifest, original refs and verified repository binding',async()=>{
++    const proof=await f.proof(),state=read(f.stateFile);
++    assert.equal(proof.attemptId,state.attempts['1/1'].id);assert.equal(proof.manifestFingerprint,state.attempts['1/1'].evidenceManifest.fingerprint);
++    assert.equal(proof.sessionRoot,f.sourceSession);assert.deepEqual(proof.artifacts,[{ref:'step-1/parallel-1/response/data/units.json',sha256:digest(originals.get('response/data/units.json'))}]);
++    assert.equal(proof.bindings[0].revision,f.head);assert.match(proof.bindings[0].repositoryHash,/^sha256:[a-f0-9]{64}$/);assert.deepEqual(proof.heads,[]);
++    const receiver=readFileSync(path.join(f.targetSession,'state.json'));await f.importProducer(f.args);assert.deepEqual(await f.check(),[]);
++    assert.deepEqual(readFileSync(path.join(f.targetSession,'state.json')),receiver);assert.deepEqual(readFileSync(path.join(f.target,'request/request.json')),originals.get('request/request.json'));
++    await assert.rejects(f.importProducer(f.args),/already exists/);
++    await assert.rejects(f.acceptedProducerProof(f.root,f.args.sourceSessionId,1,1,'mutations',{hostRoot:f.host}),/kind was not emitted/);
++  });
++  const stateChange=fn=>{const state=read(f.stateFile);fn(state);write(f.stateFile,state);};
++  for(const [name,mutate,needle]of [
++    ['done without acceptance',()=>stateChange(state=>{delete state.attempts['1/1'];}),/matched accepted/],
++    ['running attempt with a done receipt',()=>stateChange(state=>{state.attempts['1/1'].status='running';}),/matched accepted/],
++    ['mismatched attempt',()=>stateChange(state=>{state.attempts['1/1'].status='mismatched';}),/matched accepted/],
++    ['missing accepted manifest',()=>stateChange(state=>{delete state.attempts['1/1'].evidenceManifest;}),/manifest/],
++    ['tampered accepted manifest',()=>stateChange(state=>{state.attempts['1/1'].evidenceManifest.files.pop();}),/manifest/i],
++    ['wrong original attempt identity',()=>stateChange(state=>{state.attempts['1/1'].id='foreign-a1';}),/identity/],
++    ['wrong accepted response coordinate',()=>stateChange(state=>{state.attempts['1/1'].responseRef='step-2/parallel-1/response/response.json';}),/identity/],
++    ['changed original request',()=>{const ref=path.join(f.source,'request/request.json'),request=read(ref);request.requirements.feature='changed';write(ref,request);},/frozen request hash/],
++    ['changed original model',()=>{const ref=path.join(f.source,'response/data/units.json'),model=read(ref);model.units[0].goal='Altered after acceptance';write(ref,model);},/manifest/i],
++    ['unrecorded extra evidence',()=>write(path.join(f.source,'response/extra.txt'),'unsealed'),/manifest/i],
++    ['wrong runtime revision',()=>stateChange(state=>{state.runtimeRevision-=1;}),/current runtime revision/],
++    ['downgraded current request contract',()=>{const ref=path.join(f.source,'request/request.json'),request=read(ref);delete request.contractVersion;write(ref,request);stateChange(state=>{state.requestHashes['1/1']=digest(readFileSync(ref));});},/matching contracts/],
++    ['another producer session',()=>stateChange(state=>{state.id='foreign';}),/original session/],
++    ['origin laundered from an import',()=>write(path.join(f.source,'import.json'),{}),/laundered/]
++  ])await t.test(name,async()=>{
++    try{mutate();await assert.rejects(f.proof(),needle);await assert.rejects(f.importProducer({...f.args,targetStep:101}),needle);assert.match((await f.check()).join('\n'),needle);}
++    finally{restore();for(const ref of ['response/extra.txt','import.json']){const file=path.join(f.source,ref);try{unlinkSync(file);}catch(error){if(error.code!=='ENOENT')throw error;}}}
++  });
++  await t.test('a forged replacement seal cannot suppress the original operator validator',async()=>{
++    try{
++      const file=path.join(f.source,'response/data/units.json'),model=read(file);model.units[0].kind='page';write(file,model);
++      const {buildEvidenceManifest}=await f.moduleAt('scripts/evidence-manifest.mjs');
++      stateChange(state=>{state.attempts['1/1'].evidenceManifest=null;});
++      const state=read(f.stateFile);state.attempts['1/1'].evidenceManifest=await buildEvidenceManifest(f.source);write(f.stateFile,state);
++      await assert.rejects(f.proof(),/accepted operator gate.*unit first is a page/);
++      await assert.rejects(f.importProducer({...f.args,targetStep:101}),/accepted operator gate.*unit first is a page/);
++    }finally{restore();}
++  });
++  await t.test('current receipts cannot use the legacy missing-section tolerance',async()=>{
++    try{
++      write(path.join(f.source,'response/response.md'),originals.get('response/response.md').toString().replace(/\n## Fallbacks taken[\s\S]*$/,'\n'));
++      const {buildEvidenceManifest}=await f.moduleAt('scripts/evidence-manifest.mjs');
++      const state=read(f.stateFile);state.attempts['1/1'].evidenceManifest=await buildEvidenceManifest(f.source);write(f.stateFile,state);
++      await assert.rejects(f.proof(),/full typed output gate.*section/);
++    }finally{restore();}
++  });
++  await t.test('legacy typed output compatibility cannot satisfy current consumer proof',async()=>{
++    const legacy=fixture();try{await assert.rejects(acceptedProducerProof(ROOT,'original',1,1,'git-publication',{hostRoot:legacy.host}),/current runtime revision/);}finally{legacy.cleanup();}
++  });
++  await t.test('all-legacy origin is rejected on import and read by a real current receiver',async()=>{
++    const legacy=fixture();
++    try{
++      const original=path.join(f.host,'.worktrees/sessions/original');
++      cpSync(legacy.sourceSession,original,{recursive:true});
++      const args={...f.args,sourceSessionId:'original',targetStep:102};
++      const receiverFile=path.join(f.targetSession,'state.json'),before=readFileSync(receiverFile);
++      await assert.rejects(f.importProducer(args),/current receiver.*legacy evidence/);
++      assert.equal(readdirSync(f.targetSession).includes('step-102'),false,'rejection publishes no target');
++      assert.deepEqual(readFileSync(receiverFile),before);
++      // This copied, byte-preserving legacy import was admitted only to the legacy inspection
++      // receiver. Moving the fixture into a current ledger must not make it consumable there.
++      await importProducer(legacy.args);
++      const planted=path.join(f.targetSession,'step-102/parallel-1');
++      cpSync(legacy.target,planted,{recursive:true});
++      const manifest=read(path.join(planted,'import.json'));
++      manifest.targetSessionId=f.args.targetSessionId;manifest.targetStep=102;write(path.join(planted,'import.json'),manifest);
++      const errors=await f.validateImportedInput(f.root,f.targetSession,'step-102/parallel-1/response/response.md','git-publication',{hostRoot:f.host});
++      assert.match(errors.join('\n'),/current receiver.*legacy evidence/);
++      assert.deepEqual(readFileSync(receiverFile),before);
++      assert.match((await validateImportedInput(ROOT,legacy.targetSession,'step-100/parallel-1/response/response.md','git-publication',{hostRoot:legacy.host,receivingContractVersion:'starci/v2.2'})).join('\n'),/current receiver.*legacy evidence/,'the current request marker also prevents an unmarked receiver bypass');
++    }finally{legacy.cleanup();}
++  });
++  await t.test('retained current acceptance keeps its exact proof and remains importable',async()=>{
++    const before=await f.proof(),state=read(f.stateFile);state.status='done';state.brief.proven=['doneWhen:0 accepted seed plan'];
++    const {retainSessionBundle}=await f.moduleAt('scripts/session-cleanup.mjs');
++    const retained=await retainSessionBundle(f.sourceSession,state,'Synthetic accepted plan completed.');
++    if(path.relative(f.host,f.sourceSession).startsWith('..'))throw Error('unsafe fixture removal');
++    rmSync(f.sourceSession,{recursive:true});
++    const proof=await f.proof();assert.equal(proof.manifestFingerprint,before.manifestFingerprint);assert.equal(proof.sessionRoot,retained.bundle);assert.deepEqual(proof.artifacts,before.artifacts);
++    await f.importProducer({...f.args,targetStep:101});assert.deepEqual(await f.check(),[]);
++  });
++});
+ 
+ test('a retained producer remains importable after its active session is removed, and archive tampering fails',async()=>{
+   const f=fixture();try{
+     const {retainSessionBundle}=await import('./session-cleanup.mjs');
+-    const state={...read(path.join(f.sourceSession,'state.json')),contractVersion:'starci/v2.2',status:'done',hostBinding:{kind:'codex-task',hostId:'source-task',worktree:f.host},lifecycle:{phase:'active'},mission:{version:1,goal:'publish the fixture',target:'fixture',includes:['fixture'],outputs:['git-publication'],verification:'synthetic typed proof'},brief:{proven:['doneWhen:0 typed publication']},attempts:{'1/1':{id:'original-1',status:'matched',requestRef:'step-1/parallel-1/request/request.json',responseRef:'step-1/parallel-1/response/response.json'}}};
++    const state={...read(path.join(f.sourceSession,'state.json')),status:'done',hostBinding:{kind:'codex-task',hostId:'source-task',worktree:f.host},lifecycle:{phase:'active'},mission:{version:1,goal:'publish the fixture',target:'fixture',includes:['fixture'],outputs:['git-publication'],verification:'synthetic legacy inspection fixture'},brief:{proven:['doneWhen:0 typed publication']},attempts:{'1/1':{id:'original-1',status:'matched',requestRef:'step-1/parallel-1/request/request.json',responseRef:'step-1/parallel-1/response/response.json'}}};
+     const retained=await retainSessionBundle(f.sourceSession,state,'fixture completed');
+     rmSync(f.sourceSession,{recursive:true});
+     await importProducer(f.args);assert.deepEqual(await f.check(),[]);
+@@ -24,6 +150,21 @@ test('imports preserve original bytes and ownership without receiver history edi
+   const f=fixture();try{const state=readFileSync(path.join(f.targetSession,'state.json'));await importProducer(f.args);assert.deepEqual(await f.check(),[]);assert.ok((await validateRequest(ROOT,f.target)).errors.some(e=>e.includes('evidence-only')));assert.deepEqual(readFileSync(path.join(f.target,'request/request.json')),readFileSync(path.join(f.source,'request/request.json')));assert.equal(read(path.join(f.target,'request/request.json')).sessionId,'original');assert.deepEqual(readFileSync(path.join(f.targetSession,'state.json')),state);await assert.rejects(importProducer(f.args),/already exists/);}finally{f.cleanup();}
+ });
+ 
++test('partial current markers cannot turn a producer or a receiving workflow into legacy inspection',async()=>{
++  for(const marker of [{contractVersion:'starci/v2.2'},{runtimeRevision:3},{contractVersion:null}]){
++    const f=fixture();try{
++      await importProducer(f.args);
++      const receiverFile=path.join(f.targetSession,'state.json');write(receiverFile,{...read(receiverFile),...marker});
++      await assert.rejects(importProducer({...f.args,targetStep:101}),/current receiver.*legacy evidence/);
++      assert.match((await f.check()).join('\n'),/current receiver.*legacy evidence/);
++    }finally{f.cleanup();}
++    const g=fixture();try{
++      const stateFile=path.join(g.sourceSession,'state.json');write(stateFile,{...read(stateFile),...marker});
++      await assert.rejects(importProducer(g.args),/current runtime revision.*matching contracts/);
++    }finally{g.cleanup();}
++  }
++});
++
+ test('concurrent imports publish one complete target and leave no staging debris',async()=>{
+   const f=fixture();try{
+     const results=await Promise.allSettled([importProducer(f.args),importProducer(f.args)]);
+diff --git a/scripts/scope-presentation.mjs b/scripts/scope-presentation.mjs
+index 54c9c2f2..e672fc2d 100644
+--- a/scripts/scope-presentation.mjs
++++ b/scripts/scope-presentation.mjs
+@@ -15,7 +15,7 @@ function scopeRows(mission) {
+     'Impact: routes': list(impacts.map(item => `${item.role}: ${list(item.routes)}`)),
+     'Impact: code': list(impacts.map(item => {
+       const repository = discovery.repositories?.find(repo => repo.role === item.role);
+-      return `${item.role} (${printable(repository?.repository)}): ${list(item.code)}`;
++      return `${item.role} (${printable(repository?.repository)}): ${list(item.code)}${item.producer ? `; executed by ${item.producer.sessionId}, impact ${item.producer.impactId}, scope ${item.producer.mission.hash}` : ''}`;
+     })),
+     'Workflow forecast': list(Object.entries(discovery.lanes ?? {}).map(([id, lane]) => `${id}: ${lane.status}; owner ${printable(lane.owner)}; depends on ${list(lane.dependsOn)}; ${printable(lane.reason)}`)),
+     'Done when': list(mission.doneWhen),
+diff --git a/scripts/session-cleanup.mjs b/scripts/session-cleanup.mjs
+index 368883ee..69107fae 100644
+--- a/scripts/session-cleanup.mjs
++++ b/scripts/session-cleanup.mjs
+@@ -64,12 +64,24 @@ async function retainedFiles(session, state) {
+   const contexts = new Set();
+   const retainAddresses = async value => {
+     if (!value || typeof value !== 'object') return;
++    // Derived authority points to the original coordinator's retained preparation, not a copy in
++    // this producer. The topology gate verifies that foreign seal; it is never rehomed here.
++    if (value.kind === 'coordination-extraction') return;
++    // A delegated impact keeps the original peer mission selector. Its referenced bytes belong
++    // to that peer's retention bundle, just as an extraction's foreign authority does.
++    if (typeof value.sessionId === 'string' && typeof value.impactId === 'string' && value.mission?.ref?.startsWith('runtime/history/missions/')) return;
+     if (typeof value.ref === 'string' && value.ref.startsWith('runtime/history/')) {
+-      const kind = /^runtime\/history\/(missions|invocations|plans)\//.exec(value.ref)?.[1];
++      const kind = /^runtime\/history\/(missions|invocations|plans|assignments|extractions|incorporations)\//.exec(value.ref)?.[1];
+       if (!kind) throw Error('RETENTION_PATH: invalid immutable context address');
+       if (contexts.has(value.ref)) return;
+       const record = readContext(session, value, kind);
+       contexts.add(value.ref); await add(value.ref);
++      if (kind === 'assignments') {
++        for (const address of [record.previous, record.coordinatorMission, record.extraction]) await retainAddresses(address);
++        return;
++      }
++      if (kind === 'extractions') { await retainAddresses(record.assignment); return; }
++      if (kind === 'incorporations') { if (record.intent) await retainAddresses(record.intent); return; }
+       if (kind === 'plans') for (const [ref, expected] of Object.entries(record.retained?.files ?? {})) {
+         await add(ref);
+         if (await digest(await confinedFile(session,ref)) !== expected) throw Error(`RETENTION_CHANGED: retained plan evidence ${ref}`);
+@@ -81,6 +93,8 @@ async function retainedFiles(session, state) {
+   };
+   await retainAddresses(state.missionSnapshots);
+   await retainAddresses(state.planHistory);
++  if (state.coordination && !state.coordination.coordinatorSessionId) await retainAddresses(state.coordination);
++  await retainAddresses(state.coordination?.incorporations);
+   for (const attempt of Object.values(state.attempts ?? {})) await retainAddresses(attempt.context);
+   for (const attempt of Object.values(state.attempts ?? {})) {
+     await add(attempt.requestRef);
+diff --git a/scripts/session-cleanup.spec.mjs b/scripts/session-cleanup.spec.mjs
+index 512ce66f..dd5263d0 100644
+--- a/scripts/session-cleanup.spec.mjs
++++ b/scripts/session-cleanup.spec.mjs
+@@ -8,6 +8,7 @@ import { retainSessionBundle, verifyRetention, closeSuccessfulSession } from './
+ import { openSession, confirmSession, cleanupFixtureOwners } from './v23-test-fixture.mjs';
+ import { openAttempt } from './attempt-gate.mjs';
+ import { buildEvidenceManifest } from './evidence-manifest.mjs';
++import { retainContext } from './mission-history.mjs';
+ 
+ async function fixture(run) {
+   const base = mkdtempSync(path.join(tmpdir(), 'starci-retention-'));
+@@ -56,6 +57,17 @@ test('retention copies imported slots as a closed bundle while local producer in
+   assert.ok(existsSync(path.join(result.bundle,'step-0/parallel-1/response/artifacts/sidecar.txt')));
+ }));
+ 
++test('coordinator retention preserves original delegated mission selectors without rehoming foreign proof', async () => fixture(async ({session,state,branch}) => {
++  branch('1/1');
++  const selector = {sessionId:'original-peer',impactId:'source',mission:{ref:'runtime/history/missions/'+'a'.repeat(64)+'.json',hash:'sha256:'+'a'.repeat(64)}};
++  const snapshot = await retainContext(session,'missions',{sessionId:state.id,mission:{...state.mission,discovery:{impacts:[{id:'delegated',producer:selector}]}}});
++  state.missionSnapshots = {1:snapshot};
++  const result = await retainSessionBundle(session,state,'finished');
++  const retained = JSON.parse(readFileSync(path.join(result.bundle,snapshot.ref),'utf8'));
++  assert.deepEqual(retained.mission.discovery.impacts[0].producer,selector);
++  assert.ok(!existsSync(path.join(result.bundle,selector.mission.ref)),'the foreign mission stays owned and retained by its original peer');
++}));
++
+ test('a close interrupted before writing the sibling compact is recoverable; changed proof cannot reuse an archive', async () => fixture(async ({session,state,branch}) => {
+   branch('1/1');
+   const first = await retainSessionBundle(session,state,'finished');
+diff --git a/scripts/session-lock.mjs b/scripts/session-lock.mjs
+index 25b45d04..b03340ee 100644
+--- a/scripts/session-lock.mjs
++++ b/scripts/session-lock.mjs
+@@ -6,6 +6,14 @@ import path from 'node:path';
+ import process from 'node:process';
+ 
+ const mutations = new AsyncLocalStorage();
++const coordinationLocks = new AsyncLocalStorage();
++export async function withCoordinationLock(source, operation) {
++  if (!source) return operation();
++  source = path.resolve(source);
++  if (coordinationLocks.getStore() === source) return operation();
++  return withOwnedFileLock(path.join(source, '.workspaces', 'local', 'workflows', '.coordination-lock'),
++    () => coordinationLocks.run(source, operation));
++}
+ export const currentSessionMutation = session => mutations.getStore()?.active && mutations.getStore().session === path.resolve(session) ? mutations.getStore().state : null;
+ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+ export async function replaceFile(temp, file, { renameFile = rename, platform = process.platform, pause = wait } = {}) {
+@@ -25,6 +33,24 @@ const processLives = (pid) => {
+   catch (error) { return error.code === 'EPERM'; }
+ };
+ 
++async function recoverDeadOwner(lock) {
++  // Reapers serialize before reading the owner. Otherwise a second stale snapshot can unlink
++  // the fresh lock acquired after the first reaper removed the dead one. A damaged recovery
++  // marker fails closed; ordinary lock acquisition never removes an ambiguous live owner.
++  const recovery = `${lock}.recovery`;
++  let guard;
++  try { guard = await open(recovery, 'wx'); }
++  catch (error) { if (['EEXIST', 'EPERM', 'ENOENT'].includes(error.code)) return; throw error; }
++  try {
++    await guard.writeFile(JSON.stringify({ pid: process.pid, acquiredAt: new Date().toISOString() }));
++    await guard.sync();
++    let held;
++    try { held = JSON.parse(await readFile(lock, 'utf8')); }
++    catch { return; }
++    if (!processLives(held.pid)) await rm(lock, { force: true });
++  } finally { await guard.close(); await rm(recovery, { force: true }); }
++}
++
+ export async function withOwnedFileLock(lock, operation, { requiredFile = null } = {}) {
+   lock = path.resolve(lock);
+   requiredFile = requiredFile ? path.resolve(requiredFile) : null;
+@@ -46,10 +72,7 @@ export async function withOwnedFileLock(lock, operation, { requiredFile = null }
+         await mkdir(path.dirname(lock), { recursive: true });
+       }
+       if (error.code === 'EEXIST') {
+-        try {
+-          const held = JSON.parse(await readFile(lock, 'utf8'));
+-          if (!processLives(held.pid)) await rm(lock, { force: true });
+-        } catch {}
++        await recoverDeadOwner(lock);
+       }
+       // Windows can briefly return EPERM while another owner has closed and its lock file is
+       // delete-pending. Retrying never removes that ambiguous file and therefore cannot unlock a
+@@ -80,7 +103,10 @@ export async function withSessionLock(session, operation) {
+ 
+ export async function mutateSession(session, operation) {
+   session = path.resolve(session);
+-  return withSessionLock(session, async () => {
++  // All Source-bound sessions share the admission domain, including a not-yet-enrolled writer.
++  // Only the metadata compare/reserve transition holds it; workers execute after this returns.
++  const initial = JSON.parse(await readFile(path.join(session, 'state.json'), 'utf8'));
++  return withCoordinationLock(initial.workflowOwner?.sourceRoot, () => withSessionLock(session, async () => {
+     if (existsSync(path.join(session, 'relocation.json'))) throw Error('WORKFLOW_RELOCATED: retained source ledger is read-only; use its verified destination');
+     const file = path.join(session, 'state.json');
+     const state = JSON.parse(await readFile(file, 'utf8'));
+@@ -93,7 +119,7 @@ export async function mutateSession(session, operation) {
+     await writeFile(temp, `${JSON.stringify(state, null, 2)}\n`, 'utf8');
+     await replaceFile(temp, file);
+     return result;
+-  });
++  }));
+ }
+ 
+ export async function readSessionState(session) {
+diff --git a/scripts/session-lock.spec.mjs b/scripts/session-lock.spec.mjs
+index 0faf624d..2c696749 100644
+--- a/scripts/session-lock.spec.mjs
++++ b/scripts/session-lock.spec.mjs
+@@ -1,6 +1,9 @@
+ import assert from 'node:assert/strict';
+ import test from 'node:test';
+ import { mkdtemp, readFile, writeFile, rename, rm } from 'node:fs/promises';
++import { existsSync } from 'node:fs';
++import { spawn } from 'node:child_process';
++import { pathToFileURL } from 'node:url';
+ import { tmpdir } from 'node:os';
+ import path from 'node:path';
+ import { replaceFile } from './session-lock.mjs';
+@@ -26,3 +29,53 @@ test('Windows atomic replacement retries transient sharing denial and preserves
+     assert.equal(calls, 1);
+   } finally { await rm(dir, { recursive: true, force: true }); }
+ });
++
++test('separate stale-owner contenders wait for recovery serialization and never delete a fresh live lock', async () => {
++  const dir = await mkdtemp(path.join(tmpdir(), 'starci-dead-lock-'));
++  const lock = path.join(dir, 'owner.lock'), recovery = `${lock}.recovery`;
++  const released = path.join(dir, 'release'), sentinel = path.join(dir, 'inside');
++  const module = pathToFileURL(path.resolve(import.meta.dirname, 'session-lock.mjs')).href;
++  const source = `import {withOwnedFileLock} from ${JSON.stringify(module)};
++    import {existsSync,writeFileSync,unlinkSync} from 'node:fs';
++    const [lock,sentinel,released,id]=process.argv.slice(2);
++    const pause=ms=>new Promise(r=>setTimeout(r,ms));
++    process.stdout.write('ready\\n');
++    await withOwnedFileLock(lock,async()=>{
++      if(existsSync(sentinel)) throw Error('two simultaneous owners');
++      writeFileSync(sentinel,id);process.stdout.write('entered\\n');
++      while(!existsSync(released)) await pause(10);
++      await pause(40);unlinkSync(sentinel);
++    });`;
++  const file = path.join(dir, 'contender.mjs');
++  const processes = [];
++  try {
++    await writeFile(file, source);
++    // A negative PID cannot be a live owner. The held recovery marker makes the old algorithm's
++    // unsafe removal deterministic: it would enter while another recovery still owns the guard.
++    await writeFile(lock, JSON.stringify({pid:-1,token:'dead'}));
++    await writeFile(recovery, JSON.stringify({pid:process.pid}));
++    for (let id=0;id<2;id++) {
++      const child = spawn(process.execPath,[file,lock,sentinel,released,String(id)],{windowsHide:true,stdio:['ignore','pipe','pipe']});
++      const state={child,text:'',errors:'',exit:null};
++      state.done=new Promise(resolve=>child.on('exit',code=>{state.exit=code;resolve();}));
++      child.stdout.on('data',chunk=>{state.text+=chunk;});child.stderr.on('data',chunk=>{state.errors+=chunk;});processes.push(state);
++    }
++    const until=async condition=>{const end=Date.now()+3500;while(!condition()){assert.ok(Date.now()<end,'child lock operation timed out');await new Promise(r=>setTimeout(r,10));}};
++    await until(()=>processes.every(item=>item.text.includes('ready')));
++    await new Promise(r=>setTimeout(r,100));
++    assert.ok(processes.every(item=>!item.text.includes('entered')),'a contender bypassed the existing recovery guard');
++    await rm(recovery);
++    await until(()=>processes.some(item=>item.text.includes('entered')));
++    await new Promise(r=>setTimeout(r,100));
++    assert.equal(processes.filter(item=>item.text.includes('entered')).length,1,'the second stale reaper deleted the first new owner');
++    await writeFile(released,'release');
++    await Promise.all(processes.map(item=>item.done));
++    for(const item of processes){assert.equal(item.exit,0,item.errors);assert.ok(item.text.includes('entered'));}
++    assert.ok(!existsSync(lock));assert.ok(!existsSync(recovery));
++  } finally {
++    for(const item of processes)if(item.exit===null)item.child.kill();
++    await Promise.all(processes.map(item=>item.done));
++    if(!path.resolve(dir).startsWith(path.resolve(tmpdir())+path.sep))throw Error('unsafe lock fixture cleanup');
++    await rm(dir,{recursive:true,force:true});
++  }
++});
+diff --git a/scripts/session-open.mjs b/scripts/session-open.mjs
+index 629e8dff..54dc9a30 100644
+--- a/scripts/session-open.mjs
++++ b/scripts/session-open.mjs
+@@ -1,7 +1,7 @@
+ import { retainMission } from './mission-history.mjs';
+ import { evidenceManifestErrors } from './evidence-manifest.mjs';
+ import { resolveWorkflowOwner, workflowOwnerErrors, sameRoot, RUNTIME_REVISION } from './workflow-root.mjs';
+-import { scopeErrors, authorityErrors, scopeHash, scopeBindingErrors, completeDeliveryMission } from './mission-scope.mjs';
++import { scopeErrors, authorityErrors, scopeHash, scopeBindingErrors, completeDeliveryMission, peerScopeErrors } from './mission-scope.mjs';
+ import { createHash, randomUUID } from 'node:crypto';
+ import { existsSync } from 'node:fs';
+ import { mkdir, readFile, readdir, realpath, rename, writeFile } from 'node:fs/promises';
+@@ -98,7 +98,7 @@ export async function openSession(sessionsRoot, input, { sourceRoot = path.dirna
+     const sourceSessions = path.join(sourceRoot, '.worktrees', 'sessions');
+     if (!sameRoot(sourceSessions, sessionsRoot) && await findReusable(sourceSessions, input.hostBinding)) throw Error('WORKFLOW_RESET_REQUIRED: archive the old Source ledger before opening the fresh project workflow');
+     for (const name of await readdir(locatorRoot)) {
+-      if (!name.endsWith('.json')) continue;
++      if (name.startsWith('.') || !name.endsWith('.json')) continue;
+       const locator = await readWorkflowLocator(path.join(locatorRoot, name));
+       if (locator === null) continue;
+       const otherRoot = path.join(locator.ownerRoot, '.worktrees', 'sessions');
+@@ -217,6 +217,7 @@ export async function missionCorrectionBusy(session, state, { waitingReentry = n
+ 
+ export async function confirmSession(session, decision) {
+   session = path.resolve(session);
++  if (decision.authority?.kind === 'coordination-extraction') throw Error('GOAL_AUTHORITY_REQUIRED: derived scope is admitted only by the producer self-enrolment command');
+   if (!['as-stated', 'corrected', 'rejected'].includes(decision.selected)) throw new Error('decision.selected must be as-stated, corrected or rejected');
+   if (decision.selectedBy !== 'user' || !decision.sourceRef) throw new Error('confirmation must bind the user message in selectedBy:user and sourceRef');
+   const result = await mutateSession(session, async (state) => {
+@@ -234,6 +235,7 @@ export async function confirmSession(session, decision) {
+     if (decision.selected === 'as-stated') {
+       if (state.runtimeRevision !== RUNTIME_REVISION) throw Error('WORKFLOW_RESET_REQUIRED: old scope cannot be confirmed for current dispatch');
+       const authorizationErrors = authorityErrors(current, decision.authority, root);
++      authorizationErrors.push(...peerScopeErrors(state, { root }));
+       authorizationErrors.push(...scopeBindingErrors(state, {}));
+       if (decision.authority?.kind === 'bank-approval') {
+         if (!current.bankRef) authorizationErrors.push('GOAL_AUTHORITY_REQUIRED: bank approval requires its unchanged bankRef');
+diff --git a/scripts/validate-chain.mjs b/scripts/validate-chain.mjs
+index 5f373186..1edf4d11 100644
+--- a/scripts/validate-chain.mjs
++++ b/scripts/validate-chain.mjs
+@@ -303,7 +303,7 @@ export async function readImportedInputs(root, session, byBranch, { hostRoot, pl
+     for (const [kind, ref] of Object.entries(refs)) {
+       const m = /^step-(\d+)\/parallel-(\d+)\//.exec(String(ref));
+       if (!m || !existsSync(path.join(session, `step-${m[1]}`, `parallel-${m[2]}`, 'import.json'))) continue;
+-      const errors = await validateImportedInput(root, session, ref, kind, { ...(hostRoot ? { hostRoot } : {}), receivingSessionId: request?.sessionId ?? path.basename(session) });
++      const errors = await validateImportedInput(root, session, ref, kind, { ...(hostRoot ? { hostRoot } : {}), receivingSessionId: request?.sessionId ?? path.basename(session), receivingContractVersion: request?.contractVersion });
+       if (!errors.length) (out[cell] ??= new Set()).add(kind);
+     }
+   }
+diff --git a/scripts/validate-request.mjs b/scripts/validate-request.mjs
+index 37c41e4f..2dd8a760 100644
+--- a/scripts/validate-request.mjs
++++ b/scripts/validate-request.mjs
+@@ -23,7 +23,8 @@ import { evidenceManifestErrors } from './evidence-manifest.mjs';
+ import { isJourney, journeyUnits, tierOf, verifiesUnits, laneOf } from './unchecked.mjs';
+ import { normalizeResource, resourcesOverlap } from './resource-locks.mjs';
+ import { retiredPlanCell, activePlanView, planAdmissionErrors } from './plan-history.mjs';
+-import { invocationState } from './mission-history.mjs';
++import { invocationState, missionChoiceSource } from './mission-history.mjs';
++import { coordinationAdmissionErrors } from './workflow-coordination.mjs';
+ import { currentRequestPhase } from './validation-phase.mjs';
+ import { sessionWorkflowTopologyErrors } from './workflow-topology.mjs';
+ import { resolvedWaitingReplanErrors } from './resolved-waiting.mjs';
+@@ -161,7 +162,7 @@ export function missionGateErrors(state, request, packages, policy = { selection
+   if (!choice) { refuse(`no choices["${decisionId}"]; the person answers the goal-confirm question and the answer is recorded before the first dispatch`); return errors; }
+   if (choice.selected === 'corrected') refuse(`version ${mission.version} was corrected; the corrected goal is written as version ${mission.version + 1} and asked again`);
+   else if (choice.selected !== 'as-stated') refuse(`choices["${decisionId}"].selected is ${choice.selected}, not as-stated`);
+-  if (choice.selectedBy !== policy.selectionSource) refuse(`choices["${decisionId}"] is selected by ${choice.selectedBy}, never by an agent`);
++  if (choice.selectedBy !== (missionChoiceSource(mission) === 'coordinator' ? 'coordinator' : policy.selectionSource)) refuse(`choices["${decisionId}"] must be selected by its retained user or exact derived authority, never by an agent self-assertion`);
+   if (typeof choice.sourceRef !== 'string' || !choice.sourceRef.trim()) refuse(`choices["${decisionId}"] carries no sourceRef to the person's message`);
+   return errors;
+ }
+@@ -714,12 +715,16 @@ export async function validateRequest(root, dir, packages, { phase = currentRequ
+   for (const [kind, p] of Object.entries(request.inputs ?? {})) {
+     if (!sessionRoot) { errors.push(`request.json: inputs.${kind} cannot be resolved; the branch is not under a session`); continue; }
+     if (!existsSync(path.join(sessionRoot, p))) errors.push(`request.json: inputs.${kind} = ${p} does not exist in the session`);
+-    errors.push(...await validateImportedInput(root,sessionRoot,p,kind,{receivingSessionId:request.sessionId}));
++    errors.push(...await validateImportedInput(root,sessionRoot,p,kind,{receivingSessionId:request.sessionId,receivingContractVersion:request.contractVersion}));
+   }
+   // The orchestrator hashes every request into state.json; a request that changed since is tampering.
+   if (sessionRoot && existsSync(path.join(sessionRoot, 'state.json'))) {
+     try {
+       let state = JSON.parse(await readFile(path.join(sessionRoot, 'state.json'), 'utf8'));
++      const coordinationAttempt = state.attempts?.[`${request.step}/${request.parallel}${request.exchange ? `/${request.exchange}` : ''}`];
++      errors.push(...await coordinationAdmissionErrors(root, sessionRoot, state, request, {
++        historical: phase === 'accept' && !!coordinationAttempt?.evidenceManifest && coordinationAttempt.status !== 'running'
++      }));
+       if (phase === 'accept') state = invocationState(sessionRoot, state, request);
+       else if (state.planHistory) {
+         errors.push(...await planAdmissionErrors(root, sessionRoot, state, request));
+diff --git a/scripts/validate-session.mjs b/scripts/validate-session.mjs
+index b3d13d5b..c36b46ba 100644
+--- a/scripts/validate-session.mjs
++++ b/scripts/validate-session.mjs
+@@ -1,7 +1,8 @@
+ import { activePlanView, retiredPlanCell, mappedPlanRequests } from './plan-history.mjs';
+-import { missionHistorySnapshotErrors } from './mission-history.mjs';
++import { missionHistorySnapshotErrors, missionChoiceSource } from './mission-history.mjs';
++import { coordinationStateErrors } from './workflow-coordination.mjs';
+ import { workflowOwnerErrors, workflowRootOf } from './workflow-root.mjs';
+-import { frozenScopeErrors } from './mission-scope.mjs';
++import { frozenScopeErrors, peerScopeErrors } from './mission-scope.mjs';
+ // One session as a whole, checked by the orchestrator after every transition and by a person reading
+ // a session folder: state.json against its schema; from the first transition on, the brief and the
+ // budget are present and the brief's report is one of the declared shapes; no branch the chain moved
+@@ -49,7 +50,9 @@ export async function v22SessionErrors(session, state, root = ROOT) {
+   if (state?.contractVersion !== V22_CONTRACT) return errors;
+   errors.push(...workflowOwnerErrors(root, session, state));
+   errors.push(...missionHistorySnapshotErrors(session, state));
++  errors.push(...await coordinationStateErrors(root, session, state));
+   if (state.runtimeRevision === 3 && state.mission?.discovery) errors.push(...frozenScopeErrors(state, { root }));
++  if (state.runtimeRevision === 3 && state.lifecycle?.phase !== 'draft') errors.push(...peerScopeErrors(state, { root }));
+   const phase = state.lifecycle?.phase;
+   const terminalSession = state.status === 'done' || ['closing', 'closed-success'].includes(phase);
+   const workflowTopologyPolicy = JSON.parse(readFileSync(path.join(root, 'resources', 'orchestrator.json'), 'utf8')).workflowTopologies;
+@@ -71,7 +74,7 @@ export async function v22SessionErrors(session, state, root = ROOT) {
+     const confirmation = mission.confirmation;
+     if (confirmation?.status !== 'confirmed') errors.push('state.json: an active session carries a confirmed mission version');
+     const choice = state.choices?.[confirmation?.decisionId];
+-    if (!choice || choice.selected !== 'as-stated' || choice.selectedBy !== 'user' || choice.sourceRef !== confirmation?.sourceRef) errors.push('state.json: mission.confirmation does not bind the matching explicit user goal-confirm choice');
++    if (!choice || choice.selected !== 'as-stated' || choice.selectedBy !== missionChoiceSource(mission) || choice.sourceRef !== confirmation?.sourceRef) errors.push('state.json: mission.confirmation does not bind its retained user or derived authority');
+   }
+   if (phase === 'closed-success') {
+     if (state.status !== 'done') errors.push('state.json: closed-success requires status done');
+diff --git a/scripts/workflow-verification.mjs b/scripts/workflow-verification.mjs
+index d2060f7b..0a7fde74 100644
+--- a/scripts/workflow-verification.mjs
++++ b/scripts/workflow-verification.mjs
+@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
+ import { validateAgainst } from './json-schema.mjs';
+ import { evidenceManifestErrors } from './evidence-manifest.mjs';
+ import { workflowTopologyMode, workflowTopologyPeers, sessionWorkflowTopologyErrors } from './workflow-topology.mjs';
++import { buildCoordinationVerification } from './workflow-coordination.mjs';
+ 
+ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+ export const WORKFLOW_OPERATOR = 'workflow.verify';
+@@ -67,15 +68,18 @@ export function workflowPeerSnapshotErrors(root, branch, request, state) {
+   const shapeErrors = validateAgainst(schema(root, 'workflow-peers'), snapshot, WORKFLOW_PEERS);
+   if (shapeErrors.length) return [...errors, ...shapeErrors];
+   if (!(request.frozenInputs ?? []).some(item => item.ref === WORKFLOW_PEERS && item.sha256 === sha(bytes))) errors.push('workflow peers snapshot must be sealed in frozenInputs at its exact digest');
++  if (state.coordination?.active && (snapshot.version !== 2 || canonical(snapshot.coordination?.assignment) !== canonical(state.coordination.active))) errors.push('workflow peers snapshot must freeze its current coordinated assignment');
+   const tracked = workflowTopologyPeers(policy, state) ?? {};
+   if (Object.keys(tracked).sort().join('\n') !== Object.keys(snapshot.peers).sort().join('\n')) errors.push('workflow peers snapshot must name exactly the tracked peer tasks');
+   const expectedGoals = (state.mission?.doneWhen ?? []).filter(line => line.producedBy === WORKFLOW_OPERATOR).map(line => line.evidence);
+   if (!expectedGoals.length || new Set(expectedGoals).size !== expectedGoals.length) errors.push('workflow.verify requires distinct coordinator doneWhen evidence lines produced by this operator');
+   const covered = new Set();
+   const sessionIds = new Set();
++  for (const impact of state.mission?.discovery?.impacts ?? []) if (impact.producer && !Object.values(snapshot.peers).some(peer => peer.sessionId === impact.producer.sessionId)) errors.push(`workflow peers snapshot omits the original owner of impact ${impact.id}`);
+   const contexts = request.contexts ?? [];
+   const boundAliases = new Set(contexts.map(context => context.alias));
+   const allowedPeerAliases = new Set(Object.values(snapshot.peers).flatMap(peer => ['sessions', 'done'].map(zone => `@worktrees/${zone}/${peer.sessionId}`)));
++  if (snapshot.coordination) for (const zone of ['sessions', 'done']) allowedPeerAliases.add(`@worktrees/${zone}/${state.id}`);
+   const seenPeerAliases = new Set();
+   for (const [index, context] of contexts.entries()) {
+     const alias = context?.alias;
+@@ -369,6 +373,11 @@ export async function buildWorkflowVerification(root, branch, request, state, {
+       report.peers.push(peerReport);
+     } catch (error) { errors.push(`workflow peer ${taskId}: ${error.message}`); }
+   }
++  if (!errors.length) try {
++    const coordinatorSession = path.resolve(branch, '..', '..');
++    const coordination = await buildCoordinationVerification(root, coordinatorSession, state, snapshot, report.peers, request);
++    if (coordination) report.coordination = coordination;
++  } catch (error) { errors.push(`workflow coordination: ${error.message}`); }
+   if (sha(readFileSync(confined(branch, WORKFLOW_PEERS))) !== report.snapshotHash) errors.push('workflow peer snapshot changed during verification');
+   return { errors, report: errors.length ? null : report };
+ }
+diff --git a/scripts/workspace-checkout.mjs b/scripts/workspace-checkout.mjs
+index 7b7ccfe3..8e63a8f2 100644
+--- a/scripts/workspace-checkout.mjs
++++ b/scripts/workspace-checkout.mjs
+@@ -25,6 +25,10 @@ function git(cwd, ...args) {
+   try { return execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8', windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'], env: gitEnv() }); }
+   catch { fail('ROUTE_MISMATCH', 'read-only Git identity verification failed'); }
+ }
++function gitMutation(cwd, ...args) {
++  try { return execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8', windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'], env: gitEnv() }); }
++  catch { fail('COORDINATION_MERGE_FAILED', 'normal Git merge or commit failed, including repository hooks or signing; retain the pending checkout for owner repair'); }
++}
+ // The same read, without the refusal: a history question whose answer may lawfully be "there is none"
+ // (a checkout with no stash ref, a commit this repository never had) is asked here and read as null.
+ function gitTry(cwd, ...args) {
+@@ -234,6 +238,63 @@ export function sourceCheckoutOf(root, branchDir, request) {
+   } catch { return null; }
+ }
+ 
++// Consumer-owned shared-source integration. Ownership/import authority is established by the
++// coordination caller; this boundary measures Git, preserves dirty work and honors normal hooks.
++export function sharedSourceIntent(worktree, sourceHead, roots) {
++  const head = git(worktree, 'rev-parse', 'HEAD').trim();
++  requireThat(/^[a-f0-9]{40}$/.test(sourceHead), 'COORDINATION_INCORPORATION', 'producer must name an exact commit');
++  requireThat(git(worktree, 'status', '--porcelain', '--untracked-files=normal').trim() === '', 'COORDINATION_DIRTY', 'consumer checkout is dirty; preserve and finish its local work before incorporation');
++  const bases = git(worktree, 'merge-base', '--all', head, sourceHead).trim().split(/\s+/);
++  requireThat(bases.length === 1, 'COORDINATION_INCORPORATION', 'shared source requires one unambiguous merge base');
++  const paths = git(worktree, 'diff', '--no-renames', '--name-only', '-z', bases[0], sourceHead).split('\0').filter(Boolean);
++  for (const file of paths) {
++    requireThat(roots.some(root => root === '.' || file === root || file.startsWith(root + '/')), 'COORDINATION_INCORPORATION', 'producer diff leaves the transferred roots, including rename/delete paths');
++    for (const revision of [bases[0], sourceHead]) {
++      const entry = git(worktree, 'ls-tree', revision, '--', file).trim();
++      requireThat(!/^(120000|160000)\s/.test(entry), 'COORDINATION_INCORPORATION', 'changed symlinks and submodules require separate source review');
++    }
++    const absolute = path.resolve(worktree, file), nearest = realExistingAncestor(absolute);
++    requireThat(within(real(worktree), nearest), 'COORDINATION_INCORPORATION', 'producer path traverses a consumer filesystem alias outside its checkout');
++  }
++  const already = gitTry(worktree, 'merge-base', '--is-ancestor', sourceHead, head) !== null;
++  let tree;
++  try { tree = already ? git(worktree, 'rev-parse', `${head}^{tree}`).trim() : git(worktree, 'merge-tree', '--write-tree', head, sourceHead).trim().split('\n')[0]; }
++  catch { fail('COORDINATION_CONFLICT', 'shared source conflicts with consumer changes; no checkout or ref was changed'); }
++  requireThat(/^[a-f0-9]{40}$/.test(tree), 'COORDINATION_INCORPORATION', 'Git did not produce one intended merge tree');
++  return { oldHead: head, sourceHead, base: bases[0], tree, paths, mode: already ? 'already-present' : 'merge' };
++}
++function realExistingAncestor(file) {
++  let parent = file;
++  while (!existsSync(parent) && path.dirname(parent) !== parent) parent = path.dirname(parent);
++  return real(parent);
++}
++export function sharedSourceResult(worktree, intent, { execute = false } = {}) {
++  const head = () => git(worktree, 'rev-parse', 'HEAD').trim();
++  const clean = () => git(worktree, 'status', '--porcelain', '--untracked-files=normal').trim() === '';
++  let actual = head();
++  if (actual === intent.oldHead && intent.mode === 'merge' && execute) {
++    const mergeHead = gitTry(worktree, 'rev-parse', '--verify', 'MERGE_HEAD')?.trim();
++    if (mergeHead) {
++      requireThat(git(worktree, 'ls-files', '--others', '--exclude-standard').trim() === '', 'COORDINATION_DIRTY', 'untracked consumer work appeared during the pending merge; retain it before retry');
++      requireThat(mergeHead === intent.sourceHead && git(worktree, 'write-tree').trim() === intent.tree && git(worktree, 'diff', '--name-only').trim() === '', 'COORDINATION_INCORPORATION', 'interrupted merge differs from the frozen intent; retain it for owner repair');
++      gitMutation(worktree, 'commit', '-m', intent.message);
++    } else {
++      requireThat(clean(), 'COORDINATION_DIRTY', 'consumer changed after its frozen incorporation intent');
++      // git merge performs an expected-old reference update and executes repository hooks/signing.
++      // A hook failure remains a real pending merge; it is never bypassed or reset by this helper.
++      gitMutation(worktree, 'merge', '--no-ff', '--no-edit', '--no-stat', '-m', intent.message, intent.sourceHead);
++    }
++    actual = head();
++  }
++  const parents = git(worktree, 'show', '-s', '--format=%P', actual).trim().split(/\s+/).filter(Boolean);
++  requireThat(intent.mode === 'already-present' ? actual === intent.oldHead : parents.length === 2 && parents[0] === intent.oldHead && parents[1] === intent.sourceHead,
++    'COORDINATION_INCORPORATION', 'consumer HEAD does not have the frozen expected-old and producer parents');
++  requireThat(git(worktree, 'rev-parse', `${actual}^{tree}`).trim() === intent.tree, 'COORDINATION_INCORPORATION', 'actual merge tree differs from the frozen intent');
++  if (intent.mode === 'merge') requireThat(git(worktree, 'show', '-s', '--format=%B', actual).trim() === intent.message, 'COORDINATION_INCORPORATION', 'actual merge message does not identify the frozen consumption');
++  requireThat(clean(), 'COORDINATION_DIRTY', 'incorporation left local changes; preserve them and repair before recording completion');
++  return { head: actual, parents, tree: intent.tree };
++}
++
+ export function resolveWorkspaceCheckout({ source = path.dirname(ROOT), project, role, sessionId, checkout = 'routed', declaredWriteRoots = [], sharedInstall = false }) {
+   requireThat(isRouteIdentifier(project) && isRouteIdentifier(role), 'INVALID_INPUT', 'project and role must be declared route identifiers');
+   requireThat(['routed', 'session'].includes(checkout), 'INVALID_INPUT', 'checkout must be routed or session');
+diff --git a/templates/kinds/goal-discovery.schema.json b/templates/kinds/goal-discovery.schema.json
+index 84ad4769..8ca3df5e 100644
+--- a/templates/kinds/goal-discovery.schema.json
++++ b/templates/kinds/goal-discovery.schema.json
+@@ -141,6 +141,24 @@
+               "maxLength": 1000
+             },
+             "minItems": 1
++          },
++          "producer": {
++            "type": "object",
++            "additionalProperties": false,
++            "required": ["sessionId", "impactId", "mission"],
++            "properties": {
++              "sessionId": { "type": "string", "pattern": "^(?!central-runtime$)(?!.*\\.\\.)[a-z0-9][a-z0-9.-]{0,127}$" },
++              "impactId": { "type": "string", "minLength": 1 },
++              "mission": {
++                "type": "object",
++                "additionalProperties": false,
++                "required": ["ref", "hash"],
++                "properties": {
++                  "ref": { "type": "string", "pattern": "^runtime/history/missions/[a-f0-9]{64}\\.json$" },
++                  "hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
++                }
++              }
++            }
+           }
+         }
+       }
+diff --git a/templates/kinds/workflow-peers.schema.json b/templates/kinds/workflow-peers.schema.json
+index 02ae31db..ecc6349b 100644
+--- a/templates/kinds/workflow-peers.schema.json
++++ b/templates/kinds/workflow-peers.schema.json
+@@ -25,6 +25,64 @@
+           "type": "object",
+           "propertyNames": { "$ref": "#/$defs/taskId" },
+           "additionalProperties": { "$ref": "#/$defs/peerV2" }
++        },
++        "coordination": {
++          "type": "object",
++          "additionalProperties": false,
++          "required": ["assignment", "consumers", "combined"],
++          "properties": {
++            "assignment": {
++              "type": "object",
++              "additionalProperties": false,
++              "required": ["ref", "hash"],
++              "properties": {
++                "ref": { "type": "string", "pattern": "^runtime/history/assignments/[0-9a-f]{64}\\.json$" },
++                "hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
++              }
++            },
++            "consumers": {
++              "type": "array",
++              "items": {
++                "type": "object",
++                "additionalProperties": false,
++                "required": ["dependencyId", "incorporation", "regression"],
++                "properties": {
++                  "dependencyId": { "type": "string", "minLength": 1 },
++                  "incorporation": {
++                    "type": "object",
++                    "additionalProperties": false,
++                    "required": ["step", "parallel", "kind"],
++                    "properties": {
++                      "step": { "type": "integer", "minimum": 1 },
++                      "parallel": { "type": "integer", "minimum": 1 },
++                      "kind": { "type": "string", "minLength": 1 }
++                    }
++                  },
++                  "regression": {
++                    "type": "object",
++                    "additionalProperties": false,
++                    "required": ["step", "parallel", "kind"],
++                    "properties": {
++                      "step": { "type": "integer", "minimum": 1 },
++                      "parallel": { "type": "integer", "minimum": 1 },
++                      "kind": { "type": "string", "minLength": 1 }
++                    }
++                  }
++                }
++              }
++            },
++            "combined": {
++              "type": "object",
++              "additionalProperties": false,
++              "required": ["sessionId", "step", "parallel", "kind"],
++              "properties": {
++                "sessionId": { "type": "string", "minLength": 1 },
++                "step": { "type": "integer", "minimum": 1 },
++                "parallel": { "type": "integer", "minimum": 1 },
++                "kind": { "type": "string", "minLength": 1 }
++              }
++            }
++          }
+         }
+       }
+     }
+diff --git a/templates/kinds/workflow-verification-report.schema.json b/templates/kinds/workflow-verification-report.schema.json
+index 012da41c..3e4c573d 100644
+--- a/templates/kinds/workflow-verification-report.schema.json
++++ b/templates/kinds/workflow-verification-report.schema.json
+@@ -27,6 +27,165 @@
+           "type": "array",
+           "minItems": 1,
+           "items": { "$ref": "#/$defs/peerV2" }
++        },
++        "coordination": {
++          "type": "object",
++          "additionalProperties": false,
++          "required": ["assignment", "edges", "heads", "fingerprint", "combined"],
++          "properties": {
++            "assignment": {
++              "type": "object",
++              "additionalProperties": false,
++              "required": ["ref", "hash"],
++              "properties": {
++                "ref": { "type": "string", "pattern": "^runtime/history/assignments/[0-9a-f]{64}\\.json$" },
++                "hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
++              }
++            },
++            "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
++            "edges": {
++              "type": "array",
++              "items": {
++                "type": "object",
++                "additionalProperties": false,
++                "required": ["dependencyId", "producerSessionId", "consumerSessionId", "producer", "incorporation", "regression"],
++                "properties": {
++                  "dependencyId": { "type": "string", "minLength": 1 },
++                  "producerSessionId": { "type": "string", "minLength": 1 },
++                  "consumerSessionId": { "type": "string", "minLength": 1 },
++                  "producer": {
++                    "type": "object",
++                    "additionalProperties": false,
++                    "required": ["fingerprint", "requestHash"],
++                    "properties": {
++                      "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
++                      "requestHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
++                    }
++                  },
++                  "incorporation": {
++                    "type": "object",
++                    "additionalProperties": false,
++                    "required": ["step", "parallel", "fingerprint", "requestHash", "sourceReceipts"],
++                    "properties": {
++                      "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
++                      "requestHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
++                      "step": { "type": "integer", "minimum": 1 },
++                      "parallel": { "type": "integer", "minimum": 1 },
++                      "sourceReceipts": {
++                        "type": "array",
++                        "items": {
++                          "type": "object",
++                          "additionalProperties": false,
++                          "required": ["alias", "intent", "receipt"],
++                          "properties": {
++                            "alias": { "type": "string", "pattern": "^@workspaces/(fe|be)$" },
++                            "intent": {
++                              "type": "object",
++                              "additionalProperties": false,
++                              "required": ["ref", "hash"],
++                              "properties": {
++                                "ref": { "type": "string", "pattern": "^runtime/history/incorporations/[0-9a-f]{64}\\.json$" },
++                                "hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
++                              }
++                            },
++                            "receipt": {
++                              "type": "object",
++                              "additionalProperties": false,
++                              "required": ["ref", "hash"],
++                              "properties": {
++                                "ref": { "type": "string", "pattern": "^runtime/history/incorporations/[0-9a-f]{64}\\.json$" },
++                                "hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
++                              }
++                            }
++                          }
++                        }
++                      }
++                    }
++                  },
++                  "regression": {
++                    "type": "object",
++                    "additionalProperties": false,
++                    "required": ["step", "parallel", "fingerprint", "requestHash"],
++                    "properties": {
++                      "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
++                      "requestHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
++                      "step": { "type": "integer", "minimum": 1 },
++                      "parallel": { "type": "integer", "minimum": 1 }
++                    }
++                  }
++                }
++              }
++            },
++            "heads": {
++              "type": "array",
++              "items": {
++                "type": "object",
++                "additionalProperties": false,
++                "required": ["sessionId", "alias", "head"],
++                "properties": {
++                  "sessionId": { "type": "string", "minLength": 1 },
++                  "alias": { "type": "string", "minLength": 1 },
++                  "head": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
++                }
++              }
++            },
++            "combined": {
++              "type": "object",
++              "additionalProperties": false,
++              "required": ["sessionId", "step", "parallel", "fingerprint", "requestHash", "heads", "runtime"],
++              "properties": {
++                "sessionId": { "type": "string", "minLength": 1 },
++                "step": { "type": "integer", "minimum": 1 },
++                "parallel": { "type": "integer", "minimum": 1 },
++                "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
++                "requestHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
++                "heads": {
++                  "type": "array",
++                  "minItems": 1,
++                  "items": {
++                    "type": "object",
++                    "additionalProperties": false,
++                    "required": ["repository", "head", "contributions", "alias"],
++                    "properties": {
++                      "repository": { "type": "string", "minLength": 1 },
++                      "head": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
++                      "contributions": {
++                        "type": "array",
++                        "minItems": 1,
++                        "items": {
++                          "type": "object",
++                          "additionalProperties": false,
++                          "required": ["sessionId", "head"],
++                          "properties": {
++                            "sessionId": { "type": "string", "minLength": 1 },
++                            "head": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
++                          }
++                        }
++                      },
++                      "alias": { "type": "string", "minLength": 1 }
++                    }
++                  }
++                },
++                "runtime": {
++                  "type": "array",
++                  "minItems": 1,
++                  "maxItems": 2,
++                  "items": {
++                    "type": "object",
++                    "additionalProperties": false,
++                    "required": ["alias", "head", "repositoryHash", "endpoint", "fingerprint"],
++                    "properties": {
++                      "alias": { "enum": ["@workspaces/fe", "@workspaces/be"] },
++                      "head": { "$ref": "#/$defs/head" },
++                      "repositoryHash": { "$ref": "#/$defs/hash" },
++                      "endpoint": { "type": "string", "pattern": "^https?://" },
++                      "fingerprint": { "$ref": "#/$defs/hash" }
++                    }
++                  }
++                }
++              }
++            }
++          }
+         }
+       }
+     }
+diff --git a/templates/step/request.schema.json b/templates/step/request.schema.json
+index 4945a2d1..8826c386 100644
+--- a/templates/step/request.schema.json
++++ b/templates/step/request.schema.json
+@@ -135,6 +135,102 @@
+           "properties": { "step": { "type": "integer", "minimum": 1 }, "parallel": { "type": "integer", "minimum": 1 }, "token": { "type": "string", "minLength": 1 } }
+         }
+       ]
++    },
++    "coordination": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": ["coordinatorSessionId", "assignment"],
++      "properties": {
++        "coordinatorSessionId": { "type": "string", "minLength": 1 },
++        "assignment": {
++          "type": "object",
++          "additionalProperties": false,
++          "required": ["ref", "hash"],
++          "properties": {
++            "ref": { "type": "string", "pattern": "^runtime/history/(assignments|extractions)/[0-9a-f]{64}\\.json$" },
++            "hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
++          }
++        },
++        "integration": {
++          "type": "object",
++          "additionalProperties": false,
++          "required": ["criterionId", "repositories", "runtime"],
++          "properties": {
++            "criterionId": { "type": "string", "minLength": 1 },
++            "repositories": {
++              "type": "array",
++              "minItems": 1,
++              "items": {
++                "type": "object",
++                "additionalProperties": false,
++                "required": ["repository", "head", "contributions"],
++                "properties": {
++                  "repository": { "type": "string", "minLength": 1 },
++                  "head": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
++                  "contributions": {
++                    "type": "array",
++                    "minItems": 1,
++                    "items": {
++                      "type": "object",
++                      "additionalProperties": false,
++                      "required": ["sessionId", "head"],
++                      "properties": {
++                        "sessionId": { "type": "string", "minLength": 1 },
++                        "head": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
++                      }
++                    }
++                  }
++                }
++              }
++            },
++            "runtime": {
++              "type": "array",
++              "minItems": 1,
++              "maxItems": 2,
++              "items": {
++                "type": "object",
++                "additionalProperties": false,
++                "required": ["alias", "routeKey", "before", "after", "verification"],
++                "properties": {
++                  "alias": { "enum": ["@workspaces/fe", "@workspaces/be"] },
++                  "routeKey": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*/(fe|be)$" },
++                  "before": {
++                    "type": "object",
++                    "additionalProperties": false,
++                    "required": ["sessionId", "step", "parallel"],
++                    "properties": {
++                      "sessionId": { "type": "string", "pattern": "^(?!central-runtime$)(?!.*\\.\\.)[a-z0-9][a-z0-9.-]{0,127}$" },
++                      "step": { "type": "integer", "minimum": 1 },
++                      "parallel": { "type": "integer", "minimum": 1 }
++                    }
++                  },
++                  "after": {
++                    "type": "object",
++                    "additionalProperties": false,
++                    "required": ["sessionId", "step", "parallel"],
++                    "properties": {
++                      "sessionId": { "type": "string", "pattern": "^(?!central-runtime$)(?!.*\\.\\.)[a-z0-9][a-z0-9.-]{0,127}$" },
++                      "step": { "type": "integer", "minimum": 1 },
++                      "parallel": { "type": "integer", "minimum": 1 }
++                    }
++                  },
++                  "verification": {
++                    "type": "object",
++                    "additionalProperties": false,
++                    "required": ["sessionId", "step", "parallel", "kind"],
++                    "properties": {
++                      "sessionId": { "type": "string", "pattern": "^(?!central-runtime$)(?!.*\\.\\.)[a-z0-9][a-z0-9.-]{0,127}$" },
++                      "step": { "type": "integer", "minimum": 1 },
++                      "parallel": { "type": "integer", "minimum": 1 },
++                      "kind": { "enum": ["api-verification", "uat-flow-verification"] }
++                    }
++                  }
++                }
++              }
++            }
++          }
++        }
++      }
+     }
+   },
+   "allOf": [
+diff --git a/templates/step/state.schema.json b/templates/step/state.schema.json
+index cbc02592..ebf0229a 100644
+--- a/templates/step/state.schema.json
++++ b/templates/step/state.schema.json
+@@ -989,11 +989,7 @@
+               ],
+               "properties": {
+                 "kind": {
+-                  "enum": [
+-                    "opening-scope",
+-                    "scope-answer",
+-                    "bank-approval"
+-                  ]
++                  "enum": ["opening-scope", "scope-answer", "bank-approval", "coordination-extraction"]
+                 },
+                 "sourceRef": {
+                   "type": "string",
+@@ -1047,6 +1043,32 @@
+                     ]
+                   },
+                   "type": "object"
++                },
++                "derivation": {
++                  "type": "object",
++                  "additionalProperties": false,
++                  "required": ["coordinator", "preparation"],
++                  "properties": {
++                    "coordinator": {
++                      "type": "object",
++                      "additionalProperties": false,
++                      "required": ["sessionId", "taskId", "locatorHash"],
++                      "properties": {
++                        "sessionId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" },
++                        "taskId": { "type": "string", "minLength": 1 },
++                        "locatorHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
++                      }
++                    },
++                    "preparation": {
++                      "type": "object",
++                      "additionalProperties": false,
++                      "required": ["ref", "hash"],
++                      "properties": {
++                        "ref": { "type": "string", "pattern": "^runtime/history/(assignments|extractions)/[0-9a-f]{64}\\.json$" },
++                        "hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
++                      }
++                    }
++                  }
+                 }
+               }
+             }
+@@ -1452,6 +1474,93 @@
+           }
+         }
+       }
++    },
++    "coordination": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": ["version"],
++      "properties": {
++        "version": { "const": 1 },
++        "coordinatorSessionId": { "type": "string", "minLength": 1 },
++        "coordinator": {
++          "type": "object",
++          "additionalProperties": false,
++          "required": ["sessionId", "taskId", "locatorHash"],
++          "properties": {
++            "sessionId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" },
++            "taskId": { "type": "string", "minLength": 1 },
++            "locatorHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
++          }
++        },
++        "active": {
++          "type": "object",
++          "additionalProperties": false,
++          "required": ["ref", "hash"],
++          "properties": {
++            "ref": { "type": "string", "pattern": "^runtime/history/(assignments|extractions)/[0-9a-f]{64}\\.json$" },
++            "hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
++          }
++        },
++        "revisions": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "additionalProperties": false,
++            "required": ["ref", "hash"],
++            "properties": {
++              "ref": { "type": "string", "pattern": "^runtime/history/(assignments|extractions)/[0-9a-f]{64}\\.json$" },
++              "hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
++            }
++          }
++        },
++        "preparations": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "additionalProperties": false,
++            "required": ["ref", "hash"],
++            "properties": {
++              "ref": { "type": "string", "pattern": "^runtime/history/(assignments|extractions)/[0-9a-f]{64}\\.json$" },
++              "hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
++            }
++          }
++        },
++        "incorporations": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "additionalProperties": false,
++            "required": ["dependencyId", "alias", "intent", "receipt"],
++            "properties": {
++              "dependencyId": { "type": "string", "minLength": 1 },
++              "alias": { "enum": ["@workspaces/be", "@workspaces/fe"] },
++              "intent": {
++                "type": "object",
++                "additionalProperties": false,
++                "required": ["ref", "hash"],
++                "properties": {
++                  "ref": { "type": "string", "pattern": "^runtime/history/incorporations/[a-f0-9]{64}\\.json$" },
++                  "hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
++                }
++              },
++              "receipt": {
++                "anyOf": [
++                  { "type": "null" },
++                  {
++                    "type": "object",
++                    "additionalProperties": false,
++                    "required": ["ref", "hash"],
++                    "properties": {
++                      "ref": { "type": "string", "pattern": "^runtime/history/incorporations/[a-f0-9]{64}\\.json$" },
++                      "hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
++                    }
++                  }
++                ]
++              }
++            }
++          }
++        }
++      }
+     }
+   },
+   "allOf": [
+diff --git a/workflows/README.md b/workflows/README.md
+index 61f6466e..9f8a5ca4 100644
+--- a/workflows/README.md
++++ b/workflows/README.md
+@@ -201,3 +201,13 @@ answers remain checked. No arbitrary step boundary exempts history from its immu
+ A waiting node whose exact sealed nested review selects its kind contract's `reentry` verdict uses the same `resume` edit. The forecast retains the parent/child attempt identities, request hashes, evidence fingerprints and current scope. It opens a new same-owner invocation; neither accepted checkpoint is resumed or rewritten in place. The replacement must produce its own model and receive its own fresh matched nested review before it can conclude. A planned replacement remains an outstanding obligation and supplies no completion evidence.
+ 
+ When the owning execution discloses a review-integrity concern, add `integrity: {ref, hash}` to that edit. The session-relative JSON disclosure has exactly `version: 1`, `identity`, `disposition: "fresh-review-required"`, a concrete `reason`, and the actual admission's `sourceRef`. Its identity binds `sessionId`, `missionVersion`, `scopeHash`, and `parent`/`child` records containing `cell`, `attemptId`, `requestHash`, and `evidenceFingerprint`. The hash covers the exact disclosure bytes, retained in the sealed forecast. This record authorizes only fresh review within the existing confirmed scope: it is neither a review verdict nor an approval or delivery input. Preserve the questioned evidence and its admitted limitation; no filesystem timestamp substitutes for execution provenance.
++
++## Extract shared work during execution
++
++The ownership authority is `resources/orchestrator.json#workflowTopologies.coordination`; `scripts/workflow-coordination.mjs` executes it. Its commands take `<command> <own-session> <input.json>`. Each peer calls `enrol` with the coordinator session id. The coordinator calls `assign` with disjoint repository-relative claims, then `prepare` with an exact donor impact subset, untouched producer draft, producing operator and unopened dependent consumer coordinates. The new producer self-enrols using the returned preparation address; `activate` atomically transfers the selected roots. A broad original root may retain canonical exclusions for transferred subtrees. Only overlapping active write reservations delay transfer; independent sibling work keeps its original authority. Current scope changes invalidate an unactivated preparation.
++
++After the new producer's ordinary current attempt is accepted, the coordinator calls `resolve` with the dependency id and exact producer step/parallel. Each consumer uses the existing producer-import command to retain that typed input. For source output it then calls `incorporate` with dependency id, imported input, source alias and its registered worktree. This command requires a clean checkout, freezes the old/source heads and intended merge tree, verifies every changed path lies inside the transferred roots, and uses normal Git merge/commit with repository hooks and signing. Its durable intent and sealed receipt bind the actual merge parents/tree before another source attempt can use that base. A retry measures an already completed merge or resumes only its exact unchanged pending merge; it never resets local work. Changed symlinks, submodules, conflicting trees, dirty work and unrelated heads require owner repair.
++
++`readiness` derives waiting-producer, waiting-import, waiting-incorporation or ready from the retained proof. Dispatch enforces the same facts, so only dependent nodes wait and no message is credited as completion. The Source coordination lock covers comparisons and durable admission, then releases before workers run. Missing ownership locators fail closed. Recovery of a dead lock owner is serialized; if that recovery itself crashes and leaves its recovery marker, automatic execution refuses until the owner inspects and repairs the lock. It does not claim unattended recovery from that second crash.
++
++Completion retains all peer goals and uses the version 2 `workflow-peers` and `workflow-verification-report` schemas. The combined verifier's request freezes exact repository contributions and per-role runtime selectors. Each runtime role uses two independently accepted current no-op observations bracketing its actual API or browser verifier, including immutable endpoints, serving checkout, HEAD, generation and process identity. A mutating runtime receipt may establish the integration through the existing runtime owner, followed by those measured observations. Source context heads alone and a digest of separate consumer regressions cannot establish a tested combined runtime.
+diff --git a/workflows/README.vi.md b/workflows/README.vi.md
+index b65d086f..6c7f8fe1 100644
+--- a/workflows/README.vi.md
++++ b/workflows/README.vi.md
+@@ -197,3 +197,12 @@ bỏ kiểm các cam kết bất biến của lịch sử.
+ Node waiting có nested review đã niêm phong chọn verdict `reentry` do kind contract khai báo dùng cùng edit `resume`. Dự báo giữ identity attempt cha/con, hash request, fingerprint evidence và scope hiện tại. Nó mở invocation mới cùng owner; không resume hay sửa checkpoint đã chấp nhận tại chỗ. Invocation thay thế phải tạo model của chính nó và có nested review mới matched trước khi kết luận. Nhánh thay thế mới được lên kế hoạch vẫn là nghĩa vụ chưa hoàn thành, không cấp proof hoàn tất.
+ 
+ Khi execution sở hữu công việc khai báo vấn đề toàn vẹn review, thêm `integrity: {ref, hash}` vào edit đó. JSON disclosure tương đối với session có đúng `version: 1`, `identity`, `disposition: "fresh-review-required"`, `reason` cụ thể và `sourceRef` của lời thừa nhận thật. Identity bind `sessionId`, `missionVersion`, `scopeHash`, cùng bản ghi `parent`/`child` chứa `cell`, `attemptId`, `requestHash` và `evidenceFingerprint`. Hash bao phủ nguyên byte disclosure, được lưu trong dự báo niêm phong. Bản ghi chỉ cho phép review mới trong scope đã xác nhận: không phải verdict review, approval hay input delivery. Giữ evidence bị đặt nghi vấn và giới hạn đã thừa nhận; timestamp filesystem không thay thế provenance execution.
++## Tách phần việc chung khi đang thực thi
++
++Thẩm quyền sở hữu nằm tại `resources/orchestrator.json#workflowTopologies.coordination`; `scripts/workflow-coordination.mjs` thực thi luật đó. Lệnh nhận `<command> <own-session> <input.json>`. Mỗi peer tự gọi `enrol` với session coordinator. Coordinator gọi `assign` cho các claim không giao nhau theo đường dẫn tương đối của repository, rồi `prepare` với đúng phần impact của donor, draft producer chưa chạy, operator tạo kết quả và tọa độ consumer phụ thuộc chưa mở. Producer mới tự enrol bằng địa chỉ preparation; `activate` chuyển các root đã chọn một cách nguyên tử. Claim cha có thể giữ các exclusion chuẩn cho subtree đã chuyển. Chỉ reservation đang ghi giao với phần chuyển mới phải chờ; phần độc lập giữ thẩm quyền cũ. Thay đổi scope hiện hành làm preparation chưa kích hoạt mất hiệu lực.
++
++Khi attempt hiện hành của producer được chấp nhận, coordinator gọi `resolve` với dependency id và đúng step/parallel. Consumer dùng producer-import hiện hữu để giữ input có kiểu. Với source output, consumer gọi `incorporate` bằng dependency id, input đã import, alias source và worktree đã đăng ký. Lệnh yêu cầu checkout sạch, đóng băng HEAD cũ/producer và tree merge dự kiến, kiểm tra mọi đường dẫn thay đổi nằm trong root đã chuyển, rồi dùng Git merge/commit bình thường với hooks và signing. Intent bền vững và receipt niêm phong ràng buộc parents/tree thực tế trước attempt source tiếp theo. Retry đo lại merge đã hoàn tất hoặc tiếp tục đúng merge pending chưa đổi; không reset công việc cục bộ. Symlink/submodule thay đổi, xung đột, checkout bẩn hoặc HEAD khác phải được owner xử lý.
++
++`readiness` suy ra waiting-producer, waiting-import, waiting-incorporation hoặc ready từ bằng chứng đã giữ. Dispatch kiểm tra cùng sự thật; chỉ node phụ thuộc chờ và tin nhắn không được tính là hoàn tất. Lock coordination của Source bao phủ so sánh và admission bền vững rồi nhả trước khi worker chạy. Thiếu locator sở hữu thì từ chối. Khôi phục lock owner đã chết được tuần tự hóa; nếu chính lần khôi phục đó chết và để lại recovery marker, execution tự động từ chối đến khi owner kiểm tra và sửa. Không tuyên bố tự khôi phục hoàn toàn từ lần crash thứ hai.
++
++Hoàn tất vẫn giữ mọi mục tiêu peer và dùng schema phiên bản 2 của `workflow-peers` và `workflow-verification-report`. Request của verifier tích hợp đóng băng contribution repository và runtime selector từng role. Mỗi role có hai observation no-op hiện hành được chấp nhận độc lập, bao quanh API/browser verifier thực tế, gồm endpoint bất biến, checkout đang phục vụ, HEAD, generation và process. Runtime owner hiện hữu có thể tạo merge tích hợp bằng receipt mutation rồi thu các observation đó. Context HEAD của source hoặc digest của các regression riêng lẻ không chứng minh runtime kết hợp đã được thử.
+diff --git a/workflows/discovery.md b/workflows/discovery.md
+index bd7a2ab4..a7db9ef5 100644
+--- a/workflows/discovery.md
++++ b/workflows/discovery.md
+@@ -11,3 +11,5 @@ Confirmation binds the exact scope hash. An opening-scope claim retains the user
+ Old sessions and UAT runs are historical records, never current execution authority or completion proof. Archive them outside active workflow coordinates, retain product source and actual user decisions, then open a fresh current session and produce current plans, requests and UAT evidence. There is no in-place migration or original-contract replay adapter. Relocation and retirement markers deny writes to retired roots. The current wire contract remains starci/v2.2; runtimeRevision 3 and the current owner, topology and frozen discovery gates govern execution.
+ 
+ A planned read-only prerequisite may bind a declared route outside product code impact only when its concrete goal enables a confirmed delivery operator whose authored required Context names that role. The bind remains `checkout: routed`, carries no declared write roots or environment writes, and verifies the actual portable/hydrated route and canonical Git checkout. It adds no repository to discovery and grants no product source writes; those still require the confirmed code-impact role. `scripts/mission-scope.mjs#readOnlyPrerequisiteBinding` enforces this boundary.
++
++A coordinated mission may retain a peer-executed impact through the goal-discovery schema's `producer` selector: the original session, impact id and sealed mission address. Copy its actual role, routes, code, behavior, tags and evidence. This keeps the full product scope visible while assigning local closing evidence to `workflow.verify`; it grants the coordinator no product source writes and does not require duplicate product generation. Confirmation and new admission verify that the selected original mission remains current. A later authorized execution extraction keeps these original goals and accepted receipts; the coordination commands described in [README.md](README.md) derive only the selected subset for its new owner, without another user approval for the same authorized decomposition.
+diff --git a/workflows/discovery.vi.md b/workflows/discovery.vi.md
+index 49196e78..1cb46d89 100644
+--- a/workflows/discovery.vi.md
++++ b/workflows/discovery.vi.md
+@@ -11,3 +11,4 @@ Xác nhận gắn với đúng hash phạm vi. Opening-scope giữ nguyên lời
+ Session và lượt UAT cũ là hồ sơ lịch sử, không phải thẩm quyền thực thi hay bằng chứng hoàn tất hiện tại. Lưu chúng ngoài vị trí workflow hoạt động, giữ source sản phẩm và quyết định thật của người, rồi mở session mới theo hợp đồng hiện tại và tạo lại kế hoạch, request, UAT. Không có adapter migrate tại chỗ hay kiểm lại bằng luật cũ. Marker relocation và retirement từ chối ghi vào gốc đã nghỉ. Wire contract hiện tại vẫn là starci/v2.2; runtimeRevision 3 cùng owner, topology và discovery đã đóng băng hiện tại kiểm soát thực thi.
+ 
+ Một prerequisite chỉ đọc trong kế hoạch được bind route đã khai ngoài phần tác động code sản phẩm khi goal cụ thể phục vụ operator giao hàng đã xác nhận và Context bắt buộc của operator đó nêu vai này. Bind giữ `checkout: routed`, không có write root hay environment write, và kiểm route portable/hydrated cùng checkout Git chuẩn. Nó không thêm repository vào discovery hay cấp quyền ghi source sản phẩm; quyền đó vẫn cần vai trong tác động code đã xác nhận. `scripts/mission-scope.mjs#readOnlyPrerequisiteBinding` kiểm ranh giới này.
++Mission phối hợp có thể giữ impact do peer thực hiện bằng `producer` trong schema goal-discovery: session gốc, impact id và địa chỉ mission đã niêm phong. Giữ nguyên role, routes, code, behavior, tags và evidence thực tế. Phạm vi sản phẩm vẫn đầy đủ, còn bằng chứng kết thúc cục bộ thuộc `workflow.verify`; coordinator không được quyền sửa mã sản phẩm hay phải tạo lại sản phẩm. Confirmation và admission mới kiểm tra mission gốc vẫn hiện hành. Khi tách phần thực thi đã được cho phép, các lệnh coordination trong [README.md](README.md) chỉ suy ra đúng phần đã chọn cho owner mới, giữ mục tiêu và receipt gốc, không hỏi lại người dùng về cùng một cách phân công đã được cho phép.

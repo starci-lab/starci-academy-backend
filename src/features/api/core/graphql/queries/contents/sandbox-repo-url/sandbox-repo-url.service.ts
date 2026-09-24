@@ -5,9 +5,6 @@ import {
     ContentEntity,
 } from "@modules/databases/postgresql/primary/entities/content.entity"
 import {
-    EnrollmentEntity,
-} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
-import {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
@@ -40,6 +37,9 @@ import {
 import {
     SandboxRepoUrlRequest,
 } from "./graphql-types/request"
+import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
 
 @Injectable()
 /**
@@ -53,6 +53,7 @@ export class SandboxRepoUrlService {
         private readonly entityManager: EntityManager,
         private readonly s3BuildService: S3BuildService,
         private readonly s3NameResolverService: S3NameResolverService,
+        private readonly effectiveLearnerAccessService: EffectiveLearnerAccessService,
     ) { }
 
     /**
@@ -93,21 +94,14 @@ export class SandboxRepoUrlService {
             })
         }
 
-        // Premium lessons require active enrollment in the course.
+        // Premium lessons require effective paid access to the course.
         // Non-premium lessons issue a presigned URL to any authenticated user.
         if (content.isPremium) {
-            const enrollment = await this.entityManager.findOne(EnrollmentEntity,
-                {
-                    where: {
-                        user: {
-                            id: user.id,
-                        },
-                        course: {
-                            id: content.module.course.id,
-                        },
-                    },
-                })
-            if (!enrollment) {
+            const hasAccess = await this.effectiveLearnerAccessService.hasCourseAccess(
+                user.id,
+                content.module.course.id,
+            )
+            if (!hasAccess) {
                 throw new EnrollmentNotFoundException({
                     userId: user.id,
                     courseId: content.module.course.id,

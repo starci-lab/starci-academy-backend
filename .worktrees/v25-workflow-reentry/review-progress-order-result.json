@@ -1,0 +1,14 @@
+{
+  "observedAt": "2026-09-06T12:47:05.157Z",
+  "kind": "read-only comparator probe; no preview, commit, open or execution",
+  "sourceCell": "19/1",
+  "sourceStatus": "mismatched",
+  "contexts": 3,
+  "reads": 6,
+  "sourceStateHash": "sha256:f4d69ad48bbd0f89242bcd491b4ed365adc40b76586de7c4223f46218b2602f2",
+  "sourceRequestHash": "sha256:47735a78213e7a5d6d86cbb633c292815460262ac005b4437148c3de3297e622",
+  "stateAndRequestUnchanged": true,
+  "changedOnlyContextAndReadOrder": true,
+  "unchangedErrorCount": 1,
+  "reorderedErrorCount": 1
+}

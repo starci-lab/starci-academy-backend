@@ -1,0 +1,6 @@
+{
+  "$schema": "../../../.claude/readiness/initialization/workspaces/workflow-owner.schema.json",
+  "version": 1,
+  "project": "nivo",
+  "ownerRole": "be"
+}

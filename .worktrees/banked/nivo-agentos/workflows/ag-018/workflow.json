@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "id": "AG-018",
+  "title": "Chứng minh quyền và ranh giới agent cho Chatbot/Kế toán",
+  "project": "nivo",
+  "scope": "agentos",
+  "priority": "P1",
+  "phase": 3,
+  "type": "verify",
+  "status": "blocked",
+  "statusMeaning": "Waiting for prerequisite evidence; no execution has started.",
+  "dependsOn": [
+    "AG-009",
+    "AG-011",
+    "AG-012",
+    "AG-013"
+  ],
+  "why": "Exercise actual tools and recipients against only the boundaries applicable to the two selected modules; record non-applicable boundaries explicitly.",
+  "decisionQuestions": [],
+  "acceptance": [
+    "One business matrix row per applicable boundary has a positive and negative case and owning guard.",
+    "Cross-owner workspace/module/document/channel/task access is denied without disclosing another customer.",
+    "Approvals, prices, confirmation of money and harmful/regulated claims follow the agreed tool boundaries.",
+    "Low confidence, stale evidence and unsupported kind/provider route to an actionable human handoff.",
+    "Check instance data ownership through the declared APIs; do not infer isolation solely from an instance_id column or a chart description."
+  ],
+  "evidenceRefs": [
+    "be:business.md",
+    "be:apps/agentos-controlplane/src/module-operations/module-operation-action.service.ts",
+    "be:src/modules/bussiness/agentos-module-studio/agentos-module-studio.service.ts"
+  ],
+  "testTargets": [
+    "src/tests/e2e/controlplane/controlplane-owner-and-webhook-wall.e2e-spec.ts",
+    "src/tests/e2e/controlplane/pod-credential-isolation.e2e-spec.ts"
+  ],
+  "goalDraft": {
+    "version": 1,
+    "language": "vi",
+    "goal": "Chứng minh quyền và ranh giới agent cho Chatbot/Kế toán",
+    "includes": [
+      "Chứng minh quyền và ranh giới agent cho Chatbot/Kế toán",
+      "Exactly two modules: Chatbot and Accounting; supporting AgentOS flows only."
+    ],
+    "excludes": [
+      "Template App and Expert Academy",
+      "Unrelated source, shared credentials and production deployment",
+      "Treating a fixture, a mock or an old receipt as a completed live action",
+      "Standalone Scheduling, Knowledge Hub, Sales Copilot and broad SMB workbenches"
+    ],
+    "doneWhen": [
+      {
+        "producedBy": "api.verify",
+        "evidence": "The named API cases run against the served head and read back results through the API."
+      },
+      {
+        "producedBy": "uat.verify",
+        "evidence": "The corresponding owner journey passes through the real surface at the same delivery."
+      }
+    ],
+    "sourceRef": "user:2026-09-05 final scope: exactly two modules, one accounting and one chatbot; business flows included; Template App later"
+  },
+  "execution": {
+    "roles": [
+      "be",
+      "fe"
+    ],
+    "env": "dev",
+    "deriveChainAtActivation": true,
+    "exclusiveWriteAliases": [
+      "@worktrees/sessions/central-runtime"
+    ],
+    "liveEffects": "No live effect is authorized by banking. At activation use environment declarations and the exact mission scope; real outbound messages require explicit user authorization.",
+    "seeding": "A dedicated owner and stranger, per-flow run namespace, deterministic IDs, exact marker/owner checks on reuse and dependency-safe cleanup. Fixture history is labelled and cannot stand for Test, Apply, payment or provider success. Create fixtures only for the selected Chatbot and Accounting modules; knowledge fixtures are supporting inputs, not a third module.",
+    "failureRouting": "Read the executing operator stop and current .claude/routing.json; this card defines no alternate routes.",
+    "publication": "If source is changed, include git.publish only in the activated scope and derive all required gates. Backend business changes also require business.reconcile where a published promise applies."
+  },
+  "activation": {
+    "sessionId": null,
+    "startedAt": null,
+    "completedAt": null,
+    "receiptRefs": []
+  },
+  "modules": [
+    "chatbot",
+    "accounting"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "observedAt": "2026-09-07T01:23:48.5928573Z",
+  "originalHandle": 92206,
+  "diagnosticHandle": 10667,
+  "correctedDiagnosticHandle": 40990,
+  "cause": "Root test launch omitted STARCI_WALK_HOST_ROOT; browser fixture resolved a temporary host with no Playwright install",
+  "correction": "Set STARCI_WALK_HOST_ROOT=D:/Repositories/starci-academy-backend for browser test execution",
+  "sourceChanged": false,
+  "originalLog": "merged-main-full.log",
+  "diagnosticLog": "merged-source-review-diagnostic.log",
+  "correctedLog": "merged-source-review-host-fixed.log",
+  "status": "Corrected diagnostic completed: exit 0, one test passed, zero failures/skips",
+  "handleKind": "exec session_id, not operating-system PID",
+  "verifiedAt": "2026-09-07T01:26:52.7225899Z"
+}

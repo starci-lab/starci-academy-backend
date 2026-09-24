@@ -1,0 +1,35 @@
+{
+  "version": "2.5.0-rc.14",
+  "commit": "f9c74f7117cae2de3db14bc11e04024262a1acc6",
+  "remoteMain": "f9c74f7117cae2de3db14bc11e04024262a1acc6",
+  "remoteEvidence": "exec chunk f7376a: normal HEAD:main push and subsequent git ls-remote both succeeded and matched. Later redundant remote lookup failed network connection; no rollback observed.",
+  "test": {
+    "status": "complete",
+    "candidate": "D:\\Repositories\\starci-academy-backend\\.worktrees\\v25-rc14-release\\verified-host\\.claude",
+    "startedAt": "2026-09-07T02:52:56.996Z",
+    "runnerPid": 45612,
+    "playwrightHost": "D:\\Repositories\\starci-academy-backend",
+    "treeHash": "1d9b3dadfddfbbb684c9b605f06b520ff7470c1f9eb7d7d98422247df333b1fb",
+    "childPid": 30288,
+    "exitCode": 0,
+    "signal": null,
+    "endedAt": "2026-09-07T03:09:34.727Z",
+    "testedTreeUnchanged": true
+  },
+  "tests": 585,
+  "pass": 585,
+  "fail": 0,
+  "skip": 0,
+  "docs": 78,
+  "package": {
+    "matches": true,
+    "version": "2.5.0-rc.14",
+    "packedFiles": 744,
+    "installedFiles": 739,
+    "archiveSha256": "68948cc300564bbc393eabbbb985e887726333ba02d549c29e2e0cd261a0fae2",
+    "fullSuite": "integrated-run-3 requires terminal success",
+    "published": false
+  },
+  "at": "2026-09-07T03:12:32.569Z",
+  "limits": "Runtime release only; module implementation and actual product UAT remain incomplete."
+}
