@@ -1,7 +1,0 @@
-# Shared StarCi services live in their own Compose project. They are not part
-# of any product repository's runtime group in Docker Desktop.
-name: starci
-
-include:
-  - sonarqube.yaml
-  - cloudflared-sonarqube.yaml

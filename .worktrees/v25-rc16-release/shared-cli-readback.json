@@ -1,9 +1,0 @@
-{
-  "at": "2026-09-07T03:37:39.465Z",
-  "candidate": "host/.claude",
-  "actualCommandExit": 0,
-  "stdout": "valid architecture.decide branch",
-  "request": "89867d44cbaa4b94fd3bcc3040608cababf092ee83fc4e776efae6b80c9a7948",
-  "response": "2041c1f826666137d0565c68755273976f8024b129804b0a7848ba5a2cc4533e",
-  "limit": "Read-only validation, not accepted attempt or architecture completion"
-}

@@ -1,1 +1,0 @@
-const fs=require('fs');const p='scripts/workflow-verifier-fixture.mjs';let s=fs.readFileSync(p,'utf8');s=s.replace("[[q(routeKey),'runtime','g-10',q(ownerRef)]]","[[q(routeKey),'runtime',`g-${generation}`,q(ownerRef)]]");fs.writeFileSync(p,s);

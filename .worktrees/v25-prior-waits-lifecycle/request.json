@@ -1,9 +1,0 @@
-{
-  "ownerSession": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905155158-nivo-87e4a31b",
-  "source": "D:/Repositories/starci-academy-backend/.claude",
-  "parentRequest": "D:/Repositories/starci-academy-backend/.worktrees/v25-prior-waits/request.json",
-  "goal": "Prove public mission correction retires a genuine sealed multi-hop waiting chain without completion credit, while current waits and tampering remain blocked.",
-  "scope": ["Isolated regression candidate", "Existing nested review fixture extraction and new lifecycle spec"],
-  "requirements": ["No production changes", "No live or native ledger writes", "Preserve original regression cases and public gates"],
-  "authority": "Root explicitly delegated the bounded authentic regression under the existing root mission."
-}

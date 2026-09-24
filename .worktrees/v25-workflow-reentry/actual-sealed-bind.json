@@ -1,9 +1,0 @@
-{
-  "observedAt": "2026-09-06T12:28:35.895Z",
-  "kind": "read-only native historical bind proof only; not retry or product UAT",
-  "session": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905160512-nivo-ca563924",
-  "cell": "12/1",
-  "stateHash": "f4d69ad48bbd0f89242bcd491b4ed365adc40b76586de7c4223f46218b2602f2",
-  "requestHash": "042bdadfc02f516fd45f4dde77bf5eb58a43ebe22246818dba20b2d0b1d93ef1",
-  "errors": []
-}

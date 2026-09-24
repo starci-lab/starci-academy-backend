@@ -1,6 +1,0 @@
-{
-  "$schema": "../../.claude/readiness/initialization/stacks/environment.schema.json",
-  "schemaVersion": 9,
-  "env": "dev",
-  "production": false
-}

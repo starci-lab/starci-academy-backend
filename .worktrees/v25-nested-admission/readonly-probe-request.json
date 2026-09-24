@@ -1,7 +1,0 @@
-{
-  "version": 1,
-  "target": "2.5.0-rc.2",
-  "authority": "Parent /root delegated the independently reproduced GET-only Apollo CSRF header correction within the existing user-authorized runtime repair.",
-  "scope": "Use and retain one fixed non-secret x-apollo-operation-name header; preserve GET-only successful-health semantics and reject arbitrary request headers.",
-  "excluded": ["POST", "user-defined headers", "credentials", "live or peer-ledger mutation"]
-}

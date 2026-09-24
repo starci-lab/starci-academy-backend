@@ -1,9 +1,0 @@
-{
-  "sourceRun": "integrated-run-2",
-  "reason": "Only failing burst-counter test assumed all bounded lock waits succeed under full-suite load. Runtime and its lock limits remain byte-identical. Retry only pre-callback SESSION_STATE_BUSY, bounded three attempts, retain exact twenty-increment assertion.",
-  "changed": [
-    "scripts/v22-runtime.spec.mjs"
-  ],
-  "before": "e60b4a0fb64ecbe586c6e4e1b51a36103d7cca4fdeebe2025f90e3b280465435",
-  "after": "ae931344989d806d594733f20ba7b36515f12820ff5dcf0ae2046b588362c666"
-}

@@ -1,9 +1,0 @@
-{
-  "version": 1,
-  "ownerSession": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905155158-nivo-87e4a31b",
-  "ownerTask": "01a06fc3-212e-7a41-94f1-93d4192a51de",
-  "baseline": "550cb449468780902bae1d12099cd0969790f523",
-  "authority": "Root approved an isolated post-RC10 correction for exact logical-unit dependency resolution through sealed accepted retries; root owns integration and publication.",
-  "scope": ["rewire unopened unit dependencies on future typed retries", "resolve existing immutable unit dependencies through exact sealed retry chains", "retain same mission, operator, logical unit, accepted plan input, original failed evidence and terminal accepted proof", "authentic repeated source refusal and accepted successor regression plus adversarial lineage cases"],
-  "excluded": ["live or peer ledger changes", "product source changes", "frozen RC10 candidate edits", "version changes", "publication"]
-}

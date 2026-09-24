@@ -1,5 +1,0 @@
-catalog_orders
-agent_workspaces
-instances
-jobs
-agent_workspace_recoveries

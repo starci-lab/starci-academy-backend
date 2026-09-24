@@ -1,5 +1,0 @@
-{
-  "status": "refused",
-  "error": "Command failed: git -C  rev-parse HEAD\nfatal: cannot change to 'null': No such file or directory\n",
-  "unchanged": true
-}

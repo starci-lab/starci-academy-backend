@@ -1,9 +1,0 @@
-{
-  "version": 1,
-  "parentSession": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905155158-nivo-87e4a31b",
-  "kind": "runtime-budget-correction",
-  "userStatement": "bao nhiêu same op cũng dc chứ?",
-  "scope": "Allow explicit unlimited same-operator budget extension backed by actual user continue, retain finite step cap and progress/ownership gates.",
-  "authority": "Parent delegated explicit current user authorization; no live adoption or publication by this agent.",
-  "at": "2026-09-06T04:23:48.134Z"
-}

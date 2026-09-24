@@ -1,9 +1,0 @@
-{
-  "matches": true,
-  "version": "2.5.0-rc.14",
-  "packedFiles": 744,
-  "installedFiles": 739,
-  "archiveSha256": "68948cc300564bbc393eabbbb985e887726333ba02d549c29e2e0cd261a0fae2",
-  "fullSuite": "integrated-run-3 requires terminal success",
-  "published": false
-}

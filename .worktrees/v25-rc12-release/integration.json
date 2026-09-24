@@ -1,9 +1,0 @@
-{
-  "note": "Parts independently reviewed; full integrated verification pending",
-  "baseline": "d4cec1d5613f3d4fc132eaa86ec42827c3bc701b",
-  "parts": [
-    "planner-integration.json",
-    "architecture-integration.json",
-    "admission-integration.json"
-  ]
-}

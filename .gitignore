@@ -194,3 +194,7 @@ eslint_out*.json
 
 # host tool installs outside the runtime tree (Playwright + Chromium for browsercontrol mode playwright)
 .tools/
+
+# Git worktrees and their scratch never belong in the repo (a WIP checkpoint once committed
+# 33.8k worktree files incl. plaintext secrets; 2026-09-24).
+/.worktrees/

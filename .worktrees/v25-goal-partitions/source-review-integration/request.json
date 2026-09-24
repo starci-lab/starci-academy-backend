@@ -1,6 +1,0 @@
-{
-  "parentRequest": "../request.json",
-  "baseline": "550cb449468780902bae1d12099cd0969790f523",
-  "authority": "Root directed isolated source-review and partition integration; donor owns provisional source-review production and BE lifecycle, Astra owns FE lifecycle and common goal coverage.",
-  "release": false
-}

@@ -1,8 +1,0 @@
-{
-  "path": "scripts/plan-chain.mjs",
-  "transformation": "Remove trailing empty lines; retain exactly one LF; executable content unchanged",
-  "testedCandidatePreserved": true,
-  "after": "27e9f2ad64124503feecf3f52ae964d2cad8e4d57233487a97351a3f5ced4f67",
-  "reason": "git diff --check rejected an extra blank line at EOF",
-  "before": "eff2c878b6457471ef6cffe094b4df1e4240b98fdb95e4bc4575c38ce1320261"
-}

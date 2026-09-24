@@ -1,8 +1,0 @@
-{
-  "version": 1,
-  "parentSession": "D:/Repositories/nivo-backend/.worktrees/sessions/20260905155158-nivo-87e4a31b",
-  "userAuthority": "check cả3 ... nếu lỗi phải chỉnh sửa ngay",
-  "scope": "Isolated current integration-failure recovery enforcement and focused regression; no live writes or ledger edits.",
-  "updateQuestion": 3,
-  "reason": "Existing INTEGRATION_FAILED resume law allows owning-session source repair; static Next admission cannot represent the conditional recovery."
-}

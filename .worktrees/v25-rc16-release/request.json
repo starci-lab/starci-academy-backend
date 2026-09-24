@@ -1,9 +1,0 @@
-{
-  "ownerSession": "20260905155158-nivo-87e4a31b",
-  "purpose": "Verify architecture CLI module initialization repair on integrated RC15",
-  "excludes": [
-    "production deploy",
-    "peer evidence mutation",
-    "product completion claims"
-  ]
-}

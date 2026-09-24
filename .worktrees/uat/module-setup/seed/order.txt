@@ -1,6 +1,0 @@
-catalog_orders.json
-agent_workspaces.json
-agentos_module_installations.json
-agentos_module_chat_sessions.json
-agentos_module_context_versions.json
-agentos_module_chat_messages.json

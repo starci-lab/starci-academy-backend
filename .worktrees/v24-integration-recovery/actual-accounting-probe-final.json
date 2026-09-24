@@ -1,9 +1,0 @@
-{
-  "probeOnly": true,
-  "ledgerChanged": false,
-  "authority": "Placeholder in memory tests enforcement; actual owner must record real user sourceRef.",
-  "edges": [],
-  "errors": [
-    "integration recovery 13/1 -> 14/1: 11/1: state.json.mission.includes: array is too long; state.json.mission.doneWhen[12].evidence: string is too long; state.json.mission.doneWhen[13].evidence: string is too long; state.json.mission.doneWhen[14].evidence: string is too long; state.json.mission.doneWhen[17].evidence: string is too long; request.json: expected.goalVersion 3 does not match mission.version 4; request.json: expected.sourceRef is state.json#mission:v3/doneWhen:0; this branch resolves to state.json#mission:v4/doneWhen:0; state.json: the mission's goal is not confirmed: no choices[\"goal:20260905-nivo-accounting-01a07247:v4\"]; the person answers the goal-confirm question and the answer is recorded before the first dispatch; request.json: interface.generate runs one unit per branch: the mission names 2 done-when lines for it and interface.plan exists, so the branch carries unit, an id of the units.json interface.plan produced, bound as inputs.units; a branch without a unit would take every unit at once, and a blind agent takes one; GOAL_SCOPE_CHANGED: authority does not seal this exact mission version and impact; GOAL_AUTHORITY_REQUIRED: a scope answer binds the exact scope table previously presented; GOAL_SCOPE_CHANGED: frozen mission changed after confirmation"
-  ]
-}

@@ -1,1 +1,0 @@
-import fs from 'node:fs';let text=fs.readFileSync('../v25-return-chain/seal.mjs','utf8').replaceAll('6563115c7984fae3e83256e750bc0f51d7cf4f4e','335b401b19ec6759dfb70ef96b2bf1cd5aca9b3e').replaceAll("target:'2.5.0-rc.5'","target:'next v2.5 integration; version unchanged'");fs.writeFileSync('seal.mjs',text);

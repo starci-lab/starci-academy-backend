@@ -1,8 +1,0 @@
-{
-  "payloadInventory": "tested-payload-before.json",
-  "exitCode": 0,
-  "baseline": "7e13c6b02622b3c06a6ed04eedd418749ad00215",
-  "finishedAt": "2026-09-06T15:05:18.9683655Z",
-  "log": "combined-lifecycle-eleventh.log",
-  "startedAt": "2026-09-06T14:56:47.6148495Z"
-}
