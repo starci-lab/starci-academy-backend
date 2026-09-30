@@ -1,9 +1,9 @@
 {
   "schema": "starci/workspace-binding@2",
-  "project": "nivo",
+  "project": "starci",
   "repository": {
-    "pathFromSource": "../nivo-monorepo",
-    "gitRepository": "https://github.com/starci-lab/nivo-monorepo.git"
+    "pathFromSource": "../starci-monorepo",
+    "gitRepository": "https://github.com/starci-lab/starci-monorepo.git"
   },
   "sides": {
     "be": "be",
