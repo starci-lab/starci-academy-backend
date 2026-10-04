@@ -14,7 +14,7 @@ if [[ "$ACADEMY_ROOT" != /home/nivo/academy ]]; then
 fi
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 export ACADEMY_ROOT ACADEMY_CORE_IMAGE="$image"
-judge_revision=$(cat "$script_dir/judge0/Dockerfile" "$script_dir/judge0/isolate.conf" "$script_dir/judge0/entrypoint.sh" | sha256sum | cut -d ' ' -f 1)
+judge_revision=$(cd "$script_dir/judge0" && sha256sum Dockerfile entrypoint.sh isolate.conf reset-cgroup.patch | sha256sum | cut -d ' ' -f 1)
 export ACADEMY_JUDGE0_IMAGE="academy/judge0:cgroup2-$judge_revision"
 compose=(docker compose --project-directory "$ACADEMY_ROOT" -p academy -f "$script_dir/production-compose.yaml")
 exec 9>"$ACADEMY_ROOT/deploy.lock"

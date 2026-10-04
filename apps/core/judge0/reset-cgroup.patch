@@ -1,0 +1,10 @@
+--- a/cg.c
++++ b/cg.c
+@@ -1,6 +1,7 @@
+ cg_setup(void)
+ {
+   if (!cg_enable)
+     return;
++  cg_create();
+ 
+   if (cg_memory_limit)

@@ -8,12 +8,15 @@
 **/.classpath
 **/.dockerignore
 **/.env
+**/.env.*
 **/.git
 **/.gitignore
-# runtime bind-mounts / git working copies â€” never baked into the image
+# Runtime mounts and Git checkouts are never baked into the image
 .mount
 .contexts
 .gitrefs
+.gitmounts
+.containers
 .datasources
 .claude
 .stacks

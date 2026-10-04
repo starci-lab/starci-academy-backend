@@ -8,10 +8,11 @@ Swarm or change the existing development stack declaration.
 ## Placement and custody
 
 `production-compose.yaml` owns Core, Keycloak, NATS, Judge0 server/workers,
-Kafka and Kafka Connect. The separately restored `compose.storage.json` owns
+Kafka, Kafka Connect and Kibana. The separately restored `compose.storage.json` owns
 PostgreSQL 17, Judge0 PostgreSQL 16, Redis, Judge0 Redis, MinIO, Qdrant and
 Elasticsearch. All stores have persistent Academy volumes. Neither Compose
-file publishes database or application ports. The private storage network is
+file publishes public database or application ports. Kibana's administrative
+UI is bound only to `127.0.0.1:5601`. The private storage network is
 `academy-storage`, subnet `172.31.10.0/24`; the application network is
 `academy-application`, subnet `172.31.11.0/24`.
 
@@ -56,14 +57,17 @@ bash /home/nivo/academy/releases/<Git SHA>/apps/core/deploy-production.sh academ
 
 The deployment lock serializes releases. A Core readiness timeout restores
 the previous Core image without deleting data. Judge0's image is rebuilt only
-when its three versioned build inputs change. Never run `down -v`,
+when its four versioned build inputs change. Never run `down -v`,
 `--remove-orphans`, a host-wide Docker prune or a Nivo deployment from here.
 
 Judge0 retains API 1.13.1 and its compiler set. Isolate 2.7 is built from
 upstream commit `8f185bb37f3f23e29b33b0c7727c91c13429abe3` as a static binary.
 The worker has a private cgroup namespace; controller delegation occurs only
 inside that container. Obsolete Isolate CPU-timing flags are removed; cgroup
-mode uses aggregate CPU accounting. The restored Judge0 configuration limits
+mode uses aggregate CPU accounting. A narrow patch invokes the upstream
+cgroup reset before each execution, so compilation memory is not reported
+as program memory. Worker scripts suppress their environment dump from logs.
+The restored Judge0 configuration limits
 the worker count to two to fit the shared host. Verify real submissions,
 including timeout and memory limits, before treating it as ready.
 
@@ -105,3 +109,7 @@ No OAuth registration or public callback hostname changes are needed for the
 retained domains. The owner controls DNS cutover. Existing API-provider
 credentials are recovered from encrypted custody and verified separately from
 local dependency readiness; a present credential is not proof of provider health.
+
+The default unit scripts run in one process, matching `test:ci`, to avoid the
+observed Windows Jest transform-cache `EPERM` race between concurrent workers.
+All unit test files remain selected.

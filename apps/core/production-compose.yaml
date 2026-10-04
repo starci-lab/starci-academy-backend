@@ -78,6 +78,7 @@ services:
     # Judge0's isolate sandbox requires these privileges. No public host ports.
     privileged: true
     cgroup: private
+    cpus: 2
     security_opt: [label=disable]
     volumes:
       - ./config/judge0.conf:/judge0.conf:ro,z
@@ -130,6 +131,20 @@ services:
       CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: 'false'
       KAFKA_HEAP_OPTS: -Xms128m -Xmx384m
     networks: [application, storage]
+    mem_limit: 896m
+    logging: *logging
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana@sha256:596700740fdb449c5726e6b6a6dd910c2140c8a37e68a301a5186e86b0834c9f
+    container_name: academy-kibana
+    restart: unless-stopped
+    env_file:
+      - path: ./config/kibana.env
+        format: raw
+    environment:
+      NODE_OPTIONS: --max-old-space-size=384
+    ports: ['127.0.0.1:5601:5601']
+    networks: [storage, application]
     mem_limit: 640m
     logging: *logging
 
