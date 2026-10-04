@@ -1,154 +1,102 @@
-# .github/workflows/deploy-core-vps.yml
 name: Deploy Core VPS
 
 on:
   push:
-    branches:
-      - main
-    # Don't rebuild+redeploy for CI-workflow / docs / audit / scratch-only changes.
+    branches: [main]
     paths-ignore:
-      - ".github/**"
-      - "**.md"
-      - ".claude/**"
-      - "scratch/**"
+      - '**.md'
+      - '.claude/**'
+      - 'scratch/**'
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: academy-production
+  cancel-in-progress: false
 
 jobs:
   verify:
     uses: ./.github/workflows/ci.yml
     secrets: inherit
-    # ci.yml requests id-token: write for Codecov OIDC; a caller job may not grant
-    # less than the called workflow asks for, or the run dies at startup.
     permissions:
       contents: read
       id-token: write
 
   deploy:
-    # Legacy line, slated for removal: ship even when verify is red.
-    # needs: verify
-    runs-on: self-hosted
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
     environment: core-vps
-
+    env:
+      IMAGE: academy/core:${{ github.sha }}
+      VPS_HOST: ${{ vars.VPS_HOST }}
+      VPS_USER: ${{ vars.VPS_USER }}
+      VPS_PORT: ${{ vars.VPS_PORT }}
     steps:
-      - name: Checkout code
+      - name: Checkout the verified revision
         uses: actions/checkout@v4
 
-      - name: Show docker info
-        run: |
-          docker --version
-          docker compose version
+      - name: Configure Docker build cache
+        uses: docker/setup-buildx-action@v3
 
-      # qwen local-provider Bearer token (the balancer sends it; the Caddy gate
-      # in front of Ollama validates it). Value comes from the repo secret —
-      # never committed. Skipped when the secret is unset (gate-less / placeholder).
-      - name: Write qwen local-provider key
-        run: |
-          if [ -n "${{ secrets.QWEN_LOCAL_TOKEN }}" ]; then
-            install -d -m 700 /root/academy/.mount/terraform/keys
-            printf '%s\n' "${{ secrets.QWEN_LOCAL_TOKEN }}" > /root/academy/.mount/terraform/keys/local.key
-            chmod 600 /root/academy/.mount/terraform/keys/local.key
-            echo "qwen local.key written ($(wc -c < /root/academy/.mount/terraform/keys/local.key) bytes)"
-          else
-            echo "QWEN_LOCAL_TOKEN secret not set — leaving local.key as-is"
-          fi
+      - name: Build the immutable image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/core/Dockerfile
+          load: true
+          tags: ${{ env.IMAGE }}
+          labels: org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha,scope=academy-core
+          cache-to: type=gha,mode=max,scope=academy-core
 
-      - name: Deploy core with Docker Compose
+      - name: Configure verified SSH access
         env:
-          POSTGRESQL_PRIMARY_HOST: ${{ secrets.POSTGRESQL_PRIMARY_HOST }}
-          POSTGRESQL_PRIMARY_PORT: ${{ secrets.POSTGRESQL_PRIMARY_PORT }}
-          POSTGRESQL_PRIMARY_PASSWORD: ${{ secrets.POSTGRESQL_PRIMARY_PASSWORD }}
-
-          QDRANT_URL: ${{ secrets.QDRANT_URL }}
-          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
-
-          REDIS_BULLMQ_HOST: ${{ secrets.REDIS_BULLMQ_HOST }}
-          REDIS_BULLMQ_PORT: ${{ secrets.REDIS_BULLMQ_PORT }}
-          REDIS_BULLMQ_PASSWORD: ${{ secrets.REDIS_BULLMQ_PASSWORD }}
-
-          REDIS_THROTTLER_HOST: ${{ secrets.REDIS_THROTTLER_HOST }}
-          REDIS_THROTTLER_PORT: ${{ secrets.REDIS_THROTTLER_PORT }}
-          REDIS_THROTTLER_PASSWORD: ${{ secrets.REDIS_THROTTLER_PASSWORD }}
-
-          REDIS_ADAPTER_HOST: ${{ secrets.REDIS_ADAPTER_HOST }}
-          REDIS_ADAPTER_PORT: ${{ secrets.REDIS_ADAPTER_PORT }}
-          REDIS_ADAPTER_PASSWORD: ${{ secrets.REDIS_ADAPTER_PASSWORD }}
-
-          REDIS_CACHE_HOST: ${{ secrets.REDIS_CACHE_HOST }}
-          REDIS_CACHE_PORT: ${{ secrets.REDIS_CACHE_PORT }}
-          REDIS_CACHE_PASSWORD: ${{ secrets.REDIS_CACHE_PASSWORD }}
-
-          CORS_ORIGIN_1: ${{ vars.CORS_ORIGIN_1 }}
-
-          # Parent-domain scope for the JS-readable csrf_token cookie so the SPA
-          # (academy.starci.org) can read what the API (api.academy.starci.org) sets.
-          COOKIE_DOMAIN: ${{ vars.COOKIE_DOMAIN }}
-
-          # Self-hosted Judge0 (coding-practice sandbox) on the VPS — Docker Desktop's
-          # cgroup v2 can't run isolate, so prod points at the cgroup-v1 VPS instance.
-          JUDGE0_BASE_URL: ${{ vars.JUDGE0_BASE_URL }}
-
-          # Filesystem context root -- vps-compose.yaml defaults this to the dedicated
-          # .datasources bind (see its CONTEXT_1_URL/volumes) so the git-init snapshot
-          # store + manifest.json survive redeploys. Renamed from ".contexts" when the
-          # versioned snapshot store landed (commit 243ddde7); only override this repo
-          # Variable if the VPS host path was deliberately repointed.
-          CONTEXT_1_URL: ${{ vars.CONTEXT_1_URL }}
-
-          # Init seed/sync scope is configured in .mount/config/seed.yaml (not env).
-          # Background synchronizer master switch (runtime, separate from init scope).
-          SYNCHRONIZER_ENABLE: ${{ vars.SYNCHRONIZER_ENABLE }}
-
-          # Content RAG index — builds the persistent `content_rag` Qdrant collection
-          # at init (content-AI chat grounding + "search course content" / related
-          # content). Default OFF in code; toggle via this repo Variable so ops can
-          # flip it without a code redeploy. RENAMED from LESSON_RAG_INDEX_ENABLED
-          # (old code used `lesson_rag`); the current code reads CONTENT_RAG_* and the
-          # collection is `content_rag`. The indexer is now DIFF-AWARE (2026-07-11
-          # fix): the FIRST enabled boot embeds every lesson/challenge/deck/task once
-          # (real load on the local Ollama lane via the qwen.starci.org tunnel);
-          # subsequent boots skip unchanged content (no more re-embed-every-boot).
-          CONTENT_RAG_INDEX_ENABLED: ${{ vars.CONTENT_RAG_INDEX_ENABLED }}
-
-          # Container paths (/usr/src/app/.mount/...), not host /root/academy/...
-          KEYCLOAK_ADMIN_FILE: ${{ vars.KEYCLOAK_ADMIN_FILE }}
-          GITHUB_ACCESS_TOKEN_FILE: ${{ vars.GITHUB_ACCESS_TOKEN_FILE }}
-          GITHUB_SECRET_KEY_FILE: ${{ vars.GITHUB_SECRET_KEY_FILE }}
-          S3_SECRET_ACCESS_KEY_FILE: ${{ vars.S3_SECRET_ACCESS_KEY_FILE }}
-          KEYCLOAK_CLIENT_SECRET_FILE: ${{ vars.KEYCLOAK_CLIENT_SECRET_FILE }}
-          PAYOS_API_KEY_FILE: ${{ vars.PAYOS_API_KEY_FILE }}
-          SEPAY_API_KEY_FILE: ${{ vars.SEPAY_API_KEY_FILE }}
-          API_SEPAY_ENV: ${{ vars.API_SEPAY_ENV }}
-          API_SEPAY_MERCHANT_ID: ${{ vars.API_SEPAY_MERCHANT_ID }}
-          BREVO_SMTP_PASSWORD_FILE: ${{ vars.BREVO_SMTP_PASSWORD_FILE }}
-          ENCRYPTION_KEY_FILE: ${{ vars.ENCRYPTION_KEY_FILE }}
-          GCP_SERVICE_ACCOUNT_JSON_FILE: ${{ vars.GCP_SERVICE_ACCOUNT_JSON_FILE }}
-
-          CORE_PORT: ${{ vars.CORE_PORT }}
- 
-          KEYCLOAK_URL: ${{ secrets.KEYCLOAK_URL }}
-          KEYCLOAK_REDIRECT_URI: ${{ secrets.KEYCLOAK_REDIRECT_URI }}
-
-          S3_MINIO_ENDPOINT: ${{ secrets.S3_MINIO_ENDPOINT }}
-          S3_MINIO_PUBLIC_ENDPOINT: ${{ secrets.S3_MINIO_PUBLIC_ENDPOINT }}
-          S3_MINIO_SECRET_ACCESS_KEY: ${{ secrets.S3_MINIO_SECRET_ACCESS_KEY }}
-
-          ELASTICSEARCH_NODE: ${{ secrets.ELASTICSEARCH_NODE }}
-          ELASTICSEARCH_PASSWORD: ${{ secrets.ELASTICSEARCH_PASSWORD }}
-
-          NATS_SERVER_1_HOST: ${{ secrets.NATS_SERVER_1_HOST }}
-          NATS_AUTH_TOKEN: ${{ secrets.NATS_AUTH_TOKEN }}
-
-          S3_REGION: ${{ secrets.S3_REGION }}
-          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
-
-          POSTGRESQL_KEYCLOAK_HOST: ${{ secrets.POSTGRESQL_KEYCLOAK_HOST }}
-          BACKUP_ENCRYPT_PASSWORD: ${{ secrets.BACKUP_ENCRYPT_PASSWORD }}
-
-          GITHUB_OAUTH_REDIRECT_URI: ${{ secrets._GITHUB_OAUTH_REDIRECT_URI }}
-
-          # OAuth client id of the prod GitHub App "StarCi Academy" (public, not a secret).
-          # Actions var is named with a leading underscore because GitHub forbids the GITHUB_ prefix.
-          GITHUB_CLIENT_ID: ${{ vars._GITHUB_CLIENT_ID }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
         run: |
-          docker compose -f apps/core/vps-compose.yaml down || true
-          docker compose -f apps/core/vps-compose.yaml up --build -d
+          set -euo pipefail
+          test "$VPS_HOST" = '103.142.27.9'
+          test "$VPS_USER" = 'nivo'
+          test "$VPS_PORT" = '22'
+          test -n "$VPS_SSH_KEY"
+          test -n "$VPS_KNOWN_HOSTS"
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/academy_deploy
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/academy_known_hosts
+          chmod 600 ~/.ssh/academy_deploy ~/.ssh/academy_known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host academy-vps
+            HostName $VPS_HOST
+            User $VPS_USER
+            Port $VPS_PORT
+            IdentityFile ~/.ssh/academy_deploy
+            IdentitiesOnly yes
+            BatchMode yes
+            StrictHostKeyChecking yes
+            UserKnownHostsFile ~/.ssh/academy_known_hosts
+            ServerAliveInterval 20
+            ServerAliveCountMax 6
+          EOF
+
+      - name: Transfer image and release scripts
+        env:
+          REVISION: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          docker save "$IMAGE" | gzip -1 | ssh academy-vps 'gzip -d | docker load'
+          ssh academy-vps "install -d -m 700 /home/nivo/academy/releases/$REVISION"
+          tar -czf - apps/core/production-compose.yaml apps/core/deploy-production.sh apps/core/judge0 |
+            ssh academy-vps "tar -xzf - -C /home/nivo/academy/releases/$REVISION"
+
+      - name: Deploy and verify readiness with rollback
+        env:
+          REVISION: ${{ github.sha }}
+        run: ssh academy-vps "bash /home/nivo/academy/releases/$REVISION/apps/core/deploy-production.sh '$IMAGE'"
+
+      - name: Remove ephemeral SSH credentials
+        if: always()
+        run: rm -f ~/.ssh/academy_deploy ~/.ssh/academy_known_hosts ~/.ssh/config

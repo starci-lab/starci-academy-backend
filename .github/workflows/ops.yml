@@ -1,39 +1,45 @@
-# VPS Ops — run an ad-hoc bash command on the self-hosted VPS runner and print its output.
-# This is how Claude (or anyone) debugs production WITHOUT SSH/password: the runner already
-# lives on the VPS and is authenticated, so a workflow_dispatch runs the command in place and
-# the output shows up in the Actions log (readable via `gh run view --log`).
-#
-# Trigger:  gh workflow run "VPS Ops" -f cmd='docker ps'
-#       or: repo -> Actions -> "VPS Ops" -> Run workflow -> paste command.
-#
-# SECURITY: this is effectively a remote shell on the VPS for anyone who can dispatch this
-# workflow (repo write access). It is auditable (every run is logged) but powerful — restrict
-# repo write access, and delete this workflow when no longer needed.
 name: VPS Ops
 
 on:
   workflow_dispatch:
     inputs:
       cmd:
-        description: "Bash command to run on the VPS runner (output appears in the log)."
+        description: Bash command on the Academy VPS; keep credentials out of output.
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   ops:
-    runs-on: self-hosted
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: core-vps
+    timeout-minutes: 10
     steps:
-      - name: Run command on VPS
-        shell: bash
-        # Pass the input via env (NOT inline ${{ }}) to avoid script-injection.
+      - name: Run command using the Academy deployment key
         env:
           CMD: ${{ inputs.cmd }}
+          VPS_HOST: ${{ vars.VPS_HOST }}
+          VPS_USER: ${{ vars.VPS_USER }}
+          VPS_PORT: ${{ vars.VPS_PORT }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
         run: |
-          echo "::group::command"
-          printf '%s\n' "$CMD"
-          echo "::endgroup::"
-          set +e
-          bash -lc "$CMD"
-          code=$?
-          echo "---"
-          echo "exit_code=$code"
+          set -euo pipefail
+          test "$VPS_HOST" = '103.142.27.9'
+          test "$VPS_USER" = 'nivo'
+          test "$VPS_PORT" = '22'
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/academy_deploy
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/academy_known_hosts
+          chmod 600 ~/.ssh/academy_deploy ~/.ssh/academy_known_hosts
+          printf '%s\n' "$CMD" | ssh -T -p "$VPS_PORT" -i ~/.ssh/academy_deploy \
+            -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile=~/.ssh/academy_known_hosts \
+            -o ServerAliveInterval=20 "$VPS_USER@$VPS_HOST" 'bash -se'
+
+      - name: Remove ephemeral SSH credentials
+        if: always()
+        run: rm -f ~/.ssh/academy_deploy ~/.ssh/academy_known_hosts

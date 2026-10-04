@@ -1,0 +1,151 @@
+name: academy
+
+# The restored stores are owned by /home/nivo/academy/compose.storage.json.
+# Both Compose files use project academy; never use --remove-orphans or down -v.
+services:
+  core:
+    image: ${ACADEMY_CORE_IMAGE:?Set the immutable Academy image}
+    container_name: academy-core
+    restart: unless-stopped
+    env_file:
+      - path: ./config/core.env
+        format: raw
+    environment:
+      NODE_OPTIONS: --max-old-space-size=1024
+    volumes:
+      - ${ACADEMY_ROOT:?}/restore/20261004-rescue/academy-files/.mount:/usr/src/app/.mount:ro,z
+      - ${ACADEMY_ROOT:?}/restore/20261004-rescue/academy-files/.datasources:/usr/src/app/.datasources:z
+    extra_hosts:
+      # Keep public issuers and signed URLs while resolving this standby locally.
+      - keycloak.starci.org:host-gateway
+      - minio.starci.org:host-gateway
+      - judge0.academy.starci.org:host-gateway
+    networks: [storage, application, edge]
+    mem_limit: 1408m
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:20860/swagger').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 20s
+      timeout: 10s
+      retries: 12
+      start_period: 180s
+    logging: &logging
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+
+  keycloak:
+    image: quay.io/keycloak/keycloak@sha256:45ae20191531eb608ddb0b775d012b40d3e4f942697f3214694887dd7c108d13
+    container_name: academy-keycloak
+    restart: unless-stopped
+    command: [start]
+    env_file:
+      - path: ./config/keycloak.env
+        format: raw
+    environment:
+      JAVA_OPTS_APPEND: -Xms128m -Xmx384m
+      KC_HEALTH_ENABLED: 'true'
+      KC_CACHE: local
+    networks: [storage, application, edge]
+    mem_limit: 768m
+    logging: *logging
+
+  nats:
+    image: bitnamilegacy/nats@sha256:37caeaee0b8a062167b4ec672742d0891252b38d7c0fd82c6095148e7ccf937b
+    container_name: academy-nats
+    restart: unless-stopped
+    command: [-c, /etc/nats-server.conf]
+    volumes:
+      - ./config/nats-server.conf:/etc/nats-server.conf:ro,z
+    networks: [application]
+    mem_limit: 128m
+    logging: *logging
+
+  judge0-server:
+    image: ${ACADEMY_JUDGE0_IMAGE:?Set the verified Judge0 image}
+    container_name: academy-judge0-server
+    restart: unless-stopped
+    command: [/api/scripts/server]
+    volumes:
+      - ./config/judge0.conf:/judge0.conf:ro,z
+    networks: [storage, application, edge]
+    mem_limit: 384m
+    logging: *logging
+
+  judge0-workers:
+    image: ${ACADEMY_JUDGE0_IMAGE:?Set the verified Judge0 image}
+    container_name: academy-judge0-workers
+    restart: unless-stopped
+    command: [./scripts/workers]
+    # Judge0's isolate sandbox requires these privileges. No public host ports.
+    privileged: true
+    cgroup: private
+    security_opt: [label=disable]
+    volumes:
+      - ./config/judge0.conf:/judge0.conf:ro,z
+    networks: [storage, application]
+    mem_limit: 768m
+    logging: *logging
+
+  kafka:
+    image: bitnamilegacy/kafka@sha256:55df55bfc7ed5980447387620afa3498eab3985a4d8c731013d82b3fa8b43bff
+    container_name: academy-kafka
+    restart: unless-stopped
+    environment:
+      KAFKA_CFG_NODE_ID: '1'
+      KAFKA_CFG_PROCESS_ROLES: broker,controller
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@academy-kafka:9093
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://academy-kafka:9092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: '1'
+      KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: '1'
+      KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR: '1'
+      KAFKA_CFG_DEFAULT_REPLICATION_FACTOR: '1'
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_CFG_LOG_RETENTION_HOURS: '168'
+      KAFKA_HEAP_OPTS: -Xms128m -Xmx384m
+    volumes:
+      - kafka-data:/bitnami
+    networks: [application]
+    mem_limit: 768m
+    logging: *logging
+
+  kafka-connect:
+    image: quay.io/debezium/connect@sha256:f062d06e19be455ebf43cca662747f2ab6efbe4678954e7d64ac06055b8c7aff
+    container_name: academy-kafka-connect
+    restart: unless-stopped
+    environment:
+      BOOTSTRAP_SERVERS: academy-kafka:9092
+      GROUP_ID: academy-cdc-restored-20261004
+      CONFIG_STORAGE_TOPIC: academy_connect_configs
+      OFFSET_STORAGE_TOPIC: academy_connect_offsets
+      STATUS_STORAGE_TOPIC: academy_connect_statuses
+      CONFIG_STORAGE_REPLICATION_FACTOR: '1'
+      OFFSET_STORAGE_REPLICATION_FACTOR: '1'
+      STATUS_STORAGE_REPLICATION_FACTOR: '1'
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: 'false'
+      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: 'false'
+      KAFKA_HEAP_OPTS: -Xms128m -Xmx384m
+    networks: [application, storage]
+    mem_limit: 640m
+    logging: *logging
+
+volumes:
+  kafka-data:
+    name: academy_kafka_data
+
+networks:
+  storage:
+    name: academy-storage
+    external: true
+  edge:
+    name: nivo-edge
+    external: true
+  application:
+    name: academy-application
+    ipam:
+      config:
+        - subnet: 172.31.11.0/24
