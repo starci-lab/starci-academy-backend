@@ -63,21 +63,9 @@ jobs:
           fail_ci_if_error: true
           use_oidc: true
 
-      - name: Scan with SonarQube
-        uses: SonarSource/sonarqube-scan-action@v7
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
-
-      - name: Strict sonar-quality-gate proof
-        uses: SonarSource/sonarqube-quality-gate-action@v1
-        timeout-minutes: 5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
-
   # E2E is an independent behavior lane. It never creates, mutates or blocks
-  # the unit LCOV consumed by Codecov and Sonar.
+  # the unit LCOV consumed by Codecov. Sonar is disabled for this legacy
+  # deployment at the owner's request; the remaining verification stays on.
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 30
