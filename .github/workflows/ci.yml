@@ -80,7 +80,9 @@ jobs:
   # the unit LCOV consumed by Codecov and Sonar.
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
+    env:
+      E2E_MINIO_IMAGE: academy-ci/minio:release-20250422
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -100,6 +102,19 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Configure MinIO test image cache
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build the pinned MinIO release for disposable E2E
+        uses: docker/build-push-action@v6
+        with:
+          context: testing-support/minio
+          file: testing-support/minio/Dockerfile
+          load: true
+          tags: ${{ env.E2E_MINIO_IMAGE }}
+          cache-from: type=gha,scope=academy-e2e-minio
+          cache-to: type=gha,mode=max,scope=academy-e2e-minio
 
       - name: End-to-end behavior
         run: npm run test:e2e

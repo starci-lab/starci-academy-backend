@@ -269,8 +269,8 @@ export class E2eStackService {
     /** Start the S3-compatible store and publish the production MinIO env. */
     private async startMinio(): Promise<void> {
         this.minioContainer = await new GenericContainer(
-            // Docker Hub no longer serves minio/minio (pull access denied); quay.io is MinIO's own registry.
-            "quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z",
+            // CI builds the same release from source when its registry refuses pulls.
+            process.env.E2E_MINIO_IMAGE ?? "quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z",
         )
             .withEnvironment({
                 MINIO_ROOT_USER: "minioadmin",

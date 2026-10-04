@@ -74,24 +74,40 @@ describe("DeviceService",
 
         it("falls through NVIDIA-empty output to the secondary Windows display probe",
             async () => {
-                probe.run = jest.fn()
-                    .mockResolvedValueOnce("")
-                    .mockResolvedValueOnce("Name\nVirtual Display Adapter")
+                const originalPlatform = process.platform
+                Object.defineProperty(process,
+                    "platform",
+                    {
+                        value: "win32",
+                        configurable: true,
+                    })
+                try {
+                    probe.run = jest.fn()
+                        .mockResolvedValueOnce("")
+                        .mockResolvedValueOnce("Name\nVirtual Display Adapter")
 
-                const info = await new DeviceService(probe).collect()
+                    const info = await new DeviceService(probe).collect()
 
-                expect(info.gpu).toBe("Virtual Display Adapter")
-                expect(probe.run).toHaveBeenNthCalledWith(
-                    2,
-                    "wmic",
-                    [
-                        "path",
-                        "win32_VideoController",
-                        "get",
-                        "name",
-                    ],
-                    3000,
-                )
+                    expect(info.gpu).toBe("Virtual Display Adapter")
+                    expect(probe.run).toHaveBeenNthCalledWith(
+                        2,
+                        "wmic",
+                        [
+                            "path",
+                            "win32_VideoController",
+                            "get",
+                            "name",
+                        ],
+                        3000,
+                    )
+                } finally {
+                    Object.defineProperty(process,
+                        "platform",
+                        {
+                            value: originalPlatform,
+                            configurable: true,
+                        })
+                }
             })
 
         it("returns no GPU when Linux has no display controller line",

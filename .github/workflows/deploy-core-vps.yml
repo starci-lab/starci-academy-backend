@@ -89,7 +89,7 @@ jobs:
           set -euo pipefail
           docker save "$IMAGE" | gzip -1 | ssh academy-vps 'gzip -d | docker load'
           ssh academy-vps "install -d -m 700 /home/nivo/academy/releases/$REVISION"
-          tar -czf - apps/core/production-compose.yaml apps/core/deploy-production.sh apps/core/judge0 |
+          tar -czf - apps/core/production-compose.yaml apps/core/deploy-production.sh apps/core/judge0 apps/core/setup-kibana-token.py |
             ssh academy-vps "tar -xzf - -C /home/nivo/academy/releases/$REVISION"
 
       - name: Deploy and verify readiness with rollback

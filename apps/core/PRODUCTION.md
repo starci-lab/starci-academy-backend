@@ -121,3 +121,13 @@ local dependency readiness; a present credential is not proof of provider health
 The default unit scripts run in one process, matching `test:ci`, to avoid the
 observed Windows Jest transform-cache `EPERM` race between concurrent workers.
 All unit test files remain selected.
+
+The hosted CI's disposable MinIO uses the same 2025-04-22 release, built from
+upstream commit `0d7408fc9969caf07de6a8c3a84f9fbb10a6739e` because the registry
+refuses its archived image. This test image does not replace restored production
+MinIO. To reproduce the disposable storage check locally:
+
+```bash
+docker build -t academy-ci/minio:release-20250422 testing-support/minio
+E2E_MINIO_IMAGE=academy-ci/minio:release-20250422 npm run test:e2e
+```
