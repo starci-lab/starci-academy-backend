@@ -42,7 +42,9 @@ must never appear in CI output, rendered Compose output, Git or image layers.
 The GitHub environment `core-vps` contains variables `VPS_HOST`, `VPS_USER`
 and `VPS_PORT`, plus secrets `VPS_SSH_KEY` and `VPS_KNOWN_HOSTS`. The SSH key
 is dedicated to Academy. Strict host-key checking is mandatory. The previous
-self-hosted runner is not used by either deployment or VPS Ops.
+self-hosted runner is not used by deployment, VPS Ops or Check Tokens.
+Check Tokens reuses the same protected SSH environment and reads credentials
+inside Core without putting them in command arguments or logs.
 
 `Deploy Core VPS` verifies the exact `main` revision before building
 `academy/core:<Git SHA>` on a GitHub-hosted runner. It streams the image over

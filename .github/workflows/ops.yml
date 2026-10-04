@@ -1,6 +1,11 @@
 name: VPS Ops
 
 on:
+  workflow_call:
+    inputs:
+      cmd:
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       cmd:
