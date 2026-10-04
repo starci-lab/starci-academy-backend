@@ -28,7 +28,7 @@ The retained domain names are `api.academy.starci.org`, `keycloak.starci.org`,
 `minio.starci.org`, `console.minio.starci.org` and `judge0.academy.starci.org`.
 
 Private host configuration lives in `config/core.env`, `keycloak.env`,
-`nats-server.conf` and `judge0.conf`, with a private parent directory. Raw
+`nats-server.conf`, `judge0.conf` and `kibana.env`, with a private parent directory. Raw
 Compose env files preserve literal password characters. The restored `.mount`
 is read-only in Core; `.datasources` remains writable and persistent. Secrets
 and backups use age custody to the shared public recipient
@@ -97,6 +97,13 @@ certificates after DNS points here; the shared resolver currently uses HTTP-01.
 Wildcard workspace ingress needs a separately verified workspace runtime and
 DNS-01 renewal setup before moving wildcard records.
 
+After restoring Elasticsearch, run `setup-kibana-token.py` before starting
+Kibana if its source file-based service token no longer authenticates. The
+script verifies the existing credential first, then creates an index-backed
+`elastic/kibana` token only when necessary and stores it in private custody.
+Re-encrypt custody after provisioning. Revoke obsolete tokens when retiring
+their restored deployment; these service tokens do not expire automatically.
+
 ## Integration research
 
 Read official documentation on 2026-10-04:
@@ -104,6 +111,7 @@ Read official documentation on 2026-10-04:
 - [GitHub Docker builds](https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images): hosted runners build the selected repository revision; this deployment transfers images directly and requires repository/environment access, not a registry token.
 - [Traefik file routing](https://doc.traefik.io/traefik/v3.6/reference/routing-configuration/other-providers/file/): the existing watched file provider can add independently named routers, services and certificates.
 - [Isolate upstream](https://github.com/ioi/isolate/tree/8f185bb37f3f23e29b33b0c7727c91c13429abe3): cgroup v2 delegation, sandbox privilege and aggregate resource accounting require actual execution tests on the destination.
+- [Elasticsearch service-token API](https://www.elastic.co/guide/en/elasticsearch/reference/8.12/security-api-create-service-token.html): provisioning requires `manage_service_account`; API-created tokens persist with security-index custody.
 
 No OAuth registration or public callback hostname changes are needed for the
 retained domains. The owner controls DNS cutover. Existing API-provider
