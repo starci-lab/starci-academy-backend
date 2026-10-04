@@ -1,2 +1,9 @@
 # sops ciphertext must survive checkout byte-for-byte; CRLF translation corrupts it.
 *.enc -text
+
+# Deployment files run on Linux, including archives produced from Windows.
+apps/core/deploy-production.sh text eol=lf
+apps/core/judge0/** text eol=lf
+apps/core/judge0/*.patch whitespace=-blank-at-eol
+apps/core/setup-kibana-token.py text eol=lf
+apps/core/production-custody.tar.gz.age -text
