@@ -336,6 +336,8 @@ describe("mock-interview grading replay preserves one durable grade",
                     {
                         enrollment,
                         promptId: "server-owned-prompt",
+                        // the live question loop is server-deadlined; keep the fixture inside its window
+                        expiresAt: new Date(Date.now() + 60 * 60 * 1000),
                         promptTitle: "Reliable notification delivery",
                         level: "middle",
                         lang: null,

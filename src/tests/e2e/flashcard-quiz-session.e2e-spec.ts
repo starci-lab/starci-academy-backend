@@ -150,7 +150,13 @@ describe("a learner completes a flashcard quiz and receives one durable reward",
                         request: input,
                     },
                 })
-                .expect(200)
+            // report the server's own failure body, not only the status code
+            expect({
+                status: response.status,
+                body: response.body,
+            }).toEqual(expect.objectContaining({
+                status: 200,
+            }))
             expect(response.body.errors).toBeUndefined()
             return response.body.data as T
         }

@@ -611,6 +611,8 @@ describe("AI socket streaming preserves one-answer and one-charge semantics",
                     {
                         enrollment,
                         promptId: "streaming-system-design",
+                        // the live question loop is server-deadlined; keep the fixture inside its window
+                        expiresAt: new Date(Date.now() + 60 * 60 * 1000),
                         promptTitle: "Design a reliable event pipeline",
                         level: "senior",
                         lang: null,
