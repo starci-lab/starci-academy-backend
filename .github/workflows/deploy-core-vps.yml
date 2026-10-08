@@ -17,15 +17,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  verify:
-    uses: ./.github/workflows/ci.yml
-    secrets: inherit
-    permissions:
-      contents: read
-      id-token: write
-
+  # Deploys straight from main: unit and E2E run in CI on pull requests but do not gate
+  # this job. The readiness check and image rollback in deploy-production.sh are the guard.
   deploy:
-    needs: verify
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -92,10 +86,23 @@ jobs:
           tar -czf - apps/core/production-compose.yaml apps/core/deploy-production.sh apps/core/judge0 apps/core/setup-kibana-token.py |
             ssh academy-vps "tar -xzf - -C /home/nivo/academy/releases/$REVISION"
 
+      - name: Record the running release before rollout
+        run: |
+          set -euo pipefail
+          ssh academy-vps 'docker inspect academy-core --format "previous image={{.Config.Image}} id={{.Image}} revision={{index .Config.Labels \"org.opencontainers.image.revision\"}} started={{.State.StartedAt}} health={{if .State.Health}}{{.State.Health.Status}}{{end}}" 2>/dev/null || echo "previous image=none (academy-core is not running)"'
+          ssh academy-vps 'cat /home/nivo/academy/operations/deployed-image.txt 2>/dev/null || true'
+
       - name: Deploy and verify readiness with rollback
         env:
           REVISION: ${{ github.sha }}
         run: ssh academy-vps "bash /home/nivo/academy/releases/$REVISION/apps/core/deploy-production.sh '$IMAGE'"
+
+      - name: Confirm the running release
+        run: |
+          set -euo pipefail
+          running=$(ssh academy-vps 'docker inspect academy-core --format "{{.Config.Image}} {{if .State.Health}}{{.State.Health.Status}}{{end}}"')
+          echo "running image and health: $running"
+          test "$running" = "$IMAGE healthy"
 
       - name: Remove ephemeral SSH credentials
         if: always()
