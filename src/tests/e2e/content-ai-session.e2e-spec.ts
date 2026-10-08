@@ -121,6 +121,15 @@ import {
 import {
     TestHelpersModule 
 } from "@tests/helpers/test-helpers.module"
+import {
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
+import {
+    ProSubscriptionService,
+} from "@modules/bussiness/pro-subscription/pro-subscription.service"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -356,9 +365,13 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                     CqrsModule,
                 ],
                 providers: [
-                // satisfies "Query root type must be provided" -- this module
-                // registers only mutation resolvers, so the generated schema
-                // needs a no-op root `@Query` to pass validation at `app.init()`.
+                    // REAL -- Pro entitlement composes with legacy enrollment for learner access
+                    EffectiveLearnerAccessService,
+                    ProSubscriptionService,
+                    DayjsService,
+                    // satisfies "Query root type must be provided" -- this module
+                    // registers only mutation resolvers, so the generated schema
+                    // needs a no-op root `@Query` to pass validation at `app.init()`.
                     CreateContentAiSessionResolver,
                     DeleteContentAiSessionResolver,
                     RenameContentAiSessionResolver,

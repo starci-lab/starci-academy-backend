@@ -168,6 +168,12 @@ import {
 import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
+import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
+import {
+    ProSubscriptionService,
+} from "@modules/bussiness/pro-subscription/pro-subscription.service"
 
 const ASK_CONTENT_AI_MUTATION = `
     mutation Ask($request: AskContentAiRequest!) {
@@ -344,6 +350,9 @@ describe("AI provider fallback preserves health, billing and attribution",
                     CqrsModule,
                 ],
                 providers: [
+                    // REAL -- Pro entitlement composes with legacy enrollment for learner access
+                    EffectiveLearnerAccessService,
+                    ProSubscriptionService,
                     ...createAiE2eRedisProviders(),
                     CacheService,
                     AskContentAiResolver,

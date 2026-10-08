@@ -115,6 +115,15 @@ import {
 import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
+import {
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
+import {
+    ProSubscriptionService,
+} from "@modules/bussiness/pro-subscription/pro-subscription.service"
 
 const POSTGRESQL_PRIMARY = "primary"
 
@@ -165,6 +174,10 @@ describe("a learner completes a resumable flashcard review session",
                     CqrsModule,
                 ],
                 providers: [
+                    // REAL -- Pro entitlement composes with legacy enrollment for learner access
+                    EffectiveLearnerAccessService,
+                    ProSubscriptionService,
+                    DayjsService,
                     StartFlashcardReviewSessionResolver,
                     StartFlashcardReviewSessionService,
                     StartFlashcardReviewSessionHandler,

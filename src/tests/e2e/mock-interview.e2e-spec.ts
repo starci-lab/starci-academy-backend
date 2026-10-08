@@ -117,6 +117,15 @@ import {
 import type {
     FlowWorld,
 } from "@tests/helpers/flow-world"
+import {
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
+import {
+    ProSubscriptionService,
+} from "@modules/bussiness/pro-subscription/pro-subscription.service"
 
 /** A learner runs a mock interview and receives a persisted grade. */
 describe("a learner runs a mock interview and receives a grade",
@@ -217,6 +226,10 @@ describe("a learner runs a mock interview and receives a grade",
                     }),
                 },
                 providers: [
+                    // REAL -- Pro entitlement composes with legacy enrollment for learner access
+                    EffectiveLearnerAccessService,
+                    ProSubscriptionService,
+                    DayjsService,
                     UserService,
                     MockInterviewSessionDrawService,
                     StartMockInterviewSessionResolver,

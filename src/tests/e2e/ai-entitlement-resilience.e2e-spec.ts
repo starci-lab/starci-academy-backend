@@ -109,6 +109,12 @@ import {
 import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
+import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
+import {
+    ProSubscriptionService,
+} from "@modules/bussiness/pro-subscription/pro-subscription.service"
 
 const POSTGRESQL_PRIMARY = "primary"
 const CREDIT_LIMIT = 10
@@ -211,6 +217,9 @@ describe("AI entitlement first-use and concurrent debit resilience (e2e)",
                     CqrsModule,
                 ],
                 providers: [
+                    // REAL -- Pro entitlement composes with legacy enrollment for learner access
+                    EffectiveLearnerAccessService,
+                    ProSubscriptionService,
                     AskContentAiResolver,
                     AskContentAiService,
                     AskContentAiHandler,

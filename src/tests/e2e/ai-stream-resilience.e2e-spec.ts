@@ -200,6 +200,12 @@ import {
 import {
     until,
 } from "@tests/helpers/flow-wait"
+import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
+import {
+    ProSubscriptionService,
+} from "@modules/bussiness/pro-subscription/pro-subscription.service"
 
 interface StreamChunkFixture {
     text: string
@@ -471,6 +477,9 @@ describe("AI socket streaming preserves one-answer and one-charge semantics",
                     }),
                 ],
                 providers: [
+                    // REAL -- Pro entitlement composes with legacy enrollment for learner access
+                    EffectiveLearnerAccessService,
+                    ProSubscriptionService,
                     ...createAiE2eRedisProviders(),
                     CacheService,
                     AiInvokeService,

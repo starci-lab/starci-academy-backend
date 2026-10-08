@@ -201,6 +201,12 @@ import {
 import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
+import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
+import {
+    ProSubscriptionService,
+} from "@modules/bussiness/pro-subscription/pro-subscription.service"
 
 const MODEL_NAME = "e2e-mock-interview-grader"
 const MODEL_CREDIT = 4
@@ -482,6 +488,9 @@ describe("mock-interview grading replay preserves one durable grade",
                     CqrsModule,
                 ],
                 providers: [
+                    // REAL -- Pro entitlement composes with legacy enrollment for learner access
+                    EffectiveLearnerAccessService,
+                    ProSubscriptionService,
                     ...createAiE2eRedisProviders(),
                     CacheService,
                     GradeMockInterviewSessionResolver,

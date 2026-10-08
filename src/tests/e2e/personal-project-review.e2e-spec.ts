@@ -317,6 +317,12 @@ import {
 import {
     until,
 } from "@tests/helpers/flow-wait"
+import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
+import {
+    ProSubscriptionService,
+} from "@modules/bussiness/pro-subscription/pro-subscription.service"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -526,6 +532,10 @@ describe("a learner submits a personal project and receives a durable review",
                     CqrsModule,
                 ],
                 providers: [
+                    // REAL -- Pro entitlement composes with legacy enrollment for learner access
+                    EffectiveLearnerAccessService,
+                    ProSubscriptionService,
+                    DayjsService,
                     // satisfies the GraphQL "Query root type must be provided"
                     // rule -- this module registers only mutation resolvers
                     SubmitPersonalGithubUrlResolver,
@@ -1337,6 +1347,9 @@ describe("a learner's personal project is reviewed by the durable worker",
                     ),
                 ],
                 providers: [
+                    // REAL -- Pro entitlement composes with legacy enrollment for learner access
+                    EffectiveLearnerAccessService,
+                    ProSubscriptionService,
                     ...createAiE2eRedisProviders(),
                     createSuperJsonServiceProvider(),
                     ReviewPersonalProjectTaskResolver,

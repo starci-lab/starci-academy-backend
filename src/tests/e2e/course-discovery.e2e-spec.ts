@@ -74,6 +74,21 @@ import {
 import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
+import {
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
+    EffectiveLearnerAccessService,
+} from "@modules/bussiness/pro-subscription/effective-learner-access.service"
+import {
+    ProSubscriptionService,
+} from "@modules/bussiness/pro-subscription/pro-subscription.service"
+import {
+    UserService,
+} from "@modules/bussiness/user/user.service"
 
 /** A visitor searches the catalogue, accepts a suggestion, and opens its course. */
 describe("a visitor discovers a course and opens its public catalogue entry",
@@ -143,6 +158,19 @@ describe("a visitor discovers a course and opens its public catalogue entry",
                     CqrsModule,
                 ],
                 providers: [
+                    // REAL -- Pro entitlement composes with legacy enrollment for learner access
+                    EffectiveLearnerAccessService,
+                    ProSubscriptionService,
+                    DayjsService,
+                    UserService,
+                    {
+                        provide: CacheService,
+                        useValue: {
+                            get: jest.fn().mockResolvedValue(undefined),
+                            set: jest.fn().mockResolvedValue(undefined),
+                            del: jest.fn().mockResolvedValue(undefined),
+                        },
+                    },
                     CoursesResolver,
                     CoursesService,
                     CoursesHandler,
