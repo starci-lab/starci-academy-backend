@@ -419,6 +419,8 @@ describe("an enrolled learner pairs a playground agent and completes a step",
                 )
                 agent.emit(PublicationEvent.PlaygroundResourcesReport,
                     {
+                        // lite verification runs only when the agent asks for it
+                        verificationRequested: true,
                         resources: [
                             {
                                 kind: "Container",
