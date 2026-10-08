@@ -396,6 +396,8 @@ describe("a learner's challenge submission is graded by the durable worker",
                     query: `
                         mutation Submit($request: SubmitChallengeSubmissionRequest!) {
                             submitChallengeSubmission(request: $request) {
+                                success
+                                error
                                 data { jobId }
                             }
                         }
@@ -410,6 +412,10 @@ describe("a learner's challenge submission is graded by the durable worker",
                 })
                 .expect(200)
             expect(response.body.errors).toBeUndefined()
+            // surface the typed failure instead of a null dereference when the submit is refused
+            expect(response.body.data.submitChallengeSubmission).toEqual(expect.objectContaining({
+                success: true,
+            }))
             return response.body.data.submitChallengeSubmission.data.jobId as string
         }
 
