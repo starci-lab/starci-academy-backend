@@ -79,7 +79,7 @@ export class SignInInitResolver {
         () => SignInResponse,
         {
             name: "signInInit",
-            description: "Verifies credentials, then opens an OTP challenge or completes an explicitly enabled local test session.",
+            description: "Verifies credentials, then completes the session, or opens an OTP challenge when the email OTP step is enabled.",
         },
     )
     async execute(

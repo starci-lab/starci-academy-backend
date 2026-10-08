@@ -93,7 +93,15 @@ describe("a locked-out learner resets the password and gets back in",
                 query, variables
             })
 
+        // These flows cover the opt-in email OTP step after password sign-in.
+        const originalEmailOtpEnabled = process.env.SIGN_IN_EMAIL_OTP_ENABLED
+        afterAll(() => {
+            if (originalEmailOtpEnabled === undefined) delete process.env.SIGN_IN_EMAIL_OTP_ENABLED
+            else process.env.SIGN_IN_EMAIL_OTP_ENABLED = originalEmailOtpEnabled
+        })
+
         beforeAll(async () => {
+            process.env.SIGN_IN_EMAIL_OTP_ENABLED = "true"
             const otpChallengeService = {
                 createActionChallenge: jest.fn(async (params: { email: string, payload: unknown }) => {
                     const id = "00000000-0000-4000-8000-000000000333"

@@ -11,11 +11,11 @@ import {
 } from "@modules/api/apollo/server/types/graphql-response"
 
 @ObjectType({
-    description: "Sign-in init payload: either an OTP challenge or a completed local test session.",
+    description: "Sign-in init payload: a completed session, or an OTP challenge when the email OTP step is enabled.",
 })
 /**
- * Public result of sign-in init. Production and ordinary users receive a
- * challenge; the explicitly enabled local test identity receives a session.
+ * Public result of sign-in init. Users receive a session directly; a challenge
+ * is returned only while the email OTP step is enabled.
  */
 export class SignInInitData {
     @Field(() => String,
@@ -35,7 +35,7 @@ export class SignInInitData {
     @Field(() => String,
         {
             nullable: true,
-            description: "Access token when an explicitly enabled local test sign-in completes immediately.",
+            description: "Access token when sign-in completes immediately (email OTP step disabled).",
         })
         accessToken?: string
 }
@@ -66,7 +66,7 @@ export class SignInResponse
     @Field(() => SignInInitData,
         {
             nullable: true,
-            description: "Sign-in challenge or completed local test session payload.",
+            description: "Completed session or sign-in challenge payload.",
         })
         data: SignInInitData
 }

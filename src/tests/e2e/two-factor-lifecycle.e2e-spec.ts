@@ -139,7 +139,15 @@ describe("a learner enables two-factor authentication and it is then required",
                 query, variables
             })
 
+        // These flows cover the opt-in email OTP step after password sign-in.
+        const originalEmailOtpEnabled = process.env.SIGN_IN_EMAIL_OTP_ENABLED
+        afterAll(() => {
+            if (originalEmailOtpEnabled === undefined) delete process.env.SIGN_IN_EMAIL_OTP_ENABLED
+            else process.env.SIGN_IN_EMAIL_OTP_ENABLED = originalEmailOtpEnabled
+        })
+
         beforeAll(async () => {
+            process.env.SIGN_IN_EMAIL_OTP_ENABLED = "true"
             const encryptionService = {
                 encrypt: ({ plainText }: EncryptParams) => ({
                     iv: "flow-iv", authTag: "flow-auth-tag", ciphertext: Buffer.from(plainText).toString("base64")

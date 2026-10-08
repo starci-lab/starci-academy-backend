@@ -51,6 +51,7 @@ const originalAuthEnv = {
     nodeEnv: process.env.NODE_ENV,
     bypassEnabled: process.env.LOCAL_TEST_AUTH_BYPASS_ENABLED,
     testEmail: process.env.DEV_TEST_ACCOUNT_EMAIL,
+    emailOtpEnabled: process.env.SIGN_IN_EMAIL_OTP_ENABLED,
 }
 
 const restoreEnv = (key: string, value: string | undefined): void => {
@@ -75,6 +76,8 @@ describe("SignInInitHandler",
             process.env.NODE_ENV = "test"
             process.env.LOCAL_TEST_AUTH_BYPASS_ENABLED = "false"
             process.env.DEV_TEST_ACCOUNT_EMAIL = "test@starci.local"
+            // the email OTP step is opt-in; most cases below exercise it switched on
+            process.env.SIGN_IN_EMAIL_OTP_ENABLED = "true"
             // OTP challenge issuer -- returns the new challenge handle + otp code
             otpChallengeService = {
                 createActionChallenge: jest.fn(),
@@ -163,7 +166,66 @@ describe("SignInInitHandler",
                 "DEV_TEST_ACCOUNT_EMAIL",
                 originalAuthEnv.testEmail,
             )
+            restoreEnv(
+                "SIGN_IN_EMAIL_OTP_ENABLED",
+                originalAuthEnv.emailOtpEnabled,
+            )
         })
+
+        it("completes the session without an email challenge when the OTP step is off by default",
+            async () => {
+                delete process.env.SIGN_IN_EMAIL_OTP_ENABLED
+                process.env.NODE_ENV = "production"
+                keycloakTokenService.exchangePasswordForToken.mockResolvedValueOnce({
+                    access_token: "access-1",
+                    refresh_token: "refresh-1",
+                } as never)
+
+                const result = await handler.execute(
+                    new SignInInitCommand({
+                        request: {
+                            email: "user@example.com",
+                            password: "secret",
+                        },
+                    }),
+                )
+
+                expect(result).toEqual({
+                    kind: "session",
+                    data: {
+                        accessToken: "access-1",
+                    },
+                    refreshToken: "refresh-1",
+                })
+                expect(otpChallengeService.createActionChallenge).not.toHaveBeenCalled()
+                expect(enqueueSendMailJobService.enqueue).not.toHaveBeenCalled()
+            })
+
+        it("still requires enrolled TOTP proof when the email OTP step is off",
+            async () => {
+                process.env.SIGN_IN_EMAIL_OTP_ENABLED = "false"
+                keycloakTokenService.exchangePasswordForToken.mockResolvedValueOnce({
+                    access_token: "access-1",
+                    refresh_token: "refresh-1",
+                } as never)
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "user-1",
+                    twoFactorEnabled: true,
+                    twoFactorSecret: JSON.stringify({
+                        ciphertext: "encrypted",
+                    }),
+                })
+
+                await expect(handler.execute(
+                    new SignInInitCommand({
+                        request: {
+                            email: "user@example.com",
+                            password: "secret",
+                        },
+                    }),
+                )).rejects.toBeInstanceOf(TwoFactorInvalidCodeException)
+                expect(jwtService.decode).not.toHaveBeenCalled()
+            })
 
         it("verifies the password, issues an OTP challenge and queues the email",
             async () => {

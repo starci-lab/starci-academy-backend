@@ -163,7 +163,15 @@ describe("a stranger registers, verifies, and signs in",
                     variables,
                 })
 
+        // These flows cover the opt-in email OTP step after password sign-in.
+        const originalEmailOtpEnabled = process.env.SIGN_IN_EMAIL_OTP_ENABLED
+        afterAll(() => {
+            if (originalEmailOtpEnabled === undefined) delete process.env.SIGN_IN_EMAIL_OTP_ENABLED
+            else process.env.SIGN_IN_EMAIL_OTP_ENABLED = originalEmailOtpEnabled
+        })
+
         beforeAll(async () => {
+            process.env.SIGN_IN_EMAIL_OTP_ENABLED = "true"
             world = await bootFlowWorld({
                 imports: [
                     ApolloServerModule.register({

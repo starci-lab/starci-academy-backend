@@ -69,8 +69,9 @@ import {
 @CommandHandler(SignInInitCommand)
 @Injectable()
 /**
- * Verifies password with Keycloak, parks the tokens on an OTP challenge, and
- * mails the code -- login is incomplete until verify consumes that challenge.
+ * Verifies password with Keycloak and completes the session. When the email
+ * OTP step is enabled it instead parks the tokens on an OTP challenge and mails
+ * the code -- login is then incomplete until verify consumes that challenge.
  */
 export class SignInInitHandler
     extends ICQRSHandler<SignInInitCommand, SignInInitResponse>
@@ -142,11 +143,15 @@ export class SignInInitHandler
                 })
             }
         }
-        const localTestAuth = envConfig().keycloak.localTestAuth
-        if (
-            localTestAuth.enabled
+        const {
+            localTestAuth,
+            signInEmailOtp,
+        } = envConfig().keycloak
+        const isLocalTestAccount = localTestAuth.enabled
             && email.trim().toLowerCase() === localTestAuth.email.trim().toLowerCase()
-        ) {
+        // With the email OTP step off, password (plus TOTP when enrolled) is the
+        // whole proof, so the session completes here for every account.
+        if (!signInEmailOtp.enabled || isLocalTestAccount) {
             const decoded = this.jwtService.decode<KeycloakJwtPayload>(tokenResponse.access_token)
             if (!decoded || typeof decoded === "string" || !decoded.sub) {
                 throw new KeycloakJwtInvalidPayloadException({

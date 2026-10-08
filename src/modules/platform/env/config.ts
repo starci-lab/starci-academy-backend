@@ -1754,6 +1754,16 @@ export const envConfig = () => ({
                 defaultValue: "test@starci.local",
             }),
         },
+        /**
+         * Email OTP step after password sign-in. Off by default so customers get a
+         * session straight from `signInInit`; authenticator 2FA is unaffected.
+         */
+        signInEmailOtp: {
+            enabled: parseEnvBoolean({
+                key: "SIGN_IN_EMAIL_OTP_ENABLED",
+                defaultValue: false,
+            }),
+        },
         admin: {
             clientId: parseEnvString({
                 key: "KEYCLOAK_ADMIN_CLIENT_ID",
